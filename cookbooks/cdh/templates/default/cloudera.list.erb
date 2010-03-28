@@ -1,0 +1,3 @@
+<%- repo = [ @node[:lsb][:codename], @node[:hadoop][:cdh_version] ].compact.join('-') %>
+deb http://archive.cloudera.com/debian <%= repo %> contrib
+deb-src http://archive.cloudera.com/debian <%= repo %> contrib
