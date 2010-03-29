@@ -1,0 +1,21 @@
+mkdir ~/.chef
+
+# copy the validation and webui keys into that directory
+# you will need to have an /etc/chef/webui.pem file, even though you shouldn't
+knife configure -i -k ~/.chef/webui.pem -s http://chef.infinitemonkeys.info:4000 -u webui
+
+# check it out
+knife ec2 instance data role[base_role]
+
+cat /etc/sv/chef-client/log/run
+
+
+cd ~/ics/sysadmin/chef-repo
+rake install
+rake upload_cookbooks
+
+
+knife role from file roles/base_role.rb
+knife node run_list add  "role[base_role]"
+
+knife cookbook upload sudo
