@@ -1,4 +1,4 @@
-to # Chef Client Config File
+# Chef Client Config File
 # Automatically grabs configuration from ohai ec2 metadata.
 
 require 'ohai'
@@ -7,18 +7,26 @@ require 'json'
 o = Ohai::System.new
 o.all_plugins
 node_launch_index = o[:ec2][:ami_launch_index]
-chef_config       = JSON.parse(o[:ec2][:userdata]) rescue nil
+# if the node_name is given, use that;
+# if the cluster_name is given, use 'cluster_name-node_launch_index';
+# otherwise use the instance_id.
+node_name = case
+            when o[:node_name]    then o[:node_name]
+            when o[:cluster_name] then [o[:cluster_name], node_launch_index].compact.join('-')
+            else o[:ec2][:instance_id]
+end
 
 log_level       :info
 log_location    STDOUT
 validation_key  "/etc/chef/validation.pem"
 client_key      "/etc/chef/client.pem"
 ssl_verify_mode :verify_none
-node_name        o[:ec2][:instance_id]
+node_name        node_name
 file_cache_path  "/srv/chef/cache"
 pid_file         "/var/run/chef/chef-client.pid"
 Mixlib::Log::Formatter.show_time = true
 
+chef_config       = JSON.parse(o[:ec2][:userdata]) rescue nil
 if ! chef_config.nil?  # Yays we got user-data to config with
 
   # If it's an array, assume it's for a robot army of similar machines, and
