@@ -18,12 +18,11 @@
 #
 
 include_recipe "cdh"
-hadoop_name = ['hadoop', node[:hadoop][:version]].compact.join('-')
 
-package "#{hadoop_name}-conf-pseudo"
+package "#{node[:hadoop][:hadoop_handle]}-conf-pseudo"
 
 %w{namenode secondarynamenode datanode jobtracker tasktracker}.each do |d|
-  service "#{hadoop_name}-#{d}" do
+  service "#{node[:hadoop][:hadoop_handle]}-#{d}" do
     action [ :start, :enable ]
   end
 end

@@ -18,7 +18,6 @@
 #
 
 include_recipe "java"
-hadoop_name = ['hadoop', node[:hadoop][:version]].compact.join('-')
 
 execute "apt-get update" do
   action :nothing
@@ -35,6 +34,11 @@ template "/etc/apt/sources.list.d/cloudera.list" do
   notifies :run, resources("execute[apt-get update]"), :immediately
 end
 
-package "#{hadoop_name}"
-package "#{hadoop_name}-native"
+package "#{node[:hadoop][:hadoop_handle]}"
+package "#{node[:hadoop][:hadoop_handle]}-native"
 
+template "/etc/hadoop/conf/raw_settings.yaml" do
+  owner "root"
+  mode "0644"
+  source "raw_settings.yaml.erb"
+end

@@ -1,8 +1,8 @@
 #
 # Cookbook Name:: hadoop
-# Recipe:: worker
+# Recipe:: cloudera_desktop
 #
-# Copyright 2009, Opscode, Inc.
+# Copyright 2010, Infochimps, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,8 +19,18 @@
 
 include_recipe "cdh"
 
-%w{datanode tasktracker}.each do |d|
-  service "#{node[:hadoop][:hadoop_handle]}-#{d}" do
-    action [ :start, :enable ]
-  end
+# package 'python-devel'   # on redhat-ish
+package 'libxslt1.1'
+package 'cloudera-desktop'
+package 'cloudera-desktop-plugins'
+
+template '/usr/share/cloudera-desktop/conf/cloudera-desktop.ini' do
+  owner "root"
+  mode "0644"
+  source "cloudera_desktop.ini.erb"
 end
+
+service "cloudera_desktop" do
+  action [ :start, :enable ]
+end
+

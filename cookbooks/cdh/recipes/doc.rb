@@ -18,6 +18,4 @@
 #
 
 include_recipe "java"
-hadoop_name = ['hadoop', node[:hadoop][:version]].compact.join('-')
-
-package "#{hadoop_name}-doc"
+package "#{node[:hadoop][:hadoop_handle]}-doc"

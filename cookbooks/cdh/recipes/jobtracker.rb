@@ -18,10 +18,9 @@
 #
 
 include_recipe "cdh"
-hadoop_name = ['hadoop', node[:hadoop][:version]].compact.join('-')
 
 %w{jobtracker}.each do |d|
-  service "#{HADOOP_NAME}-#{d}" do
+  service "#{node[:hadoop][:hadoop_handle]}-#{d}" do
     action [ :start, :enable ]
   end
 end

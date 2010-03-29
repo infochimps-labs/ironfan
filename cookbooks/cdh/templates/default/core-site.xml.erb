@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+<property>
+  <name>fs.checkpoint.dir</name>
+  <value><%= node[:hadoop][:fs_checkpoint_dirs] %></value>
+  <final>true</final>
+</property>
+<property>
+  <name>fs.default.name</name>
+  <value>hdfs://<%= node[:hadoop][:namenode_hostname] %>:8020/</value>
+</property>
+<property>
+  <name>fs.trash.interval</name>
+  <value>360</value>
+  <final>true</final>
+</property>
+<property>
+  <name>hadoop.tmp.dir</name>
+  <value>/mnt/tmp/hadoop-\${user.name}</value>
+  <final>true</final>
+</property>
+<property>
+  <name>io.file.buffer.size</name>
+  <value>65536</value>
+</property>
+<property>
+  <name>hadoop.rpc.socket.factory.class.default</name>
+  <value>org.apache.hadoop.net.StandardSocketFactory</value>
+  <final>true</final>
+</property>
+<property>
+  <name>hadoop.rpc.socket.factory.class.ClientProtocol</name>
+  <value></value>
+  <final>true</final>
+</property>
+<property>
+  <name>hadoop.rpc.socket.factory.class.JobSubmissionProtocol</name>
+  <value></value>
+  <final>true</final>
+</property>
+<property>
+  <name>io.compression.codecs</name>
+  <value>org.apache.hadoop.io.compress.DefaultCodec,org.apache.hadoop.io.compress.GzipCodec,org.apache.hadoop.io.compress.BZip2Codec</value>
+</property>
+<property>
+  <name>fs.s3.awsAccessKeyId</name>
+  <value><%= node[:aws][:aws_access_key] %></value>
+</property>
+<property>
+  <name>fs.s3.awsSecretAccessKey</name>
+  <value><%= node[:aws][:aws_secret_access_key] %></value>
+</property>
+<property>
+  <name>fs.s3n.awsAccessKeyId</name>
+  <value><%= node[:aws][:aws_access_key] %></value>
+</property>
+<property>
+  <name>fs.s3n.awsSecretAccessKey</name>
+  <value><%= node[:aws][:aws_secret_access_key] %></value>
+</property>
+</configuration>

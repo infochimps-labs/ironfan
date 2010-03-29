@@ -17,7 +17,9 @@ knife cookbook upload apt aws bootstrap build-essential chef couchdb ec2 emacs g
 
 knife cookbook upload sudo cdh
 
-knife role from file roles/base_role.rb
-knife node run_list add  "role[base_role]"
+for foo in roles/*.rb  ; do echo $foo ; knife role from file $foo ; done
+
+knife node run_list add XXX  "role[base_role]"
+
 
 knife cookbook upload sudo

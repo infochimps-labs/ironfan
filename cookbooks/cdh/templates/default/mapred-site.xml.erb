@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+<property>
+  <name>mapred.child.java.opts</name>
+  <value><%= node[:hadoop][:java_child_opts] %></value>
+</property>
+<property>
+  <name>mapred.child.ulimit</name>
+  <value><%= node[:hadoop][:java_child_ulimit] %></value>
+  <final>true</final>
+</property>
+<property>
+  <name>mapred.job.tracker</name>
+  <value><%= node[:hadoop][:jobtracker_hostname] %>:8021</value>
+</property>
+<property>
+  <name>mapred.job.tracker.handler.count</name>
+  <value>5</value>
+  <final>true</final>
+</property>
+<property>
+  <name>mapred.local.dir</name>
+  <value><%= node[:hadoop][:mapred_local_dirs] %></value>
+  <final>true</final>
+</property>
+<property>
+  <name>mapred.map.tasks.speculative.execution</name>
+  <value>true</value>
+</property>
+<property>
+  <name>mapred.reduce.parallel.copies</name>
+  <value>10</value>
+</property>
+<property>
+  <name>mapred.reduce.tasks</name>
+  <value><%= node[:hadoop][:cluster_reduce_tasks] %></value>
+</property>
+<property>
+  <name>mapred.reduce.tasks.speculative.execution</name>
+  <value>false</value>
+</property>
+<property>
+  <name>mapred.submit.replication</name>
+  <value>10</value>
+</property>
+<property>
+  <name>mapred.system.dir</name>
+  <value>/hadoop/system/mapred</value>
+</property>
+<property>
+  <name>mapred.tasktracker.map.tasks.maximum</name>
+  <value><%= node[:hadoop][:max_map_tasks] %></value>
+  <final>true</final>
+</property>
+<property>
+  <name>mapred.tasktracker.reduce.tasks.maximum</name>
+  <value><%= node[:hadoop][:max_reduce_tasks] %></value>
+  <final>true</final>
+</property>
+<property>
+  <name>tasktracker.http.threads</name>
+  <value>66</value>
+  <final>true</final>
+</property>
+<property>
+  <name>mapred.jobtracker.taskScheduler</name>
+  <value>org.apache.hadoop.mapred.FairScheduler</value>
+</property>
+<property>
+  <name>mapred.fairscheduler.allocation.file</name>
+  <value>/etc/<%= node[:hadoop][:hadoop_handle] %>/conf.dist/fairscheduler.xml</value>
+</property>
+<property>
+  <name>mapred.compress.map.output</name>
+  <value>true</value>
+</property>
+<property>
+  <name>mapred.output.compression.type</name>
+  <value>BLOCK</value>
+</property>
+<!-- Start Cloudera Desktop -->
+<property>
+  <name>mapred.jobtracker.plugins</name>
+  <value>org.apache.hadoop.thriftfs.ThriftJobTrackerPlugin</value>
+  <description>Comma-separated list of jobtracker plug-ins to be activated.
+  </description>
+</property>
+<!-- End Cloudera Desktop -->
+</configuration>

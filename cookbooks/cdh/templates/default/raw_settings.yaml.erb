@@ -1,0 +1,27 @@
+--
+# This file just shows the attributes chef used to configure the cluster
+
+:hadoop_handle:        <%= node[:hadoop][:hadoop_handle]             %>
+:cdh_version:          <%= node[:hadoop][:cdh_version]               %>
+:dfs_replication:      <%= node[:hadoop][:dfs_replication]           %>
+:disks_to_prep:        <%= node[:hadoop][:disks_to_prep].inspect     %>
+:mapred_local_dirs:    <%= node[:hadoop][:mapred_local_dirs]         %>
+:max_map_tasks:        <%= node[:hadoop][:max_map_tasks]             %>
+:max_reduce_tasks:     <%= node[:hadoop][:max_reduce_tasks]          %>
+:cluster_reduce_tasks: <%= node[:hadoop][:cluster_reduce_tasks]      %>
+:child_opts:           <%= node[:hadoop][:java_child_opts]           %>
+:child_ulimit:         <%= node[:hadoop][:java_child_ulimit]         %>
+:dfs_name_dirs:        <%= node[:hadoop][:dfs_name_dirs]             %>
+:fs_checkpoint_dirs:   <%= node[:hadoop][:fs_checkpoint_dirs]        %>
+:dfs_data_dirs:        <%= node[:hadoop][:dfs_data_dirs]             %>
+
+:namenode_hostname:    <%= node[:hadoop][:namenode_hostname]         %>            
+:jobtracker_hostname:  <%= node[:hadoop][:jobtracker_hostname]       %>            
+
+<%- memory_in_bytes = node[:memory][:total].gsub(/kB$/, '').to_i * 1024 %>
+:n_cpus:               <%= node[:cpu][:total] %>
+:memory_total:         <%= memory_in_bytes %>
+
+
+:all:                  >-
+  <%= node[:hadoop].to_hash.inspect %>

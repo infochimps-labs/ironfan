@@ -1,0 +1,7 @@
+[hadoop]
+[[hdfs_clusters]]
+[[[default]]]
+namenode_host=<%= node[:hadoop][:namenode_hostname] %>
+[[mapred_clusters]]
+[[[default]]]
+jobtracker_host=<%= node[:hadoop][:jobtracker_hostname] %>
