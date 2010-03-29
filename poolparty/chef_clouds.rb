@@ -1,7 +1,16 @@
 require File.dirname(__FILE__)+'/../settings'
 
+# cloud-start -n master -c ~/ics/sysadmin/chef-repo/poolparty/chef_clouds.rb
+# cloud-start -n slave  -c ~/ics/sysadmin/chef-repo/poolparty/chef_clouds.rb
+# cloud-ssh -n slave    -c ~/ics/sysadmin/chef-repo/poolparty/chef_clouds.rb
+# If you're west,
+# export EC2_URL=https://us-west-1.ec2.amazonaws.com
+
 POOL_NAME     = 'clyde'
 POOL_SETTINGS = Settings[:pools][POOL_NAME.to_sym]
+
+# TODO:
+# * auto_shutdown
 
 AMIS = {
   :canonical_ubuntu_910 => {
