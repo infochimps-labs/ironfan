@@ -1,0 +1,34 @@
+h1. An EBS-backed Hadoop Cluster using Chef and Poolparty
+
+
+
+h2. Running the cloud scripts
+
+If you're west, first run from the shell
+<pre><code>
+  export EC2_URL=https://us-west-1.ec2.amazonaws.com
+<pre><code>
+
+Once everything's set up, you should be able to run
+
+* @cloud-start -n server  -c clouds/chef_clouds.rb@
+* @cloud-start -n master  -c clouds/hadoop_clouds.rb@
+* @cloud-start -n slave   -c clouds/hadoop_clouds.rb@
+
+You might also find these commands useful:
+
+* @cloud-ssh   -n server   -c clouds/chef_clouds.rb@
+
+h3. Instance attributes: disable_api_termination and delete_on_termination
+
+To set delete_on_termination to 'true' after the fact, run the following
+<pre><code>
+  ec2-modify-instance-attribute -v i-0704be6c --block-device-mapping /dev/sda1=vol-e98d2c80::true
+</code></pre>
+(You'll have to modify the instance and volume to suit)
+  
+If you set disable_api_termination to true, in order to terminate the node run
+<pre><code>
+  ec2-modify-instance-attribute -v i-0704be6c --disable-api-termination false
+</code></pre>
+
