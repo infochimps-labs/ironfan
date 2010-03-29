@@ -7,6 +7,9 @@ set[:hadoop][:cluster_reduce_tasks] = 27
 
 set[:hadoop][:dfs_replication] = 3
 
+set[:groups]['hadoop'    ][:gid] = 300
+set[:groups]['supergroup'][:gid] = 301
+
 size        = 'm1.small'
 ebs_volumes = []
 using_ebs   = false

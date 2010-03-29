@@ -7,5 +7,4 @@ run_list *%w[
 ]
 
 default_attributes({
-    :nfs_mounts => ['/home', { :owner => 'root', :device => '' }],
   })

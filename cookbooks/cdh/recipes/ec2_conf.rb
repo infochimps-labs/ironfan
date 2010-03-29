@@ -49,10 +49,10 @@ def make_hadoop_dir dir
     recursive true
   end
 end
-node[:hadoop][:disks_to_prep].each{ |mnt| make_hadoop_dir "#{mnt}/hadoop" }
-node[:hadoop][:dfs_name_dirs].split(',').each{|dir| make_hadoop_dir(dir) }
-node[:hadoop][:dfs_data_dirs].split(',').each{|dir| make_hadoop_dir(dir) }
-node[:hadoop][:mapred_local_dirs].split(',').each{|dir| make_hadoop_dir(dir) }
+node[:hadoop][:disks_to_prep     ].each{ |mnt| make_hadoop_dir "#{mnt}/hadoop" }
+node[:hadoop][:dfs_name_dirs     ].split(',').each{|dir| make_hadoop_dir(dir) }
+node[:hadoop][:dfs_data_dirs     ].split(',').each{|dir| make_hadoop_dir(dir) }
+node[:hadoop][:mapred_local_dirs ].split(',').each{|dir| make_hadoop_dir(dir) }
 node[:hadoop][:fs_checkpoint_dirs].split(',').each{|dir| make_hadoop_dir(dir) }
 directory '/mnt/tmp' do
   owner     'hadoop'
@@ -63,6 +63,8 @@ directory '/mnt/tmp' do
 end
 hadoop_log_dir = '/mnt/hadoop/logs'
 make_hadoop_dir(hadoop_log_dir)
+directory("/var/log/hadoop"){ action :delete ; recursive true }
+directory("/var/log/#{node[:hadoop][:hadoop_handle]}"){ action :delete ; recursive true }
 link("/var/log/hadoop"                          ){ to hadoop_log_dir }
 link("/var/log/#{node[:hadoop][:hadoop_handle]}"){ to hadoop_log_dir }
 
@@ -71,8 +73,9 @@ link("/var/log/#{node[:hadoop][:hadoop_handle]}"){ to hadoop_log_dir }
 #
 hadoop_env_file = "/etc/#{node[:hadoop][:hadoop_handle]}/conf/hadoop-env.sh"
 # Keep PID files in a non-temporary directory
-make_hadoop_dir('/var/run/hadoop')
-link('/var/run/hadoop-0.20'){ to '/var/run/hadoop' }
+directory("/var/rub/hadoop"){ action :delete ; recursive true }
+make_hadoop_dir('/var/run/hadoop-0.20')
+link('/var/run/hadoop'){ to '/var/run/hadoop-0.20' }
 execute 'fix_hadoop_env-pid' do
   command %Q{sed -i -e "s|# export HADOOP_PID_DIR=.*|export HADOOP_PID_DIR=/var/run/hadoop|" #{hadoop_env_file}}
 end
@@ -85,7 +88,7 @@ end
 # Format Namenode
 #
 execute 'format_namenode' do
-  command %Q{hadoop namenode -format}
+  command %Q{yes 'Y' | hadoop namenode -format}
   user 'hadoop'
   creates '/mnt/hadoop/hdfs/name/current/VERSION'
   creates '/mnt/hadoop/hdfs/name/current/fsimage'
