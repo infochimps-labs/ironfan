@@ -1,0 +1,22 @@
+<html>
+  <head>
+    <title>Hadoop EC2 Cluster</title>
+  </head>
+  
+  <body>
+    <h1>Hadoop EC2 Cluster</h1>
+    To browse the cluster you need to have a proxy configured.
+    Start the proxy with <tt>hadoop-ec2 proxy &lt;cluster_name&gt;</tt>,
+    and point your browser to
+    <a href="http://cloudera-public.s3.amazonaws.com/ec2/proxy.pac">this Proxy
+      Auto-Configuration (PAC)</a> file.  To manage multiple proxy configurations,
+    you may wish to use
+    <a href="https://addons.mozilla.org/en-US/firefox/addon/2464">FoxyProxy</a>.
+    <ul>
+      <li><a href="http://<%= node[:hadoop][:namenode_hostname] %>:50070/">NameNode</a>
+      <li><a href="http://<%= node[:hadoop][:jobtracker_hostname] %>:50030/">JobTracker</a>
+      <li><a href="http://<%= node[:hadoop][:jobtracker_hostname] %>:8088/">Cloudera Desktop</a>
+    </ul>
+  </body>
+  
+</html>

@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: hadoop
-# Recipe:: jobtracker
+# Recipe:: hadoop_webfront
 #
 # Copyright 2009, Opscode, Inc.
 #
@@ -17,11 +17,22 @@
 # limitations under the License.
 #
 
-include_recipe "cdh"
-package "#{node[:hadoop][:hadoop_handle]}-jobtracker"
+#
+# Make a quickie little web server to
+# let you easily jump to the namenode, jobtracker or cloudera_desktop
+#
 
-%w{jobtracker}.each do |d|
-  service "#{node[:hadoop][:hadoop_handle]}-#{d}" do
-    action [ :start, :enable ]
-  end
+package 'thttpd'
+
+www_base = '/var/www/' 
+# www_base = '/var/www/thttpd/html' # redhat
+  
+template "#{www_base}/index.html" do
+  owner "root"
+  mode "0644"
+  source "webfront_index.html.erb"
+end
+
+service "thttpd" do
+  action [ :start, :enable ]
 end

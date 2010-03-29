@@ -18,6 +18,7 @@
 #
 
 include_recipe "cdh"
+package "#{node[:hadoop][:hadoop_handle]}-namenode"
 
 %w{namenode secondarynamenode}.each do |d|
   service "#{node[:hadoop][:hadoop_handle]}-#{d}" do
