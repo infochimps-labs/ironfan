@@ -1,0 +1,15 @@
+{
+  "bootstrap": {
+    "chef": {
+      "url_type":       "http",
+      "init_style":     "runit",
+      "server_port":    "4000",
+      "webui_port":     "4040",
+      "webui_enabled":  true,
+      "path":           "/srv/chef",
+      "serve_path":     "/srv/chef",
+      "server_fqdn":    "chef.infinitemonkeys.info"
+    }
+  },
+  "run_list": [ "recipe[bootstrap::server]" ]
+}

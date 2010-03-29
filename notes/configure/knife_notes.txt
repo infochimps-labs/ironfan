@@ -1,0 +1,9 @@
+mkdir ~/.chef
+
+# copy the validation and webui keys into that directory
+knife configure -i
+
+knife ec2 instance data role[base_role]
+
+
+cat /etc/sv/chef-client/log/run

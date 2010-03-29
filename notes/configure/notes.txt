@@ -1,0 +1,34 @@
+    hadoop do
+      configure_master
+      prep_example_job
+      # run_example_job
+      create_client_user('hadoop_client') # NOTE! this creates a hadoop_client user! no password
+                                          # login or authorized keys though, just thought you should know
+    end
+
+    # home dir
+    ebs_volumes do
+      size 		50
+      device            "/dev/sdi"
+      snapshot_id       "snap-a5b0c899"
+      volumes           "vol-1", "vol-1"
+    end
+
+    # HDFS dirs
+    ebs_volumes do
+      size 		50
+      device            "/dev/sdi"
+      snapshot_id       "snap-a5b0c899"
+      volumes           "vol-1", "vol-1"
+    end
+
+      p [
+        cloud.keypair,
+        cloud.security_groups.map {|a|
+        a.authorizes.map {|t| t.from_port.to_i }.flatten
+      }.flatten.include?(22) || 'not in security group' ,
+        reachable?           || 'unreachable',
+        in_service?          || 'not in service',
+        keypair              || 'no keypair',
+        keypair.exists?      || 'keypair does not exist']
+    
