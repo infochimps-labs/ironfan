@@ -11,6 +11,7 @@ run_list *%w[
   emacs
   git
   java
+  users
   ]
   # users::env
   # users::homes
@@ -18,13 +19,18 @@ run_list *%w[
 
 # Attributes applied if the node doesn't have it set already.
 default_attributes({
-    "base_role" => {
-      'home_base_dir'         => '/home',
-      'mnt_point'             => '/mnt',
-      'bin_dir'               => '/usr/local/bin',
-      'upstart_event_dir'     => '/etc/init',
-      'target_user'           => 'ubuntu',
+    :groups => {
+      'admin'      => { :gid => 116 },
+      'sudo'       => { :gid => 27 },
+      'supergroup' => { :gid => 1004 },
+      'hadoop'     => { :gid => 113 },
     },
+    :users => {
+      'hadoop' => { :uid => 107, :gid => 113, }
+      'flip' => { :gid => 1000, }
+    },
+    :active_users => %w[hadoop flip dhruv jacob carl ]
+
     :aws => {
       'aws_access_key'        => Settings[:access_key],
       'aws_secret_access_key' => Settings[:secret_access_key],

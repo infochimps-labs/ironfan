@@ -41,3 +41,12 @@ mapred.class=org.apache.hadoop.metrics.spi.NullContext
 # jvm.class=org.apache.hadoop.metrics.ganglia.GangliaContext
 # jvm.period=10
 # jvm.servers=localhost:8649
+
+#
+# for cloudera_desktop, change the above as follows (http://archive.cloudera.com/desktop/packages.html):
+#
+# # Exposes /metrics URL endpoint for metrics information.
+# dfs.class=org.apache.hadoop.metrics.spi.NoEmitMetricsContext
+# mapred.class=org.apache.hadoop.metrics.spi.NoEmitMetricsContext
+# jvm.class=org.apache.hadoop.metrics.spi.NoEmitMetricsContext
+# rpc.class=org.apache.hadoop.metrics.spi.NoEmitMetricsContext

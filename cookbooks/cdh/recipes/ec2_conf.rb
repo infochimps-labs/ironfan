@@ -20,8 +20,7 @@
 #
 # Configuration files
 #
-
-%w[core-site.xml  fairscheduler.xml  hdfs-site.xml  mapred-site.xml  hadoop-metrics.properties].each do |conf_file|
+%w[core-site.xml fairscheduler.xml hdfs-site.xml mapred-site.xml hadoop-metrics.properties].each do |conf_file|
   template "/etc/hadoop/conf/#{conf_file}" do
     owner "root"
     mode "0644"
@@ -32,16 +31,15 @@ end
 #
 # Mount big ephemeral drives
 #
-package 'xfsprogs'
-mount '/mnt2' do
+mount '/mnt' do
   device '/dev/sdc'
-  fstype 'xfs'
+  fstype 'ext3'  
 end
+# package 'xfsprogs'
 
 #
 # HDFS directories
 #
-
 def make_hadoop_dir dir
   directory dir do
     owner    "hadoop"
@@ -51,10 +49,10 @@ def make_hadoop_dir dir
     recursive true
   end
 end
-
 node[:hadoop][:disks_to_prep].each{ |mnt| make_hadoop_dir "#{mnt}/hadoop" }
 node[:hadoop][:dfs_name_dirs].split(',').each{|dir| make_hadoop_dir(dir) }
 node[:hadoop][:dfs_data_dirs].split(',').each{|dir| make_hadoop_dir(dir) }
+node[:hadoop][:mapred_local_dirs].split(',').each{|dir| make_hadoop_dir(dir) }
 node[:hadoop][:fs_checkpoint_dirs].split(',').each{|dir| make_hadoop_dir(dir) }
 directory '/mnt/tmp' do
   owner     'hadoop'
@@ -63,14 +61,18 @@ directory '/mnt/tmp' do
   action    :create
   recursive true
 end
+hadoop_log_dir = '/mnt/hadoop/logs'
+make_hadoop_dir(hadoop_log_dir)
+link("/var/log/hadoop"                          ){ to hadoop_log_dir }
+link("/var/log/#{node[:hadoop][:hadoop_handle]}"){ to hadoop_log_dir }
 
 #
 # Fix the hadoop-env.sh
 #
-hadoop_env_file = "/etc/#{node[:hadoop][:hadoop_handle]}/conf.dist/hadoop-env.sh"
+hadoop_env_file = "/etc/#{node[:hadoop][:hadoop_handle]}/conf/hadoop-env.sh"
 # Keep PID files in a non-temporary directory
 make_hadoop_dir('/var/run/hadoop')
-link('/var/run/hadoop'){ to '/var/run/hadoop-0.20' }
+link('/var/run/hadoop-0.20'){ to '/var/run/hadoop' }
 execute 'fix_hadoop_env-pid' do
   command %Q{sed -i -e "s|# export HADOOP_PID_DIR=.*|export HADOOP_PID_DIR=/var/run/hadoop|" #{hadoop_env_file}}
 end
@@ -79,11 +81,15 @@ execute 'fix_hadoop_env-ssh' do
   command %Q{sed -i -e 's|# export HADOOP_SSH_OPTS=.*|export HADOOP_SSH_OPTS="-o StrictHostKeyChecking=no"|' #{hadoop_env_file}}
 end
 
-hadoop_log_dir = '/mnt/hadoop/logs'
-make_hadoop_dir(hadoop_log_dir)
-link(hadoop_log_dir){ to "/var/log/hadoop" }
-link(hadoop_log_dir){ to "/var/log/#{node[:hadoop][:hadoop_handle]}" }
-
+#
+# Format Namenode
+#
+execute 'format_namenode' do
+  command %Q{hadoop namenode -format}
+  user 'hadoop'
+  creates '/mnt/hadoop/hdfs/name/current/VERSION'
+  creates '/mnt/hadoop/hdfs/name/current/fsimage'
+end
 
 # TODO: wait for mount
 # function wait_for_mount {
@@ -126,19 +132,12 @@ link(hadoop_log_dir){ to "/var/log/#{node[:hadoop][:hadoop_handle]}" }
 # }
 
 #
-# Format Namenode
+# Do work /on/ the HDFS
 #
-
-# if ! exists /mnt/hadoop/hdfs/name/current/fsimage /mnt/hadoop/hdfs/name/current/VERSION
-# hadoop namenode -format
 
 #
 # $AS_HADOOP "$HADOOP dfsadmin -safemode wait"
 #
-# TODO -- As the hadoop user,
-#   if the hdfs doesn't exist,
-#   run the namenode format command
-#     [ ! -e $FIRST_MOUNT/hadoop/hdfs ] && $AS_HADOOP "$HADOOP namenode -format"
 #
 # TODO -- Make the user dirs on the hdfs
 #   $HADOOP_COMMAND fs -mkdir /user

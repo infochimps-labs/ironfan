@@ -42,3 +42,10 @@ template "/etc/hadoop/conf/raw_settings.yaml" do
   mode "0644"
   source "raw_settings.yaml.erb"
 end
+
+# Create the group hadoop uses to mean 'can act as filesystem root'
+group 'supergroup' do
+  group_name 'supergroup'
+  gid    node[:groups]['supergroup'][:gid]
+  action [:create, :manage]
+end

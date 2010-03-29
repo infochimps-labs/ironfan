@@ -19,9 +19,12 @@
 
 include_recipe "cdh"
 package "#{node[:hadoop][:hadoop_handle]}-namenode"
+package "#{node[:hadoop][:hadoop_handle]}-secondarynamenode"
 
 %w{namenode secondarynamenode}.each do |d|
   service "#{node[:hadoop][:hadoop_handle]}-#{d}" do
-    action [ :start, :enable ]
+    action [ :enable, :start ]
+    running true
+    supports :status => true, :restart => true
   end
 end

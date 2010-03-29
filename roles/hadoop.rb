@@ -7,6 +7,7 @@ name 'hadoop'
 description 'applies to all nodes in the hadoop cluster'
 
 run_list *%w[
+  ec2::filesystems
   cdh
   cdh::pig
   cdh::ec2_conf
@@ -14,6 +15,10 @@ run_list *%w[
 
 # Attributes applied if the node doesn't have it set already.
 default_attributes({
+    # :ebs_volumes => [
+    #   '/ebs1' => { :type => 'xfs', :device => '/dev/sdj' }
+    #   '/ebs2' => { :type => 'xfs', :device => '/dev/sdk' }
+    # ],
     :hadoop => {
       :hadoop_handle => 'hadoop-0.20',
       :cdh_version   => 'cdh3',

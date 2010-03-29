@@ -24,6 +24,8 @@ package "#{node[:hadoop][:hadoop_handle]}-tasktracker"
 
 %w{datanode tasktracker}.each do |d|
   service "#{node[:hadoop][:hadoop_handle]}-#{d}" do
-    action [ :start, :enable ]
+    action [ :enable, :start ]
+    running true
+    supports :status => true, :restart => true
   end
 end
