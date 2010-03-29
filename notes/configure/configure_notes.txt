@@ -15,7 +15,7 @@ rake install
 
 knife cookbook upload apt aws bootstrap build-essential chef couchdb ec2 emacs gems git god java ruby rubygems runit ssh_known_hosts ubuntu xml zlib
 
-knife cookbook upload sudo cdh user nfs
+knife cookbook upload sudo cdh users nfs
 
 for foo in roles/*.rb  ; do echo $foo ; knife role from file $foo ; done
 
@@ -23,3 +23,6 @@ knife node run_list add XXX  "role[base_role]"
 
 
 knife cookbook upload sudo
+
+
+curl http://169.254.169.254/latest/user-data | zcat
