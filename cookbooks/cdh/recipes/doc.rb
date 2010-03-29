@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: hadoop
-# Recipe:: doc 
+# Recipe:: doc
 #
 # Copyright 2009, Opscode, Inc.
 #
@@ -18,5 +18,6 @@
 #
 
 include_recipe "java"
+hadoop_name = ['hadoop', node[:hadoop][:version]].compact.join('-')
 
-package "hadoop-doc"
+package "#{hadoop_name}-doc"

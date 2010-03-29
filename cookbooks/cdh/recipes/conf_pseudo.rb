@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: hadoop
-# Recipe:: conf_pseudo 
+# Recipe:: conf_pseudo
 #
 # Copyright 2009, Opscode, Inc.
 #
@@ -17,12 +17,13 @@
 # limitations under the License.
 #
 
-include_recipe "hadoop"
+include_recipe "cdh"
+hadoop_name = ['hadoop', node[:hadoop][:version]].compact.join('-')
 
-package "hadoop-conf-pseudo"
+package "#{hadoop_name}-conf-pseudo"
 
 %w{namenode secondarynamenode datanode jobtracker tasktracker}.each do |d|
-  service "hadoop-#{d}" do
+  service "#{hadoop_name}-#{d}" do
     action [ :start, :enable ]
   end
 end

@@ -18,9 +18,14 @@
 #
 
 include_recipe "java"
+hadoop_name = ['hadoop', node[:hadoop][:version]].compact.join('-')
 
 execute "apt-get update" do
   action :nothing
+end
+
+execute "curl -s http://archive.cloudera.com/debian/archive.key | apt-key add -" do
+  not_if "apt-key export 'Cloudera Apt Repository'"
 end
 
 template "/etc/apt/sources.list.d/cloudera.list" do
@@ -30,9 +35,6 @@ template "/etc/apt/sources.list.d/cloudera.list" do
   notifies :run, resources("execute[apt-get update]"), :immediately
 end
 
-execute "curl -s http://archive.cloudera.com/debian/archive.key | apt-key add -" do
-  not_if "apt-key export 'Cloudera Apt Repository'"
-end
-
-package "hadoop"
+package "#{hadoop_name}"
+package "#{hadoop_name}-native"
 

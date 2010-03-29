@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: hadoop
-# Recipe:: hive
+# Recipe:: jobtracker
 #
 # Copyright 2009, Opscode, Inc.
 #
@@ -18,5 +18,10 @@
 #
 
 include_recipe "cdh"
+hadoop_name = ['hadoop', node[:hadoop][:version]].compact.join('-')
 
-package "hadoop-hive"
+%w{jobtracker}.each do |d|
+  service "#{HADOOP_NAME}-#{d}" do
+    action [ :start, :enable ]
+  end
+end

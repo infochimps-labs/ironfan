@@ -16,17 +16,14 @@ Opscode cookbooks, http://github.com/opscode/cookbooks/tree/master:
 
 = ATTRIBUTES: 
 
-* hadoop[:mirror_url] - Get a mirror from http://www.apache.org/dyn/closer.cgi/hadoop/core/.
-* hadoop[:version] - Specify the version of hadoop to install.
-* hadoop[:uid] - Default userid of the hadoop user.
-* hadoop[:gid] - Default group for the hadoop user.
-* hadoop[:java_home] - You will probably want to change this to match where Java is installed on your platform.
+* hadoop[:version]     - Specify the version of hadoop to install. Default 0.20
+* hadoop[:cdh_version] - Specify the cloudera distribution version. Default is cdh3 -- see http://archive.cloudera.com/docs/_apt.html
 
 You may wish to add more attributes for tuning the configuration file templates.
 
 = USAGE:
 
-This cookbook performs the tasks described in the Hadoop Quick Start[1] to get the software installed. You should copy this to a site-cookbook and modify the templates to meet your requirements. 
+This cookbook installs hadoop from the cloudera CDH3 distribution[1] . You should copy this to a site-cookbook and modify the templates to meet your requirements. 
 
 Once the recipe is run, the distributed filesystem can be formated using the script /usr/bin/hadoop. 
 
@@ -34,19 +31,29 @@ Once the recipe is run, the distributed filesystem can be formated using the scr
   
 You may need to set up SSH keys for hadoop management commands. 
 
-Note that this is not the 'default' config per se, so using the start-all.sh script won't start the processes because the config files live elsewhere. For running various hadoop processes as services, we suggest runit. A sample 'run' script is provided. The HADOOP_LOG_DIR in the run script must exist for each process. These could be wrapped in a define. 
+The various hadoop processes are installed as services. Do NOT use the start-all.sh scripts.  
 
-* datanode
-* jobtracker
-* namenode
-* tasktracker
+The recipes correspond to different roles you'll probably assign: 
+* pseudo-conf       -- single machine pseudo-distributed mode
+* jobtracker        -- assigns and coordinates jobs
+* namenode          -- runs the namenode (coordinates the HDFS) and secondarynamenode (backs up the metadata file)
+* worker            -- runs the datanode and tasktracker
+* secondarynamenode -- additional secondarynamenode (backs up the metadata file).
 
+Assign node roles according to these rough guidelines:
 
-[1] http://hadoop.apache.org/core/docs/current/quickstart.html
+* For initial testing, use pseudo-conf mode.
+* For clusters of some to a dozen or so nodes, give the master node the jobtracker, namenode *and* worker roles.
+* For larger clusters, omit the worker role for the master node.
+* For huge clusters, run the jobtracker and namenode/secondarynamenode on different hosts.
+
+Note that the secondarynamenode is NOT a redundant namenode. All it does is make periodic backups of the HDFS metadata.
+
+[1] http://archive.cloudera.com/docs/
 
 = LICENSE and AUTHOR:
       
-Author:: Joshua Timberman (<joshua@opscode.com>)
+Author:: Joshua Timberman (<joshua@opscode.com>), Flip Kromer (<flip@infochimps.org>), much code taken from Tom White (<tom@cloudera.com>)'s hadoop-ec2 scripts
 
 Copyright:: 2009, Opscode, Inc
 

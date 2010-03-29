@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: hadoop
-# Recipe:: pig 
+# Recipe:: pig
 #
 # Copyright 2009, Opscode, Inc.
 #
@@ -17,6 +17,6 @@
 # limitations under the License.
 #
 
-include_recipe "hadoop"
+include_recipe "cdh"
 
-package "pig"
+package "hadoop-pig"
