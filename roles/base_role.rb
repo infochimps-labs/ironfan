@@ -10,6 +10,7 @@ run_list *%w[
   sudo
   emacs
   git
+  java
   ]
   # users::env
   # users::homes
@@ -30,7 +31,7 @@ default_attributes({
 
 
     },
-    :authorization => { :sudo => { :groups => ['admin'], :users => ['ubuntu', 'flip'] } }
+    :authorization => { :sudo => { :groups => ['admin'], :users => ['flip'] } }
   })
 
 # # Attributes applied no matter what the node has set already.
