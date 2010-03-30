@@ -31,7 +31,7 @@ template "/etc/apt/sources.list.d/cloudera.list" do
 end
 
 execute "curl -s http://archive.cloudera.com/debian/archive.key | apt-key add -" do
-  not_if "apt-key export 'Cloudera Apt Repository' | grep '--BEGIN PGP PUBLIC KEY'"
+  not_if "apt-key export 'Cloudera Apt Repository' | grep 'BEGIN PGP PUBLIC KEY'"
   notifies :run, resources("execute[apt-get update]"), :immediately
 end
 
@@ -43,7 +43,7 @@ group 'supergroup' do
 end
 group 'hadoop' do
   group_name 'hadoop'
-  gid    node[:groups]['hadoop'][:gid] 
+  gid    node[:groups]['hadoop'][:gid]
   action [:create, :manage]
 end
 

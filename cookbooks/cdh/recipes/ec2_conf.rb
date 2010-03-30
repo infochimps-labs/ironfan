@@ -33,13 +33,11 @@ end
 #
 mount '/mnt' do
   device '/dev/sdc'
-  fstype 'ext3'  
+  fstype 'ext3'
 end
 # package 'xfsprogs'
 
-#
-# HDFS directories
-#
+# TODO -- libraries?
 def make_hadoop_dir dir
   directory dir do
     owner    "hadoop"
@@ -49,6 +47,18 @@ def make_hadoop_dir dir
     recursive true
   end
 end
+def force_link dest, src
+  directory(dest) do
+    action :delete ; recursive true
+    not_if{ File.symlink?(dest) }
+  end
+  link(dest){ to src }
+end
+
+#
+# HDFS directories
+#
+
 node[:hadoop][:disks_to_prep     ].each{ |mnt| make_hadoop_dir "#{mnt}/hadoop" }
 node[:hadoop][:dfs_name_dirs     ].split(',').each{|dir| make_hadoop_dir(dir) }
 node[:hadoop][:dfs_data_dirs     ].split(',').each{|dir| make_hadoop_dir(dir) }
@@ -63,25 +73,24 @@ directory '/mnt/tmp' do
 end
 hadoop_log_dir = '/mnt/hadoop/logs'
 make_hadoop_dir(hadoop_log_dir)
-directory("/var/log/hadoop"){ action :delete ; recursive true }
-directory("/var/log/#{node[:hadoop][:hadoop_handle]}"){ action :delete ; recursive true }
-link("/var/log/hadoop"                          ){ to hadoop_log_dir }
-link("/var/log/#{node[:hadoop][:hadoop_handle]}"){ to hadoop_log_dir }
+force_link("/var/log/hadoop", hadoop_log_dir )
+force_link("/var/log/#{node[:hadoop][:hadoop_handle]}", hadoop_log_dir )
 
 #
 # Fix the hadoop-env.sh
 #
 hadoop_env_file = "/etc/#{node[:hadoop][:hadoop_handle]}/conf/hadoop-env.sh"
 # Keep PID files in a non-temporary directory
-directory("/var/rub/hadoop"){ action :delete ; recursive true }
 make_hadoop_dir('/var/run/hadoop-0.20')
-link('/var/run/hadoop'){ to '/var/run/hadoop-0.20' }
+force_link('/var/run/hadoop', '/var/run/hadoop-0.20')
 execute 'fix_hadoop_env-pid' do
   command %Q{sed -i -e "s|# export HADOOP_PID_DIR=.*|export HADOOP_PID_DIR=/var/run/hadoop|" #{hadoop_env_file}}
+  not_if %Q{grep "HADOOP_PID_DIR=/var/run/hadoop" #{hadoop_env_file}}
 end
 # Set SSH options within the cluster
 execute 'fix_hadoop_env-ssh' do
   command %Q{sed -i -e 's|# export HADOOP_SSH_OPTS=.*|export HADOOP_SSH_OPTS="-o StrictHostKeyChecking=no"|' #{hadoop_env_file}}
+  not_if %Q{grep 'export HADOOP_SSH_OPTS="-o StrictHostKeyChecking=no"' #{hadoop_env_file}}
 end
 
 #
