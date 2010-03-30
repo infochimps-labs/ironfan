@@ -1,2 +1,39 @@
-.rake_test_cache
+## OS
+.DS_Store
+Icon?
+nohup.out
 
+## EDITORS
+\#*
+.\#*
+*~
+*.swp
+REVISION
+TAGS*
+tmtags
+*_flymake.*
+*.tmproj
+.project
+.settings
+
+## COMPILED
+a.out
+*.o
+*.pyc
+*.so
+
+## OTHER SCM
+.bzr
+.hg
+.svn
+
+## PROJECT::GENERAL
+coverage
+rdoc
+doc
+pkg
+.yardoc
+*private*
+
+## PROJECT::SPECIFIC
+.rake_test_cache
