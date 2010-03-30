@@ -35,6 +35,9 @@ To modify an image:
 * make root login-able again
 * Nuke other sensitive dirs
 
+apt-get update
+apt-get upgrade
+updatedb
 
 ===========================================================================
 

@@ -13,7 +13,6 @@ log_location    STDOUT
 validation_key  "/etc/chef/validation.pem"
 client_key      "/etc/chef/client.pem"
 ssl_verify_mode :verify_none
-node_name        node_name
 file_cache_path  "/srv/chef/cache"
 pid_file         "/var/run/chef/chef-client.pid"
 Mixlib::Log::Formatter.show_time = true
@@ -31,13 +30,11 @@ if ! chef_config.nil?  # Yays we got user-data to config with
   validation_client_name chef_config["validation_client_name"]
 
   # if the node_name is given, use that;
-  # if the cluster_name is given, use 'cluster_name-node_launch_index';
   # otherwise use the instance_id.
-  node_name = case
-              when o[:node_name]    then o[:node_name]
-              when o[:cluster_name] then [o[:cluster_name], node_launch_index].compact.join('-')
-              else o[:ec2][:instance_id]
-              end
+  node_name case
+            when chef_config[:node_name]    then chef_config[:node_name]
+            else o[:ec2][:instance_id]
+            end
 
   # If the client file is missing, write the validation key out so chef-client
   # can register

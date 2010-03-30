@@ -1,7 +1,7 @@
 log_level                :info
 log_location             STDOUT
-node_name                'coolhand'
-client_key               '/Users/flip/.chef/coolhand.pem'
+node_name                'silverback'
+client_key               '/Users/flip/.chef/silverback.pem'
 validation_client_name   'chef-validator'
 validation_key           '/Users/flip/.chef/chef-validator.pem'
 chef_server_url          'http://chef.infinitemonkeys.info:4000'
