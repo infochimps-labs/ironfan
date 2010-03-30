@@ -11,7 +11,7 @@ POOL_SETTINGS = Settings[:pools][POOL_NAME.to_sym]
 # * auto_shutdown
 #
 def is_hadoop_node
-  image_id           AMIS[:infochimps_ubuntu_910][:x32_uswest1_ebs_hadoop_b]
+  image_id           'ami-836031c6' # 'AMIS[:infochimps_ubuntu_910][:x32_uswest1_ebs_hadoop_b]
   availability_zones ['us-west-1a']
   instance_type      'm1.small'
   block_device_mapping([
@@ -33,7 +33,7 @@ pool POOL_NAME do
   cloud :master do
     using :ec2
     is_hadoop_node
-    instances          1..1
+    instances          1..2
     elastic_ip         POOL_SETTINGS[:master][:elastic_ip]
     security_group do
       authorize :from_port => 22,  :to_port => 22
