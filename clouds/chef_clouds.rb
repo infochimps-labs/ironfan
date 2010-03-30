@@ -26,7 +26,6 @@ pool POOL_NAME do
 
     user               'ubuntu'
     keypair        POOL_NAME, File.join(ENV['HOME'], '.poolparty')
-    security_group POOL_NAME
     security_group do #chef-server
       authorize :from_port => 22,  :to_port => 22
       authorize :from_port => 80,  :to_port => 80
@@ -34,7 +33,12 @@ pool POOL_NAME do
       authorize :from_port => 4040,  :to_port => 4040  # chef-server-webui
       authorize :group_name => 'chef'
     end
-    security_group 'chef'
+    security_group POOL_NAME do
+      authorize :group_name => POOL_NAME
+    end
+    security_group 'clyde' do
+      authorize :group_name => 'clyde'
+    end
     security_group 'chef-client'
     disable_api_termination              false
     instance_initiated_shutdown_behavior 'stop'

@@ -7,14 +7,6 @@ require 'json'
 o = Ohai::System.new
 o.all_plugins
 node_launch_index = o[:ec2][:ami_launch_index]
-# if the node_name is given, use that;
-# if the cluster_name is given, use 'cluster_name-node_launch_index';
-# otherwise use the instance_id.
-node_name = case
-            when o[:node_name]    then o[:node_name]
-            when o[:cluster_name] then [o[:cluster_name], node_launch_index].compact.join('-')
-            else o[:ec2][:instance_id]
-end
 
 log_level       :info
 log_location    STDOUT
@@ -38,6 +30,15 @@ if ! chef_config.nil?  # Yays we got user-data to config with
   chef_server_url        chef_config["chef_server"]
   validation_client_name chef_config["validation_client_name"]
 
+  # if the node_name is given, use that;
+  # if the cluster_name is given, use 'cluster_name-node_launch_index';
+  # otherwise use the instance_id.
+  node_name = case
+              when o[:node_name]    then o[:node_name]
+              when o[:cluster_name] then [o[:cluster_name], node_launch_index].compact.join('-')
+              else o[:ec2][:instance_id]
+              end
+
   # If the client file is missing, write the validation key out so chef-client
   # can register
   unless File.exists?("/etc/chef/client.pem")
@@ -57,4 +58,5 @@ if ! chef_config.nil?  # Yays we got user-data to config with
 else # no user-data ACK!
   chef_server_url        "http://chef.infinitemonkeys.info:4000"
   validation_client_name "chef-validator"
+  node_name              o[:ec2][:instance_id]
 end

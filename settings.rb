@@ -20,5 +20,6 @@ AMIS = {
   :infochimps_ubuntu_910 => {
     :x32_uswest1_ebs_a  => 'ami-d7613092',
     :x32_uswest1_ebs_b => 'ami-e16130a4',
+    :x32_uswest1_ebs_hadoop => 'ami-6b60312e',
   },
 }
