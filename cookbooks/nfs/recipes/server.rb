@@ -1,4 +1,3 @@
-
 package "nfs-kernel-server"
 
 template "/etc/exports" do
@@ -6,4 +5,10 @@ template "/etc/exports" do
   owner "root"
   group "root"
   mode 0644
+end
+
+service "nfs-kernel-server" do
+  action [ :enable, :start ]
+  running true
+  supports :status => true, :restart => true
 end
