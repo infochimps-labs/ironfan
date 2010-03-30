@@ -26,6 +26,8 @@ def is_hadoop_node
   instance_initiated_shutdown_behavior 'stop' 
 end
 
+puts POOL_SETTINGS[:master][:user_data].to_json
+
 pool POOL_NAME do
   cloud :master do
     using :ec2

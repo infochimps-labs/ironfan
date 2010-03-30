@@ -1,3 +1,43 @@
+h3. Sharpen Knife
+
+sudo mkdir /etc/chef
+mkdir ~/.chef
+cat > ~/.chef/webui.pem
+cat > ~/.chef/chef-validator.pem
+chmod g-rwx ~/.poolparty/*.pem
+sudo ln -s /Users/flip/.poolparty/webui.pem  /etc/chef/
+
+knife configure -i
+# Overwrite /Users/flip/.chef/knife.rb? (Y/N) Y
+# Your chef server URL? http://chef.infinitemonkeys.info:4000
+# Your client user name? HOSTNAME_OF_YOUR_MACHINE
+# Your validation client user name? chef-validator
+# Path to a chef repository (or leave blank)?
+# WARN: Creating initial API user...
+# INFO: Created (or updated) client[webui]
+# WARN: Configuration file written to /Users/flip/.chef/knife.rb
+
+
+
+
+===========================================================================
+
+To modify an image:
+
+* Stop the node
+* Attach elsewhere (as say /dev/sdh)
+* Modify however
+* detach, and re-attach to the stopped instance as /dev/sda1
+* Start the node
+
+* Nuke client.pem and validation.pem from snapshot
+* Nuke /home/*
+* make root login-able again
+* Nuke other sensitive dirs
+
+
+===========================================================================
+
 mkdir ~/.chef
 
 # copy the validation and webui keys into that directory
