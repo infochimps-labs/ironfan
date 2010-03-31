@@ -33,7 +33,7 @@ if ! chef_config.nil?  # Yays we got user-data to config with
   # if the node_name is given, use that;
   # otherwise use the instance_id.
   node_name case
-            when chef_config[:node_name]    then chef_config[:node_name]
+            when chef_config["node_name"]    then chef_config["node_name"]
             else o[:ec2][:instance_id]
             end
 
