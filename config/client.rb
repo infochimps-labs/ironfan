@@ -17,7 +17,24 @@ pid_file             "/var/run/chef/chef-client.pid"
 ssl_verify_mode      :verify_none
 Mixlib::Log::Formatter.show_time = true
 
-node_launch_index  = o[:ec2][:ami_launch_index]
+def node_launch_index
+  o[:ec2][:ami_launch_index]
+end
+
+# if the node_name is given, use that;
+# if the cluster name, cluster role (and optional index) are given, use "cluster-role-index"
+# otherwise, use the instance_id.
+def get_node_name
+  case
+  when chef_config["node_name"]
+    chef_config["node_name"]
+  when chef_config["cluster_name"] && chef_config["cluster_role"]
+    [chef_config["cluster_name"], chef_config["cluster_name"], node_launch_index].compact.join('-')
+  else
+    o[:ec2][:instance_id]
+  end
+end
+
 user_data          = o[:ec2][:userdata]
 chef_config = JSON.parse(user_data) rescue nil
 if ! chef_config.nil?  # Yays we got user-data to config with
@@ -31,11 +48,7 @@ if ! chef_config.nil?  # Yays we got user-data to config with
   # How to identify node to chef server.
   chef_server_url        chef_config["chef_server"]
   validation_client_name chef_config["validation_client_name"]
-  # if the node_name is given, use that; otherwise use the instance_id.
-  node_name case
-            when chef_config["node_name"]    then chef_config["node_name"]
-            else o[:ec2][:instance_id]
-            end
+  node_name get_node_name
 
   # If the client file is missing, write the validation key out so chef-client
   # can register

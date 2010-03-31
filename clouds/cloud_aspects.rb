@@ -10,7 +10,9 @@ def is_generic_node settings
     ])
   keypair        POOL_NAME, File.join(ENV['HOME'], '.poolparty')
   instance_initiated_shutdown_behavior 'stop'
-  settings[:attributes][:run_list] << 'role[base_role]'
+  settings[:attributes][:run_list]     << 'role[base_role]'
+  settings[:attributes][:cluster_name] << self.parent.name
+  settings[:attributes][:cluster_role] << self.name
 end
 
 # Poolparty rules to impart the 'big_package' role:
