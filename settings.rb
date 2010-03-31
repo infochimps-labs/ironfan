@@ -18,9 +18,15 @@ AMIS = {
   },
   #
   :infochimps_ubuntu_910 => {
-    :x32_uswest1_ebs_a  => 'ami-d7613092',
-    :x32_uswest1_ebs_b => 'ami-e16130a4',
-    :x32_uswest1_ebs_hadoop_a => 'ami-6b60312e',
-    :x32_uswest1_ebs_hadoop_b => 'ami-e16031a4',
+    :x32_uswest1_ebs   => 'ami-c5633280',
   },
 }
+
+
+def settings_for_node pool_name, cloud_name
+  pool_name = pool_name.to_sym; cloud_name = cloud_name.to_sym;
+  ( { :attributes => { :run_list => [] } }       ).deep_merge(
+    Settings[:pools][:common]               ||{ }).deep_merge(
+    Settings[:pools][pool_name][:common]    ||{ }).deep_merge(
+    Settings[:pools][pool_name][cloud_name] ||{ })
+end

@@ -1,5 +1,4 @@
 POOL_NAME     = 'clyde'
-POOL_SETTINGS = Settings[:pools][POOL_NAME.to_sym]
 require File.dirname(__FILE__)+'/../settings'
 require File.dirname(__FILE__)+'/cloud_aspects'
 
@@ -11,33 +10,33 @@ require File.dirname(__FILE__)+'/cloud_aspects'
 
 pool POOL_NAME do
   cloud :master do
-    instances        1..1
-    image_id         AMIS[:canonical_ubuntu_910][:x32_uswest1_ebs]
-    chef_hash      = POOL_SETTINGS[:common][:user_data]
-    chef_hash.merge!(POOL_SETTINGS[:master][:user_data])
-    elastic_ip       POOL_SETTINGS[:master][:elastic_ip]
-    chef_hash.merge!({:node_name => POOL_NAME+'-master'})
-    is_generic_node
-    is_hadoop_node
-    is_chef_client
-    is_nfs_client(chef_hash[:attributes])
+    using :ec2
+    settings = settings_for_node(POOL_NAME, :master)
+    instances           1..1
+    is_nfs_client       settings
+    is_generic_node     settings
+    is_chef_client      settings
+    is_hadoop_node      settings
+    is_hadoop_master    settings
+    is_hadoop_worker    settings
+    image_id            AMIS[:infochimps_ubuntu_910][:x32_uswest1_ebs]
+    elastic_ip          settings[:elastic_ip]
+    user_data           settings.to_json
     disable_api_termination false
-    user_data  chef_hash.to_json
   end
 
   cloud :slave do
-    instances        1..1
-    image_id         AMIS[:canonical_ubuntu_910][:x32_uswest1_ebs]
-    chef_hash      = POOL_SETTINGS[:common][:user_data]
-    chef_hash.merge!(POOL_SETTINGS[:slave][:user_data])
-    elastic_ip       POOL_SETTINGS[:slave][:elastic_ip]
-    chef_hash.merge!({:node_name => POOL_NAME+'-worker'})
-    is_generic_node
-    is_hadoop_node
-    is_chef_client
-    is_nfs_client(   chef_hash[:attributes])
-    is_hadoop_worker(chef_hash[:attributes])
+    using :ec2
+    settings = settings_for_node(POOL_NAME, :slave)
+    instances           1..1
+    is_nfs_client       settings
+    is_generic_node     settings
+    is_chef_client      settings
+    is_hadoop_node      settings
+    is_hadoop_worker    settings
+    image_id            AMIS[:infochimps_ubuntu_910][:x32_uswest1_ebs]
+    elastic_ip          settings[:elastic_ip]
+    user_data           settings.to_json
     disable_api_termination false
-    user_data  chef_hash.to_json
   end
 end
