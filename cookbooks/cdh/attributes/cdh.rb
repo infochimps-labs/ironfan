@@ -1,14 +1,14 @@
-set[:hadoop][:hadoop_handle] = 'hadoop-0.20'
-set[:hadoop][:cdh_version]   = 'cdh3'
+default[:hadoop][:hadoop_handle] = 'hadoop-0.20'
+default[:hadoop][:cdh_version]   = 'cdh3'
 
-set[:hadoop][:namenode_hostname]    = 'localhost'
-set[:hadoop][:jobtracker_hostname]  = 'localhost'
-set[:hadoop][:cluster_reduce_tasks] = 27
+default[:hadoop][:namenode_hostname]    = 'localhost'
+default[:hadoop][:jobtracker_hostname]  = 'localhost'
+default[:hadoop][:cluster_reduce_tasks] = 27
 
-set[:hadoop][:dfs_replication] = 3
+default[:hadoop][:dfs_replication] = 3
 
-set[:groups]['hadoop'    ][:gid] = 300
-set[:groups]['supergroup'][:gid] = 301
+default[:groups]['hadoop'    ][:gid] = 300
+default[:groups]['supergroup'][:gid] = 301
 
 size        = 'm1.small'
 ebs_volumes = []
@@ -55,7 +55,7 @@ else # 'm1.small'
     :java_child_ulimit    => 1126400,
   }
 end
-hadoop_performance_settings.each{|k,v| set[:hadoop][k] = v }
+hadoop_performance_settings.each{|k,v| default[:hadoop][k] = v }
 
 #
 # If you're using EBS volumes, point the HDFS directorys thataways.
@@ -89,4 +89,4 @@ else # 'm1.small', 'c1.medium'
     :dfs_data_dirs         => '/mnt/hadoop/hdfs/data',
   }
 end
-hdfs_dirs.each{|k,v| set[:hadoop][k] = v }
+hdfs_dirs.each{|k,v| default[:hadoop][k] = v }
