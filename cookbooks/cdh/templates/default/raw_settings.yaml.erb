@@ -17,8 +17,8 @@
 
 :namenode_hostname:    <%= @namenode_hostname         %>            
 :jobtracker_hostname:  <%= @jobtracker_hostname       %>
-:namenode_hostname:    <%= node[:hadoop][:jobtracker_hostname]         %>            
-:jobtracker_hostname:  <%= node[:hadoop][:jobtracker_hostname]       %>
+:node_namenode_hostname:    <%= node[:hadoop][:jobtracker_hostname]         %>            
+:node_jobtracker_hostname:  <%= node[:hadoop][:jobtracker_hostname]       %>
 
 
 <%- memory_in_bytes = node[:memory][:total].gsub(/kB$/, '').to_i * 1024 %>
@@ -28,4 +28,3 @@
 
 :all:                  >-
   <%= node[:hadoop].to_hash.inspect %>
-:test:                  <%= @test %>

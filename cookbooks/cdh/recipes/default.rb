@@ -65,4 +65,9 @@ template "/etc/hadoop/conf/raw_settings.yaml" do
   owner "root"
   mode "0644"
   source "raw_settings.yaml.erb"
+  variables({
+      :namenode_hostname   => (node[:hadoop][:namenode_hostname]   == 'localhost' ? node[:cloud][:private_ips].first : node[:hadoop][:namenode_hostname]),
+      :jobtracker_hostname => (node[:hadoop][:jobtracker_hostname] == 'localhost' ? node[:cloud][:private_ips].first : node[:hadoop][:jobtracker_hostname]),
+      :test => node[:hadoop][:namenode_hostname],
+    })
 end
