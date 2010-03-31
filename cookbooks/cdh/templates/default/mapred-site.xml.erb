@@ -12,7 +12,7 @@
 </property>
 <property>
   <name>mapred.job.tracker</name>
-  <value><%= node[:hadoop][:jobtracker_hostname] %>:8021</value>
+  <value><%= @jobtracker_hostname %>:8021</value>
 </property>
 <property>
   <name>mapred.job.tracker.handler.count</name>

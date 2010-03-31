@@ -11,11 +11,16 @@
     <a href="http://cloudera-public.s3.amazonaws.com/ec2/proxy.pac">this Proxy
       Auto-Configuration (PAC)</a> file.  To manage multiple proxy configurations,
     you may wish to use
-    <a href="https://addons.mozilla.org/en-US/firefox/addon/2464">FoxyProxy</a>.
+    <a href="https://addons.mozilla.org/en-US/firefox/addon/2464">FoxyProxy</a> along with a persistent tunnel to the hadoop master node:
+    <pre style="font-size:10px"><code>
+        ssh -i PATH/TO/KEYPAIR/KEY.pem  -N -D 6666 -o StrictHostKeyChecking=no -o "ConnectTimeout=10" -o "ServerAliveInterval=60" -o "ControlPath=none" root@<%= node[:ec2][:public_hostname] %>
+    </code></pre>   
     <ul>
-      <li><a href="http://<%= node[:hadoop][:namenode_hostname] %>:50070/">NameNode</a>
-      <li><a href="http://<%= node[:hadoop][:jobtracker_hostname] %>:50030/">JobTracker</a>
-      <li><a href="http://<%= node[:hadoop][:jobtracker_hostname] %>:8088/">Cloudera Desktop</a>
+      <!-- FIXME: this is incorrect if the webfront isn't the jobtracker and namenode. Or if you're not on ec2 -->
+      <li><a href="http://<%= node[:ec2][:public_hostname] %>:50070/">NameNode</a>
+      <li><a href="http://<%= node[:ec2][:public_hostname] %>:50030/">JobTracker</a>
+      <!-- Uncomment if you use cloudera Desktop -->
+      <!-- <li><a href="http://<%= node[:ec2][:public_hostname] %>:8088/">Cloudera Desktop</a> -->
     </ul>
   </body>
   

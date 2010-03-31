@@ -15,8 +15,11 @@
 :fs_checkpoint_dirs:   <%= node[:hadoop][:fs_checkpoint_dirs]        %>
 :dfs_data_dirs:        <%= node[:hadoop][:dfs_data_dirs]             %>
 
-:namenode_hostname:    <%= node[:hadoop][:namenode_hostname]         %>            
-:jobtracker_hostname:  <%= node[:hadoop][:jobtracker_hostname]       %>            
+:namenode_hostname:    <%= @namenode_hostname         %>            
+:jobtracker_hostname:  <%= @jobtracker_hostname       %>
+:namenode_hostname:    <%= node[:hadoop][:jobtracker_hostname]         %>            
+:jobtracker_hostname:  <%= node[:hadoop][:jobtracker_hostname]       %>
+
 
 <%- memory_in_bytes = node[:memory][:total].gsub(/kB$/, '').to_i * 1024 %>
 :n_cpus:               <%= node[:cpu][:total] %>
@@ -25,3 +28,4 @@
 
 :all:                  >-
   <%= node[:hadoop].to_hash.inspect %>
+:test:                  <%= @test %>

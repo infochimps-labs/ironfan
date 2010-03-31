@@ -7,6 +7,7 @@ run_list %w[
   cdh::jobtracker
   cdh::hadoop_webfront
   cdh::ec2_conf
+  cdh::make_standard_hdfs_dirs
 ]
 
 default_attributes({
