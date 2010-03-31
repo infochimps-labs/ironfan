@@ -22,7 +22,9 @@ pool POOL_NAME do
     image_id            AMIS[:infochimps_ubuntu_910][:x32_uswest1_ebs]
     elastic_ip          settings[:elastic_ip]
     user_data           settings.to_json
+    user                'ubuntu'
     disable_api_termination false
+    puts settings.to_json
   end
 
   cloud :slave do
@@ -37,6 +39,9 @@ pool POOL_NAME do
     image_id            AMIS[:infochimps_ubuntu_910][:x32_uswest1_ebs]
     elastic_ip          settings[:elastic_ip]
     user_data           settings.to_json
+    user                'ubuntu'
+    spot_price          0.08
     disable_api_termination false
+    puts settings.to_json
   end
 end

@@ -40,13 +40,12 @@
 <pre><code>
     # Manually clean out the nfs mounts
     nano /etc/fstab
-    # remove any packages you want to nuke
-    apt-get --purge remove hadoop-0.20 hadoop-0.20-{namenode,datanode,tasktracker,jobtracker,secondarynamenode,native}
-    for foo in hadoop-0.20-{namenode,datanode,tasktracker,jobtracker,secondarynamenode,native} ; do echo $foo ; update-rc.d -f $foo remove ; rm /etc/init.d/$foo ; done
+    # Manually fix the authorized_keys if you want to be able to ssh in as root.
+    sudo nano /root/.ssh/authorized_keys
+
     # Nuke files you don't want the next guy to see
     rm -rf /var/log/*.gz /tmp/* /var/run/hadoop/* /root/{.emacs.d,.cache,.*hist*,.gem} /home/ubuntu/{.emacs.d,.cache,.*hist*,.gem}
     # Move away the chef client material -- these will be recreated from the user-data hash
     mv /etc/chef/{*~,client.pem,validation.pem} /tmp
-    # 
-    rm -rf /mnt/*
 </code></pre>
+

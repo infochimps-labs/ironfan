@@ -25,7 +25,7 @@ pool POOL_NAME do
     elastic_ip          settings[:elastic_ip]
     user                'ubuntu'
     disable_api_termination true
-    p settings
+    puts settings.to_json
   end
 
   cloud :client do
@@ -40,6 +40,6 @@ pool POOL_NAME do
     disable_api_termination false
     user_data_shell_script = File.open(File.dirname(__FILE__)+'/../config/initial_user_data_script.sh').read
     user_data user_data_shell_script
-    p settings
+    puts settings.to_json
   end
 end
