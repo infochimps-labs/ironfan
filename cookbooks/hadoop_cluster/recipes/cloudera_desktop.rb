@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-include_recipe "cdh"
+include_recipe "hadoop_cluster"
 
 # package 'python-devel'   # on redhat-ish
 package 'libxslt1.1'

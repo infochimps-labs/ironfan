@@ -1,6 +1,6 @@
 #
-# Cookbook Name:: cdh
-# Recipe:: make_standard_hdfs_dirs
+# Cookbook Name:: hadoop_cluster
+# Recipe::        make_standard_hdfs_dirs
 #
 # Copyright 2010, Infochimps, Inc.
 #

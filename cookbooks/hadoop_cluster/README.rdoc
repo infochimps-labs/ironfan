@@ -50,7 +50,7 @@ The recipes correspond to different roles you'll probably assign:
 * worker            -- runs the datanode and tasktracker
 * secondarynamenode -- additional secondarynamenode (backs up the metadata file).
 
-In the roles/ directory at http://github.com/mrflip/hadoop-chef-cluster
+In the roles/ directory at http://github.com/mrflip/hadoop_cluster_chef there are defined chef roles for generic hadoop node, hadoop master (job, name, web, secondaryname services), and hadoop worker (data and task services)
 
 Assign node roles according to these rough guidelines:
 
@@ -65,7 +65,7 @@ Note that the secondarynamenode is NOT a redundant namenode. All it does is make
 
 = LICENSE and AUTHOR:
       
-Author:: Joshua Timberman (<joshua@opscode.com>), Flip Kromer (<flip@infochimps.org>), much code taken from Tom White (<tom@cloudera.com>)'s hadoop-ec2 scripts
+Author:: Joshua Timberman (<joshua@opscode.com>), Flip Kromer (<flip@infochimps.org>), much code taken from Tom White (<tom@cloudera.com>)'s hadoop-ec2 scripts and Robert Berger (http://blog.ibd.com)'s blog posts.
 
 Copyright:: 2009, Opscode, Inc
 

@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: hadoop
-# Recipe:: worker
+# Recipe::        worker
 #
 # Copyright 2009, Opscode, Inc.
 #
@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-include_recipe "cdh"
+include_recipe "hadoop_cluster"
 
 package "#{node[:hadoop][:hadoop_handle]}-datanode"
 package "#{node[:hadoop][:hadoop_handle]}-tasktracker"

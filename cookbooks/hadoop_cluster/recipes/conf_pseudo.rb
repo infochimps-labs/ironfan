@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-include_recipe "cdh"
+include_recipe "hadoop_cluster"
 
 package "#{node[:hadoop][:hadoop_handle]}-conf-pseudo"
 
