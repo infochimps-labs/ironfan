@@ -1,4 +1,7 @@
-maintainer        "37signals"
-maintainer_email  "sysadmins@37signals.com"
-description       "Configures EC2 environment"
+maintainer        "Flip Kromer"
+maintainer_email  "info@infochimps.org"
+description       "Attaches and mounts ebs volumes for use in the hadoop cluster. Heavily inspired by Robert Berger's http://blog.ibd.com/scalable-deployment/using-the-opscode-aws-cookbook-to-attach-an-ec2-ebs-volume/"
 version           "0.1"
+
+
+# http://blog.ibd.com/scalable-deployment/using-the-opscode-aws-cookbook-to-attach-an-ec2-ebs-volume/

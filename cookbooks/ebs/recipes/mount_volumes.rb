@@ -1,3 +1,5 @@
+recipes "aws"
+
 if node[:ebs_volumes]
   node[:ebs_volumes].each do |name, conf|
     if File.exists?(conf[:device])

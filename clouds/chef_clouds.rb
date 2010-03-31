@@ -3,9 +3,9 @@ require File.dirname(__FILE__)+'/../settings'
 POOL_SETTINGS = Settings[:pools][POOL_NAME.to_sym]
 require File.dirname(__FILE__)+'/cloud_aspects'
 
-# cloud-start -n master -c ~/ics/sysadmin/chef-repo/poolparty/chef_clouds.rb
-# cloud-start -n slave  -c ~/ics/sysadmin/chef-repo/poolparty/chef_clouds.rb
-# cloud-ssh -n slave    -c ~/ics/sysadmin/chef-repo/poolparty/chef_clouds.rb
+# Example usage (starts the chef server, then logs in to it)
+#   cloud-start -n server -c cloud/chef_clouds.rb
+#   cloud-ssh   -n server  -c cloud/chef_clouds.rb
 # If you're on the west coast, to avoid 'ami not found' errors, first run
 #   export EC2_URL=https://us-west-1.ec2.amazonaws.com
 

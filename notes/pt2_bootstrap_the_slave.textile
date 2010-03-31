@@ -21,13 +21,13 @@
     sudo gem install --no-rdoc --no-ri chef ;
 
     # bootstrap chef from *client* scripts
-    wget http://github.com/mrflip/chef-repo/raw/master/config/chef_bootstrap.rb -O /tmp/chef_bootstrap.rb
-    wget http://github.com/mrflip/chef-repo/raw/master/config/chef_client.json  -O /tmp/chef_client.json
+    wget http://github.com/mrflip/hadoop_cluster_chef/raw/master/config/chef_bootstrap.rb -O /tmp/chef_bootstrap.rb
+    wget http://github.com/mrflip/hadoop_cluster_chef/raw/master/config/chef_client.json  -O /tmp/chef_client.json
     sudo chef-solo -c /tmp/chef_bootstrap.rb -j /tmp/chef_client.json
 
     # pull in the chef server client script
     sudo mv /etc/chef/client.rb /etc/chef/client-orig.rb
-    sudo wget http://github.com/mrflip/chef-repo/raw/master/config/client.rb -O /etc/chef/client.rb
+    sudo wget http://github.com/mrflip/hadoop_cluster_chef/raw/master/config/client.rb -O /etc/chef/client.rb
 
     # cleanup
     sudo apt-get autoremove; 

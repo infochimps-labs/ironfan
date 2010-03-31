@@ -20,7 +20,7 @@ sudo gem install --no-rdoc --no-ri rubygems-update --version=1.3.6 ; sudo /var/l
 # install chef
 sudo gem install --no-rdoc --no-ri chef ;
 
-REMOTE_FILE_URL_BASE="http://github.com/mrflip/chef-repo/raw/master"
+REMOTE_FILE_URL_BASE="http://github.com/mrflip/hadoop_cluster_chef/raw/master"
 
 # bootstrap chef from *client* scripts
 wget ${REMOTE_FILE_URL_BASE}/config/chef_bootstrap.rb -O /tmp/chef_bootstrap.rb ;
