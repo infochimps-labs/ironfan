@@ -24,6 +24,7 @@ module Opscode
       end
 
       def ec2
+        Chef::Log.info "Using endpoint '#{new_resource.aws_endpoint_url}'"
         @@ec2 ||= RightAws::Ec2.new(new_resource.aws_access_key, new_resource.aws_secret_access_key, {
             :logger => Chef::Log,
             :endpoint_url => new_resource.aws_endpoint_url,
