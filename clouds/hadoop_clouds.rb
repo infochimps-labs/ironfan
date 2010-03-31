@@ -12,7 +12,7 @@ POOL_SETTINGS = Settings[:pools][POOL_NAME.to_sym]
 # * auto_shutdown
 #
 def is_hadoop_node
-  image_id           'ami-75633230' # AMIS[:canonical_ubuntu_910][:x32_uswest1_ebs]
+  image_id           AMIS[:canonical_ubuntu_910][:x32_uswest1_ebs]
   availability_zones ['us-west-1a']
   instance_type      'm1.small'
   block_device_mapping([
