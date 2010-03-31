@@ -40,7 +40,7 @@ default_attributes({
     :aws => {
       :aws_access_key        => Settings[:access_key],
       :aws_secret_access_key => Settings[:secret_access_key],
-      :aws_endpoint_url      => Settings[:ec2_url],
+      :aws_region            => Settings[:aws_region],
       :availability_zone     => Settings[:availability_zones].first,
     },
     :authorization => { :sudo => { :groups => ['admin'], :users => ['flip'] } }

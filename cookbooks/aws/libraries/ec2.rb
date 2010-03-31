@@ -24,7 +24,6 @@ module Opscode
       end
 
       def ec2
-        Chef::Log.info "In region '#{new_resource.aws_region}'"
         @@ec2 ||= RightAws::Ec2.new(new_resource.aws_access_key, new_resource.aws_secret_access_key, {
             :logger => Chef::Log,
             :region => new_resource.aws_region,
