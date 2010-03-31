@@ -7,7 +7,7 @@ if node[:ebs_volumes]
       Chef::Log.info "#{node[:aws][:aws_endpoint_url]} - #{node[:aws][:aws_access_key]} - #{node[:aws][:aws_secret_access_key]}"
       aws_access_key        node[:aws][:aws_access_key]
       aws_secret_access_key node[:aws][:aws_secret_access_key]
-      aws_endpoint_url      node[:aws][:aws_endpoint_url]
+      aws_region            node[:aws][:aws_region]
       availability_zone     node[:aws][:availability_zone]
       volume_id             conf[:volume_id]
       device                conf[:device]
