@@ -23,17 +23,18 @@
     wget http://github.com/mrflip/chef-repo/raw/master/config/chef_client.json  -O /tmp/chef_client.json
     sudo chef-solo -c /tmp/chef_bootstrap.rb -j /tmp/chef_client.json
 
-    # pull in the chef server client script; run it
+    # pull in the chef server client script
+    sudo mv /etc/chef/client.rb /etc/chef/client-orig.rb
     sudo wget http://github.com/mrflip/chef-repo/raw/master/config/client.rb -O /etc/chef/client.rb
-    sudo chef-client
 
-    # Rerunning chef-client should do nothing interesting (idempotent)
-    sudo chef-client
-    
-    
     # cleanup
     sudo apt-get autoremove; 
     sudo updatedb;
+
+    # run it
+    sudo chef-client
+    # Rerunning chef-client should do nothing interesting (idempotent)
+    sudo chef-client
 </code></pre>
 
 <pre><code>
