@@ -3,11 +3,11 @@ description 'runs a namenode, secondarynamenode, jobtracker and webfront in full
 
 run_list %w[
   ec2::filesystems
-  cdh::namenode
-  cdh::jobtracker
-  cdh::hadoop_webfront
-  cdh::ec2_conf
-  cdh::make_standard_hdfs_dirs
+  hadoop_cluster::namenode
+  hadoop_cluster::jobtracker
+  hadoop_cluster::hadoop_webfront
+  hadoop_cluster::ec2_conf
+  hadoop_cluster::make_standard_hdfs_dirs
 ]
 
 default_attributes({

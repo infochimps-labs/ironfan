@@ -1,13 +1,7 @@
-require File.dirname(__FILE__)+'/../settings'
-
-# Install with
-#   knife role from file roles/base_role.rb
-
-name 'base_role'
-description 'top level attributes, applies to all nodes'
+name        'big_package'
+description 'Many convenience packages in one big blog'
 
 run_list *%w[
-
   ]
 
 

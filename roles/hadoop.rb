@@ -8,9 +8,9 @@ description 'applies to all nodes in the hadoop cluster'
 
 run_list *%w[
   ec2::filesystems
-  cdh
-  cdh::pig
-  cdh::ec2_conf
+  hadoop_cluster
+  hadoop_cluster::pig
+  hadoop_cluster::ec2_conf
   ]
 
 # Attributes applied if the node doesn't have it set already.

@@ -1,10 +1,9 @@
-require File.dirname(__FILE__)+'/../settings'
-
 # Install with
 #   knife role from file roles/base_role.rb
 
-name 'base_role'
+name        'base_role'
 description 'top level attributes, applies to all nodes'
+require File.dirname(__FILE__)+'/../settings'
 
 run_list *%w[
   sudo
@@ -39,9 +38,9 @@ default_attributes({
     # },
 
     :aws => {
-      'aws_access_key'        => Settings[:access_key],
-      'aws_secret_access_key' => Settings[:secret_access_key],
-      'availability_zone'     => Settings[:availability_zones].first,
+      :aws_access_key        => Settings[:access_key],
+      :aws_secret_access_key => Settings[:secret_access_key],
+      :availability_zone     => Settings[:availability_zones].first,
     },
     :authorization => { :sudo => { :groups => ['admin'], :users => ['flip'] } }
   })
