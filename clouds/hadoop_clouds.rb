@@ -43,16 +43,8 @@ pool POOL_NAME do
     chef_hash = POOL_SETTINGS[:common][:user_data]
     chef_hash.merge!(POOL_SETTINGS[:master][:user_data])
     chef_hash.merge!({:node_name => POOL_NAME+'-master'})
-    master_private_ip = POOL_SETTINGS[:master][:elastic_ip]
-    nfs_master_ip     = '10.162.143.95'
-    chef_hash[:attributes].merge!({
-        :hadoop => {
-          :jobtracker_hostname => master_private_ip,
-          :namenode_hostname   => master_private_ip, },
-        :nfs_mounts => [
-          ['/home', { :owner => 'root', :device => "#{nfs_master_ip}:/home" } ],
-        ],
-      })
+    chef_hash[:attributes].merge!(:nfs_mounts => [ ['/home', { :owner => 'root', :remote_path => "/home" } ], ])
+
     user_data  chef_hash.to_json
     puts chef_hash.to_json
   end
@@ -70,16 +62,14 @@ pool POOL_NAME do
     chef_hash.merge!(POOL_SETTINGS[:slave][:user_data])
     chef_hash.merge!({:node_name => POOL_NAME+'-worker'})
     master_private_ip   = pool.clouds['master'].nodes.first.private_ip rescue nil
-    master_private_ip ||= POOL_SETTINGS[:master][:elastic_ip]
-    nfs_master_ip = '10.162.143.95'
-    chef_hash[:attributes].merge!({
+    if master_private_ip
+      chef_hash[:attributes].merge!(
         :hadoop => {
           :jobtracker_hostname => master_private_ip,
-          :namenode_hostname   => master_private_ip, },
-        :nfs_mounts => [
-          ['/home', { :owner => 'root', :device => "#{nfs_master_ip}:/home" } ],
-        ],
-      })
+          :namenode_hostname   => master_private_ip, } )
+    end
+    chef_hash[:attributes].merge!(:nfs_mounts => [ ['/home', { :owner => 'root', :remote_path => "/home" } ], ])
+
     user_data  chef_hash.to_json
     puts chef_hash.to_json
   end

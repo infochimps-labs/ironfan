@@ -7,10 +7,10 @@ run_list *%w[
   nfs::client
 ]
 
-# default_attributes({
-#     :nfs_mounts => [
-#       ['/home', { :owner => 'root', :device => '10.162.143.95:/home' } ],
-#     ],
-#   })
+default_attributes({
+    :nfs => {
+      :master => '10.162.143.95',
+    }
+  })
 
 

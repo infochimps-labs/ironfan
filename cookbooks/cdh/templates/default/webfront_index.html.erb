@@ -20,7 +20,7 @@
       <!-- <li><a href="http://<%= node[:ec2][:public_hostname] %>:8088/">Cloudera Desktop</a> -->
     </ul>
 
-    <p>Create a tunnel:</p>
+    <p>Create a tunnel from your local machine to this one:</p>
     <pre style="font-size:10px"><code>
         ssh -i PATH/TO/KEYPAIR/KEY.pem  -N -D 6666 -o StrictHostKeyChecking=no -o "ConnectTimeout=10" -o "ServerAliveInterval=60" -o "ControlPath=none" root@<%= node[:ec2][:public_hostname] %>
     </code></pre>

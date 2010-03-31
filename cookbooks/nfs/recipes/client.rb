@@ -10,7 +10,8 @@ if node[:nfs_mounts]
     mount target do
       fstype "nfs"
       options %w(rw,soft,intr)
-      device config[:device]
+      device_path = config[:device] ? config[:device] : "#{node[:nfs][:master]}:#{config[:remote_path]}"
+      device
       dump 0
       pass 0
       # mount and add to fstab. set to 'disable' to remove it
