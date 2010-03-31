@@ -19,6 +19,16 @@ def has_big_package settings
   settings[:attributes][:run_list] << 'role[big_package]'
 end
 
+# Poolparty rules to impart the 'ebs_volumes_attach' role
+def attaches_ebs_volumes settings
+  settings[:attributes][:run_list] << 'role[ebs_volumes_attach]'
+end
+
+# Poolparty rules to impart the 'ebs_volumes_mount' role
+def mounts_ebs_volumes settings
+  settings[:attributes][:run_list] << 'role[ebs_volumes_mount]'
+end
+
 # Poolparty rules to make the node act as a chef server
 def is_chef_server settings
   security_group 'chef-server' do
