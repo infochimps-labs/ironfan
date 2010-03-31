@@ -19,6 +19,7 @@ pool POOL_NAME do
     is_hadoop_node      settings
     is_hadoop_master    settings
     is_hadoop_worker    settings
+    has_big_package     settings
     image_id            AMIS[:infochimps_ubuntu_910][:x32_uswest1_ebs]
     elastic_ip          settings[:elastic_ip]
     user_data           settings.to_json
@@ -36,6 +37,7 @@ pool POOL_NAME do
     is_chef_client      settings
     is_hadoop_node      settings
     is_hadoop_worker    settings
+    has_big_package     settings
     image_id            AMIS[:infochimps_ubuntu_910][:x32_uswest1_ebs]
     elastic_ip          settings[:elastic_ip]
     user_data           settings.to_json

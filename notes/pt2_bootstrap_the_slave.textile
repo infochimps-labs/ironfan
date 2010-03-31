@@ -1,3 +1,5 @@
+* Creating Consistent Snapshots of a Live Instance with XFS on a Boot-from-EBS AMI
+  http://www.shlomoswidler.com/2010/01/creating-consistent-snapshots-of-live.html
 
 <pre><code>
     # Broaden the apt universe

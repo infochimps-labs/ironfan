@@ -13,6 +13,12 @@ def is_generic_node settings
   settings[:attributes][:run_list] << 'role[base_role]'
 end
 
+# Poolparty rules to impart the 'big_package' role:
+# installs a whole mess of convenient packages.
+def has_big_package settings
+  settings[:attributes][:run_list] << 'role[big_package]'
+end
+
 # Poolparty rules to make the node act as a chef server
 def is_chef_server settings
   security_group 'chef-server' do
