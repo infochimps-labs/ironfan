@@ -52,7 +52,6 @@ knife ec2 instance data role[base_role]
 
 cat /etc/sv/chef-client/log/run
 
-
 cd ~/ics/sysadmin/chef-repo
 rake install
 
@@ -69,3 +68,7 @@ knife cookbook upload sudo
 
 
 curl http://169.254.169.254/latest/user-data | zcat
+
+===========================================================================
+
+for foo in namenode datanode tasktracker jobtracker secondarynamenode ; do echo $foo ; sudo service hadoop-0.20-$foo stop ; done

@@ -15,17 +15,37 @@
     # unchain rubygems from the tyrrany of ubuntu
     sudo gem install --no-rdoc --no-ri rubygems-update --version=1.3.6 ; sudo /var/lib/gems/1.8/bin/update_rubygems; sudo gem update --no-rdoc --no-ri --system ; gem --version ;
 
-    # install chef and bootstrap it
+    # install chef 
     sudo gem install --no-rdoc --no-ri chef ;
 
-    wget  -O /tmp/chef_bootstrap.rb
+    # bootstrap chef from *client* scripts
+    wget http://github.com/mrflip/chef-repo/raw/master/config/chef_bootstrap.rb -O /tmp/chef_bootstrap.rb
     wget http://github.com/mrflip/chef-repo/raw/master/config/chef_client.json  -O /tmp/chef_client.json
     sudo chef-solo -c /tmp/chef_bootstrap.rb -j /tmp/chef_client.json
 
-    # Copy the validation key to some get pull in the validation key
-    sudo mkdir /etc/chef ; sudo scp flip@mrflip.dyndns.org:/tmp/validation.pem /etc/chef/validation.pem ; sudo chown root:root /etc/chef/validation.pem ; sudo chmod og-rwx /etc/chef/validation.pem    
+    # pull in the chef server client script; run it
+    sudo wget http://github.com/mrflip/chef-repo/raw/master/config/client.rb -O /etc/chef/client.rb
+    sudo chef-client
 
+    # Rerunning chef-client should do nothing interesting (idempotent)
+    sudo chef-client
+    
+    
     # cleanup
     sudo apt-get autoremove; 
     sudo updatedb;
+</code></pre>
+
+<pre><code>
+    # Manually clean out the nfs mounts
+    nano /etc/fstab
+    # remove any packages you want to nuke
+    apt-get remove hadoop-0.20 hadoop-0.20-{namenode,datanode,tasktracker,jobtracker,secondarynamenode,native}
+    for foo in hadoop-0.20-{namenode,datanode,tasktracker,jobtracker,secondarynamenode,native} ; do echo $foo ; update-rc.d -f $foo remove ; rm /etc/init.d/$foo ; done
+    # Nuke files you don't want the next guy to see
+    rm -rf /var/log/*.gz /tmp/* /var/run/hadoop/* /root/{.emacs.d,.cache,.*hist*,.gem} /home/ubuntu/{.emacs.d,.cache,.*hist*,.gem}
+    # Move away the chef client material -- these will be recreated from the user-data hash
+    mv /etc/chef/{*~,client.pem,validation.pem} /tmp
+    # 
+    rm -rf /mnt/*
 </code></pre>

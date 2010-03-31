@@ -17,7 +17,8 @@ file_cache_path  "/srv/chef/cache"
 pid_file         "/var/run/chef/chef-client.pid"
 Mixlib::Log::Formatter.show_time = true
 
-chef_config       = JSON.parse(o[:ec2][:userdata]) rescue nil
+user_data   = o[:ec2][:userdata]
+chef_config = JSON.parse(user_data) rescue nil
 if ! chef_config.nil?  # Yays we got user-data to config with
 
   # If it's an array, assume it's for a robot army of similar machines, and

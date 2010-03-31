@@ -33,7 +33,7 @@ if node[:active_users]
         gid        node[:groups][gname][:gid]
         members    [ uname ]
         append     true
-        action     [:manage]
+        action     [:modify]
       end
     end
 

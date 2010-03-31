@@ -84,13 +84,13 @@ hadoop_env_file = "/etc/#{node[:hadoop][:hadoop_handle]}/conf/hadoop-env.sh"
 make_hadoop_dir('/var/run/hadoop-0.20')
 force_link('/var/run/hadoop', '/var/run/hadoop-0.20')
 execute 'fix_hadoop_env-pid' do
-  command %Q{sed -i -e "s|# export HADOOP_PID_DIR=.*|export HADOOP_PID_DIR=/var/run/hadoop|" #{hadoop_env_file}}
-  not_if %Q{grep "HADOOP_PID_DIR=/var/run/hadoop" #{hadoop_env_file}}
+  command %Q{sed -i -e 's|# export HADOOP_PID_DIR=.*|export HADOOP_PID_DIR=/var/run/hadoop|' #{hadoop_env_file}}
+  not_if "grep 'HADOOP_PID_DIR=/var/run/hadoop' #{hadoop_env_file}"
 end
 # Set SSH options within the cluster
 execute 'fix_hadoop_env-ssh' do
-  command %Q{sed -i -e 's|# export HADOOP_SSH_OPTS=.*|export HADOOP_SSH_OPTS="-o StrictHostKeyChecking=no"|' #{hadoop_env_file}}
-  not_if %Q{grep 'export HADOOP_SSH_OPTS="-o StrictHostKeyChecking=no"' #{hadoop_env_file}}
+  command %Q{sed -i -e 's|# export HADOOP_SSH_OPTS=.*|export HADOOP_SSH_OPTS="-o StrictHostKeyChecking=no"| ' #{hadoop_env_file}}
+  not_if "grep 'export HADOOP_SSH_OPTS=\"-o StrictHostKeyChecking=no\"' #{hadoop_env_file}"
 end
 
 #
@@ -101,6 +101,25 @@ execute 'format_namenode' do
   user 'hadoop'
   creates '/mnt/hadoop/hdfs/name/current/VERSION'
   creates '/mnt/hadoop/hdfs/name/current/fsimage'
+end
+
+# This is a bit kludgey, but it minimizes hits to the HDFS
+# Also, quoting Tom White:
+#   "The [chmod +w] is questionable, as it allows a user to delete another
+#    user. It's needed to allow users to create their own user directories"
+execute 'create user dirs on HDFS' do
+  only_if "service hadoop-0.20-namenode status"
+  not_if do File.exists?("/mnt/hadoop/logs/made_initial_dirs.log") end
+  user 'hadoop'
+  command %Q{
+    hadoop_users=/user/"`grep supergroup /etc/group | cut -d: -f4 | sed -e 's!,! /user/!g'`" ;
+    hadoop fs -mkdir    /tmp /user /user/hive/warehouse $hadoop_users;
+    hadoop fs -chmod +w /tmp /user /user/hive/warehouse;
+    for user in $hadoop_users ; do
+      hadoop fs -chown ${user#/user/} $user;
+    done ;
+    touch /mnt/hadoop/logs/made_initial_dirs.log ;
+  }
 end
 
 # TODO: wait for mount
@@ -149,18 +168,3 @@ end
 
 #
 # $AS_HADOOP "$HADOOP dfsadmin -safemode wait"
-#
-#
-# TODO -- Make the user dirs on the hdfs
-#   $HADOOP_COMMAND fs -mkdir /user
-#   # The following is questionable, as it allows a user to delete another user
-#   # It's needed to allow users to create their own user directories
-#   $AS_HADOOP "/usr/bin/$HADOOP fs -chmod +w /user"
-#   # for each user, make their directory and chown it to them
-#
-#   # Create temporary directory for Pig and Hive in HDFS
-#   $AS_HADOOP "/usr/bin/$HADOOP fs -mkdir /tmp"
-#   $AS_HADOOP "/usr/bin/$HADOOP fs -chmod +w /tmp"
-#   $AS_HADOOP "/usr/bin/$HADOOP fs -mkdir /user/hive/warehouse"
-#   $AS_HADOOP "/usr/bin/$HADOOP fs -chmod +w /user/hive/warehouse"
-

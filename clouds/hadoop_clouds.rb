@@ -5,13 +5,14 @@ POOL_SETTINGS = Settings[:pools][POOL_NAME.to_sym]
 #
 # EBS-backed hadoop cluster in the cloud.
 # See the ../README.textile file for usage, etc
-#
+# If you're on the west coast, to avoid 'ami not found' errors, first run
+#   export EC2_URL=https://us-west-1.ec2.amazonaws.com
 
 # TODO:
 # * auto_shutdown
 #
 def is_hadoop_node
-  image_id           'ami-836031c6' # 'AMIS[:infochimps_ubuntu_910][:x32_uswest1_ebs_hadoop_b]
+  image_id           'ami-75633230' # AMIS[:canonical_ubuntu_910][:x32_uswest1_ebs]
   availability_zones ['us-west-1a']
   instance_type      'm1.small'
   block_device_mapping([
@@ -33,7 +34,7 @@ pool POOL_NAME do
   cloud :master do
     using :ec2
     is_hadoop_node
-    instances          1..2
+    instances          1..1
     elastic_ip         POOL_SETTINGS[:master][:elastic_ip]
     security_group do
       authorize :from_port => 22,  :to_port => 22
