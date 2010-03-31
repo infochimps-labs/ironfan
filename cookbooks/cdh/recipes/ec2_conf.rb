@@ -24,6 +24,11 @@
   template "/etc/hadoop/conf/#{conf_file}" do
     owner "root"
     mode "0644"
+    variables({
+        :namenode_hostname   => (node[:hadoop][:namenode_hostname]   == 'localhost' ? node[:cloud][:private_ips].first : node[:hadoop][:namenode_hostname]),
+        :jobtracker_hostname => (node[:hadoop][:jobtracker_hostname] == 'localhost' ? node[:cloud][:private_ips].first : node[:hadoop][:jobtracker_hostname]),
+        :test => node[:hadoop][:namenode_hostname],
+      })
     source "#{conf_file}.erb"
   end
 end
@@ -103,25 +108,6 @@ execute 'format_namenode' do
   creates '/mnt/hadoop/hdfs/name/current/fsimage'
 end
 
-# This is a bit kludgey, but it minimizes hits to the HDFS
-# Also, quoting Tom White:
-#   "The [chmod +w] is questionable, as it allows a user to delete another
-#    user. It's needed to allow users to create their own user directories"
-execute 'create user dirs on HDFS' do
-  only_if "service hadoop-0.20-namenode status"
-  not_if do File.exists?("/mnt/hadoop/logs/made_initial_dirs.log") end
-  user 'hadoop'
-  command %Q{
-    hadoop_users=/user/"`grep supergroup /etc/group | cut -d: -f4 | sed -e 's!,! /user/!g'`" ;
-    hadoop fs -mkdir    /tmp /user /user/hive/warehouse $hadoop_users;
-    hadoop fs -chmod +w /tmp /user /user/hive/warehouse;
-    for user in $hadoop_users ; do
-      hadoop fs -chown ${user#/user/} $user;
-    done ;
-    touch /mnt/hadoop/logs/made_initial_dirs.log ;
-  }
-end
-
 # TODO: wait for mount
 # function wait_for_mount {
 #   mount=$1
@@ -165,6 +151,3 @@ end
 #
 # Do work /on/ the HDFS
 #
-
-#
-# $AS_HADOOP "$HADOOP dfsadmin -safemode wait"
