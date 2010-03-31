@@ -2,7 +2,6 @@ name        'nfs_server'
 description 'exports an nfs directory'
 
 run_list *%w[
-  ec2::filesystems
   nfs
   nfs::server
 ]

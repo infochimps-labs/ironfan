@@ -7,7 +7,6 @@ name 'hadoop'
 description 'applies to all nodes in the hadoop cluster'
 
 run_list *%w[
-  ec2::filesystems
   hadoop_cluster
   hadoop_cluster::pig
   hadoop_cluster::ec2_conf
