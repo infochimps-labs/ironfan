@@ -24,7 +24,7 @@ pool POOL_NAME do
     is_hadoop_worker     settings
     image_id             AMIS[:infochimps_ubuntu_910][:x32_uswest1_ebs]
     elastic_ip           settings[:elastic_ip]
-    user_data            settings.to_json
+    user_data            settings[:attributes].to_json
     user                 'ubuntu'
     disable_api_termination false
     puts settings.to_json
@@ -44,7 +44,7 @@ pool POOL_NAME do
     is_hadoop_worker     settings
     image_id             AMIS[:infochimps_ubuntu_910][:x32_uswest1_ebs]
     elastic_ip           settings[:elastic_ip]
-    user_data            settings.to_json
+    user_data            settings[:attributes].to_json
     user                 'ubuntu'
     spot_price           0.08
     disable_api_termination false

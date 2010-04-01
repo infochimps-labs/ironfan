@@ -13,9 +13,6 @@ AMIS = {
     :x32_uswest1_s3  => 'ami-c32e7f86',
     :x64_uswest1_s3  => 'ami-cb2e7f8e',
   },
-  :canonical_ubuntu_lucid_daily => {
-    :x32_uswest1_ebs  => 'ami-07613042',
-  },
   #
   :infochimps_ubuntu_910 => {
     :x32_uswest1_ebs   => 'ami-c5633280',

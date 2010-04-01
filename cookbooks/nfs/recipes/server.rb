@@ -12,3 +12,6 @@ service "nfs-kernel-server" do
   running true
   supports :status => true, :restart => true
 end
+
+# gee I wish I could do this:
+# set[:nfs][:server] = node[:cloud][:private_ips].first
