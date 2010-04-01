@@ -31,6 +31,20 @@ sudo chef-solo -c /tmp/chef_bootstrap.rb -j /tmp/chef_client.json
 sudo mv /etc/chef/client.rb /etc/chef/client-orig.rb ;
 sudo wget ${REMOTE_FILE_URL_BASE}/config/client.rb -O /etc/chef/client.rb ;
 
+# # Uncomment if you want the machine to have a permanent hostname. This patches
+# # the ec2-set-hostname script to use /etc/hostname (otherwise it crams the
+# # ec2-assigned hostname in there regardless)
+#
+sudo echo "chef.infinitemonkeys.info" > /etc/hostname ;
+sudo mv /usr/bin/ec2-set-hostname /usr/bin/ec2-set-hostname.orig ;
+sudo wget ${REMOTE_FILE_URL_BASE}/config/config/ec2-set-hostname_replacement.py -O /usr/bin/ec2-set-hostname ;
+
+
 # cleanup
 sudo apt-get autoremove;
 sudo updatedb;
+
+
+# wget ${REMOTE_FILE_URL_BASE}/config/chef_bootstrap.rb -O /tmp/chef_bootstrap.rb ;
+# wget ${REMOTE_FILE_URL_BASE}/config/chef_server.json  -O /tmp/chef_server.json ;
+# sudo chef-solo -c /tmp/chef_bootstrap.rb -j /tmp/chef_server.json
