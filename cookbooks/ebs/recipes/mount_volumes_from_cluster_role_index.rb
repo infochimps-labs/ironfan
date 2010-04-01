@@ -1,5 +1,9 @@
-if node[:ebs_volumes]
-  node[:ebs_volumes].each do |name, conf|
+cluster_node_index  = (node[:cluster_node_index] || node[:ec2][:ami_launch_index]).to_i
+all_cluster_volumes = data_bag_item('cluster_ebs_volumes', node[:cluster_name])    rescue nil
+
+if all_cluster_volumes
+  cluster_ebs_volumes = all_cluster_volumes[node[:cluster_role]][cluster_node_index] rescue []
+  cluster_ebs_volumes.each do |name, conf|
     if File.exists?(conf[:device])
       directory conf[:mount_point] do
         recursive true
