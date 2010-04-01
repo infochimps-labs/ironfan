@@ -25,12 +25,12 @@ import os.path
 
 def main():
     if os.path.exists("/etc/hostname"):
-        print "Setting hostname from /etc/hostname"
+        # print "Setting hostname from /etc/hostname"
         subprocess.Popen(['hostname', '-F', "/etc/hostname"]).communicate()
     else:
         ec2 = ec2init.EC2Init()
         hostname = ec2.get_hostname()
-        print "Read hostname from ec2 local hostname: " + hostname
+        # print "Read hostname from ec2 local hostname: " + hostname
         subprocess.Popen(['hostname', hostname]).communicate()
 
 if __name__ == '__main__':

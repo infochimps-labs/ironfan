@@ -35,10 +35,10 @@ sudo wget ${REMOTE_FILE_URL_BASE}/config/client.rb -O /etc/chef/client.rb ;
 # # the ec2-set-hostname script to use /etc/hostname (otherwise it crams the
 # # ec2-assigned hostname in there regardless)
 #
-sudo echo "chef.infinitemonkeys.info" > /etc/hostname ;
-sudo mv /usr/bin/ec2-set-hostname /usr/bin/ec2-set-hostname.orig ;
-sudo wget ${REMOTE_FILE_URL_BASE}/config/config/ec2-set-hostname_replacement.py -O /usr/bin/ec2-set-hostname ;
-
+sudo bash -c 'echo "chef.infinitemonkeys.info" > /etc/hostname' ;
+sudo cp /usr/bin/ec2-set-hostname /usr/bin/ec2-set-hostname.`date "+%Y%m%d%H"`.orig ;
+sudo wget ${REMOTE_FILE_URL_BASE}/config/ec2-set-hostname_replacement.py -O /usr/bin/ec2-set-hostname ;
+sudo chmod a+x /usr/bin/ec2-set-hostname
 
 # cleanup
 sudo apt-get autoremove;
