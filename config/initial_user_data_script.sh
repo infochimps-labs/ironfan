@@ -42,7 +42,7 @@ wget -nv ${REMOTE_FILE_URL_BASE}/chef_client.json  -O /tmp/chef_client.json ;
 chef-solo -c /tmp/chef_bootstrap.rb -j /tmp/chef_client.json
 
 # pull in the chef server client script
-mv /etc/chef/client.rb /etc/chef/client-orig.rb ;
+cp /etc/chef/client.rb /etc/chef/client-orig.rb ;
 wget -nv ${REMOTE_FILE_URL_BASE}/client.rb -O /etc/chef/client.rb ;
 
 # cleanup
