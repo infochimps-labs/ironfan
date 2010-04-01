@@ -30,16 +30,15 @@ if node[:active_users]
     config[:groups].each do |gname|
       group gname do
         group_name gname.to_s
-        gid        node[:groups][gname][:gid]
         members    [ uname ]
         append     true
         action     [:modify]
       end
     end
 
-    add_keys uname do
-      conf config
-    end
+    # add_keys uname do
+    #   conf config
+    # end
   end
 end
 
@@ -93,20 +92,4 @@ end
 #   #     action :remove
 #   #   end
 #   # end
-# end
-
-# # Remove initial setup user and group.
-# user  "ubuntu" do
-#   action :remove
-# end
-#
-# group "ubuntu" do
-#   action :remove
-# end
-#
-# directory "/u" do
-#   action :create
-#   owner "root"
-#   group "admin"
-#   mode 0775
 # end

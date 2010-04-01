@@ -6,6 +6,7 @@ description 'top level attributes, applies to all nodes'
 require File.dirname(__FILE__)+'/../settings'
 
 run_list *%w[
+  ebs::attach_volumes_from_cluster_role_index
   sudo
   users
   git
