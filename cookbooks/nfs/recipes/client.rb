@@ -14,8 +14,10 @@ if node[:nfs_mounts]
       device device_path
       dump 0
       pass 0
-      # mount and add to fstab. set to 'disable' to remove it
-      action [:enable, :mount]
+        # To simply mount the volume: action[:mount]
+        # To mount the volume and add it to fstab: action[:mount,:enable] -- but be aware this can cause problems on reboot if the host can't be reached.
+        # To remove the mount from /etc/fst, action[:disable]
+      action [:mount]
     end
   end
 else

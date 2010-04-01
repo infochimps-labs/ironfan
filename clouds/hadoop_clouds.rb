@@ -5,7 +5,7 @@ require File.dirname(__FILE__)+'/cloud_aspects'
 #
 # EBS-backed hadoop cluster in the cloud.
 # See the ../README.textile file for usage, etc
-# If you're on the west coast, to avoid 'ami not found' errors, first run
+# If you use the west coast availability zone, to avoid 'ami not found' errors, first run
 #   export EC2_URL=https://us-west-1.ec2.amazonaws.com
 
 pool POOL_NAME do

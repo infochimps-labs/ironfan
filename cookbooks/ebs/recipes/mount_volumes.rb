@@ -9,8 +9,11 @@ if node[:ebs_volumes]
       mount conf[:mount_point] do
         fstype conf[:type]
         device conf[:device]
-        # mount and add to fstab. set to 'disable' to remove it
-        action [:enable, :mount]
+        # To simply mount the volumen: action[:mount]
+        # To mount the volume and add it to fstab: action[:mount,:enable]. This
+        #   can cause hellacious problems on reboot if the volume isn't attached.
+        # To remove the mount from /etc/fst, action[:disable]
+        action [:mount]
       end
     else
       Chef::Log.info "Before mounting, you must attach volume #{name} to this instance #{node[:ec2][:instance_id]} at #{conf[:device]}"
