@@ -32,3 +32,8 @@ If you set disable_api_termination to true, in order to terminate the node run
   ec2-modify-instance-attribute -v i-0704be6c --disable-api-termination false
 </code></pre>
 
+
+
+h2. Information Sharing using simpleDB
+
+* Make sure you log into the "aws console":http://bit.ly/awsconsole and check in as a SimpleDB user. (You have to click through a license agreement, it should approve you within minutes)
