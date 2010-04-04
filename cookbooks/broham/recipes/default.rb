@@ -35,6 +35,11 @@ class Broham < RightAws::ActiveSdb::Base
     success ? self.new(success) : false
   end
 
+  def yo!(*args)      register *args ; end
+  def sup?(*args)      host *args    ; end
+  def sup_bros?(*args) hosts *args   ; end
+
+
   #
   # Enlists as the next among many machines filling the given role.
   #
