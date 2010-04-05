@@ -50,7 +50,7 @@ wget -nv ${REMOTE_FILE_URL_BASE}/chef_server.json  -O /tmp/chef_server.json ;
 chef-solo -c /tmp/chef_bootstrap.rb -j /tmp/chef_server.json ;
 
 # Make chef server also a client of itself
-cp /etc/chef/client.rb /etc/chef/client-orig.rb ;
+cp /etc/chef/client.rb /etc/chef/client-orig-`date +%Y%m%d%H`.rb ;
 wget -nv ${REMOTE_FILE_URL_BASE}/client.rb -O /etc/chef/client.rb ;
 
 sudo rm /etc/motd ;

@@ -24,10 +24,28 @@ if ! chef_config.nil?
   chef_server_url        chef_config["chef_server"]
   validation_client_name chef_config["validation_client_name"]
 
-  # if the node_name is given, use that;
-  # if the cluster name, cluster role (and optional index) are given, use "cluster-role-index"
-  # otherwise, use the instance_id.
-  cluster_role_index = chef_config['cluster_role_index'] || OHAI_INFO[:ec2][:ami_launch_index]
+  # Cluster index
+  begin
+    cluster_role_index = chef_config['cluster_role_index']
+    if ! cluster_role_index
+      require 'broham'
+      cluster_name               = node[:cluster_name]
+      raise "Need a cluster name: set a value for node[:cluster_name] in node attributes" unless cluster_name
+      Settings.access_key        = node[:aws][:aws_access_key]
+      Settings.secret_access_key = node[:aws][:aws_secret_access_key]
+      p [cluster_name, Settings]
+      cluster = Broham.new(cluster_name)
+      cluster.establish_connection
+      cluster.register_as_next chef_config["cluster_role"]
+    end
+    cluster_role_index ||= OHAI_INFO[:ec2][:ami_launch_index]
+  rescue Exception => e
+    warn e.backtrace.join("\n")
+  end
+
+  # Node Name: if the node_name is given, use that; if the cluster name, cluster
+  #   role (and optional index) are given, use "cluster-role-index" otherwise,
+  #   use the instance_id.
   case
   when chef_config["node_name"]    then node_name chef_config["node_name"]
   when chef_config["cluster_role"] then node_name [chef_config["cluster_name"], chef_config["cluster_role"], cluster_role_index.to_s].compact.join('-')
