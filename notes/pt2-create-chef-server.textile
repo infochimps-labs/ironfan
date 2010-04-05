@@ -1,3 +1,12 @@
+
+h2. Set up the Chef Server
+
+# # Uncomment to give the machine a permanent hostname. 
+# new_hostname=CHEF.YOURDOMAIN.COM ;
+# echo $new_hostname > /etc/hostname ;
+# hostname -f /etc/hostname
+# sysctl -w kernel.hostname=$new_hostname ;
+
 # unscrewup the hostname every way I can think of
 sudo hostname chef.infinitemonkeys.info           ;
 sudo bash -c 'echo "184.72.52.22 chef.infinitemonkeys.info " >> /etc/hosts' ;
