@@ -1,6 +1,5 @@
-
 %w[
-  g++ ec2-api-tools ec2-ami-tools ;
+  g++ ec2-api-tools ec2-ami-tools 
   git-core cvs subversion exuberant-ctags tree zip liblzo2-dev
   libpcre3-dev libbz2-dev libonig-dev libidn11-dev libxml2-dev libxml2-utils libxslt1-dev libevent-dev
   ruby-elisp python-setuptools python-dev
@@ -10,17 +9,7 @@
   package pkg
 end
 
-
-
-
 # packages *%w[ libtokyocabinet-dev tokyocabinet-bin ]
-
-# easy_install simplejson boto ctypedbytes dumbo
-
-
-# gem extlib oniguruma fastercsv json libxml-ruby htmlentities addressable uuidtools
-#     monkeyshines edamame configliere wukong
-# sudo gem install dustin-beanstalk-client  --source=http://gems.github.com ;
 
 # boost pkgconfig
 

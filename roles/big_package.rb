@@ -2,4 +2,9 @@ name        'big_package'
 description 'Many convenience packages in one big blog'
 
 run_list *%w[
+  big_package
+  big_package::python
+  big_package::ruby
+  big_package::emacs_modes
+
   ]
