@@ -19,6 +19,9 @@ Mixlib::Log::Formatter.show_time = true
 # Extract client configuration from EC2 user-data
 user_data   = OHAI_INFO[:ec2][:userdata]
 chef_config = JSON.parse(user_data) rescue nil
+p chef_config
+chef_config = (chef_config||{}).merge(:node_name => 'kong.infinitemonkeys.info')
+
 if ! chef_config.nil?
   # How to identify node to chef server.
   chef_server_url        chef_config["chef_server"]
@@ -36,7 +39,8 @@ if ! chef_config.nil?
       p [cluster_name, Settings]
       cluster = Broham.new(cluster_name)
       cluster.establish_connection
-      cluster.register_as_next chef_config["cluster_role"]
+      cluster_role_conf  = cluster.register_as_next chef_config["cluster_role"]
+      cluster_role_index = cluster_role_conf['idx']
     end
     cluster_role_index ||= OHAI_INFO[:ec2][:ami_launch_index]
   rescue Exception => e
