@@ -6,6 +6,7 @@ description 'top level attributes, applies to all nodes'
 require File.dirname(__FILE__)+'/../settings'
 
 run_list *%w[
+  base
   sudo
   users
   git
@@ -14,6 +15,7 @@ run_list *%w[
   build-essential
   xml
   zlib
+
   ]
 
 # Attributes applied if the node doesn't have it set already.
