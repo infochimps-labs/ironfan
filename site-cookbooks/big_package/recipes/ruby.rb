@@ -34,7 +34,7 @@ end
 %w[
    extlib oniguruma fastercsv json libxml-ruby htmlentities addressable
    uuidtools configliere wukong rails wirble redis cassandra right_aws whenever
-   rest-client oauth nokogiri json yajl hirb crack cheat
+   rest-client oauth nokogiri json crack cheat
 ].each do |pkg|
   gem_package pkg do
     action :install

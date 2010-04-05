@@ -25,5 +25,5 @@ default_attributes({
       :aws_secret_access_key => Settings[:secret_access_key],
       :aws_region            => Settings[:aws_region],
       :availability_zone     => Settings[:availability_zones].first,
-    }
+    },
   })

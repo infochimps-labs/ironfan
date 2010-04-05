@@ -29,8 +29,10 @@ cp /usr/bin/ec2-set-hostname /usr/bin/ec2-set-hostname.`date "+%Y%m%d%H"`.orig ;
 wget -nv ${REMOTE_FILE_URL_BASE}/ec2-set-hostname_replacement.py -O /usr/bin/ec2-set-hostname ;
 chmod a+x /usr/bin/ec2-set-hostname
 
-# unscrewup the hostname every way I can think of
-# if rabbitmq hangs forever on bootstrap it's because this was screwed up
+
+# unscrewup the hostname every way I can think of. Rabbitmq is a real buttmunch
+# about the hostname -- it will hang forever on bootstrap if `hostname -s`
+# doesn't resolve back to this host. One of the following fixes this, not sure which.
 export HOSTNAME=chef.YOURDOMAIN.COM ;
 PUBLIC_IP=XXX.XXX.XX.XX
 sudo kill `cat /var/run/dhclient.eth0.pid` # kill dhclient

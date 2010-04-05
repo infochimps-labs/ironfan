@@ -13,8 +13,9 @@ end
   end
 end
 
+# ctypedbytes
 %w[
- boto ctypedbytes dumbo
+ boto dumbo
 ].each do |pkg|
   easy_install_package pkg do
     action :install

@@ -7,7 +7,6 @@ h3. Prior to setup
 * Set the DNS server for your domain to point to it (eg chef.YOURDOMAIN.COM). Set a low TTL (1200 seconds) to handle an outage.
 
 
-
 # # Uncomment to give the machine a permanent hostname. 
 # new_hostname=CHEF.YOURDOMAIN.COM ;
 # echo $new_hostname > /etc/hostname ;
