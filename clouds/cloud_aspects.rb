@@ -2,17 +2,23 @@
 
 # Poolparty definitions for a generic node.
 def is_generic_node settings
+  # Instance described in settings files
   availability_zones settings[:availability_zones]
   instance_type      settings[:instance_type]
+  image_id           settings[:ami_id]
+  keypair            POOL_NAME, File.join(ENV['HOME'], '.poolparty')
+  settings[:attributes][:run_list]     << 'role[base_role]'
+  settings[:attributes][:cluster_name] = self.parent.name
+  settings[:attributes][:cluster_role] = self.name
+end
+
+def is_ebs_backed settings
+  # Bring the ephemeral storage (local scratch disks) online
   block_device_mapping([
       { :device_name => '/dev/sda1' }.merge(settings[:boot_volume]),
       { :device_name => '/dev/sdc',  :virtual_name => 'ephemeral0' },
     ])
-  keypair        POOL_NAME, File.join(ENV['HOME'], '.poolparty')
   instance_initiated_shutdown_behavior 'stop'
-  settings[:attributes][:run_list]     << 'role[base_role]'
-  settings[:attributes][:cluster_name] = self.parent.name
-  settings[:attributes][:cluster_role] = self.name
 end
 
 # Poolparty rules to impart the 'big_package' role:

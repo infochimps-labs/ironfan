@@ -1,0 +1,59 @@
+h1. An EBS-backed Hadoop Cluster using Chef and Poolparty
+
+h2. Set up the Chef Server
+
+# # Uncomment to give the machine a permanent hostname. 
+# new_hostname=CHEF.YOURDOMAIN.COM ;
+# echo $new_hostname > /etc/hostname ;
+# hostname -f /etc/hostname
+# sysctl -w kernel.hostname=$new_hostname ;
+
+
+h2. Create a generic Chef Client
+
+We're going to grab a generic machine down off the shelf and configure it to be a chef client.  If you'd like to skip this step, there are machine images prepared by opscode and by infochimps that you can use.
+
+For this first step, we'll use the Canonical Ubuntu machine image and pass in a traditional user-data script.  The machine will run it on startup, taking care of most of the generic chef client setup.  Examine @config/user_data_script-bootstrap_chef_client.sh@, and make sure you're cool with everything that's in it. We want to do as little as possible in that script, and let chef do the heavy lifting later.
+
+From your local machine, create the client and then ssh in:
+<pre><code>
+  cloud-start -n client -c clouds/chef_clouds.rb
+  cloud-start -n client -c clouds/chef_clouds.rb
+</code></pre>
+
+On the remote machine, there are a few things you'll probably want to take care of.
+
+* If you'd like to enable password-authentication for ssh connections, edit /etc/ssh/
+
+
+
+If you're west, first run @export EC2_URL=https://us-west-1.ec2.amazonaws.com@
+
+Once everything's set up, you should be able to run
+
+* 
+* @cloud-start -n master  -c clouds/hadoop_clouds.rb@
+* @cloud-start -n slave   -c clouds/hadoop_clouds.rb@
+
+You might also find these commands useful:
+
+* @cloud-ssh   -n server   -c clouds/chef_clouds.rb@
+
+h3. Instance attributes: disable_api_termination and delete_on_termination
+
+To set delete_on_termination to 'true' after the fact, run the following
+<pre><code>
+  ec2-modify-instance-attribute -v i-0704be6c --block-device-mapping /dev/sda1=vol-e98d2c80::true
+</code></pre>
+(You'll have to modify the instance and volume to suit)
+  
+If you set disable_api_termination to true, in order to terminate the node run
+<pre><code>
+  ec2-modify-instance-attribute -v i-0704be6c --disable-api-termination false
+</code></pre>
+
+
+
+h2. Information Sharing using simpleDB
+
+* Make sure you log into the "aws console":http://bit.ly/awsconsole and check in as a SimpleDB user. (You have to click through a license agreement, it should approve you within minutes)

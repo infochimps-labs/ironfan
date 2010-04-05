@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-# If you're crazy enough to run this script, point the url at a directory
-# with the scripts you'd like to stuff into the machine
+# A url directory with the scripts you'd like to stuff into the machine
 REMOTE_FILE_URL_BASE="http://github.com/mrflip/hadoop_cluster_chef/raw/master/config"
 
 # Broaden the apt universe
@@ -24,32 +23,23 @@ gem install --no-rdoc --no-ri rubygems-update --version=1.3.6 ; /var/lib/gems/1.
 # install chef
 gem install --no-rdoc --no-ri chef ;
 
-# # Uncomment if you want the machine to have a permanent hostname. This patches
-# # the ec2-set-hostname script to use /etc/hostname (otherwise it crams the
-# # ec2-assigned hostname in there regardless)
-#
-# new_hostname=chef.infinitemonkeys.info
-# echo $new_hostname > /etc/hostname ;
-# cp /usr/bin/ec2-set-hostname /usr/bin/ec2-set-hostname.`date "+%Y%m%d%H"`.orig ;
-# wget -nv ${REMOTE_FILE_URL_BASE}/ec2-set-hostname_replacement.py -O /usr/bin/ec2-set-hostname ;
-# chmod a+x /usr/bin/ec2-set-hostname
-# hostname -f /etc/hostname
-# sysctl -w kernel.hostname=$new_hostname ;
+# This patches the ec2-set-hostname script to use /etc/hostname (otherwise it
+# crams the ec2-assigned hostname in there regardless)
+cp /usr/bin/ec2-set-hostname /usr/bin/ec2-set-hostname.`date "+%Y%m%d%H"`.orig ;
+wget -nv ${REMOTE_FILE_URL_BASE}/ec2-set-hostname_replacement.py -O /usr/bin/ec2-set-hostname ;
+chmod a+x /usr/bin/ec2-set-hostname
 
 # bootstrap chef from *client* scripts
 wget -nv ${REMOTE_FILE_URL_BASE}/chef_bootstrap.rb -O /tmp/chef_bootstrap.rb ;
 wget -nv ${REMOTE_FILE_URL_BASE}/chef_client.json  -O /tmp/chef_client.json ;
 chef-solo -c /tmp/chef_bootstrap.rb -j /tmp/chef_client.json
 
-# pull in the chef server client script
-sudo cp /etc/chef/client.rb /etc/chef/client-orig.rb ;
-sudo wget -nv ${REMOTE_FILE_URL_BASE}/client.rb -O /etc/chef/client.rb ;
+# pull in the client scripts that make this machine speak to the chef server
+cp /etc/chef/client.rb /etc/chef/client-orig.rb ;
+wget -nv ${REMOTE_FILE_URL_BASE}/client.rb -O /etc/chef/client.rb ;
 
 # cleanup
 apt-get autoremove;
 updatedb;
 
-# # bootstrap chef from *client* scripts
-# wget -nv ${REMOTE_FILE_URL_BASE}/chef_bootstrap.rb -O /tmp/chef_bootstrap.rb ;
-# wget -nv ${REMOTE_FILE_URL_BASE}/chef_server.json  -O /tmp/chef_server.json ;
-# chef-solo -c /tmp/chef_bootstrap.rb -j /tmp/chef_server.json
+echo "User data script (generic chef client) complete: `date`"

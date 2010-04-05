@@ -1,7 +1,5 @@
 h1. An EBS-backed Hadoop Cluster using Chef and Poolparty
 
-
-
 h2. Running the cloud scripts
 
 If you're west, first run from the shell

@@ -1,4 +1,4 @@
-POOL_NAME     = 'clyde'
+POOL_NAME     = 'lemur'
 require File.dirname(__FILE__)+'/../settings'
 require File.dirname(__FILE__)+'/cloud_aspects'
 
@@ -48,6 +48,21 @@ pool POOL_NAME do
     user                 'ubuntu'
     spot_price           0.08
     disable_api_termination false
+    puts settings.to_json
+  end
+
+  cloud :generic do
+    using :ec2
+    settings = settings_for_node(POOL_NAME, :client)
+    instances           1..1
+    is_nfs_client       settings
+    is_generic_node     settings
+    is_ebs_backed       settings
+    is_chef_client      settings
+    user                'ubuntu'
+    disable_api_termination false
+    user_data_shell_script = File.open(File.dirname(__FILE__)+'/../config/user_data_script-bootstrap_chef_client.sh').read
+    user_data user_data_shell_script
     puts settings.to_json
   end
 end
