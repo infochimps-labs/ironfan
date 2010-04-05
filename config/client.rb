@@ -11,10 +11,12 @@ log_level            :info
 log_location         STDOUT
 validation_key       "/etc/chef/validation.pem"
 client_key           "/etc/chef/client.pem"
-CLIENT_CONFIG_FILE = "/etc/chef/client-config.json"
 file_cache_path      "/srv/chef/cache"
 pid_file             "/var/run/chef/chef-client.pid"
 Mixlib::Log::Formatter.show_time = true
+
+CLIENT_CONFIG_FILE = "/etc/chef/client-config.json"
+client_config = JSON.load(File.open(CLIENT_CONFIG_FILE)) rescue {}
 
 # Extract client configuration from EC2 user-data
 user_data   = OHAI_INFO[:ec2][:userdata]
@@ -24,27 +26,28 @@ chef_config = (chef_config||{}.to_mash).merge(:node_name => 'kong.infinitemonkey
 
 if ! chef_config.nil?
   # How to identify node to chef server.
-  chef_server_url        chef_config["chef_server"]
-  validation_client_name chef_config["validation_client_name"]
+  chef_server_url        chef_config["chef_server"]            || "http://chef.infinitemonkeys.info:4000"
+  validation_client_name chef_config["validation_client_name"] || "chef-validator"
 
   # Cluster index
   begin
     cluster_role_index = chef_config['cluster_role_index']
     if ! cluster_role_index
       require 'broham'
-      cluster_name               = node[:cluster_name]
-      raise "Need a cluster name: set a value for node[:cluster_name] in node attributes" unless cluster_name
-      Settings.access_key        = node[:aws][:aws_access_key]
-      Settings.secret_access_key = node[:aws][:aws_secret_access_key]
-      p [cluster_name, Settings]
-      cluster = Broham.new(cluster_name)
-      cluster.establish_connection
-      cluster_role_conf  = cluster.register_as_next chef_config["cluster_role"]
+      Settings.access_key        = client_config['access_key']
+      Settings.secret_access_key = client_config['secret_access_key']
+      role = client_config["cluster_role"] || chef_config["cluster_role"]
+      p [Settings]
+      Broham.establish_connection
+      Broham.create_domain
+      cluster_role_conf  = Broham.register_as_next role
+      p [cluster_role_conf]
       cluster_role_index = cluster_role_conf['idx']
+      p [cluster_role_index]
     end
     cluster_role_index ||= OHAI_INFO[:ec2][:ami_launch_index]
   rescue Exception => e
-    warn e.backtrace.join("\n")
+    warn [e.to_s, e.backtrace].flatten.compact.join("\n")
   end
 
   # Node Name: if the node_name is given, use that; if the cluster name, cluster
