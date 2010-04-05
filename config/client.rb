@@ -20,7 +20,7 @@ Mixlib::Log::Formatter.show_time = true
 user_data   = OHAI_INFO[:ec2][:userdata]
 chef_config = JSON.parse(user_data) rescue nil
 p chef_config
-chef_config = (chef_config||{}).merge(:node_name => 'kong.infinitemonkeys.info')
+chef_config = (chef_config||{}.to_mash).merge(:node_name => 'kong.infinitemonkeys.info')
 
 if ! chef_config.nil?
   # How to identify node to chef server.
