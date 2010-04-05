@@ -11,37 +11,17 @@ run_list *%w[
   git
   java
   emacs
+  build-essential
+  xml
+  zlib
   ]
 
 # Attributes applied if the node doesn't have it set already.
 default_attributes({
-    :groups => {
-      'admin'      => { :gid => 200 },
-      'sudo'       => { :gid => 201 },
-      'hadoop'     => { :gid => 300 },
-      'supergroup' => { :gid => 301 },
-      'dhruv'      => { :gid => 1001, },
-      'jacob'      => { :gid => 1002, },
-      'doncarlo'       => { :gid => 1003, },
-      'flip'       => { :gid => 1004, },
-    },
-    :users => {
-      # passwords must be in shadow password format with a salt. To generate: openssl passwd -1
-      'dhruv'  => { :uid => 1001, :groups => %w[dhruv  admin sudo supergroup], :password => '', :comment => "Dhruv Bansal", },
-      'jacob'  => { :uid => 1002, :groups => %w[jacob  admin sudo supergroup], :password => '', :comment => "Jacob Perkins", },
-      'doncarlo'   => { :uid => 1003, :groups => %w[doncarlo   admin sudo supergroup], :password => '', :comment => "Doncarlo Knutson", },
-      'flip'   => { :uid => 1004, :groups => %w[flip   admin sudo supergroup], :password => '', :comment => "Philip (flip) Kromer", },
-    },
-    :active_users => %w[flip dhruv jacob doncarlo ],
-    # :ssh_keys => {
-    #   'hadoop' => '',
-    # },
-
     :aws => {
       :aws_access_key        => Settings[:access_key],
       :aws_secret_access_key => Settings[:secret_access_key],
       :aws_region            => Settings[:aws_region],
       :availability_zone     => Settings[:availability_zones].first,
-    },
-    :authorization => { :sudo => { :groups => ['admin'], :users => ['flip'] } }
+    }
   })

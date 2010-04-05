@@ -29,17 +29,33 @@ cp /usr/bin/ec2-set-hostname /usr/bin/ec2-set-hostname.`date "+%Y%m%d%H"`.orig ;
 wget -nv ${REMOTE_FILE_URL_BASE}/ec2-set-hostname_replacement.py -O /usr/bin/ec2-set-hostname ;
 chmod a+x /usr/bin/ec2-set-hostname
 
+# unscrewup the hostname every way I can think of
+# if rabbitmq hangs forever on bootstrap it's because this was screwed up
+export HOSTNAME=chef.YOURDOMAIN.COM ;
+PUBLIC_IP=XXX.XXX.XX.XX
+sudo kill `cat /var/run/dhclient.eth0.pid` # kill dhclient
+sudo bash -c "echo '$HOSTNAME' > /etc/hostname" ;
+sudo hostname -F /etc/hostname ;
+sudo sysctl -w kernel.hostname=$HOSTNAME ;
+sudo sed -i "s/127.0.0.1 *localhost/127.0.0.1      `hostname -f` `hostname -s` localhost/" /etc/hosts
+sudo bash -c "echo '$PUBLIC_IP `hostname -f` `hostname -s `' >> /etc/hosts" ;
+# 127.0.0.1      chef.YOURDOMAIN.COM chef localhost 
+# XXX.XXX.XX.XX  chef.YOURDOMAIN.COM chef
+
 # # bootstrap chef from *server* scripts
 wget -nv ${REMOTE_FILE_URL_BASE}/chef_bootstrap.rb -O /tmp/chef_bootstrap.rb ;
 wget -nv ${REMOTE_FILE_URL_BASE}/chef_server.json  -O /tmp/chef_server.json ;
-chef-solo -c /tmp/chef_bootstrap.rb -j /tmp/chef_server.json
+chef-solo -c /tmp/chef_bootstrap.rb -j /tmp/chef_server.json ;
 
 # Make chef server also a client of itself
 cp /etc/chef/client.rb /etc/chef/client-orig.rb ;
 wget -nv ${REMOTE_FILE_URL_BASE}/client.rb -O /etc/chef/client.rb ;
 
+sudo rm /etc/motd ;
+sudo bash -c 'echo "CHIMP CHIMP CHIMP BORK BORK BORK" > /etc/motd ' ;
+
 # cleanup
 apt-get autoremove;
 updatedb;
 
-echo "User data script (chef server bootstra) complete: `date`"
+echo "User data script (chef server bootstrap) complete: `date`"

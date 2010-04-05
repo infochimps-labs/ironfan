@@ -1,4 +1,4 @@
-POOL_NAME     = 'chef'
+POOL_NAME     = 'kong'
 require File.dirname(__FILE__)+'/../settings'
 POOL_SETTINGS = Settings[:pools][POOL_NAME.to_sym]
 require File.dirname(__FILE__)+'/cloud_aspects'
@@ -17,14 +17,32 @@ pool POOL_NAME do
     using :ec2
     settings = settings_for_node(POOL_NAME, :server)
     instances           1..1
+    attaches_ebs_volumes settings
+    is_generic_node      settings
+    is_ebs_backed        settings
+    is_chef_server       settings
+    is_chef_client       settings
+    mounts_ebs_volumes   settings
+    is_nfs_server        settings
+    elastic_ip           settings[:elastic_ip]
+    user                 'ubuntu'
+    security_group       POOL_NAME
+    disable_api_termination true
+    puts settings.to_json
+  end
+
+  cloud :generic do
+    using :ec2
+    settings = settings_for_node(POOL_NAME, :client)
+    instances           1..1
+    is_nfs_client       settings
     is_generic_node     settings
     is_ebs_backed       settings
-    is_chef_server      settings
     is_chef_client      settings
-    is_nfs_server       settings
-    elastic_ip          settings[:elastic_ip]
     user                'ubuntu'
-    disable_api_termination true
+    disable_api_termination false
+    user_data_shell_script = File.open(File.dirname(__FILE__)+'/../config/user_data_script-bootstrap_chef_client.sh').read
+    user_data user_data_shell_script
     puts settings.to_json
   end
 end

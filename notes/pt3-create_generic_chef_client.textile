@@ -17,7 +17,7 @@ On the remote machine, there are a few things you'll probably want to take care 
 * To watch the progress of the user-data script, run @tail -n5000 -f /var/log/user.log@. Briefly scroll through and make sure it ran successfully.
 * By default, the image only allows ssh to the 'ubuntu' user (using the keypair supplied at startup). If you want to be able to ssh in as root: @sudo nano /root/.ssh/authorized_keys@ and remove everything before the 'ssh-rsa'
 * If you'd like to enable password-authentication for ssh connections, edit /etc/ssh/sshd_config and set 'PasswordAuthentication yes' (then run @sudo service ssh restart@ to test for errors.)
-* Clean out anything revealing @sudo bash -c 'rm -rf /var/log/*.gz /tmp/* /{root,home/ubuntu}/{.emacs.d,.cache,.*hist*,.gem}'@
+* Clean out anything revealing @sudo bash -c 'rm -rf /var/log/*.gz /var/log/user.log /tmp/* /{root,home/ubuntu}/{.emacs.d,.cache,.*hist*,.gem}'@
 * Make sure there are *no* client or validation keys on the image: the new userdata scripts will take care of this: @mv /etc/chef/{*~,client.pem,validation.pem} /tmp@
 
 h3. Create an AMI (Machine Image) for the generic chef client
@@ -25,6 +25,13 @@ h3. Create an AMI (Machine Image) for the generic chef client
 # 'Stop' (don't terminate) the instance.
 # Choose 'Instance Actions'/'Create Image (EBS AMI)'. Give it an informative and parseable description such as  'chef.generic-client.00.00.sda1.boot.20100403'
 # Copy down the AMI id from the AMI screen in your AWS console.
-# Test it out (directions in the next step) Assuming everything went well, you can terminate this instance.
+
+h3. Test it out
+
+Use poolparty to start a new node using that AMI.
+
+To follow the evolution of the chef script run @tail -n1000 -f /etc/sv/chef-client/log/main/*@ To restart it, just run @chef-client@.
+
+h3. Congrats!
 
 Congrats! You have a generic chef client.  Its behavior is entirely determined

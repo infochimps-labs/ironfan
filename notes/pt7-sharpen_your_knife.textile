@@ -15,26 +15,6 @@ If you set disable_api_termination to true, in order to terminate the node run
 
 h3. Sharpen Knife
 
-sudo mkdir /etc/chef
-mkdir ~/.chef
-cat > ~/.chef/webui.pem
-cat > ~/.chef/chef-validator.pem
-chmod g-rwx ~/.poolparty/*.pem
-sudo ln -s /Users/flip/.poolparty/webui.pem  /etc/chef/
-
-knife configure -i
-# Overwrite /Users/flip/.chef/knife.rb? (Y/N) Y
-# Your chef server URL? http://chef.infinitemonkeys.info:4000
-# Your client user name? HOSTNAME_OF_YOUR_MACHINE
-# Your validation client user name? chef-validator
-# Path to a chef repository (or leave blank)?
-# WARN: Creating initial API user...
-# INFO: Created (or updated) client[webui]
-# WARN: Configuration file written to /Users/flip/.chef/knife.rb
-
-
-
-
 ===========================================================================
 
 To modify an image:
@@ -56,23 +36,16 @@ updatedb
 
 ===========================================================================
 
-mkdir ~/.chef
-
-# copy the validation and webui keys into that directory
-# you will need to have an /etc/chef/webui.pem file, even though you shouldn't
-knife configure -i -k ~/.chef/webui.pem -s http://chef.infinitemonkeys.info:4000 -u webui
-
 # check it out
 knife ec2 instance data role[base_role]
+knife cookbook upload apt aws bootstrap build-essential chef couchdb ec2 emacs gems git god java ruby rubygems runit ssh_known_hosts ubuntu xml zlib
+knife cookbook upload sudo cdh users nfs
 
 cat /etc/sv/chef-client/log/run
 
 cd ~/ics/sysadmin/chef-repo
 rake install
 
-knife cookbook upload apt aws bootstrap build-essential chef couchdb ec2 emacs gems git god java ruby rubygems runit ssh_known_hosts ubuntu xml zlib
-
-knife cookbook upload sudo cdh users nfs
 
 for foo in roles/*.rb  ; do echo $foo ; knife role from file $foo ; done
 
