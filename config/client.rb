@@ -35,7 +35,7 @@ begin
     Settings.secret_access_key = chef_config['aws']['secret_access_key']
     Broham.establish_connection
     broham_service = [chef_config["cluster_name"], chef_config["cluster_role"]].join('-')
-    cluster_role_conf  = Broham.register broham_service
+    cluster_role_conf  = Broham.register_as_next broham_service
     p [cluster_role_conf]
     cluster_role_index = cluster_role_conf['idx']
   end
