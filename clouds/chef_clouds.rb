@@ -1,6 +1,5 @@
 POOL_NAME     = 'kong'
-require File.dirname(__FILE__)+'/../settings'
-POOL_SETTINGS = Settings[:pools][POOL_NAME.to_sym]
+require File.dirname(__FILE__)+'/../config/settings'
 require File.dirname(__FILE__)+'/cloud_aspects'
 
 # Example usage (starts the chef server, then logs in to it)

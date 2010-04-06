@@ -6,7 +6,7 @@ def is_generic_node settings
   availability_zones settings[:availability_zones]
   instance_type      settings[:instance_type]
   image_id           settings[:ami_id]
-  keypair            POOL_NAME, File.join(ENV['HOME'], '.poolparty')
+  keypair            POOL_NAME, File.join(ENV['HOME'], '.poolparty', 'keypairs')
   settings[:attributes][:run_list]     << 'role[base_role]'
   settings[:attributes][:cluster_name] = self.parent.name
   settings[:attributes][:cluster_role] = self.name
@@ -40,10 +40,10 @@ end
 # Poolparty rules to make the node act as a chef server
 def is_chef_server settings
   security_group 'chef-server' do
-    authorize :from_port => 22,  :to_port => 22
-    authorize :from_port => 80,  :to_port => 80
-    authorize :from_port => 4000,  :to_port => 4000  # chef-server-api
-    authorize :from_port => 4040,  :to_port => 4040  # chef-server-webui
+    authorize :from_port => 22,   :to_port => 22
+    authorize :from_port => 80,   :to_port => 80
+    authorize :from_port => 4000, :to_port => 4000  # chef-server-api
+    authorize :from_port => 4040, :to_port => 4040  # chef-server-webui
   end
   settings[:attributes][:run_list] << 'role[chef_server]'
 end
