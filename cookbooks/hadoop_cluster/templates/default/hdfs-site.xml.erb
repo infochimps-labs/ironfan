@@ -8,7 +8,7 @@
 </property>
 <property>
   <name>dfs.data.dir</name>
-  <value><%= node[:hadoop][:dfs_data_dirs] %></value>
+  <value><%= @dfs_data_dirs %></value>
   <final>true</final>
 </property>
 <property>
@@ -33,7 +33,7 @@
 </property-->
 <property>
   <name>dfs.name.dir</name>
-  <value><%= node[:hadoop][:dfs_name_dirs] %></value>
+  <value><%= @dfs_name_dirs %></value>
   <final>true</final>
 </property>
 <property>

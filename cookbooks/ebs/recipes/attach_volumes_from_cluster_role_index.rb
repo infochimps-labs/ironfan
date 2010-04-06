@@ -3,10 +3,7 @@
 cluster_node_index  = (node[:cluster_node_index] || node[:ec2][:ami_launch_index]).to_i
 all_cluster_volumes = data_bag_item('cluster_ebs_volumes', node[:cluster_name])    rescue nil
 cluster_ebs_volumes = all_cluster_volumes[node[:cluster_role]][cluster_node_index] rescue nil
-
-Chef::Log.info [node[:ec2][:ami_launch_index]].inspect
-Chef::Log.info [cluster_node_index, node[:cluster_role], all_cluster_volumes].inspect
-Chef::Log.info cluster_ebs_volumes.inspect
+Chef::Log.info ["attach_volumes_from_cluster_role_index", node[:cluster_name], node[:cluster_role], cluster_node_index, cluster_ebs_volumes].inspect
 
 if cluster_ebs_volumes
   template "/tmp/ebs_settings.yaml" do

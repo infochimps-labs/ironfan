@@ -12,7 +12,6 @@ log_location         STDOUT
 validation_key       "/etc/chef/validation.pem"
 client_key           "/etc/chef/client.pem"
 CHEF_CONFIG_FILE   = "/etc/chef/chef_config.json"
-AWS_CONFIG_FILE    = "/etc/chef/aws_config.yaml"
 file_cache_path      "/srv/chef/cache"
 pid_file             "/var/run/chef/chef-client.pid"
 Mixlib::Log::Formatter.show_time = true
@@ -24,15 +23,16 @@ chef_config_from_file      = JSON.load(File.open(CHEF_CONFIG_FILE)) rescue {}
 chef_config = chef_config_from_user_data.to_mash.merge(chef_config_from_file)
 
 # How to identify node to chef server.
-chef_server_url        chef_config['chef']["chef_server"]
-validation_client_name chef_config['chef']["validation_client_name"]
+chef_server_url        chef_config['chef']['chef_server']
+validation_client_name chef_config['chef']['validation_client_name']
 
 # Cluster index
 begin
   cluster_role_index = chef_config['cluster_role_index']
   if ! cluster_role_index
-    require 'broham' ; Configliere.use :config_file
-    Settings.read(AWS_CONFIG_FILE)
+    require 'broham'
+    Settings.access_key        = chef_config['aws']['access_key']
+    Settings.secret_access_key = chef_config['aws']['secret_access_key']
     Broham.establish_connection
     broham_service = [chef_config["cluster_name"], chef_config["cluster_role"]].join('-')
     cluster_role_conf  = Broham.register broham_service
