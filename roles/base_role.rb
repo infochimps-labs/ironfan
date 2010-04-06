@@ -20,10 +20,4 @@ run_list *%w[
 
 # Attributes applied if the node doesn't have it set already.
 default_attributes({
-    :aws => {
-      :aws_access_key        => Settings[:access_key],
-      :aws_secret_access_key => Settings[:secret_access_key],
-      :aws_region            => Settings[:aws_region],
-      :availability_zone     => Settings[:availability_zones].first,
-    },
   })
