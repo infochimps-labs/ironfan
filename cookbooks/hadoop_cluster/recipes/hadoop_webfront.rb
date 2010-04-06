@@ -24,9 +24,11 @@
 
 package 'thttpd'
 
-www_base = '/var/www/' 
-# www_base = '/var/www/thttpd/html' # redhat
-  
+case node[:platform]
+when 'debian', 'ubuntu'    then www_base = '/var/www'             # debian-ish
+else                            www_base = '/var/www/thttpd/html' # redhat-ish
+end
+
 template "#{www_base}/index.html" do
   owner "root"
   mode "0644"

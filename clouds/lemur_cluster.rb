@@ -19,10 +19,10 @@ pool POOL_NAME do
     is_ebs_backed        settings
     is_chef_client       settings
     is_hadoop_node       settings
-    has_big_package      settings
     mounts_ebs_volumes   settings
     is_hadoop_master     settings
     is_hadoop_worker     settings
+    has_big_package      settings
     elastic_ip           settings[:elastic_ip]
     user_data            settings[:attributes].to_json
     user                 'ubuntu'
@@ -33,20 +33,20 @@ pool POOL_NAME do
   cloud :slave do
     using :ec2
     settings = settings_for_node(POOL_NAME, :slave)
-    instances            2..2
+    instances            1..2
     attaches_ebs_volumes settings
     is_nfs_client        settings
     is_generic_node      settings
     is_ebs_backed        settings
     is_chef_client       settings
     is_hadoop_node       settings
-    has_big_package      settings
     mounts_ebs_volumes   settings
     is_hadoop_worker     settings
+    has_big_package      settings
     elastic_ip           settings[:elastic_ip]
     user_data            settings[:attributes].to_json
     user                 'ubuntu'
-    spot_price           0.08
+    # spot_price           0.08
     disable_api_termination false
     puts settings.to_json
   end

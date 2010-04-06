@@ -38,11 +38,12 @@ PUBLIC_IP=XXX.XXX.XX.XX
 sudo kill `cat /var/run/dhclient.eth0.pid` # kill dhclient
 sudo bash -c "echo '$HOSTNAME' > /etc/hostname" ;
 sudo hostname -F /etc/hostname ;
-sudo sysctl -w kernel.hostname=$HOSTNAME ;
-sudo sed -i "s/127.0.0.1 *localhost/127.0.0.1      `hostname -f` `hostname -s` localhost/" /etc/hosts
-sudo bash -c "echo '$PUBLIC_IP `hostname -f` `hostname -s `' >> /etc/hosts" ;
+sudo sysctl -w kernel.hostname=`hostname -f` ;
+# Your /etc/hosts needs to end up looking like this (order is important):
 # 127.0.0.1      chef.YOURDOMAIN.COM chef localhost 
 # XXX.XXX.XX.XX  chef.YOURDOMAIN.COM chef
+sudo sed -i "s/127.0.0.1 *localhost/127.0.0.1      `hostname -f` `hostname -s` localhost/" /etc/hosts
+if grep -q $PUBLIC_IP /etc/hosts  ; then true ; else sudo bash -c "echo '$PUBLIC_IP `hostname -f` `hostname -s `' >> /etc/hosts" ; fi
 
 # # bootstrap chef from *server* scripts
 wget -nv ${REMOTE_FILE_URL_BASE}/chef_bootstrap.rb -O /tmp/chef_bootstrap.rb ;

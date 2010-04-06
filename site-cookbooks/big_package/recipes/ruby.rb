@@ -33,7 +33,7 @@ end
 
 %w[
    extlib oniguruma fastercsv json libxml-ruby htmlentities addressable
-   uuidtools configliere wukong rails wirble redis cassandra right_aws whenever
+   uuidtools configliere rails wirble redis cassandra right_aws whenever
    rest-client oauth nokogiri json crack cheat
 ].each do |pkg|
   gem_package pkg do
@@ -41,3 +41,4 @@ end
   end
 end
 # sudo gem install dustin-beanstalk-client  --source=http://gems.github.com ;
+

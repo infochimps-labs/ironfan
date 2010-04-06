@@ -24,7 +24,7 @@
     <h3>How to set up a tunneling proxy to your cluster</h3>
     <p>Create a tunnel from your local machine to this one:</p>
     <pre style="font-size:10px"><code>
-        ssh -i PATH/TO/KEYPAIR/KEY.pem -f -N -D 6666 -o StrictHostKeyChecking=no -o "ConnectTimeout=10" -o "ServerAliveInterval=60" -o "ControlPath=none" root@<%= node[:ec2][:public_hostname] %>
+        ssh -i ~/.hadoop-ec2/KEY.pem -f -N -D 6666 -o StrictHostKeyChecking=no -o "ConnectTimeout=10" -o "ServerAliveInterval=60" -o "ControlPath=none" root@<%= node[:fqdn] %>
     </code></pre>
     <p>Setup Foxy Proxy:</p>
     <ol>
