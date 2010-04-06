@@ -15,6 +15,7 @@ root    			ALL=(ALL) ALL
 
 # Members of the sudo group may gain root privileges
 %sudo 		ALL=(ALL) ALL
+%admin 		ALL=(ALL) ALL
 
 <% @sudoers_groups.each do |group| -%>
 # Members of the group '<%= group %>' may gain root privileges
