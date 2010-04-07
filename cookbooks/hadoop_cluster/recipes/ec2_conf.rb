@@ -19,9 +19,23 @@ node[:hadoop][:local_disks].each do |mount_point, dev|
   end
   # execute
   mount mount_point do
-    fstype 'xfs'
+    dev_fstype = nil
+    begin
+      dev_type_str = `file -s '#{dev}'`
+      Chef::Log.info [dev_type_str].inspect
+      case
+      when dev_type_str =~ /SGI XFS filesystem data/     then dev_fstype = 'xfs'
+      when dev_type_str =~ /Linux.*ext3 filesystem data/ then dev_fstype = 'ext3'
+      else dev_fstype = nil
+      end
+      Chef::Log.info [dev_fstype].inspect
+    rescue Exception => e
+      warn [e.message, e.backtrace].flatten.join("\n")
+    end
+    only_if{ dev && dev_fstype }
     device dev
-  end if dev
+    fstype dev_fstype
+  end
 end
 local_hadoop_dirs.each do |dir|
   make_hadoop_dir dir

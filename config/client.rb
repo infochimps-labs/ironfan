@@ -27,8 +27,8 @@ chef_server_url        chef_config['chef']['chef_server']
 validation_client_name chef_config['chef']['validation_client_name']
 
 # Cluster index
+cluster_role_index = chef_config['cluster_role_index']
 begin
-  cluster_role_index = chef_config['cluster_role_index']
   if ! cluster_role_index
     require 'broham'
     Settings.access_key        = chef_config['aws']['access_key']
@@ -37,12 +37,14 @@ begin
     broham_service = [chef_config["cluster_name"], chef_config["cluster_role"]].join('-')
     cluster_role_conf  = Broham.register_as_next broham_service
     p [cluster_role_conf]
-    cluster_role_index = cluster_role_conf['idx']
+    cluster_role_index = [cluster_role_conf['idx']].flatten.first
   end
   cluster_role_index ||= OHAI_INFO[:ec2][:ami_launch_index]
 rescue Exception => e
   warn [e.to_s, e.backtrace].flatten.compact.join("\n")
 end
+cluster_role_index ||= OHAI_INFO[:ec2][:ami_launch_index]
+chef_config['cluster_role_index'] = cluster_role_index
 
 # Node Name: if the node_name is given, use that; if the cluster name, cluster
 #   role (and optional index) are given, use "cluster-role-index" otherwise,
@@ -52,6 +54,7 @@ when chef_config["node_name"]    then node_name chef_config["node_name"]
 when chef_config["cluster_role"] then node_name [chef_config["cluster_name"], chef_config["cluster_role"], cluster_role_index.to_s].compact.join('-')
 else                                  node_name OHAI_INFO[:ec2][:instance_id]
 end
+chef_config['node_name'] = node_name
 
 # If the client file is missing, write the validation key out so chef-client
 # can register
