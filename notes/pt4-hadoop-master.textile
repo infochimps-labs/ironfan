@@ -1,13 +1,18 @@
+# Step 1: decouple
 sudo umount /home /ebs* /mnt*
-# **** detach all volumes ***
-
 for svc in hadoop-0.20-datanode hadoop-0.20-tasktracker chef-client cassandra ; do sudo service $svc stop ; done
 
+# Step 2: **** detach all volumes ***
+
+# Step 3: cleanup
 sudo rm /etc/chef/{client.pem,validation.pem,chef_config.json} /etc/sv/chef-client/log/main/*
 sudo rm -rf /var/log/*.gz /var/log/hadoop/* /tmp/* /{root,home/ubuntu}/{.cache,.gem}
 sudo bash -c 'rm /root/.*hist*'
 
 # un-replace gems with gits
+cd /usr/lib/ruby/gems/1.8/gems
+ls -ld */.git
+# If needed,
 sudo rm /usr/lib/ruby/gems/1.8/gems/broham-0.0.5	; sudo git clone git://github.com/infochimps/broham.git          /usr/lib/ruby/gems/1.8/gems/broham-0.0.5
 sudo rm /usr/lib/ruby/gems/1.8/gems/godhead-0.0.3	; sudo git clone git://github.com/infochimps/godhead.git         /usr/lib/ruby/gems/1.8/gems/godhead-0.0.3
 sudo rm /usr/lib/ruby/gems/1.8/gems/imw-0.1.1		; sudo git clone git://github.com/infochimps/imw.git             /usr/lib/ruby/gems/1.8/gems/imw-0.1.1
@@ -15,7 +20,9 @@ sudo rm /usr/lib/ruby/gems/1.8/gems/monkeyshines-0.2.1	; sudo git clone git://gi
 sudo rm /usr/lib/ruby/gems/1.8/gems/poolparty-1.6.8	; sudo git clone git://github.com/infochimps/poolparty.git       /usr/lib/ruby/gems/1.8/gems/poolparty-1.6.8
 sudo rm /usr/lib/ruby/gems/1.8/gems/right_aws-1.10.0	; sudo git clone git://github.com/infochimps/right_aws.git       /usr/lib/ruby/gems/1.8/gems/right_aws-1.10.0
 sudo rm /usr/lib/ruby/gems/1.8/gems/wukong-1.4.7	; sudo git clone git://github.com/infochimps/wukong.git          /usr/lib/ruby/gems/1.8/gems/wukong-1.4.7       
+sudo chgrp -R admin broham* godhead* imw* monkeyshines* poolparty* right_aws* wukong* ; sudo chmod g+w -R broham* godhead* imw* monkeyshines* poolparty* right_aws* wukong*
 
+# With home dir unmounted:
 cd /home/git/repos
 sudo git clone git://github.com/infochimps/broham.git          /home/git/repos/broham-0.0.5       
 sudo git clone git://github.com/infochimps/godhead.git         /home/git/repos/godhead-0.0.3      
@@ -24,3 +31,15 @@ sudo git clone git://github.com/infochimps/monkeyshines.git    /home/git/repos/m
 sudo git clone git://github.com/infochimps/poolparty.git       /home/git/repos/poolparty-1.6.8    
 sudo git clone git://github.com/infochimps/right_aws.git       /home/git/repos/right_aws-1.10.0   
 sudo git clone git://github.com/infochimps/wukong.git          /home/git/repos/wukong-1.4.7       
+sudo chgrp -R admin * ; sudo chmod g+w -R *
+
+
+# hadoop.slave.00.00.sda1.boot.20100407b
+
+rsync --stats -av --exclude /root/.bash_history --exclude /home/*/.bash_history \
+  --exclude /etc/ssh/ssh_host_* --exclude /etc/ssh/moduli \
+  --exclude /etc/udev/rules.d/*persistent-net.rules --exclude /var/lib/ec2/* \
+  --exclude=/mnt/* --exclude=/proc/* --exclude=/tmp/* \
+  /mnt/ami_snap/ /mnt/ami_dup/
+
+sudo rm -rf /mnt/ami_dup/{etc/ssh/ssh_host_*,etc/ssh/moduli,etc/udev/rules.d/*persistent-net.rules,var/lib/ec2/*,mnt/*,proc/*,tmp/*}
