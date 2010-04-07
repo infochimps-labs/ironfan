@@ -4,8 +4,6 @@
 #
 class Chef::Recipe; include HadoopCluster ; end
 
-p node[:hadoop].to_hash
-
 #
 # Mount big ephemeral drives, make hadoop dirs on them
 #
@@ -52,9 +50,11 @@ end
 #
 # Make hadoop dirs on persistent drives
 #
-cluster_ebs_volumes.each do |vol_info|
-  Chef::Log.info vol_info.inspect
-  make_hadoop_dir_on_ebs( vol_info['mount_point']+'/hadoop' )
+if cluster_ebs_volumes
+  cluster_ebs_volumes.each do |vol_info|
+    Chef::Log.info vol_info.inspect
+    make_hadoop_dir_on_ebs( vol_info['mount_point']+'/hadoop' )
+  end
 end
 
 #

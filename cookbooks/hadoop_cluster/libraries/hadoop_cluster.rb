@@ -66,6 +66,7 @@ module HadoopCluster
   end
 
   def cluster_ebs_volumes_are_mounted?
+    return true if cluster_ebs_volumes.blank?
     cluster_ebs_volumes.all?{|vol_info| File.exists?(vol_info['device']) }
   end
 

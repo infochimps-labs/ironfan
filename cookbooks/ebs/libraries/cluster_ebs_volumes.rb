@@ -9,12 +9,12 @@ module ClusterEbsVolumes
     data_bag_item('cluster_ebs_volumes', node[:cluster_name]) # rescue []
   end
 
-  def log_cluster_volume_info
-    Chef::Log.info [].inspect
+  def log_cluster_volume_info desc
     Chef::Log.info [
+      desc,
       node[:cluster_name],       node[:cluster_role],
       node[:cluster_role_index], node[:ec2][:ami_launch_index],
-      all_cluster_volumes, cluster_ebs_volumes
+      all_cluster_volumes, cluster_ebs_volumes,
     ].inspect
   end
 end
