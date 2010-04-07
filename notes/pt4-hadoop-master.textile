@@ -1,1 +1,17 @@
+sudo umount /home /ebs* /mnt*
+# **** detach all volumes ***
 
+for svc in hadoop-0.20-datanode hadoop-0.20-tasktracker chef-client cassandra ; do sudo service $svc stop ; done
+
+sudo rm /etc/chef/{client.pem,validation.pem,chef_config.json} /etc/sv/chef-client/log/main/*
+sudo rm -rf /var/log/*.gz /var/log/hadoop/* /tmp/* /{root,home/ubuntu}/{.cache,.gem}
+sudo bash -c 'rm /root/.*hist*'
+
+# un-replace gems with gits
+sudo rm /usr/lib/ruby/gems/1.8/gems/broham-0.0.5	; sudo git clone git://github.com/infochimps/broham.git          /usr/lib/ruby/gems/1.8/gems/broham-0.0.5
+sudo rm /usr/lib/ruby/gems/1.8/gems/godhead-0.0.3	; sudo git clone git://github.com/infochimps/godhead.git         /usr/lib/ruby/gems/1.8/gems/godhead-0.0.3
+sudo rm /usr/lib/ruby/gems/1.8/gems/imw-0.1.1		; sudo git clone git://github.com/infochimps/imw.git             /usr/lib/ruby/gems/1.8/gems/imw-0.1.1
+sudo rm /usr/lib/ruby/gems/1.8/gems/monkeyshines-0.2.1	; sudo git clone git://github.com/infochimps/monkeyshines.git    /usr/lib/ruby/gems/1.8/gems/monkeyshines-0.2.1
+sudo rm /usr/lib/ruby/gems/1.8/gems/poolparty-1.6.8	; sudo git clone git://github.com/infochimps/poolparty.git       /usr/lib/ruby/gems/1.8/gems/poolparty-1.6.8
+sudo rm /usr/lib/ruby/gems/1.8/gems/right_aws-1.10.0	; sudo git clone git://github.com/infochimps/right_aws.git       /usr/lib/ruby/gems/1.8/gems/right_aws-1.10.0
+sudo rm /usr/lib/ruby/gems/1.8/gems/wukong-1.4.7	; sudo git clone git://github.com/infochimps/wukong.git          /usr/lib/ruby/gems/1.8/gems/wukong-1.4.7

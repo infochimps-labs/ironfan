@@ -1,0 +1,23 @@
+// Data bag: "cassandra"
+{
+  "id": "clusters",
+  "Test": {
+    "keyspaces": {
+      "Twitter": {
+        "columns": {
+          "Users":               { "compare_with": "UTF8Type" },
+          "UserAudits":          { "compare_with": "UTF8Type" },
+          "Usernames":           { "compare_with": "UTF8Type" },
+          "Statuses":            { "compare_with": "UTF8Type" },
+          "StatusAudits":        { "compare_with": "UTF8Type" },
+          "Index":               { "compare_with": "UTF8Type", "column_type": "Super" },
+          "UserRelationships":   { "compare_with": "UTF8Type", "column_type": "Super", "compare_subcolumns_with": "TimeUUIDType" },
+          "StatusRelationships": { "compare_with": "UTF8Type", "column_type": "Super", "compare_subcolumns_with": "TimeUUIDType" }
+        },
+        "replica_placement_strategy": "org.apache.cassandra.locator.RackUnawareStrategy",
+        "replication_factor":         "1",
+        "end_point_snitch":           "org.apache.cassandra.locator.EndPointSnitch"
+      }
+    },
+  }
+}

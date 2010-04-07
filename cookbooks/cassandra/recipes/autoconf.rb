@@ -8,9 +8,9 @@
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,7 +19,7 @@
 #
 
 # STRUCTURE OF THE CASSANDRA DATA BAG (meaning a databag named 'cassandra')
-# 
+#
 #   {:id : "clusters",
 #     {<cluster name> =>
 #       {:keyspaces =>
@@ -58,7 +58,7 @@ node.save
 listen_addr = "" ; thrift_addr = "" ; seeds = []
 if node[:cloud]
   listen_addr = node[:cloud][:private_ips].first
-  thrift_addr = node[:cloud][:public_ips].first
+  thrift_addr = node[:cloud][:private_ips].first
   seeds = search(:node, "cassandra_cluster_name:#{node[:cassandra][:cluster_name]} AND cassandra_seed:true").map do |n|
     if n["cloud"]
       n["cloud"]["private_ips"].first

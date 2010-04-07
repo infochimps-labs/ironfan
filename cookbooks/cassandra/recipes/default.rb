@@ -28,14 +28,10 @@ end
 
 runit_service "cassandra"
 
-service "cassandra" do
-  supports :status => true, :restart => true, :reload => true
-  action [ :enable, :start ]
-end
-
 user "cassandra" do
-  gid "nogroup"
-  shell "/bin/false"
+  uid       '330'
+  gid       "nogroup"
+  shell     "/bin/false"
 end
 
 [ "/var/lib/cassandra", "/var/log/cassandra",
@@ -54,18 +50,22 @@ end
 end
 
 directory "/etc/cassandra" do
-  owner "root"
-  group "root"
-  mode "0755"
-  action :create
-  not_if "test -d /etc/cassandra"
+  owner     "root"
+  group     "root"
+  mode      "0755"
+  action    :create
+  not_if    "test -d /etc/cassandra"
 end
 
 template "/etc/cassandra/storage-conf.xml" do
-  source "storage-conf.xml.erb"
-  owner "root"
-  group "root"
-  mode 0644
-  notifies :restart, resources(:service => "cassandra")
+  source    "storage-conf.xml.erb"
+  owner     "root"
+  group     "root"
+  mode      0644
+  notifies  :restart, resources(:service => "cassandra")
 end
 
+service "cassandra" do
+  supports :status => true, :restart => true, :reload => true
+  action [ :enable, :start ]
+end

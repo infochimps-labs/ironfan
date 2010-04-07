@@ -7,8 +7,10 @@ run_list *%w[
 ]
 
 # Attributes applied if the node doesn't have it set already.
-default_attributes({
-    :nfs_mounts => ['/home', { :owner => 'root', :remote_path => "/home" } ]
+override_attributes({
+    :nfs_mounts => [
+      ['/home', { :owner => 'root', :remote_path => "/home" }]
+    ],
   })
 
 

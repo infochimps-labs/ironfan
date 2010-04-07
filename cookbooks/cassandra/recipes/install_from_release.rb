@@ -20,13 +20,17 @@ bash 'install from tarball' do
   cwd          '/usr/local/share'
   code <<EOF
   tar xzf /usr/local/src/#{cassandra_install_pkg}
+  cd  #{cassandra_install_dir}
+  mv                conf/storage-conf.xml conf/storage-conf.xml.orig
+  ln -nfs /etc/cassandra/storage-conf.xml conf/storage-conf.xml
+  chmod a+x bin/*
   true
 EOF
   not_if{  File.directory?("/usr/local/share/"+cassandra_install_dir) }
 end
 
 link "/usr/local/share/cassandra" do
-  to "/usr/local/share/"+cassandra_install_dir
+  to "/usr/local/share/apache-cassandra-0.6.0-rc1-src" # +cassandra_install_dir
   action :create
 end
 

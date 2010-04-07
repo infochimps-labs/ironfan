@@ -69,7 +69,7 @@ end
 
 # Adopt chef config settings from the attributes key
 if not File.exists?(CHEF_CONFIG_FILE)
-  chef_config_out = chef_config.reject{|k,v| ["run_list", "chef"].include?(k.to_s) }
+  chef_config_out = chef_config.reject{|k,v| ["chef"].include?(k.to_s) }
   File.open(CHEF_CONFIG_FILE, "w", 0600) do |f|
     f.puts(%Q{// Use this file to override the user-data attributes})
     f.print(JSON.pretty_generate(chef_config_out))

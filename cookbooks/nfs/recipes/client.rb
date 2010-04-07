@@ -5,8 +5,8 @@ if node[:nfs_mounts]
   node[:nfs_mounts].each do |target, config|
     directory target do
       recursive true
-      owner config[:owner]
-      group config[:owner]
+      owner (config[:owner]||'root')
+      group (config[:owner]||'root')
     end
     mount target do
       fstype "nfs"
