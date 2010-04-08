@@ -1,9 +1,9 @@
-
 # Step 1: decouple
 for svc in hadoop-0.20-datanode hadoop-0.20-tasktracker hadoop-0.20-jobtracker hadoop-0.20-namenode hadoop-0.20-secondarynamenode chef-client cassandra ; do sudo service $svc stop ; done
 sudo umount /home /ebs* /mnt* ;
 
 # Step 2: **** detach all volumes ***
+# Step 2a: check /etc/hosts: shouldn't refer to any actual hostname
 
 # Step 3: cleanup
 sudo rm /etc/chef/{client.pem,validation.pem} /etc/sv/chef-client/log/main/*
@@ -22,7 +22,6 @@ ls -ld /usr/lib/ruby/gems/1.8/gems/*/.git
 
 # If needed, un-replace gems with gits
 cd /usr/lib/ruby/gems/1.8/gems
-ls -ld /usr/lib/ruby/gems/1.8/gems/*/.git
 sudo rm -rf /usr/lib/ruby/gems/1.8/gems/broham-0.0.5    	; sudo git clone git://github.com/infochimps/broham.git          /usr/lib/ruby/gems/1.8/gems/broham-0.0.5
 sudo rm -rf /usr/lib/ruby/gems/1.8/gems/right_aws-1.10.0	; sudo git clone git://github.com/infochimps/right_aws.git       /usr/lib/ruby/gems/1.8/gems/right_aws-1.10.0
 sudo rm -rf /usr/lib/ruby/gems/1.8/gems/godhead-0.0.3   	; sudo git clone git://github.com/infochimps/godhead.git         /usr/lib/ruby/gems/1.8/gems/godhead-0.0.3
@@ -32,6 +31,9 @@ sudo rm -rf /usr/lib/ruby/gems/1.8/gems/poolparty-1.6.8  	; sudo git clone git:/
 sudo rm -rf /usr/lib/ruby/gems/1.8/gems/wukong-1.4.7    	; sudo git clone git://github.com/infochimps/wukong.git          /usr/lib/ruby/gems/1.8/gems/wukong-1.4.7       
 sudo chgrp -R admin broham* godhead* imw* monkeyshines* poolparty* right_aws* wukong* ; sudo chmod g+w -R broham* godhead* imw* monkeyshines* poolparty* right_aws* wukong*
 ls -ld /usr/lib/ruby/gems/1.8/gems/*/.git
+
+---------------------------------------------------------------------------
+
 
 # With home dir unmounted:
 mkdir -p /home/git/repos ; cd /home/git/repos 
@@ -45,7 +47,6 @@ sudo git clone git://github.com/infochimps/wukong.git          /home/git/repos/w
 sudo chgrp -R admin * ; sudo chmod g+w -R *
 
 
-check /etc/hosts
 REMOTE_FILE_URL_BASE="http://github.com/mrflip/hadoop_cluster_chef/raw/master/config"
 wget -nv ${REMOTE_FILE_URL_BASE}/client.rb -O /etc/chef/client.rb ;
 
