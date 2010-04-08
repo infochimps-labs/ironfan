@@ -60,8 +60,8 @@ end
 #
 # Physical directories for HDFS files and metadata
 #
-dfs_name_dirs.each{      |dir| make_hadoop_dir_on_ebs(dir) }
-dfs_data_dirs.each{      |dir| make_hadoop_dir_on_ebs(dir) }
-fs_checkpoint_dirs.each{ |dir| make_hadoop_dir_on_ebs(dir) }
-mapred_local_dirs.each{  |dir| make_hadoop_dir_on_ebs(dir) }
+dfs_name_dirs.each{      |dir| make_hadoop_dir_on_ebs(dir); ensure_hadoop_owns_hadoop_dirs(dir) }
+dfs_data_dirs.each{      |dir| make_hadoop_dir_on_ebs(dir); ensure_hadoop_owns_hadoop_dirs(dir) }
+fs_checkpoint_dirs.each{ |dir| make_hadoop_dir_on_ebs(dir); ensure_hadoop_owns_hadoop_dirs(dir) }
+mapred_local_dirs.each{  |dir| make_hadoop_dir_on_ebs(dir); ensure_hadoop_owns_hadoop_dirs(dir) }
 

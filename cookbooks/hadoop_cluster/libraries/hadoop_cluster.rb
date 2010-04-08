@@ -42,7 +42,7 @@ module HadoopCluster
 
   def ensure_hadoop_owns_hadoop_dirs dir
     execute "Make sure hadoop owns hadoop dirs" do
-
+      command %Q{chown -R hadoop:hadoop #{dir}}
     end
   end
 
@@ -78,19 +78,19 @@ module HadoopCluster
 
   # The HDFS data. Spread out across persistent storage only
   def dfs_data_dirs
-    persistent_hadoop_dirs.map{|dir| File.join(dir, 'hdfs/data') }
+    persistent_hadoop_dirs.map{|dir| File.join(dir, 'hdfs/data')}
   end
   # The HDFS metadata. Keep this on two different volumes, at least one persistent
   def dfs_name_dirs
-    persistent_hadoop_dirs.map{|dir| File.join(dir, 'hdfs/name') }
+    persistent_hadoop_dirs.map{|dir| File.join(dir, 'hdfs/name')}
   end
   # HDFS metadata checkpoint dir. Keep this on two different volumes, at least one persistent.
   def fs_checkpoint_dirs
-    persistent_hadoop_dirs.map{|dir| File.join(dir, 'hdfs/secondary') }
+    persistent_hadoop_dirs.map{|dir| File.join(dir, 'hdfs/secondary')}
   end
   # Local storage during map-reduce jobs. Point at every local disk.
   def mapred_local_dirs
-    local_hadoop_dirs.map{|dir| File.join(dir, 'mapred/local') }
+    local_hadoop_dirs.map{|dir| File.join(dir, 'mapred/local')}
   end
 
 end
