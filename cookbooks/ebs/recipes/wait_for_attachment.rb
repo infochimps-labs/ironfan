@@ -9,7 +9,7 @@ if cluster_ebs_volumes
     echo -n "$i "
     i=$[$i+1]
     test -c #{conf[:device]} || continue
-    echo "#{conf[:device]} mounted for #{conf.to_hash.inspect}"
+    echo "#{conf[:device]} mounted for #{conf.to_hash.inspect}" >> /tmp/wait_for_attachment_err.log
     break;
   done
   true
