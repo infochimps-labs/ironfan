@@ -49,7 +49,7 @@ pool POOL_NAME do
     elastic_ip           settings[:elastic_ip]
     user_data            settings[:attributes].to_json
     user                 'ubuntu'
-    spot_price           0.08
+    # spot_price           0.08
     launch_group         settings[:launch_group]
     disable_api_termination false
     puts settings.to_json
