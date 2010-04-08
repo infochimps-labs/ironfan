@@ -40,6 +40,12 @@ module HadoopCluster
     end
   end
 
+  def ensure_hadoop_owns_hadoop_dirs dir
+    execute "Make sure hadoop owns hadoop dirs" do
+
+    end
+  end
+
   # Create a symlink to a directory, wiping away any existing dir that's in the way
   def force_link dest, src
     directory(dest) do

@@ -1,4 +1,4 @@
-POOL_NAME     = 'lemur'
+POOL_NAME     = 'gibbon'
 require File.dirname(__FILE__)+'/../config/settings'
 require File.dirname(__FILE__)+'/cloud_aspects'
 
@@ -27,7 +27,7 @@ pool POOL_NAME do
     elastic_ip           settings[:elastic_ip]
     user_data            settings[:attributes].to_json
     user                 'ubuntu'
-    # spot_price         0.08
+    spot_price           0.08
     disable_api_termination false
     puts settings.to_json
   end
