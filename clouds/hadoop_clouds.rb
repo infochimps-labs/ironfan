@@ -23,10 +23,11 @@ pool POOL_NAME do
     is_hadoop_master     settings
     is_hadoop_worker     settings
     has_big_package      settings
+    is_cassandra_node    settings
     elastic_ip           settings[:elastic_ip]
     user_data            settings[:attributes].to_json
     user                 'ubuntu'
-    spot_price         0.08
+    # spot_price         0.08
     disable_api_termination false
     puts settings.to_json
   end
@@ -44,10 +45,11 @@ pool POOL_NAME do
     mounts_ebs_volumes   settings
     is_hadoop_worker     settings
     has_big_package      settings
+    # is_cassandra_node    settings
     elastic_ip           settings[:elastic_ip]
     user_data            settings[:attributes].to_json
     user                 'ubuntu'
-    # spot_price         0.08
+    spot_price           0.08
     launch_group         settings[:launch_group]
     disable_api_termination false
     puts settings.to_json

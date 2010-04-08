@@ -8,6 +8,7 @@ def is_generic_node settings
   image_id           settings[:ami_id]
   keypair            POOL_NAME, File.join(ENV['HOME'], '.poolparty', 'keypairs')
   settings[:attributes][:run_list]     << 'role[base_role]'
+  settings[:attributes][:run_list]     << 'role[infochimps_base]'
   settings[:attributes][:cluster_name] = self.parent.name
   settings[:attributes][:cluster_role] = self.name
 end
@@ -25,6 +26,7 @@ end
 # installs a whole mess of convenient packages.
 def has_big_package settings
   settings[:attributes][:run_list] << 'role[big_package]'
+  settings[:attributes][:run_list] << 'role[dev_machine]'
 end
 
 # Poolparty rules to impart the 'ebs_volumes_attach' role
@@ -105,4 +107,11 @@ def is_hadoop_worker settings
         :namenode_hostname   => master_private_ip, } )
   end
   settings[:attributes][:run_list] << 'role[hadoop_worker]'
+end
+
+def is_cassandra_node settings
+  settings[:attributes][:run_list] << 'role[cassandra_node]'
+  security_group 'cassandra_node' do
+    authorize :group_name => 'cassandra_node'
+  end
 end

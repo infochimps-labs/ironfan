@@ -37,5 +37,5 @@ set_unless[:cassandra][:commit_log_sync]               = "periodic"
 set_unless[:cassandra][:commit_log_sync_period]        = 10000
 set_unless[:cassandra][:gc_grace]                      = 864000
 # Install from release
-set_unless[:cassandra][:install_url] = "http://ftp.wayne.edu/apache/cassandra/0.6.0/apache-cassandra-0.6.0-rc1-bin.tar.gz"
-# if that fails use                 "http://archive.apache.org/dist/cassandra/0.6.0/apache-cassandra-0.6.0-rc1-bin.tar.gz"
+set[:cassandra][:install_url] = "http://ftp.wayne.edu/apache/cassandra/0.6.0/apache-cassandra-0.6.0-rc1-src.tar.gz"
+# if that fails use                 "http://archive.apache.org/dist/cassandra/0.6.0/apache-cassandra-0.6.0-rc1-src.tar.gz"

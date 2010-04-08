@@ -7,7 +7,7 @@ directory "/usr/local/src" do
 end
 
 cassandra_install_pkg = File.basename(node[:cassandra][:install_url])
-cassandra_install_dir = cassandra_install_pkg.gsub(%r{-(?:bin|src)\.tar\.gz}, '')
+cassandra_install_dir = cassandra_install_pkg.gsub(%r{(?:-bin)?\.tar\.gz}, '')
 Chef::Log.info [cassandra_install_pkg, cassandra_install_dir].inspect
 
 remote_file "/usr/local/src/"+cassandra_install_pkg do
@@ -23,14 +23,21 @@ bash 'install from tarball' do
   cd  #{cassandra_install_dir}
   mv                conf/storage-conf.xml conf/storage-conf.xml.orig
   ln -nfs /etc/cassandra/storage-conf.xml conf/storage-conf.xml
+  ant ivy-retrieve
+  ant build
   chmod a+x bin/*
   true
 EOF
-  not_if{  File.directory?("/usr/local/share/"+cassandra_install_dir) }
+  not_if{ File.directory?("/usr/local/share/"+cassandra_install_dir) && (not Dir['/usr/local/share/apache-cassandra/build/apache-cassandra-*.jar'].blank?) }
 end
 
 link "/usr/local/share/cassandra" do
-  to "/usr/local/share/apache-cassandra-0.6.0-rc1-src" # +cassandra_install_dir
+  to "/usr/local/share/"+cassandra_install_dir
+  action :create
+end
+
+link "/usr/local/share/cassandra/cassandra.in.sh" do
+  to "/usr/local/share/cassandra/bin/cassandra.in.sh"
   action :create
 end
 

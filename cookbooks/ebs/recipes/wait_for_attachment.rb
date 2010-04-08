@@ -1,8 +1,8 @@
+if cluster_ebs_volumes
+  cluster_ebs_volumes.each do |conf|
+    bash "Wait for ebs volumes to attach" do
 
-cluster_ebs_volumes.each do |conf|
-  bash "Wait for ebs volumes to attach" do
-
-    script <<EOF
+      code <<EOF
   echo #{conf.to_hash.inspect}:
   while true ; do
     sleep 2
@@ -14,6 +14,8 @@ cluster_ebs_volumes.each do |conf|
   done
   true
 EOF
+    end
+
   end
 
 end
