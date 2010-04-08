@@ -7,7 +7,6 @@ run_list *%w[
   hadoop_cluster
   hadoop_cluster::pig
   hadoop_cluster::cluster_conf
-  hadoop_cluster::ec2_conf
   ]
 
 # Attributes applied if the node doesn't have it set already.
