@@ -43,3 +43,15 @@ rsync --stats -av --exclude /root/.bash_history --exclude /home/*/.bash_history 
   /mnt/ami_snap/ /mnt/ami_dup/
 
 sudo rm -rf /mnt/ami_dup/{etc/ssh/ssh_host_*,etc/ssh/moduli,etc/udev/rules.d/*persistent-net.rules,var/lib/ec2/*,mnt/*,proc/*,tmp/*}
+
+===========================================================================
+
+-- apt-get clear cache
+-- wipe out ri.
+
+===========================================================================
+
+
+
+ec2reg -s snap-dc21deb4 -a i386 -d 'hadoop.slave.00.00.sda1.boot4xfs.20100407d' -n 'hadoop.slave.00.00.sda1.boot4xfs.20100407d'
+
