@@ -1,4 +1,11 @@
 
+knife cookbook upload --all ; for foo in ~/ics/sysadmin/{hadoop_cluster_chef,infochimps_chef}/roles/* ; do echo $foo ; knife role from file $foo ; done
+
+
+
+===========================================================================
+
+
 h3. Instance attributes: disable_api_termination and delete_on_termination
 
 To set delete_on_termination to 'true' after the fact, run the following
