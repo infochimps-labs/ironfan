@@ -21,7 +21,7 @@ apt-get install -y ruby ruby1.8-dev libopenssl-ruby1.8 rubygems ri irb build-ess
 gem install --no-rdoc --no-ri rubygems-update --version=1.3.6 ; /var/lib/gems/1.8/bin/update_rubygems; gem update --no-rdoc --no-ri --system ; gem --version ;
 
 # install chef
-gem install --no-rdoc --no-ri chef ;
+gem install --no-rdoc --no-ri chef broham configliere ;
 
 # This patches the ec2-set-hostname script to use /etc/hostname (otherwise it
 # crams the ec2-assigned hostname in there regardless)

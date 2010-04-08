@@ -67,13 +67,12 @@ elsif File.exists?(validation_key)
   FileUtils.rm(validation_key) rescue nil
 end
 
+
 # Adopt chef config settings from the attributes key
-if not File.exists?(CHEF_CONFIG_FILE)
+unless chef_config['freeze_chef_config_file']
   chef_config_out = chef_config.reject{|k,v| ["chef"].include?(k.to_s) }
   File.open(CHEF_CONFIG_FILE, "w", 0600) do |f|
-    f.puts(%Q{// Use this file to override the user-data attributes})
     f.print(JSON.pretty_generate(chef_config_out))
   end
 end
-
 json_attribs CHEF_CONFIG_FILE if File.exists?(CHEF_CONFIG_FILE)

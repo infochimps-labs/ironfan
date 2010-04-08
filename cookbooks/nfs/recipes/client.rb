@@ -1,4 +1,3 @@
-
 package "nfs-common"
 
 if node[:nfs_mounts]

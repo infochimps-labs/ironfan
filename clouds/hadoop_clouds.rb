@@ -26,6 +26,7 @@ pool POOL_NAME do
     elastic_ip           settings[:elastic_ip]
     user_data            settings[:attributes].to_json
     user                 'ubuntu'
+    spot_price         0.08
     disable_api_termination false
     puts settings.to_json
   end
@@ -33,7 +34,7 @@ pool POOL_NAME do
   cloud :slave do
     using :ec2
     settings = settings_for_node(POOL_NAME, :slave)
-    instances            1..1
+    instances            2..2
     attaches_ebs_volumes settings
     is_nfs_client        settings
     is_generic_node      settings
@@ -46,7 +47,7 @@ pool POOL_NAME do
     elastic_ip           settings[:elastic_ip]
     user_data            settings[:attributes].to_json
     user                 'ubuntu'
-    # spot_price           0.08
+    # spot_price         0.08
     launch_group         settings[:launch_group]
     disable_api_termination false
     puts settings.to_json
