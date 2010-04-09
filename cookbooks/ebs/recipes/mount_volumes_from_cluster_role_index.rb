@@ -9,15 +9,8 @@ if cluster_ebs_volumes
     end
     mount conf['mount_point'] do
       only_if{ File.exists?(conf['device']) }
-      dev_type_str = `file -s '#{conf['device']}'`
-      Chef::Log.info [dev_type_str].inspect
-      case
-      when conf['type']                                  then fstype conf['type']
-      when dev_type_str =~ /SGI XFS filesystem data/     then fstype 'xfs'
-      when dev_type_str =~ /Linux.*ext3 filesystem data/ then fstype 'ext3'
-      else                                                    fstype 'ext3'
-      end
       device    conf['device']
+      fstype    conf['type']    || fstype_from_file_magic(conf['device'])
       options   conf['options'] || 'defaults'
       # To simply mount the volume: action[:mount]
       # To mount the volume and add it to fstab: action[:mount,:enable]. This

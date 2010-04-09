@@ -17,6 +17,17 @@ module ClusterEbsVolumes
       all_cluster_volumes, cluster_ebs_volumes,
     ].inspect
   end
+
+  # Use `file -s` to identify volume type: ohai doesn't seem to want to do so.
+  def fstype_from_file_magic(dev)
+    return nil unless File.exists?(dev)
+    dev_type_str = `file -s '#{dev}'`
+    case
+    when dev_type_str =~ /SGI XFS filesystem data/     then 'xfs'
+    when dev_type_str =~ /Linux.*ext3 filesystem data/ then 'ext3'
+    else                                                    nil
+    end
+  end
 end
 
 class Chef::Recipe
