@@ -6,7 +6,7 @@ run_list %w[
   hadoop_cluster::namenode
   hadoop_cluster::jobtracker
   hadoop_cluster::hadoop_webfront
-  hadoop_cluster::make_standard_hdfs_dirs
+  hadoop_cluster_maintenance::make_standard_hdfs_dirs
 ]
 
 default_attributes({

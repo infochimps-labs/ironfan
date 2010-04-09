@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: hadoop
-# Recipe:: conf_pseudo
+# Recipe:: pseudo_distributed
 #
 # Copyright 2009, Opscode, Inc.
 #
@@ -17,7 +17,16 @@
 # limitations under the License.
 #
 
+#
+# This installs packages for running hadoop in 'pseudo-distributed' mode, which
+# some use for testing purposes.
+#
+# I haven't really tested pseudo-distributed mode out with the larger
+# scripts, so ymmv.
+#
+
 include_recipe "hadoop_cluster"
+include_recipe "hadoop_cluster::cluster_conf"
 
 package "#{node[:hadoop][:hadoop_handle]}-conf-pseudo"
 

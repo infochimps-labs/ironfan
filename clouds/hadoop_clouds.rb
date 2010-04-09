@@ -35,7 +35,7 @@ pool POOL_NAME do
   cloud :slave do
     using :ec2
     settings = settings_for_node(POOL_NAME, :slave)
-    instances            14..14
+    instances            29..29
     attaches_ebs_volumes settings
     is_nfs_client        settings
     is_generic_node      settings
@@ -52,6 +52,7 @@ pool POOL_NAME do
     launch_group         settings[:launch_group]
     spot_price           0.17
     # fractional_spot_price 0.08
+    # spot_persistence   'persistent' # or 'one-time'
     disable_api_termination false
     puts settings.to_json
   end
