@@ -3,10 +3,10 @@
 # Poolparty definitions for a generic node.
 def is_generic_node settings
   # Instance described in settings files
-  availability_zones settings[:availability_zones]
-  instance_type      settings[:instance_type]
-  image_id           settings[:ami_id]
-  keypair            POOL_NAME, File.join(ENV['HOME'], '.poolparty', 'keypairs')
+  instance_type        settings[:instance_type]
+  image_id             settings[:ami_id]
+  availability_zones   settings[:availability_zones]
+  keypair              POOL_NAME, File.join(ENV['HOME'], '.poolparty', 'keypairs')
   settings[:attributes][:run_list]     << 'role[base_role]'
   settings[:attributes][:run_list]     << 'role[infochimps_base]'
   settings[:attributes][:cluster_name] = self.parent.name
