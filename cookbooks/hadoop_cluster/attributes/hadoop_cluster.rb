@@ -3,7 +3,7 @@ default[:hadoop][:cdh_version]   = 'cdh3'
 
 default[:hadoop][:namenode_hostname]          = 'localhost'
 default[:hadoop][:jobtracker_hostname]        = 'localhost'
-default[:hadoop][:cluster_reduce_tasks]       = 27
+set[:hadoop][:cluster_reduce_tasks]       = 57
 default[:hadoop][:dfs_replication]            = 3
 default[:groups]['hadoop'    ][:gid]          = 300
 default[:groups]['supergroup'][:gid]          = 301
@@ -32,7 +32,7 @@ when 'm1.large'
     :java_child_opts      => '-Xmx1024m',
     :java_child_ulimit    => 2097152,
   }
-when 'm1.medium'
+when 'c1.medium'
   hadoop_performance_settings = {
     :local_disks          => [ ['/mnt2', '/dev/sdc'], ['/mnt3', '/dev/sdd'], ],
     :max_map_tasks        => 4,
@@ -49,4 +49,4 @@ else # 'm1.small'
     :java_child_ulimit    => 1126400,
   }
 end
-hadoop_performance_settings.each{|k,v| default[:hadoop][k] = v }
+hadoop_performance_settings.each{|k,v| set[:hadoop][k] = v }

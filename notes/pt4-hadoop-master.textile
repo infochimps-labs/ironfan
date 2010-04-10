@@ -37,13 +37,13 @@ ls -ld /usr/lib/ruby/gems/1.8/gems/*/.git
 
 # With home dir unmounted:
 mkdir -p /home/git/repos ; cd /home/git/repos 
-sudo git clone git://github.com/infochimps/broham.git          /home/git/repos/broham-0.0.5       
-sudo git clone git://github.com/infochimps/godhead.git         /home/git/repos/godhead-0.0.3      
-sudo git clone git://github.com/infochimps/imw.git             /home/git/repos/imw-0.1.1          
-sudo git clone git://github.com/infochimps/monkeyshines.git    /home/git/repos/monkeyshines-0.2.1 
-sudo git clone git://github.com/infochimps/poolparty.git       /home/git/repos/poolparty-1.6.8    
-sudo git clone git://github.com/infochimps/right_aws.git       /home/git/repos/right_aws-1.10.0   
-sudo git clone git://github.com/infochimps/wukong.git          /home/git/repos/wukong-1.4.7       
+sudo git clone git://github.com/infochimps/broham.git          /home/git/repos/broham
+sudo git clone git://github.com/infochimps/godhead.git         /home/git/repos/godhead
+sudo git clone git://github.com/infochimps/imw.git             /home/git/repos/imw
+sudo git clone git://github.com/infochimps/monkeyshines.git    /home/git/repos/monkeyshines
+sudo git clone git://github.com/infochimps/poolparty.git       /home/git/repos/poolparty
+sudo git clone git://github.com/infochimps/right_aws.git       /home/git/repos/right_aws
+sudo git clone git://github.com/infochimps/wukong.git          /home/git/repos/wukong
 sudo chgrp -R admin * ; sudo chmod g+w -R *
 
 

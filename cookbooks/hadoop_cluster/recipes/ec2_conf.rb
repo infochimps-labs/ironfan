@@ -2,7 +2,6 @@
 # Cookbook Name:: hadoop_cluster
 # Recipe::        ec2_conf
 #
-class Chef::Recipe; include HadoopCluster ; end
 
 #
 # Mount big ephemeral drives, make hadoop dirs on them
@@ -15,9 +14,9 @@ node[:hadoop][:local_disks].each do |mount_point, dev|
     mode      '0755'
     action    :create
   end
-  # execute
+
+  dev_fstype = fstype_from_file_magic(dev)
   mount mount_point do
-    dev_fstype = fstype_from_file_magic(dev)
     only_if{ dev && dev_fstype }
     device dev
     fstype dev_fstype

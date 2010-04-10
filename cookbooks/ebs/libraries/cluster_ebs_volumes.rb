@@ -30,10 +30,7 @@ module ClusterEbsVolumes
   end
 end
 
-class Chef::Recipe
-  include ClusterEbsVolumes
-end
-class Chef::Resource::Directory
-  include ClusterEbsVolumes
-end
+class Chef::Recipe ;              include ClusterEbsVolumes ; end
+class Chef::Resource::Directory ; include ClusterEbsVolumes ; end
+class Chef::Resource             ; include ClusterEbsVolumes ; end
 
