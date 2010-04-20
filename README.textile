@@ -2,20 +2,62 @@ h1. An EBS-backed Hadoop Cluster using Chef and Poolparty
 
 h2. Running the cloud scripts
 
+* Make the following directories and files
+
+<pre><code>
+  mkdir ~/.chef
+  ln -s ~/.chef ~/.poolparty
+  cd hadoop_cluster_chef  # wherever that is
+  cp ./config/knife.rb ~/.chef  # edit it, or run the knife config
+  cp ./config/poolparty-example.yaml ~/.chef/poolparty.yaml
+  ln -s ~/.chef/poolparty.yaml ~/.chef/aws
+</code></pre>
+
+* On your chef server,
+** authenticate your machine as a client
+** create data bags called @cluster_ebs_volumes@ and @servers_info@ and (if using cassandra) @cassandra@
+
+* Upload your roles and recipes:
+
+<pre><code>
+  for foo in roles/*.rb ; do echo $foo ; knife role from file $foo ; done
+  knife cookbook upload --all
+</code></pre>
+
+(_There are probably a bunch more things in the middle here, please let me know what breaks between that step and the next_)
+
+* Start the hadoop master node:
+
+<pre><code>
+  cloud-start -n master  -c clouds/hadoop_clouds.rb
+  # ... twiddle thumbs ...
+  cloud-ssh   -n server  -c clouds/chef_clouds.rb
+</code></pre>
+
+* You will probably need to kickstart chef-client a few times.  Log into the machine as @ubuntu@ user and
+
+<pre><code>
+  sudo service chef-client stop
+  cd /etc/chef
+  tail -f /etc/sv/chef-client/log/main/* &
+  sudo chef-client
+</code></pre>
+
+
+* Once the master node starts, try a couple slaves
+
+<pre><code>
+  cloud-start -n master  -c clouds/hadoop_clouds.rb
+</code></pre>
+
+* Once the cluster works with no EBS volumes, then you should try defining 
+
+h3. Caveats
+
 If you're west, first run from the shell
 <pre><code>
   export EC2_URL=https://us-west-1.ec2.amazonaws.com
 <pre><code>
-
-Once everything's set up, you should be able to run
-
-* @cloud-start -n server  -c clouds/chef_clouds.rb@
-* @cloud-start -n master  -c clouds/hadoop_clouds.rb@
-* @cloud-start -n slave   -c clouds/hadoop_clouds.rb@
-
-You might also find these commands useful:
-
-* @cloud-ssh   -n server   -c clouds/chef_clouds.rb@
 
 h3. Instance attributes: disable_api_termination and delete_on_termination
 
