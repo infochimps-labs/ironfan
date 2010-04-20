@@ -1,0 +1,65 @@
+:access_key:                    XXXXXXXXXXXXX
+:secret_access_key:             XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+:account_id:                    XXXXXXXXX
+:default_instance_type:         m1.small
+
+:availability_zones:
+  - us-east-1d
+:ec2_url:                       http://us-east-1.ec2.amazonaws.com
+:aws_region:                    us-east-1
+
+# :s3_url:
+# :private_key:
+# :cert:
+# :user_id:
+# :cloud_cert:
+# :credential_file:
+
+:pools:
+  :common:
+    :instance_type:             m1.small
+    :ami_id:                    override_me
+    # :ami_id:                  ami-6743ae0e # generic canonical ubuntu
+    :availability_zones:
+      - us-east-1d
+    :boot_volume:
+      :ebs_volume_size:           15
+      :ebs_delete_on_termination: true
+    :attributes:
+      :aws:
+        :access_key:            XXXXXXXXXXXXXXX
+        :secret_access_key:     XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+        :aws_region:            us-east-1
+      :chef:
+        :validation_key:        "-----BEGIN RSA PRIVATE KEY-----\nSEE README FOR INSTRUCTIONS==\n-----END RSA PRIVATE KEY-----\n"
+        :chef_server:           "http://chef.yourdomain.com:4000"
+        :validation_client_name: "chef-validator"
+      :nfs:
+        :server:                123.45.67.89
+
+  :chef:
+    :server:
+      :elastic_ip:              123.45.67.89
+      :boot_volume:
+        :ebs_volume_size:       15
+        :ebs_delete_on_termination: false
+      :attributes:
+        :node_name:             chef.yourdomain.com
+    :client:
+  :gibbon:
+    :common:
+      :instance_type:           c1.medium
+      :ami_id:                    override_me
+      # :ami_id:                  ami-6743ae0e # generic canonical ubuntu
+    :master:
+      :elastic_ip:              123.45.67.89
+      :ebs_delete_on_termination: false
+    :slave:
+      :ebs_delete_on_termination: true
+  :lemur:
+    :common:
+      :instance_type:           m1.small
+      :ami_id:                  ami-5de30d34
+    :master:
+    :slave:
+      # :launch_group:          lemur_slaves
