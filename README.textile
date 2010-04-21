@@ -2,6 +2,17 @@ h1. An EBS-backed Hadoop Cluster using Chef and Poolparty
 
 h2. Running the cloud scripts
 
+* Install these gems:
+
+* poolparty
+* chef
+* configliere
+* right_aws
+* amazon-ec2
+* broham
+* 
+
+
 * Make the following directories and files
 
 <pre><code>
