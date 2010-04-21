@@ -1,7 +1,8 @@
 # Install with `knife role from file roles/hadoop.rb`
 name        'hadoop'
 description 'applies to all nodes in the hadoop cluster'
-require File.dirname(__FILE__)+'/../config/settings'
+require 'configliere'
+Settings.read File.join(ENV['HOME'],'.poolparty','aws'); Settings.resolve!
 
 run_list *%w[
   hadoop_cluster

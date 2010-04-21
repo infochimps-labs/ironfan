@@ -1,4 +1,4 @@
-h1. An EBS-backed Hadoop Cluster using Chef and Poolparty
+h1. Hadoop Cluster in the Cloud using Chef and Poolparty
 
 h2. Running the cloud scripts
 
@@ -10,21 +10,24 @@ h2. Running the cloud scripts
 * right_aws
 * amazon-ec2
 * broham
-* 
 
+**NOTE**: Please use the "infochimps branch of poolparty":http://github.com/infochimps/poolparty and of "right_aws":http://github.com/infochimps/right_aws -- in the first case, for spot instance support, and in the second for the consistent-writes behavior that broham requires.
 
 * Make the following directories and files
 
 <pre><code>
+  # Make one directory and dump all your poolparty and chef stuff in it.
   mkdir ~/.chef
   ln -s ~/.chef ~/.poolparty
-  cd hadoop_cluster_chef  # wherever that is
-  cp ./config/knife.rb ~/.chef  # edit it, or run the knife config
-  cp ./config/poolparty-example.yaml ~/.chef/poolparty.yaml
+  cd hadoop_cluster_chef                                    # wherever that is
+  cp ./config/knife.rb ~/.chef                              # edit it, or run 'knife configure -i'
+  cp ./config/poolparty-example.yaml ~/.chef/poolparty.yaml # edit it
   ln -s ~/.chef/poolparty.yaml ~/.chef/aws
+  # We'll use some opscode cookbooks from a neighbor dir of hadoop_cluster_chef:
+  git clone git://github.com/opscode/cookbooks.git ../opscode_cookbooks
 </code></pre>
 
-* On your chef server,
+* On the chef server,
 ** authenticate your machine as a client
 ** create data bags called @cluster_ebs_volumes@ and @servers_info@ and (if using cassandra) @cassandra@
 

@@ -1,5 +1,4 @@
 POOL_NAME     = 'gibbon'
-require File.dirname(__FILE__)+'/../config/settings'
 require File.dirname(__FILE__)+'/cloud_aspects'
 
 #
