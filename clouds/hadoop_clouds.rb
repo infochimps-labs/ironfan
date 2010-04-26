@@ -23,11 +23,10 @@ pool POOL_NAME do
     is_hadoop_worker     settings
     has_big_package      settings
     is_cassandra_node    settings
-    elastic_ip           settings[:elastic_ip]
     user_data            settings[:attributes].to_json
+    is_spot_priced       settings
     user                 'ubuntu'
-    spot_price           0.08
-    disable_api_termination false
+    # set_spot_price       settings if (settings[:spot_price_fraction].to_f > 0)
     puts settings.to_json
   end
 
@@ -45,14 +44,11 @@ pool POOL_NAME do
     is_hadoop_worker     settings
     has_big_package      settings
     # is_cassandra_node    settings
-    elastic_ip           settings[:elastic_ip]
     user_data            settings[:attributes].to_json
     user                 'ubuntu'
     launch_group         settings[:launch_group]
-    spot_price           0.17
-    # fractional_spot_price 0.08
+    is_spot_priced       settings
     # spot_persistence   'persistent' # or 'one-time'
-    disable_api_termination false
     puts settings.to_json
   end
 end

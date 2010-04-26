@@ -14,7 +14,7 @@ h2. Recommended cluster composition
 
 We're going to target these two plausible cluster setups:
 
-h3. Small, simple cluster ("Milo")
+h3. Small, simple cluster ("Zaius")
 
 A modest, no-fuss cluster to get started:
 
@@ -23,7 +23,7 @@ A modest, no-fuss cluster to get started:
 * All nodes are EBS-backed instances, sized large enough to hold the HDFS.
 * Use non-spot pricing, but manage costs by starting/stopping instances when not in use. (Set 'ebs_delete_on_termination' to false and 'disable-api-termination' to true)
 
-h3. Industrial-strength cluster with persistent HDFS ("Zaius")
+h3. Industrial-strength cluster with persistent HDFS ("Maximus")
 
 A many-node cluster that can be spot priced (or frequently launched/terminated); uses persistent EBS volumes for the HDFS (much more efficient than S3).
 
@@ -39,15 +39,16 @@ h2. Prerequisites
 
 You should already be familiar with hadoop and with the Amazon cloud.  These scripts are meant to efficiently orchestrate many dependent packages, and the bugs are still being straightened out.
 
-* Choose a name for your cluster. In this example, we'll use 'milo' for the small cluster and 'zaius' for the big cluster.
+* Choose a name for your cluster. In this example, we'll use 'zaius' for the small cluster and 'maximus' for the big cluster.
 * Visit the "aws console":http://bit.ly/awsconsole and ensure you're registered for EC2 and SimpleDB. (You may have to click through a license agreement and check your email)
-* Chef needs a good, durable domain name. Allocate an elastic IP; have your DNS server point both 'chef.yourdomain.com' and 'milo.yourdomain.com' at that elastic IP.
+* Choose your availability zone (spot pricing in the US-East-1 region seems to be the lowest). You *must* set all machines in the cluster to the same availability zone.
+* Chef needs a good, durable domain name. Allocate an elastic IP; have your DNS server point both 'chef.yourdomain.com' and 'zaius.yourdomain.com' at that elastic IP.
 
-From now on, I'm going to just use 'chef.yourdomain.com', 'milo' and 'zaius' without apology, but substitute accordingly/
+From now on, I'm going to just use 'chef.yourdomain.com', 'zaius' and 'maximus' without apology, but substitute accordingly.
 
 h2. Install dependencies
 
-* Install these gems:
+Install these gems:
 
 * chef
 * configliere
@@ -70,22 +71,28 @@ At this point there's still a lot of moving parts. What I do is to make one dire
   ln -nfs ~/.hadoop-ec2 ~/.chef
 </code></pre>
 
-From this code repo dir, copy the template config files over
+From this code repo dir, copy the template config files over.
 
 <pre><code>
   cd PATH/TO/hadoop_cluster_chef
   cp ./config/knife.rb                 ~/.hadoop-ec2/knife.rb                           
   cp ./config/poolparty-example.yaml   ~/.hadoop-ec2/poolparty.yaml 
   ln -nfs ~/.hadoop-ec2/poolparty.yaml ~/.hadoop-ec2/aws
+  # optional:
+  ( cd ~/.hadoop-ec2 && git init && git add . && git commit -m "Initial commit" )
 </code></pre>
+
 
 h2. Credentials
 
+We need to stuff in the AWS credentials (use the "aws console":http://bit.ly/awsconsole to get keys and so forth).
 
-
-Now open ~/.hadoop-ec2/poolparty.yaml
-
-
+* Create keypairs named 'chef' and 'zaius'. Save them as @~/.hadoop-ec2/keypairs/chef.pem@ and @~/.hadoop-ec2/keypairs/zaius.pem@ respectively, and fix their permissions: @chmod 600 ~/.hadoop-ec2/keypairs/*.pem@.
+* In the file @~/.hadoop-ec2/poolparty.yaml@,
+** Add your AWS access key and secret access key at the top and again under attributes[:aws]
+** Put the domain name of your chef server in the top-level attributes[:chef] section, and again in the pools[:chef][:server][:attributes][:node_name].
+** Put the elastic IPs you allocated in the right places (chef server, cluster masters)
+** If needed, update the region, availability zone and ec2_url. If you change regions you'll have to change the AMI ids too.
 
 
 ===========================================================================

@@ -18,10 +18,10 @@ pool POOL_NAME do
     is_chef_client              settings
     mounts_ebs_volumes          settings
     is_nfs_server               settings
-    elastic_ip                  settings[:elastic_ip]
+    is_spot_priced              settings
     user                        'ubuntu'
     security_group              POOL_NAME
-    disable_api_termination     true
+    user_data                   bootstrap_chef_server_script(settings)
   end
 
   cloud :generic do
@@ -32,6 +32,7 @@ pool POOL_NAME do
     is_generic_node             settings
     is_ebs_backed               settings
     is_chef_client              settings
+    is_spot_priced              settings
     user                        'ubuntu'
     disable_api_termination     false
     user_data_shell_script      = File.open(File.dirname(__FILE__)+'/../config/user_data_script-bootstrap_chef_client.sh').read

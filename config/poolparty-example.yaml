@@ -1,46 +1,57 @@
-:access_key:                            XXXXXXXXXXXXXXXXXX
-:secret_access_key:                     XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-:account_id:                            XXXXXXXXXXXXXXXXXX
+:access_key:                            XXXXXXXXXXXXXXXXXXXXXXXX
+:secret_access_key:                     XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+:account_id:                            XXXXXXXXXXXXXX
 #
+:bootstrap_scripts_url_base:            http://github.com/infochimps/hadoop_cluster_chef/raw/master/config
+#
+# For west coast availability zone run: export EC2_URL=https://us-west-1.ec2.amazonaws.com
 :aws_region:                            us-west-1
 :availability_zones:                    [ "us-west-1d" ]
 :ec2_url:                               http://us-west-1.ec2.amazonaws.com
 :instance_type:                         m1.small
 :ami_id:                                ami-6990c12c
+:disable-api-termination:               false                # set true to make node difficult to terminate
+:spot_price_fraction:                   ~
 
 :attributes:
   :aws:
-    :access_key:                        XXXXXXXXXXXXXXXXXXXXXXX
-    :secret_access_key:                 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    :access_key:                        XXXXXXXXXXXXXXXXXXXXXXXX
+    :secret_access_key:                 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     :aws_region:                        us-west-1
   :chef:
-    :validation_key_file:               "~/.poolparty/chef_keys/chef-validator.pem"
-    :chef_server:                       "http://chef.infinitemonkeys.info:4000"
+    :validation_key_file:               "~/.hadoop-ec2/chef-validator.pem"
+    :chef_server:                       "http://chef.yourdomain.com:4000"
     :validation_client_name:            "chef-validator"
-  :nfs:
-    :server:                            10.245.134.197
 
 :pools:
   :chef:
     :server:
+      :disable-api-termination:         false
       :instance_type:                   m1.small
       :ami_id:                          ami-8f03ede6
-      :elastic_ip:                      
+      :elastic_ip:                      184.72.52.22
       :boot_volume:                     
         :ebs_volume_size:               15
-        :ebs_delete_on_termination:     false
+        :ebs_delete_on_termination:     true
       :attributes:
-        :node_name:                     wchef.infinitemonkeys.info
+        :node_name:                     chef.yourdomain.com
+
+  :milo:
+    :common:
+      :instance_type:                   m1.small
+      :ami_id:                          ami-6990c12c   # instance-backed ami for region and instance_type 
+      :spot_price_fraction:             1.0            # minimal chance it'll be shut down.
+    :slave:
 
   :zaius:
     :common:
-      :instance_type:                   m1.small
-      :ami_id:                          ami-6990c12c
+      :instance_type:                   c1.medium
+      :ami_id:                          ami-6990c12c   # instance-backed ami for region and instance_type
+      :spot_price_fraction:             1.0            # minimal chance it'll be shut down.
     :master:                            
-      :elastic_ip:                      ....
-      :ebs_delete_on_termination:       false
-    :slave:                             
-
+      :elastic_ip:                      184.72.52.24
+    :slave:
+      
 # Region   	arch	root store	ami     	Installation
 # us-east-1	64-bit	ebs        	ami-9f03edf6	20100422 - Ubuntu 10.04 LTS (Lucid Lynx) Release Candidate
 # us-east-1	64-bit	instance	ami-2b03ed42	20100422 - Ubuntu 10.04 LTS (Lucid Lynx) Release Candidate

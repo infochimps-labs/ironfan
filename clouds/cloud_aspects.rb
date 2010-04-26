@@ -18,10 +18,12 @@ end
 # Poolparty definitions for a generic node.
 def is_generic_node settings
   # Instance described in settings files
-  instance_type        settings[:instance_type]
-  image_id             settings[:ami_id]
-  availability_zones   settings[:availability_zones]
-  keypair              POOL_NAME, File.join(ENV['HOME'], '.poolparty', 'keypairs')
+  instance_type           settings[:instance_type]
+  image_id                settings[:ami_id]
+  availability_zones      settings[:availability_zones]
+  disable_api_termination settings[:disable_api_termination]
+  elastic_ip              settings[:elastic_ip] if settings[:elastic_ip]
+  keypair                 POOL_NAME, File.join(ENV['HOME'], '.poolparty', 'keypairs')
   settings[:attributes][:run_list]     << 'role[base_role]'
   settings[:attributes][:run_list]     << 'role[infochimps_base]'
   settings[:attributes][:cluster_name] = self.parent.name
@@ -31,7 +33,7 @@ end
 def is_ebs_backed settings
   # Bring the ephemeral storage (local scratch disks) online
   block_device_mapping([
-      { :device_name => '/dev/sda1' }.merge(settings[:boot_volume]),
+      { :device_name => '/dev/sda1' }.merge(settings[:boot_volume]||{}),
       { :device_name => '/dev/sdc',  :virtual_name => 'ephemeral0' },
     ])
   instance_initiated_shutdown_behavior 'stop'
@@ -67,12 +69,9 @@ end
 
 def get_chef_validation_key settings
   chef_settings  = settings[:attributes][:chef] or return
-  begin
-    chef_settings[:validation_key] ||= File.read(File.expand_path(chef_settings[:validation_key_file]))
-  rescue
-    warn "Couldn't open validation_key_file #{chef_settings[:validation_key_file]}"
-    raise
-  end
+  validation_key_file = File.expand_path(chef_settings[:validation_key_file])
+  return unless File.exists?(validation_key_file)
+  chef_settings[:validation_key] ||= File.read(validation_key_file)
 end
 
 # Poolparty rules to make the node act as a chef client
@@ -142,18 +141,35 @@ def is_cassandra_node settings
   end
 end
 
-
-def user_data_from_template template_filename, *args
+def erubis_template template_filename, *args
+  require 'erubis'
   template   = Erubis::Eruby.new File.read(template_filename)
   text       = template.result *args
-  user_data    text
+  text
 end
 
-def bootstrap_chef_server settings
-  user_data_from_template(
+def bootstrap_chef_server_script settings
+  erubis_template(
     'config/user_data_script-bootstrap_chef_server.sh.erb',
     :public_ip => settings[:elastic_ip],
     :hostname  => settings[:attributes][:node_name],
     :bootstrap_scripts_url_base => settings[:bootstrap_scripts_url_base]
     )
 end
+
+INSTANCE_PRICES = {
+  'm1.small'    => 0.085, 'c1.medium'   => 0.17,  'm1.large'    => 0.34,  'c1.xlarge'   => 0.68,
+  'm1.xlarge'   => 0.68,  'm2.xlarge'   => 0.50,  'm2.xlarge'   => 1.20,  'm2.4xlarge'  => 2.40,
+}
+def is_spot_priced settings
+  if    settings[:spot_price_fraction].to_f > 0
+    spot_price( INSTANCE_PRICES[settings[:instance_type]] * settings[:spot_price_fraction])
+  elsif settings[:spot_price].to_f > 0
+    spot_price( settings[:spot_price].to_f )
+  end
+end
+
+def send_runlist_to_chef_server
+  raise "not yet"
+end
+

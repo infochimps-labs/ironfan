@@ -62,7 +62,7 @@ knife node run_list add XXX  "role[base_role]"
 knife cookbook upload sudo
 
 
-curl http://169.254.169.254/latest/user-data | zcat
+curl http://169.254.169.254/latest/user-data
 
 ===========================================================================
 

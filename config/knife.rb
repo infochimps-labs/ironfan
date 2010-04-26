@@ -2,10 +2,11 @@ log_level                :info
 log_location             STDERR
 node_name                'knife_user'
 validation_client_name   'chef-validator'
+chef_server_url          'http://chef.infochimps.com:4000'
 client_key               ENV['HOME']+'/.chef/knife_user.pem'
 validation_key           ENV['HOME']+'/.chef/chef-validator.pem'
-chef_server_url          'http://chef.infinitemonkeys.info:4000'
+cache_options(  :path => ENV['HOME']+'/.chef/chef_checksums' )
 cache_type               'BasicFile'
-PATH_TO_COOKBOOK_REPOS = File.join(ENV['HOME'], 'ics/sysadmin')
-cookbook_path            [ 'hadoop_cluster_chef/cookbooks', 'hadoop_cluster_chef/site-cookbooks', 'infochimps_chef/cookbooks', 'infochimps_chef/site-cookbooks', ].map{|path| File.join(PATH_TO_COOKBOOK_REPOS, path) }
-cache_options( :path => File.join(ENV['HOME'], '.chef/chef_checksums') )
+# Set the following to point to your hadoop_cluster_chef install
+PATH_TO_COOKBOOK_REPOS = '~/ics/sysadmin'
+cookbook_path            [ 'hadoop_cluster_chef/cookbooks', 'your_custom_chef/cookbooks', 'your_custom_chef/site-cookbooks', ].map{|path| File.expand_path(File.join(PATH_TO_COOKBOOK_REPOS, path)) }
