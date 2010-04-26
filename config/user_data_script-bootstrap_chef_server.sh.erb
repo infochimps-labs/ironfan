@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # A url directory with the scripts you'd like to stuff into the machine
-REMOTE_FILE_URL_BASE="http://github.com/mrflip/hadoop_cluster_chef/raw/master/config"
+REMOTE_FILE_URL_BASE="<%= bootstrap_scripts_url_base %>"
 
 # Broaden the apt universe
 if grep 'multiverse' /etc/apt/sources.list ; then true ; else
@@ -33,17 +33,17 @@ chmod a+x /usr/bin/ec2-set-hostname
 # unscrewup the hostname every way I can think of. Rabbitmq is a real buttmunch
 # about the hostname -- it will hang forever on bootstrap if `hostname -s`
 # doesn't resolve back to this host. One of the following fixes this, not sure which.
-export HOSTNAME=chef.YOURDOMAIN.COM ;
-PUBLIC_IP=XXX.XXX.XX.XX
-sudo kill `cat /var/run/dhclient.eth0.pid` # kill dhclient
-sudo bash -c "echo '$HOSTNAME' > /etc/hostname" ;
-sudo hostname -F /etc/hostname ;
-sudo sysctl -w kernel.hostname=`hostname -f` ;
+export HOSTNAME=<%= hostname %> 
+PUBLIC_IP=<%= public_ip %>                 
+kill `cat /var/run/dhclient.eth0.pid` # kill dhclient
+bash -c "echo '$HOSTNAME' > /etc/hostname" ;
+hostname -F /etc/hostname ;
+sysctl -w kernel.hostname=`hostname -f` ;
 # Your /etc/hosts needs to end up looking like this (order is important):
 # 127.0.0.1      chef.YOURDOMAIN.COM chef localhost 
 # XXX.XXX.XX.XX  chef.YOURDOMAIN.COM chef
-sudo sed -i "s/127.0.0.1 *localhost/127.0.0.1      `hostname -f` `hostname -s` localhost/" /etc/hosts
-if grep -q $PUBLIC_IP /etc/hosts  ; then true ; else sudo bash -c "echo '$PUBLIC_IP `hostname -f` `hostname -s `' >> /etc/hosts" ; fi
+sed -i "s/127.0.0.1 *localhost/127.0.0.1      `hostname -f` `hostname -s` localhost/" /etc/hosts
+if grep -q $PUBLIC_IP /etc/hosts  ; then true ; else bash -c "echo '$PUBLIC_IP `hostname -f` `hostname -s `' >> /etc/hosts" ; fi
 
 # # bootstrap chef from *server* scripts
 wget -nv ${REMOTE_FILE_URL_BASE}/chef_bootstrap.rb -O /tmp/chef_bootstrap.rb ;
@@ -53,9 +53,6 @@ chef-solo -c /tmp/chef_bootstrap.rb -j /tmp/chef_server.json ;
 # Make chef server also a client of itself
 cp /etc/chef/client.rb /etc/chef/client-orig-`date +%Y%m%d%H`.rb ;
 wget -nv ${REMOTE_FILE_URL_BASE}/client.rb -O /etc/chef/client.rb ;
-
-sudo rm /etc/motd ;
-sudo bash -c 'echo "CHIMP CHIMP CHIMP BORK BORK BORK" > /etc/motd ' ;
 
 # cleanup
 apt-get autoremove;

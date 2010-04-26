@@ -1,0 +1,5 @@
+
+
+* Make EBS      ami with chef-server, hadoop-master, hadoop-worker, nfs-server, zookeeper
+* Make instance ami with chef-client, hadoop-worker
+

@@ -1,65 +1,67 @@
-:access_key:                    XXXXXXXXXXXXX
-:secret_access_key:             XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-:account_id:                    XXXXXXXXX
-:default_instance_type:         m1.small
+:access_key:                            XXXXXXXXXXXXXXXXXX
+:secret_access_key:                     XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+:account_id:                            XXXXXXXXXXXXXXXXXX
+#
+:aws_region:                            us-west-1
+:availability_zones:                    [ "us-west-1d" ]
+:ec2_url:                               http://us-west-1.ec2.amazonaws.com
+:instance_type:                         m1.small
+:ami_id:                                ami-6990c12c
 
-:availability_zones:
-  - us-east-1d
-:ec2_url:                       http://us-east-1.ec2.amazonaws.com
-:aws_region:                    us-east-1
-
-# :s3_url:
-# :private_key:
-# :cert:
-# :user_id:
-# :cloud_cert:
-# :credential_file:
+:attributes:
+  :aws:
+    :access_key:                        XXXXXXXXXXXXXXXXXXXXXXX
+    :secret_access_key:                 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    :aws_region:                        us-west-1
+  :chef:
+    :validation_key_file:               "~/.poolparty/chef_keys/chef-validator.pem"
+    :chef_server:                       "http://chef.infinitemonkeys.info:4000"
+    :validation_client_name:            "chef-validator"
+  :nfs:
+    :server:                            10.245.134.197
 
 :pools:
-  :common:
-    :instance_type:             m1.small
-    :ami_id:                    override_me
-    # :ami_id:                  ami-6743ae0e # generic canonical ubuntu
-    :availability_zones:
-      - us-east-1d
-    :boot_volume:
-      :ebs_volume_size:           15
-      :ebs_delete_on_termination: true
-    :attributes:
-      :aws:
-        :access_key:            XXXXXXXXXXXXXXX
-        :secret_access_key:     XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-        :aws_region:            us-east-1
-      :chef:
-        :validation_key:        "-----BEGIN RSA PRIVATE KEY-----\nSEE README FOR INSTRUCTIONS==\n-----END RSA PRIVATE KEY-----\n"
-        :chef_server:           "http://chef.yourdomain.com:4000"
-        :validation_client_name: "chef-validator"
-      :nfs:
-        :server:                123.45.67.89
-
   :chef:
     :server:
-      :elastic_ip:              123.45.67.89
-      :boot_volume:
-        :ebs_volume_size:       15
-        :ebs_delete_on_termination: false
+      :instance_type:                   m1.small
+      :ami_id:                          ami-8f03ede6
+      :elastic_ip:                      
+      :boot_volume:                     
+        :ebs_volume_size:               15
+        :ebs_delete_on_termination:     false
       :attributes:
-        :node_name:             chef.yourdomain.com
-    :client:
-  :gibbon:
+        :node_name:                     wchef.infinitemonkeys.info
+
+  :zaius:
     :common:
-      :instance_type:           c1.medium
-      :ami_id:                    override_me
-      # :ami_id:                  ami-6743ae0e # generic canonical ubuntu
-    :master:
-      :elastic_ip:              123.45.67.89
-      :ebs_delete_on_termination: false
-    :slave:
-      :ebs_delete_on_termination: true
-  :lemur:
-    :common:
-      :instance_type:           m1.small
-      :ami_id:                  ami-5de30d34
-    :master:
-    :slave:
-      # :launch_group:          lemur_slaves
+      :instance_type:                   m1.small
+      :ami_id:                          ami-6990c12c
+    :master:                            
+      :elastic_ip:                      ....
+      :ebs_delete_on_termination:       false
+    :slave:                             
+
+# Region   	arch	root store	ami     	Installation
+# us-east-1	64-bit	ebs        	ami-9f03edf6	20100422 - Ubuntu 10.04 LTS (Lucid Lynx) Release Candidate
+# us-east-1	64-bit	instance	ami-2b03ed42	20100422 - Ubuntu 10.04 LTS (Lucid Lynx) Release Candidate
+# us-east-1	32-bit	ebs        	ami-8f03ede6	20100422 - Ubuntu 10.04 LTS (Lucid Lynx) Release Candidate
+# us-east-1	32-bit	instance	ami-a102ecc8	20100422 - Ubuntu 10.04 LTS (Lucid Lynx) Release Candidate
+# us-east-1	64-bit	instance	ami-55739e3c	20100331 - Ubuntu 9.10 (Karmic Koala) Final
+# us-east-1	32-bit	instance	ami-bb709dd2	20100331 - Ubuntu 9.10 (Karmic Koala) Final
+#
+# us-west-1	64-bit	ebs        	ami-0590c140	20100422 - Ubuntu 10.04 LTS (Lucid Lynx) Release Candidate
+# us-west-1	64-bit	instance	ami-7790c132	20100422 - Ubuntu 10.04 LTS (Lucid Lynx) Release Candidate
+# us-west-1	32-bit	ebs        	ami-7b90c13e	20100422 - Ubuntu 10.04 LTS (Lucid Lynx) Release Candidate
+# us-west-1	32-bit	instance	ami-6990c12c	20100422 - Ubuntu 10.04 LTS (Lucid Lynx) Release Candidate
+# us-west-1	64-bit	instance	ami-cb2e7f8e	20100331 - Ubuntu 9.10 (Karmic Koala) Final
+# us-west-1	32-bit	instance	ami-c32e7f86	20100331 - Ubuntu 9.10 (Karmic Koala) Final
+# 
+# eu-west-1	64-bit	ebs        	ami-0f765c7b	20100422 - Ubuntu 10.04 LTS (Lucid Lynx) Release Candidate
+# eu-west-1	64-bit	instance	ami-13765c67	20100422 - Ubuntu 10.04 LTS (Lucid Lynx) Release Candidate
+# eu-west-1	32-bit	ebs        	ami-03765c77	20100422 - Ubuntu 10.04 LTS (Lucid Lynx) Release Candidate
+# eu-west-1	32-bit	instance	ami-15765c61	20100422 - Ubuntu 10.04 LTS (Lucid Lynx) Release Candidate
+# eu-west-1	64-bit	instance	ami-05c2e971	20100331 - Ubuntu 9.10 (Karmic Koala) Final
+# eu-west-1	32-bit	instance	ami-2fc2e95b	20100331 - Ubuntu 9.10 (Karmic Koala) Final
+#
+# http://uec-images.ubuntu.com/releases/lucid/rc/
+# http://uec-images.ubuntu.com/releases/karmic/

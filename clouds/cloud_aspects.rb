@@ -1,5 +1,5 @@
 require 'configliere'
-Settings.read File.join(ENV['HOME'],'.poolparty','aws'); Settings.resolve!
+Settings.read File.join(ENV['HOME'],'.hadoop-ec2','poolparty.yaml'); Settings.resolve!
 
 #
 # Build settings for a given cluster_name and role folding together the common
@@ -8,9 +8,9 @@ Settings.read File.join(ENV['HOME'],'.poolparty','aws'); Settings.resolve!
 def settings_for_node cluster_name, cluster_role
   cluster_name = cluster_name.to_sym
   cluster_role = cluster_role.to_sym
-  p Settings
-  ( { :attributes => { :run_list => [] } }            ).deep_merge(
-    Settings[:pools][:common]                    ||{ }).deep_merge(
+  node_settings = { :attributes => { :run_list => [] } }.deep_merge(Settings)
+  node_settings.delete :pools
+  node_settings = node_settings.deep_merge(
     Settings[:pools][cluster_name][:common]      ||{ }).deep_merge(
     Settings[:pools][cluster_name][cluster_role] ||{ })
 end
@@ -65,8 +65,19 @@ def is_chef_server settings
   settings[:attributes][:run_list] << 'role[chef_server]'
 end
 
+def get_chef_validation_key settings
+  chef_settings  = settings[:attributes][:chef] or return
+  begin
+    chef_settings[:validation_key] ||= File.read(File.expand_path(chef_settings[:validation_key_file]))
+  rescue
+    warn "Couldn't open validation_key_file #{chef_settings[:validation_key_file]}"
+    raise
+  end
+end
+
 # Poolparty rules to make the node act as a chef client
 def is_chef_client settings
+  get_chef_validation_key settings
   security_group 'chef-client' do
     authorize :from_port => 22, :to_port => 22
     authorize :group_name => 'chef-server'
@@ -129,4 +140,20 @@ def is_cassandra_node settings
   security_group 'cassandra_node' do
     authorize :group_name => 'cassandra_node'
   end
+end
+
+
+def user_data_from_template template_filename, *args
+  template   = Erubis::Eruby.new File.read(template_filename)
+  text       = template.result *args
+  user_data    text
+end
+
+def bootstrap_chef_server settings
+  user_data_from_template(
+    'config/user_data_script-bootstrap_chef_server.sh.erb',
+    :public_ip => settings[:elastic_ip],
+    :hostname  => settings[:attributes][:node_name],
+    :bootstrap_scripts_url_base => settings[:bootstrap_scripts_url_base]
+    )
 end

@@ -62,9 +62,6 @@ if not File.exists?("/etc/chef/client.pem")
   File.open(validation_key, "w", 0600) do |f|
     f.print(chef_config['chef']["validation_key"])
   end
-elsif File.exists?(validation_key)
-  require 'fileutils'
-  FileUtils.rm(validation_key) rescue nil
 end
 
 
