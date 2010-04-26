@@ -34,7 +34,7 @@ when 'm1.large'
   }
 when 'c1.medium'
   hadoop_performance_settings = {
-    :local_disks          => [ ['/mnt2', '/dev/sdc'], ['/mnt3', '/dev/sdd'], ],
+    :local_disks          => [ ['/mnt2', '/dev/sdc'] ],
     :max_map_tasks        => 4,
     :max_reduce_tasks     => 2,
     :java_child_opts      => '-Xmx550m',
