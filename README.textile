@@ -82,6 +82,7 @@ From this code repo dir, copy the template config files over.
   ( cd ~/.hadoop-ec2 && git init && git add . && git commit -m "Initial commit" )
 </code></pre>
 
+In ~/.chef/knife.rb, enter your the @chef_server_url@
 
 h2. Credentials
 
@@ -95,12 +96,41 @@ We need to stuff in the AWS credentials (use the "aws console":http://bit.ly/aws
 ** If needed, update the region, availability zone and ec2_url. If you change regions you'll have to change the AMI ids too.
 
 
+h2. Start Chef server
+
+* sudo cat /etc/chef/server.rb for the initial web password.
+* for foo in chef-client chef-server chef-server-webui chef-solr chef-solr-indexer ; do sudo service $foo restart ; done
+
+* Click clients, create -- make client called knife_user that is an admin
+* paste the text of the private key into @~/.chef/knife_user.pem@
+* Copy the text of /etc/chef/validation.pem (from the server) into @~/.chef/chef-validator.pem@
+* chmod 600 ~/.chef/*.pem
+
+
+* @knife cookbook upload --all@
+* @for foo in roles/* ; do knife role from file $foo ; done@ (if you have a private cookbooks repo, run it from there, too)
+
+* add attributes {"access_key":"02S6Y1EFA7ZZ7KCZH3G2","secret_access_key":"mY13mL7/iXA+gjzNJ8O95LukPQgsWjyXqVizX6zB","aws_region":"us-west-1"}
+
+h3. Data bags
+
+* Create a databag @servers_info@ 
+** nfs_server {"id":"nfs_server","private_ip":"10.123.45.67"}
+
+* Create a databag @cassandra@ 
+** clusters {"id":"clusters","Test":{"keyspaces":{"Twitter":{"replication_factor":"1","columns":{"StatusRelationships":{"CompareSubcolumnsWith":"TimeUUIDType","CompareWith":"UTF8Type","ColumnType":"Super"},"StatusAudits":{"CompareWith":"UTF8Type"},"Statuses":{"CompareWith":"UTF8Type"},"UserRelationships":{"CompareSubcolumnsWith":"TimeUUIDType","CompareWith":"UTF8Type","ColumnType":"Super"},"UserAudits":{"CompareWith":"UTF8Type"},"Usernames":{"CompareWith":"UTF8Type"},"Index":{"CompareWith":"UTF8Type","ColumnType":"Super"},"Users":{"CompareWith":"UTF8Type"}},"replica_placement_strategy":"org.apache.cassandra.locator.RackUnawareStrategy","end_point_snitch":"org.apache.cassandra.locator.EndPointSnitch"}}}}
+
+* create a databag @cluster_ebs_volumes@
+<pre><code>
+  {"id":"gibbon", "slave":[[{"device":"/dev/sdj","volume_id":"vol-XX0ed8a6","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0ed8a8","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0ed8ac","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0ed8ae","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0ed8b0","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0ed8b6","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0ed8b8","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0ed8ba","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0ed8c4","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0ed8c6","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0ed8c8","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0ed8cc","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0ed8d2","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0ed8d4","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX5af41a","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX5af42c","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0ed8e2","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0ed8e4","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0ed8e6","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0ed8ec","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0ed8ee","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0ed8f0","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0ed8fa","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0ed8fc","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0fd902","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0fd904","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0fd90c","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0fd910","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0fd912","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0fd914","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0fd91e","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0fd922","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0fd924","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0adc2a","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0adc2c","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0adc2e","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0adc30","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0adc32","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0adc3a","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0adc3c","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0adc40","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0adc42","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0adc44","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0adc46","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0adc48","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0adc4a","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0adc50","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0adc52","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0adc54","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0adc56","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0adc58","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0adc5a","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0adc5c","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0adc5e","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0adc66","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0adc6e","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0adc72","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0adc74","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XXb810a0","mount_point":"/ebs1","options":"defaults,nouuid,noatime"},{"device":"/dev/sdk","volume_id":"vol-XXbb1344","mount_point":"/ebs2","options":"defaults,nouuid,noatime"}]],"master":[[{"device":"/dev/sdj","volume_id":"vol-XX0ed840","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0ed8a4","mount_point":"/ebs2"}]]}
+</code></pre>
+
+** zaius
+** maxiums
+
 ===========================================================================
 
 
-* On the chef server,
-** authenticate your machine as a client
-** create data bags called @cluster_ebs_volumes@ and @servers_info@ and (if using cassandra) @cassandra@
 
 * Upload your roles and recipes:
 
@@ -148,7 +178,7 @@ h3. Instance attributes: disable_api_termination and delete_on_termination
 
 To set delete_on_termination to 'true' after the fact, run the following
 <pre><code>
-  ec2-modify-instance-attribute -v i-0704be6c --block-device-mapping /dev/sda1=vol-e98d2c80::true
+  ec2-modify-instance-attribute -v i-0704be6c --block-device-mapping /dev/sda1=vol-XX8d2c80::true
 </code></pre>
 (You'll have to modify the instance and volume to suit)
   

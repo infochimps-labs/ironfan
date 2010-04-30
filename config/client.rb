@@ -58,7 +58,7 @@ chef_config['node_name'] = node_name
 
 # If the client file is missing, write the validation key out so chef-client
 # can register
-if not File.exists?("/etc/chef/client.pem")
+if (not File.exists?("/etc/chef/client.pem")) && (not File.exists?("/etc/chef/client.pem"))
   File.open(validation_key, "w", 0600) do |f|
     f.print(chef_config['chef']["validation_key"])
   end

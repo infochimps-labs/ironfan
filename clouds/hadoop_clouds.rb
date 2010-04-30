@@ -26,14 +26,13 @@ pool POOL_NAME do
     user_data            settings[:attributes].to_json
     is_spot_priced       settings
     user                 'ubuntu'
-    # set_spot_price       settings if (settings[:spot_price_fraction].to_f > 0)
     puts settings.to_json
   end
 
   cloud :slave do
     using :ec2
     settings = settings_for_node(POOL_NAME, :slave)
-    instances            31..31
+    instances            30..30
     attaches_ebs_volumes settings
     is_nfs_client        settings
     is_generic_node      settings
@@ -48,7 +47,6 @@ pool POOL_NAME do
     user                 'ubuntu'
     launch_group         settings[:launch_group]
     is_spot_priced       settings
-    # spot_persistence   'persistent' # or 'one-time'
     puts settings.to_json
   end
 end

@@ -13,6 +13,7 @@ Chef::Log.info [cassandra_install_pkg, cassandra_install_dir].inspect
 remote_file "/usr/local/src/"+cassandra_install_pkg do
   source    node[:cassandra][:install_url]
   mode      "0644"
+  action :create
 end
 
 bash 'install from tarball' do

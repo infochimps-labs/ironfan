@@ -23,9 +23,9 @@ module ClusterEbsVolumes
     return nil unless File.exists?(dev)
     dev_type_str = `file -s '#{dev}'`
     case
-    when dev_type_str =~ /SGI XFS filesystem data/     then 'xfs'
-    when dev_type_str =~ /Linux.*ext3 filesystem data/ then 'ext3'
-    else                                                    nil
+    when dev_type_str =~ /SGI XFS/           then 'xfs'
+    when dev_type_str =~ /Linux.*ext3/       then 'ext3'
+    else                                          'ext3'
     end
   end
 end

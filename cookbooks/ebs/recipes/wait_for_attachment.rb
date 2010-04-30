@@ -4,12 +4,13 @@ if cluster_ebs_volumes
 
       code <<EOF
   echo #{conf.to_hash.inspect}:
+  i=1
   while true ; do
     sleep 2
     echo -n "$i "
     i=$[$i+1]
-    test -c #{conf[:device]} || continue
-    echo "#{conf[:device]} mounted for #{conf.to_hash.inspect}" >> /tmp/wait_for_attachment_err.log
+    test -e "#{conf['device']}" || continue
+    echo "#{conf['device']} mounted for #{conf.to_hash.inspect}" >> /tmp/wait_for_attachment_err.log
     break;
   done
   true

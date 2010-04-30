@@ -59,7 +59,13 @@ listen_addr = "" ; thrift_addr = "" ; seeds = []
 if node[:cloud]
   listen_addr = node[:cloud][:private_ips].first
   thrift_addr = node[:cloud][:private_ips].first
-  seeds = search(:node, "cassandra_cluster_name:#{node[:cassandra][:cluster_name]} AND cassandra_seed:true").map do |n|
+  begin
+    raw_seeds = search(:node, "cassandra_cluster_name:#{node[:cassandra][:cluster_name]} AND cassandra_seed:true")
+  rescue Exception => e
+    warn e
+    raw_seeds = []
+  end
+  seeds = raw_seeds.map do |n|
     if n["cloud"]
       n["cloud"]["private_ips"].first
     else
