@@ -10,6 +10,14 @@ This will help you set up a scalable, efficient hadoop cluster on the Amazon EC2
 * Chef is actively developed and has well-written recipes for a ton of different software packages.
 * Poolparty makes creating amazon cloud machines concise and easy: you can specify spot instances, ebs-backed volumes, disable-api-termination, and more.
 
+h2. Components
+
+* Hadoop
+* NFS
+* Persistent HDFS on EBS volumes
+* Zookeeper (_in progress_)
+* Cassandra (_in progress_)
+
 h2. Recommended cluster composition
 
 We're going to target these two plausible cluster setups:
@@ -204,3 +212,5 @@ Refer to the standard setups described above.
 h2. Information Sharing using simpleDB
 
 * Make sure you log into the "aws console":http://bit.ly/awsconsole and check in as a SimpleDB user. (You have to click through a license agreement, it should approve you within minutes)
+
+sudo bash -c 'export HOSTNAME=gibbon.infinitemonkeys.info ; PUBLIC_IP=204.236.225.16 ; echo $HOSTNAME > /etc/hostname ; hostname -F /etc/hostname ; sysctl -w kernel.hostname=$HOSTNAME ; sed -i "s/127.0.0.1 *localhost/127.0.0.1      $HOSTNAME `hostname -s` localhost/" /etc/hosts ; if grep -q $PUBLIC_IP /etc/hosts ; then true ; else echo $PUBLIC_IP $HOSTNAME `hostname -s ` >> /etc/hosts ; fi'

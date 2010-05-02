@@ -13,6 +13,7 @@ pool POOL_NAME do
     settings = settings_for_node(POOL_NAME, :server)
     instances                   1..1
     is_generic_node             settings
+    sends_aws_keys              settings
     is_ebs_backed               settings
     is_chef_server              settings
     is_chef_client              settings
@@ -30,6 +31,7 @@ pool POOL_NAME do
     instances                   1..1
     is_nfs_client               settings
     is_generic_node             settings
+    sends_aws_keys              settings
     is_ebs_backed               settings
     is_chef_client              settings
     is_spot_priced              settings
