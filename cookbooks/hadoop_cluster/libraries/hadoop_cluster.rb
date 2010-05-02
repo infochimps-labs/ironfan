@@ -1,21 +1,34 @@
 module HadoopCluster
 
+  #
+  # You must construct a databag named "servers_info" containing the addresses
+  # for the various central nodes. If your hadoop cluster is named 'zaius'
+  # you'll set
+  #
+  # {"id":"zaius_namenode",  "private_ip":"10.212.171.245"}
+  # {"id":"zaius_jobtracker","private_ip":"10.212.171.245"}
+  #
+
+  # Look in the 'servers_info' databag for the
+  def cluster_role_from_databag role
+    data_bag_item('servers_info', "#{node[:cluster_name]}_#{role}")['private_ip'] rescue nil
+  end
+
+  # The private IP for _this_ instance, taken from the ohai 'cloud' facade
+  def cloud_private_ip
+    node[:cloud][:private_ips].first rescue nil
+  end
+
+
   # The namenode's hostname, or the local node's numeric ip if 'localhost' is given
-  def namenode_hostname_or_ip
-    if node[:hadoop][:namenode_hostname] == 'localhost'
-      node[:cloud][:private_ips].first
-    else
-      node[:hadoop][:namenode_hostname]
-    end
+  def namenode_address
+    node[:hadoop][:namenode_address] = (
+      cluster_role_from_databag('namenode') || cloud_private_ip || 'localhost' )
   end
 
   # The jobtracker's hostname, or the local node's numeric ip if 'localhost' is given
-  def jobtracker_hostname_or_ip
-    if node[:hadoop][:jobtracker_hostname] == 'localhost'
-      node[:cloud][:private_ips].first
-    else
-      node[:hadoop][:jobtracker_hostname]
-    end
+  def jobtracker_address
+    cluster_role_from_databag('namenode') || cloud_private_ip || 'localhost'
   end
 
   # Make a hadoop-owned directory

@@ -8,8 +8,8 @@ class Chef::Recipe; include HadoopCluster ; end
 # Configuration files
 #
 template_variables = {
-  :namenode_hostname      => namenode_hostname_or_ip,
-  :jobtracker_hostname    => jobtracker_hostname_or_ip,
+  :namenode_address       => namenode_address,
+  :jobtracker_address     => jobtracker_address,
   :mapred_local_dirs      => mapred_local_dirs.join(','),
   :dfs_name_dirs          => dfs_name_dirs.join(','),
   :dfs_data_dirs          => dfs_data_dirs.join(','),

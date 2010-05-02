@@ -1,30 +1,28 @@
 --
 # This file just shows the attributes chef used to configure the cluster
 
-:cluster_name:             <%= node[:cluster_name]         %>
-:cluster_role:             <%= node[:cluster_role]         %>
-:cluster_role_index:       <%= node[:cluster_role_index]         %>
+:cluster_name:             <%= node[:cluster_name]                  %>
+:cluster_role:             <%= node[:cluster_role]                  %>
+:cluster_role_index:       <%= node[:cluster_role_index]            %>
 
-:hadoop_handle:            <%= node[:hadoop][:hadoop_handle]         %>
-:cdh_version:              <%= node[:hadoop][:cdh_version]           %>
-:dfs_replication:          <%= node[:hadoop][:dfs_replication]       %>
-:max_map_tasks:            <%= node[:hadoop][:max_map_tasks]         %>
-:max_reduce_tasks:         <%= node[:hadoop][:max_reduce_tasks]      %>
-:cluster_reduce_tasks:     <%= node[:hadoop][:cluster_reduce_tasks]  %>
-:child_opts:               <%= node[:hadoop][:java_child_opts]       %>
-:child_ulimit:             <%= node[:hadoop][:java_child_ulimit]     %>
+:hadoop_handle:            <%= node[:hadoop][:hadoop_handle]        %>
+:cdh_version:              <%= node[:hadoop][:cdh_version]          %>
+:dfs_replication:          <%= node[:hadoop][:dfs_replication]      %>
+:max_map_tasks:            <%= node[:hadoop][:max_map_tasks]        %>
+:max_reduce_tasks:         <%= node[:hadoop][:max_reduce_tasks]     %>
+:cluster_reduce_tasks:     <%= node[:hadoop][:cluster_reduce_tasks] %>
+:child_opts:               <%= node[:hadoop][:java_child_opts]      %>
+:child_ulimit:             <%= node[:hadoop][:java_child_ulimit]    %>
 
-:local_hadoop_dirs:        <%= @local_hadoop_dirs.inspect %>
-:persistent_hadoop_dirs:   <%= @persistent_hadoop_dirs.inspect %>
-:mapred_local_dirs:        <%= @mapred_local_dirs     %>
-:dfs_name_dirs:            <%= @dfs_name_dirs         %>
-:fs_checkpoint_dirs:       <%= @fs_checkpoint_dirs    %>
-:dfs_data_dirs:            <%= @dfs_data_dirs         %>
+:local_hadoop_dirs:        <%= @local_hadoop_dirs.inspect           %>
+:persistent_hadoop_dirs:   <%= @persistent_hadoop_dirs.inspect      %>
+:mapred_local_dirs:        <%= @mapred_local_dirs                   %>
+:dfs_name_dirs:            <%= @dfs_name_dirs                       %>
+:fs_checkpoint_dirs:       <%= @fs_checkpoint_dirs                  %>
+:dfs_data_dirs:            <%= @dfs_data_dirs                       %>
 
-:namenode_hostname:        <%= @namenode_hostname                    %>            
-:jobtracker_hostname:      <%= @jobtracker_hostname                  %>
-:node_namenode_hostname:   <%= node[:hadoop][:jobtracker_hostname]   %>            
-:node_jobtracker_hostname: <%= node[:hadoop][:jobtracker_hostname]   %>
+:namenode_address:         <%= @namenode_address                    %>            
+:jobtracker_address:       <%= @jobtracker_address                  %>
 
 
 <%- memory_in_bytes = node[:memory][:total].gsub(/kB$/, '').to_i * 1024 %>

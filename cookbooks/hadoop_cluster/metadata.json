@@ -1,21 +1,15 @@
 {
     "dependencies": {
-      "java": [
-
-      ]
+      "java": []
     },
     "replacing": {
     },
-    "description": "Installs hadoop and sets up basic cluster per Cloudera's quick start docs",
+    "description": "Installs hadoop and sets up distributed cluster per Cloudera's quick start docs",
     "groupings": {
     },
     "platforms": {
-      "ubuntu": [
-
-      ],
-      "debian": [
-
-      ]
+      "ubuntu": [],
+      "debian": []
     },
     "version": "0.8.0",
     "recommendations": {

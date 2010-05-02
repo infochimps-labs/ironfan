@@ -1,12 +1,15 @@
 default[:hadoop][:hadoop_handle] = 'hadoop-0.20'
 default[:hadoop][:cdh_version]   = 'cdh3'
 
-default[:hadoop][:namenode_hostname]          = 'localhost'
-default[:hadoop][:jobtracker_hostname]        = 'localhost'
-set[:hadoop][:cluster_reduce_tasks]       = 57
+default[:hadoop][:cluster_reduce_tasks]       = 57
 default[:hadoop][:dfs_replication]            = 3
 default[:groups]['hadoop'    ][:gid]          = 300
 default[:groups]['supergroup'][:gid]          = 301
+
+#
+# For ebs-backed volumes (or in general, machines with small or slow root
+# volumes), you may wish to exclude the root volume from consideration
+#
 default[:hadoop][:use_root_as_scratch_vol]    = true
 default[:hadoop][:use_root_as_persistent_vol] = false
 

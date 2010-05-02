@@ -37,6 +37,16 @@ Opscode cookbooks, http://github.com/opscode/cookbooks/tree/master:
 
 You may wish to add more attributes for tuning the configuration file templates.
 
+= DATABAGS:
+
+You must construct a databag named "servers_info" containing the addresses
+for the various central nodes. If your hadoop cluster is named 'zaius'
+you'll set
+
+  {"id":"zaius_namenode",  "private_ip":"10.212.171.245"}
+  {"id":"zaius_jobtracker","private_ip":"10.212.171.245"}
+
+
 = USAGE:
 
 This cookbook installs hadoop from the cloudera CDH3 distribution[1] . You should copy this to a site-cookbook and modify the templates to meet your requirements. 
