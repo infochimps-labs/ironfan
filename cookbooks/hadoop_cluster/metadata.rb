@@ -1,3 +1,4 @@
+# http://wiki.opscode.com/display/chef/Metadata
 maintainer        "Infochimps.org"
 maintainer_email  "help@infochimps.org"
 license           "Apache 2.0"
