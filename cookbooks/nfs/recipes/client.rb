@@ -10,6 +10,7 @@ if node[:nfs_mounts]
     mount target do
       fstype "nfs"
       options %w(rw,soft,intr)
+      options %w(rsize=32768,wsize=32768,bg,nfsvers=3,intr,tcp)
       nfs_server_info = data_bag_item('servers_info', 'nfs_server')
       nfs_server_ip   = nfs_server_info ? nfs_server_info["private_ip"] : node[:nfs][:server]
       device_path = config[:device] ? config[:device] : "#{nfs_server_ip}:#{config[:remote_path]}"
