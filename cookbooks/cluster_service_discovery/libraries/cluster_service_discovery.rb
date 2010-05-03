@@ -4,7 +4,11 @@
 # Since there's no good way to do this yet, let's at least put an abstraction in
 # place.
 #
-# This module lets any node
+# Lets nodes discover the location for a given service at runtime, adapting when
+# new services register.
+#
+# Operations:
+#
 # * register for a service. A timestamp records the last registry.
 # * discover all chef nodes that have registered for the given service.
 # * discover the most recent chef node for that service.
