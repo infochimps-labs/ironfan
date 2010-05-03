@@ -18,7 +18,7 @@ def is_generic_node settings
   elastic_ip              settings[:elastic_ip] if settings[:elastic_ip]
   keypair                 POOL_NAME, File.join(ENV['HOME'], '.poolparty', 'keypairs')
   has_role settings, "base_role"
-  has_role settings, "infochimps_base"
+  # has_role settings, "infochimps_base"
   settings[:attributes][:cluster_name] = self.parent.name
   settings[:attributes][:cluster_role] = self.name
 end
@@ -109,8 +109,10 @@ end
 def bootstrap_chef_server_script settings
   erubis_template(
     'config/user_data_script-bootstrap_chef_server.sh.erb',
-    :public_ip => settings[:elastic_ip],
-    :hostname  => settings[:attributes][:node_name],
+    :public_ip        => settings[:elastic_ip],
+    :hostname         => settings[:attributes][:node_name],
+    :chef_server_fqdn => settings[:attributes][:chef][:chef_server].gsub(%r{http://(.*):\d+},'\1'),
+    :ubuntu_version   => 'lucid',
     :bootstrap_scripts_url_base => settings[:bootstrap_scripts_url_base]
     )
 end

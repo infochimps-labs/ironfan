@@ -5,10 +5,11 @@ progresslog='/tmp/user_data-progress.log'
 REMOTE_FILE_URL_BASE="<%= bootstrap_scripts_url_base %>"
 
 echo "`date` Broaden the apt universe" >> $progresslog
-if grep 'multiverse' /etc/apt/sources.list ; then true ; else
-  sed -i 's/universe/multiverse universe/' /etc/apt/sources.list ;
-fi
-add-apt-repository 'deb http://us.archive.ubuntu.com/ubuntu lucid universe multiverse'
+add-apt-repository 'deb http://archive.canonical.com/ <%= ubuntu_version %> partner'
+add-apt-repository 'deb http://us.archive.ubuntu.com/ubuntu <%= ubuntu_version %> universe multiverse'
+
+# wait for system dpkg to finish
+while sudo fuser /var/lib/dpkg/lock ; do echo "`date` Waiting for apt to become free" >> $progresslog ;  sleep 5 ; done  
 
 # Update package index and update the basic system files to newest versions
 echo "`date` Apt update"  >> $progresslog 
@@ -27,6 +28,7 @@ gem install --no-rdoc --no-ri rubygems-update --version=1.3.6 ; /var/lib/gems/1.
 
 echo "`date` Installing chef gems"  >> $progresslog 
 gem install --no-rdoc --no-ri chef broham configliere ;
+gem list >> $progresslog
 
 echo "`date` Hostname"  >> $progresslog 
 # This patches the ec2-set-hostname script to use /etc/hostname (otherwise it
@@ -51,15 +53,10 @@ sed -i "s/127.0.0.1 *localhost/127.0.0.1      $HOSTNAME `hostname -s` localhost/
 if grep -q $PUBLIC_IP /etc/hosts  ; then true ; else bash -c "echo '$PUBLIC_IP $HOSTNAME `hostname -s `' >> /etc/hosts" ; fi
 
 echo "`date` Bootstrap chef server"  >> $progresslog 
-# # bootstrap chef from *server* scripts
+echo '{ "bootstrap": { "chef": { "server_fqdn":"<%= chef_server_fqdn %>", "url_type":"http", "init_style":"runit", "server_port":"4000", "webui_port":"4040", "webui_enabled":true, "path":"/srv/chef", "serve_path":"/srv/chef" } }, "run_list": [ "recipe[bootstrap::server]" ] }' > /tmp/chef_server.json ;
 wget -nv ${REMOTE_FILE_URL_BASE}/chef_bootstrap.rb -O /tmp/chef_bootstrap.rb ;
-wget -nv ${REMOTE_FILE_URL_BASE}/chef_server.json  -O /tmp/chef_server.json ;
-chef-solo -c /tmp/chef_bootstrap.rb -j /tmp/chef_server.json ;
-
-echo "`date` Copy over chef client script"  >> $progresslog 
-# Make chef server also a client of itself
-cp /etc/chef/client.rb /etc/chef/client-orig-`date +%Y%m%d%H`.rb ;
-wget -nv ${REMOTE_FILE_URL_BASE}/client.rb -O /etc/chef/client.rb ;
+sudo stop runsvdir ;
+chef-solo -c /tmp/chef_bootstrap.rb -j /tmp/chef_server.json  >> $progresslog 
 
 echo "`date` Cleanup"  >> $progresslog 
 # cleanup

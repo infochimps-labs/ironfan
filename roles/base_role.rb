@@ -5,6 +5,7 @@ run_list *%w[
   base
   aws
   java
+  cluster_service_discovery
   ]
 
 # Attributes applied if the node doesn't have it set already.

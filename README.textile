@@ -18,6 +18,20 @@ h2. Components
 * Zookeeper (_in progress_)
 * Cassandra (_in progress_)
 
+h2. Process
+
+* Install prerequisites
+* Set up your local credentials and settings
+* Launch chef server
+* Try a single-machine cluster
+* Launch slaves
+* Launch a stand-alone cluster
+* Set up EBS volumes
+* Launch a cluster with EBS volumes
+* Cassandra
+* Zookeeper
+
+
 h2. Recommended cluster composition
 
 We're going to target these two plausible cluster setups:
@@ -63,10 +77,9 @@ Install these gems:
 * amazon-ec2
 * broham
 
-**NOTE**: Please use the "infochimps branch of poolparty":http://github.com/infochimps/poolparty and of "right_aws":http://github.com/infochimps/right_aws -- in the first case, for spot instance support, and in the second for the consistent-writes behavior that broham requires.
+**NOTE**: Please use the "infochimps branch of poolparty":http://github.com/infochimps/poolparty for spot instance support and other tweaks
 
 * infochimps-poolparty
-* infochimps-right_aws
 
 h2. Set up configuration files and credentials
 
@@ -118,8 +131,6 @@ h2. Start Chef server
 * @knife cookbook upload --all@
 * @for foo in roles/* ; do knife role from file $foo ; done@ (if you have a private cookbooks repo, run it from there, too)
 
-* add attributes {"access_key":"02S6Y1EFA7ZZ7KCZH3G2","secret_access_key":"mY13mL7/iXA+gjzNJ8O95LukPQgsWjyXqVizX6zB","aws_region":"us-west-1"}
-
 h3. Data bags
 
 * Create a databag @servers_info@ 
@@ -139,6 +150,35 @@ h3. Data bags
 ===========================================================================
 
 
+h2. Set up knife and webui
+
+On the server, run and answer as follows:
+
+<pre><code>
+  sudo knife configure -i
+  Your chef server URL? http://chef.infochimps.com:4000
+  Your client user name? knife_user
+  Your validation client user name? chef-validator
+  Path to a chef repository (or leave blank)? 
+  WARN: Creating initial API user...
+</code></pre>  
+(note that this is run sudo (so we can see the key files) and that the port is '4000' (server, not webui)
+
+Now copy @~/.chef/knife_user.pem@ and @/etc/chef/validation.pem@ on the server
+to (on your computer) @~/.hadoop-ec2/keypairs/knife_user.pem@ and
+@~/.hadoop-ec2/keypairs/chef-validator.pem@ respectively; and @chmod og-rwx ~/.hadoop-ec2/keypairs/*.pem@
+
+If you do @knife client list@ you should now see something like
+
+<pre><code>
+  [
+    "chef-validator", 
+    "chef-webui",
+    "knife_user"
+  ]
+</code></pre>
+
+h2. Stock the Chef Server
 
 * Upload your roles and recipes:
 
@@ -194,6 +234,13 @@ If you set disable_api_termination to true, in order to terminate the node run
 <pre><code>
   ec2-modify-instance-attribute -v i-0704be6c --disable-api-termination false
 </code></pre>
+
+
+h3. Debugging
+
+Using @tail -f /etc/sv/chef-server*/log/main/current@ on the chef server can help debug authentication problems
+
+
 
 h3. Tradeoffs of EBS-backed volumes
 

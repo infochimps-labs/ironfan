@@ -1,4 +1,4 @@
-POOL_NAME     = 'chef'
+POOL_NAME     = 'westchef'
 require File.dirname(__FILE__)+'/cloud_aspects'
 
 # Example usage (starts the chef server, then logs in to it)
