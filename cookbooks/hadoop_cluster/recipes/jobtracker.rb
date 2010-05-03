@@ -20,6 +20,9 @@
 include_recipe "hadoop_cluster"
 package "#{node[:hadoop][:hadoop_handle]}-jobtracker"
 
+# use cluster_service_discovery to register our ip address
+register_as_jobtracker
+
 %w{jobtracker}.each do |d|
   service "#{node[:hadoop][:hadoop_handle]}-#{d}" do
     action [ :enable, :start ]

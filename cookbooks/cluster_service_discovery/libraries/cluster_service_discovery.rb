@@ -4,8 +4,8 @@
 # Since there's no good way to do this yet, let's at least put an abstraction in
 # place.
 #
-# Lets nodes discover the location for a given service at runtime, adapting when
-# new services register.
+# Allow nodes to discover the location for a given service at runtime, adapting
+# when new services register.
 #
 # Operations:
 #
@@ -33,11 +33,14 @@ module ClusterServiceDiscovery
       ).sort_by{|server| server[:provides_service][service_name]['timestamp'] } rescue []
   end
 
+  # Find the most recent node that registered to provide the given service
   def node_for_service service_name
     nodes_for_service.first
   end
 
-  # Set the
+  # Register to provide the given service.
+  # If you pass in a hash of information, it will be added to
+  # the registry, and available to clients
   def register_for_service service_name, service_info={}
     node.set[:provides_service][service_name] = {
       :timestamp  => ClusterServiceDiscovery.timestamp,
@@ -68,7 +71,6 @@ end
 class Chef::Recipe              ; include ClusterServiceDiscovery ; end
 class Chef::Resource::Directory ; include ClusterServiceDiscovery ; end
 class Chef::Resource            ; include ClusterServiceDiscovery ; end
-
 
 
 # a = search(:node, "provides_service:nfs_server").sort_by{|server| server[:provides_service][:nfs_server][:timestamp] } ; gm=a.first ; gm.name

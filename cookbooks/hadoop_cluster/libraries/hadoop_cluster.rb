@@ -9,26 +9,21 @@ module HadoopCluster
   # {"id":"zaius_jobtracker","private_ip":"10.212.171.245"}
   #
 
-  # Look in the 'servers_info' databag for the
-  def cluster_role_from_databag role
-    data_bag_item('servers_info', "#{node[:cluster_name]}_#{role}")['private_ip'] rescue nil
+  def register_as_namenode
+    register_for_service ("#{node[:cluster_name]}_namenode")
   end
-
-  # The private IP for _this_ instance, taken from the ohai 'cloud' facade
-  def cloud_private_ip
-    node[:cloud][:private_ips].first rescue nil
+  def register_as_jobtracker
+    register_for_service ("#{node[:cluster_name]}_jobtracker")
   end
-
 
   # The namenode's hostname, or the local node's numeric ip if 'localhost' is given
   def namenode_address
-    node[:hadoop][:namenode_address] = (
-      cluster_role_from_databag('namenode') || cloud_private_ip || 'localhost' )
+    service_private_ip("#{node[:cluster_name]}_namenode")
   end
 
   # The jobtracker's hostname, or the local node's numeric ip if 'localhost' is given
   def jobtracker_address
-    cluster_role_from_databag('namenode') || cloud_private_ip || 'localhost'
+    service_private_ip("#{node[:cluster_name]}_jobtracker")
   end
 
   # Make a hadoop-owned directory

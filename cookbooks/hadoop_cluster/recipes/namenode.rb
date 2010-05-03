@@ -21,6 +21,9 @@ include_recipe "hadoop_cluster"
 package "#{node[:hadoop][:hadoop_handle]}-namenode"
 package "#{node[:hadoop][:hadoop_handle]}-secondarynamenode"
 
+# use cluster_service_discovery to register our ip address
+register_as_namenode
+
 %w{namenode secondarynamenode}.each do |d|
   service "#{node[:hadoop][:hadoop_handle]}-#{d}" do
     action [ :enable, :start ]
