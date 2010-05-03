@@ -24,8 +24,10 @@ bash 'install from tarball' do
   cd  #{cassandra_install_dir}
   mv                conf/storage-conf.xml conf/storage-conf.xml.orig
   ln -nfs /etc/cassandra/storage-conf.xml conf/storage-conf.xml
-  ant ivy-retrieve
-  ant build
+  if [ -e build.xml ] ; then
+    ant ivy-retrieve
+    ant build
+  fi
   chmod a+x bin/*
   true
 EOF
