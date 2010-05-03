@@ -187,7 +187,13 @@ h2. Stock the Chef Server
   knife cookbook upload --all
 </code></pre>
 
+Load in the databag for cassandra, if necessary.
+
+h2. stuff
+
 (_There are probably a bunch more things in the middle here, please let me know what breaks between that step and the next_)
+
+h2. launch 
 
 * Start the hadoop master node:
 

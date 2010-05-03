@@ -35,6 +35,11 @@ template "#{www_base}/index.html" do
   source "webfront_index.html.erb"
 end
 
+execute "Enable thttpd" do
+  command %Q{sed -i -e 's|ENABLED=no|ENABLED=yes|' /etc/default/thttpd}
+  not_if "grep 'ENABLED=yes' '/etc/default/thttpd'"
+end
+
 service "thttpd" do
   action [ :start, :enable ]
 end

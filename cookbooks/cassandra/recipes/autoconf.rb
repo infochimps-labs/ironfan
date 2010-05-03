@@ -49,11 +49,13 @@
 # Nodes are expected to be tagged with [:cassandra][:cluster_name] to indicate the cluster to which
 # they belong (nodes are in exactly 1 cluster in this version of the cookbook), and may optionally be
 # tagged with [:cassandra][:seed] set to true if a node is to act as a seed.
-clusters = data_bag_item('cassandra', 'clusters')
-clusters[node[:cassandra][:cluster_name]].each_pair do |k, v|
-  node[:cassandra][k] = v
+clusters = data_bag_item('cassandra', 'clusters') rescue nil
+unless clusters.blank?
+  clusters[node[:cassandra][:cluster_name]].each_pair do |k, v|
+    node[:cassandra][k] = v
+  end
+  node.save
 end
-node.save
 
 listen_addr = "" ; thrift_addr = "" ; seeds = []
 if node[:cloud]

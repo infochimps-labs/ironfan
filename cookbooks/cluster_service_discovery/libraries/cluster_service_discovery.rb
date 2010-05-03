@@ -35,7 +35,7 @@ module ClusterServiceDiscovery
 
   # Find the most recent node that registered to provide the given service
   def node_for_service service_name
-    nodes_for_service.first
+    nodes_for_service(service_name).last
   end
 
   # Register to provide the given service.

@@ -1,5 +1,5 @@
 default[:hadoop][:hadoop_handle] = 'hadoop-0.20'
-default[:hadoop][:cdh_version]   = 'cdh3'
+set[:hadoop][:cdh_version]   = 'cdh3b1'
 
 default[:hadoop][:cluster_reduce_tasks]       = 57
 default[:hadoop][:dfs_replication]            = 3

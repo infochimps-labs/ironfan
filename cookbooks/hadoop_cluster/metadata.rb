@@ -6,6 +6,8 @@ description       "Installs hadoop and sets up a high-performance cluster. Inspi
 long_description  IO.read(File.join(File.dirname(__FILE__), 'README.rdoc'))
 version           "0.8"
 depends           "java"
+depends           "ebs"
+depends           "cluster_service_discovery"
 
 %w{ debian ubuntu }.each do |os|
   supports os
