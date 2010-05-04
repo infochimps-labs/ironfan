@@ -14,7 +14,7 @@ if node[:nfs] && node[:nfs][:exports]
     supports :status => true, :restart => true
   end
 
-  register_for_service('nfs_server', node[:nfs][:exports].to_hash)
+  provide_service('nfs_server', node[:nfs][:exports].to_hash)
 else
   Chef::Log.warn "You included the NFS server recipe without defining nfs exports: set node[:nfs][:exports]."
 end

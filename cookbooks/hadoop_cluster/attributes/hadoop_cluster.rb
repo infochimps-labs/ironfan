@@ -21,7 +21,7 @@ default[:hadoop][:use_root_as_persistent_vol] = false
 case node[:ec2][:instance_type]
 when 'm1.xlarge', 'c1.xlarge'
   hadoop_performance_settings = {
-    :local_disks          => [ ['/mnt2', '/dev/sdc'], ['/mnt3', '/dev/sdd'], ['/mnt4','/dev/sde'], ['/mnt5', '/dev/sdf'], ],
+    :local_disks          => [ ['/mnt', '/dev/sdc'], ['/mnt2', '/dev/sdd'], ['/mnt3','/dev/sde'], ['/mnt4', '/dev/sdf'], ],
     :max_map_tasks        => 8,
     :max_reduce_tasks     => 4,
     :java_child_opts      => '-Xmx680m',
@@ -29,7 +29,7 @@ when 'm1.xlarge', 'c1.xlarge'
   }
 when 'm1.large'
   hadoop_performance_settings = {
-    :local_disks          => [ ['/mnt2', '/dev/sdc'], ['/mnt3', '/dev/sdd'], ],
+    :local_disks          => [ ['/mnt', '/dev/sdc'], ['/mnt2', '/dev/sdd'], ],
     :max_map_tasks        => 4,
     :max_reduce_tasks     => 2,
     :java_child_opts      => '-Xmx1024m',
@@ -37,7 +37,7 @@ when 'm1.large'
   }
 when 'c1.medium'
   hadoop_performance_settings = {
-    :local_disks          => [ ['/mnt2', '/dev/sdc'] ],
+    :local_disks          => [ ['/mnt', '/dev/sdc'] ],
     :max_map_tasks        => 4,
     :max_reduce_tasks     => 2,
     :java_child_opts      => '-Xmx550m',
@@ -45,7 +45,7 @@ when 'c1.medium'
   }
 else # 'm1.small'
   hadoop_performance_settings = {
-    :local_disks          => [ ['/mnt2', '/dev/sdc'], ],
+    :local_disks          => [ ['/mnt', '/dev/sdc'], ],
     :max_map_tasks        => 2,
     :max_reduce_tasks     => 1,
     :java_child_opts      => '-Xmx550m',

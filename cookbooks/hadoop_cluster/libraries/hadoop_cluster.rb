@@ -10,20 +10,20 @@ module HadoopCluster
   #
 
   def register_as_namenode
-    register_for_service ("#{node[:cluster_name]}_namenode")
+    provide_service ("#{node[:cluster_name]}_namenode")
   end
   def register_as_jobtracker
-    register_for_service ("#{node[:cluster_name]}_jobtracker")
+    provide_service ("#{node[:cluster_name]}_jobtracker")
   end
 
   # The namenode's hostname, or the local node's numeric ip if 'localhost' is given
   def namenode_address
-    service_private_ip("#{node[:cluster_name]}_namenode")
+    provider_private_ip("#{node[:cluster_name]}_namenode")
   end
 
   # The jobtracker's hostname, or the local node's numeric ip if 'localhost' is given
   def jobtracker_address
-    service_private_ip("#{node[:cluster_name]}_jobtracker")
+    provider_private_ip("#{node[:cluster_name]}_jobtracker")
   end
 
   # Make a hadoop-owned directory

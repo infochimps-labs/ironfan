@@ -11,7 +11,7 @@ if node[:nfs] && node[:nfs][:mounts]
       fstype "nfs"
       options %w(rw,soft,intr)
       # options %w(rsize=32768,wsize=32768,bg,nfsvers=3,intr,tcp)
-      device config[:device] ? config[:device] : "#{service_private_ip('nfs_server')}:#{config[:remote_path]}"
+      device config[:device] ? config[:device] : "#{provider_private_ip('nfs_server')}:#{config[:remote_path]}"
       dump 0
       pass 0
       # To simply mount the volume: action[:mount]

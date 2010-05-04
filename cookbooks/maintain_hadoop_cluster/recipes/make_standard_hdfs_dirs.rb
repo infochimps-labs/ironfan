@@ -42,7 +42,7 @@ execute 'create user dirs on HDFS' do
   not_if do File.exists?("/mnt/hadoop/logs/made_initial_dirs.log") end
   user 'hadoop'
   command %Q{
-    hadoop_users=/user/"`grep supergroup /etc/group | cut -d: -f4 | sed -e 's!,! /user/!g'`" ;
+    hadoop_users=/user/"`grep supergroup /etc/group | cut -d: -f4 | sed -e 's|,| /user/|g'`" ;
     hadoop fs -mkdir    /tmp /user /user/hive/warehouse $hadoop_users;
     hadoop fs -chmod +w /tmp /user /user/hive/warehouse;
     for user in $hadoop_users ; do
