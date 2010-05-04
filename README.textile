@@ -31,6 +31,9 @@ h2. Process
 * Cassandra
 * Zookeeper
 
+h2. TODO
+
+* get the run_list out of the user-data
 
 h2. Recommended cluster composition
 
@@ -147,12 +150,6 @@ h3. Data bags
 ** zaius
 ** maxiums
 
-===========================================================================
-
-
-If the webui doesn't log you in, try doing @sudo service chef-server-webui restart@ -- it occasionally will fail to create the admin user for some reason.
-
-
 h2. Set up knife and webui
 
 On the server, run and answer as follows:
@@ -193,59 +190,65 @@ h2. Stock the Chef Server
 
 h2. Play around with single-machine server
 
-Put the maintain_hadoop_cluster::format_namenode recipe in below hadoop and before hadoop_master.
+If you're using HDFS on the ephemeral drives, put the maintain_hadoop_cluster::reformat_scratch_disks, maintain_hadoop_cluster::format_namenode and maintain_hadoop_cluster::make_standard_hdfs_dirs.rb recipe in below hadoop and before hadoop_master. Nobody will question your courage if (rather than add them to the runlist) you just run the commands therein manually.
 
+h2. Burn an AMI 
 
-tail -f /var/log/hadoop/hadoop-hadoop-namenode-chef.infochimps.com.log &
-
-sudo service chef-client stop
-tail -f /etc/sv/chef-client/log/main/current &
-
-sudo rm /etc/motd ;
-sudo bash -c 'echo "CHIMP CHIMP CHIMP CRUNCH CRUNCH CRUNCH" > /etc/motd ' ;
-
+# From your local machine -- bring over your credentials
 scp -i ~/.hadoop-ec2/keypairs/gibbon.pem ~/.hadoop-ec2/{aws_private_setup.sh,certs/cert.pem,certs/pk.pem,keypairs/gibbon.pem} ubuntu@ec2-204-236-189-83.us-west-1.compute.amazonaws.com:/tmp
 
+# ... and then on the target machine move them from /tmp to /mnt (which is ignored in bundling)
+sudo mv /tmp/*.pem /tmp/aws_private_setup.sh /mnt
+
+# (all following commands are also on the target machine)
+
+# Shutdown services
+for foo in hadoop-0.20-{namenode,jobtracker,tasktracker,datanode,secondarynamenode} cassandra chef-client nfs-kernel-server ; do sudo service $foo stop ; done
+# and make the following ones not restart on bootup
+for foo in hadoop-0.20-{tasktracker,datanode,namenode,jobtracker,secondarynamenode} cassandra ; do sudo update-rc.d -f $foo remove ; done
+# Give the process list a how's your father -- nothing interesting should be running.
+ps aux
+# Unmount anything that's mounted.
+mount
+sudo umount /home
+
+# Give apt some last-minute lovin'
 sudo apt-get -y update  ;
 sudo apt-get -y upgrade ;
 sudo apt-get -f install ;
 sudo apt-get clean ;
 sudo updatedb ;
 
-for foo in hadoop-0.20-{namenode,jobtracker,tasktracker,datanode,secondarynamenode} cassandra chef-client nfs-kernel-server ; do sudo service $foo stop ; done
-
-sudo rm /etc/chef/{chef_config.json,client.pem,validation.pem} /etc/sv/chef-client/log/main/*
-sudo rm -rf /var/log/*.gz /var/log/hadoop/* /tmp/* /{root,home/ubuntu}/{.cache,.gem}
-sudo rm /etc/hostname
-sudo rm /etc/hadoop/conf/core-site.xml
+# Nuke files that would be inconvenient to persist: chef config and startup files; log files; and files that contain keys of some sort.
+sudo rm /etc/hostname /etc/chef/{chef_config.json,client.pem,validation.pem} /var/lib/cloud/data/scripts/*
+sudo rm /etc/sv/chef-client/log/main/* /var/log/*.gz /var/log/hadoop/* /tmp/*
+sudo rm -rf  /{root,home/ubuntu}/{.cache,.gem} /etc/hadoop/conf/core-site.xml
 sudo bash -c 'for foo in /var/log/{messages,debug,udev,lastlog,dpkg.log,bootstrap.log,user.log} ; do echo > $foo ; done'
 
-sudo mv /tmp/*.pem /tmp/aws_private_setup.sh /mnt
+# If you want to record the AMI version, something like
+sudo rm /etc/motd ;
+sudo bash -c 'echo "CHIMP CHIMP CHIMP CRUNCH CRUNCH CRUNCH (image burned at `date`)" > /etc/motd ' ;
+# If you want to, edit the /etc/ssh/sshd_config
+
+h3. Burning an EBS-backed AMI
+
+Just use the console. MAKE SURE TO STOP, UNMOUNT AND DETACH ALL EBS VOLUMES first.
+
+h3. Burning an Instance-backed (s3) AMIs
+
+cd /mnt
 . /mnt/aws_private_setup.sh
-AMI_EXCLUDES=/ebs1,/ebs2,/root/.ssh,/mnt
+# Modify the following to suit.  Bundle will complain about excludes that are missing, so adjust until it stops bitching.
+AMI_EXCLUDES=/ebs1,/ebs2,/mnt,/data,/{root,home/ubuntu}/.ssh/authorized_keys,/etc/ssh/ssh_*key*
 AWS_REGION=us-east-1
 CLUSTER=gibbon
 ami_bucket=s3amis.infinitemonkeys.info/${CLUSTER}-slave-ami-32bit-`date "+%Y%m%d"`
-mkdir -p /mnt/`dirname $ami_bucket`
+sudo mkdir -p /mnt/`dirname $ami_bucket`
 EC2_URL=https://${AWS_REGION}.ec2.amazonaws.com
+# This will take a long fucking time. 15 minutes on a small instance. It fucking sucks.
 sudo mkdir -p /mnt/$ami_bucket ; time sudo ec2-bundle-vol --exclude=$AMI_EXCLUDES -r i386 -d /mnt/$ami_bucket -k /mnt/pk.pem -c /mnt/cert.pem -u $AWS_ACCOUNT_ID --ec2cert /etc/ec2/amitools/cert-ec2.pem
-time ( PATH=/usr/bin:$PATH ; ec2-upload-bundle --location $AWS_REGION -b $ami_bucket -m /mnt/$ami_bucket/image.manifest.xml -a $AWS_ACCESS_KEY_ID  -s $AWS_SECRET_ACCESS_KEY ) ;
+time ( PATH=/usr/bin:$PATH ; ec2-upload-bundle -b $ami_bucket -m /mnt/$ami_bucket/image.manifest.xml -a $AWS_ACCESS_KEY_ID  -s $AWS_SECRET_ACCESS_KEY ) ;
 time ec2-register -K /mnt/pk.pem -C /mnt/cert.pem --region $AWS_REGION -n $ami_bucket $ami_bucket/image.manifest.xml 
-
-
-h2. Cassandra
-
-
-<pre><code>
-  grep ListenAddress /etc/cassandra/storage-conf.xml
-  irb
-  # in irb
-  require 'rubygems' ; require 'cassandra' ; include Cassandra::Constants ;
-  twitter = Cassandra.new('Twitter', '10.162.67.95:9160')
-  user = {'screen_name' => 'buttonscat'} ;
-  twitter.insert(:Users, '5', user)
-  twitter.get(:Users, '5')  
-</code></pre>
 
 h2. launch 
 
@@ -259,16 +262,6 @@ tail -f /var/log/dpkg.log /tmp/user_data-progress.log
   cloud-ssh   -n server  -c clouds/chef_clouds.rb
 </code></pre>
 
-* You will probably need to kickstart chef-client a few times.  Log into the machine as @ubuntu@ user and
-
-<pre><code>
-  sudo service chef-client stop
-  cd /etc/chef
-  tail -f /etc/sv/chef-client/log/main/* &
-  sudo chef-client
-</code></pre>
-
-
 * Once the master node starts, try a couple slaves
 
 <pre><code>
@@ -277,7 +270,72 @@ tail -f /var/log/dpkg.log /tmp/user_data-progress.log
 
 * Once the cluster works with no EBS volumes, then you should try defining 
 
-h3. Caveats
+h2. Debugging
+
+h3. Debugging chef client (and client on boot-up)
+
+<pre><code>
+  tail -n200 -f /etc/sv/chef-client/log/main/current
+</code></pre>
+
+* If you need to kickstart the chef-client, log into the machine as @ubuntu@ user and
+
+<pre><code>
+  sudo service chef-client stop # so that it doesn't try running while you're experimenting
+  cd /etc/chef
+  tail -f /etc/sv/chef-client/log/main/* &
+  sudo chef-client
+  # ...
+  sudo service chef-client start # once you're done
+</code></pre>
+
+
+If you're having 401 Authentication errors,
+* check that broham didn't make you be some node you don't want to be
+* you can edit the node name in /etc/chef/chef_config.json file directly, and you can overwrite the /etc/chef/validation.pem file -- the client script will let those settings override the userdata config.
+* Once you've checked that, blow away the client.rb file and re-run chef server. It should authenticate as the node name you set.
+
+h3. Debug chef server bootstrap
+
+Using on the chef server can help debug authentication problems
+
+<pre><code>
+  tail -n100 -f /etc/sv/chef-server*/log/main/current
+</code></pre>
+
+Immediately after If the webui doesn't log you in, try doing @sudo service chef-server-webui restart@ -- it occasionally will fail to create the admin user for some reason.
+
+h3. Debugging hadoop
+
+<pre><code>
+  tail -f /var/log/hadoop/hadoop-hadoop-namenode-chef.infochimps.com.log &
+</code></pre>
+
+<pre><code>
+  sudo service chef-client stop
+  tail -f /etc/sv/chef-client/log/main/current &
+</code></pre>  
+
+
+h3. Cassandra
+
+* Logs are in /etc/
+
+To check that cassandra works as it should:
+
+<pre><code>
+  grep ListenAddress /etc/cassandra/storage-conf.xml
+  irb
+  # in irb
+  require 'rubygems' ; require 'cassandra' ; include Cassandra::Constants ;
+  # plug your ip address into the line below.
+  twitter = Cassandra.new('Twitter', '10.162.67.95:9160')
+  user = {'screen_name' => 'buttonscat'} ;
+  twitter.insert(:Users, '5', user)
+  twitter.get(:Users, '5')  
+</code></pre>
+
+h2. Tips and Notes
 
 If you're west, first run from the shell
 <pre><code>
@@ -297,12 +355,11 @@ If you set disable_api_termination to true, in order to terminate the node run
   ec2-modify-instance-attribute -v i-0704be6c --disable-api-termination false
 </code></pre>
 
+h3. Dumb shit I did that maybe if I note it here someone else might not.
 
-h3. Debugging
+* Make sure you scrub the userdata scripts from a bootstrapped image before preparing an AMI -- it's surprising behavior to see old config files reappear.
 
-Using @tail -f /etc/sv/chef-server*/log/main/current@ on the chef server can help debug authentication problems
-
-
+* If you're seeing weird interactions between chef components make sure you're pointing at the chef server you think you are
 
 h3. Tradeoffs of EBS-backed volumes
 

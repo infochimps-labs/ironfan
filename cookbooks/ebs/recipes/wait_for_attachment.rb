@@ -10,13 +10,16 @@ if cluster_ebs_volumes
     echo -n "$i "
     i=$[$i+1]
     test -e "#{conf['device']}" || continue
-    echo "#{conf['device']} mounted for #{conf.to_hash.inspect}" >> /tmp/wait_for_attachment_err.log
+    echo "`date` #{conf['device']} mounted for #{conf.to_hash.inspect}" >> /tmp/wait_for_attachment_err.log
+    ls -l /dev/sd* >>  /tmp/wait_for_attachment_err.log
+    mount          >>  /tmp/wait_for_attachment_err.log
+    sleep 5
     break;
   done
   true
 EOF
-    end
 
+    end
   end
 
 end
