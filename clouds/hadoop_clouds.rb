@@ -12,14 +12,14 @@ pool POOL_NAME do
     using :ec2
     settings = settings_for_node(POOL_NAME, :master)
     instances            1..1
-    attaches_ebs_volumes        settings
+    # attaches_ebs_volumes        settings
     is_nfs_client               settings
     is_generic_node             settings
     sends_aws_keys              settings
     is_chef_client              settings
     #
     is_hadoop_node              settings
-    mounts_ebs_volumes          settings
+    # mounts_ebs_volumes          settings
     is_hadoop_master            settings
     is_hadoop_worker            settings
     has_big_package             settings

@@ -110,7 +110,7 @@ end
 
 def bootstrap_chef_script role, settings
   erubis_template(
-    "config/user_data_script-bootstrap_chef_#{role}.sh.erb",
+    File.dirname(__FILE__)+"/../config/user_data_script-bootstrap_chef_#{role}.sh.erb",
     :public_ip        => settings[:elastic_ip],
     :hostname         => settings[:attributes][:node_name],
     :chef_server_fqdn => settings[:attributes][:chef][:chef_server].gsub(%r{http://(.*):\d+},'\1'),

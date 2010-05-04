@@ -201,22 +201,35 @@ tail -f /var/log/hadoop/hadoop-hadoop-namenode-chef.infochimps.com.log &
 sudo service chef-client stop
 tail -f /etc/sv/chef-client/log/main/current &
 
+sudo rm /etc/motd ;
+sudo bash -c 'echo "CHIMP CHIMP CHIMP CRUNCH CRUNCH CRUNCH" > /etc/motd ' ;
+
+scp -i ~/.hadoop-ec2/keypairs/gibbon.pem ~/.hadoop-ec2/{aws_private_setup.sh,certs/cert.pem,certs/pk.pem,keypairs/gibbon.pem} ubuntu@ec2-204-236-189-83.us-west-1.compute.amazonaws.com:/tmp
+
+sudo apt-get -y update  ;
+sudo apt-get -y upgrade ;
+sudo apt-get -f install ;
+sudo apt-get clean ;
+sudo updatedb ;
+
 for foo in hadoop-0.20-{namenode,jobtracker,tasktracker,datanode,secondarynamenode} cassandra chef-client nfs-kernel-server ; do sudo service $foo stop ; done
 
-
-scp -i ~/.hadoop-ec2/keypairs/westchef.pem ~/.hadoop-ec2/{aws_private_setup.sh,certs/cert.pem,certs/pk.pem,keypairs/westchef.pem} ubuntu@ec2-204-236-189-83.us-west-1.compute.amazonaws.com:/tmp
-
+sudo rm /etc/chef/{chef_config.json,client.pem,validation.pem} /etc/sv/chef-client/log/main/*
+sudo rm -rf /var/log/*.gz /var/log/hadoop/* /tmp/* /{root,home/ubuntu}/{.cache,.gem}
+sudo rm /etc/hostname
 sudo rm /etc/hadoop/conf/core-site.xml
 sudo bash -c 'for foo in /var/log/{messages,debug,udev,lastlog,dpkg.log,bootstrap.log,user.log} ; do echo > $foo ; done'
+
+sudo mv /tmp/*.pem /tmp/aws_private_setup.sh /mnt
 . /mnt/aws_private_setup.sh
-ami_bucket=westchef-client-ami-32bit-`date "+%Y%m%d"`
 AMI_EXCLUDES=/ebs1,/ebs2,/root/.ssh,/mnt
-AWS_REGION=us-west-1
+AWS_REGION=us-east-1
+CLUSTER=gibbon
+ami_bucket=${CLUSTER}-slave-ami-32bit-`date "+%Y%m%d"`
 EC2_URL=https://${AWS_REGION}.ec2.amazonaws.com
 sudo mkdir -p /mnt/$ami_bucket ; time sudo ec2-bundle-vol --exclude=$AMI_EXCLUDES -r i386 -d /mnt/$ami_bucket -k /mnt/pk.pem -c /mnt/cert.pem -u $AWS_ACCOUNT_ID --ec2cert /etc/ec2/amitools/cert-ec2.pem
 time ( PATH=/usr/bin:$PATH ; ec2-upload-bundle --location $AWS_REGION -b $ami_bucket -m /mnt/$ami_bucket/image.manifest.xml -a $AWS_ACCESS_KEY_ID  -s $AWS_SECRET_ACCESS_KEY ) ;
 time ec2-register -K /mnt/pk.pem -C /mnt/cert.pem --region $AWS_REGION -n $ami_bucket $ami_bucket/image.manifest.xml 
-
 
 
 h2. Cassandra
