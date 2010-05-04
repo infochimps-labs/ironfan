@@ -1,4 +1,4 @@
-POOL_NAME     = 'westchef'
+POOL_NAME     = 'kong'
 require File.dirname(__FILE__)+'/cloud_aspects'
 
 # Example usage (starts the chef server, then logs in to it)
@@ -26,7 +26,7 @@ pool POOL_NAME do
 
   cloud :bootstrap_client do
     using :ec2
-    settings = settings_for_node(POOL_NAME, :client)
+    settings = settings_for_node(POOL_NAME, :bootstrap_client)
     instances                   1..1
     is_nfs_client               settings
     is_generic_node             settings
@@ -35,7 +35,7 @@ pool POOL_NAME do
     is_spot_priced              settings
     user                        'ubuntu'
     user_data                   bootstrap_chef_script(:client, settings)
-    $stderr.puts settings[:attributes].to_json
+    $stderr.puts [settings, image_id].inspect
   end
 
   cloud :client do
