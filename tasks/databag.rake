@@ -68,8 +68,8 @@ task :load_data_bags do
     File.basename(f, '.json')
   }
 
-  new_bags = files - bag_ids
-  missing_files = bag_ids - files
+  new_bags          = files - bag_ids
+  missing_files     = bag_ids - files
   bag_ids_to_update = files & bag_ids
 
   new_bags.each do |new_bag_id|
