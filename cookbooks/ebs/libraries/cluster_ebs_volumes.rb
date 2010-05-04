@@ -20,7 +20,7 @@ module ClusterEbsVolumes
 
   # Use `file -s` to identify volume type: ohai doesn't seem to want to do so.
   def fstype_from_file_magic(dev)
-    return nil unless File.exists?(dev)
+    return 'ext3' unless File.exists?(dev)
     dev_type_str = `file -s '#{dev}'`
     case
     when dev_type_str =~ /SGI XFS/           then 'xfs'

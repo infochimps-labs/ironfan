@@ -49,12 +49,15 @@ else # 'm1.small'
   }
 end
 
-hadoop_performance_settings[:local_disks]=[
-  [ '/mnt',  node[:ec2]['block_device_mapping_ephemeral0'] ],
-  [ '/mnt2', node[:ec2]['block_device_mapping_ephemeral1'] ],
-  [ '/mnt3', node[:ec2]['block_device_mapping_ephemeral2'] ],
-  [ '/mnt4', node[:ec2]['block_device_mapping_ephemeral3'] ],
-].reject{|mnt,dev| dev.blank? }
+hadoop_performance_settings[:local_disks]=[]
+[ [ '/mnt',  'block_device_mapping_ephemeral0'],
+  [ '/mnt2', 'block_device_mapping_ephemeral1'],
+  [ '/mnt3', 'block_device_mapping_ephemeral2'],
+  [ '/mnt4', 'block_device_mapping_ephemeral3'],
+].each do |mnt, ephemeral|
+  dev_str = node[:ec2][ephemeral]
+  hadoop_performance_settings[:local_disks] << [mnt, '/dev/'+dev_str] unless dev_str.blank?
+end
 Chef::Log.info(hadoop_performance_settings.inspect)
 
 hadoop_performance_settings.each{|k,v| set[:hadoop][k] = v }
