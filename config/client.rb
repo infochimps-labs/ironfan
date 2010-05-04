@@ -1,5 +1,8 @@
 # Chef Client Config File
-# Automatically grabs configuration from ohai ec2 metadata.
+#
+# Automatically grabs configuration from JSON contained in the ohai ec2 metadata
+# and the /etc/chef/chef_config.json file.
+#
 
 require 'ohai'
 require 'json'
@@ -26,7 +29,9 @@ chef_config = chef_config_from_user_data.to_mash.merge(chef_config_from_file)
 chef_server_url        chef_config['chef']['chef_server']
 validation_client_name chef_config['chef']['validation_client_name']
 
+#
 # Cluster index
+#
 cluster_role_index = chef_config['cluster_role_index']
 begin
   if ! cluster_role_index
@@ -46,9 +51,10 @@ end
 cluster_role_index ||= OHAI_INFO[:ec2][:ami_launch_index]
 chef_config['cluster_role_index'] = cluster_role_index
 
-# Node Name: if the node_name is given, use that; if the cluster name, cluster
-#   role (and optional index) are given, use "cluster-role-index" otherwise,
-#   use the instance_id.
+# Node Name: if the node_name is given, use that;
+# if the cluster name, cluster role (and optional index) are given, use
+# "cluster-role-index";
+# otherwise, use the instance_id.
 case
 when chef_config["node_name"]    then node_name chef_config["node_name"]
 when chef_config["cluster_role"] then node_name [chef_config["cluster_name"], chef_config["cluster_role"], cluster_role_index.to_s].compact.join('-')
@@ -58,18 +64,16 @@ chef_config['node_name'] = node_name
 
 # If the client file is missing, write the validation key out so chef-client
 # can register
-if (not File.exists?("/etc/chef/client.pem")) && (not File.exists?("/etc/chef/client.pem"))
+if (not File.exists?("/etc/chef/client.pem")) && (not File.exists?(validation_key))
   File.open(validation_key, "w", 0600) do |f|
     f.print(chef_config['chef']["validation_key"])
   end
 end
 
-
 # Adopt chef config settings from the attributes key
-unless chef_config['freeze_chef_config_file']
-  chef_config_out = chef_config.reject{|k,v| ["chef"].include?(k.to_s) }
+unless File.exists?(CHEF_CONFIG_FILE)
   File.open(CHEF_CONFIG_FILE, "w", 0600) do |f|
-    f.print(JSON.pretty_generate(chef_config_out))
+    f.print(JSON.pretty_generate(chef_config))
   end
 end
 json_attribs CHEF_CONFIG_FILE if File.exists?(CHEF_CONFIG_FILE)

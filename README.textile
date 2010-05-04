@@ -150,6 +150,9 @@ h3. Data bags
 ===========================================================================
 
 
+If the webui doesn't log you in, try doing @sudo service chef-server-webui restart@ -- it occasionally will fail to create the admin user for some reason.
+
+
 h2. Set up knife and webui
 
 On the server, run and answer as follows:
@@ -185,13 +188,29 @@ h2. Stock the Chef Server
 <pre><code>
   for foo in roles/*.rb ; do echo $foo ; knife role from file $foo ; done
   knife cookbook upload --all
+  rake load_data_bags
 </code></pre>
 
-Load in the databag for cassandra, if necessary.
+h2. Play around with single-machine server
 
-h2. stuff
+Put the maintain_hadoop_cluster::format_namenode recipe in below hadoop and before hadoop_master.
 
-(_There are probably a bunch more things in the middle here, please let me know what breaks between that step and the next_)
+
+tail -f /var/log/hadoop/hadoop-hadoop-namenode-chef.infochimps.com.log &
+
+
+h2. Cassandra
+
+
+<pre><code>
+  grep ListenAddress /etc/cassandra/storage-conf.xml
+  irb
+  # in irb
+  require 'rubygems' ; require 'cassandra' ; include Cassandra::Constants ;
+  twitter = Cassandra.new('Twitter', '10.162.67.95:9160')
+  user = {'screen_name' => 'buttonscat'} ; twitter.insert(:Users, '5', user)
+  twitter.get(:Users, '5')  
+</code></pre>
 
 h2. launch 
 
