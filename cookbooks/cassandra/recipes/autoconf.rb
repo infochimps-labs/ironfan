@@ -57,33 +57,12 @@ unless clusters.blank?
   node.save
 end
 
-listen_addr = "" ; thrift_addr = "" ; seeds = []
-if node[:cloud]
-  listen_addr = node[:cloud][:private_ips].first
-  thrift_addr = node[:cloud][:private_ips].first
-  begin
-    raw_seeds = search(:node, "cassandra_cluster_name:#{node[:cassandra][:cluster_name]} AND cassandra_seed:true")
-  rescue Exception => e
-    warn e
-    raw_seeds = []
-  end
-  seeds = raw_seeds.map do |n|
-    if n["cloud"]
-      n["cloud"]["private_ips"].first
-    else
-      n["ipaddress"]
-    end
-  end
-else
-  listen_addr = node[:ipaddress]
-  thrift_addr = node[:ipaddress]
-  seeds = search(:node, "cassandra_cluster_name:#{node[:cassandra][:cluster_name]} AND cassandra_seed:true").map {|n| n["ipaddress"]}
-end
-seeds = ["127.0.0.1"] unless seeds.length > 0
-node[:cassandra][:seeds] = seeds
-
+# We want to find all nodes in our cluster that rock the cassandra.
+cassandra_cluster_name = node[:cassandra][:cluster_name] + '-cassandra'
+# use cluster_service_discovery to register our ip address
+provide_service(cassandra_cluster_name)
 # Configure the various addrs for binding
-node[:cassandra][:listen_addr] = listen_addr
-node[:cassandra][:thrift_addr] = thrift_addr
-
-include_recipe "cassandra::default"
+node[:cassandra][:listen_addr] = private_ip_of(node)
+node[:cassandra][:thrift_addr] = private_ip_of(node)
+# And find out who all else provides cassandra in our cluster
+node[:cassandra][:seeds] = [private_ip_of(node), all_provider_private_ips(cassandra_cluster_name)].flatten.compact.uniq

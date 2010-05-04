@@ -8,7 +8,7 @@ end
 
 cassandra_install_pkg = File.basename(node[:cassandra][:install_url])
 cassandra_install_dir = cassandra_install_pkg.gsub(%r{(?:-bin)?\.tar\.gz}, '')
-Chef::Log.info [cassandra_install_pkg, cassandra_install_dir].inspect
+# Chef::Log.info [cassandra_install_pkg, cassandra_install_dir].inspect
 
 remote_file "/usr/local/src/"+cassandra_install_pkg do
   source    node[:cassandra][:install_url]

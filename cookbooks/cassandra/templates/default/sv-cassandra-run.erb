@@ -1,4 +1,4 @@
 #!/bin/sh
 export JAVA_HOME=/usr/lib/jvm/java-6-sun/jre CASSANDRA_CONF=/etc/cassandra/storage-conf.xml CASSANDRA_HOME=/usr/local/share/cassandra
 exec 2>&1
-exec chpst -u cassandra /usr/sbin/cassandra -f
+exec chpst -u cassandra /usr/local/share/cassandra/bin/cassandra -f
