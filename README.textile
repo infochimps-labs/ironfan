@@ -225,7 +225,8 @@ sudo mv /tmp/*.pem /tmp/aws_private_setup.sh /mnt
 AMI_EXCLUDES=/ebs1,/ebs2,/root/.ssh,/mnt
 AWS_REGION=us-east-1
 CLUSTER=gibbon
-ami_bucket=${CLUSTER}-slave-ami-32bit-`date "+%Y%m%d"`
+ami_bucket=s3amis.infinitemonkeys.info/${CLUSTER}-slave-ami-32bit-`date "+%Y%m%d"`
+mkdir -p /mnt/`dirname $ami_bucket`
 EC2_URL=https://${AWS_REGION}.ec2.amazonaws.com
 sudo mkdir -p /mnt/$ami_bucket ; time sudo ec2-bundle-vol --exclude=$AMI_EXCLUDES -r i386 -d /mnt/$ami_bucket -k /mnt/pk.pem -c /mnt/cert.pem -u $AWS_ACCOUNT_ID --ec2cert /etc/ec2/amitools/cert-ec2.pem
 time ( PATH=/usr/bin:$PATH ; ec2-upload-bundle --location $AWS_REGION -b $ami_bucket -m /mnt/$ami_bucket/image.manifest.xml -a $AWS_ACCESS_KEY_ID  -s $AWS_SECRET_ACCESS_KEY ) ;
