@@ -1,6 +1,7 @@
 # Load settings from ~/.hadoop-ec2/poolparty.yaml
 # Node/cluster/common settings are merged in #settings_for_node (below)
 require 'configliere'
+require File.join(File.dirname(__FILE__), 'aws_service_data')
 Settings.read File.join(ENV['HOME'],'.hadoop-ec2','poolparty.yaml'); Settings.resolve!
 
 # ===========================================================================
@@ -12,10 +13,11 @@ Settings.read File.join(ENV['HOME'],'.hadoop-ec2','poolparty.yaml'); Settings.re
 def is_generic_node settings
   # Instance described in settings files
   instance_type           settings[:instance_type]
-  image_id                settings[:ami_id]
+  image_id                AwsServiceData.ami_for(settings)
   availability_zones      settings[:availability_zones]
   disable_api_termination settings[:disable_api_termination]
-  elastic_ip              settings[:elastic_ip] if settings[:elastic_ip]
+  elastic_ip              settings[:elastic_ip]               if settings[:elastic_ip]
+  set_instance_backing    settings
   keypair                 POOL_NAME, File.join(ENV['HOME'], '.poolparty', 'keypairs')
   has_role settings, "base_role"
   # has_role settings, "infochimps_base"
@@ -42,13 +44,17 @@ def sends_aws_keys settings
   settings[:attributes][:aws][:aws_region]        ||= Settings[:aws_region]
 end
 
-def is_ebs_backed settings
-  # Bring the ephemeral storage (local scratch disks) online
-  block_device_mapping([
-      { :device_name => '/dev/sda1' }.merge(settings[:boot_volume]||{}),
-      { :device_name => '/dev/sdc',  :virtual_name => 'ephemeral0' },
-    ])
-  instance_initiated_shutdown_behavior 'stop'
+def set_instance_backing settings
+  if settings[:instance_backing] == 'ebs'
+    # Bring the ephemeral storage (local scratch disks) online
+    block_device_mapping([
+        { :device_name => '/dev/sda1' }.merge(settings[:boot_volume]||{}),
+        { :device_name => '/dev/sdc',  :virtual_name => 'ephemeral0' },
+      ])
+    instance_initiated_shutdown_behavior 'stop'
+  else
+    settings.delete :boot_volume
+  end
 end
 
 # Poolparty rules to impart the 'ebs_volumes_attach' role
@@ -61,13 +67,9 @@ def mounts_ebs_volumes settings
   has_role settings, "ebs_volumes_mount"
 end
 
-INSTANCE_PRICES = {
-  'm1.small'    => 0.085, 'c1.medium'   => 0.17,  'm1.large'    => 0.34,  'c1.xlarge'   => 0.68,
-  'm1.xlarge'   => 0.68,  'm2.xlarge'   => 0.50,  'm2.xlarge'   => 1.20,  'm2.4xlarge'  => 2.40,
-}
 def is_spot_priced settings
   if    settings[:spot_price_fraction].to_f > 0
-    spot_price( INSTANCE_PRICES[settings[:instance_type]] * settings[:spot_price_fraction])
+    spot_price( AwsServiceData::INSTANCE_PRICES[settings[:instance_type]] * settings[:spot_price_fraction] )
   elsif settings[:spot_price].to_f > 0
     spot_price( settings[:spot_price].to_f )
   end
@@ -106,14 +108,15 @@ def is_chef_client settings
   has_role settings, "chef_client"
 end
 
-def bootstrap_chef_server_script settings
+def bootstrap_chef_script role, settings
   erubis_template(
-    'config/user_data_script-bootstrap_chef_server.sh.erb',
+    "config/user_data_script-bootstrap_chef_#{role}.sh.erb",
     :public_ip        => settings[:elastic_ip],
     :hostname         => settings[:attributes][:node_name],
     :chef_server_fqdn => settings[:attributes][:chef][:chef_server].gsub(%r{http://(.*):\d+},'\1'),
     :ubuntu_version   => 'lucid',
-    :bootstrap_scripts_url_base => settings[:bootstrap_scripts_url_base]
+    :bootstrap_scripts_url_base => settings[:bootstrap_scripts_url_base],
+    :chef_config_json => settings[:attributes].to_json
     )
 end
 

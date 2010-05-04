@@ -14,7 +14,6 @@ pool POOL_NAME do
     instances                   1..1
     is_generic_node             settings
     sends_aws_keys              settings
-    is_ebs_backed               settings
     is_chef_server              settings
     is_chef_client              settings
     mounts_ebs_volumes          settings
@@ -22,22 +21,20 @@ pool POOL_NAME do
     is_spot_priced              settings
     user                        'ubuntu'
     security_group              POOL_NAME
-    user_data                   bootstrap_chef_server_script(settings)
+    user_data                   bootstrap_chef_script(:server, settings)
   end
 
-  cloud :generic do
+  cloud :client do
     using :ec2
     settings = settings_for_node(POOL_NAME, :client)
     instances                   1..1
     is_nfs_client               settings
     is_generic_node             settings
     sends_aws_keys              settings
-    is_ebs_backed               settings
     is_chef_client              settings
     is_spot_priced              settings
     user                        'ubuntu'
-    disable_api_termination     false
-    user_data_shell_script      = File.open(File.dirname(__FILE__)+'/../config/user_data_script-bootstrap_chef_client.sh').read
-    user_data                   user_data_shell_script
+    user_data                   bootstrap_chef_script(:client, settings)
+    $stderr.puts settings[:attributes].to_json
   end
 end

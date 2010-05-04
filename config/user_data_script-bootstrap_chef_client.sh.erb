@@ -46,6 +46,9 @@ chef-solo -c /tmp/chef_bootstrap.rb -j /tmp/chef_client.json  >> $progresslog
 # pull in the client scripts that make this machine speak to the chef server
 cp /etc/chef/client.rb /etc/chef/client-orig.rb ;
 wget -nv ${REMOTE_FILE_URL_BASE}/client.rb -O /etc/chef/client.rb ;
+cat > /etc/chef/chef_config.json <<EOF
+  <%= chef_config_json %>
+EOF
 
 # cleanup
 apt-get autoremove;

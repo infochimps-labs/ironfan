@@ -214,6 +214,8 @@ h2. Cassandra
 
 h2. launch 
 
+tail -f /var/log/dpkg.log /tmp/user_data-progress.log
+
 * Start the hadoop master node:
 
 <pre><code>
