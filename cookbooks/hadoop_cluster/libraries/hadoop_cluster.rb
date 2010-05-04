@@ -1,29 +1,20 @@
 module HadoopCluster
 
-  #
-  # You must construct a databag named "servers_info" containing the addresses
-  # for the various central nodes. If your hadoop cluster is named 'zaius'
-  # you'll set
-  #
-  # {"id":"zaius_namenode",  "private_ip":"10.212.171.245"}
-  # {"id":"zaius_jobtracker","private_ip":"10.212.171.245"}
-  #
-
   def register_as_namenode
-    provide_service ("#{node[:cluster_name]}_namenode")
+    provide_service ("#{node[:cluster_name]}-namenode")
   end
   def register_as_jobtracker
-    provide_service ("#{node[:cluster_name]}_jobtracker")
+    provide_service ("#{node[:cluster_name]}-jobtracker")
   end
 
   # The namenode's hostname, or the local node's numeric ip if 'localhost' is given
   def namenode_address
-    provider_private_ip("#{node[:cluster_name]}_namenode")
+    provider_private_ip("#{node[:cluster_name]}-namenode")
   end
 
   # The jobtracker's hostname, or the local node's numeric ip if 'localhost' is given
   def jobtracker_address
-    provider_private_ip("#{node[:cluster_name]}_jobtracker")
+    provider_private_ip("#{node[:cluster_name]}-jobtracker")
   end
 
   # Make a hadoop-owned directory

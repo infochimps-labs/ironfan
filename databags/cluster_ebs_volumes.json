@@ -11,5 +11,11 @@
 },
 {"id":"chef",
  "server":[]
-}
+},
+{"id":"westchef",
+ "server":[],
+ "client":[
+     [{"device":"/dev/sdj","volume_id":"vol-e285d48a","mount_point":"/ebs1"}]
+     ]
+}     
 ]

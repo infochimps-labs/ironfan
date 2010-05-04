@@ -35,6 +35,7 @@ module ClusterServiceDiscovery
 
   # Find the most recent node that registered to provide the given service
   def provider_for_service service_name
+    Chef::Log.info("Looking up #{service_name}:#{all_providers_for_service service_name}")
     all_providers_for_service(service_name).last
   end
 
@@ -42,6 +43,7 @@ module ClusterServiceDiscovery
   # If you pass in a hash of information, it will be added to
   # the registry, and available to clients
   def provide_service service_name, service_info={}
+    Chef::Log.info("Registering to provide #{service_name}: #{service_info.inspect}")
     node.set[:provides_service][service_name] = {
       :timestamp  => ClusterServiceDiscovery.timestamp,
     }.merge(service_info)

@@ -31,6 +31,8 @@ module AwsServiceData
     %w[us-west-1             32-bit  instance        lucid     ] => 'ami-df98c99a',
     %w[us-west-1             64-bit  ebs             lucid     ] => 'ami-eb98c9ae',
     %w[us-west-1             64-bit  instance        lucid     ] => 'ami-db98c99e',
+    #
+    %w[us-west-1             32-bit  instance        chef-client ] => 'ami-e79bcaa2',
   }
   AmiInfo = Struct.new(:region, :bits, :backing, :os)
 

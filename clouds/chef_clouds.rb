@@ -24,7 +24,7 @@ pool POOL_NAME do
     user_data                   bootstrap_chef_script(:server, settings)
   end
 
-  cloud :client do
+  cloud :bootstrap_client do
     using :ec2
     settings = settings_for_node(POOL_NAME, :client)
     instances                   1..1
@@ -35,6 +35,20 @@ pool POOL_NAME do
     is_spot_priced              settings
     user                        'ubuntu'
     user_data                   bootstrap_chef_script(:client, settings)
+    $stderr.puts settings[:attributes].to_json
+  end
+
+  cloud :client do
+    using :ec2
+    settings = settings_for_node(POOL_NAME, :client)
+    instances                   1..1
+    is_nfs_client               settings
+    is_generic_node             settings
+    sends_aws_keys              settings
+    is_chef_client              settings
+    is_spot_priced              settings
+    user                        'ubuntu'
+    user_data                   settings[:attributes].to_json
     $stderr.puts settings[:attributes].to_json
   end
 end

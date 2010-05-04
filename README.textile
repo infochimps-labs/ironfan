@@ -198,6 +198,26 @@ Put the maintain_hadoop_cluster::format_namenode recipe in below hadoop and befo
 
 tail -f /var/log/hadoop/hadoop-hadoop-namenode-chef.infochimps.com.log &
 
+sudo service chef-client stop
+tail -f /etc/sv/chef-client/log/main/current &
+
+for foo in hadoop-0.20-{namenode,jobtracker,tasktracker,datanode,secondarynamenode} cassandra chef-client nfs-kernel-server ; do sudo service $foo stop ; done
+
+
+scp -i ~/.hadoop-ec2/keypairs/westchef.pem ~/.hadoop-ec2/{aws_private_setup.sh,certs/cert.pem,certs/pk.pem,keypairs/westchef.pem} ubuntu@ec2-204-236-189-83.us-west-1.compute.amazonaws.com:/tmp
+
+sudo rm /etc/hadoop/conf/core-site.xml
+sudo bash -c 'for foo in /var/log/{messages,debug,udev,lastlog,dpkg.log,bootstrap.log,user.log} ; do echo > $foo ; done'
+. /mnt/aws_private_setup.sh
+ami_bucket=westchef-client-ami-32bit-`date "+%Y%m%d"`
+AMI_EXCLUDES=/ebs1,/ebs2,/root/.ssh,/mnt
+AWS_REGION=us-west-1
+EC2_URL=https://${AWS_REGION}.ec2.amazonaws.com
+sudo mkdir -p /mnt/$ami_bucket ; time sudo ec2-bundle-vol --exclude=$AMI_EXCLUDES -r i386 -d /mnt/$ami_bucket -k /mnt/pk.pem -c /mnt/cert.pem -u $AWS_ACCOUNT_ID --ec2cert /etc/ec2/amitools/cert-ec2.pem
+time ( PATH=/usr/bin:$PATH ; ec2-upload-bundle --location $AWS_REGION -b $ami_bucket -m /mnt/$ami_bucket/image.manifest.xml -a $AWS_ACCESS_KEY_ID  -s $AWS_SECRET_ACCESS_KEY ) ;
+time ec2-register -K /mnt/pk.pem -C /mnt/cert.pem --region $AWS_REGION -n $ami_bucket $ami_bucket/image.manifest.xml 
+
+
 
 h2. Cassandra
 
@@ -208,7 +228,8 @@ h2. Cassandra
   # in irb
   require 'rubygems' ; require 'cassandra' ; include Cassandra::Constants ;
   twitter = Cassandra.new('Twitter', '10.162.67.95:9160')
-  user = {'screen_name' => 'buttonscat'} ; twitter.insert(:Users, '5', user)
+  user = {'screen_name' => 'buttonscat'} ;
+  twitter.insert(:Users, '5', user)
   twitter.get(:Users, '5')  
 </code></pre>
 
