@@ -1,78 +1,53 @@
-:access_key:                            XXXXXXXXXXXXXXXXXXXXXXXX
-:secret_access_key:                     XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-:account_id:                            XXXXXXXXXXXXXX
-#
+:access_key:                            1235125ABCD
+:secret_access_key:                     asdfasdjghalskgjhsadkgjhaslkgjashgkls
+:account_id:                            12321346546
 :bootstrap_scripts_url_base:            http://github.com/infochimps/hadoop_cluster_chef/raw/master/config
-#
-# For west coast availability zone run: export EC2_URL=https://us-west-1.ec2.amazonaws.com
-:aws_region:                            us-west-1
-:availability_zones:                    [ "us-west-1d" ]
-:ec2_url:                               http://us-west-1.ec2.amazonaws.com
+
+# For west coast availability zone, before poolparty run: export EC2_URL=https://us-west-1.ec2.amazonaws.com 
+:availability_zones:                    [ "us-east-1d" ]
+:ec2_url:                               https://us-east-1.ec2.amazonaws.com
+:aws_region:                            us-east-1
 :instance_type:                         m1.small
-:ami_id:                                ami-6990c12c
-:disable-api-termination:               false                # set true to make node difficult to terminate
+:instance_os:                           lucid
+
+:disable_api_termination:               false
 :spot_price_fraction:                   ~
+:boot_volume:                     
+  :ebs_volume_size:                     15
+  :ebs_delete_on_termination:           true
 
 :attributes:
-  :aws:
-    :access_key:                        XXXXXXXXXXXXXXXXXXXXXXXX
-    :secret_access_key:                 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-    :aws_region:                        us-west-1
   :chef:
-    :validation_key_file:               "~/.hadoop-ec2/chef-validator.pem"
-    :chef_server:                       "http://chef.yourdomain.com:4000"
+    :validation_key_file:               "~/.hadoop-ec2/keypairs/chef-validator.pem"
+    :chef_server:                       "http://chef.infinitemonkeys.info:4000"
     :validation_client_name:            "chef-validator"
 
 :pools:
   :chef:
     :server:
-      :disable-api-termination:         false
-      :instance_type:                   m1.small
-      :ami_id:                          ami-8f03ede6
-      :elastic_ip:                      184.72.52.22
+      :attributes:
+        :node_name:                     kong.infinitemonkeys.info
+      :disable_api_termination:         true
+      :elastic_ip:                      204.236.225.50
+      :instance_os:                     lucid
+      :instance_backing:                ebs
       :boot_volume:                     
         :ebs_volume_size:               15
-        :ebs_delete_on_termination:     true
-      :attributes:
-        :node_name:                     chef.yourdomain.com
-
-  :milo:
-    :common:
-      :instance_type:                   m1.small
-      :ami_id:                          ami-6990c12c   # instance-backed ami for region and instance_type 
-      :spot_price_fraction:             1.0            # minimal chance it'll be shut down.
-    :slave:
+        :ebs_delete_on_termination:     false
+    :client:
+      :instance_os:                     chef-client
 
   :zaius:
     :common:
+      # 0.4 will dance right near the average (us-east-1). 1.0 will almost never shut down.
+      :spot_price_fraction:             1.0
       :instance_type:                   c1.medium
-      :ami_id:                          ami-6990c12c   # instance-backed ami for region and instance_type
-      :spot_price_fraction:             1.0            # minimal chance it'll be shut down.
+      # :instance_type:                 m1.small
+      :instance_os:                     chef-client
+      :instance_backing:                instance
     :master:                            
-      :elastic_ip:                      184.72.52.24
-    :slave:
-      
-# Region   	arch	root store	ami     	Installation
-# us-east-1	64-bit	ebs        	ami-9f03edf6	20100422 - Ubuntu 10.04 LTS (Lucid Lynx) Release Candidate
-# us-east-1	64-bit	instance	ami-2b03ed42	20100422 - Ubuntu 10.04 LTS (Lucid Lynx) Release Candidate
-# us-east-1	32-bit	ebs        	ami-8f03ede6	20100422 - Ubuntu 10.04 LTS (Lucid Lynx) Release Candidate
-# us-east-1	32-bit	instance	ami-a102ecc8	20100422 - Ubuntu 10.04 LTS (Lucid Lynx) Release Candidate
-# us-east-1	64-bit	instance	ami-55739e3c	20100331 - Ubuntu 9.10 (Karmic Koala) Final
-# us-east-1	32-bit	instance	ami-bb709dd2	20100331 - Ubuntu 9.10 (Karmic Koala) Final
-#
-# us-west-1	64-bit	ebs        	ami-0590c140	20100422 - Ubuntu 10.04 LTS (Lucid Lynx) Release Candidate
-# us-west-1	64-bit	instance	ami-7790c132	20100422 - Ubuntu 10.04 LTS (Lucid Lynx) Release Candidate
-# us-west-1	32-bit	ebs        	ami-7b90c13e	20100422 - Ubuntu 10.04 LTS (Lucid Lynx) Release Candidate
-# us-west-1	32-bit	instance	ami-6990c12c	20100422 - Ubuntu 10.04 LTS (Lucid Lynx) Release Candidate
-# us-west-1	64-bit	instance	ami-cb2e7f8e	20100331 - Ubuntu 9.10 (Karmic Koala) Final
-# us-west-1	32-bit	instance	ami-c32e7f86	20100331 - Ubuntu 9.10 (Karmic Koala) Final
-# 
-# eu-west-1	64-bit	ebs        	ami-0f765c7b	20100422 - Ubuntu 10.04 LTS (Lucid Lynx) Release Candidate
-# eu-west-1	64-bit	instance	ami-13765c67	20100422 - Ubuntu 10.04 LTS (Lucid Lynx) Release Candidate
-# eu-west-1	32-bit	ebs        	ami-03765c77	20100422 - Ubuntu 10.04 LTS (Lucid Lynx) Release Candidate
-# eu-west-1	32-bit	instance	ami-15765c61	20100422 - Ubuntu 10.04 LTS (Lucid Lynx) Release Candidate
-# eu-west-1	64-bit	instance	ami-05c2e971	20100331 - Ubuntu 9.10 (Karmic Koala) Final
-# eu-west-1	32-bit	instance	ami-2fc2e95b	20100331 - Ubuntu 9.10 (Karmic Koala) Final
-#
-# http://uec-images.ubuntu.com/releases/lucid/rc/
-# http://uec-images.ubuntu.com/releases/karmic/
+      :elastic_ip:                      204.236.225.16
+    :slave:                             
+    :bootstrap:
+      :instance_os:                     lucid
+      :instance_backing:                instance

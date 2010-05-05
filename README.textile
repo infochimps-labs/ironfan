@@ -97,6 +97,14 @@ At this point there's still a lot of moving parts. What I do is to make one dire
   ln -nfs ~/.hadoop-ec2 ~/.chef
 </code></pre>
 
+From the chef server,
+
+  sudo cat /etc/chef/validation.peb
+  
+And copy/paste the contents into
+
+  ~/.chef/keypairs/chef-validator.pem
+
 From this code repo dir, copy the template config files over.
 
 <pre><code>
@@ -136,6 +144,13 @@ h2. Start Chef server
 * @knife cookbook upload --all@
 * @for foo in roles/* ; do knife role from file $foo ; done@ (if you have a private cookbooks repo, run it from there, too)
 
+h3. installing from apt
+
+You need to have a apt world acct
+
+https://launchpad.net/~jtimberman/+archive/opschef/+packages
+sudo add-apt-repository ppa:user/ppa-name
+
 h3. Data bags
 
 * Create a databag @servers_info@ 
@@ -154,7 +169,9 @@ h3. Data bags
 
 h2. Set up knife and webui
 
-On the server, run and answer as follows:
+EITHER: use your chef server to create a client called 'knife_user', and save the .pem file it generates as @~/.hadoop-ec2/keypairs/knife_user.pem@.
+
+OR: On the server, run and answer as follows:
 
 <pre><code>
   sudo knife configure -i
@@ -164,7 +181,7 @@ On the server, run and answer as follows:
   Path to a chef repository (or leave blank)? 
   WARN: Creating initial API user...
 </code></pre>  
-(note that this is run sudo (so we can see the key files) and that the port is '4000' (server, not webui)
+(note that on the chef server this must be run sudo so we can see the key files;  that the port is '4000' (server, not webui)
 
 Now copy @~/.chef/knife_user.pem@ and @/etc/chef/validation.pem@ on the server
 to (on your computer) @~/.hadoop-ec2/keypairs/knife_user.pem@ and
@@ -232,7 +249,7 @@ sudo updatedb ;
 
 # Nuke files that would be inconvenient to persist: chef config and startup files; log files; and files that contain keys of some sort.
 sudo rm /etc/hostname /etc/chef/{chef_config.json,client.pem,validation.pem} /var/lib/cloud/data/scripts/*
-sudo rm /etc/sv/chef-client/log/main/* /var/log/*.gz /var/log/hadoop/* /tmp/*
+sudo rm /var/log/chef/* /etc/sv/chef-client/log/main/* /var/log/*.gz /var/log/hadoop/* /tmp/*
 sudo rm -rf  /{root,home/ubuntu}/{.cache,.gem} /etc/hadoop/conf/core-site.xml
 sudo bash -c 'for foo in /var/log/{messages,debug,udev,lastlog,dpkg.log,bootstrap.log,user.log} ; do echo > $foo ; done'
 
@@ -285,6 +302,8 @@ h2. Debugging
 
 h3. Debugging chef client (and client on boot-up)
 
+(If you installed from 
+
 <pre><code>
   tail -n200 -f /etc/sv/chef-client/log/main/current
 </code></pre>
@@ -305,6 +324,11 @@ h3. Debugging chef client (and client on boot-up)
   tail -f /etc/sv/chef-client/log/main/current &
 </code></pre>  
 
+h3. Debugging chef everything
+
+<pre><code>
+  tail -n200 -f /etc/sv/chef-*/log/main/current
+</code></pre>
 
 If you're having 401 Authentication errors,
 * check that broham didn't make you be some node you don't want to be
