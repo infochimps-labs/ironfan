@@ -35,6 +35,8 @@ h2. TODO
 
 * get the run_list out of the user-data
 
+* Fix the device type identification on ebs vols.
+
 h2. Recommended cluster composition
 
 We're going to target these two plausible cluster setups:
@@ -192,6 +194,15 @@ h2. Play around with single-machine server
 
 If you're using HDFS on the ephemeral drives, put the maintain_hadoop_cluster::reformat_scratch_disks, maintain_hadoop_cluster::format_namenode and maintain_hadoop_cluster::make_standard_hdfs_dirs.rb recipe in below hadoop and before hadoop_master. Nobody will question your courage if (rather than add them to the runlist) you just run the commands therein manually.
 
+To see how things are hangin',
+
+# On the master node
+for foo in hadoop-0.20-{namenode,jobtracker,tasktracker,datanode,secondarynamenode} cassandra chef-client ; do sudo service $foo stop ; done
+
+# On a worker node
+for foo in hadoop-0.20-{tasktracker,datanode} cassandra chef-client nfs-kernel-server ; do sudo service $foo status ; done
+
+
 h2. Burn an AMI 
 
 # From your local machine -- bring over your credentials
@@ -289,6 +300,11 @@ h3. Debugging chef client (and client on boot-up)
   sudo service chef-client start # once you're done
 </code></pre>
 
+<pre><code>
+  sudo service chef-client stop
+  tail -f /etc/sv/chef-client/log/main/current &
+</code></pre>  
+
 
 If you're having 401 Authentication errors,
 * check that broham didn't make you be some node you don't want to be
@@ -309,13 +325,10 @@ h3. Debugging hadoop
 
 <pre><code>
   tail -f /var/log/hadoop/hadoop-hadoop-namenode-chef.infochimps.com.log &
+  sudo service hadoop-0.20-datanode status
+  # ... and so on ...
+  sudo service hadoop-0.20-datanode restart
 </code></pre>
-
-<pre><code>
-  sudo service chef-client stop
-  tail -f /etc/sv/chef-client/log/main/current &
-</code></pre>  
-
 
 h3. Cassandra
 
