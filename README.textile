@@ -151,22 +151,6 @@ You need to have a apt world acct
 https://launchpad.net/~jtimberman/+archive/opschef/+packages
 sudo add-apt-repository ppa:user/ppa-name
 
-h3. Data bags
-
-* Create a databag @servers_info@ 
-** nfs_server {"id":"nfs_server","private_ip":"10.123.45.67"}
-
-* Create a databag @cassandra@ 
-** clusters {"id":"clusters","Test":{"keyspaces":{"Twitter":{"replication_factor":"1","columns":{"StatusRelationships":{"CompareSubcolumnsWith":"TimeUUIDType","CompareWith":"UTF8Type","ColumnType":"Super"},"StatusAudits":{"CompareWith":"UTF8Type"},"Statuses":{"CompareWith":"UTF8Type"},"UserRelationships":{"CompareSubcolumnsWith":"TimeUUIDType","CompareWith":"UTF8Type","ColumnType":"Super"},"UserAudits":{"CompareWith":"UTF8Type"},"Usernames":{"CompareWith":"UTF8Type"},"Index":{"CompareWith":"UTF8Type","ColumnType":"Super"},"Users":{"CompareWith":"UTF8Type"}},"replica_placement_strategy":"org.apache.cassandra.locator.RackUnawareStrategy","end_point_snitch":"org.apache.cassandra.locator.EndPointSnitch"}}}}
-
-* create a databag @cluster_ebs_volumes@
-<pre><code>
-  {"id":"gibbon", "slave":[[{"device":"/dev/sdj","volume_id":"vol-XX0ed8a6","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0ed8a8","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0ed8ac","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0ed8ae","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0ed8b0","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0ed8b6","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0ed8b8","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0ed8ba","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0ed8c4","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0ed8c6","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0ed8c8","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0ed8cc","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0ed8d2","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0ed8d4","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX5af41a","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX5af42c","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0ed8e2","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0ed8e4","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0ed8e6","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0ed8ec","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0ed8ee","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0ed8f0","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0ed8fa","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0ed8fc","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0fd902","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0fd904","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0fd90c","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0fd910","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0fd912","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0fd914","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0fd91e","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0fd922","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0fd924","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0adc2a","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0adc2c","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0adc2e","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0adc30","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0adc32","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0adc3a","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0adc3c","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0adc40","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0adc42","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0adc44","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0adc46","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0adc48","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0adc4a","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0adc50","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0adc52","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0adc54","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0adc56","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0adc58","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0adc5a","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0adc5c","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0adc5e","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0adc66","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0adc6e","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XX0adc72","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0adc74","mount_point":"/ebs2"}],[{"device":"/dev/sdj","volume_id":"vol-XXb810a0","mount_point":"/ebs1","options":"defaults,nouuid,noatime"},{"device":"/dev/sdk","volume_id":"vol-XXbb1344","mount_point":"/ebs2","options":"defaults,nouuid,noatime"}]],"master":[[{"device":"/dev/sdj","volume_id":"vol-XX0ed840","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-XX0ed8a4","mount_point":"/ebs2"}]]}
-</code></pre>
-
-** zaius
-** maxiums
-
 h2. Set up knife and webui
 
 EITHER: use your chef server to create a client called 'knife_user', and save the .pem file it generates as @~/.hadoop-ec2/keypairs/knife_user.pem@.
@@ -202,12 +186,17 @@ h2. Stock the Chef Server
 * Upload your roles and recipes:
 
 <pre><code>
+  cd PATH/TO/hadoop_cluster_chef
   for foo in roles/*.rb ; do echo $foo ; knife role from file $foo ; done
   knife cookbook upload --all
   rake load_data_bags
 </code></pre>
 
 h2. Play around with single-machine server
+
+<pre><code>
+cloud-start -n master -c clouds/hadoop_clouds.rb
+</code></pre>
 
 If you're using HDFS on the ephemeral drives, put the maintain_hadoop_cluster::reformat_scratch_disks, maintain_hadoop_cluster::format_namenode and maintain_hadoop_cluster::make_standard_hdfs_dirs.rb recipe in below hadoop and before hadoop_master. Nobody will question your courage if (rather than add them to the runlist) you just run the commands therein manually.
 
