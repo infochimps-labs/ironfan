@@ -47,7 +47,7 @@
       :instance_backing:                instance
     :master:                            
       :elastic_ip:                      204.236.225.16
-    :slave:                             
+    :slave:
     :bootstrap:
       :instance_os:                     lucid
       :instance_backing:                instance
