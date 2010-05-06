@@ -11,6 +11,9 @@ add-apt-repository 'deb http://us.archive.ubuntu.com/ubuntu <%= ubuntu_version %
 # wait for system dpkg to finish
 while sudo fuser /var/lib/dpkg/lock ; do echo "`date` Waiting for apt to become free" >> $progresslog ;  sleep 5 ; done  
 
+# Do a non interactive apt-get so the user is never prompted for input
+export DEBIAN_FRONTEND=noninteractive
+
 # Update package index and update the basic system files to newest versions
 echo "`date` Apt update"  >> $progresslog 
 apt-get -y update  ;
