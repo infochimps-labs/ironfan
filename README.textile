@@ -289,9 +289,10 @@ tail -f /var/log/dpkg.log /tmp/user_data-progress.log
 
 h2. Debugging
 
+
 h3. Debugging chef client (and client on boot-up)
 
-(If you installed from 
+If you installed from 
 
 <pre><code>
   tail -n200 -f /etc/sv/chef-client/log/main/current
@@ -311,7 +312,10 @@ h3. Debugging chef client (and client on boot-up)
 <pre><code>
   sudo service chef-client stop
   tail -f /etc/sv/chef-client/log/main/current &
-</code></pre>  
+</code></pre>
+
+If the node is confused about its identity -- gives you @`error!': 401 "Unauthorized" (Net::HTTPServerException)@ -- then you should remove @/etc/chef/chef_config.json@ and @/etc/chef/client.pem@, then re-run @sudo chef-client@
+
 
 h3. Debugging chef everything
 

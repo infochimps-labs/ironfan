@@ -30,7 +30,7 @@
     [ { "device": "/dev/sdj", "volume_id": "vol-350adc5c", "mount_point": "/ebs1" },        { "device": "/dev/sdk", "volume_id": "vol-370adc5e", "mount_point": "/ebs2" } ],
     [ { "device": "/dev/sdj", "volume_id": "vol-0f0adc66", "mount_point": "/ebs1" },        { "device": "/dev/sdk", "volume_id": "vol-070adc6e", "mount_point": "/ebs2" } ],
     [ { "device": "/dev/sdj", "volume_id": "vol-1b0adc72", "mount_point": "/ebs1" },        { "device": "/dev/sdk", "volume_id": "vol-1d0adc74", "mount_point": "/ebs2" } ],
-    [ { "device": "/dev/sdj", "volume_id": "vol-c9b810a0", "mount_point": "/ebs1", "options": "defaults,nouuid,noatime" }, { "device": "/dev/sdk", "volume_id": "vol-2dbb1344", "mount_point": "/ebs2", "options": "defaults,nouuid,noatime" } ]
+    [ { "device": "/dev/sdj", "volume_id": "vol-c9b810a0", "mount_point": "/ebs1", "type":"xfs", "options": "defaults,nouuid,noatime" }, { "device": "/dev/sdk", "volume_id": "vol-2dbb1344", "mount_point": "/ebs2", "type":"xfs", "options": "defaults,nouuid,noatime" } ]
   ],
   "master": [
     [ { "device": "/dev/sdj", "volume_id": "vol-290ed840", "mount_point": "/ebs1" }, { "device": "/dev/sdk", "volume_id": "vol-cd0ed8a4", "mount_point": "/ebs2" } ]
