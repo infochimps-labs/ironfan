@@ -53,6 +53,9 @@ cat > /etc/chef/chef_config.json <<EOF
   <%= chef_config_json %>
 EOF
 
+# now run chef client against the server itself
+chef-client
+
 # cleanup
 apt-get autoremove;
 updatedb;

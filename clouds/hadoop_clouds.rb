@@ -1,4 +1,4 @@
-POOL_NAME     = 'gibbon'
+POOL_NAME     = 'zaius'
 require File.dirname(__FILE__)+'/cloud_aspects'
 
 #
@@ -34,7 +34,7 @@ pool POOL_NAME do
   cloud :slave do
     using :ec2
     settings = settings_for_node(POOL_NAME, :slave)
-    instances                   30..30
+    instances                   1..1
     attaches_ebs_volumes        settings
     is_nfs_client               settings
     is_generic_node             settings
@@ -57,14 +57,11 @@ pool POOL_NAME do
     using :ec2
     settings = settings_for_node(POOL_NAME, :bootstrap)
     instances                   1..1
-    attaches_ebs_volumes        settings
-    is_nfs_client               settings
     is_generic_node             settings
     sends_aws_keys              settings
     is_chef_client              settings
     #
     is_hadoop_node              settings
-    mounts_ebs_volumes          settings
     is_hadoop_worker            settings
     has_big_package             settings
     is_cassandra_node           settings
