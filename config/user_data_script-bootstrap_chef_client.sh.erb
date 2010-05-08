@@ -53,11 +53,11 @@ cat > /etc/chef/chef_config.json <<EOF
   <%= chef_config_json %>
 EOF
 
-# now run chef client against the server itself
-chef-client
-
 # cleanup
 apt-get autoremove;
 updatedb;
+
+# now run chef client against the server itself
+service chef-client restart
 
 echo "User data script (generic chef client) complete: `date`"

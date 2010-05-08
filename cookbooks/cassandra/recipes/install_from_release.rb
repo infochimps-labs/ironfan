@@ -48,12 +48,3 @@ link "/usr/sbin/cassandra" do
   to "/usr/local/share/cassandra/bin/cassandra"
   action :create
 end
-
-# # desc "Regenerate thrift bindings for Cassandra" # Dev only
-# task :thrift do
-#   puts "Generating Thrift bindings"
-#   system(
-#     "cd vendor &&
-#     rm -rf gen-rb &&
-#     thrift -gen rb #{CASSANDRA_HOME}/server/interface/cassandra.thrift")
-# end
