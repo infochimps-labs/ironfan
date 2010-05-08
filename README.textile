@@ -140,16 +140,19 @@ h2. Start Chef server
 * Copy the text of /etc/chef/validation.pem (from the server) into @~/.chef/chef-validator.pem@
 * chmod 600 ~/.chef/*.pem
 
-
-* @knife cookbook upload --all@
-* @for foo in roles/* ; do knife role from file $foo ; done@ (if you have a private cookbooks repo, run it from there, too)
-
 h3. installing from apt
 
 You need to have a apt world acct
 
 https://launchpad.net/~jtimberman/+archive/opschef/+packages
 sudo add-apt-repository ppa:user/ppa-name
+
+
+h3. If you have your own chef server already
+
+
+* make a chef-server sercurity group
+* have one of the security groups on your chef server be open to machines in the chef-client group.
 
 h2. Set up knife and webui
 
@@ -239,7 +242,7 @@ sudo updatedb ;
 # Nuke files that would be inconvenient to persist: chef config and startup files; log files; and files that contain keys of some sort.
 sudo rm /etc/hostname /etc/chef/{chef_config.json,client.pem,validation.pem} /var/lib/cloud/data/scripts/*
 sudo rm /var/log/chef/* /etc/sv/chef-client/log/main/* /var/log/*.gz /var/log/hadoop/* /tmp/*
-sudo rm -rf  /{root,home/ubuntu}/{.cache,.gem} /etc/hadoop/conf/core-site.xml
+sudo rm -rf  /root/.cache /root/.gem ~ubuntu/.cache ~ubuntu/.gem} /etc/hadoop/conf/core-site.xml
 sudo bash -c 'for foo in /var/log/{messages,debug,udev,lastlog,dpkg.log,bootstrap.log,user.log} ; do echo > $foo ; done'
 
 # If you want to record the AMI version, something like
@@ -253,19 +256,36 @@ Just use the console. MAKE SURE TO STOP, UNMOUNT AND DETACH ALL EBS VOLUMES firs
 
 h3. Burning an Instance-backed (s3) AMIs
 
+move the ssh keys out of the way
+
+mkdir /tmp ; mv ,/etc/ssh/ssh_*key*
+
 cd /mnt
 . /mnt/aws_private_setup.sh
-# Modify the following to suit.  Bundle will complain about excludes that are missing, so adjust until it stops bitching.
-AMI_EXCLUDES=/ebs1,/ebs2,/mnt,/data,/{root,home/ubuntu}/.ssh/authorized_keys,/etc/ssh/ssh_*key*
-AWS_REGION=us-east-1
 CLUSTER=gibbon
+# Modify the following to suit.  Bundle will complain about excludes that are missing, so adjust until it stops bitching.
+AMI_EXCLUDES=/ebs1,/ebs2,/mnt,/data,/root/.ssh/authorized_keys,/home/ubuntu/.ssh/authorized_keys
+export EC2_CERT=/mnt/cert.pem ; export EC2_PRIVATE_KEY=/mnt/pk.pem
+
+AWS_REGION=us-east-1
+EC2_URL=https://${AWS_REGION}.ec2.amazonaws.com
 ami_bucket=s3amis.infinitemonkeys.info/${CLUSTER}-slave-ami-32bit-`date "+%Y%m%d"`
 sudo mkdir -p /mnt/`dirname $ami_bucket`
-EC2_URL=https://${AWS_REGION}.ec2.amazonaws.com
 # This will take a long fucking time. 15 minutes on a small instance. It fucking sucks.
-sudo mkdir -p /mnt/$ami_bucket ; time sudo ec2-bundle-vol --exclude=$AMI_EXCLUDES -r i386 -d /mnt/$ami_bucket -k /mnt/pk.pem -c /mnt/cert.pem -u $AWS_ACCOUNT_ID --ec2cert /etc/ec2/amitools/cert-ec2.pem
+time sudo ec2-bundle-vol --exclude=$AMI_EXCLUDES -r i386 -d /mnt/$ami_bucket -k /mnt/pk.pem -c /mnt/cert.pem -u $AWS_ACCOUNT_ID --ec2cert /etc/ec2/amitools/cert-ec2.pem
 time ( PATH=/usr/bin:$PATH ; ec2-upload-bundle -b $ami_bucket -m /mnt/$ami_bucket/image.manifest.xml -a $AWS_ACCESS_KEY_ID  -s $AWS_SECRET_ACCESS_KEY ) ;
 time ec2-register -K /mnt/pk.pem -C /mnt/cert.pem --region $AWS_REGION -n $ami_bucket $ami_bucket/image.manifest.xml 
+
+export AWS_REGION=us-west-1
+export EC2_URL=https://${AWS_REGION}.ec2.amazonaws.com
+ami_bucket=west-s3amis.infinitemonkeys.info/${CLUSTER}-slave-ami-32bit-`date "+%Y%m%d"`
+sudo mkdir -p /mnt/`dirname $ami_bucket`
+time sudo ec2-bundle-vol --exclude=$AMI_EXCLUDES -r i386 -d /mnt/$ami_bucket -k /mnt/pk.pem -c /mnt/cert.pem -u $AWS_ACCOUNT_ID --ec2cert /etc/ec2/amitools/cert-ec2.pem
+# sudo ec2-migrate-manifest --cert /mnt/cert.pem --privatekey /mnt/pk.pem --manifest /mnt/$ami_bucket/image.manifest.xml --region us-west-1 -a $AWS_ACCESS_KEY_ID -s $AWS_SECRET_ACCESS_KEY
+time ( PATH=/usr/bin:$PATH ; ec2-upload-bundle -b $ami_bucket -m /mnt/$ami_bucket/image.manifest.xml -a $AWS_ACCESS_KEY_ID  -s $AWS_SECRET_ACCESS_KEY --location $AWS_REGION --url https://s3-us-west-1.amazonaws.com ) ;
+time ec2-register -K /mnt/pk.pem -C /mnt/cert.pem --region $AWS_REGION -n $ami_bucket $ami_bucket/image.manifest.xml 
+
+
 
 h2. launch 
 
@@ -279,11 +299,15 @@ tail -f /var/log/dpkg.log /tmp/user_data-progress.log
   cloud-ssh   -n server  -c clouds/chef_clouds.rb
 </code></pre>
 
+You'll need to format the namenode and then restart the namenode (@sudo service hadoop-0.20-namenode restart@)
+
 * Once the master node starts, try a couple slaves
 
 <pre><code>
   cloud-start -n master  -c clouds/hadoop_clouds.rb
 </code></pre>
+
+
 
 * Once the cluster works with no EBS volumes, then you should try defining 
 

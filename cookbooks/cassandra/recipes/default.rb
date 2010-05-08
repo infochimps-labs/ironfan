@@ -26,8 +26,6 @@ gem_package "cassandra" do
   action :install
 end
 
-runit_service "cassandra"
-
 user "cassandra" do
   uid       '330'
   gid       "nogroup"
@@ -62,10 +60,7 @@ template "/etc/cassandra/storage-conf.xml" do
   owner     "root"
   group     "root"
   mode      0644
-  notifies  :restart, resources(:service => "cassandra")
+  # notifies  :restart, resources(:service => "cassandra")
 end
 
-service "cassandra" do
-  supports :status => true, :restart => true, :reload => true
-  action [ :enable, :start ]
-end
+runit_service "cassandra"

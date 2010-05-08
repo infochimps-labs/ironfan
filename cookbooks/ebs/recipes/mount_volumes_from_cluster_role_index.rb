@@ -1,5 +1,3 @@
-log_cluster_volume_info('mount_volumes_from_cluster_role_index')
-
 if cluster_ebs_volumes
   cluster_ebs_volumes.each do |conf|
     directory conf['mount_point'] do
