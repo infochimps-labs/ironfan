@@ -2,6 +2,11 @@
 # Node/cluster/common settings are merged in #settings_for_node (below)
 require 'configliere'
 require File.join(File.dirname(__FILE__), 'aws_service_data')
+Settings.define :access_key,        :env_var => 'AWS_ACCESS_KEY_ID',         :description => 'Your aws access key ID -- visit "Security Credentials" from the AWS "Account" page.'
+Settings.define :secret_access_key, :env_var => 'AWS_SECRET_ACCESS_KEY_ID',  :description => 'Your aws secret access key -- visit "Security Credentials" from the AWS "Account" page.'
+Settings.define :account_id,        :env_var => 'AWS_ACCOUNT_ID',            :description => 'Your AWS account ID -- look in the top right corner of the credentials page from "Your Account" on the AWS homepage. Omit all dashes: eg 123456789012'
+Settings.define :ec2_url,           :env_var => 'EC2_URL',                   :description => 'EC2 endpoint URL for api calls; should match the AWS region; eg https://us-west-1.ec2.amazonaws.com for us-west-1'
+Settings.define :aws_region,                                                 :description => 'AWS region: currently, us-east-1, us-west-1, eu-west-1, or ap-southeast-1'
 Settings.read File.join(ENV['HOME'],'.hadoop-ec2','poolparty.yaml'); Settings.resolve!
 
 # ===========================================================================
@@ -110,7 +115,7 @@ end
 
 def bootstrap_chef_script role, settings
   erubis_template(
-    File.dirname(__FILE__)+"/../config/user_data_script-bootstrap_chef_#{role}.sh.erb",
+    File.dirname(__FILE__)+"/../config/user_data_script-#{role}.sh.erb",
     :public_ip        => settings[:elastic_ip],
     :hostname         => settings[:attributes][:node_name],
     :chef_server_fqdn => settings[:attributes][:chef][:chef_server].gsub(%r{http://(.*):\d+},'\1'),
