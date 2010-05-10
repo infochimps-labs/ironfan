@@ -66,6 +66,6 @@ pool POOL_NAME do
     #
     is_spot_priced              settings
     user                        'ubuntu'
-    user_data                   bootstrap_chef_script(:client, settings)
+    user_data                   bootstrap_chef_script('bootstrap_chef_client', settings)
   end
 end
