@@ -1,4 +1,4 @@
-POOL_NAME     = 'kong'
+POOL_NAME     = 'westchef'
 require File.dirname(__FILE__)+'/cloud_aspects'
 
 # Example usage (starts the chef server, then logs in to it)
@@ -21,7 +21,7 @@ pool POOL_NAME do
     is_spot_priced              settings
     user                        'ubuntu'
     security_group              POOL_NAME
-    user_data                   bootstrap_chef_script(:server, settings)
+    user_data                   bootstrap_chef_script('bootstrap_chef_server', settings)
   end
 
   cloud :bootstrap_client do
@@ -34,7 +34,7 @@ pool POOL_NAME do
     is_chef_client              settings
     is_spot_priced              settings
     user                        'ubuntu'
-    user_data                   bootstrap_chef_script(:client, settings)
+    user_data                   bootstrap_chef_script('bootstrap_chef_client', settings)
     $stderr.puts [settings, image_id].inspect
   end
 

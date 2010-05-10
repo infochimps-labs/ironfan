@@ -193,6 +193,7 @@ h2. Stock the Chef Server
   for foo in roles/*.rb ; do echo $foo ; knife role from file $foo ; done
   knife cookbook upload --all
   rake load_data_bags
+  rake load_data_bags
 </code></pre>
 
 h2. Play around with single-machine server
@@ -207,6 +208,7 @@ To see how things are hangin',
 
 # On the master node
 for foo in hadoop-0.20-{namenode,jobtracker,tasktracker,datanode,secondarynamenode} cassandra chef-client ; do sudo service $foo stop ; done
+
 
 # On a worker node
 for foo in hadoop-0.20-{tasktracker,datanode} cassandra chef-client nfs-kernel-server ; do sudo service $foo status ; done
@@ -240,15 +242,23 @@ sudo apt-get clean ;
 sudo updatedb ;
 
 # Nuke files that would be inconvenient to persist: chef config and startup files; log files; and files that contain keys of some sort.
-sudo rm /etc/hostname /etc/chef/{chef_config.json,client.pem,validation.pem} /var/lib/cloud/data/scripts/*
-sudo rm /var/log/chef/* /etc/sv/chef-client/log/main/* /var/log/*.gz /var/log/hadoop/* /tmp/*
+sudo rm /etc/hostname /etc/chef/{chef_config.json,client.pem,validation.pem} 
+sudo rm /var/lib/cloud/data/scripts/* /var/log/chef/* /etc/sv/chef-client/log/main/* /var/log/*.gz /var/log/hadoop/* /tmp/*
 sudo rm -rf  /root/.cache /root/.gem ~ubuntu/.cache ~ubuntu/.gem} /etc/hadoop/conf/core-site.xml
-sudo bash -c 'for foo in /var/log/{messages,debug,udev,lastlog,dpkg.log,bootstrap.log,user.log} ; do echo > $foo ; done'
+sudo bash -c 'for foo in /var/log/{dmesg,syslog,messages,debug,udev,lastlog,*.log} ; do echo -n > $foo ; done'
 
 # If you want to record the AMI version, something like
 sudo rm /etc/motd ;
 sudo bash -c 'echo "CHIMP CHIMP CHIMP CRUNCH CRUNCH CRUNCH (image burned at `date`)" > /etc/motd ' ;
 # If you want to, edit the /etc/ssh/sshd_config
+
+
+sudo bash -c 'echo -e "#!/bin/sh\n\n# ec2-mkdir-tmp Create /tmp if missing (nicer to bundle without it).\n\nmkdir -p    /tmp\nchmod 01777 /tmp" > /etc/init.d/ec2-mkdir-tmp'
+sudo chmod a+x /etc/init.d/ec2-mkdir-tmp
+sudo ln -s /etc/init.d/ec2-mkdir-tmp /etc/rcS.d/S36ec2-mkdir-tmp
+
+for foo in /usr/lib/ruby/gems/1.8/gems/wukong-1.4.7/bin/* ; do sudo ln -s $foo /usr/local/bin/ ; done
+
 
 h3. Burning an EBS-backed AMI
 
@@ -285,8 +295,6 @@ time sudo ec2-bundle-vol --exclude=$AMI_EXCLUDES -r i386 -d /mnt/$ami_bucket -k 
 time ( PATH=/usr/bin:$PATH ; ec2-upload-bundle -b $ami_bucket -m /mnt/$ami_bucket/image.manifest.xml -a $AWS_ACCESS_KEY_ID  -s $AWS_SECRET_ACCESS_KEY --location $AWS_REGION --url https://s3-us-west-1.amazonaws.com ) ;
 time ec2-register -K /mnt/pk.pem -C /mnt/cert.pem --region $AWS_REGION -n $ami_bucket $ami_bucket/image.manifest.xml 
 
-
-
 h2. launch 
 
 tail -f /var/log/dpkg.log /tmp/user_data-progress.log
@@ -319,7 +327,7 @@ h3. Debugging chef client (and client on boot-up)
 If you installed from 
 
 <pre><code>
-  tail -n200 -f /etc/sv/chef-client/log/main/current
+  tail -f -n1000 /tmp/user_data-progress.log /var/log/dpkg.log /etc/sv/chef-client/log/main/current
 </code></pre>
 
 * If you need to kickstart the chef-client, log into the machine as @ubuntu@ user and
@@ -345,6 +353,8 @@ h3. Debugging chef everything
 
 <pre><code>
   tail -n200 -f /etc/sv/chef-*/log/main/current
+  for foo in rabbitmq-server thttpd couchdb chef-{solr,solr-indexer,client,server,server-webui} cassandra ; do sudo service $foo restart ; done
+
 </code></pre>
 
 If you're having 401 Authentication errors,

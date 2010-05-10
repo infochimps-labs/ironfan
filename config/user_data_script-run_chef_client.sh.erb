@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+progresslog='/tmp/user_data-progress.log'
+
+# A url directory with the scripts you'd like to stuff into the machine
+REMOTE_FILE_URL_BASE="<%= bootstrap_scripts_url_base %>"
+
+# unscrewup the hostname every way I can think of. Rabbitmq is a real buttmunch
+# about the hostname -- it will hang forever on bootstrap if `hostname -s`
+# doesn't resolve back to this host. One of the following fixes this, not sure which.
+export HOSTNAME=<%= hostname %> 
+PUBLIC_IP=<%= public_ip %>                 
+kill `cat /var/run/dhclient.eth0.pid` # kill dhclient
+bash -c "echo '$HOSTNAME' > /etc/hostname" ;
+hostname -F /etc/hostname ;
+sysctl -w kernel.hostname=$HOSTNAME ;
+# Your /etc/hosts needs to end up looking like this (order is important):
+# 127.0.0.1      chef.YOURDOMAIN.COM chef localhost 
+# XXX.XXX.XX.XX  chef.YOURDOMAIN.COM chef
+sed -i "s/127.0.0.1 *localhost/127.0.0.1      $HOSTNAME `hostname -s` localhost/" /etc/hosts
+if grep -q $PUBLIC_IP /etc/hosts  ; then true ; else bash -c "echo '$PUBLIC_IP $HOSTNAME `hostname -s `' >> /etc/hosts" ; fi
+
+for foo in rabbitmq-server couchdb chef-{solr,solr-indexer,server,client,server-webui} ; do sudo service $foo restart ;  done
+
+echo "`date` User data script (chef server bootstrap) complete: `date`"  >> $progresslog 
+
+
+# sudo rabbitmqctl add_vhost /chef
+# sudo rabbitmqctl add_user chef testing
+# sudo rabbitmqctl set_permissions -p /chef chef ".*" ".*" ".*"
+#
+# server_ssl_req="/C=US/ST=Several/L=Locality/O=Example/OU=Operations/CN=chef.example.com/emailAddress=ops@example.com"
+# openssl genrsa 2048 > /etc/chef/validation.key
+# openssl req -subj "${server_ssl_req}" -new -x509 -nodes -sha1 -days 3650 -key /etc/chef/validation.key > /etc/chef/validation.crt
+# cat /etc/chef/validation.key /etc/chef/validation.crt > /etc/chef/validation.pem
+# openssl genrsa 2048 > /etc/chef/webui.key
+# openssl req -subj "${server_ssl_req}" -new -x509 -nodes -sha1 -days 3650 -key /etc/chef/webui.key > /etc/chef/webui.crt
+# cat /etc/chef/webui.key /etc/chef/webui.crt > /etc/chef/webui.pem
+#

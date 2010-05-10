@@ -55,8 +55,10 @@ hadoop_performance_settings[:local_disks]=[]
   [ '/mnt3', 'block_device_mapping_ephemeral2'],
   [ '/mnt4', 'block_device_mapping_ephemeral3'],
 ].each do |mnt, ephemeral|
-  dev_str = node[:ec2][ephemeral]
-  hadoop_performance_settings[:local_disks] << [mnt, '/dev/'+dev_str] unless dev_str.blank?
+  dev_str = node[:ec2][ephemeral] or next
+  # sometimes ohai leaves the /dev/ off.
+  dev_str = '/dev/'+dev_str unless dev_str =~ %r{^/dev/}
+  hadoop_performance_settings[:local_disks] << [mnt, dev_str]
 end
 Chef::Log.info(hadoop_performance_settings.inspect)
 

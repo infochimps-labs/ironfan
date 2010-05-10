@@ -14,6 +14,8 @@ pool POOL_NAME do
     instances                   1..1
     is_generic_node             settings
     sends_aws_keys              settings
+    is_nfs_server               settings
+    is_chef_server              settings
     is_chef_client              settings
     #
     is_hadoop_node              settings
@@ -21,9 +23,10 @@ pool POOL_NAME do
     is_hadoop_worker            settings
     #
     has_big_package             settings
-    user_data                   settings[:attributes].to_json
     is_spot_priced              settings
     user                        'ubuntu'
+    user_data                   bootstrap_chef_script('run_chef_server', settings)
+    puts JSON.pretty_generate(settings)
   end
 
   cloud :slave do
