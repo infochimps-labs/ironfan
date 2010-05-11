@@ -209,7 +209,6 @@ To see how things are hangin',
 # On the master node
 for foo in hadoop-0.20-{namenode,jobtracker,tasktracker,datanode,secondarynamenode} cassandra chef-client ; do sudo service $foo stop ; done
 
-
 # On a worker node
 for foo in hadoop-0.20-{tasktracker,datanode} cassandra chef-client nfs-kernel-server ; do sudo service $foo status ; done
 
@@ -225,7 +224,7 @@ sudo mv /tmp/*.pem /tmp/aws_private_setup.sh /mnt
 # (all following commands are also on the target machine)
 
 # Shutdown services
-for foo in hadoop-0.20-{namenode,jobtracker,tasktracker,datanode,secondarynamenode} cassandra chef-client nfs-kernel-server ; do sudo service $foo stop ; done
+for foo in hadoop-0.20-{namenode,jobtracker,tasktracker,datanode,secondarynamenode} cassandra couchdb thttpd chef-client nfs-kernel-server rabbitmq-server chef-{solr,solr-indexer,client,server,server-webui} ; do sudo service $foo stop ; done
 # and make the following ones not restart on bootup
 for foo in hadoop-0.20-{tasktracker,datanode,namenode,jobtracker,secondarynamenode} cassandra ; do sudo update-rc.d -f $foo remove ; done
 # Give the process list a how's your father -- nothing interesting should be running.
@@ -234,15 +233,15 @@ ps aux
 mount
 sudo umount /home
 
+# Fix the /etc/hosts
+# and the hostname
+
 # Give apt some last-minute lovin'
 sudo apt-get -y update  ;
 sudo apt-get -y upgrade ;
 sudo apt-get -f install ;
 sudo apt-get clean ;
 sudo updatedb ;
-
-# Fix the /etc/hosts
-# and the hostname
 
 # Nuke files that would be inconvenient to persist: chef config and startup files; log files; and files that contain keys of some sort.
 sudo rm /etc/hostname /etc/chef/{chef_config.json,client.pem,validation.pem} 
@@ -253,8 +252,8 @@ sudo bash -c 'for foo in /var/log/{dmesg,syslog,messages,debug,udev,lastlog,*.lo
 # If you want to record the AMI version, something like
 sudo rm /etc/motd ;
 sudo bash -c 'echo "CHIMP CHIMP CHIMP CRUNCH CRUNCH CRUNCH (image burned at `date`)" > /etc/motd ' ;
-# If you want to, edit the /etc/ssh/sshd_config
 
+# If you want to, edit the /etc/ssh/sshd_config
 
 sudo bash -c 'echo -e "#!/bin/sh\n\n# ec2-mkdir-tmp Create /tmp if missing (nicer to bundle without it).\n\nmkdir -p    /tmp\nchmod 01777 /tmp" > /etc/init.d/ec2-mkdir-tmp'
 sudo chmod a+x /etc/init.d/ec2-mkdir-tmp
@@ -271,7 +270,7 @@ h3. Burning an Instance-backed (s3) AMIs
 
 move the ssh keys out of the way
 
-mkdir /tmp ; mv ,/etc/ssh/ssh_*key*
+mkdir -p $away_dir/ssh ; mv /etc/ssh/ssh_*key* $away_dir/ssh
 
 cd /mnt
 . /mnt/aws_private_setup.sh
