@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 progresslog='/tmp/user_data-progress.log'
+mkdir -p    /tmp
+chmod a+rwx /tmp
 
 # A url directory with the scripts you'd like to stuff into the machine
 REMOTE_FILE_URL_BASE="<%= bootstrap_scripts_url_base %>"
@@ -7,7 +9,6 @@ REMOTE_FILE_URL_BASE="<%= bootstrap_scripts_url_base %>"
 echo "`date` Unscrewup hostname"  >> $progresslog
 export HOSTNAME=<%= hostname %> 
 PUBLIC_IP=<%= public_ip %>                 
-kill `cat /var/run/dhclient.eth0.pid` # kill dhclient
 bash -c "echo '$HOSTNAME' > /etc/hostname" ;
 hostname -F /etc/hostname ;
 sysctl -w kernel.hostname=$HOSTNAME ;

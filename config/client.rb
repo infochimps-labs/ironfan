@@ -34,17 +34,12 @@ validation_client_name chef_config['chef']['validation_client_name']
 #
 cluster_role_index = chef_config['cluster_role_index']
 begin
-  if ! cluster_role_index
+  if chef_config['get_name_from_broham'] && (not cluster_role_index)
     require 'broham'
-    Settings.access_key        = chef_config['aws']['access_key']
-    Settings.secret_access_key = chef_config['aws']['secret_access_key']
-    Broham.establish_connection
-    broham_service = [chef_config["cluster_name"], chef_config["cluster_role"]].join('-')
-    cluster_role_conf  = Broham.register_as_next broham_service
-    p [cluster_role_conf]
+    Broham.establish_connection(:access_key => chef_config['aws']['access_key'], :secret_access_key => chef_config['aws']['secret_access_key'])
+    cluster_role_conf  = Broham.register_as_next("#{chef_config["cluster_name"]}-#{chef_config["cluster_role"]}")
     cluster_role_index = [cluster_role_conf['idx']].flatten.first
   end
-  cluster_role_index ||= OHAI_INFO[:ec2][:ami_launch_index]
 rescue Exception => e
   warn [e.to_s, e.backtrace].flatten.compact.join("\n")
 end

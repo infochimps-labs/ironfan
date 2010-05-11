@@ -21,6 +21,7 @@ ps aux
 # => Unmount anything that's mounted.
 mount
 
+history -c
 away_dir=/mnt/tmp/away-`date "+%Y%m%d%H"`
 sudo mkdir $away_dir
 sudo mv /var/lib/couchdb/0.10.0/chef.couch /var/lib/rabbitmq/mnesia/rabbit /etc/hostname /etc/chef/{chef_config.json,*.pem,client.rb} $away_dir
@@ -30,7 +31,7 @@ sudo bash -c 'for foo in /var/log/{dmesg,syslog,messages,debug,udev,lastlog,fail
 sudo mkdir -p $away_dir/ssh ; sudo mv /etc/ssh/ssh_*key* $away_dir/ssh
 
 sudo rm -rf /data /var/backups/* 
-sudo mv /var/chef /etc/hadoop/conf/core-site.xml /etc/cassandra/storage-conf.xml $away_dir
+sudo mv /var/chef /etc/hadoop/conf/*.xml /etc/hadoop/conf/*.chef-2* /etc/hadoop/conf/raw_settings.yaml* /etc/cassandra/storage-conf* $away_dir
 
 # If you want to record the AMI version, something like
 sudo rm /etc/motd ;
