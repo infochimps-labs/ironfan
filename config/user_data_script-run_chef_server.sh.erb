@@ -23,11 +23,16 @@ if grep -q $PUBLIC_IP /etc/hosts  ; then true ; else bash -c "echo '$PUBLIC_IP $
 cp /etc/chef/client.rb /etc/chef/client-orig.rb ;
 wget -nv ${REMOTE_FILE_URL_BASE}/client.rb -O /etc/chef/client.rb ;
 cat > /etc/chef/chef_config.json <<EOF
-  <%= chef_config_json %>
+<%= chef_config_json %>
 EOF
 
 # now run chef client against the server itself
 service chef-client restart
 # for foo in rabbitmq-server couchdb chef-{solr,solr-indexer,server,client,server-webui} ; do sudo service $foo restart ;  done
+
+sudo rabbitmqctl add_vhost /chef
+sudo rabbitmqctl add_user chef testing
+sudo rabbitmqctl set_permissions -p /chef chef ".*" ".*" ".*"
+sudo service chef-server restart
 
 echo "`date` User data script (chef server bootstrap) complete: `date`"  >> $progresslog 
