@@ -1,0 +1,7 @@
+
+
+h2. AWS Setup
+
+* Make yourself an elastic IP
+* go to your DNS and point a handy domain at it, like 'chef.yourdomain.com'
+* 

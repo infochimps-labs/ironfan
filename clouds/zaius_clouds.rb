@@ -26,7 +26,7 @@ pool POOL_NAME do
     is_spot_priced              settings
     user                        'ubuntu'
     user_data                   bootstrap_chef_script('run_chef_server', settings)
-    puts JSON.pretty_generate(settings)
+    # puts JSON.pretty_generate(settings)
   end
 
   cloud :slave do

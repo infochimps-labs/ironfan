@@ -8,7 +8,7 @@
     To browse the cluster you need to have a proxy configured.
     Start the proxy with <tt>hadoop-ec2 proxy &lt;cluster_name&gt;</tt>,
     and point your browser to
-    <a href="http://cloudera-public.s3.amazonaws.com/ec2/proxy.pac">this Proxy
+    <a href="http://github.com/infochimps/hadoop_cluster_chef/raw/master/config/proxy.pac">this Proxy
       Auto-Configuration (PAC)</a> file.  To manage multiple proxy configurations,
     you may wish to use
     <a href="https://addons.mozilla.org/en-US/firefox/addon/2464">FoxyProxy</a> along with a persistent tunnel to the hadoop master node. See below.
@@ -30,7 +30,7 @@
     <ol>
       <li>Set it to 'Use Proxies based on their pre-defined patterns and priorities'</li>
       <li>Create a new proxy, called 'EC2 Socks Proxy' or something</li>
-      <li>Automatic proxy configuration URL: <a href="http://github.com/mrflip/hadoop_cluster_chef/raw/master/config/proxy.pac">http://github.com/mrflip/hadoop_cluster_chef/raw/master/config/proxy.pac</a></li>
+      <li>Automatic proxy configuration URL: <a href="http://github.com/infochimps/hadoop_cluster_chef/raw/master/config/proxy.pac">http://github.com/infochimps/hadoop_cluster_chef/raw/master/config/proxy.pac</a></li>
       <li>Under 'General', check yes for 'Perform remote DNS lookups on host'</li>
       <li>Add the following URL patterns as 'whitelist' using 'Wildcards' (not regular expression):
         <ul>

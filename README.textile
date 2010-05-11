@@ -241,6 +241,9 @@ sudo apt-get -f install ;
 sudo apt-get clean ;
 sudo updatedb ;
 
+# Fix the /etc/hosts
+# and the hostname
+
 # Nuke files that would be inconvenient to persist: chef config and startup files; log files; and files that contain keys of some sort.
 sudo rm /etc/hostname /etc/chef/{chef_config.json,client.pem,validation.pem} 
 sudo rm /var/lib/cloud/data/scripts/* /var/log/chef/* /etc/sv/chef-client/log/main/* /var/log/*.gz /var/log/hadoop/* /tmp/*
