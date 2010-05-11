@@ -4,9 +4,7 @@ progresslog='/tmp/user_data-progress.log'
 # A url directory with the scripts you'd like to stuff into the machine
 REMOTE_FILE_URL_BASE="<%= bootstrap_scripts_url_base %>"
 
-# unscrewup the hostname every way I can think of. Rabbitmq is a real buttmunch
-# about the hostname -- it will hang forever on bootstrap if `hostname -s`
-# doesn't resolve back to this host. One of the following fixes this, not sure which.
+echo "`date` Unscrewup hostname"  >> $progresslog
 export HOSTNAME=<%= hostname %> 
 PUBLIC_IP=<%= public_ip %>                 
 kill `cat /var/run/dhclient.eth0.pid` # kill dhclient
@@ -19,21 +17,41 @@ sysctl -w kernel.hostname=$HOSTNAME ;
 sed -i "s/127.0.0.1 *localhost/127.0.0.1      $HOSTNAME `hostname -s` localhost/" /etc/hosts
 if grep -q $PUBLIC_IP /etc/hosts  ; then true ; else bash -c "echo '$PUBLIC_IP $HOSTNAME `hostname -s `' >> /etc/hosts" ; fi
 
-# pull in the client scripts that make this machine speak to the chef server
+echo "`date` Pulling in chef client and server scripts"  >> $progresslog 
 cp /etc/chef/client.rb /etc/chef/client-orig.rb ;
 wget -nv ${REMOTE_FILE_URL_BASE}/client.rb -O /etc/chef/client.rb ;
 cat > /etc/chef/chef_config.json <<EOF
   <%= chef_config_json %>
 EOF
+sed -i 's/chef_server_url.*/chef_server_url    "http://<%= hostname %>:4000"/' /etc/chef/server.rb
 
-# now run chef client against the server itself
-service chef-client restart
-# for foo in rabbitmq-server couchdb chef-{solr,solr-indexer,server,client,server-webui} ; do sudo service $foo restart ;  done
-
+echo "`date` Making rabbit be friends with chef"  >> $progresslog
+sudo service rabbitmq-server stop
+sudo rm /var/log/rabbitmq/* /var/lib/rabbitmq/mnesia/rabbit/*
+sudo service rabbitmq-server start
 sudo rabbitmqctl add_vhost /chef
 sudo rabbitmqctl add_user chef testing
 sudo rabbitmqctl set_permissions -p /chef chef ".*" ".*" ".*"
-sudo service chef-server restart
 
+echo "`date` restarting chef infrastructure"  >> $progresslog 
+for foo in couchdb chef-{server,solr,solr-indexer,server-webui} ; do
+  sudo service $foo restart 
+  sleep 2 
+done
+
+echo "`date` running chef client, check /etc/sv/chef-client/log/main/current"  >> $progresslog 
+service chef-client restart
 
 echo "`date` User data script (chef server bootstrap) complete: `date`"  >> $progresslog 
+
+cat >> $progresslog <<EOF
+Next Steps:
+* sudo knife configure -i
+* copy /etc/chef/validation.pem     to ~/.hadoop-ec2/keypairs/chef-validator.pem
+* copy ~ubuntu/.chef/knife_user.pem to ~/.hadoop-ec2/keypairs/knife_user.pem
+
+On your computer:
+* chmod og -rwx ~/.hadoop-ec2/keypairs/*.pem
+* knife node list
+
+EOF

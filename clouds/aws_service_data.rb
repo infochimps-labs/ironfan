@@ -32,7 +32,7 @@ module AwsServiceData
     %w[us-west-1             64-bit  ebs             lucid     ] => 'ami-eb98c9ae',
     %w[us-west-1             64-bit  instance        lucid     ] => 'ami-db98c99e',
     #
-    %w[us-west-1             32-bit  ebs             chef-server ] => 'ami-7b9fce3e',
+    %w[us-west-1             32-bit  ebs             chef-server ] => 'ami-b99ecffc',  # ami-7b9fce3e
     %w[us-west-1             32-bit  instance        chef-client ] => 'ami-b39ccdf6',
     %w[us-east-1             32-bit  instance        chef-client ] => 'ami-17b35a7e',
   }
