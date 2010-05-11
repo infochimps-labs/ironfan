@@ -390,9 +390,8 @@ To check that cassandra works as it should:
 <pre><code>
   grep ListenAddress /etc/cassandra/storage-conf.xml
   irb
-  # in irb
-  require 'rubygems' ; require 'cassandra' ; include Cassandra::Constants ;
-  # plug your ip address into the line below.
+  # jump into irb, and plug your ip address into the line below.
+  require 'rubygems' ; require 'cassandra' ; include Cassandra::Constants 
   twitter = Cassandra.new('Twitter', '10.162.67.95:9160')
   user = {'screen_name' => 'buttonscat'} ;
   twitter.insert(:Users, '5', user)
