@@ -108,7 +108,6 @@ def is_chef_client settings
   get_chef_validation_key settings
   security_group 'chef-client' do
     authorize :from_port => 22, :to_port => 22
-    authorize :group_name => 'chef-server'
   end
   has_role settings, "chef_client"
 end
@@ -139,6 +138,7 @@ end
 # necessarily have open access to each other.
 def is_nfs_server settings
   has_role settings, "nfs_server"
+  security_group 'nfs-client'
   security_group 'nfs-server' do
     authorize :group_name => 'nfs-client'
   end
