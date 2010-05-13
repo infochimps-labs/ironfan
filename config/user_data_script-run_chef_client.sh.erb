@@ -23,7 +23,7 @@ if grep -q $PUBLIC_IP /etc/hosts  ; then true ; else bash -c "echo '$PUBLIC_IP $
 cp /etc/chef/client.rb /etc/chef/client-orig.rb ;
 wget -nv ${REMOTE_FILE_URL_BASE}/client.rb -O /etc/chef/client.rb ;
 cat > /etc/chef/chef_config.json <<EOF
-  <%= chef_config_json %>
+  <%= chef_config.to_json %>
 EOF
 
 # now run chef client against the server itself
