@@ -3,7 +3,7 @@
 require 'configliere'
 require File.join(File.dirname(__FILE__), 'aws_service_data')
 Settings.define :access_key,        :env_var => 'AWS_ACCESS_KEY_ID',         :description => 'Your aws access key ID -- visit "Security Credentials" from the AWS "Account" page.'
-Settings.define :secret_access_key, :env_var => 'AWS_SECRET_ACCESS_KEY_ID',  :description => 'Your aws secret access key -- visit "Security Credentials" from the AWS "Account" page.'
+Settings.define :secret_access_key, :env_var => 'AWS_SECRET_ACCESS_KEY',     :description => 'Your aws secret access key -- visit "Security Credentials" from the AWS "Account" page.'
 Settings.define :account_id,        :env_var => 'AWS_ACCOUNT_ID',            :description => 'Your AWS account ID -- look in the top right corner of the credentials page from "Your Account" on the AWS homepage. Omit all dashes: eg 123456789012'
 Settings.define :ec2_url,           :env_var => 'EC2_URL',                   :description => 'EC2 endpoint URL for api calls; should match the AWS region; eg https://us-west-1.ec2.amazonaws.com for us-west-1'
 Settings.define :aws_region,                                                 :description => 'AWS region: currently, us-east-1, us-west-1, eu-west-1, or ap-southeast-1'
@@ -22,7 +22,7 @@ def is_generic_node settings
   instance_type           settings[:instance_type]
   image_id                AwsServiceData.ami_for(settings)
   availability_zones      settings[:availability_zones]
-  disable_api_termination settings[:disable_api_termination]
+  disable_api_termination settings[:disable_api_termination]  if settings[:instance_backing] == 'ebs'
   elastic_ip              settings[:elastic_ip]               if settings[:elastic_ip]
   set_instance_backing    settings
   keypair                 POOL_NAME, File.join(ENV['HOME'], '.poolparty', 'keypairs')
@@ -220,16 +220,19 @@ def settings_for_node cluster_name, cluster_role
   node_settings = node_settings.deep_merge(
     Settings[:pools][cluster_name][:common]      ||{ }).deep_merge(
     Settings[:pools][cluster_name][cluster_role] ||{ })
+  configure_aws_region node_settings
+  node_settings
 end
 
 
-# Use the availability_zone to set the region and ec2_url settings.  Note: this
-# commits an act of violence against the EC2_URL environment variable, because
-# parts of amazon-ec2 gem expect it to be set.
+# Use the availability_zone to set the region and ec2_url settings.
 def configure_aws_region settings
   settings[:aws_region] ||= settings[:availability_zones].first.gsub(/^(\w+-\w+-\d)[a-z]/, '\1')
   settings[:ec2_url]    ||= "https://#{settings[:aws_region]}.ec2.amazonaws.com"
-  ENV['EC2_URL'] = settings[:ec2_url]
+
+  unless ((ENV['EC2_URL'].to_s == '' && settings[:aws_region] == 'us-east-1') || (ENV['EC2_URL'] == settings[:ec2_url]))
+    warn "******\nThe EC2_URL environment variable should probably be #{settings[:ec2_url]} (from your availability zone), not #{AWS::EC2::DEFAULT_HOST}. Try invoking 'export EC2_URL=#{settings[:ec2_url]}' and re-run.\n******"
+  end
 end
 
 # add a role to the node's run_list.
