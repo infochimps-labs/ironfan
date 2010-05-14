@@ -7,8 +7,8 @@ chmod a+rwx /tmp
 REMOTE_FILE_URL_BASE="<%= bootstrap_scripts_url_base %>"
 
 echo "`date` Unscrewup hostname"  >> $progresslog
-export HOSTNAME=<%= hostname %> 
-PUBLIC_IP=<%= public_ip %>                 
+export HOSTNAME=<%= hostname %>
+PUBLIC_IP=<%= public_ip %>
 bash -c "echo '$HOSTNAME' > /etc/hostname" ;
 hostname -F /etc/hostname ;
 sysctl -w kernel.hostname=$HOSTNAME ;
@@ -22,7 +22,7 @@ echo "`date` Pulling in chef client and server scripts"  >> $progresslog
 cp /etc/chef/client.rb /etc/chef/client-orig.rb ;
 wget -nv ${REMOTE_FILE_URL_BASE}/client.rb -O /etc/chef/client.rb ;
 cat > /etc/chef/chef_config.json <<EOF
-<%= chef_config_json %>
+  <%= chef_config.to_json %>
 EOF
 sed -i 's/chef_server_url.*/chef_server_url    "http://<%= hostname %>:4000"/' /etc/chef/server.rb
 

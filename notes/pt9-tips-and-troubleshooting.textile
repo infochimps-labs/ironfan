@@ -1,0 +1,120 @@
+
+h2. Tips and Notes
+
+If you're west, first run from the shell
+<pre><code>
+  export EC2_URL=https://us-west-1.ec2.amazonaws.com
+<pre><code>
+
+h3. Instance attributes: disable_api_termination and delete_on_termination
+
+To set delete_on_termination to 'true' after the fact, run the following
+<pre><code>
+  ec2-modify-instance-attribute -v i-0704be6c --block-device-mapping /dev/sda1=vol-XX8d2c80::true
+</code></pre>
+(You'll have to modify the instance and volume to suit)
+  
+If you set disable_api_termination to true, in order to terminate the node run
+<pre><code>
+  ec2-modify-instance-attribute -v i-0704be6c --disable-api-termination false
+</code></pre>
+
+h3. Dumb shit I did that maybe if I note it here someone else might not.
+
+* Make sure you scrub the userdata scripts from a bootstrapped image before preparing an AMI -- it's surprising behavior to see old config files reappear.
+
+* If you're seeing weird interactions between chef components make sure you're pointing at the chef server you think you are
+
+h2. Standalone Chef server
+
+h3. installing from apt
+
+You need to have a apt world acct
+
+https://launchpad.net/~jtimberman/+archive/opschef/+packages
+sudo add-apt-repository ppa:user/ppa-name
+
+h3. If you have your own chef server already
+
+* make a chef-server sercurity group
+* have one of the security groups on your chef server be open to machines in the chef-client group.
+
+
+h2. Debugging
+
+
+h3. Debugging chef client (and client on boot-up)
+
+If you installed from 
+
+<pre><code>
+  tail -f -n1000 /tmp/user_data-progress.log /var/log/dpkg.log /etc/sv/chef-client/log/main/current
+</code></pre>
+
+* If you need to kickstart the chef-client, log into the machine as @ubuntu@ user and
+
+<pre><code>
+  sudo service chef-client stop # so that it doesn't try running while you're experimenting
+  cd /etc/chef
+  tail -f /etc/sv/chef-client/log/main/* &
+  sudo chef-client
+  # ...
+  sudo service chef-client start # once you're done
+</code></pre>
+
+<pre><code>
+  sudo service chef-client stop
+  tail -f /etc/sv/chef-client/log/main/current &
+</code></pre>
+
+If the node is confused about its identity -- gives you @`error!': 401 "Unauthorized" (Net::HTTPServerException)@ -- then you should remove @/etc/chef/chef_config.json@ and @/etc/chef/client.pem@, then re-run @sudo chef-client@
+
+
+h3. Debugging chef everything
+
+<pre><code>
+  tail -n200 -f /etc/sv/chef-*/log/main/current
+  for foo in rabbitmq-server thttpd couchdb chef-{solr,solr-indexer,client,server,server-webui} cassandra ; do sudo service $foo restart ; done
+
+</code></pre>
+
+If you're having 401 Authentication errors,
+* check that broham didn't make you be some node you don't want to be
+* you can edit the node name in /etc/chef/chef_config.json file directly, and you can overwrite the /etc/chef/validation.pem file -- the client script will let those settings override the userdata config.
+* Once you've checked that, blow away the client.rb file and re-run chef server. It should authenticate as the node name you set.
+
+h3. Debug chef server bootstrap
+
+Using on the chef server can help debug authentication problems
+
+<pre><code>
+  tail -n100 -f /etc/sv/chef-server*/log/main/current
+</code></pre>
+
+Immediately after If the webui doesn't log you in, try doing @sudo service chef-server-webui restart@ -- it occasionally will fail to create the admin user for some reason.
+
+h3. Debugging hadoop
+
+<pre><code>
+  tail -f /var/log/hadoop/hadoop-hadoop-namenode-chef.infochimps.com.log &
+  sudo service hadoop-0.20-datanode status
+  # ... and so on ...
+  sudo service hadoop-0.20-datanode restart
+</code></pre>
+
+h3. Cassandra
+
+* Logs are in /etc/
+
+To check that cassandra works as it should:
+
+<pre><code>
+  grep ListenAddress /etc/cassandra/storage-conf.xml
+  irb
+  # jump into irb, and plug your ip address into the line below.
+  require 'rubygems' ; require 'cassandra' ; include Cassandra::Constants 
+  twitter = Cassandra.new('Twitter', '10.162.67.95:9160')
+  user = {'screen_name' => 'buttonscat'} ;
+  twitter.insert(:Users, '5', user)
+  twitter.get(:Users, '5')  
+</code></pre>

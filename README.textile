@@ -1,13 +1,19 @@
-h1. Hadoop Cluster in the Cloud using Chef and Poolparty
+h1. Big Data Cluster using Chef, Hadoop and Cassandra
 
 h2. Overview
 
-This will help you set up a scalable, efficient hadoop cluster on the Amazon EC2 cloud. It uses Poolparty to create instances, and Chef to provision them after start.
+ClusterChef will help you create a scalable, efficient compute cluster in the cloud. It has recipes for Hadoop, Cassandra, NFS and more -- use as many or as few as you like. It capably
 
-* Chef is declarative: you specify a final state for each node to reach, not a procedure to follow. Adminstration is more efficient, robust and maintainable.
+* A small 1-5 node cluster for development or just to play around with Hadoop or Cassandra
+* A spot-priced, ebs-backed cluster for unattended computing at rock-bottom prices
+* A large 30+ machine cluster with multiple EBS volumes per node running Hadoop and Cassandra, with optional NFS for
+
+h3. Advantages
+
+* With Chef, you declare a final state for each node, not a procedure to follow. Adminstration is more efficient, robust and maintainable.
 * You get a nice central dashboard to manage clients
 * You can easily roll out configuration changes across all your machines
-* Chef is actively developed and has well-written recipes for a ton of different software packages.
+* Chef is actively developed and has well-written recipes for webservers, databases, development tools, and a ton of different software packages.
 * Poolparty makes creating amazon cloud machines concise and easy: you can specify spot instances, ebs-backed volumes, disable-api-termination, and more.
 
 h2. Components
@@ -31,105 +37,6 @@ h2. Process
 * Cassandra
 * Zookeeper
 
-h2. TODO
-
-* get the run_list out of the user-data
-
-* Fix the device type identification on ebs vols.
-
-h2. Recommended cluster composition
-
-We're going to target these two plausible cluster setups:
-
-h3. Small, simple cluster ("Zaius")
-
-A modest, no-fuss cluster to get started:
-
-* Master node acts as chef server, nfs server, hadoop master (namenode, secondarynamenode and jobtracker), hadoop worker.
-* 0-5 worker nodes: nfs client, hadoop worker.
-* All nodes are EBS-backed instances, sized large enough to hold the HDFS.
-* Use non-spot pricing, but manage costs by starting/stopping instances when not in use. (Set 'ebs_delete_on_termination' to false and 'disable-api-termination' to true)
-
-h3. Industrial-strength cluster with persistent HDFS ("Maximus")
-
-A many-node cluster that can be spot priced (or frequently launched/terminated); uses persistent EBS volumes for the HDFS (much more efficient than S3).
-
-* A standalone EBS-backed small instance acting as the chef server and nfs server. Can start/stop when not in use (set 'ebs_delete_on_termination' false and 'disable-api-termination' true) or use a reserved instance.
-* Spot-priced master node (namenode, secondarynamenode and jobtracker) that is also a hadoop worker, nfs client, and cassandra node.
-* 6-40 spot-priced worker nodes: hadoop worker, nfs client, cassandra node.
-* All nodes are local-backed instances with EBS volumes attached at startup.
-* You can shut down the cluster (or tolerate EC2 shutting it down if the spot price spikes) without harm to the HDFS. The NFS home dir lets you develop scripts on a small cluster and only spin up the big cluster for production jobs.
-* For a larger cluster, you can turn off worker roles for the master node, and can specify the namenode and jobtracker to reside on different machines.
-* You can specify any scale of instance depending on whether your job is IO-, CPU- or memory-intensive, and size master and worker nodes independently.
-
-h2. Prerequisites
-
-You should already be familiar with hadoop and with the Amazon cloud.  These scripts are meant to efficiently orchestrate many dependent packages, and the bugs are still being straightened out.
-
-* Choose a name for your cluster. In this example, we'll use 'zaius' for the small cluster and 'maximus' for the big cluster.
-* Visit the "aws console":http://bit.ly/awsconsole and ensure you're registered for EC2 and SimpleDB. (You may have to click through a license agreement and check your email)
-* Choose your availability zone (spot pricing in the US-East-1 region seems to be the lowest). You *must* set all machines in the cluster to the same availability zone.
-* Chef needs a good, durable domain name. Allocate an elastic IP; have your DNS server point both 'chef.yourdomain.com' and 'zaius.yourdomain.com' at that elastic IP.
-
-From now on, I'm going to just use 'chef.yourdomain.com', 'zaius' and 'maximus' without apology, but substitute accordingly.
-
-h2. Install dependencies
-
-Install these gems:
-
-* chef
-* configliere
-* amazon-ec2
-* broham
-
-**NOTE**: Please use the "infochimps branch of poolparty":http://github.com/infochimps/poolparty for spot instance support and other tweaks
-
-* infochimps-poolparty
-
-h2. Set up configuration files and credentials
-
-At this point there's still a lot of moving parts. What I do is to make one directory for all the poolparty, chef, and other config files, and then use symlinks to make everyone happy. (Note: if you're already using the Cloudera hadoop-ec2 scripts some of this is already in place.)
-
-<pre><code>
-  mkdir ~/.hadoop-ec2
-  mkdir ~/.hadoop-ec2/keypairs
-  ln -nfs ~/.hadoop-ec2 ~/.poolparty
-  ln -nfs ~/.hadoop-ec2 ~/.chef
-</code></pre>
-
-From the chef server,
-
-  sudo cat /etc/chef/validation.peb
-  
-And copy/paste the contents into
-
-  ~/.chef/keypairs/chef-validator.pem
-
-From this code repo dir, copy the template config files over.
-
-<pre><code>
-  cd PATH/TO/hadoop_cluster_chef
-  cp ./config/knife.rb                 ~/.hadoop-ec2/knife.rb                           
-  cp ./config/poolparty-example.yaml   ~/.hadoop-ec2/poolparty.yaml 
-  ln -nfs ~/.hadoop-ec2/poolparty.yaml ~/.hadoop-ec2/aws
-  # optional:
-  ( cd ~/.hadoop-ec2 && git init && git add . && git commit -m "Initial commit" )
-</code></pre>
-
-In ~/.chef/knife.rb, enter your the @chef_server_url@
-
-h2. Credentials
-
-We need to stuff in the AWS credentials (use the "aws console":http://bit.ly/awsconsole to get keys and so forth).
-
-* Create keypairs named 'chef' and 'zaius'. Save them as @~/.hadoop-ec2/keypairs/chef.pem@ and @~/.hadoop-ec2/keypairs/zaius.pem@ respectively, and fix their permissions: @chmod 600 ~/.hadoop-ec2/keypairs/*.pem@.
-* In the file @~/.hadoop-ec2/poolparty.yaml@,
-** Add your AWS access key and secret access key at the top and again under attributes[:aws]
-** Put the domain name of your chef server in the top-level attributes[:chef] section, and again in the pools[:chef][:server][:attributes][:node_name].
-** Put the elastic IPs you allocated in the right places (chef server, cluster masters)
-** If needed, update the region, availability zone and ec2_url. If you change regions you'll have to change the AMI ids too.
-
-
 h2. Start Chef server
 
 * sudo cat /etc/chef/server.rb for the initial web password.
@@ -139,20 +46,6 @@ h2. Start Chef server
 * paste the text of the private key into @~/.chef/knife_user.pem@
 * Copy the text of /etc/chef/validation.pem (from the server) into @~/.chef/chef-validator.pem@
 * chmod 600 ~/.chef/*.pem
-
-h3. installing from apt
-
-You need to have a apt world acct
-
-https://launchpad.net/~jtimberman/+archive/opschef/+packages
-sudo add-apt-repository ppa:user/ppa-name
-
-
-h3. If you have your own chef server already
-
-
-* make a chef-server sercurity group
-* have one of the security groups on your chef server be open to machines in the chef-client group.
 
 h2. Set up knife and webui
 
@@ -213,90 +106,6 @@ for foo in hadoop-0.20-{namenode,jobtracker,tasktracker,datanode,secondarynameno
 for foo in hadoop-0.20-{tasktracker,datanode} cassandra chef-client nfs-kernel-server ; do sudo service $foo status ; done
 
 
-h2. Burn an AMI 
-
-# From your local machine -- bring over your credentials
-scp -i ~/.hadoop-ec2/keypairs/gibbon.pem ~/.hadoop-ec2/{aws_private_setup.sh,certs/cert.pem,certs/pk.pem,keypairs/gibbon.pem} ubuntu@ec2-204-236-189-83.us-west-1.compute.amazonaws.com:/tmp
-
-# ... and then on the target machine move them from /tmp to /mnt (which is ignored in bundling)
-sudo mv /tmp/*.pem /tmp/aws_private_setup.sh /mnt
-
-# (all following commands are also on the target machine)
-
-# Shutdown services
-for foo in hadoop-0.20-{namenode,jobtracker,tasktracker,datanode,secondarynamenode} cassandra couchdb thttpd chef-client nfs-kernel-server rabbitmq-server chef-{solr,solr-indexer,client,server,server-webui} ; do sudo service $foo stop ; done
-# and make the following ones not restart on bootup
-for foo in hadoop-0.20-{tasktracker,datanode,namenode,jobtracker,secondarynamenode} cassandra ; do sudo update-rc.d -f $foo remove ; done
-# Give the process list a how's your father -- nothing interesting should be running.
-ps aux
-# Unmount anything that's mounted.
-mount
-sudo umount /home
-
-# Fix the /etc/hosts
-# and the hostname
-
-# Give apt some last-minute lovin'
-sudo apt-get -y update  ;
-sudo apt-get -y upgrade ;
-sudo apt-get -f install ;
-sudo apt-get clean ;
-sudo updatedb ;
-
-# Nuke files that would be inconvenient to persist: chef config and startup files; log files; and files that contain keys of some sort.
-sudo rm /etc/hostname /etc/chef/{chef_config.json,client.pem,validation.pem} 
-sudo rm /var/lib/cloud/data/scripts/* /var/log/chef/* /etc/sv/chef-client/log/main/* /var/log/*.gz /var/log/hadoop/* /tmp/*
-sudo rm -rf  /root/.cache /root/.gem ~ubuntu/.cache ~ubuntu/.gem} /etc/hadoop/conf/core-site.xml
-sudo bash -c 'for foo in /var/log/{dmesg,syslog,messages,debug,udev,lastlog,*.log} ; do echo -n > $foo ; done'
-
-# If you want to record the AMI version, something like
-sudo rm /etc/motd ;
-sudo bash -c 'echo "CHIMP CHIMP CHIMP CRUNCH CRUNCH CRUNCH (image burned at `date`)" > /etc/motd ' ;
-
-# If you want to, edit the /etc/ssh/sshd_config
-
-sudo bash -c 'echo -e "#!/bin/sh\n\n# ec2-mkdir-tmp Create /tmp if missing (nicer to bundle without it).\n\nmkdir -p    /tmp\nchmod 01777 /tmp" > /etc/init.d/ec2-mkdir-tmp'
-sudo chmod a+x /etc/init.d/ec2-mkdir-tmp
-sudo ln -s /etc/init.d/ec2-mkdir-tmp /etc/rcS.d/S36ec2-mkdir-tmp
-
-for foo in /usr/lib/ruby/gems/1.8/gems/wukong-1.4.7/bin/* ; do sudo ln -s $foo /usr/local/bin/ ; done
-
-
-h3. Burning an EBS-backed AMI
-
-Just use the console. MAKE SURE TO STOP, UNMOUNT AND DETACH ALL EBS VOLUMES first.
-
-h3. Burning an Instance-backed (s3) AMIs
-
-move the ssh keys out of the way
-
-mkdir -p $away_dir/ssh ; mv /etc/ssh/ssh_*key* $away_dir/ssh
-
-cd /mnt
-. /mnt/aws_private_setup.sh
-CLUSTER=gibbon
-# Modify the following to suit.  Bundle will complain about excludes that are missing, so adjust until it stops bitching.
-AMI_EXCLUDES=/ebs1,/ebs2,/mnt,/data,/root/.ssh/authorized_keys,/home/ubuntu/.ssh/authorized_keys
-export EC2_CERT=/mnt/cert.pem ; export EC2_PRIVATE_KEY=/mnt/pk.pem
-
-AWS_REGION=us-east-1
-EC2_URL=https://${AWS_REGION}.ec2.amazonaws.com
-ami_bucket=s3amis.infinitemonkeys.info/${CLUSTER}-slave-ami-32bit-`date "+%Y%m%d"`
-sudo mkdir -p /mnt/`dirname $ami_bucket`
-# This will take a long fucking time. 15 minutes on a small instance. It fucking sucks.
-time sudo ec2-bundle-vol --exclude=$AMI_EXCLUDES -r i386 -d /mnt/$ami_bucket -k /mnt/pk.pem -c /mnt/cert.pem -u $AWS_ACCOUNT_ID --ec2cert /etc/ec2/amitools/cert-ec2.pem
-time ( PATH=/usr/bin:$PATH ; ec2-upload-bundle -b $ami_bucket -m /mnt/$ami_bucket/image.manifest.xml -a $AWS_ACCESS_KEY_ID  -s $AWS_SECRET_ACCESS_KEY ) ;
-time ec2-register -K /mnt/pk.pem -C /mnt/cert.pem --region $AWS_REGION -n $ami_bucket $ami_bucket/image.manifest.xml 
-
-export AWS_REGION=us-west-1
-export EC2_URL=https://${AWS_REGION}.ec2.amazonaws.com
-ami_bucket=west-s3amis.infinitemonkeys.info/${CLUSTER}-slave-ami-32bit-`date "+%Y%m%d"`
-sudo mkdir -p /mnt/`dirname $ami_bucket`
-time sudo ec2-bundle-vol --exclude=$AMI_EXCLUDES -r i386 -d /mnt/$ami_bucket -k /mnt/pk.pem -c /mnt/cert.pem -u $AWS_ACCOUNT_ID --ec2cert /etc/ec2/amitools/cert-ec2.pem
-# sudo ec2-migrate-manifest --cert /mnt/cert.pem --privatekey /mnt/pk.pem --manifest /mnt/$ami_bucket/image.manifest.xml --region us-west-1 -a $AWS_ACCESS_KEY_ID -s $AWS_SECRET_ACCESS_KEY
-time ( PATH=/usr/bin:$PATH ; ec2-upload-bundle -b $ami_bucket -m /mnt/$ami_bucket/image.manifest.xml -a $AWS_ACCESS_KEY_ID  -s $AWS_SECRET_ACCESS_KEY --location $AWS_REGION --url https://s3-us-west-1.amazonaws.com ) ;
-time ec2-register -K /mnt/pk.pem -C /mnt/cert.pem --region $AWS_REGION -n $ami_bucket $ami_bucket/image.manifest.xml 
-
 h2. launch 
 
 tail -f /var/log/dpkg.log /tmp/user_data-progress.log
@@ -320,128 +129,3 @@ You'll need to format the namenode and then restart the namenode (@sudo service 
 
 
 * Once the cluster works with no EBS volumes, then you should try defining 
-
-h2. Debugging
-
-
-h3. Debugging chef client (and client on boot-up)
-
-If you installed from 
-
-<pre><code>
-  tail -f -n1000 /tmp/user_data-progress.log /var/log/dpkg.log /etc/sv/chef-client/log/main/current
-</code></pre>
-
-* If you need to kickstart the chef-client, log into the machine as @ubuntu@ user and
-
-<pre><code>
-  sudo service chef-client stop # so that it doesn't try running while you're experimenting
-  cd /etc/chef
-  tail -f /etc/sv/chef-client/log/main/* &
-  sudo chef-client
-  # ...
-  sudo service chef-client start # once you're done
-</code></pre>
-
-<pre><code>
-  sudo service chef-client stop
-  tail -f /etc/sv/chef-client/log/main/current &
-</code></pre>
-
-If the node is confused about its identity -- gives you @`error!': 401 "Unauthorized" (Net::HTTPServerException)@ -- then you should remove @/etc/chef/chef_config.json@ and @/etc/chef/client.pem@, then re-run @sudo chef-client@
-
-
-h3. Debugging chef everything
-
-<pre><code>
-  tail -n200 -f /etc/sv/chef-*/log/main/current
-  for foo in rabbitmq-server thttpd couchdb chef-{solr,solr-indexer,client,server,server-webui} cassandra ; do sudo service $foo restart ; done
-
-</code></pre>
-
-If you're having 401 Authentication errors,
-* check that broham didn't make you be some node you don't want to be
-* you can edit the node name in /etc/chef/chef_config.json file directly, and you can overwrite the /etc/chef/validation.pem file -- the client script will let those settings override the userdata config.
-* Once you've checked that, blow away the client.rb file and re-run chef server. It should authenticate as the node name you set.
-
-h3. Debug chef server bootstrap
-
-Using on the chef server can help debug authentication problems
-
-<pre><code>
-  tail -n100 -f /etc/sv/chef-server*/log/main/current
-</code></pre>
-
-Immediately after If the webui doesn't log you in, try doing @sudo service chef-server-webui restart@ -- it occasionally will fail to create the admin user for some reason.
-
-h3. Debugging hadoop
-
-<pre><code>
-  tail -f /var/log/hadoop/hadoop-hadoop-namenode-chef.infochimps.com.log &
-  sudo service hadoop-0.20-datanode status
-  # ... and so on ...
-  sudo service hadoop-0.20-datanode restart
-</code></pre>
-
-h3. Cassandra
-
-* Logs are in /etc/
-
-To check that cassandra works as it should:
-
-<pre><code>
-  grep ListenAddress /etc/cassandra/storage-conf.xml
-  irb
-  # jump into irb, and plug your ip address into the line below.
-  require 'rubygems' ; require 'cassandra' ; include Cassandra::Constants 
-  twitter = Cassandra.new('Twitter', '10.162.67.95:9160')
-  user = {'screen_name' => 'buttonscat'} ;
-  twitter.insert(:Users, '5', user)
-  twitter.get(:Users, '5')  
-</code></pre>
-
-h2. Tips and Notes
-
-If you're west, first run from the shell
-<pre><code>
-  export EC2_URL=https://us-west-1.ec2.amazonaws.com
-<pre><code>
-
-h3. Instance attributes: disable_api_termination and delete_on_termination
-
-To set delete_on_termination to 'true' after the fact, run the following
-<pre><code>
-  ec2-modify-instance-attribute -v i-0704be6c --block-device-mapping /dev/sda1=vol-XX8d2c80::true
-</code></pre>
-(You'll have to modify the instance and volume to suit)
-  
-If you set disable_api_termination to true, in order to terminate the node run
-<pre><code>
-  ec2-modify-instance-attribute -v i-0704be6c --disable-api-termination false
-</code></pre>
-
-h3. Dumb shit I did that maybe if I note it here someone else might not.
-
-* Make sure you scrub the userdata scripts from a bootstrapped image before preparing an AMI -- it's surprising behavior to see old config files reappear.
-
-* If you're seeing weird interactions between chef components make sure you're pointing at the chef server you think you are
-
-h3. Tradeoffs of EBS-backed volumes
-
-Be careful of the tradeoffs with EBS-backed volumes.
-
-* _good_: You can start and stop instances -- don't pay for the compute from the end of that hour until you restart.
-* _good_: It's way easier to tune up an AMI. (Then again, chef makes much of that unnecessary)
-* _good_: You can make the volume survive even if the node is terminated (spot price is exceeded, machine crashes, etc).
-* _good_: You can make a persistent HDFS without having to fart around attaching EBS volumes at startup. There are performance tradeoffs, though.
-* _bad_: The disk is noticably slower. Make sure to point tempfiles and scratch space to the local drives. (The scripts currently handle most but not all of this).
-* _bad_: The root volume counts against your quota for EBS volumes.
-* _bad_: Starting more than six or so EBS-backed instances can cause AWS to shit a brick allocating all the volumes.
-
-Refer to the standard setups described above.
-
-h2. Information Sharing using simpleDB
-
-* Make sure you log into the "aws console":http://bit.ly/awsconsole and check in as a SimpleDB user. (You have to click through a license agreement, it should approve you within minutes)
-
-sudo bash -c 'export HOSTNAME=gibbon.infinitemonkeys.info ; PUBLIC_IP=204.236.225.16 ; echo $HOSTNAME > /etc/hostname ; hostname -F /etc/hostname ; sysctl -w kernel.hostname=$HOSTNAME ; sed -i "s/127.0.0.1 *localhost/127.0.0.1      $HOSTNAME `hostname -s` localhost/" /etc/hosts ; if grep -q $PUBLIC_IP /etc/hosts ; then true ; else echo $PUBLIC_IP $HOSTNAME `hostname -s ` >> /etc/hosts ; fi'
