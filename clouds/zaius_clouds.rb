@@ -19,14 +19,16 @@ pool POOL_NAME do
     is_chef_client              settings
     #
     is_hadoop_node              settings
+    has_recipe                  'hadoop_cluster:format_namenode_once'
     is_hadoop_master            settings
     is_hadoop_worker            settings
     #
     has_big_package             settings
     is_spot_priced              settings
+    has_recipe                  'hadoop_cluster:std_hdfs_dirs'
     user                        'ubuntu'
     user_data                   bootstrap_chef_script('run_chef_server', settings)
-    # puts JSON.pretty_generate(settings)
+    puts JSON.pretty_generate(settings)
   end
 
   cloud :slave do
@@ -44,5 +46,6 @@ pool POOL_NAME do
     is_spot_priced              settings
     user_data                   settings[:attributes].to_json
     user                        'ubuntu'
+    puts JSON.pretty_generate(settings)
   end
 end

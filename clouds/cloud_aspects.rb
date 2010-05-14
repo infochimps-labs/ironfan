@@ -237,6 +237,10 @@ def has_role settings, role
   settings[:attributes][:run_list] << "role[#{role}]"
 end
 
+def has_recipe settings, recipe
+  settings[:attributes][:run_list] << recipe
+end
+
 # Takes the template file and has Erubis cram the given variables in it
 def erubis_template template_filename, *args
   require 'erubis'
