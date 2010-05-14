@@ -48,6 +48,9 @@ sudo ln -s /etc/init.d/ec2-mkdir-tmp /etc/rcS.d/S36ec2-mkdir-tmp
 for foo in /usr/lib/ruby/gems/1.8/gems/wukong-1.4.7/bin/* ; do sudo ln -s $foo /usr/local/bin/ ; done
 
 
+* Make sure you scrub the userdata scripts from a bootstrapped image before preparing an AMI -- it's surprising behavior to see old config files reappear.
+
+
 h3. Burning an EBS-backed AMI
 
 Just use the console. MAKE SURE TO STOP, UNMOUNT AND DETACH ALL EBS VOLUMES first.

@@ -2,11 +2,11 @@ h1. Big Data Cluster using Chef, Hadoop and Cassandra
 
 h2. Overview
 
-ClusterChef will help you create a scalable, efficient compute cluster in the cloud. It has recipes for Hadoop, Cassandra, NFS and more -- use as many or as few as you like. It capably
+ClusterChef helps you create a scalable, efficient compute cluster in the cloud. It has recipes for Hadoop, Cassandra, NFS and more -- use as many or as few as you like. Go fluidly from experimentation to industrial-strength big data computing:
 
-* A small 1-5 node cluster for development or just to play around with Hadoop or Cassandra
+* A small 1-5 node cluster for development, or just for playing around with Hadoop and Cassandra
 * A spot-priced, ebs-backed cluster for unattended computing at rock-bottom prices
-* A large 30+ machine cluster with multiple EBS volumes per node running Hadoop and Cassandra, with optional NFS for
+* A large 30+ machine cluster with a shared NFS home dir, multiple EBS volumes per node, and Hadoop and Cassandra, tuned for the size of your machines.
 
 h3. Advantages
 
@@ -16,36 +16,47 @@ h3. Advantages
 * Chef is actively developed and has well-written recipes for webservers, databases, development tools, and a ton of different software packages.
 * Poolparty makes creating amazon cloud machines concise and easy: you can specify spot instances, ebs-backed volumes, disable-api-termination, and more.
 
-h2. Components
+h3. Components
 
 * Hadoop
 * NFS
 * Persistent HDFS on EBS volumes
-* Zookeeper (_in progress_)
-* Cassandra (_in progress_)
-
-h2. Process
-
-* Install prerequisites
-* Set up your local credentials and settings
-* Launch chef server
-* Try a single-machine cluster
-* Launch slaves
-* Launch a stand-alone cluster
-* Set up EBS volumes
-* Launch a cluster with EBS volumes
+* Memory and storage settings defined for each machine type
 * Cassandra
-* Zookeeper
+* Zookeeper (_in progress_)
 
-h2. Start Chef server
 
-* sudo cat /etc/chef/server.rb for the initial web password.
-* for foo in chef-client chef-server chef-server-webui chef-solr chef-solr-indexer ; do sudo service $foo restart ; done
+h2. Getting started with a simple cluster
 
-* Click clients, create -- make client called knife_user that is an admin
-* paste the text of the private key into @~/.chef/knife_user.pem@
-* Copy the text of /etc/chef/validation.pem (from the server) into @~/.chef/chef-validator.pem@
-* chmod 600 ~/.chef/*.pem
+# Set up your local credentials and settings
+# Launch cluster head (a combined chef server, hadoop master and nfs server; you can decouple these roles later)
+# Gather credentials from the new server
+# Launch slaves
+
+h3. Initial Settings and Credentials
+
+See detailed instructions in @notes/pt1-inital-settings-and-credentials.textile@
+
+# Choose a name for your cluster, create the corresponding AWS keypair, and store its .pem file in ~/.hadoop-ec2/keypairs/
+# Edit the poolparty.yaml file to match your setup
+
+h3. Launch Chef server
+
+
+
+<pre><code>
+  cloud-start -n master  -c clouds/hadoop_clouds.rb
+  # ... twiddle thumbs ...
+  cloud-ssh   -n server  -c clouds/chef_clouds.rb
+</code></pre>
+
+You'll need to format the namenode and then restart the namenode (@sudo service hadoop-0.20-namenode restart@)
+
+* Once the master node starts, try a couple slaves
+
+<pre><code>
+  cloud-start -n master  -c clouds/hadoop_clouds.rb
+</code></pre>
 
 h2. Set up knife and webui
 
@@ -105,27 +116,3 @@ for foo in hadoop-0.20-{namenode,jobtracker,tasktracker,datanode,secondarynameno
 # On a worker node
 for foo in hadoop-0.20-{tasktracker,datanode} cassandra chef-client nfs-kernel-server ; do sudo service $foo status ; done
 
-
-h2. launch 
-
-tail -f /var/log/dpkg.log /tmp/user_data-progress.log
-
-* Start the hadoop master node:
-
-<pre><code>
-  cloud-start -n master  -c clouds/hadoop_clouds.rb
-  # ... twiddle thumbs ...
-  cloud-ssh   -n server  -c clouds/chef_clouds.rb
-</code></pre>
-
-You'll need to format the namenode and then restart the namenode (@sudo service hadoop-0.20-namenode restart@)
-
-* Once the master node starts, try a couple slaves
-
-<pre><code>
-  cloud-start -n master  -c clouds/hadoop_clouds.rb
-</code></pre>
-
-
-
-* Once the cluster works with no EBS volumes, then you should try defining 

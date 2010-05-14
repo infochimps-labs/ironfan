@@ -24,20 +24,6 @@
     :validation_client_name:            "chef-validator"
 
 :pools:
-  :chef:
-    :server:
-      :attributes:
-        :node_name:                     chef.infochimps.com
-      :disable_api_termination:         false
-      :elastic_ip:                      184.72.52.22
-      :instance_os:                     lucid
-      :instance_backing:                ebs
-      :boot_volume:                     
-        :ebs_volume_size:               15
-        :ebs_delete_on_termination:     false
-    :client:
-      :instance_os:                     chef-client
-
   :zaius:
     :common:
       # 1.0 (full price) will almost never shut down. 0.4 will dance right near the us-east-1 average. 

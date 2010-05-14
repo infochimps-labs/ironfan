@@ -19,12 +19,6 @@ If you set disable_api_termination to true, in order to terminate the node run
   ec2-modify-instance-attribute -v i-0704be6c --disable-api-termination false
 </code></pre>
 
-h3. Dumb shit I did that maybe if I note it here someone else might not.
-
-* Make sure you scrub the userdata scripts from a bootstrapped image before preparing an AMI -- it's surprising behavior to see old config files reappear.
-
-* If you're seeing weird interactions between chef components make sure you're pointing at the chef server you think you are
-
 h2. Standalone Chef server
 
 h3. installing from apt
@@ -38,7 +32,6 @@ h3. If you have your own chef server already
 
 * make a chef-server sercurity group
 * have one of the security groups on your chef server be open to machines in the chef-client group.
-
 
 h2. Debugging
 

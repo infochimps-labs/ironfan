@@ -7,7 +7,9 @@ Settings.define :secret_access_key, :env_var => 'AWS_SECRET_ACCESS_KEY_ID',  :de
 Settings.define :account_id,        :env_var => 'AWS_ACCOUNT_ID',            :description => 'Your AWS account ID -- look in the top right corner of the credentials page from "Your Account" on the AWS homepage. Omit all dashes: eg 123456789012'
 Settings.define :ec2_url,           :env_var => 'EC2_URL',                   :description => 'EC2 endpoint URL for api calls; should match the AWS region; eg https://us-west-1.ec2.amazonaws.com for us-west-1'
 Settings.define :aws_region,                                                 :description => 'AWS region: currently, us-east-1, us-west-1, eu-west-1, or ap-southeast-1'
-Settings.read File.join(ENV['HOME'],'.hadoop-ec2','poolparty.yaml'); Settings.resolve!
+Settings.read File.join(File.dirname(__FILE__), '/../config/cluster_chef_defaults.yaml')
+Settings.read File.join(ENV['HOME'],'.hadoop-ec2','poolparty.yaml');
+Settings.resolve!
 
 # ===========================================================================
 #
@@ -220,6 +222,17 @@ def settings_for_node cluster_name, cluster_role
     Settings[:pools][cluster_name][cluster_role] ||{ })
 end
 
+
+# Use the availability_zone to set the region and ec2_url settings.  Note: this
+# commits an act of violence against the EC2_URL environment variable, because
+# parts of amazon-ec2 gem expect it to be set.
+def configure_aws_region settings
+  settings[:aws_region] ||= settings[:availability_zones].first.gsub(/^(\w+-\w+-\d)[a-z]/, '\1')
+  settings[:ec2_url]    ||= "https://#{settings[:aws_region]}.ec2.amazonaws.com"
+  ENV['EC2_URL'] = settings[:ec2_url]
+end
+
+# add a role to the node's run_list.
 def has_role settings, role
   settings[:attributes][:run_list] << "role[#{role}]"
 end

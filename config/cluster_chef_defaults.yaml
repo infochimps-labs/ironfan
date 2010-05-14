@@ -1,0 +1,16 @@
+:bootstrap_scripts_url_base:            http://github.com/infochimps/hadoop_cluster_chef/raw/master/config
+
+:instance_type:                         m1.small
+:instance_backing:                      instance
+:instance_os:                           karmic
+
+:disable_api_termination:               false
+:spot_price_fraction:                   ~
+:boot_volume:                     
+  :ebs_volume_size:                     15
+  :ebs_delete_on_termination:           true
+
+:attributes:
+  :chef:
+    :validation_key_file:               "~/.hadoop-ec2/keypairs/chef-validator.pem"
+    :validation_client_name:            "chef-validator"
