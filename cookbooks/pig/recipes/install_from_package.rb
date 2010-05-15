@@ -1,6 +1,6 @@
 #
-# Cookbook Name:: hadoop
-# Recipe:: pig
+# Cookbook Name:: pig
+# Recipe:: install_from_package
 #
 # Copyright 2009, Opscode, Inc.
 #
@@ -20,3 +20,4 @@
 include_recipe "hadoop_cluster"
 
 package "hadoop-pig"
+ 

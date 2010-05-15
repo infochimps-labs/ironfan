@@ -6,7 +6,6 @@ Settings.read File.join(ENV['HOME'],'.poolparty','aws'); Settings.resolve!
 
 run_list *%w[
   hadoop_cluster
-  hadoop_cluster::pig
   hadoop_cluster::cluster_conf
   ]
 
