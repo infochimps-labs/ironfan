@@ -22,6 +22,7 @@ pool POOL_NAME do
     mounts_ebs_volumes          settings
     is_hadoop_master            settings
     is_hadoop_worker            settings
+    has_role settings, "pig"
     has_big_package             settings
     is_cassandra_node           settings
     #
@@ -43,6 +44,7 @@ pool POOL_NAME do
     is_hadoop_node              settings
     mounts_ebs_volumes          settings
     is_hadoop_worker            settings
+    has_role settings, "pig"
     has_big_package             settings
     is_cassandra_node           settings
     #
