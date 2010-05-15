@@ -2,7 +2,7 @@
 
 :instance_type:                         m1.small
 :instance_backing:                      instance
-:instance_os:                           karmic
+:instance_os:                           lucid
 
 :disable_api_termination:               false
 :spot_price_fraction:                   ~

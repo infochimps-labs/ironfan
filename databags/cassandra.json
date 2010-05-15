@@ -19,6 +19,24 @@
         "end_point_snitch":           "org.apache.cassandra.locator.EndPointSnitch"
       }
     }
+  },
+
+  "Apeyeye": {
+    "keyspaces": {
+      "SocNetTw": {
+        "columns": {
+          "wordbag_user_id":       { "compare_with": "UTF8Type" },
+          "influence_user_id":     { "compare_with": "UTF8Type" },
+          "trstrank_user_id":      { "compare_with": "UTF8Type" },
+          "wordbag_screen_name":   { "compare_with": "UTF8Type" },
+          "influence_screen_name": { "compare_with": "UTF8Type" },
+          "trstrank_screen_name":  { "compare_with": "UTF8Type" }
+        },
+        "replica_placement_strategy": "org.apache.cassandra.locator.RackUnawareStrategy",
+        "replication_factor":         "1",
+        "end_point_snitch":           "org.apache.cassandra.locator.EndPointSnitch"
+      }
+    }
   }
 }
 ]

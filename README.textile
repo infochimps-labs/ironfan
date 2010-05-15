@@ -28,6 +28,8 @@ h3. Components
 
 h2. Getting started with a simple cluster
 
+* Choose a name for your cluster. In this example, the cluster will be called 'zaius' and its url will be http://zaius.yourdomain.com/
+
 # Set up your local credentials and settings
 # Launch cluster head (a combined chef server, hadoop master and nfs server; you can decouple these roles later)
 # Gather credentials from the new server
@@ -36,9 +38,6 @@ h2. Getting started with a simple cluster
 h3. Initial Settings and Credentials
 
 See detailed instructions in @notes/pt1-inital-settings-and-credentials.textile@
-
-# Choose a name for your cluster, create the corresponding AWS keypair, and store its .pem file in ~/.hadoop-ec2/keypairs/
-# Edit the poolparty.yaml file to match your setup
 
 h3. Launch Chef server
 
