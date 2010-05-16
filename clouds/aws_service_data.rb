@@ -4,33 +4,33 @@ module AwsServiceData
     'm1.xlarge'   => 0.68,  'm2.xlarge'   => 0.50,  'm2.xlarge'   => 1.20,  'm2.4xlarge'  => 2.40,
   }
 
-  # http://uec-images.ubuntu.com/releases/lucid/rc/
+  # http://uec-images.ubuntu.com/releases/lucid/release/
   # http://uec-images.ubuntu.com/releases/karmic/
 
   AMI_MAPPING =  {
-    %w[us-east-1             64-bit  instance        karmic    ] => 'ami-55739e3c',
-    %w[us-east-1             32-bit  instance        karmic    ] => 'ami-bb709dd2',
-    %w[us-west-1             64-bit  instance        karmic    ] => 'ami-cb2e7f8e',
-    %w[us-west-1             32-bit  instance        karmic    ] => 'ami-c32e7f86',
-    %w[eu-west-1             64-bit  instance        karmic    ] => 'ami-05c2e971',
-    %w[eu-west-1             32-bit  instance        karmic    ] => 'ami-2fc2e95b',
+    %w[us-east-1             64-bit  instance        karmic      ] => 'ami-55739e3c',
+    %w[us-east-1             32-bit  instance        karmic      ] => 'ami-bb709dd2',
+    %w[us-west-1             64-bit  instance        karmic      ] => 'ami-cb2e7f8e',
+    %w[us-west-1             32-bit  instance        karmic      ] => 'ami-c32e7f86',
+    %w[eu-west-1             64-bit  instance        karmic      ] => 'ami-05c2e971',
+    %w[eu-west-1             32-bit  instance        karmic      ] => 'ami-2fc2e95b',
     #
-    %w[ap-southeast-1        32-bit  ebs             lucid     ] => 'ami-27f18e75',
-    %w[ap-southeast-1        32-bit  instance        lucid     ] => 'ami-3ff18e6d',
-    %w[ap-southeast-1        64-bit  ebs             lucid     ] => 'ami-2bf18e79',
-    %w[ap-southeast-1        64-bit  instance        lucid     ] => 'ami-21f18e73',
-    %w[eu-west-1             32-bit  ebs             lucid     ] => 'ami-af476ddb',
-    %w[eu-west-1             32-bit  instance        lucid     ] => 'ami-b9476dcd',
-    %w[eu-west-1             64-bit  ebs             lucid     ] => 'ami-a9476ddd',
-    %w[eu-west-1             64-bit  instance        lucid     ] => 'ami-ad476dd9',
-    %w[us-east-1             32-bit  ebs             lucid     ] => 'ami-2fa14846',
-    %w[us-east-1             32-bit  instance        lucid     ] => 'ami-e3ae478a',
-    %w[us-east-1             64-bit  ebs             lucid     ] => 'ami-23a1484a',
-    %w[us-east-1             64-bit  instance        lucid     ] => 'ami-8bae47e2',
-    %w[us-west-1             32-bit  ebs             lucid     ] => 'ami-e998c9ac',
-    %w[us-west-1             32-bit  instance        lucid     ] => 'ami-df98c99a',
-    %w[us-west-1             64-bit  ebs             lucid     ] => 'ami-eb98c9ae',
-    %w[us-west-1             64-bit  instance        lucid     ] => 'ami-db98c99e',
+    %w[ap-southeast-1        64-bit  ebs             lucid       ] => 'ami-77f28d25',
+    %w[ap-southeast-1        32-bit  ebs             lucid       ] => 'ami-4df28d1f',
+    %w[ap-southeast-1        64-bit  instance        lucid       ] => 'ami-57f28d05',
+    %w[ap-southeast-1        32-bit  instance        lucid       ] => 'ami-a5f38cf7',
+    %w[eu-west-1             64-bit  ebs             lucid       ] => 'ami-ab4d67df',
+    %w[eu-west-1             32-bit  ebs             lucid       ] => 'ami-a94d67dd',
+    %w[eu-west-1             64-bit  instance        lucid       ] => 'ami-a54d67d1',
+    %w[eu-west-1             32-bit  instance        lucid       ] => 'ami-cf4d67bb',
+    %w[us-east-1             64-bit  ebs             lucid       ] => 'ami-4b4ba522',
+    %w[us-east-1             32-bit  ebs             lucid       ] => 'ami-714ba518',
+    %w[us-east-1             64-bit  instance        lucid       ] => 'ami-fd4aa494',
+    %w[us-east-1             32-bit  instance        lucid       ] => 'ami-2d4aa444',
+    %w[us-west-1             64-bit  ebs             lucid       ] => 'ami-d197c694',
+    %w[us-west-1             32-bit  ebs             lucid       ] => 'ami-cb97c68e',
+    %w[us-west-1             64-bit  instance        lucid       ] => 'ami-c997c68c',
+    %w[us-west-1             32-bit  instance        lucid       ] => 'ami-c597c680',
     #
     %w[us-west-1             32-bit  ebs             chef-server ] => 'ami-5b81d01e',
     %w[us-west-1             32-bit  instance        chef-client ] => 'ami-b39ccdf6',
@@ -59,7 +59,9 @@ module AwsServiceData
   #
   def self.ami_for settings
     bits = bits_for_instance(settings[:instance_type])
-    AMI_MAPPING[ [settings[:aws_region], bits, settings[:instance_backing], settings[:instance_os]] ]
+    ami = AMI_MAPPING[ [settings[:aws_region], bits, settings[:instance_backing], settings[:instance_os]] ]
+    raise "No AMI found for #{[ settings[:aws_region], bits, settings[:instance_backing], settings[:instance_os] ].inspect}" unless ami
+    ami
   end
 
   def self.info_for_ami ami_id
