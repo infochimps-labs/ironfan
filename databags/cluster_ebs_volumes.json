@@ -58,6 +58,17 @@
   ],
   "master": [
     [ { "device": "/dev/sdj", "volume_id": "vol-290ed840", "mount_point": "/ebs1" }, { "device": "/dev/sdk", "volume_id": "vol-cd0ed8a4", "mount_point": "/ebs2" } ]
-  ]
+  ],
+ "bootstrap": [],
+ "bootstrap64": []
+},
+{"id":"infinitemonkeys",
+  "s1": [],
+  "s2": [],
+  "s3": [],
+  "s4": [],
+  "s5": [],
+  "bootstrap": [],
+  "bootstrap64": []
 }
 ]

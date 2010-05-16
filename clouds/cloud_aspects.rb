@@ -122,7 +122,7 @@ def bootstrap_chef_script role, settings
     :chef_server_fqdn => settings[:attributes][:chef][:chef_server].gsub(%r{http://(.*):\d+},'\1'),
     :ubuntu_version   => 'lucid',
     :bootstrap_scripts_url_base => settings[:bootstrap_scripts_url_base],
-    :chef_config      => settings[:attributes].to_mash
+    :chef_config      => settings[:attributes]
     )
 end
 

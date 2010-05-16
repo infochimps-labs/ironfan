@@ -1,4 +1,4 @@
-POOL_NAME     = 'zaius'
+POOL_NAME     = 'gibbon'
 require File.dirname(__FILE__)+'/cloud_aspects'
 
 #
@@ -51,24 +51,5 @@ pool POOL_NAME do
     is_spot_priced              settings
     user                        'ubuntu'
     user_data                   settings[:attributes].to_json
-  end
-
-  cloud :bootstrap do
-    using :ec2
-    settings = settings_for_node(POOL_NAME, :bootstrap)
-    instances                   1..1
-    is_generic_node             settings
-    sends_aws_keys              settings
-    is_chef_client              settings
-    #
-    is_hadoop_node              settings
-    is_hadoop_worker            settings
-    has_recipe settings, "pig::install_from_release"
-    has_big_package             settings
-    is_cassandra_node           settings
-    #
-    is_spot_priced              settings
-    user                        'ubuntu'
-    user_data                   bootstrap_chef_script('bootstrap_chef_client', settings)
   end
 end

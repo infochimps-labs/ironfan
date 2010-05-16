@@ -4,8 +4,9 @@ for foo in hadoop-0.20-{namenode,jobtracker,tasktracker,datanode,secondarynameno
     couchdb rabbitmq-server chef-{solr,solr-indexer,client,server,server-webui} ; do
   sudo service $foo stop ;
 done
+sudo kill ` ps aux | grep 330 | cut -c 10-15 `
 
-for foo in hadoop-0.20-{tasktracker,datanode,namenode,jobtracker,secondarynamenode} cassandra thttpd nfs-kernel-server ; do sudo update-rc.d -f $foo remove ; done
+for foo in hadoop-0.20-{tasktracker,datanode,namenode,jobtracker,secondarynamenode} cassandra thttpd nfs-kernel-server ; do sudo update-rc.d -f $foo defaults ; done
 
 # ===========================================================================
 #
@@ -23,7 +24,7 @@ mount
 
 history -c
 away_dir=/mnt/tmp/away-`date "+%Y%m%d%H"`
-sudo mkdir $away_dir
+sudo mkdir -p $away_dir
 sudo mv /var/lib/couchdb/0.10.0/chef.couch /var/lib/rabbitmq/mnesia/rabbit /etc/hostname /etc/chef/{chef_config.json,*.pem,client.rb} $away_dir
 sudo rm /var/lib/cloud/data/scripts/* /var/log/chef/* /etc/sv/*/log/main/* /var/log/*.gz /var/log/hadoop/* /tmp/* /var/log/rabbitmq/* /var/log/cassandra/* /var/run/hadoop*/* /var/www/* /var/lib/cloud/data/user-data.txt* /var/lib/cloud/data/*/*
 sudo rm -rf /root/{.cache,.chef,emacs.d,.bash_history,.gem} ~ubuntu/{.cache,.chef,emacs.d,.bash_history,.gem}

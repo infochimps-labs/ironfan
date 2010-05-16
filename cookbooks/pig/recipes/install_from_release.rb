@@ -52,3 +52,18 @@ link "/usr/local/bin/pig" do
   to "/usr/local/share/pig/bin/pig"
   action :create
 end
+
+# bash 'build pig' do
+#   user 'root'
+#   cwd  '/usr/local/share'
+#   code "tar xzf /usr/local/src/#{pig_install_pkg}"
+#   not_if{ File.directory?("/usr/local/share/#{pig_install_dir}") }
+# end
+
+bash 'build piggybank' do
+  user 'root'
+  cwd  '/usr/local/share/pig/contrib/piggybank/java'
+  code "ant"
+  not_if{ File.exists?("/usr/local/share/pig-0.7.0/contrib/piggybank/java/piggybank.jar") }
+end
+
