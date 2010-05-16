@@ -28,7 +28,7 @@ sudo mkdir -p $away_dir
 sudo mv /var/lib/couchdb/0.10.0/chef.couch /var/lib/rabbitmq/mnesia/rabbit /etc/hostname /etc/chef/{chef_config.json,*.pem,client-orig.rb} $away_dir
 sudo rm /var/lib/cloud/data/scripts/* /var/log/chef/* /etc/sv/*/log/main/* /var/log/*.gz /var/log/hadoop/* /tmp/* /var/log/rabbitmq/* /var/log/cassandra/* /var/run/hadoop*/* /var/www/* /var/lib/cloud/data/user-data.txt* /var/lib/cloud/data/*/*
 sudo rm -rf /root/{.cache,.chef,emacs.d,.bash_history,.gem} ~ubuntu/{.cache,.chef,emacs.d,.bash_history,.gem}
-sudo bash -c 'for foo in /var/log/{dmesg,syslog,messages,debug,udev,lastlog,faillog,dmesg.0,*.log} ; do echo -n > $foo ; done'
+sudo bash -c 'for foo in /var/log/{auth.log,dmesg,syslog,messages,debug,udev,lastlog,faillog,dmesg.0,*.log} ; do echo -n > $foo ; done'
 sudo mkdir -p $away_dir/ssh ; sudo mv /etc/ssh/ssh_*key* $away_dir/ssh
 
 sudo rm -rf /var/backups/* 

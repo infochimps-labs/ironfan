@@ -50,12 +50,12 @@ pool POOL_NAME do
     is_chef_client              settings
     #
     attaches_ebs_volumes        settings
-    is_hadoop_node              settings
+    # is_hadoop_node              settings
     mounts_ebs_volumes          settings
-    is_hadoop_worker            settings
-    has_recipe settings, "pig::install_from_release"
+    # is_hadoop_worker            settings
+    # has_recipe settings, "pig::install_from_release"
     has_big_package             settings
-    is_cassandra_node           settings
+    # is_cassandra_node           settings
     #
     is_spot_priced              settings
     user                        'ubuntu'
