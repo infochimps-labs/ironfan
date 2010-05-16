@@ -1,4 +1,4 @@
-:bootstrap_scripts_url_base:            http://github.com/infochimps/hadoop_cluster_chef/raw/master/config
+:bootstrap_scripts_url_base:            http://github.com/infochimps/cluster_chef/raw/master/config
 
 :instance_type:                         m1.small
 :instance_backing:                      instance

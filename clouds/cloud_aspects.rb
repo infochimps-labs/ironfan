@@ -173,24 +173,6 @@ def is_hadoop_node settings
   end
 end
 
-def is_hadoop_master settings
-  has_role settings, "hadoop_master"
-end
-
-# Poolparty rules to make the node act as a worker in a hadoop cluster It looks
-# up the master node's private IP address and passes that to the chef
-# attributes.
-def is_hadoop_worker settings
-  has_role settings, "hadoop_worker"
-  master_private_ip   = pool.clouds['master'].nodes.first.private_ip rescue nil
-  if master_private_ip
-    settings[:attributes].deep_merge!(
-      :hadoop => {
-        :jobtracker_address => master_private_ip,
-        :namenode_address   => master_private_ip, } )
-  end
-end
-
 # ===========================================================================
 #
 # Cassandra aspects

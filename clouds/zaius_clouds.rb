@@ -20,8 +20,8 @@ pool POOL_NAME do
     #
     is_hadoop_node              settings
     has_recipe settings, 'hadoop_cluster:format_namenode_once'
-    is_hadoop_master            settings
-    is_hadoop_worker            settings
+    has_role   settings, "hadoop_master"
+    has_role   settings, "hadoop_worker"
     has_recipe settings, "pig::install_from_package"
     #
     has_big_package             settings
@@ -41,7 +41,7 @@ pool POOL_NAME do
     is_chef_client              settings
     #
     is_hadoop_node              settings
-    is_hadoop_worker            settings
+    has_role   settings, "hadoop_worker"
     has_recipe settings, "pig::install_from_package"
     #
     has_big_package             settings

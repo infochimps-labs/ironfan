@@ -20,8 +20,8 @@ pool POOL_NAME do
     #
     is_hadoop_node              settings
     mounts_ebs_volumes          settings
-    is_hadoop_master            settings
-    is_hadoop_worker            settings
+    has_role   settings, "hadoop_master"
+    has_role   settings, "hadoop_worker"
     has_recipe settings, "pig::install_from_release"
     has_big_package             settings
     is_cassandra_node           settings
@@ -34,7 +34,7 @@ pool POOL_NAME do
   cloud :slave do
     using :ec2
     settings = settings_for_node(POOL_NAME, :slave)
-    instances                   1..1
+    instances                   30..30
     attaches_ebs_volumes        settings
     is_nfs_client               settings
     is_generic_node             settings
@@ -43,7 +43,7 @@ pool POOL_NAME do
     #
     is_hadoop_node              settings
     mounts_ebs_volumes          settings
-    is_hadoop_worker            settings
+    has_role   settings, "hadoop_worker"
     has_recipe settings, "pig::install_from_release"
     has_big_package             settings
     is_cassandra_node           settings

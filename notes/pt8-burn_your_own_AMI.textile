@@ -63,7 +63,7 @@ mkdir -p $away_dir/ssh ; mv /etc/ssh/ssh_*key* $away_dir/ssh
 cd /mnt
 . /mnt/aws_private_setup.sh
 CLUSTER=hadoop
-AMI_EXCLUDES=/ebs1,/ebs2,/data,/srv,/mnt,/root/.ssh/authorized_keys,/home/ubuntu/.ssh/authorized_keys
+AMI_EXCLUDES=/ebs1,/ebs2,/data,/srv/chef/cache,/mnt,/root/.ssh/authorized_keys,/home/ubuntu/.ssh/authorized_keys
 export EC2_CERT=/mnt/cert.pem ; export EC2_PRIVATE_KEY=/mnt/pk.pem
 
 AWS_REGION=us-east-1
@@ -71,9 +71,9 @@ EC2_URL=https://${AWS_REGION}.ec2.amazonaws.com
 ami_bucket=s3amis.infinitemonkeys.info/${CLUSTER}-slave-ami-32bit-`date "+%Y%m%d"`
 sudo mkdir -p /mnt/$ami_bucket
 # This will take a long fucking time. 15 minutes on a small instance. It fucking sucks.
-time sudo ec2-bundle-vol --exclude=$AMI_EXCLUDES -r i386 -d /mnt/$ami_bucket -k /mnt/pk.pem -c /mnt/cert.pem -u $AWS_ACCOUNT_ID --ec2cert /etc/ec2/amitools/cert-ec2.pem
+time sudo ec2-bundle-vol --exclude=$AMI_EXCLUDES -d /mnt/$ami_bucket -k /mnt/pk.pem -c /mnt/cert.pem -u $AWS_ACCOUNT_ID --ec2cert /etc/ec2/amitools/cert-ec2.pem
 time ( PATH=/usr/bin:$PATH ; ec2-upload-bundle -b $ami_bucket -m /mnt/$ami_bucket/image.manifest.xml -a $AWS_ACCESS_KEY_ID  -s $AWS_SECRET_ACCESS_KEY ) ;
-time ec2-register -K /mnt/pk.pem -C /mnt/cert.pem --region $AWS_REGION -n $ami_bucket $ami_bucket/image.manifest.xml 
+time ec2-register -K /mnt/pk.pem -C /mnt/cert.pem --region $AWS_REGION -n `basename $ami_bucket` $ami_bucket/image.manifest.xml 
 
 export AWS_REGION=us-west-1
 export EC2_URL=https://${AWS_REGION}.ec2.amazonaws.com

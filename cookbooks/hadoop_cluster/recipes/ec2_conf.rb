@@ -18,6 +18,7 @@ node[:hadoop][:local_disks].each do |mount_point, dev|
   dev_fstype = fstype_from_file_magic(dev)
   mount mount_point do
     only_if{ dev && dev_fstype }
+    only_if{ File.exists?(dev) }
     device dev
     fstype dev_fstype
   end
