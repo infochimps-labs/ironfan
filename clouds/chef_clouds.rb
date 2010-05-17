@@ -50,17 +50,12 @@ pool POOL_NAME do
     is_chef_client              settings
     #
     attaches_ebs_volumes        settings
-    # is_hadoop_node              settings
     mounts_ebs_volumes          settings
-    # is_hadoop_worker            settings
-    # has_recipe settings, "pig::install_from_release"
     has_big_package             settings
-    # is_cassandra_node           settings
     #
     is_spot_priced              settings
     user                        'ubuntu'
     user_data                   bootstrap_chef_script('bootstrap_chef_client', settings)
-    $stderr.puts [settings, image_id].inspect
   end
 
   #
@@ -76,17 +71,12 @@ pool POOL_NAME do
     is_chef_client              settings
     #
     attaches_ebs_volumes        settings
-    is_hadoop_node              settings
     mounts_ebs_volumes          settings
-    is_hadoop_worker            settings
-    has_recipe settings, "pig::install_from_release"
     has_big_package             settings
-    is_cassandra_node           settings
     #
     is_spot_priced              settings
     user                        'ubuntu'
     user_data                   bootstrap_chef_script('bootstrap_chef_client', settings)
-    $stderr.puts [settings, image_id].inspect
   end
 
   #
@@ -116,10 +106,8 @@ pool POOL_NAME do
     using :ec2
     settings = settings_for_node(POOL_NAME, :client)
     instances                   1..1
-    is_nfs_client               settings
     is_generic_node             settings
     sends_aws_keys              settings
-    is_chef_client              settings
     is_spot_priced              settings
     user                        'ubuntu'
     user_data                   settings[:attributes].to_json

@@ -13,8 +13,8 @@ for foo in hadoop-0.20-{tasktracker,datanode,namenode,jobtracker,secondarynameno
 # Manual Steps
 #
 #
-# => Fix the /etc/hosts
-cat /etc/hosts
+# => Fix the /etc/hosts and /etc/fstab to be generic, if they were modified
+cat /etc/hosts /etc/fstab
 #
 # => Inspect the process list:
 ps aux

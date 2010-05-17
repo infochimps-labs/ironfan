@@ -65,4 +65,7 @@ provide_service(cassandra_cluster_name)
 node[:cassandra][:listen_addr] = private_ip_of(node)
 node[:cassandra][:thrift_addr] = private_ip_of(node)
 # And find out who all else provides cassandra in our cluster
-node[:cassandra][:seeds] = [private_ip_of(node), all_provider_private_ips(cassandra_cluster_name)].flatten.compact.uniq
+all_seeds  = [private_ip_of(node), all_provider_private_ips(cassandra_cluster_name)].flatten.compact.uniq
+all_seeds  = all_seeds[-8 .. -1].sort # stabilize the list
+node[:cassandra][:seeds] = all_seeds
+node.save

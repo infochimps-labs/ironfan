@@ -19,6 +19,14 @@
 
 include_recipe "hadoop_cluster"
 
+#
+# Install pig from latest release
+#
+#   puts eg. tokyocabinet-1.4.32.tar.gz into /usr/local/src/tokyocabinet-1.4.32.tar.gz,
+#   expands it into /usr/local/share/tokyocabinet-1.4.32
+#   and links that to /usr/local/share/tokyocabinet
+#
+
 directory "/usr/local/src" do
   mode      '0775'
   owner     'root'
@@ -36,7 +44,7 @@ remote_file "/usr/local/src/#{pig_install_pkg}" do
   action :create
 end
 
-bash 'install from tarball' do
+bash 'install pig from tarball' do
   user 'root'
   cwd  '/usr/local/share'
   code "tar xzf /usr/local/src/#{pig_install_pkg}"

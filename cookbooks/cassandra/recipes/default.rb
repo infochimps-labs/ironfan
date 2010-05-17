@@ -30,6 +30,8 @@ user "cassandra" do
   uid       '330'
   gid       "nogroup"
   shell     "/bin/false"
+  action    :create
+  not_if{ node[:etc][:passwd] && node[:etc][:passwd]['cassandra'] }
 end
 
 [ "/var/lib/cassandra", "/var/log/cassandra",
@@ -55,12 +57,12 @@ directory "/etc/cassandra" do
   not_if    "test -d /etc/cassandra"
 end
 
+runit_service "cassandra"
+
 template "/etc/cassandra/storage-conf.xml" do
   source    "storage-conf.xml.erb"
   owner     "root"
   group     "root"
   mode      0644
-  # notifies  :restart, resources(:service => "cassandra")
+  notifies  :restart, resources(:service => "cassandra")
 end
-
-runit_service "cassandra"

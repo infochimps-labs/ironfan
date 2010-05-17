@@ -36,8 +36,10 @@ module AwsServiceData
     %w[us-west-1             32-bit  instance        chef-client ] => 'ami-b39ccdf6',
     #
     %w[us-east-1             32-bit  instance        chef-client ] => 'ami-c5d138ac',
-    %w[us-east-1             64-bit  instance        chef-client ] => 'ami-c9d138a0',
+    %w[us-east-1             64-bit  instance        chef-client ] => 'ami-c9d23ba0',
     %w[us-east-1             32-bit  ebs             chef-client ] => 'ami-c3d138aa',
+    #
+    %w[us-east-1             32-bit  ebs             scraper     ] => 'ami-11d23b78',
   }
   AmiInfo = Struct.new(:region, :bits, :backing, :os)
 
