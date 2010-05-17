@@ -15,7 +15,6 @@ pool POOL_NAME do
     is_generic_node             settings
     sends_aws_keys              settings
     is_nfs_server               settings
-    is_chef_server              settings
     is_chef_client              settings
     #
     is_hadoop_node              settings
