@@ -48,7 +48,7 @@ pool POOL_NAME do
     is_chef_client              settings
     is_spot_priced              settings
     user                        'ubuntu'
-    user_data                   settings[:attributes].to_json
-    $stderr.puts settings[:attributes].to_json
+    user_data                   settings[:user_data].to_json
+    $stderr.puts settings[:user_data].to_json
   end
 end

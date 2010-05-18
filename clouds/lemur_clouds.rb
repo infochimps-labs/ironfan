@@ -25,7 +25,7 @@ pool POOL_NAME do
     has_big_package      settings
     is_cassandra_node    settings
     elastic_ip           settings[:elastic_ip]
-    user_data            settings[:attributes].to_json
+    user_data            settings[:user_data].to_json
     user                 'ubuntu'
     spot_price           0.08
     disable_api_termination false
@@ -47,7 +47,7 @@ pool POOL_NAME do
     has_big_package      settings
     # is_cassandra_node  settings
     elastic_ip           settings[:elastic_ip]
-    user_data            settings[:attributes].to_json
+    user_data            settings[:user_data].to_json
     user                 'ubuntu'
     launch_group         settings[:launch_group]
     spot_price           0.08

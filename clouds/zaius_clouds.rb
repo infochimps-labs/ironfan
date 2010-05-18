@@ -24,7 +24,7 @@ pool POOL_NAME do
     has_big_package             settings
     is_spot_priced              settings
     user                        'ubuntu'
-    user_data                   settings[:attributes].to_json
+    user_data                   settings[:user_data].to_json
     # puts JSON.pretty_generate(settings)
   end
 
@@ -41,7 +41,7 @@ pool POOL_NAME do
     #
     has_big_package             settings
     is_spot_priced              settings
-    user_data                   settings[:attributes].to_json
+    user_data                   settings[:user_data].to_json
     user                        'ubuntu'
   end
 end
