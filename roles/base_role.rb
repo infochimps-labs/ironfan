@@ -4,6 +4,7 @@ description 'top level attributes, applies to all nodes'
 run_list *%w[
   base
   aws
+  ubuntu
   java
   ]
 

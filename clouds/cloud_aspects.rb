@@ -97,7 +97,7 @@ def is_chef_server settings
 end
 
 def get_chef_validation_key settings
-  chef_settings  = settings[:attributes][:chef] or return
+  chef_settings  = settings[:attributes] or return
   validation_key_file = File.expand_path(chef_settings[:validation_key_file])
   return unless File.exists?(validation_key_file)
   chef_settings[:validation_key] ||= File.read(validation_key_file)
@@ -117,7 +117,7 @@ def bootstrap_chef_script role, settings
     File.dirname(__FILE__)+"/../config/user_data_script-#{role}.sh.erb",
     :public_ip        => settings[:elastic_ip],
     :hostname         => settings[:attributes][:node_name],
-    :chef_server_fqdn => settings[:attributes][:chef][:chef_server].gsub(%r{http://(.*):\d+},'\1'),
+    :chef_server_fqdn => settings[:attributes][:chef_server].gsub(%r{http://(.*):\d+},'\1'),
     :ubuntu_version   => 'lucid',
     :bootstrap_scripts_url_base => settings[:bootstrap_scripts_url_base],
     :chef_config      => settings[:attributes].to_mash
@@ -213,7 +213,7 @@ end
 def settings_for_node cluster_name, cluster_role
   cluster_name = cluster_name.to_sym
   cluster_role = cluster_role.to_sym
-  node_settings = { :attributes => { :run_list => [] } }.deep_merge(Settings)
+  node_settings = { :attributes => { :attributes => { :run_list => [] } } }.deep_merge(Settings)
   node_settings.delete :pools
   node_settings = node_settings.deep_merge(
     Settings[:pools][cluster_name][:common]      ||{ }).deep_merge(
@@ -221,7 +221,7 @@ def settings_for_node cluster_name, cluster_role
 end
 
 def has_role settings, role
-  settings[:attributes][:run_list] << "role[#{role}]"
+  settings[:attributes][:attributes][:run_list] << "role[#{role}]"
 end
 
 # Takes the template file and has Erubis cram the given variables in it

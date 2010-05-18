@@ -24,14 +24,14 @@ pool POOL_NAME do
     has_big_package             settings
     is_spot_priced              settings
     user                        'ubuntu'
-    user_data                   bootstrap_chef_script('run_chef_server', settings)
+    user_data                   settings[:attributes].to_json
     # puts JSON.pretty_generate(settings)
   end
 
   cloud :slave do
     using :ec2
     settings = settings_for_node(POOL_NAME, :slave)
-    instances                   1..1
+    instances                   3..3
     is_generic_node             settings
     sends_aws_keys              settings
     is_chef_client              settings
