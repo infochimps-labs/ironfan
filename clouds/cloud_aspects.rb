@@ -26,8 +26,8 @@ def is_generic_node settings
   keypair                 POOL_NAME, File.join(ENV['HOME'], '.poolparty', 'keypairs')
   has_role settings, "base_role"
   # has_role settings, "infochimps_base"
-  settings[:user_data][:cluster_name] = self.parent.name
-  settings[:user_data][:cluster_role] = self.name
+  settings[:user_data][:attributes][:cluster_name] = self.parent.name
+  settings[:user_data][:attributes][:cluster_role] = self.name
 end
 
 # Poolparty rules to impart the 'big_package' role:
@@ -43,10 +43,10 @@ end
 #
 
 def sends_aws_keys settings
-  settings[:user_data][:aws] ||= {}
-  settings[:user_data][:aws][:access_key]        ||= Settings[:access_key]
-  settings[:user_data][:aws][:secret_access_key] ||= Settings[:secret_access_key]
-  settings[:user_data][:aws][:aws_region]        ||= Settings[:aws_region]
+  settings[:user_data][:attributes][:aws] ||= {}
+  settings[:user_data][:attributes][:aws][:access_key]        ||= Settings[:access_key]
+  settings[:user_data][:attributes][:aws][:secret_access_key] ||= Settings[:secret_access_key]
+  settings[:user_data][:attributes][:aws][:aws_region]        ||= Settings[:aws_region]
 end
 
 def set_instance_backing settings
@@ -116,8 +116,8 @@ def bootstrap_chef_script role, settings
   erubis_template(
     File.dirname(__FILE__)+"/../config/user_data_script-#{role}.sh.erb",
     :public_ip        => settings[:elastic_ip],
-    :hostname         => settings[:user_data][:node_name],
-    :chef_server_fqdn => settings[:user_data][:chef_server].gsub(%r{http://(.*):\d+},'\1'),
+    :hostname         => settings[:user_data][:attributes][:node_name],
+    :chef_server_fqdn => settings[:user_data][:attributes][:chef_server].gsub(%r{http://(.*):\d+},'\1'),
     :ubuntu_version   => 'lucid',
     :bootstrap_scripts_url_base => settings[:bootstrap_scripts_url_base],
     :chef_config      => settings[:user_data].to_mash
@@ -182,7 +182,7 @@ def is_hadoop_worker settings
   has_role settings, "hadoop_worker"
   master_private_ip   = pool.clouds['master'].nodes.first.private_ip rescue nil
   if master_private_ip
-    settings[:user_data].deep_merge!(
+    settings[:user_data][:attributes].deep_merge!(
       :hadoop => {
         :jobtracker_address => master_private_ip,
         :namenode_address   => master_private_ip, } )
