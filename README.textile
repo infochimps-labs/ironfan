@@ -2,11 +2,11 @@ h1. Big Data Cluster using Chef, Hadoop and Cassandra
 
 h2. Overview
 
-ClusterChef helps you create a scalable, efficient compute cluster in the cloud. It has recipes for Hadoop, Cassandra, NFS and more -- use as many or as few as you like. Go fluidly from experimentation to industrial-strength big data computing:
+ClusterChef will help you create a scalable, efficient compute cluster in the cloud. It has recipes for Hadoop, Cassandra, NFS and more -- use as many or as few as you like. It capably
 
-* A small 1-5 node cluster for development, or just for playing around with Hadoop and Cassandra
+* A small 1-5 node cluster for development or just to play around with Hadoop or Cassandra
 * A spot-priced, ebs-backed cluster for unattended computing at rock-bottom prices
-* A large 30+ machine cluster with a shared NFS home dir, multiple EBS volumes per node, and Hadoop and Cassandra, tuned for the size of your machines.
+* A large 30+ machine cluster with multiple EBS volumes per node running Hadoop and Cassandra, with optional NFS for
 
 h3. Advantages
 
@@ -16,46 +16,36 @@ h3. Advantages
 * Chef is actively developed and has well-written recipes for webservers, databases, development tools, and a ton of different software packages.
 * Poolparty makes creating amazon cloud machines concise and easy: you can specify spot instances, ebs-backed volumes, disable-api-termination, and more.
 
-h3. Components
+h2. Components
 
 * Hadoop
 * NFS
 * Persistent HDFS on EBS volumes
-* Memory and storage settings defined for each machine type
-* Cassandra
 * Zookeeper (_in progress_)
+* Cassandra (_in progress_)
 
+h2. Process
 
-h2. Getting started with a simple cluster
+* Install prerequisites
+* Set up your local credentials and settings
+* Launch chef server
+* Try a single-machine cluster
+* Launch slaves
+* Launch a stand-alone cluster
+* Set up EBS volumes
+* Launch a cluster with EBS volumes
+* Cassandra
+* Zookeeper
 
-* Choose a name for your cluster. In this example, the cluster will be called 'zaius' and its url will be http://zaius.yourdomain.com/
+h2. Start Chef server
 
-# Set up your local credentials and settings
-# Launch cluster head (a combined chef server, hadoop master and nfs server; you can decouple these roles later)
-# Gather credentials from the new server
-# Launch slaves
+* sudo cat /etc/chef/server.rb for the initial web password.
+* for foo in chef-client chef-server chef-server-webui chef-solr chef-solr-indexer ; do sudo service $foo restart ; done
 
-h3. Initial Settings and Credentials
-
-See detailed instructions in @notes/pt1-inital-settings-and-credentials.textile@
-
-h3. Launch Chef server
-
-
-
-<pre><code>
-  cloud-start -n master  -c clouds/hadoop_clouds.rb
-  # ... twiddle thumbs ...
-  cloud-ssh   -n server  -c clouds/chef_clouds.rb
-</code></pre>
-
-You'll need to format the namenode and then restart the namenode (@sudo service hadoop-0.20-namenode restart@)
-
-* Once the master node starts, try a couple slaves
-
-<pre><code>
-  cloud-start -n master  -c clouds/hadoop_clouds.rb
-</code></pre>
+* Click clients, create -- make client called knife_user that is an admin
+* paste the text of the private key into @~/.chef/knife_user.pem@
+* Copy the text of /etc/chef/validation.pem (from the server) into @~/.chef/chef-validator.pem@
+* chmod 600 ~/.chef/*.pem
 
 h2. Set up knife and webui
 
@@ -105,15 +95,50 @@ h2. Play around with single-machine server
 cloud-start -n master -c clouds/hadoop_clouds.rb
 </code></pre>
 
-If you're using HDFS on the ephemeral drives, put the hadoop_cluster::format_namenode_once and maintain_hadoop_cluster::std_hdfs_dirs.rb recipe in below hadoop and before hadoop_master. Nobody will question your courage if you just run the commands manually and re-run the chef-client after.
+If you're using HDFS on the ephemeral drives, put the maintain_hadoop_cluster::reformat_scratch_disks, maintain_hadoop_cluster::format_namenode and maintain_hadoop_cluster::make_standard_hdfs_dirs.rb recipe in below hadoop and before hadoop_master. Nobody will question your courage if (rather than add them to the runlist) you just run the commands therein manually.
 
 To see how things are hangin',
 
-<pre><code>
-  # On the master node
-  for foo in hadoop-0.20-{namenode,jobtracker,tasktracker,datanode,secondarynamenode} cassandra chef-client ; do sudo service $foo stop ; done
+# On the master node
+for foo in hadoop-0.20-{namenode,jobtracker,tasktracker,datanode,secondarynamenode} cassandra chef-client ; do sudo service $foo stop ; done
 
-  # On a worker node
-  for foo in hadoop-0.20-{tasktracker,datanode} cassandra chef-client nfs-kernel-server ; do sudo service $foo status ; done
+# On a worker node
+for foo in hadoop-0.20-{tasktracker,datanode} cassandra chef-client nfs-kernel-server ; do sudo service $foo status ; done
+
+
+h2. launch 
+
+tail -f /var/log/dpkg.log /tmp/user_data-progress.log
+
+* Start the hadoop master node:
+
+<pre><code>
+  cloud-start -n master  -c clouds/hadoop_clouds.rb
+  # ... twiddle thumbs ...
+  cloud-ssh   -n server  -c clouds/chef_clouds.rb
 </code></pre>
 
+You'll need to format the namenode and then restart the namenode (@sudo service hadoop-0.20-namenode restart@)
+
+* Once the master node starts, try a couple slaves
+
+<pre><code>
+  cloud-start -n master  -c clouds/hadoop_clouds.rb
+</code></pre>
+
+
+
+* Once the cluster works with no EBS volumes, then you should try defining 
+
+
+h2. Service Discovery
+
+h3. cluster_service_discovery
+
+These scripts let individual nodes register as providing a service ("nfs-server", say; or "my_cluster-namenode").  Other scripts can ask for all nodes that have so registered (a cassandra cluster wants to know where all its friends are), or can ask for the most recent provider (in the case of a namenode or other single central resource). 
+
+You typically will want to ensure that every node has "cluster_role" and "cluster_name" attributes: many services scope themselves within a cluster_name.
+
+
+  bq. _How cluster_service_discovery works_: Take the hadoop namenode as an example.  The @hadoop_cluster/namenode@ script says 'I provide "zaius-namenode", that is to say I'm the namenode for everyone in the Zaius cluster'. Internally, this sets node["provides_service"]["zaius-namenode"] to { "timestamp": 20100518185356Z } (the current time).
+  To find the zaius namenode, we use the chef search function to query on "provides_service":"zaius-namenode". Chef returns the full matching node object: anything you would ask of a 
