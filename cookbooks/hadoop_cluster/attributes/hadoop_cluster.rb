@@ -32,14 +32,14 @@ default[:hadoop][:use_root_as_persistent_vol] = false
 #
 hadoop_performance_settings =
   case node[:ec2][:instance_type]
-  when 'm1.small'   then { :max_map_tasks => 2, :max_reduce_tasks => 1, :java_child_opts =>  '-Xmx550m', :java_child_ulimit => 1126400, }
-  when 'c1.medium'  then { :max_map_tasks => 3, :max_reduce_tasks => 2, :java_child_opts =>  '-Xmx550m', :java_child_ulimit => 1126400, }
-  when 'm1.large'   then { :max_map_tasks => 3, :max_reduce_tasks => 2, :java_child_opts => '-Xmx1152m', :java_child_ulimit => 2359296, }
-  when 'c1.xlarge'  then { :max_map_tasks => 8, :max_reduce_tasks => 4, :java_child_opts =>  '-Xmx550m', :java_child_ulimit => 1126400, }
-  when 'm1.xlarge'  then { :max_map_tasks => 6, :max_reduce_tasks => 4, :java_child_opts => '-Xmx1152m', :java_child_ulimit => 2359296, }
-  when 'm2.xlarge'  then { :max_map_tasks => 3, :max_reduce_tasks => 2, :java_child_opts => '-Xmx2719m', :java_child_ulimit => 5567939, }
-  when 'm2.2xlarge' then { :max_map_tasks => 6, :max_reduce_tasks => 3, :java_child_opts => '-Xmx2918m', :java_child_ulimit => 5976883, }
-  when 'm2.4xlarge' then { :max_map_tasks => 8, :max_reduce_tasks => 4, :java_child_opts => '-Xmx4378m', :java_child_ulimit => 8965325, }
+  when 'm1.small'   then { :max_map_tasks => 2, :max_reduce_tasks => 1, :java_child_opts =>  '-Xmx550m', :java_child_ulimit => 1126400, :io_sort_factor => 10, :io_sort_mb => 100, }
+  when 'c1.medium'  then { :max_map_tasks => 3, :max_reduce_tasks => 2, :java_child_opts =>  '-Xmx550m', :java_child_ulimit => 1126400, :io_sort_factor => 10, :io_sort_mb => 100, }
+  when 'm1.large'   then { :max_map_tasks => 3, :max_reduce_tasks => 2, :java_child_opts => '-Xmx1152m', :java_child_ulimit => 2359296, :io_sort_factor => 25, :io_sort_mb => 250, }
+  when 'c1.xlarge'  then { :max_map_tasks => 8, :max_reduce_tasks => 4, :java_child_opts =>  '-Xmx550m', :java_child_ulimit => 1126400, :io_sort_factor => 10, :io_sort_mb => 100, }
+  when 'm1.xlarge'  then { :max_map_tasks => 6, :max_reduce_tasks => 4, :java_child_opts => '-Xmx1152m', :java_child_ulimit => 2359296, :io_sort_factor => 25, :io_sort_mb => 250, }
+  when 'm2.xlarge'  then { :max_map_tasks => 3, :max_reduce_tasks => 2, :java_child_opts => '-Xmx2719m', :java_child_ulimit => 5567939, :io_sort_factor => 32, :io_sort_mb => 320, }
+  when 'm2.2xlarge' then { :max_map_tasks => 6, :max_reduce_tasks => 3, :java_child_opts => '-Xmx2918m', :java_child_ulimit => 5976883, :io_sort_factor => 32, :io_sort_mb => 320, }
+  when 'm2.4xlarge' then { :max_map_tasks => 8, :max_reduce_tasks => 4, :java_child_opts => '-Xmx4378m', :java_child_ulimit => 8965325, :io_sort_factor => 40, :io_sort_mb => 400, }
   else
     cores        = node[:cpu][:total].to_i
     ram          = node[:memory][:total].to_i
@@ -49,7 +49,7 @@ hadoop_performance_settings =
     heap_size    = 0.75 * (ram.to_f / 1000) / (n_mappers + n_reducers)
     heap_size    = [550, heap_size.to_i].max
     child_ulimit = 2 * heap_size * 1024
-    { :max_map_tasks => n_mappers, :max_reduce_tasks => n_reducers, :java_child_opts => "-Xmx#{heap_size}m", :java_child_ulimit => child_ulimit, }
+    { :max_map_tasks => n_mappers, :max_reduce_tasks => n_reducers, :java_child_opts => "-Xmx#{heap_size}m", :java_child_ulimit => child_ulimit, :io_sort_factor => 10, :io_sort_mb => 100, }
   end
 
 hadoop_performance_settings[:local_disks]=[]
@@ -67,8 +67,27 @@ Chef::Log.info(hadoop_performance_settings.inspect)
 
 hadoop_performance_settings.each{|k,v| set[:hadoop][k] = v }
 
+#
+# # FIXME -- integrate into the config files
+#
+# default[:hadoop][:io_sort_factor]  = 10
+# default[:hadoop][:io_sort_mb]      = 100            # set to 10 * io.sort.factor; make sure -Xmx above is 2x or more
+# default[:hadoop][:io_sort_record_pct]       = 0.05  # default 0.05; rec. 16(16+avg_rec_sz_in_bytes)
+#
+# default[:hadoop][:namenode_handler_count]   = 16    # default 5; rec. 64
+# default[:hadoop][:jobtracker_handler_count] = 16    # default 5; rec. 64    # The number of server threads for the JobTracker. This should be roughly 4% of the number of tasktracker nodes.
+# default[:hadoop][:datanode_handler_count]   = 6     # default 3; rec. 8-10
+#
+# default[:hadoop][:tasktracker_http_threads] = 40    # default 66; rec 40
+#
+# default[:hadoop][:reduce_parallel_copies]
+#
+# fs.inmemory.size.mb  # default XX
+#
 
 
+# # http://www.cloudera.com/blog/2009/03/configuration-parameters-what-can-you-just-ignore/
+# #
 # # If there is more RAM available than is consumed by task instances, set
 # # io.sort.factor to 25 or 32 (up from 10). io.sort.mb should be 10 *
 # # io.sort.factor. Don’t forget, multiply io.sort.mb by the number of concurrent
@@ -100,20 +119,11 @@ hadoop_performance_settings.each{|k,v| set[:hadoop][k] = v }
 # # Setting tasktracker.http.threads higher than 40 will deprive individual tasks
 # # of RAM, and won’t see a positive impact on shuffle performance until your
 # # cluster is approaching 100 nodes or more.
+# #
+# # the magic number for io.sort.record.percent is 16/(16 + average record size in
+# # bytes). You can calculate the average record size by simply looking at the job
+# # counters and dividing map output bytes by map output records.
+# #    eg. 550GB / 11B records = 50b => 16/(16+50) = 24%
 #
-# # FIXME -- integrate into the config files
-#
-# default[:hadoop][:io_sort_factor]  = 10
-# default[:hadoop][:io_sort_mb]      = 100
-#
-# default[:hadoop][:namenode_handler_count]   = 16    # default 5; rec. 64
-# default[:hadoop][:jobtracker_handler_count] = 16    # default 5; rec. 64
-# default[:hadoop][:datanode_handler_count]   = 6     # default 3; rec. 8-10
-#
-# default[:hadoop][:tasktracker_http_threads] = 40    # default 66; rec 40
-#
-# default[:hadoop][:reduce_parallel_copies]
-#
-# fs.inmemory.size.mb  # default XX
-#
-#
+# # Note that the HADOOP_HEAPSIZE sets heap for the daemons (namenode, etc) and not the tasks.
+
