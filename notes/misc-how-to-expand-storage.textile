@@ -1,0 +1,33 @@
+
+From http://support.rightscale.com/06-FAQs/FAQ_0012_-_How_do_I_partition,_format_and_mount_an_EBS_volume%3F
+
+* create a new volume
+* attach to instance, for example as /dev/sdl
+* Partion the volume:   (This example creates a single primary partition that uses the entire volume.)
+** run @fdisk /dev/sdk1@
+** Enter m for a menu
+** Enter n to add a new partion
+** Enter p for a primary partition
+** Enter 1 for the first partion on the disk
+** Select Enter to accept the default First Cylinder
+** Select Enter to accept the default Last Cylinder
+** Enter w to write the partition table and exit fdisk
+* Create a filesystem:
+
+<pre><code>
+    $ sudo mkfs.xfs -f /dev/sdl1
+    meta-data=/dev/sdl1              isize=256    agcount=4, agsize=26214062 blks
+             =                       sectsz=512   attr=2
+    data     =                       bsize=4096   blocks=104856247, imaxpct=25
+             =                       sunit=0      swidth=0 blks
+    naming   =version 2              bsize=4096   ascii-ci=0
+    log      =internal log           bsize=4096   blocks=51199, version=2
+             =                       sectsz=512   sunit=0 blks, lazy-count=1
+    realtime =none                   extsz=4096   blocks=0, rtextents=0
+</code></pre>
+
+* If you like, poke a file into the drive saying when it was made. @sudo bash -c 'cat > /ebs3/created-at-`date +%Y%m%d`'@
+* detach
+* snapshot with a name like @gibbon+raw+000+000+/dev/sdx+/ebsx+20100523@ -- note the snapshot id (eg snap-6a1b8202) and wait for it to finish.
+* Create volumes: @ec2-create-volume --size 400 --snapshot snap-6a1b8202 --availability-zone us-east-1d@
+
