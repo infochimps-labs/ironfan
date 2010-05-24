@@ -31,3 +31,5 @@ From http://support.rightscale.com/06-FAQs/FAQ_0012_-_How_do_I_partition,_format
 * snapshot with a name like @gibbon+raw+000+000+/dev/sdx+/ebsx+20100523@ -- note the snapshot id (eg snap-6a1b8202) and wait for it to finish.
 * Create volumes: @ec2-create-volume --size 400 --snapshot snap-6a1b8202 --availability-zone us-east-1d@
 
+sudo mkdir /ebs4
+sudo mount -t xfs -o defaults,nouuid,noatime /dev/sdm1 /ebs4
