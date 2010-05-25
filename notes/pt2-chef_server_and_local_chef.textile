@@ -1,7 +1,6 @@
-h2. Launch the Chef Server + Hadoop Master node
+h2. Option A: You want a combined Chef Server and Hadoop Master
 
-* _If you already have a chef server, skip this section_
-* _If you're using the west coast availability zone, first run @export EC2_URL=https://us-west-1.ec2.amazonaws.com@ to work around a bug in the right_aws gem_
+bq. If you are just getting started, this is probably the best option. If you already have a chef server, go with Option B.
 
 To kick off the chef+master node, go to the cluster_chef directory and run:
 
@@ -10,9 +9,17 @@ To kick off the chef+master node, go to the cluster_chef directory and run:
   $ cloud start -n chefmaster -c clouds/zaius_clouds.rb
 </code></pre>
 
+* _If you're using the west coast availability zone, first run @export EC2_URL=https://us-west-1.ec2.amazonaws.com@ to work around a bug in the right_aws gem_
+
 You can check the "AWS console":http://bit.ly/awsconsole for progress towards startup. If there are problems, see "Tips and Trobleshooting.":http://github.com/infochimps/cluster_chef/blob/master/notes/pt9-tips-and-troubleshooting.textile
 
-h3. After startup
+h3. Set up the chef WebUI (dashboard)
+
+* Webui admin's initial password: @sudo cat /etc/chef/server.rb | grep -i pass@.
+* Use it to log in to the chef webui: http://chef.YOURDOMAIN.COM:4040 (note that the port number for the webui, the thing _people_ use, is 4040. The port number for the chef server, the think knife and clients and other robots use, is 4000.)
+* Set the webui admin's password to something you chose.
+
+h3. Log in to your server
 
 Log in to the chef server to retrieve a few settings and credentials you'll need:
 
@@ -24,12 +31,6 @@ Or alternatively,
 <pre><code>
   ssh -i ~/.hadoop-ec2/keypairs/zaius.pem ubuntu@ec2-123-45-67-89.compute-1.amazonaws.com
 </code></pre>
-
-h3. Set up the chef WebUI (dashboard)
-
-* Webui admin's initial password: @sudo cat /etc/chef/server.rb | grep -i pass@.
-* Use it to log in to the chef webui: http://chef.YOURDOMAIN.COM:4040 (note that the port number for the webui, the thing _people_ use, is 4040. The port number for the chef server, the think knife and clients and other robots use, is 4000.)
-* Set the webui admin's password to something you chose.
 
 h3. Set up knife 
 
@@ -44,7 +45,18 @@ On the server, set up knife:
   WARN: Creating initial API user...
 </code></pre>  
 
-h2. Gather Chef credentials
+h2. Option B: You already have a Chef Server
+
+If you already have a chef server,
+* Set up a knife_user client: through the webui, or using the command line as above.
+* Find the server's validation key, which is probably in @/etc/chef/validation.pem@.
+* Point the @user_data:chef_server@ in @~/.hadoop-ec2/poolparty.yaml@ to your chef server url, eg "http://chef.YOURDOMAIN.com:4000".
+
+h2. Set up your local environment for the chef server
+
+The following applies whether you chose option A or option B.
+
+h3. Gather Chef credentials
 
 From your chef server (however it was set up),
 
@@ -54,9 +66,7 @@ to @~/.hadoop-ec2/keypairs/knife_user.pem@ and
 * Fix their permissions: @chmod og-rwx ~/.hadoop-ec2/keypairs/*.pem@
 * Copy the ~/path/to/cluster_chef/config/knife.rb to ~/.chef/knife.rb. Check whether any settings in that file need tuning.
 
-h2. Importing cookbooks, roles and databags to the server:
-
-h3. Hooray for knife.
+h4. Hooray for knife.
 
 If everything went right, @knife client list@ from your local machine should show something like
 
@@ -68,7 +78,7 @@ If everything went right, @knife client list@ from your local machine should sho
   ]
 </code></pre>
 
-h3. Populate the chef server
+h3. Import cookbooks, roles and databags to the server
 
 <pre><code>
   cd ~/path/to/cluster_chef

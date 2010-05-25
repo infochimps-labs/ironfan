@@ -128,5 +128,7 @@ If you set disable_api_termination to true, in order to terminate the node run
   ec2-modify-instance-attribute -v i-0704be6c --disable-api-termination false
 </code></pre>
 
+h3. 
+
 curl http://169.254.169.254/latest/user-data
 

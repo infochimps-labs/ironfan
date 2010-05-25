@@ -12,6 +12,7 @@ pool POOL_NAME do
     using :ec2
     settings = settings_for_node(POOL_NAME, :master)
     instances            1..1
+    is_spot_priced              settings
     attaches_ebs_volumes        settings
     is_nfs_client               settings
     is_generic_node             settings
@@ -26,8 +27,7 @@ pool POOL_NAME do
     has_big_package             settings
     is_cassandra_node           settings
     #
-    user_data                   settings[:user_data].to_json
-    is_spot_priced              settings
+    user_data                   (settings[:user_data].merge(settings[:user_data][:attributes])).to_json
     user                        'ubuntu'
   end
 
@@ -35,6 +35,7 @@ pool POOL_NAME do
     using :ec2
     settings = settings_for_node(POOL_NAME, :slave)
     instances                   30..30
+    is_spot_priced              settings
     attaches_ebs_volumes        settings
     is_nfs_client               settings
     is_generic_node             settings
@@ -48,7 +49,6 @@ pool POOL_NAME do
     has_big_package             settings
     is_cassandra_node           settings
     #
-    is_spot_priced              settings
     user                        'ubuntu'
     user_data                   (settings[:user_data].merge(settings[:user_data][:attributes])).to_json
   end
