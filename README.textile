@@ -27,3 +27,18 @@ h2. Documentation
 * "A persistent HDFS using EBS volumes":http://github.com/infochimps/cluster_chef/blob/master/notes/
 * "Create your own AMI":http://github.com/infochimps/cluster_chef/blob/master/notes/
 * "Tips and Troubleshooting":http://github.com/infochimps/cluster_chef/blob/master/notes/
+
+
+h2. Concepts
+
+h3. Chef Concepts
+
+In chef,
+
+* A *Recipe* gives concrete steps that make a node achieve its desired final configuration. For example, the hadoop_cluster cookbook has a recipe to install the hadoop packages, and another to configure and run the namenode. If the cookbook isn't installed,
+* A *Cookbook* holds a collections of related recipes and attributes, and the templates, libraries &c that support them. 
+* A *Role* is a collection of related recipes and default attributes that work together. For example, there is a 'hadoop_worker'  
+
+h3. Cluster Roles
+
+* 

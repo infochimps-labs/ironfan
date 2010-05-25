@@ -60,13 +60,14 @@ h3. Gather Chef credentials
 
 From your chef server (however it was set up),
 
-* Copy the chef credentials over: copy @~/.chef/knife_user.pem@ and @/etc/chef/validation.pem@ on the server
-to @~/.hadoop-ec2/keypairs/knife_user.pem@ and
-@~/.hadoop-ec2/keypairs/chef-validator.pem@ on your computer.
+* Copy the chef credentials over (Because of permissions, it's probably easiest to do this by copy/pasting rather than scp.):
+** Copy @~/.chef/knife_user.pem@ on the server to @~/.hadoop-ec2/keypairs/knife_user.pem@ on your computer
+** Copy @/etc/chef/validation.pem@ on the server to @~/.hadoop-ec2/keypairs/chef-validator.pem@ on your computer.
+** In both cases, be careful to note the changes in paths and name.
 * Fix their permissions: @chmod og-rwx ~/.hadoop-ec2/keypairs/*.pem@
 * Copy the ~/path/to/cluster_chef/config/knife.rb to ~/.chef/knife.rb. Check whether any settings in that file need tuning.
 
-h4. Hooray for knife.
+h4. High on knife (checking that your local configuration works)
 
 If everything went right, @knife client list@ from your local machine should show something like
 
