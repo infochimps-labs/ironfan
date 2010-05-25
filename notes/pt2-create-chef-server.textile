@@ -1,6 +1,6 @@
 h2. Launch the Chef Server + Hadoop Master node
 
-* _If you already have a chef server, this isn't for you. See instructions in pt?something_
+* _If you already have a chef server, skip this section_
 * _If you're using the west coast availability zone, first run @export EC2_URL=https://us-west-1.ec2.amazonaws.com@ to work around a bug in the right_aws gem_
 
 To kick off the chef+master node, go to the cluster_chef directory and run:
@@ -20,9 +20,9 @@ Log in to the chef server and retrieve a few settings and credentials you'll nee
   $ cloud ssh -n master -c clouds/zaius_clouds.rb
 </code></pre>
 
-* Find the webui's initial password with @sudo cat /etc/chef/server.rb | grep -i pass@.
+* Webui admin's initial password: @sudo cat /etc/chef/server.rb | grep -i pass@.
 * Use it to log in to the chef webui: http://chef.YOURDOMAIN.COM:4040
-* Set the webui's admin password to something you chose.
+* Set the webui admin's password to something you chose.
 
 h3. Set up knife and webui
 
@@ -37,13 +37,21 @@ On the server, set up knife:
   WARN: Creating initial API user...
 </code></pre>  
 
+h2. Gather Chef credentials
+
+From your chef server (however it was set up),
+
 * Copy the chef credentials over: copy @~/.chef/knife_user.pem@ and @/etc/chef/validation.pem@ on the server
 to @~/.hadoop-ec2/keypairs/knife_user.pem@ and
 @~/.hadoop-ec2/keypairs/chef-validator.pem@ on your computer.
 * Fix their permissions: @chmod og-rwx ~/.hadoop-ec2/keypairs/*.pem@
 * Copy the ~/path/to/cluster_chef/config/knife.rb to ~/.chef/knife.rb. Check whether any settings in that file need tuning.
 
-If everything went right, @knife client list@ should show something like
+h2. Importing cookbooks, roles and databags to the server:
+
+h3. Hooray for knife.
+
+If everything went right, @knife client list@ from your local machine should show something like
 
 <pre><code>
   [
@@ -53,7 +61,7 @@ If everything went right, @knife client list@ should show something like
   ]
 </code></pre>
 
-h2. Importing cookbooks, roles and databags to the server:
+h3. Populate the chef server
 
 <pre><code>
   cd ~/path/to/cluster_chef
@@ -63,10 +71,6 @@ h2. Importing cookbooks, roles and databags to the server:
   rake load_data_bags
 </code></pre>
 (_run the rake load_data_bags task twice: once to create, again to populate each data bag_)
-
-* Run chef-client to have chef configure itself.
-
-
 
 h2. Next Steps
 
