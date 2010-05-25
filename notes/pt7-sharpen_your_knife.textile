@@ -1,69 +1,55 @@
 
-knife cookbook upload --all ; for foo in ~/ics/sysadmin/{hadoop_cluster_chef,infochimps_chef}/roles/* ; do echo $foo ; knife role from file $foo ; done
+h2. Setting up Firefox for proxied access to the hadoop consoles
 
+I use multiple Firefox instances, so that I can run one with just the EC2 plugins and keep my main browser lightweight.  Instructions are here: http://bit.ly/manyfoxen courtesy John Resig. In a nutshell, you're going to make two copies of the program, and choose the profile each time you start.
 
+h3. Install Add-ons
 
-===========================================================================
+* FoxyProxy: From the *Tolls/Add-ons* menu, search for 'FoxyProxy', install same.  (You want the full version, not the basic).
+* S3Fox: From the *Tolls/Add-ons* menu, search for 'S3Fox', install same
+* ElasticFox is **not** available through the Add-ons menu.  Instead,
+** visit http://bit.ly/elasticfox
+** Hit 'Download'
+** Select "Allow" from the permissions ribbon at the top of the browser window
+** Pick "Install"
 
+Now restart Firefox.
 
-h3. Instance attributes: disable_api_termination and delete_on_termination
+h3. S3Fox
 
-To set delete_on_termination to 'true' after the fact, run the following
-<pre><code>
-  ec2-modify-instance-attribute -v i-0704be6c --block-device-mapping /dev/sda1=vol-e98d2c80::true
-</code></pre>
-(You'll have to modify the instance and volume to suit)
+Launch S3Fox from Tools / S3 Organizer.  Hit 'Manage Accounts'. Give some sensible label for the account name, and enter your  AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY.
+
+h3. ElasticFox
+
+Launch S3Fox from Tools / ElasticFox.  When prompted, give some sensible label for the account name, and enter your AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY.
+
+It will take a noticeable amount of time for the plugin to populate.
+
+h3. FoxyProxy
+
+From Tools / Add-ons, select FoxyProxy and hit its Preferences button.
+* Set mode to 'Use Proxies based on their pre-defined patterns and priorities"
+* Add New Proxy:
+** Under Proxy Details, select 'Automatic Proxy configuration URL'
+** in the text box that follows, paste in http://github.com/infochimps/cluster_chef/raw/master/config/proxy.pac
+** Hit test just to check.
+** Under 'URL Patterns', whitelist these:
+  <notextile>
+  *://10.*
+  *ec2*.amazonaws.com*
+  *ec2.internal*
+  *domu*.internal*
+  *compute*.internal*
+  </notextile>
   
-If you set disable_api_termination to true, in order to terminate the node run
-<pre><code>
-  ec2-modify-instance-attribute -v i-0704be6c --disable-api-termination false
-</code></pre>
+** Under 'URL Patterns', blacklist the URL pattern
+  <notextile>
+  https://us-*st-1.ec2.amazonaws.com/*
+  </notextile>
+  
+** Under 'General', name the proxy 'Hadoop Cluster Proxy'
+** Hit OK to add the proxy. YAY.
+* Finally, go to the 'Global Settings' tab and check 'Use SOCKS proxy for DNS lookups'. Let Firefox restart.
 
+(Thanks to this post on  "stylefeeder":http://blog.tech.stylefeeder.com/2009/09/09/foxyproxy-clouder/)
 
-h3. Sharpen Knife
-
-===========================================================================
-
-To modify an image:
-
-* Stop the node
-* Attach elsewhere (as say /dev/sdh)
-* Modify however
-* detach, and re-attach to the stopped instance as /dev/sda1
-* Start the node
-
-* Nuke client.pem and validation.pem from snapshot
-* Nuke /home/*
-* make root login-able again
-* Nuke other sensitive dirs
-
-apt-get update
-apt-get upgrade
-updatedb
-
-===========================================================================
-
-# check it out
-knife ec2 instance data role[base_role]
-knife cookbook upload apt aws bootstrap build-essential chef couchdb ec2 emacs gems git god java ruby rubygems runit ssh_known_hosts ubuntu xml zlib
-knife cookbook upload sudo cdh users nfs
-
-cat /etc/sv/chef-client/log/run
-
-cd ~/ics/sysadmin/chef-repo
-rake install
-
-
-for foo in roles/*.rb  ; do echo $foo ; knife role from file $foo ; done
-
-knife node run_list add XXX  "role[base_role]"
-
-
-knife cookbook upload sudo
-
-
-curl http://169.254.169.254/latest/user-data
-
-===========================================================================
-
-for foo in namenode datanode tasktracker jobtracker secondarynamenode ; do echo $foo ; sudo service hadoop-0.20-$foo stop ; done
