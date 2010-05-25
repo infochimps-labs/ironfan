@@ -1,58 +1,45 @@
-:access_key:                            1235125ABCD
-:secret_access_key:                     asdfasdjghalskgjhsadkgjhaslkgjashgkls
-:account_id:                            12321346546
-:bootstrap_scripts_url_base:            http://github.com/infochimps/hadoop_cluster_chef/raw/master/config
+#
+# Copy this file to ~/.hadoop-ec2/poolparty.yaml
+#
 
-# For west coast availability zone, before poolparty run: export EC2_URL=https://us-west-1.ec2.amazonaws.com 
-:availability_zones:                    [ "us-east-1d" ]
-:aws_region:                            us-east-1
-:ec2_url:                               https://us-east-1.ec2.amazonaws.com
-:instance_type:                         m1.small
-:instance_backing:                      instance
-:instance_os:                           lucid
+#
+# AWS Credentials
+#
+# Set with environment variables, or uncomment and add your values
+# 
+# :access_key:                            1235125ABCD
+# :secret_access_key:                     asdfasdjghalskgjhsadkgjhaslkgjashgkls
+# :account_id:                            12321346546
 
-:disable_api_termination:               false
-:spot_price_fraction:                   ~
-:boot_volume:                     
-  :ebs_volume_size:                     15
-  :ebs_delete_on_termination:           true
-
-:attributes:
-  :chef:
-    :validation_key_file:               "~/.hadoop-ec2/keypairs/chef-validator.pem"
-    :chef_server:                       "http://chef.infochimps.com:4000"
-    :validation_client_name:            "chef-validator"
+# The user_data hash is passed to /etc/chef/client.rb via the EC2 user-data setting
+:user_data:
+  # hostname and port for chef server
+  :chef_server:                       "http://chef.infochimps.com:4000"
+  # Attributes for the node. Anything set here overrides all other node attributes
+  :attributes:
+    #
 
 :pools:
-  :chef:
-    :server:
-      :attributes:
-        :node_name:                     chef.infochimps.com
-      :disable_api_termination:         false
-      :elastic_ip:                      204.236.225.50
-      :instance_os:                     lucid
-      :instance_backing:                ebs
-      :boot_volume:                     
-        :ebs_volume_size:               15
-        :ebs_delete_on_termination:     false
-    :client:
-      :instance_os:                     chef-client
-
+  #
+  # Small cluster.
+  # * master node is Chef server, hadoop master and nfs-server.
+  # * slaves use local drives for HDFS
+  #
   :zaius:
-    :common:
-      # 1.0 (full price) will almost never shut down. 0.4 will dance right near the us-east-1 average. 
-      # :spot_price_fraction:           1.0
-      :instance_type:                   m1.small
-      :instance_os:                     chef-client
-      :instance_backing:                instance
-    :master:                            
-      :attributes:
-        :node_name:                     chef.infochimps.com
-      :disable_api_termination:         false
-      :elastic_ip:                      184.72.52.22
-      :instance_os:                     chef-server
+    :master:
+      # Master uses an EBS-backed AMI
+      :instance_os:                     infochimps-chef-server
       :instance_backing:                ebs
+      :instance_type:                   m1.small
+      # Make an elastic IP; use your DNS service (or http://dyndns.org) to point a hostname to it
+      :elastic_ip:                      184.72.52.22
+      # Chef client settings
+      :user_data:
+        :attributes:
+          # enter the hostname for your chef server
+          :node_name:                   chef.infochimps.com
     :slave:
-    :bootstrap:
-      :instance_os:                     lucid
+      # Slaves use an instance-backed AMI that runs chef-client at startup
+      :instance_os:                     opscode-chef-client
       :instance_backing:                instance
+      :instance_type:                   m1.small

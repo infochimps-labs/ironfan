@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 progresslog='/tmp/user_data-progress.log'
+mkdir -p /tmp ; chmod a+rwx /tmp
 
 # A url directory with the scripts you'd like to stuff into the machine
 REMOTE_FILE_URL_BASE="<%= bootstrap_scripts_url_base %>"
@@ -7,39 +8,24 @@ REMOTE_FILE_URL_BASE="<%= bootstrap_scripts_url_base %>"
 # unscrewup the hostname every way I can think of. Rabbitmq is a real buttmunch
 # about the hostname -- it will hang forever on bootstrap if `hostname -s`
 # doesn't resolve back to this host. One of the following fixes this, not sure which.
-export HOSTNAME=<%= hostname %> 
-PUBLIC_IP=<%= public_ip %>                 
-kill `cat /var/run/dhclient.eth0.pid` # kill dhclient
-bash -c "echo '$HOSTNAME' > /etc/hostname" ;
+export HOSTNAME=<%= hostname %> PUBLIC_IP=<%= public_ip %>                 
+bash     -c "echo '$HOSTNAME' > /etc/hostname" ;
 hostname -F /etc/hostname ;
-sysctl -w kernel.hostname=$HOSTNAME ;
+sysctl   -w kernel.hostname=$HOSTNAME ;
 # Your /etc/hosts needs to end up looking like this (order is important):
 # 127.0.0.1      chef.YOURDOMAIN.COM chef localhost 
 # XXX.XXX.XX.XX  chef.YOURDOMAIN.COM chef
 sed -i "s/127.0.0.1 *localhost/127.0.0.1      $HOSTNAME `hostname -s` localhost/" /etc/hosts
 if grep -q $PUBLIC_IP /etc/hosts  ; then true ; else bash -c "echo '$PUBLIC_IP $HOSTNAME `hostname -s `' >> /etc/hosts" ; fi
 
-# pull in the client scripts that make this machine speak to the chef server
+echo "`date` Pulling in chef client and server scripts"  >> $progresslog 
 cp /etc/chef/client.rb /etc/chef/client-orig.rb ;
 wget -nv ${REMOTE_FILE_URL_BASE}/client.rb -O /etc/chef/client.rb ;
-cat > /etc/chef/chef_config.json <<EOF
-  <%= chef_config.to_json %>
+cat > /etc/chef/client-config.json <<EOF
+  <%= chef_config["attributes"].to_json %>
 EOF
 
-# now run chef client against the server itself
+echo "`date` running chef client, check /etc/sv/chef-client/log/main/current"  >> $progresslog 
 service chef-client restart
 
 echo "`date` User data script (chef server bootstrap) complete: `date`"  >> $progresslog 
-
-# sudo rabbitmqctl add_vhost /chef
-# sudo rabbitmqctl add_user chef testing
-# sudo rabbitmqctl set_permissions -p /chef chef ".*" ".*" ".*"
-#
-# server_ssl_req="/C=US/ST=Several/L=Locality/O=Example/OU=Operations/CN=chef.example.com/emailAddress=ops@example.com"
-# openssl genrsa 2048 > /etc/chef/validation.key
-# openssl req -subj "${server_ssl_req}" -new -x509 -nodes -sha1 -days 3650 -key /etc/chef/validation.key > /etc/chef/validation.crt
-# cat /etc/chef/validation.key /etc/chef/validation.crt > /etc/chef/validation.pem
-# openssl genrsa 2048 > /etc/chef/webui.key
-# openssl req -subj "${server_ssl_req}" -new -x509 -nodes -sha1 -days 3650 -key /etc/chef/webui.key > /etc/chef/webui.crt
-# cat /etc/chef/webui.key /etc/chef/webui.crt > /etc/chef/webui.pem
-#

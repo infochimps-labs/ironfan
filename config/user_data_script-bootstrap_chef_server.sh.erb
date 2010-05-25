@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 progresslog='/tmp/user_data-progress.log'
+mkdir -p /tmp ; chmod a+rwx /tmp
 
 # A url directory with the scripts you'd like to stuff into the machine
 REMOTE_FILE_URL_BASE="<%= bootstrap_scripts_url_base %>"
@@ -30,7 +31,7 @@ echo "`date` Unchaining rubygems from the tyrrany of ubuntu"  >> $progresslog
 gem install --no-rdoc --no-ri rubygems-update --version=1.3.7 ; /var/lib/gems/1.8/bin/update_rubygems; gem update --no-rdoc --no-ri --system ; gem --version ;
 
 echo "`date` Installing chef gems"  >> $progresslog 
-gem install --no-rdoc --no-ri chef broham configliere ;
+gem install --no-rdoc --no-ri chef broham uuidtools configliere right_aws ;
 gem list >> $progresslog
 
 echo "`date` Hostname"  >> $progresslog 
@@ -43,12 +44,10 @@ chmod a+x /usr/bin/ec2-set-hostname
 # unscrewup the hostname every way I can think of. Rabbitmq is a real buttmunch
 # about the hostname -- it will hang forever on bootstrap if `hostname -s`
 # doesn't resolve back to this host. One of the following fixes this, not sure which.
-export HOSTNAME=<%= hostname %> 
-PUBLIC_IP=<%= public_ip %>                 
-kill `cat /var/run/dhclient.eth0.pid` # kill dhclient
-bash -c "echo '$HOSTNAME' > /etc/hostname" ;
+export HOSTNAME=<%= hostname %> PUBLIC_IP=<%= public_ip %>                 
+bash     -c "echo '$HOSTNAME' > /etc/hostname" ;
 hostname -F /etc/hostname ;
-sysctl -w kernel.hostname=$HOSTNAME ;
+sysctl   -w kernel.hostname=$HOSTNAME ;
 # Your /etc/hosts needs to end up looking like this (order is important):
 # 127.0.0.1      chef.YOURDOMAIN.COM chef localhost 
 # XXX.XXX.XX.XX  chef.YOURDOMAIN.COM chef
@@ -61,8 +60,14 @@ wget -nv ${REMOTE_FILE_URL_BASE}/chef_bootstrap.rb -O /tmp/chef_bootstrap.rb ;
 sudo stop runsvdir ;
 chef-solo -c /tmp/chef_bootstrap.rb -j /tmp/chef_server.json  >> $progresslog 
 
+echo "`date` Pulling in chef client and server scripts"  >> $progresslog 
+cp /etc/chef/client.rb /etc/chef/client-orig.rb ;
+wget -nv ${REMOTE_FILE_URL_BASE}/client.rb -O /etc/chef/client.rb ;
+cat > /etc/chef/client-config.json <<EOF
+  <%= chef_config["attributes"].to_json %>
+EOF
+
 echo "`date` Cleanup"  >> $progresslog 
-# cleanup
 apt-get autoremove;
 updatedb;
 

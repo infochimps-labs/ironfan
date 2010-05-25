@@ -4,10 +4,10 @@ node_name                'knife_user'
 validation_client_name   'chef-validator'
 client_key               ENV['HOME']+'/.chef/keypairs/knife_user.pem'
 validation_key           ENV['HOME']+'/.chef/keypairs/chef-validator.pem'
-chef_server_url          'http://chef.infinitemonkeys.info:4000'
+chef_server_url          'http://chef.infochimps.com:4000'
 cache_type               'BasicFile'
-PATH_TO_COOKBOOK_REPOS = File.join(ENV['HOME'], 'ics/sysadmin')
-cookbook_path            [ 'hadoop_cluster_chef/cookbooks',
-  ].map{|path| File.join(PATH_TO_COOKBOOK_REPOS, path) }
-cache_options( :path => File.join(ENV['HOME'], '.chef/chef_checksums') )
+CHEF_COOKBOOKS_ROOT = File.expand_path(ENV['CHEF_COOKBOOKS_ROOT'] || '~/ics/sysadmin')
+cookbook_path            [ 'cluster_chef/cookbooks',
+  ].map{|path| File.join(CHEF_COOKBOOKS_ROOT, path) }
+cache_options( :path => File.expand_path('~/.chef/chef_checksums') )
 

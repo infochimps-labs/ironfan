@@ -1,16 +1,36 @@
+#
+# Defaults for cluster_chef
+#
+# The settings in this file are merged with your ~/.hadoop-ec2/cluster_chef.yaml
+# settings (settings from that file always override these).
+#
+
+# URL for directory holding bootstrap script templates.
 :bootstrap_scripts_url_base:            http://github.com/infochimps/cluster_chef/raw/master/config
 
+#
+# AWS Settings and instance 
+#
+:availability_zones:                    [ "us-west-1a" ]
 :instance_type:                         m1.small
 :instance_backing:                      instance
 :instance_os:                           lucid
-
-:disable_api_termination:               false
 :spot_price_fraction:                   ~
-:boot_volume:                     
+# Set "true" to protect master node from being terminated.
+:disable_api_termination:               false
+:boot_volume:
+  # Size of the EBS root partition in GB
   :ebs_volume_size:                     15
+  # Set "false" to keep the root partition around if the machine shuts down.
   :ebs_delete_on_termination:           true
 
-:attributes:
-  :chef:
-    :validation_key_file:               "~/.hadoop-ec2/keypairs/chef-validator.pem"
-    :validation_client_name:            "chef-validator"
+#
+# Defaults for hash passed into EC2 user-data 
+#
+:user_data:
+  :chef_server:                         "http://edit_your_cluster_chef_yaml.com:4000"
+  :validation_key_file:                 "~/.hadoop-ec2/keypairs/chef-validator.pem"
+  :validation_client_name:              "chef-validator"
+  :get_name_from_broham:                false
+  :attributes:
+    
