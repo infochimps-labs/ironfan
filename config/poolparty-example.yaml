@@ -37,11 +37,15 @@
   # * slaves use local drives for HDFS
   #
   :zaius:
-    :master:
-      # Master uses an EBS-backed AMI
+    :common:
+      # By default, use instance-backed AMI that runs chef-client at startup
+      :instance_os:                     opscode-chef-client
+      :instance_backing:                instance
+      :instance_type:                   m1.small
+    :chefmaster:
+      # Use an EBS-backed AMI
       :instance_os:                     infochimps-chef-server
       :instance_backing:                ebs
-      :instance_type:                   m1.small
       # Make an elastic IP; use your DNS service (or http://dyndns.org) to point a hostname to it
       :elastic_ip:                      184.72.52.22
       # Chef client settings
@@ -49,8 +53,7 @@
         :attributes:
           # enter the hostname for your chef server
           :node_name:                   chef.infochimps.com
+    :master:
+      # Make an elastic IP; use your DNS service (or http://dyndns.org) to point a hostname to it
+      :elastic_ip:                      184.72.52.22
     :slave:
-      # Slaves use an instance-backed AMI that runs chef-client at startup
-      :instance_os:                     opscode-chef-client
-      :instance_backing:                instance
-      :instance_type:                   m1.small
