@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: pig
+# Cookbook Name:: azkaban
 # Recipe:: install_from_package
 #
 # Copyright 2009, Infochimps, Inc.
@@ -20,7 +20,7 @@
 include_recipe "hadoop_cluster"
 
 #
-# Install pig from latest release
+# Install azkaban from latest release
 #
 #   puts eg. tokyocabinet-1.4.32.tar.gz into /usr/local/src/tokyocabinet-1.4.32.tar.gz,
 #   expands it into /usr/local/share/tokyocabinet-1.4.32
@@ -35,43 +35,28 @@ directory "/usr/local/src" do
   recursive true
 end
 
-pig_install_pkg = File.basename(node[:pig][:install_url])
-pig_install_dir = pig_install_pkg.gsub(%r{(?:-bin)?\.tar\.gz}, '')
+azkaban_install_pkg = File.basename(node[:azkaban][:install_url])
+azkaban_install_dir = azkaban_install_pkg.gsub(%r{(?:-bin)?\.tar\.gz}, '')
 
-remote_file "/usr/local/src/#{pig_install_pkg}" do
-  source    node[:pig][:install_url]
+remote_file "/usr/local/src/#{azkaban_install_pkg}" do
+  source    node[:azkaban][:install_url]
   mode      "0644"
   action :create
 end
 
-bash 'install pig from tarball' do
+bash 'install azkaban from tarball' do
   user 'root'
   cwd  '/usr/local/share'
-  code "tar xzf /usr/local/src/#{pig_install_pkg}"
-  not_if{ File.directory?("/usr/local/share/#{pig_install_dir}") }
+  code "tar xzf /usr/local/src/#{azkaban_install_pkg}"
+  not_if{ File.directory?("/usr/local/share/#{azkaban_install_dir}") }
 end
 
-link "/usr/local/share/pig" do
-  to "/usr/local/share/#{pig_install_dir}"
+link "/usr/local/share/azkaban" do
+  to "/usr/local/share/#{azkaban_install_dir}"
   action :create
 end
 
-link "/usr/local/bin/pig" do
-  to "/usr/local/share/pig/bin/pig"
+link "/usr/local/bin/azkaban" do
+  to "/usr/local/share/azkaban/bin/azkaban"
   action :create
 end
-
-bash 'build pig classes' do
-  user 'root'
-  cwd  '/usr/local/share/pig'
-  code "ant"
-  not_if{ File.exists?("/usr/local/share/pig/pig.jar") }
-end
-
-bash 'build piggybank' do
-  user 'root'
-  cwd  '/usr/local/share/pig/contrib/piggybank/java'
-  code "ant"
-  not_if{ File.exists?("/usr/local/share/pig/contrib/piggybank/java/piggybank.jar") }
-end
-
