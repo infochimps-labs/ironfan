@@ -26,7 +26,7 @@ pool POOL_NAME do
     has_big_package             settings
     is_cassandra_node           settings
     #
-    user_data                   settings[:attributes].to_json
+    user_data                   settings[:user_data].to_json
     is_spot_priced              settings
     user                        'ubuntu'
   end
@@ -50,6 +50,6 @@ pool POOL_NAME do
     #
     is_spot_priced              settings
     user                        'ubuntu'
-    user_data                   settings[:attributes].to_json
+    user_data                   settings[:user_data].to_json
   end
 end

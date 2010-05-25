@@ -7,8 +7,8 @@ chmod a+rwx /tmp
 REMOTE_FILE_URL_BASE="<%= bootstrap_scripts_url_base %>"
 
 echo "`date` Unscrewup hostname"  >> $progresslog
-export HOSTNAME=<%= hostname %> 
-PUBLIC_IP=<%= public_ip %>                 
+export HOSTNAME=<%= hostname %>
+PUBLIC_IP=<%= public_ip %>
 bash -c "echo '$HOSTNAME' > /etc/hostname" ;
 hostname -F /etc/hostname ;
 sysctl -w kernel.hostname=$HOSTNAME ;
