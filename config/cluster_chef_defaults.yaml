@@ -9,13 +9,13 @@
 :bootstrap_scripts_url_base:            http://github.com/infochimps/cluster_chef/raw/master/config
 
 #
-# AWS Settings and instance 
+# AWS instance settings  
 #
-:availability_zones:                    [ "us-west-1a" ]
+:spot_price_fraction:                   ~
+:availability_zones:                    [ "us-east-1d" ]
 :instance_type:                         m1.small
 :instance_backing:                      instance
 :instance_os:                           lucid
-:spot_price_fraction:                   ~
 # Set "true" to protect master node from being terminated.
 :disable_api_termination:               false
 :boot_volume:

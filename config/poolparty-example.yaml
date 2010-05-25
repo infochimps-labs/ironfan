@@ -7,14 +7,25 @@
 #
 # Set with environment variables, or uncomment and add your values
 # 
-# :access_key:                            1235125ABCD
-# :secret_access_key:                     asdfasdjghalskgjhsadkgjhaslkgjashgkls
-# :account_id:                            12321346546
+# :access_key:                          1235125ABCD
+# :secret_access_key:                   asdfasdjghalskgjhsadkgjhaslkgjashgkls
+# :account_id:                          12321346546
+
+
+#
+# AWS instance settings  
+# For west coast availability zone, before poolparty run: export EC2_URL=https://us-west-1.ec2.amazonaws.com
+#
+# :spot_price_fraction:                   ~
+# :availability_zones:                    [ "us-east-1d" ]
+# :instance_type:                         m1.small
+# :instance_backing:                      instance
+# :instance_os:                           lucid
 
 # The user_data hash is passed to /etc/chef/client.rb via the EC2 user-data setting
 :user_data:
   # hostname and port for chef server
-  :chef_server:                       "http://chef.infochimps.com:4000"
+  :chef_server:                         "http://chef.infochimps.com:4000"
   # Attributes for the node. Anything set here overrides all other node attributes
   :attributes:
     #

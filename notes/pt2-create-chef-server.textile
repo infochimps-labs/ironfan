@@ -1,27 +1,31 @@
+h2. Launch the Chef Server + Hadoop Master node
 
-h2. Set up the Chef Server
+* _If you already have a chef server, this isn't for you. See instructions in pt?something_
+* _If you're using the west coast availability zone, first run @export EC2_URL=https://us-west-1.ec2.amazonaws.com@ to work around a bug in the right_aws gem_
 
-h3. Prior to setup
+To kick off the master node, go to the cluster_chef directory and run:
 
-* Allocate an elastic IP using the AWS console.
-* Set the DNS server for your domain to point to it (eg chef.YOURDOMAIN.COM). Set a low TTL (1200 seconds) to handle an outage.
+<pre><code>
+  $ cd ~/path/to/cluster_chef
+  $ cloud start -n master -c clouds/zaius_clouds.rb
+</code></pre>
+
+You can check the "AWS console":http://bit.ly/awsconsole for progress towards startup. If there are problems, see "Tips and Trobleshooting.":http://github.com/infochimps/cluster_chef/blob/master/notes/pt9-tips-and-troubleshooting.textile
+
+h3. After startup
+
+Now you need a few settings and credentials from the chef server.
+Log in to the master node 
+<pre><code>
+  $ cloud ssh -n master -c clouds/zaius_clouds.rb
+</code></pre>
 
 
-# # Uncomment to give the machine a permanent hostname. 
-# new_hostname=CHEF.YOURDOMAIN.COM ;
-# echo $new_hostname > /etc/hostname ;
-# hostname -F /etc/hostname
-# sysctl -w kernel.hostname=$new_hostname ;
-
-
-h3. After bootstrap
-
-* Log in to your server: http://chef.YOURDOMAIN.COM:4040
-* Find initial password in @sudo cat /etc/chef/server.rb | grep -i pass@
-* Set the admin password and make a second user as well.
+* 
+* Find the webui's initial password with @sudo cat /etc/chef/server.rb | grep -i pass@.
+* Use it to log in to the chef webui: http://chef.YOURDOMAIN.COM:4040 -- set the admin password once you're logged in.
 
 * Run chef-client to have chef configure itself.
-
 
 h3. Importing cookbooks, etc.
 
@@ -34,3 +38,7 @@ h3. Importing cookbooks, etc.
   for foo in roles/* ; do echo $foo ; knife role from file $foo ; done
 </code></pre>
 
+
+h2. Next Steps
+
+Next, follow the instructions for "Step 2: Launch the Chef Server / Hadoop Master.":http://github.com/infochimps/cluster_chef/blob/master/notes/pt2-create-chef-server.textile

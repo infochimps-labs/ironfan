@@ -44,7 +44,7 @@ h2. Stock the Chef Server
 * Upload your roles and recipes:
 
 <pre><code>
-  cd PATH/TO/hadoop_cluster_chef
+  cd PATH/TO/cluster_chef
   for foo in roles/*.rb ; do echo $foo ; knife role from file $foo ; done
   knife cookbook upload --all
   rake load_data_bags
@@ -126,7 +126,7 @@ sudo apt-get -f install ;
 sudo apt-get clean ;
 sudo updatedb ;
 
-REMOTE_FILE_URL_BASE="http://github.com/mrflip/hadoop_cluster_chef/raw/master/config"
+REMOTE_FILE_URL_BASE="http://github.com/mrflip/cluster_chef/raw/master/config"
 wget -nv ${REMOTE_FILE_URL_BASE}/client.rb -O /etc/chef/client.rb ;
 
 sudo rm /etc/motd ;
