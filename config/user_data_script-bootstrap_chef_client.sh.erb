@@ -51,8 +51,12 @@ echo "`date` Pulling in chef client and server scripts"  >> $progresslog
 cp /etc/chef/client.rb /etc/chef/client-orig.rb ;
 wget -nv ${REMOTE_FILE_URL_BASE}/client.rb -O /etc/chef/client.rb ;
 cat > /etc/chef/client-config.json <<EOF
-  <%= chef_config["attributes"].to_json %>
+<%= chef_config[:attributes].to_json %>
 EOF
+cat > /etc/chef/validation.pem <<EOF
+<%= chef_config[:validation_key] -%>
+EOF
+
 # now run chef client against the server itself
 service chef-client restart
 

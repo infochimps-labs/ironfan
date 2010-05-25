@@ -119,7 +119,7 @@ def bootstrap_chef_script role, settings
     File.dirname(__FILE__)+"/../config/user_data_script-#{role}.sh.erb",
     :public_ip        => settings[:elastic_ip],
     :hostname         => settings[:user_data][:attributes][:node_name],
-    :chef_server_fqdn => settings[:user_data][:attributes][:chef_server].gsub(%r{http://(.*):\d+},'\1'),
+    :chef_server_fqdn => settings[:user_data][:chef_server].gsub(%r{http://(.*):\d+},'\1'),
     :ubuntu_version   => 'lucid',
     :bootstrap_scripts_url_base => settings[:bootstrap_scripts_url_base],
     :chef_config      => settings[:user_data]

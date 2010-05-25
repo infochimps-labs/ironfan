@@ -50,6 +50,6 @@ pool POOL_NAME do
     #
     is_spot_priced              settings
     user                        'ubuntu'
-    user_data                   settings[:user_data].to_json
+    user_data                   (settings[:user_data].merge(settings[:user_data][:attributes])).to_json
   end
 end

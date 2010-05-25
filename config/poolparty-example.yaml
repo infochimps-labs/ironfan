@@ -6,23 +6,28 @@
 # AWS Credentials
 #
 # Set with environment variables, or uncomment and add your values
-# 
+#
+
 # :access_key:                          1235125ABCD
 # :secret_access_key:                   asdfasdjghalskgjhsadkgjhaslkgjashgkls
 # :account_id:                          12321346546
-
 
 #
 # AWS instance settings  
 # For west coast availability zone, before poolparty run: export EC2_URL=https://us-west-1.ec2.amazonaws.com
 #
+
 # :spot_price_fraction:                   ~
 # :availability_zones:                    [ "us-east-1d" ]
 # :instance_type:                         m1.small
 # :instance_backing:                      instance
 # :instance_os:                           lucid
 
-# The user_data hash is passed to /etc/chef/client.rb via the EC2 user-data setting
+#
+# EC2 user_data
+#
+# A hash passed to /etc/chef/client.rb via the EC2 user-data setting -- converted to JSON format
+#
 :user_data:
   # hostname and port for chef server
   :chef_server:                         "http://chef.infochimps.com:4000"
@@ -30,6 +35,13 @@
   :attributes:
     #
 
+#
+# Cluster definition
+#
+# This folds up the settings as
+#   top level < that_cloud:common < that_cloud:that_role
+# (role-specific settings take precedence)
+#
 :pools:
   #
   # Small cluster.
@@ -37,11 +49,19 @@
   # * slaves use local drives for HDFS
   #
   :zaius:
+    # settings that apply to all machines in zaius cluster
     :common:
       # By default, use instance-backed AMI that runs chef-client at startup
       :instance_os:                     opscode-chef-client
       :instance_backing:                instance
       :instance_type:                   m1.small
+    # settings for all slave machines
+    :slave:
+    # settings for a master if you have a separate chef server
+    :master:
+      # Make an elastic IP; use your DNS service (or http://dyndns.org) to point a hostname to it
+      :elastic_ip:                      184.72.52.22
+    # settings for a combined master and chef server
     :chefmaster:
       # Use an EBS-backed AMI
       :instance_os:                     infochimps-chef-server
@@ -53,7 +73,3 @@
         :attributes:
           # enter the hostname for your chef server
           :node_name:                   chef.infochimps.com
-    :master:
-      # Make an elastic IP; use your DNS service (or http://dyndns.org) to point a hostname to it
-      :elastic_ip:                      184.72.52.22
-    :slave:

@@ -14,17 +14,24 @@ You can check the "AWS console":http://bit.ly/awsconsole for progress towards st
 
 h3. After startup
 
-Log in to the chef server and retrieve a few settings and credentials you'll need.
+Log in to the chef server to retrieve a few settings and credentials you'll need:
 
 <pre><code>
-  $ cloud ssh -n master -c clouds/zaius_clouds.rb
+  cloud ssh -n master -c clouds/zaius_clouds.rb
 </code></pre>
 
+Or alternatively,
+<pre><code>
+  ssh -i ~/.hadoop-ec2/keypairs/zaius.pem ubuntu@ec2-123-45-67-89.compute-1.amazonaws.com
+</code></pre>
+
+h3. Set up the chef WebUI (dashboard)
+
 * Webui admin's initial password: @sudo cat /etc/chef/server.rb | grep -i pass@.
-* Use it to log in to the chef webui: http://chef.YOURDOMAIN.COM:4040
+* Use it to log in to the chef webui: http://chef.YOURDOMAIN.COM:4040 (note that the port number for the webui, the thing _people_ use, is 4040. The port number for the chef server, the think knife and clients and other robots use, is 4000.)
 * Set the webui admin's password to something you chose.
 
-h3. Set up knife and webui
+h3. Set up knife 
 
 On the server, set up knife:
 
