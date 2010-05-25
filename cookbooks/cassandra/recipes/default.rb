@@ -57,17 +57,17 @@ directory "/etc/cassandra" do
   not_if    "test -d /etc/cassandra"
 end
 
-runit_service "cassandra"
-
-service "cassandra" do
-  supports :status => true, :restart => true, :reload => true
-  action [ :enable, :start ]
-end
-
 template "/etc/cassandra/storage-conf.xml" do
   source    "storage-conf.xml.erb"
   owner     "root"
   group     "root"
   mode      0644
   # notifies  :restart, resources(:service => "cassandra")
+end
+
+runit_service "cassandra"
+
+service "cassandra" do
+  supports :status => true, :restart => true, :reload => true
+  action [ :enable, :start ]
 end

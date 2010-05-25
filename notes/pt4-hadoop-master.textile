@@ -1,3 +1,110 @@
+
+h2. Start Chef server
+
+* sudo cat /etc/chef/server.rb for the initial web password.
+* for foo in chef-client chef-server chef-server-webui chef-solr chef-solr-indexer ; do sudo service $foo restart ; done
+
+* Click clients, create -- make client called knife_user that is an admin
+* paste the text of the private key into @~/.chef/knife_user.pem@
+* Copy the text of /etc/chef/validation.pem (from the server) into @~/.chef/chef-validator.pem@
+* chmod 600 ~/.chef/*.pem
+
+h2. Set up knife and webui
+
+EITHER: use your chef server to create a client called 'knife_user', and save the .pem file it generates as @~/.hadoop-ec2/keypairs/knife_user.pem@.
+
+OR: On the server, run and answer as follows:
+
+<pre><code>
+  sudo knife configure -i
+  Your chef server URL? http://chef.infochimps.com:4000
+  Your client user name? knife_user
+  Your validation client user name? chef-validator
+  Path to a chef repository (or leave blank)? 
+  WARN: Creating initial API user...
+</code></pre>  
+(note that on the chef server this must be run sudo so we can see the key files;  that the port is '4000' (server, not webui)
+
+Now copy @~/.chef/knife_user.pem@ and @/etc/chef/validation.pem@ on the server
+to (on your computer) @~/.hadoop-ec2/keypairs/knife_user.pem@ and
+@~/.hadoop-ec2/keypairs/chef-validator.pem@ respectively; and @chmod og-rwx ~/.hadoop-ec2/keypairs/*.pem@
+
+If you do @knife client list@ you should now see something like
+
+<pre><code>
+  [
+    "chef-validator", 
+    "chef-webui",
+    "knife_user"
+  ]
+</code></pre>
+
+h2. Stock the Chef Server
+
+* Upload your roles and recipes:
+
+<pre><code>
+  cd PATH/TO/hadoop_cluster_chef
+  for foo in roles/*.rb ; do echo $foo ; knife role from file $foo ; done
+  knife cookbook upload --all
+  rake load_data_bags
+  rake load_data_bags
+</code></pre>
+
+h2. Play around with single-machine server
+
+<pre><code>
+cloud-start -n master -c clouds/hadoop_clouds.rb
+</code></pre>
+
+If you're using HDFS on the ephemeral drives, put the maintain_hadoop_cluster::reformat_scratch_disks, maintain_hadoop_cluster::format_namenode and maintain_hadoop_cluster::make_standard_hdfs_dirs.rb recipe in below hadoop and before hadoop_master. Nobody will question your courage if (rather than add them to the runlist) you just run the commands therein manually.
+
+To see how things are hangin',
+
+# On the master node
+for foo in hadoop-0.20-{namenode,jobtracker,tasktracker,datanode,secondarynamenode} cassandra chef-client ; do sudo service $foo stop ; done
+
+# On a worker node
+for foo in hadoop-0.20-{tasktracker,datanode} cassandra chef-client nfs-kernel-server ; do sudo service $foo status ; done
+
+
+h2. launch 
+
+tail -f /var/log/dpkg.log /tmp/user_data-progress.log
+
+* Start the hadoop master node:
+
+<pre><code>
+  cloud-start -n master  -c clouds/hadoop_clouds.rb
+  # ... twiddle thumbs ...
+  cloud-ssh   -n server  -c clouds/chef_clouds.rb
+</code></pre>
+
+You'll need to format the namenode and then restart the namenode (@sudo service hadoop-0.20-namenode restart@)
+
+* Once the master node starts, try a couple slaves
+
+<pre><code>
+  cloud-start -n master  -c clouds/hadoop_clouds.rb
+</code></pre>
+
+
+
+* Once the cluster works with no EBS volumes, then you should try defining 
+
+
+h2. Service Discovery
+
+h3. cluster_service_discovery
+
+These scripts let individual nodes register as providing a service ("nfs-server", say; or "my_cluster-namenode").  Other scripts can ask for all nodes that have so registered (a cassandra cluster wants to know where all its friends are), or can ask for the most recent provider (in the case of a namenode or other single central resource). 
+
+You typically will want to ensure that every node has "cluster_role" and "cluster_name" attributes: many services scope themselves within a cluster_name.
+
+
+  bq. _How cluster_service_discovery works_: Take the hadoop namenode as an example.  The @hadoop_cluster/namenode@ script says 'I provide "zaius-namenode", that is to say I'm the namenode for everyone in the Zaius cluster'. Internally, this sets node["provides_service"]["zaius-namenode"] to { "timestamp": 20100518185356Z } (the current time).
+  To find the zaius namenode, we use the chef search function to query on "provides_service":"zaius-namenode". Chef returns the full matching node object: anything you would ask of a
+
 # Step 1: decouple
 for svc in hadoop-0.20-datanode hadoop-0.20-tasktracker hadoop-0.20-jobtracker hadoop-0.20-namenode hadoop-0.20-secondarynamenode chef-client cassandra ; do sudo service $svc stop ; done
 sudo umount /home /ebs* /mnt* ;
