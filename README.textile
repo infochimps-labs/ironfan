@@ -16,3 +16,14 @@ h3. Advantages
 * Chef is actively developed and has well-written recipes for webservers, databases, development tools, and a ton of different software packages.
 * Poolparty makes creating amazon cloud machines concise and easy: you can specify spot instances, ebs-backed volumes, disable-api-termination, and more.
 
+h2. Documentation
+
+* "Part 1: Initial settings and credentials":http://github.com/infochimps/cluster_chef/blob/master/notes/pt1-initial-settings-and-credentials.textile
+* "Part 2: Set up Chef Server and your local chef environment":http://github.com/infochimps/cluster_chef/blob/master/notes/
+* "Part 3: Launch your Hadoop master node:":http://github.com/infochimps/cluster_chef/blob/master/notes/
+* "Part 4: Launch the rest of the hadoop cluster":http://github.com/infochimps/cluster_chef/blob/master/notes/
+* "Designing your cluster":http://github.com/infochimps/cluster_chef/blob/master/notes/
+* "Cassandra":http://github.com/infochimps/cluster_chef/blob/master/notes/
+* "A persistent HDFS using EBS volumes":http://github.com/infochimps/cluster_chef/blob/master/notes/
+* "Create your own AMI":http://github.com/infochimps/cluster_chef/blob/master/notes/
+* "Tips and Troubleshooting":http://github.com/infochimps/cluster_chef/blob/master/notes/
