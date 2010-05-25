@@ -223,7 +223,7 @@ def has_role settings, role
 end
 
 def has_recipe settings, recipe
-  settings[:attributes][:run_list] << recipe
+  settings[:user_data][:attributes][:run_list] << recipe
 end
 
 # Takes the template file and has Erubis cram the given variables in it
