@@ -15,7 +15,6 @@ pool POOL_NAME do
     is_generic_node             settings
     sends_aws_keys              settings
     is_nfs_server               settings
-    is_chef_server              settings
     is_chef_client              settings
     #
     is_hadoop_node              settings
@@ -28,14 +27,14 @@ pool POOL_NAME do
     is_spot_priced              settings
     has_recipe                  settings, 'hadoop_cluster:std_hdfs_dirs'
     user                        'ubuntu'
-    user_data                   bootstrap_chef_script('run_chef_server', settings)
-    puts JSON.pretty_generate(settings)
+    user_data                   settings[:user_data].to_json
+    # puts JSON.pretty_generate(settings)
   end
 
   cloud :slave do
     using :ec2
     settings = settings_for_node(POOL_NAME, :slave)
-    instances                   1..1
+    instances                   3..3
     is_generic_node             settings
     sends_aws_keys              settings
     is_chef_client              settings
@@ -46,7 +45,7 @@ pool POOL_NAME do
     #
     has_big_package             settings
     is_spot_priced              settings
-    user_data                   settings[:attributes].to_json
+    user_data                   settings[:user_data].to_json
     user                        'ubuntu'
     puts JSON.pretty_generate(settings)
   end
