@@ -2,6 +2,4 @@
 
 Complain bitterly if the validation.pem (etc) is missing
 
-* Make EBS      ami with chef-server, hadoop-master, hadoop-worker, nfs-server, zookeeper
-* Make instance ami with chef-client, hadoop-worker
-
+separate out namenode recipe so that initial formatting is possible
