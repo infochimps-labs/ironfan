@@ -56,7 +56,7 @@ link "/usr/local/share/azkaban" do
   action :create
 end
 
-link "/usr/local/bin/azkaban" do
-  to "/usr/local/share/azkaban/bin/azkaban"
+link "/usr/local/bin/azkaban-server.sh" do
+  to "/usr/local/share/azkaban/bin/azkaban-server.sh"
   action :create
 end
