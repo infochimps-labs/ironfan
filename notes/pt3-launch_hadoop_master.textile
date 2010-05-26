@@ -1,3 +1,5 @@
+h2. Open the hadoop master node 
+
 
 h2. Play around with single-machine server
 

@@ -25,7 +25,7 @@ h2. Documentation
 * "Designing your cluster":http://github.com/infochimps/cluster_chef/blob/master/notes/
 * "Cassandra":http://github.com/infochimps/cluster_chef/blob/master/notes/
 * "A persistent HDFS using EBS volumes":http://github.com/infochimps/cluster_chef/blob/master/notes/
-* "Create your own AMI":http://github.com/infochimps/cluster_chef/blob/master/notes/
+* "Burnk your own AMI":http://github.com/infochimps/cluster_chef/blob/master/notes/
 * "Tips and Troubleshooting":http://github.com/infochimps/cluster_chef/blob/master/notes/
 
 

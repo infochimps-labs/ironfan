@@ -11,13 +11,13 @@ To kick off the chef+master node, go to the cluster_chef directory and run:
 
 * _If you're using the west coast availability zone, first run @export EC2_URL=https://us-west-1.ec2.amazonaws.com@ to work around a bug in the right_aws gem_
 
-You can check the "AWS console":http://bit.ly/awsconsole for progress towards startup. If there are problems, see "Tips and Trobleshooting.":http://github.com/infochimps/cluster_chef/blob/master/notes/pt9-tips-and-troubleshooting.textile
+You can check the "AWS console":http://bit.ly/awsconsole for progress towards startup. If there are problems, see "Tips and Trobleshooting.":http://github.com/infochimps/cluster_chef/blob/master/notes/tips_and_troubleshooting.textile
 
 h3. Set up the chef WebUI (dashboard)
 
-* Webui admin's initial password: @sudo cat /etc/chef/server.rb | grep -i pass@.
-* Use it to log in to the chef webui: http://chef.YOURDOMAIN.COM:4040 (note that the port number for the webui, the thing _people_ use, is 4040. The port number for the chef server, the think knife and clients and other robots use, is 4000.)
-* Set the webui admin's password to something you chose.
+* Visit the chef webui: http://chef.YOURDOMAIN.COM:4040 (note that the port number for the webui, the thing _people_ use, is 4040. The port number for the chef server, the think knife and clients and other robots use, is 4000.)
+* Find the webui admin's initial password: @sudo cat /etc/chef/server.rb | grep -i pass@.
+* Set the webui admin's password to something secure.
 
 h3. Log in to your server
 
@@ -61,11 +61,11 @@ h3. Gather Chef credentials
 From your chef server (however it was set up),
 
 * Copy the chef credentials over (Because of permissions, it's probably easiest to do this by copy/pasting rather than scp.):
-** Copy @~/.chef/knife_user.pem@ on the server to @~/.hadoop-ec2/keypairs/knife_user.pem@ on your computer
+** Copy @~/.chef/knife_user.pem@   on the server to @~/.hadoop-ec2/keypairs/knife_user.pem@     on your computer
 ** Copy @/etc/chef/validation.pem@ on the server to @~/.hadoop-ec2/keypairs/chef-validator.pem@ on your computer.
-** In both cases, be careful to note the changes in paths and name.
+** (note that the paths and names are different on your local machine)
 * Fix their permissions: @chmod og-rwx ~/.hadoop-ec2/keypairs/*.pem@
-* Copy the ~/path/to/cluster_chef/config/knife.rb to ~/.chef/knife.rb. Check whether any settings in that file need tuning.
+* Copy the config/knife.rb file from this repo to ~/.chef/knife.rb. Check whether any settings in that file need tuning.
 
 h4. High on knife (checking that your local configuration works)
 
@@ -81,14 +81,43 @@ If everything went right, @knife client list@ from your local machine should sho
 
 h3. Import cookbooks, roles and databags to the server
 
+Load the cookbooks, roles and recipes into the chef server. Chef-client will pull them from the chef server to populate its node.
+
 <pre><code>
   cd ~/path/to/cluster_chef
-  for foo in roles/*.rb ; do echo $foo ; knife role from file $foo ; done
   knife cookbook upload --all
+  for foo in roles/*.rb ; do echo $foo ; knife role from file $foo ; done
   rake load_data_bags
   rake load_data_bags
 </code></pre>
 (_run the rake load_data_bags task twice: once to create, again to populate each data bag_)
+
+h2. Option B: You already have a Chef Server (part 2)
+
+Once the chef server is populated, you can launch 
+
+To kick off the master node, go to the cluster_chef directory and run:
+
+<pre><code>
+  cloud start -n master -c clouds/zaius_clouds.rb
+</code></pre>
+
+* _If you're using the west coast availability zone, first run @export EC2_URL=https://us-west-1.ec2.amazonaws.com@ to work around a bug in the right_aws gem_
+
+You can check the "AWS console":http://bit.ly/awsconsole for progress towards startup. If there are problems, see "Tips and Trobleshooting.":http://github.com/infochimps/cluster_chef/blob/master/notes/tips_and_troubleshooting.textile
+
+h3. Log in to your server
+
+To log in to the cluster master:
+
+<pre><code>
+  cloud ssh -n master -c clouds/zaius_clouds.rb
+</code></pre>
+
+Or alternatively,
+<pre><code>
+  ssh -i ~/.hadoop-ec2/keypairs/zaius.pem ubuntu@zaius.YOURDOMAIN.com
+</code></pre>
 
 h2. Next Steps
 

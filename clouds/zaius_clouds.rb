@@ -25,12 +25,16 @@ pool POOL_NAME do
     #
     is_hadoop_node              settings
     mounts_ebs_volumes          settings
-    has_recipe settings, 'hadoop_cluster:format_namenode_once'
+    has_recipe settings, 'hadoop_cluster::format_namenode_once'
     has_role   settings, "hadoop_master"
     has_role   settings, "hadoop_worker"
-    has_recipe settings, 'hadoop_cluster:std_hdfs_dirs'
+    has_recipe settings, 'hadoop_cluster::std_hdfs_dirs'
     has_recipe settings, "pig::install_from_release"
     has_big_package             settings
+    security_group :exposed_hadoop_dashboard do
+      authorize :from_port => 50070,   :to_port => 50030
+      authorize :from_port => 50030,   :to_port => 50030
+    end
     #
     user_data                   (settings[:user_data].merge(settings[:user_data][:attributes])).to_json
   end
@@ -50,10 +54,10 @@ pool POOL_NAME do
     is_chef_client              settings
     #
     is_hadoop_node              settings
-    has_recipe settings, 'hadoop_cluster:format_namenode_once'
+    has_recipe settings, 'hadoop_cluster::format_namenode_once'
     has_role   settings, "hadoop_master"
     has_role   settings, "hadoop_worker"
-    has_recipe settings, 'hadoop_cluster:std_hdfs_dirs'
+    has_recipe settings, 'hadoop_cluster::std_hdfs_dirs'
     has_recipe settings, "pig::install_from_package"
     has_big_package             settings
     #
@@ -64,7 +68,7 @@ pool POOL_NAME do
   cloud :slave do
     using :ec2
     settings = settings_for_node(POOL_NAME, :slave)
-    instances                   3..3
+    instances                   2..2
     user                        'ubuntu'
     is_spot_priced              settings
     is_generic_node             settings
