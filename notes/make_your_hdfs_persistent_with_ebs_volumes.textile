@@ -1,4 +1,10 @@
 
+h2. Information Sharing using simpleDB
+
+* Make sure you log into the "aws console":http://bit.ly/awsconsole and check in as a SimpleDB user. (You have to click through a license agreement, it should approve you within minutes)
+
+sudo bash -c 'export HOSTNAME=gibbon.infinitemonkeys.info ; PUBLIC_IP=204.236.225.16 ; echo $HOSTNAME > /etc/hostname ; hostname -F /etc/hostname ; sysctl -w kernel.hostname=$HOSTNAME ; sed -i "s/127.0.0.1 *localhost/127.0.0.1      $HOSTNAME `hostname -s` localhost/" /etc/hosts ; if grep -q $PUBLIC_IP /etc/hosts ; then true ; else echo $PUBLIC_IP $HOSTNAME `hostname -s ` >> /etc/hosts ; fi'
+
 From http://support.rightscale.com/06-FAQs/FAQ_0012_-_How_do_I_partition,_format_and_mount_an_EBS_volume%3F
 
 * create a new volume
