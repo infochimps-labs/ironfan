@@ -4,6 +4,7 @@ description 'Runs azkaban'
 # FIXME what are these?
 run_list *%w[
   java
+  runit
   azkaban::install_from_release
   ]
 
