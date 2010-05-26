@@ -1,3 +1,4 @@
+require File.join(File.dirname(__FILE__), '/../clouds/cloud_aspects')
 # Install with `knife role from file roles/hadoop.rb`
 name        'hadoop'
 description 'applies to all nodes in the hadoop cluster'
