@@ -73,6 +73,7 @@ pool POOL_NAME do
     is_spot_priced              settings
     is_generic_node             settings
     sends_aws_keys              settings
+    is_nfs_client               settings
     is_chef_client              settings
     #
     is_hadoop_node              settings
