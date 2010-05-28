@@ -5,14 +5,15 @@
     "keyspaces": {
       "Twitter": {
         "columns": {
-          "Users":               { "compare_with": "UTF8Type" },
-          "UserAudits":          { "compare_with": "UTF8Type" },
-          "Usernames":           { "compare_with": "UTF8Type" },
-          "Statuses":            { "compare_with": "UTF8Type" },
-          "StatusAudits":        { "compare_with": "UTF8Type" },
-          "Index":               { "compare_with": "UTF8Type", "column_type": "Super" },
-          "UserRelationships":   { "compare_with": "UTF8Type", "column_type": "Super", "compare_subcolumns_with": "TimeUUIDType" },
-          "StatusRelationships": { "compare_with": "UTF8Type", "column_type": "Super", "compare_subcolumns_with": "TimeUUIDType" }
+          "Users":               { "compare_with": "AsciiType" },
+          "UserAudits":          { "compare_with": "AsciiType" },
+          "Usernames":           { "compare_with": "AsciiType" },
+          "UserSearchIds":       { "compare_with": "AsciiType" },
+          "Statuses":            { "compare_with": "AsciiType" },
+          "StatusAudits":        { "compare_with": "AsciiType" },
+          "Index":               { "compare_with": "AsciiType", "column_type": "Super" },
+          "UserRelationships":   { "compare_with": "AsciiType", "column_type": "Super", "compare_subcolumns_with": "TimeUUIDType" },
+          "StatusRelationships": { "compare_with": "AsciiType", "column_type": "Super", "compare_subcolumns_with": "TimeUUIDType" }
         },
         "replica_placement_strategy": "org.apache.cassandra.locator.RackUnawareStrategy",
         "replication_factor":         "1",
@@ -20,11 +21,6 @@
       },
       "SocNetTw": {
         "columns": {
-          "Users":                 { "compare_with": "AsciiType"  },
-          "UserSearchIds":         { "compare_with": "AsciiType"  },
-          "UserScreenNames":       { "compare_with": "AsciiType" },
-          "Tokens":                { "compare_with": "AsciiType" },
-          
           "wordbag_user_id":       { "compare_with": "UTF8Type" },
           "influence_user_id":     { "compare_with": "UTF8Type" },
           "trstrank_user_id":      { "compare_with": "UTF8Type" },
