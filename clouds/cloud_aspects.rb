@@ -3,11 +3,11 @@
 require 'configliere'
 CLOUD_ASPECTS_DIR=File.dirname(__FILE__)
 require CLOUD_ASPECTS_DIR+'/aws_service_data'
-require CLOUD_ASPECTS_DIR+'/hadoop_aspects/aws'
-require CLOUD_ASPECTS_DIR+'/hadoop_aspects/chef'
-require CLOUD_ASPECTS_DIR+'/hadoop_aspects/cassandra'
-require CLOUD_ASPECTS_DIR+'/hadoop_aspects/hadoop'
-require CLOUD_ASPECTS_DIR+'/hadoop_aspects/nfs'
+require CLOUD_ASPECTS_DIR+'/cloud_aspects/aws'
+require CLOUD_ASPECTS_DIR+'/cloud_aspects/chef'
+require CLOUD_ASPECTS_DIR+'/cloud_aspects/cassandra'
+require CLOUD_ASPECTS_DIR+'/cloud_aspects/hadoop'
+require CLOUD_ASPECTS_DIR+'/cloud_aspects/nfs'
 
 Settings.define :access_key,        :env_var => 'AWS_ACCESS_KEY_ID',         :description => 'Your aws access key ID -- visit "Security Credentials" from the AWS "Account" page.'
 Settings.define :secret_access_key, :env_var => 'AWS_SECRET_ACCESS_KEY',     :description => 'Your aws secret access key -- visit "Security Credentials" from the AWS "Account" page.'
