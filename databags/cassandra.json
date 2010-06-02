@@ -12,7 +12,7 @@
           "Statuses":            { "compare_with": "AsciiType" },
           "StatusAudits":        { "compare_with": "AsciiType" },
           "Index":               { "compare_with": "AsciiType", "column_type": "Super" },
-          "UserRelationships":   { "compare_with": "AsciiType", "column_type": "Super", "compare_subcolumns_with": "TimeUUIDType" },
+          "UserRelationships":   { "compare_with": "AsciiType", "column_type": "Super", "compare_subcolumns_with": "AsciiType" },
           "StatusRelationships": { "compare_with": "AsciiType", "column_type": "Super", "compare_subcolumns_with": "TimeUUIDType" }
         },
         "replica_placement_strategy": "org.apache.cassandra.locator.RackUnawareStrategy",
@@ -21,6 +21,11 @@
       },
       "SocNetTw": {
         "columns": {
+          "Users":                 { "compare_with": "AsciiType"  },
+          "UserSearchIds":         { "compare_with": "AsciiType"  },
+          "UserScreenNames":       { "compare_with": "AsciiType" },
+          "Tokens":                { "compare_with": "AsciiType" },
+          
           "wordbag_user_id":       { "compare_with": "UTF8Type" },
           "influence_user_id":     { "compare_with": "UTF8Type" },
           "trstrank_user_id":      { "compare_with": "UTF8Type" },
