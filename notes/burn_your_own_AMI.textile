@@ -18,13 +18,14 @@ On the target machine:
   # Give the process list a how's your father -- nothing interesting should be running.
   ps aux
   # Unmount anything that's mounted,
+  cd /mnt
   sudo umount /home
   sudo umount /ebs1
   # Detatch anything that's attached,
   ec2-detach-volume vol-123545
   # and check that it all worked.
   mount
-  ec2-describe-volumes
+  ec2-describe-volumes -K pk.pem -C cert.pem
   
   # Fix /etc/hosts and /etc/hostname
   # Fix /etc/fstab
@@ -54,7 +55,7 @@ On the target machine:
 
 h3. Burning an EBS-backed AMI
 
-Just use the console. MAKE SURE TO STOP, UNMOUNT AND DETACH ALL EBS VOLUMES first.
+Just use the console. MAKE SURE TO STOP, UNMOUNT AND DETACH ALL EBS volumes first.
 
 h3. Burning an Instance-backed (s3) AMIs
 
@@ -65,10 +66,13 @@ move the ssh keys out of the way
 </code></pre>
   
 Modify the following to suit.  Bundle will complain about excludes that are missing: adjust until it stops bitching.
+That is, remove directories from the AMI_EXCLUDES env variables that do not exist. Be careful though because it is a
+VERY BAD THING if directories that do exist are not excluded!
 
 <pre><code>
   CLUSTER=hadoop ROLE=slave BITS=32bit
-  AWS_ACCOUNT_ID=123456781234 AWS_ACCESS_KEY_ID=2341245 AWS_SECRET_ACCESS_KEY=125324635473465743674637
+  # AWS_ACCOUNT_ID=123456781234 AWS_ACCESS_KEY_ID=2341245 AWS_SECRET_ACCESS_KEY=125324635473465743674637
+  source aws_private_setup.sh
   AMI_BUCKET=s3amis.infinitemonkeys.info
   AMI_EXCLUDES=/ebs1,/ebs2,/data,/srv/chef/cache,/mnt,/root/.ssh/authorized_keys,/home/ubuntu/.ssh/authorized_keys
 
@@ -82,11 +86,11 @@ Modify the following to suit.  Bundle will complain about excludes that are miss
   cd /mnt
   sudo mkdir -p /mnt/$ami_bucket
   # This will take a long fucking time. 15 minutes on a small instance. It fucking sucks.
-  time sudo ec2-bundle-vol --exclude=$AMI_EXCLUDES -d /mnt/$ami_bucket -u $AWS_ACCOUNT_ID --ec2cert /etc/ec2/amitools/cert-ec2.pem
+  time sudo ec2-bundle-vol --exclude=$AMI_EXCLUDES -d /mnt/$ami_bucket -u $AWS_ACCOUNT_ID --cert cert.pem --privatekey pk.pem --ec2cert /etc/ec2/amitools/cert-ec2.pem
   # Only run the following for regions outside of us-east-1
   # time ec2-migrate-manifest      --manifest /mnt/$ami_bucket/image.manifest.xml --region   $AWS_REGION -a $AWS_ACCESS_KEY_ID -s $AWS_SECRET_ACCESS_KEY 
-  time ec2-upload-bundle    -b $ami_bucket -m /mnt/$ami_bucket/image.manifest.xml --location $AWS_REGION -a $AWS_ACCESS_KEY_ID -s $AWS_SECRET_ACCESS_KEY 
-  time ec2-register -n $ami_name -d $ami_name /mnt/$ami_bucket/image.manifest.xml --region   $AWS_REGION
+  time ec2-upload-bundle    -b $ami_bucket -m /mnt/$ami_bucket/image.manifest.xml --location $AWS_REGION -a $AWS_ACCESS_KEY_ID -s $AWS_SECRET_ACCESS_KEY
+  time ec2-register -n $ami_name -d $ami_name $ami_bucket/image.manifest.xml --region   $AWS_REGION
 </code></pre>
 
 
