@@ -16,7 +16,7 @@
           "StatusRelationships": { "compare_with": "AsciiType", "column_type": "Super", "compare_subcolumns_with": "TimeUUIDType" }
         },
         "replica_placement_strategy": "org.apache.cassandra.locator.RackUnawareStrategy",
-        "replication_factor":         "1",
+        "replication_factor":         "2",
         "end_point_snitch":           "org.apache.cassandra.locator.EndPointSnitch"
       },
       "SocNetTw": {
@@ -34,7 +34,7 @@
           "trstrank_screen_name":  { "compare_with": "UTF8Type" }
         },
         "replica_placement_strategy": "org.apache.cassandra.locator.RackUnawareStrategy",
-        "replication_factor":         "1",
+        "replication_factor":         "2",
         "end_point_snitch":           "org.apache.cassandra.locator.EndPointSnitch"
       }
     }

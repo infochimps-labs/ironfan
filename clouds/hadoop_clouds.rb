@@ -34,7 +34,7 @@ pool POOL_NAME do
   cloud :slave do
     using :ec2
     settings = settings_for_node(POOL_NAME, :slave)
-    instances                   31..31
+    instances                   30..30
     is_spot_priced              settings
     attaches_ebs_volumes        settings
     is_nfs_client               settings
