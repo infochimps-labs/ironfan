@@ -8,6 +8,7 @@ require File.dirname(__FILE__)+'/cloud_aspects'
 #   export EC2_URL=https://us-west-1.ec2.amazonaws.com
 
 pool POOL_NAME do
+
   #
   # Combined chef server, nfs server and hadoop master. Run this if you're just
   # starting out.
@@ -54,15 +55,14 @@ pool POOL_NAME do
     is_chef_client              settings
     #
     is_hadoop_node              settings
-    has_recipe settings, 'hadoop_cluster::format_namenode_once'
     has_role   settings, "hadoop_master"
     has_role   settings, "hadoop_worker"
     has_recipe settings, 'hadoop_cluster::std_hdfs_dirs'
-    has_recipe settings, "pig::install_from_package"
+    has_role   settings, "pig"
     has_big_package             settings
     #
-    user_data                   settings[:user_data].to_json
-    # puts JSON.pretty_generate(settings)
+    user_data                   (settings[:user_data].merge(settings[:user_data][:attributes])).to_json
+    # puts JSON.pretty_generate(settings[:user_data])
   end
 
   cloud :slave do
@@ -78,10 +78,10 @@ pool POOL_NAME do
     #
     is_hadoop_node              settings
     has_role   settings, "hadoop_worker"
-    has_recipe settings, "pig::install_from_package"
-    #
+    has_role   settings, "pig"
     has_big_package             settings
-    user_data                   settings[:user_data].to_json
-    puts JSON.pretty_generate(settings)
+    #
+    user_data                   (settings[:user_data].merge(settings[:user_data][:attributes])).to_json
+    # puts JSON.pretty_generate(settings[:user_data])
   end
 end

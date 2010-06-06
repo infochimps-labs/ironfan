@@ -9,30 +9,12 @@ the namenode
 cassandra shouldn't start before the /etc/cassandra is present
 
 
-bkupdir=/ebs2/hadoop-nn-backup/20100605
-sudo mkdir -p $bkupdir/ebs1/hadoop/hdfs
-sudo mkdir -p $bkupdir/ebs2/hadoop/hdfs
-sudo cp -rp /ebs1/hadoop/hdfs/{secondary,name} $bkupdir/ebs1/hadoop/hdfs/
-sudo cp -rp /ebs2/hadoop/hdfs/{secondary,name} $bkupdir/ebs2/hadoop/hdfs/
+* Make it work cross-cloud platform
+* make it work locally
 
-ubuntu@ip-10-196-199-47:/ebs1/hadoop/hdfs$ ls -l `find name/ secondary/ -type f `
--rw-r--r-- 1 hadoop root          4 2010-05-28 08:14 name/current/edits
--rw-r--r-- 1 hadoop hadoop 72840202 2010-06-05 00:00 name/current/edits.new
--rw-r--r-- 1 hadoop root         96 2010-05-28 08:14 name/current/fsimage
--rw-r--r-- 1 hadoop root          8 2010-05-28 08:14 name/current/fstime
--rw-r--r-- 1 hadoop root        101 2010-05-28 08:14 name/current/VERSION
--rw-r--r-- 1 hadoop hadoop      157 2010-05-28 08:14 name/image/fsimage
--rw-r--r-- 1 hadoop hadoop        4 2010-06-05 17:51 secondary/current/edits
--rw-r--r-- 1 hadoop hadoop       96 2010-06-05 17:51 secondary/current/fsimage
--rw-r--r-- 1 hadoop hadoop      157 2010-05-26 01:06 secondary/image/fsimage
--rw-r--r-- 1 hadoop hadoop        4 2010-05-26 02:06 secondary/lastcheckpoint.tmp/edits
--rw-r--r-- 1 hadoop hadoop 17027009 2010-05-26 01:06 secondary/lastcheckpoint.tmp/fsimage
--rw-r--r-- 1 hadoop hadoop        8 2010-05-26 01:06 secondary/lastcheckpoint.tmp/fstime
--rw-r--r-- 1 hadoop hadoop      101 2010-05-26 01:06 secondary/lastcheckpoint.tmp/VERSION
--rw-r--r-- 1 hadoop hadoop        4 2010-05-26 01:06 secondary/previous.checkpoint/edits
--rw-r--r-- 1 hadoop hadoop 17027009 2010-05-26 00:06 secondary/previous.checkpoint/fsimage
--rw-r--r-- 1 hadoop hadoop        8 2010-05-26 00:06 secondary/previous.checkpoint/fstime
--rw-r--r-- 1 hadoop hadoop      101 2010-05-26 00:06 secondary/previous.checkpoint/VERSION
+make azkaban not race
+
+
 
 
 
