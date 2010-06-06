@@ -14,6 +14,11 @@ default[:groups]['supergroup'][:gid]          = 301
 default[:hadoop][:use_root_as_scratch_vol]    = true
 default[:hadoop][:use_root_as_persistent_vol] = false
 
+# You should give at least one NFS-backed directory for the Namenode metadata to
+# persist to.
+set[:hadoop][:extra_nn_metadata_path] = '/home/hadoop'
+
+
 #
 # Tune cluster settings for size of instance
 #
@@ -85,7 +90,6 @@ hadoop_performance_settings.each{|k,v| set[:hadoop][k] = v }
 #
 # fs.inmemory.size.mb  # default XX
 #
-
 
 # # http://www.cloudera.com/blog/2009/03/configuration-parameters-what-can-you-just-ignore/
 # #

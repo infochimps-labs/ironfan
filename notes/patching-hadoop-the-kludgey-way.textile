@@ -1,0 +1,36 @@
+
+#
+# Get the source distro, expand it
+#
+cd /usr/local/src
+wget http://archive.cloudera.com/cdh/3/hadoop-0.20.2+228.tar.gz
+tar xvzf hadoop-0.20.2+228.tar.gz
+ln -s hadoop-0.20.2+228 hadoop-src
+
+#
+# Overwrite the jars with the ones from our distro.  In a moment, we'll rebuild
+# using 'ant -D update=true': the contents still come from the source distro,
+# but we can do a straight diff to see what's changed.
+#
+cd /usr/local/src/hadoop-src/
+# rm -rf conf pids 
+cp -P /usr/lib/hadoop-0.20/{logs,pids,conf} .
+rsync -alvi /usr/lib/hadoop-0.20/ /usr/local/src/hadoop-src/
+
+# Bring it under git
+echo "/build" > .gitignore
+git init
+git add .
+git ci -m "initial commit"
+
+# Build with no changes
+ant -D update=true
+
+# Verify nothing important has changed.
+# I had a few minor pathnames change in doc conf files, no biggie.
+colordiff -ruw /usr/lib/hadoop-0.20 /usr/local/src/hadoop-src/ --exclude={.git,.gitignore,docs,build,src}
+git diff HEAD
+
+#
+# Now apply your patches.
+#

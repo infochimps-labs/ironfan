@@ -7,6 +7,8 @@ class Chef::Recipe; include HadoopCluster ; end
 #
 # Configuration files
 #
+# Find these variables in ../hadoop_cluster/libraries/hadoop_cluster.rb
+#
 template_variables = {
   :namenode_address       => namenode_address,
   :jobtracker_address     => jobtracker_address,
