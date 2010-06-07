@@ -135,3 +135,26 @@ h3.
 
 curl http://169.254.169.254/latest/user-data
 
+
+
+h2. Doing something to every node
+
+<pre><code>
+. ~/.hadoop-ec2/aws_private_setup.sh ; hadoop-ec2 list gibbon > /tmp/gibbon-hosts.log ; cat /tmp/gibbon-hosts.log | cut -f4 > /tmp/gibbon-slaves.log 
+</code></pre>
+
+<pre><code>
+for foo in `cat /tmp/gibbon-slaves.log` ; do echo $foo ; sshkp $foo 'for svc in chef-client hadoop-0.20-{tasktracker,datanode} ; do sudo service $svc stop ; done' & done
+</code></pre>
+
+
+h2. On-the-fly backup of your namenode metadata
+
+bkupdir=/ebs2/hadoop-nn-backup/`date +"%Y%m%d"`
+
+for srcdir in /ebs*/hadoop/hdfs/ /home/hadoop/gibbon/hdfs/  ; do
+  destdir=$bkupdir/$srcdir ; echo $destdir ;
+  sudo mkdir -p $destdir ;
+
+done
+

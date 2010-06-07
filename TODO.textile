@@ -16,6 +16,8 @@ make azkaban not race
 
 
 
+* Right now it's really hard to do something like 'make one slave also be the 2NN'. This should be easy
+
 
 
 
