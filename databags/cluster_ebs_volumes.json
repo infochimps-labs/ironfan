@@ -1,27 +1,8 @@
 [
-{"id":"kong",
-  "server": []  
-},
 {"id":"zaius",
-  "master":   [],
-  "slave":    [],
-  "bootstrap":[] 
-},
-{"id":"maximus",
-  "master":[
-    [{"device":"/dev/sdj","volume_id":"vol-290ed840","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-cd0ed8a4","mount_point":"/ebs2"}]
-  ],
-  "slave":[
-    [{"device":"/dev/sdj","volume_id":"vol-cf0ed8a6","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-c10ed8a8","mount_point":"/ebs2"}],
-    [{"device":"/dev/sdj","volume_id":"vol-c50ed8ac","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-c70ed8ae","mount_point":"/ebs2"}],
-    [{"device":"/dev/sdj","volume_id":"vol-d90ed8b0","mount_point":"/ebs1"},{"device":"/dev/sdk","volume_id":"vol-df0ed8b6","mount_point":"/ebs2"}]
-  ]
-},
-{"id":"westchef",
-  "server":[],
-  "client":[
-    [{"device":"/dev/sdj","volume_id":"vol-e285d48a","mount_point":"/ebs1"}]
-  ]
+  "master":     []  
+  "chefmaster": []  
+  "slave":      []  
 },
 {"id":"gibbon",
   "slave":[
@@ -61,15 +42,6 @@
   ],
  "bootstrap": [],
  "bootstrap64": []
-},
-{"id":"infinitemonkeys",
-  "s1": [],
-  "s2": [],
-  "s3": [],
-  "s4": [],
-  "s5": [],
-  "bootstrap": [],
-  "bootstrap64": []
 }
 ]
 

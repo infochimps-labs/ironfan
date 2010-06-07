@@ -7,6 +7,8 @@ long_description  IO.read(File.join(File.dirname(__FILE__), 'README.rdoc'))
 version           "0.8"
 depends           "java"
 depends           "ebs"
+depends           "aws"
+depends           "ubuntu"
 depends           "cluster_service_discovery"
 
 %w{ debian ubuntu }.each do |os|

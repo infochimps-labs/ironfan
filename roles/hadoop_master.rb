@@ -7,8 +7,6 @@ run_list %w[
   hadoop_cluster::jobtracker
   hadoop_cluster::hadoop_webfront
   hadoop_cluster::std_hdfs_dirs
-  hadoop_cluster::hadoop_dir_perms
-  hadoop_cluster::format_namenode_once
 ]
 
 default_attributes({

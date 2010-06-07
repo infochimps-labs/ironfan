@@ -22,9 +22,9 @@ include_recipe "hadoop_cluster"
 #
 # Install pig from latest release
 #
-#   puts eg. tokyocabinet-1.4.32.tar.gz into /usr/local/src/tokyocabinet-1.4.32.tar.gz,
-#   expands it into /usr/local/share/tokyocabinet-1.4.32
-#   and links that to /usr/local/share/tokyocabinet
+#   puts pig tarball into /usr/local/src/pig-xxx
+#   expands it into /usr/local/share/pig-xxx
+#   and links that to /usr/local/share/pig
 #
 
 directory "/usr/local/src" do

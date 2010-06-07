@@ -2,4 +2,22 @@
 
 Complain bitterly if the validation.pem (etc) is missing
 
-separate out namenode recipe so that initial formatting is possible
+the namenode 
+  I think if we separate out namenode recipe so that initial formatting is possible
+
+
+cassandra shouldn't start before the /etc/cassandra is present
+
+
+* Make it work cross-cloud platform
+* make it work locally
+
+make azkaban not race
+
+
+
+* Right now it's really hard to do something like 'make one slave also be the 2NN'. This should be easy
+
+
+
+
