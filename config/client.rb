@@ -39,11 +39,11 @@ user_data   = OHAI_INFO[:ec2][:userdata]
 chef_config           = JSON.parse(user_data).to_mash                  rescue {'attributes'=>{}}.to_mash
 chef_config_from_file = JSON.load(File.open(CHEF_CONFIG_FILE)).to_mash rescue Mash.new
 chef_config['attributes'].merge!(chef_config_from_file.to_mash)
-p [chef_config, chef_config_from_file]
+p [chef_config]
 
 # How to identify node to chef server.
-chef_server_url        chef_config["chef_server"]
-validation_client_name chef_config["validation_client_name"]
+chef_server_url        chef_config["chef_server"]            || 'http://localhost:4000'
+validation_client_name chef_config["validation_client_name"] || 'chef-validator'
 
 #
 # Cluster index
