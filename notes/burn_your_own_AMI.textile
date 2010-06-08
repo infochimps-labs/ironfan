@@ -8,59 +8,64 @@ From your local machine, bring over your credentials
 
 On the target machine:
 <pre><code>
-  cd /mnt
-  # credentials
-  AWS_ACCOUNT_ID=123456781234 AWS_ACCESS_KEY_ID=2341245 AWS_SECRET_ACCESS_KEY=125324635473465743674637
-  # ... move the keys to /mnt (so that they are ignored in the bundling)
-  sudo mv /tmp/*.pem /mnt
-  
-  # Shutdown services
-  for foo in hadoop-0.20-{namenode,jobtracker,tasktracker,datanode,secondarynamenode} cassandra couchdb thttpd chef-client nfs-kernel-server rabbitmq-server chef-{solr,solr-indexer,client,server,server-webui} ; do sudo service $foo stop ; done
-  # and make the following ones not restart on bootup
-  for foo in hadoop-0.20-{tasktracker,datanode,namenode,jobtracker,secondarynamenode} cassandra ; do sudo update-rc.d -f $foo remove ; done
-  # Give the process list a how's your father -- nothing interesting should be running.
-  ps aux
-  # Unmount anything that's mounted,
-  sudo umount /home
-  sudo umount /ebs1
-  # Detatch anything that's attached,
-  ec2-detach-volume vol-123545
-  # and check that it all worked.
-  mount
-  ec2-describe-volumes -K pk.pem -C cert.pem
-  
-  # Fix /etc/hosts and /etc/hostname
-  # Fix /etc/fstab
-  
-  # Give apt some last-minute lovin'
-  sudo apt-get -y update  ;
-  sudo apt-get -y upgrade ;
-  sudo apt-get -f install ;
-  sudo apt-get clean ;
-  sudo updatedb ;
-  
-  # Nuke files that would be inconvenient to persist: chef config and startup files; log files; and files that contain keys of some sort.
-  away_dir=/mnt/tmp/away-`date "+%Y%m%d%H"`
-  sudo mkdir -p $away_dir
-  # Move files out of the way that will confuse on reboot
-  sudo mv /var/lib/couchdb/0.10.0/chef.couch /var/lib/rabbitmq/mnesia/rabbit /etc/hostname /etc/chef/{client-config.json,*.pem} /var/www/index.html $away_dir
-  sudo mv /var/chef /etc/hadoop/conf/{*.xml,raw_settings.yaml*} /etc/cassandra/storage-conf* $away_dir
-  # flush files that might have history or credentials
-  sudo rm -rf /root/{.cache,.chef,emacs.d,.bash_history,.gem} ~ubuntu/{.cache,.chef,emacs.d,.bash_history,.gem} /var/backups/*  /tmp/* 
-  # Zero out log files
-  sudo rm -rf /var/lib/cloud/data/* /var/log/{chef,hadoop,rabbitmq,cassandra}/* /etc/sv/*/log/main/* /var/log/*.gz
-  sudo bash -c 'for foo in /var/log/{dmesg,syslog,messages,debug,udev,lastlog,faillog,dmesg.0,*.log} ; do echo -n > $foo ; done'
-  # Nuke old chef templates
-  find /etc -iname='*.chef-2*[0-9]' -exec rm {} \;
-  
-  # If you want to record the AMI version, something like
-  sudo rm /etc/motd ;
-  sudo bash -c 'echo "CHIMP CHIMP CHIMP CRUNCH CRUNCH CRUNCH (image burned at `date`)" > /etc/motd ' ;
+cd /mnt
+# credentials
+AWS_ACCOUNT_ID=123456781234 AWS_ACCESS_KEY_ID=2341245 AWS_SECRET_ACCESS_KEY=125324635473465743674637
+# ... move the keys to /mnt (so that they are ignored in the bundling)
+sudo mv /tmp/*.pem /mnt
+
+# Shutdown services
+for foo in hadoop-0.20-{namenode,jobtracker,tasktracker,datanode,secondarynamenode} cassandra couchdb thttpd chef-client nfs-kernel-server rabbitmq-server chef-{solr,solr-indexer,client,server,server-webui} ; do sudo service $foo stop ; done
+# and make the following ones not restart on bootup
+for foo in hadoop-0.20-{tasktracker,datanode,namenode,jobtracker,secondarynamenode} cassandra ; do sudo update-rc.d -f $foo remove ; done
+# Give the process list a how's your father -- nothing interesting should be running.
+ps aux
+# Unmount anything that's mounted,
+sudo umount /home
+sudo umount /ebs1
+# Detatch anything that's attached,
+ec2-detach-volume vol-123545
+# and check that it all worked.
+mount
+ec2-describe-volumes -K pk.pem -C cert.pem
+
+# Fix:
+#  /etc/hosts
+#  /etc/hostname
+#  /etc/fstab
+
+# Give apt some last-minute lovin'
+sudo apt-get -y update  ;
+sudo apt-get -y upgrade ;
+sudo apt-get -f install ;
+sudo apt-get clean ;
+sudo updatedb ;
+
+# Nuke files that would be inconvenient to persist: chef config and startup files; log files; and files that contain keys of some sort.
+away_dir=/mnt/tmp/away-`date "+%Y%m%d%H"`
+sudo mkdir -p $away_dir
+# Move files out of the way that will confuse on reboot
+sudo mv /var/lib/couchdb/0.10.0/chef.couch /var/lib/rabbitmq/mnesia/rabbit /etc/hostname /etc/chef/{client-config.json,*.pem} /var/www/index.html $away_dir
+sudo mv /var/chef /etc/hadoop/conf/{*.xml,raw_settings.yaml*} /etc/cassandra/storage-conf* $away_dir
+# flush files that might have history or credentials
+sudo rm -rf /root/{.cache,.chef,emacs.d,.bash_history,.gem} ~ubuntu/{.cache,.chef,emacs.d,.bash_history,.gem} /var/backups/*  /tmp/* 
+# Zero out log files
+sudo rm -rf /var/lib/cloud/data/* /var/log/{chef,hadoop,rabbitmq,cassandra}/* /etc/sv/*/log/main/* /var/log/*.gz
+sudo bash -c 'for foo in /var/log/{dmesg,syslog,messages,debug,udev,lastlog,faillog,dmesg.0,*.log} ; do echo -n > $foo ; done'
+# Nuke old chef templates
+sudo find /etc -iname '*.chef-2*[0-9]' -exec rm {} \; -print
+
+# If you want to record the AMI version, something like
+sudo rm /etc/motd ;
+sudo bash -c 'echo "CHIMP CHIMP CHIMP CRUNCH CRUNCH CRUNCH (image burned at `date`)" > /etc/motd ' ;
 </code></pre>
 
 h3. Burning an EBS-backed AMI
 
 Just use the console. MAKE SURE TO STOP, UNMOUNT AND DETACH ALL EBS volumes first.
+
+  infochimps.chef-server.00.00.sda1.boot.20100607
+  Chef Server image: use with http://github.com/infochimps/cluster_chef - Hadoop Cassandra & NFS under Chef
 
 h3. Burning an Instance-backed (s3) AMIs
 
@@ -102,3 +107,14 @@ h4. If you are in a region other than us-east-1
 # time ec2-upload-bundle    -b $ami_bucket -m /mnt/$ami_bucket/image.manifest.xml --location $AWS_REGION -a $AWS_ACCESS_KEY_ID -s $AWS_SECRET_ACCESS_KEY
 # time ec2-register -n $ami_name -d $ami_name $ami_bucket/image.manifest.xml      --region $AWS_REGION
 
+
+
+
+
+h2. Bootstrap chef server
+
+( cd ~/ics/sysadmin/cluster_chef/ ; knife cookbook upload --all ; for foo in ~/ics/sysadmin/cluster_chef/roles/* ; do echo $foo ; knife role from file $foo ; done ; rake load_data_bags ; rake load_data_bags ) 
+
+sudo apt-get install jardiff emacs23-nox erlang-mode python-mode ruby-elisp ruby1.8-elisp org-mode mmm-mode css-mode html-helper-mode lua-mode ruby1.8 ruby1.8-dev rdoc1.8 ri1.8 libopenssl-ruby
+
+sudo gem install --no-ri --no-rdoc extlib oniguruma fastercsv json yajl-ruby libxml-ruby  htmlentities addressable uuidtools configliere right_aws whenever rest-client oauth nokogiri json crack cheat echoe jeweler yard net-proto net-scp net-sftp net-ssh idn rails wirble wukong cassandra redis dependencies wukong poolparty amazon-ec2 broham

@@ -33,8 +33,8 @@ pool POOL_NAME do
     has_role   settings, "pig"
     has_big_package             settings
     #
-    # user_data                   (settings[:user_data].merge(settings[:user_data][:attributes])).to_json
-    user_data                   bootstrap_chef_script('bootstrap_chef_server', settings)
+    user_data                   bootstrap_chef_script('run_chef_server', settings)
+    # puts JSON.pretty_generate(settings[:user_data])
   end
 
   #

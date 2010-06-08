@@ -4,9 +4,8 @@ for foo in hadoop-0.20-{namenode,jobtracker,tasktracker,datanode,secondarynameno
     couchdb rabbitmq-server chef-{solr,solr-indexer,client,server,server-webui} ; do
   sudo service $foo stop ;
 done
-sudo kill ` ps aux | grep 330 | cut -c 10-15 `
 
-for foo in hadoop-0.20-{tasktracker,datanode,namenode,jobtracker,secondarynamenode} cassandra thttpd nfs-kernel-server ; do sudo update-rc.d -f $foo remove ; done
+for foo in hadoop-0.20-{tasktracker,datanode,namenode,jobtracker,secondarynamenode} cassandra ; do sudo update-rc.d -f $foo remove ; done
 
 # ===========================================================================
 #
@@ -14,7 +13,7 @@ for foo in hadoop-0.20-{tasktracker,datanode,namenode,jobtracker,secondarynameno
 #
 #
 # => Fix the /etc/hosts and /etc/fstab to be generic, if they were modified
-cat /etc/hosts /etc/fstab
+cat /etc/hosts /etc/fstab /etc/hostname
 #
 # => Inspect the process list:
 ps aux
