@@ -117,4 +117,4 @@ h2. Bootstrap chef server
 
 sudo apt-get install jardiff emacs23-nox erlang-mode python-mode ruby-elisp ruby1.8-elisp org-mode mmm-mode css-mode html-helper-mode lua-mode ruby1.8 ruby1.8-dev rdoc1.8 ri1.8 libopenssl-ruby
 
-sudo gem install --no-ri --no-rdoc extlib oniguruma fastercsv json yajl-ruby libxml-ruby  htmlentities addressable uuidtools configliere right_aws whenever rest-client oauth nokogiri json crack cheat echoe jeweler yard net-proto net-scp net-sftp net-ssh idn rails wirble wukong cassandra redis dependencies wukong poolparty amazon-ec2 broham
+sudo gem install --no-ri --no-rdoc extlib oniguruma fastercsv json yajl-ruby libxml-ruby  htmlentities addressable uuidtools configliere right_aws whenever rest-client oauth nokogiri crack cheat echoe jeweler yard net-proto net-scp net-sftp net-ssh idn rails wirble wukong cassandra redis dependencies wukong poolparty amazon-ec2 broham

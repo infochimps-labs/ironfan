@@ -43,7 +43,6 @@ end
 # installs a whole mess of convenient packages.
 def has_big_package settings
   has_role settings, "big_package"
-  has_role settings, "dev_machine"
 end
 
 # ===========================================================================
