@@ -1,7 +1,7 @@
 [
 {"id":"zaius",
-  "master":     []  
-  "chefmaster": []  
+  "master":     [],
+  "chefmaster": [], 
   "slave":      []  
 },
 {"id":"gibbon",
