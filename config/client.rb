@@ -35,9 +35,9 @@ CHEF_CONFIG_FILE     = "/etc/chef/client-config.json"
 # Extract client configuration from EC2 user-data and from local file
 user_data            = OHAI_INFO[:ec2][:userdata]
 chef_config          = JSON.parse(user_data).to_mash rescue {'attributes'=>{}}.to_mash
-attributes           = chef_config['attributes']
-attributes_from_file = JSON.load(File.open(CHEF_CONFIG_FILE)).to_mash rescue Mash.new
-attributes.merge!(attributes_from_file)
+attrs                = chef_config['attributes']
+attrs_from_file      = JSON.load(File.open(CHEF_CONFIG_FILE)) rescue {}
+attrs.merge!(attrs_from_file)
 p [chef_config]
 
 # How to identify node to chef server.
@@ -53,12 +53,12 @@ client_key             "/etc/chef/client.pem"
 if chef_config['get_name_from'] == 'broham'
   begin
     require 'broham'
-    BrohamNode.set_cluster_info!(attributes)
+    BrohamNode.set_cluster_info!(attrs)
   rescue Exception => e ; warn "Error getting cluster role from broham: #{e.message}\n#{e.backtrace}" ; end
 end
-attributes["cluster_role_index"] ||= OHAI_INFO[:ec2][:instance_id]
-attributes["node_name"]          ||= [ attributes["cluster_name"], attributes["cluster_role"], attributes["cluster_role_index"] ].reject(&:blank?).join('-')
-node_name attributes["node_name"]
+attrs["cluster_role_index"] ||= OHAI_INFO[:ec2][:instance_id]
+attrs["node_name"]          ||= [ attrs["cluster_name"], attrs["cluster_role"], attrs["cluster_role_index"] ].reject(&:blank?).join('-')
+node_name attrs["node_name"]
 
 # If the client file is missing, write the validation key out so chef-client can register
 if (not File.exists?("/etc/chef/client.pem")) && (not File.exists?(validation_key)) && (not chef_config["validation_key"].blank?)
@@ -67,10 +67,10 @@ if (not File.exists?("/etc/chef/client.pem")) && (not File.exists?(validation_ke
   end
 end
 
-# Adopt chef config settings from the attributes key
+# Adopt chef config settings from the attrs hash
 unless File.exists?(CHEF_CONFIG_FILE)
   File.open(CHEF_CONFIG_FILE, "w", 0600) do |f|
-    f.print(JSON.pretty_generate(attributes))
+    f.print(JSON.pretty_generate(attrs))
   end
 end
 json_attribs CHEF_CONFIG_FILE if File.exists?(CHEF_CONFIG_FILE)
