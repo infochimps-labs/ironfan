@@ -16,7 +16,7 @@ pool POOL_NAME do
   cloud :chefmaster do
     using :ec2
     settings = settings_for_node(POOL_NAME, :chefmaster)
-    instances            1..1
+    instances                   1..1
     user                        'ubuntu'
     is_spot_priced              settings
     is_generic_node             settings
@@ -30,14 +30,11 @@ pool POOL_NAME do
     has_role   settings, "hadoop_master"
     has_role   settings, "hadoop_worker"
     has_recipe settings, 'hadoop_cluster::std_hdfs_dirs'
-    has_recipe settings, "pig::install_from_release"
+    has_role   settings, "pig"
     has_big_package             settings
-    security_group :exposed_hadoop_dashboard do
-      authorize :from_port => 50070,   :to_port => 50030
-      authorize :from_port => 50030,   :to_port => 50030
-    end
     #
-    user_data                   (settings[:user_data].merge(settings[:user_data][:attributes])).to_json
+    # user_data                   (settings[:user_data].merge(settings[:user_data][:attributes])).to_json
+    user_data                   bootstrap_chef_script('bootstrap_chef_server', settings)
   end
 
   #
