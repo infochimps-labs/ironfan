@@ -22,7 +22,7 @@ echo "`date` Pulling in chef client and server scripts"  >> $progresslog
 cp /etc/chef/client.rb /etc/chef/client-orig.rb ;
 wget -nv ${REMOTE_FILE_URL_BASE}/client.rb -O /etc/chef/client.rb ;
 cat > /etc/chef/client-config.json <<EOF
-  <%= chef_config["attributes"].to_json %>
+<%= chef_config[:attributes].to_json %>
 EOF
 sed -i 's/chef_server_url.*/chef_server_url    "http://<%= hostname %>:4000"/' /etc/chef/server.rb
 
@@ -42,6 +42,7 @@ done
 
 echo "`date` running chef client, check /etc/sv/chef-client/log/main/current"  >> $progresslog 
 service chef-client restart
+sudo update-rc.d chef-client defaults
 
 cat >> $progresslog <<EOF
 Next Steps:

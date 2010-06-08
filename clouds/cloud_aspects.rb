@@ -94,7 +94,7 @@ def bootstrap_chef_script role, settings
     :chef_server_fqdn => settings[:user_data][:chef_server].gsub(%r{http://(.*):\d+},'\1'),
     :ubuntu_version   => 'lucid',
     :bootstrap_scripts_url_base => settings[:bootstrap_scripts_url_base],
-    :chef_config      => settings[:user_data].to_hash
+    :chef_config      => settings[:user_data]
     )
 end
 

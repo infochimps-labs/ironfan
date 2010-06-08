@@ -38,7 +38,7 @@ module AwsServiceData
     %w[us-west-1             32-bit  ebs             infochimps-chef-server ] => 'ami-5b81d01e',
     %w[us-west-1             32-bit  instance        infochimps-chef-client ] => 'ami-b39ccdf6',
     #
-    %w[us-east-1             32-bit  ebs             infochimps-chef-server ] => 'ami-388f6751',
+    %w[us-east-1             32-bit  ebs             infochimps-chef-server ] => 'ami-c28f67ab',
     #
     %w[us-east-1             32-bit  instance        infochimps-chef-client ] => '',
     %w[us-east-1             32-bit  ebs             infochimps-chef-client ] => '',

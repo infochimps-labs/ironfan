@@ -25,7 +25,6 @@ pool POOL_NAME do
     is_chef_server              settings
     #
     is_hadoop_node              settings
-    mounts_ebs_volumes          settings
     has_recipe settings, 'hadoop_cluster::format_namenode_once'
     has_role   settings, "hadoop_master"
     has_role   settings, "hadoop_worker"
@@ -34,7 +33,8 @@ pool POOL_NAME do
     has_big_package             settings
     #
     user_data                   bootstrap_chef_script('run_chef_server', settings)
-    # puts JSON.pretty_generate(settings[:user_data])
+    # puts JSON.pretty_generate(settings[:user_data][:attributes])
+    puts user_data
   end
 
   #

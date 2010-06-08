@@ -5,7 +5,10 @@ for foo in hadoop-0.20-{namenode,jobtracker,tasktracker,datanode,secondarynameno
   sudo service $foo stop ;
 done
 
-for foo in hadoop-0.20-{tasktracker,datanode,namenode,jobtracker,secondarynamenode} cassandra ; do sudo update-rc.d -f $foo remove ; done
+for foo in hadoop-0.20-{tasktracker,datanode,namenode,jobtracker,secondarynamenode} cassandra  ; do sudo update-rc.d -f $foo remove ; done
+
+# for chef server
+sudo service chef-client stop
 
 # ===========================================================================
 #

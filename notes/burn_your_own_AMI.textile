@@ -46,7 +46,7 @@ away_dir=/mnt/tmp/away-`date "+%Y%m%d%H"`
 sudo mkdir -p $away_dir
 # Move files out of the way that will confuse on reboot
 sudo mv /var/lib/couchdb/0.10.0/chef.couch /var/lib/rabbitmq/mnesia/rabbit /etc/hostname /etc/chef/{client-config.json,*.pem} /var/www/index.html $away_dir
-sudo mv /var/chef /etc/hadoop/conf/{*.xml,raw_settings.yaml*} /etc/cassandra/storage-conf* $away_dir
+sudo mv /srv/chef/cache/chef_server_cookie_id /var/chef /etc/hadoop/conf/{*.xml,raw_settings.yaml*} /etc/cassandra/storage-conf* $away_dir 
 # flush files that might have history or credentials
 sudo rm -rf /root/{.cache,.chef,emacs.d,.bash_history,.gem} ~ubuntu/{.cache,.chef,emacs.d,.bash_history,.gem} /var/backups/*  /tmp/* 
 # Zero out log files
