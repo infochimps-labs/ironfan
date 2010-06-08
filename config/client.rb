@@ -30,9 +30,9 @@ OHAI_INFO.all_plugins
 log_level            :info
 log_location         STDOUT
 Mixlib::Log::Formatter.show_time = true
-CHEF_CONFIG_FILE     = "/etc/chef/client-config.json"
 
 # Extract client configuration from EC2 user-data and from local file
+CHEF_CONFIG_FILE     = "/etc/chef/client-config.json"
 user_data            = OHAI_INFO[:ec2][:userdata]
 chef_config          = JSON.parse(user_data).to_mash rescue {'attributes'=>{}}.to_mash
 attrs                = chef_config['attributes']
@@ -74,3 +74,5 @@ unless File.exists?(CHEF_CONFIG_FILE)
   end
 end
 json_attribs CHEF_CONFIG_FILE if File.exists?(CHEF_CONFIG_FILE)
+
+puts "#{node_name} on #{chef_server_url} in #{attrs["cluster_name"]} running #{attrs["run_list"].inspect}"
