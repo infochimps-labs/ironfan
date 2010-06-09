@@ -75,4 +75,4 @@ unless File.exists?(CHEF_CONFIG_FILE)
 end
 json_attribs CHEF_CONFIG_FILE if File.exists?(CHEF_CONFIG_FILE)
 
-puts "#{node_name} on #{chef_server_url} in #{attrs["cluster_name"]} running #{attrs["run_list"].inspect}"
+puts "=> chef client #{node_name} on #{chef_server_url} in #{attrs["cluster_name"]} running #{attrs["run_list"].inspect}"
