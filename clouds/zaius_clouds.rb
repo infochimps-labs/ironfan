@@ -71,6 +71,7 @@ pool POOL_NAME do
     is_chef_client              settings
     #
     is_hadoop_node              settings
+    is_cassandra_node           settings
     has_role   settings, "hadoop_worker"
     has_role   settings, "pig"
     has_big_package             settings
