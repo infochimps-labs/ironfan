@@ -85,8 +85,8 @@ export EC2_CERT=/mnt/cert.pem
 export EC2_PRIVATE_KEY=/mnt/pk.pem
 ami_name=infochimps.chef-client.lucid.east.ami-${BITS}-`date "+%Y%m%d"`
 ami_bucket=${AMI_BUCKET}/$ami_name
-
 sudo mkdir -p /mnt/$ami_bucket
+
 # This will take a long fucking time. 15 minutes on a small instance. It fucking sucks.
 time sudo ec2-bundle-vol --exclude=$AMI_EXCLUDES -d /mnt/$ami_bucket -u $AWS_ACCOUNT_ID --cert cert.pem --privatekey pk.pem --ec2cert /etc/ec2/amitools/cert-ec2.pem
 time ec2-upload-bundle    -b $ami_bucket -m /mnt/$ami_bucket/image.manifest.xml -a $AWS_ACCESS_KEY_ID -s $AWS_SECRET_ACCESS_KEY
