@@ -55,6 +55,7 @@ pool POOL_NAME do
     has_role   settings, "pig"
     has_big_package             settings
     is_cassandra_node           settings
+    has_role   settings, "infochimps_base"
     #
     user_data                   (settings[:user_data].merge(settings[:user_data][:attributes])).to_json
     # puts JSON.pretty_generate(settings[:user_data])
