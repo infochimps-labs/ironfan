@@ -32,9 +32,7 @@ pool POOL_NAME do
     has_role   settings, "pig"
     has_big_package             settings
     #
-    user_data                   bootstrap_chef_script('run_chef_server', settings)
-    # puts JSON.pretty_generate(settings[:user_data][:attributes])
-    puts user_data
+    user_data_is_bootstrap_script(settings, 'bootstrap_chef_server')
   end
 
   #
@@ -58,14 +56,13 @@ pool POOL_NAME do
     has_role   settings, "pig"
     has_big_package             settings
     #
-    user_data                   (settings[:user_data].merge(settings[:user_data][:attributes])).to_json
-    # puts JSON.pretty_generate(settings[:user_data])
+    user_data_is_json_hash      settings
   end
 
   cloud :slave do
     using :ec2
     settings = settings_for_node(POOL_NAME, :slave)
-    instances                   1..1
+    instances                   3..3
     user                        'ubuntu'
     is_spot_priced              settings
     is_generic_node             settings
@@ -78,7 +75,6 @@ pool POOL_NAME do
     has_role   settings, "pig"
     has_big_package             settings
     #
-    user_data                   (settings[:user_data].merge(settings[:user_data][:attributes])).to_json
-    # puts JSON.pretty_generate(settings[:user_data])
+    user_data_is_json_hash      settings
   end
 end

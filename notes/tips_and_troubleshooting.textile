@@ -73,11 +73,30 @@ h3. Debugging chef everything
   for foo in rabbitmq-server thttpd couchdb chef-{solr,solr-indexer,client,server,server-webui} cassandra ; do sudo service $foo restart ; done
 </code></pre>
 
-If you're having 401 Authentication errors,
+h3. If you're having 401 Authentication errors,
 
 * Check the node_name set in client.rb.
 * you can edit the node name in /etc/chef/client-config.json file directly, and you can overwrite the /etc/chef/validation.pem file -- the client script will let those settings override the userdata config.
 * Once you've checked that, blow away the client.rb file and re-run chef server. It should authenticate as the node name you set.
+
+h3. 'start runsvdir' returned 1, expected 0 
+
+For an error like
+<pre><code>
+/usr/bin/chef-client:19
+/usr/lib/ruby/gems/1.8/gems/chef-0.8.16/bin/../lib/chef/mixin/command.rb:181:in `handle_command_failures': start runsvdir returned 1, expected 0 (Chef::Exceptions::Exec)
+	from /usr/lib/ruby/gems/1.8/gems/chef-0.8.16/bin/../lib/chef/mixin/command.rb:124:in `run_command'
+	from /usr/lib/ruby/gems/1.8/gems/chef-0.8.16/bin/../lib/chef/provider/execute.rb:49:in `action_run'
+	from /usr/lib/ruby/gems/1.8/gems/chef-0.8.16/bin/../lib/chef/runner.rb:60:in `send'
+</code></pre>
+
+chef has become confused about the state of the runit coordinating daemon.  No idea why this sometimes happens, but
+
+<pre><code>
+sudo restart runsvdir
+</code></pre>
+
+and then re-running the chef client seems to usually work
 
 h3. Debug chef server bootstrap
 
