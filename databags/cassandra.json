@@ -1,7 +1,7 @@
 [
 {
   "id": "clusters",
-  "Test": {
+  "zaius": {
     "keyspaces": {
       "Twitter": {
         "columns": {
@@ -25,7 +25,6 @@
           "UserSearchIds":         { "compare_with": "AsciiType"  },
           "UserScreenNames":       { "compare_with": "AsciiType" },
           "Tokens":                { "compare_with": "AsciiType" },
-          
           "wordbag_user_id":       { "compare_with": "UTF8Type" },
           "influence_user_id":     { "compare_with": "UTF8Type" },
           "trstrank_user_id":      { "compare_with": "UTF8Type" },

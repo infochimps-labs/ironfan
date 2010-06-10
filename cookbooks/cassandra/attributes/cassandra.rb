@@ -1,5 +1,5 @@
 # The "cassandra" data bag "clusters" item defines keyspaces for the cluster named here:
-default[:cassandra][:cluster_name]                  = "Test"
+set[:cassandra][:cluster_name]                      = node[:cluster_name] || "Test"
 default[:cassandra][:keyspaces]                     = {}
 # Directories
 default[:cassandra][:data_file_dirs]                = ["/data/db/cassandra"]
