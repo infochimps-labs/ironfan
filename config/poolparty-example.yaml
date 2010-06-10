@@ -30,7 +30,9 @@
 #
 :user_data:
   # hostname and port for chef server
-  :chef_server:                         "http://chef.infochimps.com:4000"
+  :chef_server:                         "http://chef.yourdomain.com:4000"
+  # Change to "broham" for cluster role identification (requires some setup first though)
+  :get_name_from:                       instance_id
   # Attributes for the node. Anything set here overrides all other node attributes
   :attributes:
     #
@@ -51,23 +53,47 @@
   :zaius:
     # settings that apply to all machines in zaius cluster
     :common:
+      :instance_type:                   m1.small
       # By default, use instance-backed AMI that runs chef-client at startup
       :instance_os:                     opscode-chef-client
       :instance_backing:                instance
-      :instance_type:                   m1.small
+      # You might instead prefer to use the infochimps' AMI: it's EBS backed,
+      # has a more cluster-friendly client.rb, and is much faster to populate.
+      # :instance_os:                     infochimps-chef-client
+      # :instance_backing:                ebs
+      #
+      :user_data:
+        :get_name_from:                 broham
     # settings for all slave machines
     :slave:
+      # use spot pricing for the slaves, who cares if they get called to heaven
+      :spot_price_fraction:             1.0
+
     # settings for a master if you have a separate chef server
     :master:
       # Make an elastic IP; use your DNS service (or http://dyndns.org) to point a hostname to it
-      :elastic_ip:                      184.72.52.22
+      :elastic_ip:                      1.2.3.4
+      # Other node settings
+      :user_data:
+        :attributes:
+          # enter the hostname for your chef server
+          :node_name:                   zaius.yourdomain.com
+
     # settings for a combined master and chef server
     :chefmaster:
-      # Use an EBS-backed AMI
-      :instance_os:                     infochimps-chef-server
+      # Use an EBS-backed AMI. Substitute 'lucid' (a plain Ubuntu 10.x machine)
+      :instance_os:                     infochimps-chef-client
       :instance_backing:                ebs
       # Make an elastic IP; use your DNS service (or http://dyndns.org) to point a hostname to it
-      :elastic_ip:                      184.72.52.22
+      :elastic_ip:                      1.2.3.4
+      # Don't spot price
+      :spot_price_fraction:             ~
+      # Don't delete the root EBS volume when the machine shuts down.
+      :boot_volume:                     
+        :ebs_volume_size:               15
+        :ebs_delete_on_termination:     false
+      # Once things are running well, set this to true to prevent accidental chef-icide.
+      :disable_api_termination:         false
       # Chef client settings
       :user_data:
         :attributes:

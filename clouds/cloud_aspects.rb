@@ -43,7 +43,6 @@ end
 # installs a whole mess of convenient packages.
 def has_big_package settings
   has_role settings, "big_package"
-  has_role settings, "dev_machine"
 end
 
 # ===========================================================================
@@ -75,7 +74,6 @@ def erubis_template template_filename, *args
   text
 end
 
-
 # Reads the validation key in directly from a file
 def get_chef_validation_key settings
   chef_settings  = settings[:user_data] or return
@@ -84,9 +82,29 @@ def get_chef_validation_key settings
   chef_settings[:validation_key] ||= File.read(validation_key_file)
 end
 
+#
+# Pass a json hash of settings into the
+#
+# This should be the last thing in the cloud definition, as other methods might
+# populate it with data
+def user_data_is_json_hash settings, debug=false
+  user_data_hash = settings[:user_data]
+  puts "*****\n\n#{JSON.pretty_generate(user_data_hash)}\n**********\n" if debug
+  user_data user_data_hash.to_json
+end
+
+# This should be the last thing in the cloud definition, as other methods might
+# populate it with data
+def user_data_is_bootstrap_script settings, script_name, debug=false
+  script_text = bootstrap_chef_script(script_name, settings)
+  puts "*****\n\n#{script_text}\n**********\n" if debug
+  user_data(script_text)
+end
+
 # Generate a shell script suitable for user-data -- bootstraps a client or
 # server as appropriate
 def bootstrap_chef_script role, settings
+  p settings
   erubis_template(
     File.dirname(__FILE__)+"/../config/user_data_script-#{role}.sh.erb",
     :public_ip        => settings[:elastic_ip],

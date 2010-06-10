@@ -31,6 +31,6 @@
   :chef_server:                         "http://edit_your_cluster_chef_yaml.com:4000"
   :validation_key_file:                 "~/.hadoop-ec2/keypairs/chef-validator.pem"
   :validation_client_name:              "chef-validator"
-  :get_name_from_broham:                false
+  :get_name_from:                       ''
   :attributes:
     

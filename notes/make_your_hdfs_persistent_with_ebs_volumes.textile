@@ -1,16 +1,12 @@
 
 h2. Information Sharing using simpleDB
 
-* Make sure you log into the "aws console":http://bit.ly/awsconsole and check in as a SimpleDB user. (You have to click through a license agreement, it should approve you within minutes)
-
-sudo bash -c 'export HOSTNAME=gibbon.infinitemonkeys.info ; PUBLIC_IP=204.236.225.16 ; echo $HOSTNAME > /etc/hostname ; hostname -F /etc/hostname ; sysctl -w kernel.hostname=$HOSTNAME ; sed -i "s/127.0.0.1 *localhost/127.0.0.1      $HOSTNAME `hostname -s` localhost/" /etc/hosts ; if grep -q $PUBLIC_IP /etc/hosts ; then true ; else echo $PUBLIC_IP $HOSTNAME `hostname -s ` >> /etc/hosts ; fi'
-
 From http://support.rightscale.com/06-FAQs/FAQ_0012_-_How_do_I_partition,_format_and_mount_an_EBS_volume%3F
 
 * create a new volume
-* attach to instance, for example as /dev/sdl
+* attach to instance, for example as /dev/sdh
 * Partion the volume:   (This example creates a single primary partition that uses the entire volume.)
-** run @fdisk /dev/sdk1@
+** run @sudo fdisk /dev/sdh@
 ** Enter m for a menu
 ** Enter n to add a new partion
 ** Enter p for a primary partition
@@ -21,8 +17,8 @@ From http://support.rightscale.com/06-FAQs/FAQ_0012_-_How_do_I_partition,_format
 * Create a filesystem:
 
 <pre><code>
-    $ sudo mkfs.xfs -f /dev/sdl1
-    meta-data=/dev/sdl1              isize=256    agcount=4, agsize=26214062 blks
+    $ sudo mkfs.xfs -f /dev/sdh1
+    meta-data=/dev/sdh1              isize=256    agcount=4, agsize=26214062 blks
              =                       sectsz=512   attr=2
     data     =                       bsize=4096   blocks=104856247, imaxpct=25
              =                       sunit=0      swidth=0 blks
@@ -34,8 +30,14 @@ From http://support.rightscale.com/06-FAQs/FAQ_0012_-_How_do_I_partition,_format
 
 * If you like, poke a file into the drive saying when it was made. @sudo bash -c 'cat > /ebs3/created-at-`date +%Y%m%d`'@
 * detach
-* snapshot with a name like @gibbon+raw+000+000+/dev/sdx+/ebsx+20100523@ -- note the snapshot id (eg snap-6a1b8202) and wait for it to finish.
+* snapshot with a name like @gibbon+raw+000+000+/dev/sdh+/ebsx+20100523@ -- note the snapshot id (eg snap-6a1b8202) and wait for it to finish.
 * Create volumes: @ec2-create-volume --size 400 --snapshot snap-6a1b8202 --availability-zone us-east-1d@
 
-sudo mkdir /ebs4
-sudo mount -t xfs -o defaults,nouuid,noatime /dev/sdm1 /ebs4
+sudo mkdir /ebs3
+sudo mount -t xfs -o defaults,nouuid,noatime /dev/sdh1 /ebs2
+
+h2. Using Broham to assign drives to their correct instance
+
+* Make sure you log into the "aws console":http://bit.ly/awsconsole and check in as a SimpleDB user. (You have to click through a license agreement, it should approve you within minutes)
+
+sudo bash -c 'export HOSTNAME=gibbon.infinitemonkeys.info ; PUBLIC_IP=204.236.225.16 ; echo $HOSTNAME > /etc/hostname ; hostname -F /etc/hostname ; sysctl -w kernel.hostname=$HOSTNAME ; sed -i "s/127.0.0.1 *localhost/127.0.0.1      $HOSTNAME `hostname -s` localhost/" /etc/hosts ; if grep -q $PUBLIC_IP /etc/hosts ; then true ; else echo $PUBLIC_IP $HOSTNAME `hostname -s ` >> /etc/hosts ; fi'

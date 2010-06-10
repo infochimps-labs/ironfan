@@ -64,6 +64,7 @@ end
 bash 'build pig classes' do
   user 'root'
   cwd  '/usr/local/share/pig'
+  environment 'JAVA_HOME' => node[:pig][:java_home]
   code "ant"
   not_if{ File.exists?("/usr/local/share/pig/pig.jar") }
 end
@@ -71,6 +72,7 @@ end
 bash 'build piggybank' do
   user 'root'
   cwd  '/usr/local/share/pig/contrib/piggybank/java'
+  environment 'JAVA_HOME' => node[:pig][:java_home]
   code "ant"
   not_if{ File.exists?("/usr/local/share/pig/contrib/piggybank/java/piggybank.jar") }
 end
