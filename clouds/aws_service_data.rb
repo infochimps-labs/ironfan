@@ -39,7 +39,7 @@ module AwsServiceData
     #
     %w[us-east-1             32-bit  ebs             infochimps-chef-client ] => 'ami-449a722d', # infochimps.chef-client.lucid.east.32bit.20100610a
     %w[us-east-1             32-bit  instance        infochimps-chef-client ] => 'ami-be9c74d7', # infochimps.chef-client.lucid.east.ami-32bit-20100609
-    %w[us-east-1             64-bit  instance        infochimps-chef-client ] => 'ami-62bf570b', #
+    %w[us-east-1             64-bit  instance        infochimps-chef-client ] => 'ami-b29d75db', # infochimps.chef-client.lucid.east.ami-64bit-20100609
     #
     %w[us-east-1             32-bit  ebs             scraper     ] => 'ami-11d23b78',
   }
