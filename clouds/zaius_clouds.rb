@@ -62,7 +62,7 @@ pool POOL_NAME do
   cloud :slave do
     using :ec2
     settings = settings_for_node(POOL_NAME, :slave)
-    instances                   2..2
+    instances                   4..4
     user                        'ubuntu'
     is_spot_priced              settings
     is_generic_node             settings
