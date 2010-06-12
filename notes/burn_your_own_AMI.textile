@@ -1,5 +1,6 @@
 h2. Burn an AMI 
 
+<pre><code>
 # Shutdown services
 for foo in hadoop-0.20-{namenode,jobtracker,tasktracker,datanode,secondarynamenode} cassandra couchdb thttpd chef-client nfs-kernel-server rabbitmq-server chef-{solr,solr-indexer,client,server,server-webui} ; do sudo service $foo stop ; done
 # and make the following ones not restart on bootup

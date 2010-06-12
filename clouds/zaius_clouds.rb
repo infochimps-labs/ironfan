@@ -62,7 +62,7 @@ pool POOL_NAME do
   cloud :slave do
     using :ec2
     settings = settings_for_node(POOL_NAME, :slave)
-    instances                   4..4
+    instances                   5..5
     user                        'ubuntu'
     is_spot_priced              settings
     is_generic_node             settings
@@ -76,5 +76,9 @@ pool POOL_NAME do
     has_big_package             settings
     #
     user_data_is_json_hash      settings
+    security_group 'zaius' do
+      authorize :from_port => 1025,  :to_port => 65535, :cidr_ip => ['67.9.146.29/0']
+      authorize :group_name => 'zaius'
+    end
   end
 end

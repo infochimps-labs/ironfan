@@ -1,0 +1,11 @@
+
+
+
+
+
+
+h2. Using JConsole and JMX through the firewall
+
+* make sure to set -Djava.rmi.server.hostname=zaius.infinitemonkeys.info to the external hostname (ec2-8-1-2-3.compute-1.amazonaws.com)
+* Take note of the JMX port: It's the set by the -Dcom.sun.management.jmxremote.port parameter in the cassandra script -- perhaps /etc/sv/cassandra/run, perhaps CASSANDRA_DIR/bin/cassandra.in; in cluster chef it's set to 12345 by default
+* You need to open *not only* the JMX port but also some other magic port it opens. If you don't mind being careless, you can expose all ports to just your machine (in the AWS console set the security group to allow ports 0 to 65535 for your IP as revealed 
