@@ -50,8 +50,9 @@ module ClusterServiceDiscovery
   # Find all nodes that have indicated they provide the given service,
   # in descending order of when they registered.
   def all_providers_for_service service_name
-    search(:node, "provides_service:#{service_name}"
-      ).sort_by{|server| server[:provides_service][service_name]['timestamp'] } rescue []
+    search(:node, "provides_service:#{service_name}" ).
+      find_all{|server| server[:provides_service][service_name] && server[:provides_service][service_name]['timestamp'] }.
+      sort_by{|server| server[:provides_service][service_name]['timestamp'] } rescue []
   end
 
   # Find the most recent node that registered to provide the given service
