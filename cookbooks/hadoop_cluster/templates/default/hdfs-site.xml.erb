@@ -50,6 +50,10 @@
   <name>dfs.replication</name>
   <value><%= node[:hadoop][:dfs_replication] %></value>
 </property>
+<property>
+  <name>dfs.balance.bandwidthPerSec</name>
+  <value><%= node[:hadoop][:max_balancer_bandwidth] %></value>
+</property>
 <!-- Start Cloudera Desktop -->
 <!-- <property> -->
 <!--   <name>dfs.namenode.plugins</name> -->
