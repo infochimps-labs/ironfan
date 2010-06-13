@@ -19,9 +19,10 @@ pool POOL_NAME do
     instances                   1..1
     user                        'ubuntu'
     is_spot_priced              settings
+    sends_aws_keys              settings
     attaches_ebs_volumes        settings
     is_generic_node             settings
-    sends_aws_keys              settings
+    has_big_package             settings
     is_nfs_client               settings
     is_chef_client              settings
     #
@@ -30,11 +31,11 @@ pool POOL_NAME do
     has_role   settings, "hadoop_master"
     has_role   settings, "hadoop_worker"
     has_role   settings, "pig"
-    has_big_package             settings
     is_cassandra_node           settings
+    has_role   settings, "infochimps_base"
+    has_role   settings, "gibbon_cluster"
     #
-    user_data                   (settings[:user_data].merge(settings[:user_data][:attributes])).to_json
-    # puts JSON.pretty_generate(settings[:user_data])
+    user_data_is_json_hash      settings
   end
 
   cloud :slave do
@@ -43,9 +44,10 @@ pool POOL_NAME do
     instances                   30..30
     user                        'ubuntu'
     is_spot_priced              settings
+    sends_aws_keys              settings
     attaches_ebs_volumes        settings
     is_generic_node             settings
-    sends_aws_keys              settings
+    has_big_package             settings
     is_nfs_client               settings
     is_chef_client              settings
     #
@@ -53,11 +55,10 @@ pool POOL_NAME do
     mounts_ebs_volumes          settings
     has_role   settings, "hadoop_worker"
     has_role   settings, "pig"
-    has_big_package             settings
     is_cassandra_node           settings
     has_role   settings, "infochimps_base"
+    has_role   settings, "gibbon_cluster"
     #
-    user_data                   (settings[:user_data].merge(settings[:user_data][:attributes])).to_json
-    # puts JSON.pretty_generate(settings[:user_data])
+    user_data_is_json_hash      settings
   end
 end
