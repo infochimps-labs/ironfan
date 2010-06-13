@@ -59,13 +59,21 @@ end
 
 # We want to find all nodes in our cluster that rock the cassandra.
 cassandra_cluster_name = node[:cassandra][:cluster_name] + '-cassandra'
-# use cluster_service_discovery to register our ip address
-provide_service(cassandra_cluster_name)
+
+# have some fraction of the nodes register as a seed with cluster_service_discovery
+provide_service(cassandra_cluster_name) if (node[:cluster_role_index].blank?) || (node[:cluster_role_index].to_i % 4 == 0)
+
 # Configure the various addrs for binding
 node[:cassandra][:listen_addr] = private_ip_of(node)
 node[:cassandra][:thrift_addr] = private_ip_of(node)
 # And find out who all else provides cassandra in our cluster
-all_seeds  = [private_ip_of(node), all_provider_private_ips(cassandra_cluster_name)].flatten.compact.uniq
-all_seeds  = all_seeds[0 .. 5].sort # stabilize the list
-node[:cassandra][:seeds] = all_seeds
+all_seeds  = all_provider_private_ips(cassandra_cluster_name)
+all_seeds  = [private_ip_of(node), all_seeds] if (all_seeds.length < 2)
+node[:cassandra][:seeds] = all_seeds.flatten.compact.uniq.sort
 node.save
+
+# Pull the initial token from the cassandra data bag; leave it alone otherwise.
+initial_tokens = data_bag_item('cassandra', 'initial_tokens') rescue nil
+if initial_tokens && (not node[:cluster_role_index].blank?)
+  node[:cassandra][:initial_token] = initial_tokens[node[:cluster_role_index]]
+end

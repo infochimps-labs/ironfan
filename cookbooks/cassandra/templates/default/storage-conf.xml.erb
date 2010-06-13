@@ -196,17 +196,6 @@
    ~ setting.  Use with MemtableThroughputInMB to tune memory usage.
   -->
   <MemtableOperationsInMillions><%= @node[:cassandra][:memtable_ops] %></MemtableOperationsInMillions>
-
-  <!-- tune the two preceding larger
-       wiki has how to set memtable settings
-
-batch mutate will reduce the rpc overhead
-
-   look at row and key cache settings for read-heavy
-
-look for ticket about the runit problem (debian ; shell ; keywords)
-  -->
-  
   
   <!--
    ~ The maximum time to leave a dirty memtable unflushed.

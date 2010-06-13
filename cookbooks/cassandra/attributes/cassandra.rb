@@ -22,6 +22,7 @@ default[:cassandra][:thrift_addr]                   = "localhost"
 default[:cassandra][:thrift_port]                   = 9160
 default[:cassandra][:thrift_framed_transport]       = false
 # Memory, Disk and Performance
+default[:cassandra][:java_max_heap]                 = "1650M"
 default[:cassandra][:disk_access_mode]              = "auto"
 default[:cassandra][:sliced_buffer_size]            = 64
 default[:cassandra][:flush_data_buffer_size]        = 32
@@ -38,4 +39,5 @@ default[:cassandra][:commit_log_sync_period]        = 10000
 default[:cassandra][:gc_grace]                      = 864000
 # Install from release
 default[:cassandra][:install_url] = "http://apache.mirrors.tds.net/cassandra/0.6.1/apache-cassandra-0.6.1-bin.tar.gz"
+
 
