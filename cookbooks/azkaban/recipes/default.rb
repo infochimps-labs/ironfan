@@ -41,4 +41,4 @@ end
 
 include_recipe "azkaban::install_from_release"
 runit_service "azkaban"
-include_recipe "azkaban::post_deploy" if recipe?("azkaban::post_deploy")
+include_recipe "azkaban::post_deploy"
