@@ -55,8 +55,3 @@ link "/usr/local/share/azkaban" do
   to "/usr/local/share/#{azkaban_install_dir}"
   action :create
 end
-
-link "/usr/local/bin/azkaban-server.sh" do
-  to "/usr/local/share/azkaban/bin/azkaban-server.sh"
-  action :create
-end
