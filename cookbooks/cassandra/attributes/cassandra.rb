@@ -7,7 +7,7 @@ default[:cassandra][:commit_log_dir]                = "/var/lib/cassandra/commit
 default[:cassandra][:callout_location]              = "/var/lib/cassandra/callouts"
 default[:cassandra][:staging_file_dir]              = "/var/lib/cassandra/staging"
 # Partitioning
-default[:cassandra][:auto_bootstrap]                = true
+default[:cassandra][:auto_bootstrap]                = false
 default[:cassandra][:authenticator]                 = "org.apache.cassandra.auth.AllowAllAuthenticator"
 default[:cassandra][:partitioner]                   = "org.apache.cassandra.dht.RandomPartitioner"       # "org.apache.cassandra.dht.OrderPreservingPartitioner"
 default[:cassandra][:initial_token]                 = ""

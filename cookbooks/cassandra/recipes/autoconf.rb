@@ -70,10 +70,12 @@ node[:cassandra][:thrift_addr] = private_ip_of(node)
 all_seeds  = all_provider_private_ips(cassandra_cluster_name)
 all_seeds  = [private_ip_of(node), all_seeds] if (all_seeds.length < 2)
 node[:cassandra][:seeds] = all_seeds.flatten.compact.uniq.sort
-node.save
 
-# Pull the initial token from the cassandra data bag; leave it alone otherwise.
-initial_tokens = data_bag_item('cassandra', 'initial_tokens') rescue nil
-if initial_tokens && (not node[:cluster_role_index].blank?)
-  node[:cassandra][:initial_token] = initial_tokens[node[:cluster_role_index]]
+# Pull the initial token from the cassandra data bag if one is given
+if node[:cassandra][:initial_tokens] && (not node[:cluster_role_index].blank?)
+  node[:cassandra][:initial_token] = node[:cassandra][:initial_tokens][node[:cluster_role_index].to_i]
 end
+# If there is an initial token, force auto_bootstrap to false.
+node[:cassandra][:auto_bootstrap] = false if node[:cassandra][:initial_token]
+
+node.save
