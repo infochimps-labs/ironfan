@@ -35,13 +35,13 @@ directory "/usr/local/src" do
   recursive true
 end
 
-azkaban_install_pkg = File.basename(node[:azkaban][:install_url])
+azkaban_install_pkg = File.basename(node[:azkaban][:url])
 azkaban_install_dir = azkaban_install_pkg.gsub(%r{(?:-bin)?\.tar\.gz}, '')
 
 remote_file "/usr/local/src/#{azkaban_install_pkg}" do
-  source    node[:azkaban][:install_url]
+  source    node[:azkaban][:url]
   mode      "0644"
-  action :create
+  action    :create
 end
 
 bash 'install azkaban from tarball' do
