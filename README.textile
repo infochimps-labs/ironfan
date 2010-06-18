@@ -42,3 +42,31 @@ In chef,
 h3. Cluster Roles
 
 * 
+
+
+h2. Feedback on documentation:
+
+
+Alright, so I gave it a QUICK once over. I shouldn't spend much more time on this this weekend though...
+
+pt1:
+        - install dependencies: what about right_aws? Or is this no longer necessary?
+        - aws scavenger hunt: wtf is broham? Maybe just a link to its repo is fine?
+pt2:
+        - kick off chef+master node for option A: maybe a short note on what the -c option is doing (ie. I'd find it very handy to know that stored in that file is configuration for my cluster ...)
+        - set up web ui: I believe the command "sudo cat /etc/chef/server.rb | grep -i pass" is meant to run on master node. Indicate this?
+        
+pt3:
+        - wtf? I have no idea what's going on here.
+
+pt4:
+        - where is the explanation for how to launch slaves?
+
+Setting up a chef server is explained pretty well. I wouldn't be able to spin up a hadoop master or hadoop nodes with these instructions though. Maybe just a handwavy explanation for what command to run and where the config lives for both would be sufficient.
+
+Also: 
+- Adding a role? 
+- Nuking a role?
+- wtf is a role? (Are we assuming prior knowledge of chef?)
+- Modifying a running cluster?
+
