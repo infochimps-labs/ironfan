@@ -5,8 +5,7 @@ description 'Runs azkaban'
 run_list *%w[
   java
   runit
-  azkaban::install_from_release
-  azkaban::default
+  azkaban
   ]
 
 # Attributes applied if the node doesn't have it set already.

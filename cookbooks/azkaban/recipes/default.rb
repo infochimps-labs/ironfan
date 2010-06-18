@@ -29,19 +29,16 @@ user "azkaban" do
   not_if{ node[:etc][:passwd] && node[:etc][:passwd]['azkaban'] }
 end
 
-[ "/var/log/azkaban", "/var/lib/azkaban"].flatten.each do |azkaban_dir|
+[node[:azkaban][:log_dir], node[:azkaban][:job_dir]].each do |azkaban_dir|
   directory azkaban_dir do
     owner    "azkaban"
-    group    "root"
+    group    "admin"
     mode     "0755"
     action   :create
     recursive true
   end
 end
 
+include_recipe "azkaban::install_from_release"
 runit_service "azkaban"
-
-service "azkaban" do
-  supports :status => true, :restart => true, :reload => true
-  action [ :enable, :start ]
-end
+include_recipe "azkaban::post_deploy"
