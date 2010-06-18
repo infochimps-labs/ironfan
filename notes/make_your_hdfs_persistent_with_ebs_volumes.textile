@@ -1,5 +1,38 @@
+**These notes are still disordered. Ping @mrflip if you have questions.**
 
-h2. Information Sharing using simpleDB
+h1. EBS Volumes for a persistent HDFS
+
+
+* I HIGHLY recommend making the drives be XFS formatted. Mount options "defaults,nouuid,noatime" give good results.
+* Here's a sample cluster_ebs_volumes.json (the contents of the cluster_ebs_volumes databag):
+
+
+<pre><code>
+  [
+  {"id":"zaius",
+    "slave":[
+      [ { "device": "/dev/sdj1", "volume_id": "vol-7725a61e", "mount_point": "/ebs1", "type":"xfs", "options": "defaults,nouuid,noatime" } ]
+    ],
+    "master": [
+      [ { "device": "/dev/sdj",  "volume_id": "vol-290ed840", "mount_point": "/ebs1", "type":"xfs", "options": "defaults,nouuid,noatime" } ]
+    ]
+  }
+  ]
+</code></pre>
+
+
+h1. Volume Creation
+
+First, you need to make one or more EBS volumes for each node in your cluster.
+
+h2. Option #1: Use the Cloudera scripts
+
+If you have the Cloudera hadoop-ec2 scripts, you can use them to create the volumes, attach them, and generate a .json file that you can paste into the EBS mappings databag.
+
+* Note: you must incorporate the hadoop-ec2 ec2-storage-xxx.json file into the cluster_ebs_volumes.json databag. Additionally, you must add an "id":"CLUSTER_NAME" field into the hash. See cluster_chef/databags/cluster_ebs_volumes.json for comparison.
+* Make sure the created drives are xfs. If not, use hadoop-ec2 to attach the volumes and then run a script acrosss all the cluster machines to reformat them.
+
+h2. Option 2 pt1: How to create an EBS Volume
 
 From http://support.rightscale.com/06-FAQs/FAQ_0012_-_How_do_I_partition,_format_and_mount_an_EBS_volume%3F
 
@@ -36,8 +69,46 @@ From http://support.rightscale.com/06-FAQs/FAQ_0012_-_How_do_I_partition,_format
 sudo mkdir /ebs3
 sudo mount -t xfs -o defaults,nouuid,noatime /dev/sdh1 /ebs2
 
-h2. Using Broham to assign drives to their correct instance
+h2. Option 2 pt2: OK, now create {N} EBS Volumes
 
-* Make sure you log into the "aws console":http://bit.ly/awsconsole and check in as a SimpleDB user. (You have to click through a license agreement, it should approve you within minutes)
+* make 1gb xfs drive, attach, partition, format, detach, snapshot
+* use snapshot to make 1 250GB EBS volume
+* use xfsgrow to make it actually occupy the 250 GB
+* once that works, make N more and bring up your cluster.
+
+h1. Using Broham to have instances auto-number themselves.
+
+We need each zaius-slave to know what order it is within the cluster, so that it grabs its own drives. Broham is a workable (but not fully satisfactory) solution.:
+
+* gem install broham,
+* Log into the "aws console":http://bit.ly/awsconsole and check in as a SimpleDB user. (You have to click through a license agreement, it should approve you within minutes)
+* Follow the setup instructions in the Broham readme file. Specifically, you need to jump into IRC and do
+
+<pre><code>
+   require 'configliere' ; Settings.read(File.expand_path('~/.hadoop-ec2/poolparty.yaml'))
+   require 'broham'
+   Broham.establish_connection Settings
+   Broham.create_domain
+</code></pre>
+
 
 sudo bash -c 'export HOSTNAME=gibbon.infinitemonkeys.info ; PUBLIC_IP=204.236.225.16 ; echo $HOSTNAME > /etc/hostname ; hostname -F /etc/hostname ; sysctl -w kernel.hostname=$HOSTNAME ; sed -i "s/127.0.0.1 *localhost/127.0.0.1      $HOSTNAME `hostname -s` localhost/" /etc/hosts ; if grep -q $PUBLIC_IP /etc/hosts ; then true ; else echo $PUBLIC_IP $HOSTNAME `hostname -s ` >> /etc/hosts ; fi'
+
+
+h1. Use chef to attach and mount drives
+
+h2. Get one volume working
+
+h3. Create a databag for the volumes
+
+edit databags/cluster_ebs_volumes.json to suit.
+
+h3. Keep running chef-client until it attaches
+
+chef client should
+* attach as /dev/sdj (etc)
+* mount as /ebs1 (... and so on)
+* be added as a data dir into the /etc/hadoop/conf/site-hdfs.xml
+* create and chmod the appropriate subdirectories
+
+You might need to manually restart the datanode.
