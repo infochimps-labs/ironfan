@@ -34,19 +34,6 @@ If you have the Cloudera hadoop-ec2 scripts, you can use them to create the volu
 
 h2. Option 2 pt1: How to create an EBS Volume
 
-From http://support.rightscale.com/06-FAQs/FAQ_0012_-_How_do_I_partition,_format_and_mount_an_EBS_volume%3F
-
-* create a new volume
-* attach to instance, for example as /dev/sdh
-* Partion the volume:   (This example creates a single primary partition that uses the entire volume.)
-** run @sudo fdisk /dev/sdh@
-** Enter m for a menu
-** Enter n to add a new partion
-** Enter p for a primary partition
-** Enter 1 for the first partion on the disk
-** Select Enter to accept the default First Cylinder
-** Select Enter to accept the default Last Cylinder
-** Enter w to write the partition table and exit fdisk
 * Create a filesystem:
 
 <pre><code>
@@ -61,13 +48,49 @@ From http://support.rightscale.com/06-FAQs/FAQ_0012_-_How_do_I_partition,_format
     realtime =none                   extsz=4096   blocks=0, rtextents=0
 </code></pre>
 
-* If you like, poke a file into the drive saying when it was made. @sudo bash -c 'cat > /ebs3/created-at-`date +%Y%m%d`'@
+* mount it:
+<pre><code>
+    $ sudo mkdir /ebs_prep
+    $ sudo mount -t xfs -o defaults,nouuid,noatime /dev/sdh1 /ebs_prep
+</code></pre>
+* If you like, poke a file into the drive saying when it was made. @sudo bash -c 'cat > /ebs_prep/created-at-`date +%Y%m%d`'@
 * detach
-* snapshot with a name like @gibbon+raw+000+000+/dev/sdh+/ebsx+20100523@ -- note the snapshot id (eg snap-6a1b8202) and wait for it to finish.
+* snapshot with a name like @zaius+raw+000+000+/dev/sdh+/ebs_prep+20100620@ -- note the snapshot id (eg snap-6a1b8202) and wait for it to finish.
 * Create volumes: @ec2-create-volume --size 400 --snapshot snap-6a1b8202 --availability-zone us-east-1d@
 
-sudo mkdir /ebs3
-sudo mount -t xfs -o defaults,nouuid,noatime /dev/sdh1 /ebs2
+h3. to also partition
+
+
+But if you'd like to, see http://support.rightscale.com/06-FAQs/FAQ_0012_-_How_do_I_partition,_format_and_mount_an_EBS_volume%3F
+
+* create a new volume
+* attach to instance, for example as /dev/sdh
+* Partion the volume:   (This example creates a single primary partition that uses the entire volume.)
+** run @sudo fdisk /dev/sdh@
+** Enter m for a menu
+** Enter n to add a new partion
+** Enter p for a primary partition
+** Enter 1 for the first partion on the disk
+** Select Enter to accept the default First Cylinder
+** Select Enter to accept the default Last Cylinder
+** Enter w to write the partition table and exit fdisk
+
+h3. Resize on mount
+
+<pre><code>
+ip-10-218-47-247 ~$ sudo mount -t xfs /dev/sdj /ebs_prep
+ip-10-218-47-247 ~$ sudo xfs_growfs /ebs_prep
+meta-data=/dev/sdj               isize=256    agcount=4, agsize=65536 blks
+         =                       sectsz=512   attr=2
+data     =                       bsize=4096   blocks=262144, imaxpct=25
+         =                       sunit=0      swidth=0 blks
+naming   =version 2              bsize=4096   ascii-ci=0
+log      =internal               bsize=4096   blocks=2560, version=2
+         =                       sectsz=512   sunit=0 blks, lazy-count=1
+realtime =none                   extsz=4096   blocks=0, rtextents=0
+data blocks changed from 262144 to 41943040
+</code></pre>
+
 
 h2. Option 2 pt2: OK, now create {N} EBS Volumes
 
