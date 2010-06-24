@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 default[:hadoop][:hadoop_handle] = 'hadoop-0.20'
-set[:hadoop][:cdh_version]   = 'cdh3b1'
+default[:hadoop][:cdh_version]   = 'cdh3b1'
 
 default[:hadoop][:cluster_reduce_tasks]       = 57
 default[:hadoop][:dfs_replication]            = 3
@@ -16,7 +16,7 @@ default[:hadoop][:use_root_as_persistent_vol] = false
 
 # You should give at least one NFS-backed directory for the Namenode metadata to
 # persist to.
-set[:hadoop][:extra_nn_metadata_path] = '/home/hadoop'
+default[:hadoop][:extra_nn_metadata_path] = '/home/hadoop'
 
 # Other hadoop settings
 default[:hadoop][:max_balancer_bandwidth]     = 1048576  # bytes per second -- 1MB/s by default
@@ -41,10 +41,8 @@ hadoop_performance_settings =
   case node[:ec2][:instance_type]
   when 'm1.small'   then { :max_map_tasks => 2, :max_reduce_tasks => 1, :java_child_opts =>  '-Xmx550m', :java_child_ulimit => 2359296, :io_sort_factor => 10, :io_sort_mb => 100, }
   when 'c1.medium'  then { :max_map_tasks => 3, :max_reduce_tasks => 2, :java_child_opts =>  '-Xmx550m', :java_child_ulimit => 2359296, :io_sort_factor => 10, :io_sort_mb => 100, }
-# when 'm1.large'   then { :max_map_tasks => 3, :max_reduce_tasks => 2, :java_child_opts => '-Xmx1152m', :java_child_ulimit => 3670016, :io_sort_factor => 25, :io_sort_mb => 250, }
-  when 'm1.large'   then { :max_map_tasks => 2, :max_reduce_tasks => 2, :java_child_opts => '-Xmx1152m', :java_child_ulimit => 3670016, :io_sort_factor => 25, :io_sort_mb => 250, }
-# when 'c1.xlarge'  then { :max_map_tasks => 8, :max_reduce_tasks => 4, :java_child_opts =>  '-Xmx700m', :java_child_ulimit => 3670016, :io_sort_factor => 15, :io_sort_mb => 150, }
-  when 'c1.xlarge'  then { :max_map_tasks => 7, :max_reduce_tasks => 3, :java_child_opts =>  '-Xmx700m', :java_child_ulimit => 3670016, :io_sort_factor => 10, :io_sort_mb => 150, }
+  when 'm1.large'   then { :max_map_tasks => 3, :max_reduce_tasks => 2, :java_child_opts => '-Xmx1152m', :java_child_ulimit => 3670016, :io_sort_factor => 25, :io_sort_mb => 250, }
+  when 'c1.xlarge'  then { :max_map_tasks => 8, :max_reduce_tasks => 4, :java_child_opts =>  '-Xmx700m', :java_child_ulimit => 3670016, :io_sort_factor => 15, :io_sort_mb => 150, }
   when 'm1.xlarge'  then { :max_map_tasks => 6, :max_reduce_tasks => 4, :java_child_opts => '-Xmx1152m', :java_child_ulimit => 3670016, :io_sort_factor => 25, :io_sort_mb => 250, }
   when 'm2.xlarge'  then { :max_map_tasks => 3, :max_reduce_tasks => 2, :java_child_opts => '-Xmx2719m', :java_child_ulimit => 5567939, :io_sort_factor => 32, :io_sort_mb => 320, }
   when 'm2.2xlarge' then { :max_map_tasks => 6, :max_reduce_tasks => 3, :java_child_opts => '-Xmx2918m', :java_child_ulimit => 5976883, :io_sort_factor => 32, :io_sort_mb => 320, }

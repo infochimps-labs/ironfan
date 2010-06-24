@@ -9,11 +9,11 @@ require CLOUD_ASPECTS_DIR+'/cloud_aspects/cassandra'
 require CLOUD_ASPECTS_DIR+'/cloud_aspects/hadoop'
 require CLOUD_ASPECTS_DIR+'/cloud_aspects/nfs'
 
-Settings.define :access_key,        :env_var => 'AWS_ACCESS_KEY_ID',         :description => 'Your aws access key ID -- visit "Security Credentials" from the AWS "Account" page.'
-Settings.define :secret_access_key, :env_var => 'AWS_SECRET_ACCESS_KEY',     :description => 'Your aws secret access key -- visit "Security Credentials" from the AWS "Account" page.'
-Settings.define :account_id,        :env_var => 'AWS_ACCOUNT_ID',            :description => 'Your AWS account ID -- look in the top right corner of the credentials page from "Your Account" on the AWS homepage. Omit all dashes: eg 123456789012'
-Settings.define :ec2_url,           :env_var => 'EC2_URL',                   :description => 'EC2 endpoint URL for api calls; should match the AWS region; eg https://us-west-1.ec2.amazonaws.com for us-west-1'
-Settings.define :aws_region,                                                 :description => 'AWS region: currently, us-east-1, us-west-1, eu-west-1, or ap-southeast-1'
+Settings.define :access_key,        :env_var => 'AWS_ACCESS_KEY_ID',     :description => 'Your aws access key ID -- visit "Security Credentials" from the AWS "Account" page.'
+Settings.define :secret_access_key, :env_var => 'AWS_SECRET_ACCESS_KEY', :description => 'Your aws secret access key -- visit "Security Credentials" from the AWS "Account" page.'
+Settings.define :account_id,        :env_var => 'AWS_ACCOUNT_ID',        :description => 'Your AWS account ID -- look in the top right corner of the credentials page from "Your Account" on the AWS homepage. Omit all dashes: eg 123456789012'
+Settings.define :ec2_url,           :env_var => 'EC2_URL',               :description => 'EC2 endpoint URL for api calls; should match the AWS region; eg https://us-west-1.ec2.amazonaws.com for us-west-1'
+Settings.define :aws_region,                                             :description => 'AWS region: currently, us-east-1, us-west-1, eu-west-1, or ap-southeast-1'
 Settings.read File.join(File.dirname(__FILE__), '/../config/cluster_chef_defaults.yaml')
 Settings.read File.join(ENV['HOME'],'.hadoop-ec2','poolparty.yaml');
 Settings.resolve!
@@ -24,6 +24,8 @@ Settings.resolve!
 #
 
 # Poolparty definitions for a generic node.
+# Assigns security group named after the cluster (eg 'clyde') and after the
+# cluster-role (eg 'clyde-master')
 def is_generic_node settings
   # Instance described in settings files
   instance_type           settings[:instance_type]
@@ -34,9 +36,15 @@ def is_generic_node settings
   set_instance_backing    settings
   keypair                 POOL_NAME, File.join(ENV['HOME'], '.poolparty', 'keypairs')
   has_role settings, "base_role"
-  # has_role settings, "infochimps_base"
   settings[:user_data][:attributes][:cluster_name] = self.parent.name
   settings[:user_data][:attributes][:cluster_role] = self.name
+  security_group POOL_NAME do
+    authorize :group_name => POOL_NAME
+  end
+  security_group do
+    authorize :from_port => 22,  :to_port => 22
+    authorize :from_port => 80,  :to_port => 80
+  end
 end
 
 # Poolparty rules to impart the 'big_package' role:
