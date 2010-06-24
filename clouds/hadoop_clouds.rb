@@ -16,7 +16,8 @@ pool POOL_NAME do
   cloud :master do
     using :ec2
     settings = settings_for_node(POOL_NAME, :master)
-    instances                   1..1
+    # instances                   1..1
+    instances                   settings
     user                        'ubuntu'
     is_spot_priced              settings
     sends_aws_keys              settings
@@ -41,7 +42,7 @@ pool POOL_NAME do
   cloud :slave do
     using :ec2
     settings = settings_for_node(POOL_NAME, :slave)
-    instances                   40..40
+    instances                   30..30
     user                        'ubuntu'
     is_spot_priced              settings
     sends_aws_keys              settings
