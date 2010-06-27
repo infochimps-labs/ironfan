@@ -1,22 +1,58 @@
 
+h2. Top Priorities
 
-Complain bitterly if the validation.pem (etc) is missing
+* *Role discovery* sucks right now -- broham = weak, too much setup, ick
+** Make broham a webservice in front of pluggable backend?
+** Get people's blessing that cluster_service_discovery is a good impl.
+* *Documentation*: moar plz.
+* *Videocast*: a visual walkthrough would help adoption
+* *Bootstrap*: bless a minimal bootstrap method
+** Should we use packages or scripts?
+* *ChefHadoopNfsMaster*: smoother instantiation of a standalone (starter) cluster.
+** chef server walkthrough could use work
 
-the namenode 
-  I think if we separate out namenode recipe so that initial formatting is possible
+h2. Cloud / Local
 
+* *EBS volume creation*: create, attach, format, populate databag
+** Make sure 
+* *Local cluster*: separate out cloud code to work with local code
+* *Rackspace & other clouds*: Abstract out EC2-specific codes
+* *JClouds*: 
 
-cassandra shouldn't start before the /etc/cassandra is present
+h2. Hadoop
 
+* *Tuning* for generic node -- is EC2-specific tuning necessary?
+* *Admin tasks*
+** Make namenode formatting safe
+** recipe to do namenode metadata backup?
+* *EBS attachment* = still shaky
+* *Secondary Namenode on non-master*: Right now it's really hard to do something like 'make one slave also be the 2NN'. This should be easy
+* *Patched version*: this is still hard
 
-* Make it work cross-cloud platform
-* make it work locally
+h2. Azkaban
 
-make azkaban not race
+* runit script flapping
 
+h2. Zookeeper
 
+* Need scripts
+** cluster discovery integration?
 
-* Right now it's really hard to do something like 'make one slave also be the 2NN'. This should be easy
+h2. Cassandra
+
+* runit script flapping
+* Newer point version
+* cassandra shouldn't start before the /etc/cassandra is present
+
+h2. HBase
+
+* Need scripts
+** cluster discovery
+
+h2. Bugs
+
+* Complain if the validation.pem (etc) is missing
+
 
 
 

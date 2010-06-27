@@ -1,0 +1,19 @@
+
+h2. Role discovery
+
+via Broham: see docs there.
+
+h2. Cluster Service discovery
+
+Uses cluster_service_discovery cookbook in @cluster_chef/cookbooks/cluster_service_discovery@ -- see the @libraries/@ directory
+
+h2. Notes
+
+h3. On cluster restart: clear chef client and broham registration
+
+After spinning down/starting up your cluster, if you use role-based names (zaius-slave-0 etc) you need to do
+<pre><code>
+  knife client bulk-delete 'zaius-.*'
+  broham-unregister 'zaius-.*'
+</code></pre>
+(Use a more limited regex if some of those are still alive!) Chef won't authenticate a client if one already exists for that name.

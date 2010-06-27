@@ -60,7 +60,6 @@ h2. Option 2 pt1: How to create an EBS Volume
 
 h3. to also partition
 
-
 But if you'd like to, see http://support.rightscale.com/06-FAQs/FAQ_0012_-_How_do_I_partition,_format_and_mount_an_EBS_volume%3F
 
 * create a new volume
@@ -90,7 +89,6 @@ log      =internal               bsize=4096   blocks=2560, version=2
 realtime =none                   extsz=4096   blocks=0, rtextents=0
 data blocks changed from 262144 to 41943040
 </code></pre>
-
 
 h2. Option 2 pt2: OK, now create {N} EBS Volumes
 
