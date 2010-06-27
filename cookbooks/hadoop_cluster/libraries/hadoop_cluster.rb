@@ -42,6 +42,7 @@ module HadoopCluster
   def ensure_hadoop_owns_hadoop_dirs dir
     execute "Make sure hadoop owns hadoop dirs" do
       command %Q{chown -R hadoop:hadoop #{dir}}
+      not_if{ (File.stat(dir).uid == 300) && (File.stat(dir).gid == 300) }
     end
   end
 

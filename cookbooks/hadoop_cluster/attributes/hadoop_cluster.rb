@@ -70,7 +70,7 @@ hadoop_performance_settings[:local_disks]=[]
   dev_str = '/dev/'+dev_str unless dev_str =~ %r{^/dev/}
   hadoop_performance_settings[:local_disks] << [mnt, dev_str]
 end
-Chef::Log.info(hadoop_performance_settings.inspect)
+Chef::Log.info(["Hadoop mapreduce tuning", hadoop_performance_settings].inspect)
 
 hadoop_performance_settings.each{|k,v| set[:hadoop][k] = v }
 

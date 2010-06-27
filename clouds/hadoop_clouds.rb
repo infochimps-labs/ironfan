@@ -31,7 +31,7 @@ pool POOL_NAME do
     has_role   settings, "hadoop_master"
     has_role   settings, "hadoop_worker"
     has_role   settings, "pig"
-    is_cassandra_node           settings
+    # is_cassandra_node           settings
     has_role   settings, "infochimps_base"
     has_role   settings, "gibbon_cluster"
     #
@@ -41,7 +41,8 @@ pool POOL_NAME do
   cloud :slave do
     using :ec2
     settings = settings_for_node(POOL_NAME, :slave)
-    instances                   (settings[:instances] || 5)
+    # instances                   (settings[:instances] || 5)
+    instances                   10
     user                        'ubuntu'
     is_spot_priced              settings
     sends_aws_keys              settings
@@ -55,7 +56,7 @@ pool POOL_NAME do
     mounts_ebs_volumes          settings
     has_role   settings, "hadoop_worker"
     has_role   settings, "pig"
-    is_cassandra_node           settings
+    # is_cassandra_node           settings
     has_role   settings, "infochimps_base"
     has_role   settings, "gibbon_cluster"
     #

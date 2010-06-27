@@ -40,7 +40,7 @@ end
 #
 if cluster_ebs_volumes
   cluster_ebs_volumes.each do |vol_info|
-    Chef::Log.info vol_info.inspect
+    Chef::Log.info ["HDFS data dir", vol_info].inspect
     make_hadoop_dir_on_ebs( vol_info['mount_point']+'/hadoop' )
   end
 end
