@@ -17,7 +17,10 @@ h2. Cloud / Local
 ** Make sure 
 * *Local cluster*: separate out cloud code to work with local code
 * *Rackspace & other clouds*: Abstract out EC2-specific codes
-* *JClouds*: 
+* *JClouds*
+* *Poolparty*
+** The scripts are insufficently DRY -- bring some of this into poolparty trunk?
+** Complain if the validation.pem (etc) is missing
 
 h2. Hadoop
 
@@ -43,17 +46,22 @@ h2. Cassandra
 * runit script flapping
 * Newer point version
 * cassandra shouldn't start before the /etc/cassandra is present
+* *Tuning* for cluster size
 
 h2. HBase
 
 * Need scripts
 ** cluster discovery
 
-h2. Bugs
+h2. Ponies
 
-* Complain if the validation.pem (etc) is missing
+* *Monitoring, etc*:
+** Scribe
+** Ganglia
+* Elephant Friends
+** *Hive*
+** *Mahout*
 
+* *Opscode cookbooks acceptance*: Clean up and document, metadata.rb, etc so that we can put the cookbooks in for chef adoption.
 
-
-
-
+* *Performance qualification*: run some "chimpmark":http://github.com/infochimps/chimpmark tasks across clusters and report on completion times
