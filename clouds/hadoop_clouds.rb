@@ -42,7 +42,8 @@ pool POOL_NAME do
   cloud :slave do
     using :ec2
     settings = settings_for_node(POOL_NAME, :slave)
-    instances                   (settings[:instances] || 5)
+    # instances                   (settings[:instances] || 5)
+    instances                   15
     user                        'ubuntu'
     is_spot_priced              settings
     sends_aws_keys              settings

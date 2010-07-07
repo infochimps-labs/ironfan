@@ -71,6 +71,15 @@ sudo restart runsvdir
 
 and then re-running the chef client seems to usually work
 
+h3.
+
+If you see
+<pre>
+/usr/lib/ruby/gems/1.8/gems/chef-0.8.16/bin/../lib/chef/mixin/command.rb:181:in `handle_command_failures': apt-get update returned 100, expected 0 (Chef::Exceptions::Exec)
+</pre>
+
+try running @apt-get update@ by hand. It will probably suggest trying @sudo dpkg --configure -a@ which may help.
+
 h2. Debugging
 
 h3. Debugging chef client (and client on boot-up)
