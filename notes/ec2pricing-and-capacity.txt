@@ -1,0 +1,14 @@
+code		  mem	cpu	cores	cpcore	storage	 bits	IO	$/hr	CPU/$	Mem/$	spot/no	win$/hr	spot$	spotw$	type    	name            	
+m1.small  	  1.7	 1	  1	  1	   160	  32	Mid	$0.085	11.76	20.00	  35%	$0.12	$0.03	$0.052  Standard	Small           	
+c1.medium	  1.7	 5	  2	  2.5	   350	  32	Mid	$0.17	29.41	10.00	  36%	$0.29	$0.061	$0.122  High-CPU	Medium          	
+m1.large  	  7.5	 4	  2	  2	   850	  64	High	$0.34	11.76	22.06	  34%	$0.48	$0.117	$0.193  Standard	Large           	
+m2.xlarge	 17.7	 6.5	  2	  3.25	   420	  64	Mid	$0.50	13.00	35.40	  36%	$0.62	$0.178	$0.25   High-Memory	Extra Large     	
+c1.xlarge	  7	20	  8	  2.5	  1690	  64	High	$0.68	29.41	10.29	  34%	$1.16	$0.228	$0.501  High-CPU	Extra Large     	
+m1.xlarge	 15	 8	  4	  2	  1690	  64	High	$0.68	11.76	22.06	  36%	$0.96	$0.243	$0.413  Standard	Extra Large     	
+m2.2xlarge	 34.2	13	  4	  3.25	   850	  64	High	$1.20	10.83	28.50	  34%	$1.44	$0.409	$0.574  High-Memory	Double Extra Large	
+m2.4xlarge	 68.4	26	  8	  3.25	  1690	  64	High	$2.40	10.83	28.50	  34%	$2.88	$0.814	$1.047  High-Memory	Quadruple Extra Large	
+
+* http://aws.amazon.com/ec2/instance-types/
+* http://aws.amazon.com/ec2/#pricing
+
+Spot price is from some random day -- check http://aws.amazon.com/ec2/#pricing

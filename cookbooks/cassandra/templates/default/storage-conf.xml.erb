@@ -9,7 +9,7 @@
             <ColumnFamily Name="<%= cname %>" <%= (column.keys.map do |attrib|
                         (attrib.to_s.split('_').map do |part|
                             part.capitalize
-                        end).join('') + "=\"" + column[attrib] + "\""
+                        end).join('') + "=\"" + column[attrib].to_s + "\""
                     end).join(' ') %> />
             <% end %>
             <ReplicaPlacementStrategy><%= keyspace[:replica_placement_strategy] %></ReplicaPlacementStrategy>

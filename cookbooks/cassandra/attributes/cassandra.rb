@@ -1,5 +1,5 @@
 # The "cassandra" data bag "clusters" item defines keyspaces for the cluster named here:
-set[:cassandra][:cluster_name]                      = node[:cluster_name] || "Test"
+default[:cassandra][:cluster_name]                  = node[:cluster_name] || "Test"
 default[:cassandra][:keyspaces]                     = {}
 # Directories
 default[:cassandra][:data_file_dirs]                = ["/data/db/cassandra"]
@@ -7,7 +7,7 @@ default[:cassandra][:commit_log_dir]                = "/var/lib/cassandra/commit
 default[:cassandra][:callout_location]              = "/var/lib/cassandra/callouts"
 default[:cassandra][:staging_file_dir]              = "/var/lib/cassandra/staging"
 # Partitioning
-default[:cassandra][:auto_bootstrap]                = true
+default[:cassandra][:auto_bootstrap]                = false
 default[:cassandra][:authenticator]                 = "org.apache.cassandra.auth.AllowAllAuthenticator"
 default[:cassandra][:partitioner]                   = "org.apache.cassandra.dht.RandomPartitioner"       # "org.apache.cassandra.dht.OrderPreservingPartitioner"
 default[:cassandra][:initial_token]                 = ""
@@ -40,4 +40,17 @@ default[:cassandra][:gc_grace]                      = 864000
 # Install from release
 default[:cassandra][:install_url] = "http://apache.mirrors.tds.net/cassandra/0.6.1/apache-cassandra-0.6.1-bin.tar.gz"
 
-
+# if node[:ec2] && node[:ec2][:instance_type]
+#   cassandra_settings =
+#     case node[:ec2][:instance_type]
+#     when 'm1.small'   then { :java_max_heap =>  '-Xmx1024m' }
+#     when 'c1.medium'  then { :java_max_heap =>  '-Xmx1024m' }
+#     when 'm1.large'   then { :java_max_heap =>  '-Xmx5500m' }
+#     when 'm2.xlarge'  then { :java_max_heap => '-Xmx15000m' }
+#     when 'c1.xlarge'  then { :java_max_heap =>  '-Xmx5500m' }
+#     when 'm1.xlarge'  then { :java_max_heap => '-Xmx12000m' }
+#     when 'm2.2xlarge' then { :java_max_heap => '-Xmx30000m' }
+#     when 'm2.4xlarge' then { :java_max_heap => '-Xmx60000m' }
+#     else {}
+#     end
+# end

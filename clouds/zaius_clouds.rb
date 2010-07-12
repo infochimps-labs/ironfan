@@ -16,14 +16,15 @@ pool POOL_NAME do
   cloud :chefmaster do
     using :ec2
     settings = settings_for_node(POOL_NAME, :chefmaster)
-    instances                   1..1
+    instances                   1
     user                        'ubuntu'
     is_spot_priced              settings
+    sends_aws_keys              settings
     is_generic_node             settings
     has_big_package             settings
-    sends_aws_keys              settings
     is_nfs_server               settings
     is_chef_server              settings
+    has_role   settings, "#{POOL_NAME}_cluster"
     #
     is_hadoop_node              settings
     has_recipe settings, 'hadoop_cluster::format_namenode_once'
@@ -41,14 +42,16 @@ pool POOL_NAME do
   cloud :master do
     using :ec2
     settings = settings_for_node(POOL_NAME, :master)
-    instances                   1..1
+    instances                   1
     user                        'ubuntu'
     is_spot_priced              settings
+    sends_aws_keys              settings
+    #
     is_generic_node             settings
     has_big_package             settings
-    sends_aws_keys              settings
     is_nfs_client               settings
     is_chef_client              settings
+    has_role   settings, "#{POOL_NAME}_cluster"
     #
     is_hadoop_node              settings
     has_role   settings, "hadoop_master"
@@ -62,19 +65,20 @@ pool POOL_NAME do
   cloud :slave do
     using :ec2
     settings = settings_for_node(POOL_NAME, :slave)
-    instances                   5..5
+    instances                   (settings[:instances] || 5)
     user                        'ubuntu'
     is_spot_priced              settings
+    sends_aws_keys              settings
+    #
     is_generic_node             settings
     has_big_package             settings
-    sends_aws_keys              settings
     is_nfs_client               settings
     is_chef_client              settings
+    has_role   settings, "#{POOL_NAME}_cluster"
     #
     is_hadoop_node              settings
     has_role   settings, "hadoop_worker"
     has_role   settings, "pig"
-    has_role   settings, "zaius_cluster"
     #
     user_data_is_json_hash      settings
   end

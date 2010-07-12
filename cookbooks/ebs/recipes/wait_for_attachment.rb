@@ -1,7 +1,7 @@
 if cluster_ebs_volumes
   cluster_ebs_volumes.each do |conf|
     bash "Wait for ebs volumes to attach" do
-
+      not_if{ File.exists?(conf['device']) }
       code <<EOF
   echo #{conf.to_hash.inspect}:
   i=1
@@ -18,7 +18,6 @@ if cluster_ebs_volumes
   done
   true
 EOF
-
     end
   end
 

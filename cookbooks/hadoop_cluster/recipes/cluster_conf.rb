@@ -31,6 +31,14 @@ Chef::Log.debug template_variables.inspect
   end
 end
 
+template "/etc/default/#{node[:hadoop][:hadoop_handle]}" do
+  owner "root"
+  mode "0644"
+  variables(template_variables)
+  source "etc_default_hadoop.erb"
+end
+
+
 # Make hadoop logs live on /mnt/hadoop
 hadoop_log_dir = '/mnt/hadoop/logs'
 make_hadoop_dir(hadoop_log_dir)

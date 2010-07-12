@@ -57,7 +57,7 @@ end
 group 'supergroup' do
   group_name 'supergroup'
   gid        node[:groups]['supergroup'][:gid]
-  action     [:create, :manage]
+  action     [:create]
 end
 
 #

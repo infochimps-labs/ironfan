@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-default[:hadoop][:hadoop_handle] = 'hadoop-0.20'
-set[:hadoop][:cdh_version]   = 'cdh3b1'
+set[:hadoop][:hadoop_handle] = 'hadoop-0.20'
+set[:hadoop][:cdh_version]   = 'cdh3b2'
 
 default[:hadoop][:cluster_reduce_tasks]       = 57
 default[:hadoop][:dfs_replication]            = 3
@@ -16,7 +16,7 @@ default[:hadoop][:use_root_as_persistent_vol] = false
 
 # You should give at least one NFS-backed directory for the Namenode metadata to
 # persist to.
-set[:hadoop][:extra_nn_metadata_path] = '/home/hadoop'
+default[:hadoop][:extra_nn_metadata_path] = '/home/hadoop'
 
 # Other hadoop settings
 default[:hadoop][:max_balancer_bandwidth]     = 1048576  # bytes per second -- 1MB/s by default
@@ -37,14 +37,20 @@ default[:hadoop][:max_balancer_bandwidth]     = 1048576  # bytes per second -- 1
 # If you typically run from S3 (fully I/O bound) increase the number of maps + reducers moderately.
 # In both cases, adjust the memory settings accordingly.
 #
+# FIXME: The below parameters are calculated for each node.
+#   The max_map_tasks and max_reduce_tasks settings apply per-node, no problem here
+#   The remaining ones (java_child_opts, io_sort_mb, etc) are applied *per-job*:
+#   if you launch your job from an m2.xlarge on a heterogeneous cluster, all of
+#   the tasks will kick off with -Xmx2719m and so forth, regardless of the RAM
+#   on that machine.
+#
 hadoop_performance_settings =
   case node[:ec2][:instance_type]
-  when 'm1.small'   then { :max_map_tasks => 2, :max_reduce_tasks => 1, :java_child_opts =>  '-Xmx550m', :java_child_ulimit => 1126400, :io_sort_factor => 10, :io_sort_mb => 100, }
-  when 'c1.medium'  then { :max_map_tasks => 3, :max_reduce_tasks => 2, :java_child_opts =>  '-Xmx550m', :java_child_ulimit => 1126400, :io_sort_factor => 10, :io_sort_mb => 100, }
-  when 'm1.large'   then { :max_map_tasks => 3, :max_reduce_tasks => 2, :java_child_opts => '-Xmx1152m', :java_child_ulimit => 2359296, :io_sort_factor => 25, :io_sort_mb => 250, }
-# when 'c1.xlarge'  then { :max_map_tasks => 8, :max_reduce_tasks => 4, :java_child_opts =>  '-Xmx550m', :java_child_ulimit => 1126400, :io_sort_factor => 10, :io_sort_mb => 100, }
-  when 'c1.xlarge'  then { :max_map_tasks => 6, :max_reduce_tasks => 3, :java_child_opts =>  '-Xmx800m', :java_child_ulimit => 1126400, :io_sort_factor => 10, :io_sort_mb => 100, }
-  when 'm1.xlarge'  then { :max_map_tasks => 6, :max_reduce_tasks => 4, :java_child_opts => '-Xmx1152m', :java_child_ulimit => 2359296, :io_sort_factor => 25, :io_sort_mb => 250, }
+  when 'm1.small'   then { :max_map_tasks => 2, :max_reduce_tasks => 1, :java_child_opts =>  '-Xmx550m', :java_child_ulimit => 2359296, :io_sort_factor => 10, :io_sort_mb => 100, }
+  when 'c1.medium'  then { :max_map_tasks => 3, :max_reduce_tasks => 2, :java_child_opts =>  '-Xmx550m', :java_child_ulimit => 2359296, :io_sort_factor => 10, :io_sort_mb => 100, }
+  when 'm1.large'   then { :max_map_tasks => 3, :max_reduce_tasks => 2, :java_child_opts => '-Xmx1152m', :java_child_ulimit => 3670016, :io_sort_factor => 25, :io_sort_mb => 250, }
+  when 'c1.xlarge'  then { :max_map_tasks => 8, :max_reduce_tasks => 4, :java_child_opts =>  '-Xmx700m', :java_child_ulimit => 3670016, :io_sort_factor => 15, :io_sort_mb => 150, }
+  when 'm1.xlarge'  then { :max_map_tasks => 6, :max_reduce_tasks => 4, :java_child_opts => '-Xmx1152m', :java_child_ulimit => 3670016, :io_sort_factor => 25, :io_sort_mb => 250, }
   when 'm2.xlarge'  then { :max_map_tasks => 3, :max_reduce_tasks => 2, :java_child_opts => '-Xmx2719m', :java_child_ulimit => 5567939, :io_sort_factor => 32, :io_sort_mb => 320, }
   when 'm2.2xlarge' then { :max_map_tasks => 6, :max_reduce_tasks => 3, :java_child_opts => '-Xmx2918m', :java_child_ulimit => 5976883, :io_sort_factor => 32, :io_sort_mb => 320, }
   when 'm2.4xlarge' then { :max_map_tasks => 8, :max_reduce_tasks => 4, :java_child_opts => '-Xmx4378m', :java_child_ulimit => 8965325, :io_sort_factor => 40, :io_sort_mb => 400, }
@@ -71,7 +77,7 @@ hadoop_performance_settings[:local_disks]=[]
   dev_str = '/dev/'+dev_str unless dev_str =~ %r{^/dev/}
   hadoop_performance_settings[:local_disks] << [mnt, dev_str]
 end
-Chef::Log.info(hadoop_performance_settings.inspect)
+Chef::Log.info(["Hadoop mapreduce tuning", hadoop_performance_settings].inspect)
 
 hadoop_performance_settings.each{|k,v| set[:hadoop][k] = v }
 
@@ -93,44 +99,4 @@ hadoop_performance_settings.each{|k,v| set[:hadoop][k] = v }
 # fs.inmemory.size.mb  # default XX
 #
 
-# # http://www.cloudera.com/blog/2009/03/configuration-parameters-what-can-you-just-ignore/
-# #
-# # If there is more RAM available than is consumed by task instances, set
-# # io.sort.factor to 25 or 32 (up from 10). io.sort.mb should be 10 *
-# # io.sort.factor. Don’t forget, multiply io.sort.mb by the number of concurrent
-# # tasks to determine how much RAM you’re actually allocating here, to prevent
-# # swapping. (So 10 task instances with io.sort.mb = 320 means you’re actually
-# # allocating 3.2 GB of RAM for sorting, up from 1.0 GB.) An open ticket on the
-# # Hadoop bug tracking database suggests making the default value here 100. This
-# # would likely result in a lower per-stream cache size than 10 MB.
-# #
-# # io.file.buffer.size – this is one of the more “magic” parameters. You can set
-# # this to 65536 and leave it there. (I’ve profiled this in a bunch of scenarios;
-# # this seems to be the sweet spot.)
-# #
-# # If the NameNode and JobTracker are on big hardware, set
-# # dfs.namenode.handler.count to 64 and same with
-# # mapred.job.tracker.handler.count. If you’ve got more than 64 GB of RAM in this
-# # machine, you can double it again.
-# #
-# # dfs.datanode.handler.count defaults to 3 and could be set a bit higher. (Maybe
-# # 8 or 10.) More than this takes up memory that could be devoted to running
-# # MapReduce tasks, and I don’t know that it gives you any more performance. (An
-# # increased number of HDFS clients implies an increased number of DataNodes to
-# # handle the load.)
-# #
-# # mapred.child.ulimit should be 2–3x higher than the heap size specified in
-# # mapred.child.java.opts and left there to prevent runaway child task memory
-# # consumption.
-# #
-# # Setting tasktracker.http.threads higher than 40 will deprive individual tasks
-# # of RAM, and won’t see a positive impact on shuffle performance until your
-# # cluster is approaching 100 nodes or more.
-# #
-# # the magic number for io.sort.record.percent is 16/(16 + average record size in
-# # bytes). You can calculate the average record size by simply looking at the job
-# # counters and dividing map output bytes by map output records.
-# #    eg. 550GB / 11B records = 50b => 16/(16+50) = 24%
-#
-# # Note that the HADOOP_HEAPSIZE sets heap for the daemons (namenode, etc) and not the tasks.
 
