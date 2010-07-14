@@ -2,8 +2,28 @@
 set[:hadoop][:hadoop_handle] = 'hadoop-0.20'
 set[:hadoop][:cdh_version]   = 'cdh3b2'
 
-default[:hadoop][:cluster_reduce_tasks]       = 57
-default[:hadoop][:dfs_replication]            = 3
+CLUSTER_SIZE = 31
+
+default[:hadoop][:cluster_reduce_tasks        ] = (CLUSTER_SIZE * 1.9).to_i
+default[:hadoop][:dfs_replication             ] =  3
+default[:hadoop][:reduce_parallel_copies      ] = CLUSTER_SIZE
+default[:hadoop][:jobtracker_handler_count    ] = CLUSTER_SIZE * 2
+default[:hadoop][:tasktracker_http_threads    ] = CLUSTER_SIZE * 2
+default[:hadoop][:namenode_handler_count      ] = CLUSTER_SIZE * 2
+default[:hadoop][:datanode_handler_count      ] = 10
+
+default[:hadoop][:compress_map_output         ] = 'true'
+default[:hadoop][:output_compression_type     ] = 'BLOCK'
+
+default[:hadoop][:mapred_userlog_retain_hours ] = 24
+default[:hadoop][:mapred_jobtracker_completeuserjobs_maximum ] = 100
+
+#
+# fs.inmemory.size.mb  # default XX
+#
+
+
+
 default[:groups]['hadoop'    ][:gid]          = 300
 default[:groups]['supergroup'][:gid]          = 301
 
@@ -80,23 +100,3 @@ end
 Chef::Log.info(["Hadoop mapreduce tuning", hadoop_performance_settings].inspect)
 
 hadoop_performance_settings.each{|k,v| set[:hadoop][k] = v }
-
-#
-# # FIXME -- integrate into the config files
-#
-# default[:hadoop][:io_sort_factor]  = 10
-# default[:hadoop][:io_sort_mb]      = 100            # set to 10 * io.sort.factor; make sure -Xmx above is 2x or more
-# default[:hadoop][:io_sort_record_pct]       = 0.05  # default 0.05; rec. 16(16+avg_rec_sz_in_bytes)
-#
-# default[:hadoop][:namenode_handler_count]   = 16    # default 5; rec. 64
-# default[:hadoop][:jobtracker_handler_count] = 16    # default 5; rec. 64    # The number of server threads for the JobTracker. This should be roughly 4% of the number of tasktracker nodes.
-# default[:hadoop][:datanode_handler_count]   = 6     # default 3; rec. 8-10
-#
-# default[:hadoop][:tasktracker_http_threads] = 40    # default 66; rec 40
-#
-# default[:hadoop][:reduce_parallel_copies]
-#
-# fs.inmemory.size.mb  # default XX
-#
-
-
