@@ -85,6 +85,7 @@ hadoop_performance_settings =
     child_ulimit = 2 * heap_size * 1024
     { :max_map_tasks => n_mappers, :max_reduce_tasks => n_reducers, :java_child_opts => "-Xmx#{heap_size}m", :java_child_ulimit => child_ulimit, :io_sort_factor => 10, :io_sort_mb => 100, }
   end
+hadoop_performance_settings[:java_child_opts] += ' -XX:+UseCompressedOops -XX:MaxNewSize=200m -server'
 
 hadoop_performance_settings[:local_disks]=[]
 [ [ '/mnt',  'block_device_mapping_ephemeral0'],
