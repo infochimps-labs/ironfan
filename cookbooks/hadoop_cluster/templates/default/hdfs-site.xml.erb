@@ -18,7 +18,7 @@
 </property>
 <property>
   <name>dfs.datanode.handler.count</name>
-  <value>3</value>
+  <value><%= node[:hadoop][:datanode_handler_count] %></value>
   <final>true</final>
 </property>
 <!--property>
@@ -38,7 +38,7 @@
 </property>
 <property>
   <name>dfs.namenode.handler.count</name>
-  <value>5</value>
+  <value><%= node[:hadoop][:namenode_handler_count] %></value>
   <final>true</final>
 </property>
 <property>

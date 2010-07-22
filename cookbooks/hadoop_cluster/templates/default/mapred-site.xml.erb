@@ -31,7 +31,7 @@
 </property>
 <property>
   <name>mapred.job.tracker.handler.count</name>
-  <value>5</value>
+  <value><%= node[:hadoop][:jobtracker_handler_count] %></value>
   <final>true</final>
 </property>
 <property>
@@ -45,7 +45,7 @@
 </property>
 <property>
   <name>mapred.reduce.parallel.copies</name>
-  <value>10</value>
+  <value><%= node[:hadoop][:reduce_parallel_copies] %></value>
 </property>
 <property>
   <name>mapred.reduce.tasks</name>
@@ -75,7 +75,7 @@
 </property>
 <property>
   <name>tasktracker.http.threads</name>
-  <value>40</value>
+  <value><%= node[:hadoop][:tasktracker_http_threads] %></value>
   <final>true</final>
 </property>
 <property>
@@ -88,11 +88,11 @@
 </property>
 <property>
   <name>mapred.compress.map.output</name>
-  <value>true</value>
+  <value><%= node[:hadoop][:compress_map_output] %></value>
 </property>
 <property>
   <name>mapred.output.compression.type</name>
-  <value>BLOCK</value>
+  <value><%= node[:hadoop][:output_compression_type] %></value>
 </property>
 <!-- Start Cloudera Desktop -->
 <!-- <property> -->
