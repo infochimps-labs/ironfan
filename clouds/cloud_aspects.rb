@@ -45,6 +45,7 @@ def is_generic_node settings
     authorize :from_port => 22,  :to_port => 22
     authorize :from_port => 80,  :to_port => 80
   end
+  # security_group "default"
 end
 
 # Poolparty rules to impart the 'big_package' role:
@@ -126,6 +127,7 @@ end
 
 # add a role to the node's run_list.
 def has_role settings, role
+  security_group role
   settings[:user_data][:attributes][:run_list] << "role[#{role}]"
 end
 

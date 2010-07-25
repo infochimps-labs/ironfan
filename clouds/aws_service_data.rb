@@ -23,10 +23,12 @@ module AwsServiceData
     %w[eu-west-1             32-bit  ebs             lucid       ] => 'ami-a94d67dd',
     %w[eu-west-1             64-bit  instance        lucid       ] => 'ami-a54d67d1',
     %w[eu-west-1             32-bit  instance        lucid       ] => 'ami-cf4d67bb',
+
     %w[us-east-1             64-bit  ebs             lucid       ] => 'ami-4b4ba522',
     %w[us-east-1             32-bit  ebs             lucid       ] => 'ami-714ba518',
     %w[us-east-1             64-bit  instance        lucid       ] => 'ami-fd4aa494',
     %w[us-east-1             32-bit  instance        lucid       ] => 'ami-2d4aa444',
+
     %w[us-west-1             64-bit  ebs             lucid       ] => 'ami-d197c694',
     %w[us-west-1             32-bit  ebs             lucid       ] => 'ami-cb97c68e',
     %w[us-west-1             64-bit  instance        lucid       ] => 'ami-c997c68c',
