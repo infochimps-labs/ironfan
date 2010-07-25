@@ -6,8 +6,9 @@ mkdir -p /tmp ; chmod a+rwx /tmp
 REMOTE_FILE_URL_BASE="<%= bootstrap_scripts_url_base %>"
 
 echo "`date` Broaden the apt universe" >> $progresslog
-add-apt-repository 'deb http://archive.canonical.com/ <%= ubuntu_version %> partner'
+add-apt-repository 'deb http://archive.canonical.com/       <%= ubuntu_version %> partner'
 add-apt-repository 'deb http://us.archive.ubuntu.com/ubuntu <%= ubuntu_version %> universe multiverse'
+add-apt-repository 'deb http://apt.opscode.com/             <%= ubuntu_version %> main'
 
 # wait for system dpkg to finish
 while sudo fuser /var/lib/dpkg/lock ; do echo "`date` Waiting for apt to become free" >> $progresslog ;  sleep 5 ; done  
