@@ -126,8 +126,8 @@ def bootstrap_chef_script role, settings
 end
 
 # add a role to the node's run_list.
-def has_role settings, role
-  security_group role
+def has_role settings, role, make_security_group=nil
+  security_group role if make_security_group
   settings[:user_data][:attributes][:run_list] << "role[#{role}]"
 end
 
