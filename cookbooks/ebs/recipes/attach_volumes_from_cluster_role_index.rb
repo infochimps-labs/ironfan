@@ -1,6 +1,6 @@
 # aws included via metadata.rb
 
-if cluster_ebs_volumes
+if cluster_ebs_volumes && node[:aws]
   cluster_ebs_volumes.each do |conf|
     aws_ebs_volume "attach hdfs volume #{conf.inspect}" do
       provider "aws_ebs_volume"
