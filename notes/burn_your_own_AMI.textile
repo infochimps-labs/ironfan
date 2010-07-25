@@ -2,19 +2,20 @@ h2. Burn an AMI
 
 <pre><code>
 # Shutdown services
-for foo in hadoop-0.20-{namenode,jobtracker,tasktracker,datanode,secondarynamenode} cassandra couchdb thttpd chef-client nfs-kernel-server rabbitmq-server chef-{solr,solr-indexer,client,server,server-webui} ; do sudo service $foo stop ; done
+for foo in god apeyeye hadoop-0.20-{namenode,jobtracker,tasktracker,datanode,secondarynamenode} cassandra couchdb thttpd chef-client nfs-kernel-server rabbitmq-server chef-{solr,solr-indexer,client,server,server-webui} ; do sudo service $foo stop ; done
 # and make the following ones not restart on bootup
 for foo in hadoop-0.20-{tasktracker,datanode,namenode,jobtracker,secondarynamenode} cassandra ; do sudo update-rc.d -f $foo remove ; done
 # Give the process list a how's your father -- nothing interesting should be running.
-ps aux
+ps auxf
 # Unmount anything that's mounted,
 sudo umount /home
 sudo umount /ebs*
 # Detatch anything that's attached,
-ec2-detach-volume vol-123545
+ec2-describe-volumes -K pk.pem -C cert.pem | grep 3045e85a
+ec2-detach-volume    -K pk.pem -C cert.pem vol-123545
 # and check that it all worked.
 mount
-ec2-describe-volumes -K pk.pem -C cert.pem
+ec2-describe-volumes -K pk.pem -C cert.pem | grep 3045e85a
 
 # Fix:
 #  /etc/hosts
@@ -32,10 +33,11 @@ sudo updatedb ;
 away_dir=/mnt/tmp/away-`date "+%Y%m%d%H"`
 sudo mkdir -p $away_dir
 # Move files out of the way that will confuse on reboot
-sudo mv /var/lib/couchdb/0.10.0/chef.couch /var/lib/rabbitmq/mnesia/rabbit /etc/hostname /etc/chef/{client-config.json,*.pem} /var/www/index.html $away_dir
-sudo mv /srv/chef/cache/chef_server_cookie_id /var/chef /etc/hadoop/conf/{*.xml,raw_settings.yaml*} /etc/cassandra/storage-conf* $away_dir 
+sudo mv /var/lib/couchdb/0.10.0/chef.couch /var/lib/rabbitmq/mnesia/rabbit /etc/hostname /etc/chef/{client-config.json,chef-config.json,*.pem} /var/www/index.html $away_dir
+sudo mv /srv/chef/cache/chef_server_cookie_id /var/chef /etc/hadoop/conf/{*.xml,raw_settings.yaml*} /etc/cassandra/storage-conf* $away_dir
+sudo mkdir -p $away_dir/chef_cache; sudo mv /var/cache/chef/* $away_dir/chef_cache/
 # flush files that might have history or credentials
-sudo rm -rf /root/{.cache,.chef,emacs.d,.bash_history,.gem} ~ubuntu/{.cache,.chef,emacs.d,.bash_history,.gem} /var/backups/*  /tmp/* 
+sudo rm -rf /root/{.cache,.chef,emacs.d,.bash_history,.gem} ~ubuntu/{.cache,.chef,emacs.d,.bash_history,.gem} /var/backups/* a/tmp/*
 # Zero out log files
 sudo rm -rf /var/lib/cloud/data/* /var/log/{chef,hadoop,rabbitmq,cassandra}/* /etc/sv/*/log/main/* /var/log/*.gz
 sudo bash -c 'for foo in /var/log/{dmesg,syslog,messages,debug,udev,lastlog,faillog,dmesg.0,*.log} ; do echo -n > $foo ; done'
@@ -51,7 +53,8 @@ h3. Burning an EBS-backed AMI
 
 Just use the console. MAKE SURE TO STOP, UNMOUNT AND DETACH ALL EBS volumes first.
 
-  infochimps.chef-client.lucid.east.ebs-32bit-20100610
+  infochimps.chef-client.lucid.east.ebs-32bit-20100725
+  infochimps.scraper-client.lucid.east.ebs-32bit-20100725
   Chef client: use with http://github.com/infochimps/cluster_chef - Hadoop Cassandra & NFS under Chef
 
 h3. Burning an Instance-backed (s3) AMIs

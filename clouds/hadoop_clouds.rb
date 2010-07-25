@@ -26,14 +26,14 @@ pool POOL_NAME do
     has_big_package             settings
     is_nfs_client               settings
     is_chef_client              settings
-    has_role   settings, "infochimps_base"
-    has_role   settings, "#{POOL_NAME}_cluster"
+    has_role                    settings, "infochimps_base"
+    has_role                    settings, "#{POOL_NAME}_cluster"
     #
     is_hadoop_node              settings
     mounts_ebs_volumes          settings
-    has_role   settings, "hadoop_master"
-    has_role   settings, "hadoop_worker"
-    has_role   settings, "pig"
+    has_role                    settings, "hadoop_master"
+    has_role                    settings, "hadoop_worker"
+    has_role                    settings, "pig"
     # is_cassandra_node           settings
     #
     user_data_is_json_hash      settings
@@ -61,7 +61,7 @@ pool POOL_NAME do
     has_role                    settings, "pig"
     # is_cassandra_node         settings
     #
-    user_data_is_bootstrap_script(settings, 'bootstrap_chef_client')
-    # user_data_is_json_hash      settings
+    # user_data_is_bootstrap_script(settings, 'bootstrap_chef_client')
+    user_data_is_json_hash      settings
   end
 end
