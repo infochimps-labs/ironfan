@@ -1,42 +1,41 @@
 {
-  "replacing": {
+  "version": "0.1.0",
+  "providing": {
 
   },
-  "long_description": "",
   "attributes": {
 
   },
-  "maintainer": "37signals",
+  "maintainer": "Flip Kromer",
+  "replacing": {
+
+  },
+  "dependencies": {
+    "aws": [
+
+    ]
+  },
+  "long_description": "",
+  "maintainer_email": "info@infochimps.org",
+  "groupings": {
+
+  },
+  "recipes": {
+
+  },
   "recommendations": {
 
   },
   "license": "Apache v2.0",
-  "recipes": {
-    "ec2::filesystems": "",
-    "ec2": ""
-  },
-  "maintainer_email": "sysadmins@37signals.com",
   "suggestions": {
 
   },
-  "dependencies": {
-
-  },
+  "name": "ebs",
   "conflicting": {
 
   },
   "platforms": {
 
   },
-  "description": "Configures EC2 environment",
-  "version": "0.1.0",
-  "name": "ec2",
-  "providing": {
-    "ec2::filesystems": [
-
-    ],
-    "ec2": [
-
-    ]
-  }
+  "description": "Attaches and mounts ebs volumes for use in the hadoop cluster. Heavily inspired by Robert Berger's http://blog.ibd.com/scalable-deployment/using-the-opscode-aws-cookbook-to-attach-an-ec2-ebs-volume/"
 }
