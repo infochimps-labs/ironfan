@@ -30,6 +30,11 @@ OHAI_INFO.all_plugins
 log_level            :info
 log_location         STDOUT
 Mixlib::Log::Formatter.show_time = true
+ssl_verify_mode      :verify_none
+file_cache_path      "/var/cache/chef"
+pid_file             "/var/run/chef/client.pid"
+cache_options({ :path => "/var/cache/chef/checksums", :skip_expires => true})
+signing_ca_user      "chef"
 
 # Extract client configuration from EC2 user-data and from local file
 CHEF_CONFIG_FILE     = "/etc/chef/client-config.json"

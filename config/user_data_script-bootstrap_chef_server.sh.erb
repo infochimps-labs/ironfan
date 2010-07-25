@@ -9,6 +9,7 @@ echo "`date` Broaden the apt universe" >> $progresslog
 add-apt-repository 'deb http://archive.canonical.com/       <%= ubuntu_version %> partner'
 add-apt-repository 'deb http://us.archive.ubuntu.com/ubuntu <%= ubuntu_version %> universe multiverse'
 add-apt-repository 'deb http://apt.opscode.com/             <%= ubuntu_version %> main'
+curl http://apt.opscode.com/packages@opscode.com.gpg.key | sudo apt-key add -
 
 # wait for system dpkg to finish
 while sudo fuser /var/lib/dpkg/lock ; do echo "`date` Waiting for apt to become free" >> $progresslog ;  sleep 5 ; done  
@@ -27,7 +28,6 @@ apt-get -f install ;
 
 echo "`date` Installing base packages"  >> $progresslog 
 apt-get install -y ruby ruby1.8-dev libopenssl-ruby1.8 rubygems ri irb build-essential wget ssl-cert git-core zlib1g-dev libxml2-dev runit runit-services;
-runsvdir-start &
 echo "`date` Unchaining rubygems from the tyrrany of ubuntu"  >> $progresslog 
 gem install --no-rdoc --no-ri rubygems-update --version=1.3.7 ; /var/lib/gems/1.8/bin/update_rubygems; gem update --no-rdoc --no-ri --system ; gem --version ;
 
