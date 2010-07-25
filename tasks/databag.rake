@@ -21,17 +21,17 @@
 require 'chef/knife'
 require 'ruby-debug'
 
-def knife
-  return @knife if @knife
+def knife_client
+  return @knife_client if @knife_client
 
   chef_config_file = File.join(ENV['HOME'], '.chef', 'knife.rb')
-  @knife = Chef::Knife.new
-  @knife.config[:config_file] = chef_config_file
-  @knife.configure_chef
-  @knife
+  @knife_client = Chef::Knife.new
+  @knife_client.config[:config_file] = chef_config_file
+  @knife_client.configure_chef
+  @knife_client
 end
 
-def rest; knife.rest end
+def rest; knife_client.rest end
 
 desc "Dump out data bags"
 task :dump_data_bags do
