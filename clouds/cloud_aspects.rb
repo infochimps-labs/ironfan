@@ -113,7 +113,6 @@ end
 # Generate a shell script suitable for user-data -- bootstraps a client or
 # server as appropriate
 def bootstrap_chef_script role, settings
-  p settings
   erubis_template(
     File.dirname(__FILE__)+"/../config/user_data_script-#{role}.sh.erb",
     :public_ip        => settings[:elastic_ip],
