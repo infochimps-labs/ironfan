@@ -5,6 +5,7 @@ mkdir -p /tmp ; chmod a+rwx /tmp
 # A url directory with the scripts you'd like to stuff into the machine
 REMOTE_FILE_URL_BASE="<%= bootstrap_scripts_url_base %>"
 
+
 echo "`date` Broaden the apt universe" >> $progresslog
 add-apt-repository 'deb http://archive.canonical.com/ <%= ubuntu_version %> partner'
 add-apt-repository 'deb http://us.archive.ubuntu.com/ubuntu <%= ubuntu_version %> universe multiverse'
@@ -32,7 +33,8 @@ echo "`date` Unchaining rubygems from the tyrrany of ubuntu"  >> $progresslog
 gem install --no-rdoc --no-ri rubygems-update --version=1.3.7 ; /var/lib/gems/1.8/bin/update_rubygems; gem update --no-rdoc --no-ri --system ; gem --version ;
 
 echo "`date` Installing chef gems"  >> $progresslog 
-gem install --no-rdoc --no-ri chef broham uuidtools configliere right_aws ;
+gem install --no-rdoc --no-ri broham uuidtools configliere right_aws ;
+gem install --no-rdoc --no-ri mixlib-authentication chef  --pre
 gem list >> $progresslog
 
 echo "`date` Hostname"  >> $progresslog 
@@ -42,13 +44,13 @@ cp /usr/bin/ec2-set-hostname /usr/bin/ec2-set-hostname.`date "+%Y%m%d%H"`.orig ;
 wget -nv ${REMOTE_FILE_URL_BASE}/ec2-set-hostname_replacement.py -O /usr/bin/ec2-set-hostname ;
 chmod a+x /usr/bin/ec2-set-hostname
 
-apt-get -y install chef
+# apt-get -y install chef
 
-# echo "`date` Bootstrap chef client"  >> $progresslog 
-# echo '{ "bootstrap": { "chef": { "server_fqdn":"<%= chef_server_fqdn %>", "url_type":"http", "init_style":"runit", "path":"/srv/chef", "serve_path":"/srv/chef" } }, "run_list": [ "recipe[bootstrap::client]" ] }' > /tmp/chef_client.json ;
-# wget -nv ${REMOTE_FILE_URL_BASE}/chef_bootstrap.rb -O /tmp/chef_bootstrap.rb ;
+echo "`date` Bootstrap chef client"  >> $progresslog 
+echo '{ "bootstrap": { "chef": { "server_fqdn":"<%= chef_server_fqdn %>", "url_type":"http", "init_style":"runit", "path":"/srv/chef", "serve_path":"/srv/chef" } }, "run_list": [ "recipe[bootstrap::client]" ] }' > /tmp/chef_client.json ;
+wget -nv ${REMOTE_FILE_URL_BASE}/chef_bootstrap.rb -O /tmp/chef_bootstrap.rb ;
 # sudo stop runsvdir ;
-# chef-solo -c /tmp/chef_bootstrap.rb -j /tmp/chef_client.json  >> $progresslog 
+chef-solo -c /tmp/chef_bootstrap.rb -j /tmp/chef_client.json  >> $progresslog 
 
 echo "`date` Pulling in chef client and server scripts"  >> $progresslog 
 cp /etc/chef/client.rb /etc/chef/client-orig.rb ;

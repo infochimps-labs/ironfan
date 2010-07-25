@@ -80,7 +80,8 @@ though, because it is a VERY BAD THING if directories that do exist (say, a
 <pre><code>
 BITS=64bit
 AMI_BUCKET=s3amis.infinitemonkeys.info
-AMI_EXCLUDES=/ebs1,/ebs2,/data,/srv/chef/cache,/mnt,/root/.ssh/authorized_keys,/home/ubuntu/.ssh/authorized_keys,/var/lib/cassandra
+# might need to add: /ebs1,/ebs2,/data,/var/lib/cassandra,/srv/chef/cache
+AMI_EXCLUDES=/mnt,/root/.ssh/authorized_keys,/home/ubuntu/.ssh/authorized_keys
 
 export EC2_CERT=/mnt/cert.pem
 export EC2_PRIVATE_KEY=/mnt/pk.pem
@@ -98,7 +99,7 @@ time ec2-register -n infochimps.chef-client.32bit.20100608 -d 'Chef client image
 
 h4. If you are in a region other than us-east-1
 
-# export AWS_REGION=us-east-1 
+# export AWS_REGION=us-west-1 
 # export EC2_URL=https://${AWS_REGION}.ec2.amazonaws.com
 # sudo mkdir -p /mnt/$ami_bucket
 # time sudo ec2-bundle-vol --exclude=$AMI_EXCLUDES -d /mnt/$ami_bucket -u $AWS_ACCOUNT_ID --cert cert.pem --privatekey pk.pem --ec2cert /etc/ec2/amitools/cert-ec2.pem
