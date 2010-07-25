@@ -37,11 +37,14 @@ cache_options({ :path => "/var/cache/chef/checksums", :skip_expires => true})
 signing_ca_user      "chef"
 
 # Extract client configuration from EC2 user-data and from local file
-CHEF_CONFIG_FILE     = "/etc/chef/client-config.json"
-user_data            = OHAI_INFO[:ec2][:userdata]
-chef_config          = JSON.parse(user_data).to_mash rescue {'attributes'=>{}}.to_mash
-attrs                = chef_config['attributes']
-attrs_from_file      = JSON.load(File.open(CHEF_CONFIG_FILE)) rescue {}
+CHEF_CONFIG_FILE      = "/etc/chef/chef-config.json"
+CLIENT_CONFIG_FILE    = "/etc/chef/client-config.json"
+user_data             = OHAI_INFO[:ec2][:userdata]
+chef_config           = JSON.parse(user_data).to_mash rescue {'attributes'=>{}}.to_mash
+chef_config_from_file = JSON.load(File.open(CHEF_CONFIG_FILE))   rescue {}
+chef_config.merge!(chef_config_from_file)
+attrs                 = chef_config['attributes']
+attrs_from_file       = JSON.load(File.open(CLIENT_CONFIG_FILE)) rescue {}
 attrs.merge!(attrs_from_file)
 p [chef_config]
 
@@ -73,11 +76,11 @@ if (not File.exists?("/etc/chef/client.pem")) && (not File.exists?(validation_ke
 end
 
 # Adopt chef config settings from the attrs hash
-unless File.exists?(CHEF_CONFIG_FILE)
-  File.open(CHEF_CONFIG_FILE, "w", 0600) do |f|
+unless File.exists?(CLIENT_CONFIG_FILE)
+  File.open(CLIENT_CONFIG_FILE, "w", 0600) do |f|
     f.print(JSON.pretty_generate(attrs))
   end
 end
-json_attribs CHEF_CONFIG_FILE if File.exists?(CHEF_CONFIG_FILE)
+json_attribs CLIENT_CONFIG_FILE if File.exists?(CLIENT_CONFIG_FILE)
 
 puts "=> chef client #{node_name} on #{chef_server_url} in #{attrs["cluster_name"]} running #{attrs["run_list"].inspect}"

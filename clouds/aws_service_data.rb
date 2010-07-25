@@ -40,9 +40,9 @@ module AwsServiceData
     %w[us-east-1             32-bit  ebs             infochimps-chef-client   ] => 'ami-cd24cfa4', # infochimps.chef-client.lucid.east.32bit.20100610a
     %w[us-east-1             64-bit  ebs             infochimps-chef-client   ] => '', # infochimps.chef-client.lucid.east.64bit.20100612
     %w[us-east-1             32-bit  instance        infochimps-chef-client   ] => '', # infochimps.chef-client.lucid.east.ami-32bit-20100609
-    %w[us-east-1             64-bit  instance        infochimps-chef-client   ] => 'ami-cf3bd0a6', # infochimps.chef-client.lucid.east.ami-64bit-20100609
+    %w[us-east-1             64-bit  instance        infochimps-chef-client   ] => '', # infochimps.chef-client.lucid.east.ami-64bit-20100609
     %w[us-east-1             64-bit  instance        infochimps-hadoop-client ] => '', # infochimps.chef-client.lucid.east.ami-64bit-20100714
-
+# ami-013ad168
   }
   AmiInfo = Struct.new(:region, :bits, :backing, :os)
 

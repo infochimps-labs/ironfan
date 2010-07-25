@@ -5,7 +5,6 @@ mkdir -p /tmp ; chmod a+rwx /tmp
 # A url directory with the scripts you'd like to stuff into the machine
 REMOTE_FILE_URL_BASE="<%= bootstrap_scripts_url_base %>"
 
-
 echo "`date` Broaden the apt universe" >> $progresslog
 add-apt-repository 'deb http://archive.canonical.com/ <%= ubuntu_version %> partner'
 add-apt-repository 'deb http://us.archive.ubuntu.com/ubuntu <%= ubuntu_version %> universe multiverse'
@@ -47,7 +46,7 @@ chmod a+x /usr/bin/ec2-set-hostname
 # apt-get -y install chef
 
 echo "`date` Bootstrap chef client"  >> $progresslog 
-echo '{ "bootstrap": { "chef": { "server_fqdn":"<%= chef_server_fqdn %>", "url_type":"http", "init_style":"runit", "path":"/srv/chef", "serve_path":"/srv/chef" } }, "run_list": [ "recipe[bootstrap::client]" ] }' > /tmp/chef_client.json ;
+echo '{ "bootstrap": { "chef": { "server_fqdn":"<%= chef_server_fqdn %>", "url_type":"http", "init_style":"runit", "path":"/var/lib/chef", "cache_path":"/var/cache/chef", "run_path":"/var/run", "serve_path":"/var/lib/chef/srv", "log_dir":"/var/log/chef" } }, "run_list": [ "recipe[chef::bootstrap_client]" ] }' > /tmp/chef_client.json ;
 wget -nv ${REMOTE_FILE_URL_BASE}/chef_bootstrap.rb -O /tmp/chef_bootstrap.rb ;
 # sudo stop runsvdir ;
 chef-solo -c /tmp/chef_bootstrap.rb -j /tmp/chef_client.json  >> $progresslog 
@@ -57,6 +56,9 @@ cp /etc/chef/client.rb /etc/chef/client-orig.rb ;
 wget -nv ${REMOTE_FILE_URL_BASE}/client.rb -O /etc/chef/client.rb ;
 cat > /etc/chef/client-config.json <<EOF
 <%= chef_config[:attributes].to_json %>
+EOF
+cat > /etc/chef/chef-config.json <<EOF
+{ "chef_server":"http://<%= chef_server_fqdn %>:4000" }
 EOF
 cat > /etc/chef/validation.pem <<EOF
 <%= chef_config[:validation_key] -%>

@@ -13,3 +13,9 @@ deb-src http://us.archive.ubuntu.com/ubuntu <%= @code_name %>-updates main restr
 #
 deb http://security.ubuntu.com/ubuntu <%= @code_name %>-security main restricted universe multiverse 
 deb-src http://security.ubuntu.com/ubuntu <%= @code_name %>-security main restricted universe multiverse 
+
+# Partner repo for Sun Java
+deb http://archive.canonical.com/ <%= @code_name %> partner
+
+# Opscode chef repo
+deb http://apt.opscode.com/ <%= @code_name %> main
