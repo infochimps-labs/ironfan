@@ -1,53 +1,45 @@
 {
-  "version": "0.7.1",
-  "providing": {
+    "providing": {
+    },
+    "attributes": {
+    },
+    "maintainer": "Opscode, Inc.",
+    "long_description": "",
+    "replacing": {
+    },
+    "dependencies": {
+    },
+    "maintainer_email": "cookbooks@opscode.com",
+    "groupings": {
+    },
+    "recommendations": {
+    },
+    "platforms": {
+      "debian": [
 
-  },
-  "attributes": {
+      ],
+      "centos": [
 
-  },
-  "maintainer": "Opscode, Inc.",
-  "replacing": {
+      ],
+      "fedora": [
 
-  },
-  "dependencies": {
+      ],
+      "ubuntu": [
 
-  },
-  "long_description": "",
-  "maintainer_email": "cookbooks@opscode.com",
-  "groupings": {
+      ],
+      "redhat": [
 
-  },
-  "recipes": {
-    "build-essential": "Installs C compiler and build tools on Linux"
-  },
-  "recommendations": {
-
-  },
-  "license": "Apache 2.0",
-  "suggestions": {
-
-  },
-  "name": "build-essential",
-  "conflicting": {
-
-  },
-  "platforms": {
-    "debian": [
-
-    ],
-    "centos": [
-
-    ],
-    "fedora": [
-
-    ],
-    "ubuntu": [
-
-    ],
-    "redhat": [
-
-    ]
-  },
-  "description": "Installs C compiler / build tools"
-}
+      ]
+    },
+    "license": "Apache 2.0",
+    "version": "0.7.1",
+    "recipes": {
+      "build-essential": "Installs C compiler and build tools on Linux"
+    },
+    "suggestions": {
+    },
+    "name": "build-essential",
+    "conflicting": {
+    },
+    "description": "Installs C compiler / build tools"
+  }

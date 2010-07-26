@@ -1,53 +1,45 @@
 {
-  "version": "0.8.1",
-  "providing": {
+    "providing": {
+    },
+    "attributes": {
+    },
+    "maintainer": "Opscode, Inc.",
+    "long_description": "",
+    "replacing": {
+    },
+    "dependencies": {
+    },
+    "maintainer_email": "cookbooks@opscode.com",
+    "groupings": {
+    },
+    "recommendations": {
+    },
+    "platforms": {
+      "debian": [
 
-  },
-  "attributes": {
+      ],
+      "fedora": [
 
-  },
-  "maintainer": "Opscode, Inc.",
-  "replacing": {
+      ],
+      "centos": [
 
-  },
-  "dependencies": {
+      ],
+      "ubuntu": [
 
-  },
-  "long_description": "",
-  "maintainer_email": "cookbooks@opscode.com",
-  "groupings": {
+      ],
+      "redhat": [
 
-  },
-  "recipes": {
-    "subversion": "Installs subversion and extra svn packages"
-  },
-  "recommendations": {
-
-  },
-  "license": "Apache 2.0",
-  "suggestions": {
-
-  },
-  "name": "subversion",
-  "conflicting": {
-
-  },
-  "platforms": {
-    "debian": [
-
-    ],
-    "fedora": [
-
-    ],
-    "centos": [
-
-    ],
-    "ubuntu": [
-
-    ],
-    "redhat": [
-
-    ]
-  },
-  "description": "Installs subversion"
-}
+      ]
+    },
+    "license": "Apache 2.0",
+    "version": "0.8.1",
+    "recipes": {
+      "subversion": "Installs subversion and extra svn packages"
+    },
+    "suggestions": {
+    },
+    "name": "subversion",
+    "conflicting": {
+    },
+    "description": "Installs subversion"
+  }
