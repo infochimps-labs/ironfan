@@ -1,9 +1,9 @@
 h2. Burn an AMI 
 
 <pre><code>
-# Shutdown services
-for foo in god apeyeye hadoop-0.20-{namenode,jobtracker,tasktracker,datanode,secondarynamenode} cassandra couchdb thttpd chef-client nfs-kernel-server rabbitmq-server chef-{solr,solr-indexer,client,server,server-webui} ; do sudo service $foo stop ; done
-# and make the following ones not restart on bootup
+# Shutdown services  and make the following ones not restart on bootup
+for foo in god apeyeye nginx hadoop-0.20-{namenode,jobtracker,tasktracker,datanode,secondarynamenode} cassandra couchdb thttpd chef-client nfs-kernel-server rabbitmq-server chef-{solr,solr-indexer,client,server,server-webui} ; do sudo service $foo stop ; done
+killall redis-server tail nginx console-kil-daemon
 for foo in hadoop-0.20-{tasktracker,datanode,namenode,jobtracker,secondarynamenode} cassandra ; do sudo update-rc.d -f $foo remove ; done
 # Give the process list a how's your father -- nothing interesting should be running.
 ps auxf
@@ -29,6 +29,9 @@ sudo apt-get -f install ;
 sudo apt-get clean ;
 sudo updatedb ;
 
+# blow away anything git-deployed
+sudo rm -rf /var/www/{apeyeye,apidocs} /etc/{apeyeye,god,monitoring,redis} /var/run/god /var/log/god /etc/sv/apeyeye
+
 # Nuke files that would be inconvenient to persist: chef config and startup files; log files; and files that contain keys of some sort.
 away_dir=/mnt/tmp/away-`date "+%Y%m%d%H"`
 sudo mkdir -p $away_dir
@@ -37,7 +40,7 @@ sudo mv /var/lib/couchdb/0.10.0/chef.couch /var/lib/rabbitmq/mnesia/rabbit /etc/
 sudo mv /srv/chef/cache/chef_server_cookie_id /var/chef /etc/hadoop/conf/{*.xml,raw_settings.yaml*} /etc/cassandra/storage-conf* $away_dir
 sudo mkdir -p $away_dir/chef_cache; sudo mv /var/cache/chef/* $away_dir/chef_cache/
 # flush files that might have history or credentials
-sudo rm -rf /root/{.cache,.chef,emacs.d,.bash_history,.gem} ~ubuntu/{.cache,.chef,emacs.d,.bash_history,.gem} /var/backups/* a/tmp/*
+sudo rm -rf /root/{.cache,.chef,emacs.d,.bash_history,.gem} ~ubuntu/{.cache,.chef,emacs.d,.bash_history,.gem} /var/backups/*
 # Zero out log files
 sudo rm -rf /var/lib/cloud/data/* /var/log/{chef,hadoop,rabbitmq,cassandra}/* /etc/sv/*/log/main/* /var/log/*.gz
 sudo bash -c 'for foo in /var/log/{dmesg,syslog,messages,debug,udev,lastlog,faillog,dmesg.0,*.log} ; do echo -n > $foo ; done'
