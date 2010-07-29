@@ -1,39 +1,29 @@
 {
-  "version": "0.1.0",
-  "providing": {
-
-  },
-  "attributes": {
-
-  },
-  "maintainer": "Example Com",
-  "replacing": {
-
-  },
-  "dependencies": {
-
-  },
-  "long_description": "= DESCRIPTION:\n\n= REQUIREMENTS:\n\n= ATTRIBUTES: \n\n= USAGE:\n\n",
-  "maintainer_email": "ops@example.com",
-  "groupings": {
-
-  },
-  "recipes": {
-
-  },
-  "recommendations": {
-
-  },
-  "license": "Apache 2.0",
-  "suggestions": {
-
-  },
-  "name": "hadoop_patches",
-  "conflicting": {
-
-  },
-  "platforms": {
-
-  },
-  "description": "Installs/Configures lzo_hadoop"
-}
+    "providing": {
+    },
+    "attributes": {
+    },
+    "maintainer": "Example Com",
+    "long_description": "= DESCRIPTION:\n\n= REQUIREMENTS:\n\n= ATTRIBUTES: \n\n= USAGE:\n\n",
+    "replacing": {
+    },
+    "dependencies": {
+    },
+    "maintainer_email": "ops@example.com",
+    "groupings": {
+    },
+    "recommendations": {
+    },
+    "platforms": {
+    },
+    "license": "Apache 2.0",
+    "version": "0.1.0",
+    "recipes": {
+    },
+    "suggestions": {
+    },
+    "name": "hadoop_patches",
+    "conflicting": {
+    },
+    "description": "Installs/Configures lzo_hadoop"
+  }
