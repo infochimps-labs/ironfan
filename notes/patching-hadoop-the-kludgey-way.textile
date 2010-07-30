@@ -4,15 +4,20 @@
 # * these instructions use colordiff, install it or just say 'diff'
 #
 
+# The target version of hadoop
 version=0.20.2+228
-build_dir=/usr/local/src/hadoop-src/build/hadoop-${version}
+# The system-installed hadoop 
 orig_dir=/usr/lib/hadoop-0.20
+# Where to store the patched version
 dist_dir=/home/hadoop/dist/hadoop-${version}-patched
+# Where patches live
 patch_dir=/home/hadoop/dist/hadoop-patches
+# Where to put a build
+build_dir=/usr/local/src/hadoop-src/build/hadoop-${version}
 
 # We'll land the patched files into a directory under /home/hadoop/dist. This
 # lets each machine update from the NFS 
-sudo mkdir /home/hadoop/dist ; chgrp -R admin /home/hadoop/dist ; chmod -R g+rwX /home/hadoop/dist 
+sudo mkdir -p /home/hadoop/dist ; chgrp -R admin /home/hadoop/dist ; chmod -R g+rwX /home/hadoop/dist 
 
 #
 # Get the source distro, expand it
@@ -20,7 +25,7 @@ sudo mkdir /home/hadoop/dist ; chgrp -R admin /home/hadoop/dist ; chmod -R g+rwX
 cd /usr/local/src
 wget http://archive.cloudera.com/cdh/3/hadoop-${version}.tar.gz
 tar xvzf hadoop-${version}.tar.gz
-ln -s hadoop-${version} hadoop-src
+ln -nsf hadoop-${version} hadoop-src
 
 # We'll record a diff of the install dir with itself, to detect any changes later
 ( cd $orig_dir ; for foo in `find  -iname '*.jar'` ; do echo $foo ; jardiff -f $orig_dir/$foo -t $foo -o html ; done  )  > /usr/local/src/hadoop-jardiff-orig.log &
@@ -104,6 +109,5 @@ for foo in `cat /tmp/gibbon-slaves.log` ; do echo $foo ; sshkp $foo 'for svc in 
 for foo in `cat /tmp/gibbon-slaves.log` ; do echo $foo ; sshkp $foo 'sudo rsync -alvi /home/hadoop/dist/hadoop-0.20.2+228-patched/ /usr/lib/hadoop-0.20/ --exclude=conf --exclude=logs --exclude=pids' & done
 # restart
 for foo in `cat /tmp/gibbon-slaves.log` ; do echo $foo ; sshkp $foo 'for svc in hadoop-0.20-{tasktracker,datanode} ; do sudo service $svc start ; done' & done
-
 
 sudo -u hadoop hadoop fsck / | egrep -v '^\.+$'
