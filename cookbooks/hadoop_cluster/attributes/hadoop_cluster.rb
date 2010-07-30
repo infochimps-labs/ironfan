@@ -22,8 +22,6 @@ default[:hadoop][:mapred_jobtracker_completeuserjobs_maximum ] = 100
 # fs.inmemory.size.mb  # default XX
 #
 
-
-
 default[:groups]['hadoop'    ][:gid]          = 300
 default[:groups]['supergroup'][:gid]          = 301
 
