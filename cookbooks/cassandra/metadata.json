@@ -1,520 +1,533 @@
 {
-    "replacing": {
-    },
-    "attributes": {
-      "cassandra/commit_log_sync_period": {
-        "required": "optional",
-        "calculated": false,
-        "choice": [
-
-        ],
-        "default": "10000",
-        "type": "string",
-        "recipes": [
-
-        ],
-        "display_name": "",
-        "description": ""
-      },
-      "cassandra/callout_location": {
-        "required": "optional",
-        "calculated": false,
-        "choice": [
-
-        ],
-        "default": "/var/lib/cassandra/callouts",
-        "type": "string",
-        "recipes": [
-
-        ],
-        "display_name": "",
-        "description": ""
-      },
-      "cassandra/authenticator": {
-        "required": "optional",
-        "calculated": false,
-        "choice": [
-
-        ],
-        "default": "org.apache.cassandra.auth.AllowAllAuthenticator",
-        "type": "string",
-        "recipes": [
-
-        ],
-        "display_name": "Cassandra authenticator",
-        "description": "The IAuthenticator to be used for access control."
-      },
-      "cassandra/memtable_flush_after": {
-        "required": "optional",
-        "calculated": false,
-        "choice": [
-
-        ],
-        "default": "60",
-        "type": "string",
-        "recipes": [
-
-        ],
-        "display_name": "",
-        "description": ""
-      },
-      "cassandra/memtable_throughput": {
-        "required": "optional",
-        "calculated": false,
-        "choice": [
-
-        ],
-        "default": "64",
-        "type": "string",
-        "recipes": [
-
-        ],
-        "display_name": "",
-        "description": ""
-      },
-      "cassandra/thrift_port": {
-        "required": "optional",
-        "calculated": false,
-        "choice": [
-
-        ],
-        "default": "9160",
-        "type": "string",
-        "recipes": [
-
-        ],
-        "display_name": "",
-        "description": ""
-      },
-      "cassandra/commit_log_sync": {
-        "required": "optional",
-        "calculated": false,
-        "choice": [
-
-        ],
-        "default": "periodic",
-        "type": "string",
-        "recipes": [
-
-        ],
-        "display_name": "",
-        "description": ""
-      },
-      "cassandra/memtable_ops": {
-        "required": "optional",
-        "calculated": false,
-        "choice": [
-
-        ],
-        "default": "0.3",
-        "type": "string",
-        "recipes": [
-
-        ],
-        "display_name": "",
-        "description": ""
-      },
-      "cassandra/storage_port": {
-        "required": "optional",
-        "calculated": false,
-        "choice": [
-
-        ],
-        "default": "7000",
-        "type": "string",
-        "recipes": [
-
-        ],
-        "display_name": "",
-        "description": ""
-      },
-      "cassandra/staging_file_dir": {
-        "required": "optional",
-        "calculated": false,
-        "choice": [
-
-        ],
-        "default": "/var/lib/cassandra/staging",
-        "type": "string",
-        "recipes": [
-
-        ],
-        "display_name": "",
-        "description": ""
-      },
-      "cassandra/initial_token": {
-        "required": "optional",
-        "calculated": false,
-        "choice": [
-
-        ],
-        "default": "",
-        "type": "string",
-        "recipes": [
-
-        ],
-        "display_name": "",
-        "description": ""
-      },
-      "cassandra/cluster_name": {
-        "required": "optional",
-        "calculated": false,
-        "choice": [
-
-        ],
-        "default": "Test Cluster",
-        "type": "string",
-        "recipes": [
-
-        ],
-        "display_name": "Cassandra cluster name",
-        "description": "The name for the Cassandra cluster in which this node should participate.  The default is 'Test Cluster'."
-      },
-      "cassandra/flush_index_buffer_size": {
-        "required": "optional",
-        "calculated": false,
-        "choice": [
-
-        ],
-        "default": "8",
-        "type": "string",
-        "recipes": [
-
-        ],
-        "display_name": "",
-        "description": ""
-      },
-      "cassandra/sliced_buffer_size": {
-        "required": "optional",
-        "calculated": false,
-        "choice": [
-
-        ],
-        "default": "64",
-        "type": "string",
-        "recipes": [
-
-        ],
-        "display_name": "",
-        "description": ""
-      },
-      "cassandra/thrift_framed_transport": {
-        "required": "optional",
-        "calculated": false,
-        "choice": [
-
-        ],
-        "default": "false",
-        "type": "string",
-        "recipes": [
-
-        ],
-        "display_name": "",
-        "description": ""
-      },
-      "cassandra/listen_addr": {
-        "required": "optional",
-        "calculated": false,
-        "choice": [
-
-        ],
-        "default": "localhost",
-        "type": "string",
-        "recipes": [
-
-        ],
-        "display_name": "",
-        "description": ""
-      },
-      "cassandra/rpc_timeout": {
-        "required": "optional",
-        "calculated": false,
-        "choice": [
-
-        ],
-        "default": "5000",
-        "type": "string",
-        "recipes": [
-
-        ],
-        "display_name": "",
-        "description": ""
-      },
-      "cassandra/binary_memtable_throughput": {
-        "required": "optional",
-        "calculated": false,
-        "choice": [
-
-        ],
-        "default": "256",
-        "type": "string",
-        "recipes": [
-
-        ],
-        "display_name": "",
-        "description": ""
-      },
-      "cassandra/disk_access_mode": {
-        "required": "optional",
-        "calculated": false,
-        "choice": [
-
-        ],
-        "default": "auto",
-        "type": "string",
-        "recipes": [
-
-        ],
-        "display_name": "",
-        "description": ""
-      },
-      "cassandra/flush_data_buffer_size": {
-        "required": "optional",
-        "calculated": false,
-        "choice": [
-
-        ],
-        "default": "32",
-        "type": "string",
-        "recipes": [
-
-        ],
-        "display_name": "",
-        "description": ""
-      },
-      "cassandra/thrift_addr": {
-        "required": "optional",
-        "calculated": false,
-        "choice": [
-
-        ],
-        "default": "localhost",
-        "type": "string",
-        "recipes": [
-
-        ],
-        "display_name": "",
-        "description": ""
-      },
-      "cassandra/data_file_dirs": {
-        "required": "optional",
-        "calculated": false,
-        "choice": [
-
-        ],
-        "default": [
-          "/var/lib/cassandra/data"
-        ],
-        "type": "string",
-        "recipes": [
-
-        ],
-        "display_name": "",
-        "description": ""
-      },
-      "cassandra/keyspaces": {
-        "required": "optional",
-        "calculated": false,
-        "choice": [
-
-        ],
-        "type": "array",
-        "recipes": [
-
-        ],
-        "display_name": "Cassandra keyspaces",
-        "description": "Hash of keyspace definitions."
-      },
-      "cassandra/auto_bootstrap": {
-        "required": "optional",
-        "calculated": false,
-        "choice": [
-
-        ],
-        "default": "false",
-        "type": "string",
-        "recipes": [
-
-        ],
-        "display_name": "Cassandra automatic boostrap boolean",
-        "description": "Boolean indicating whether a node should automatically boostrap on startup."
-      },
-      "cassandra/concurrent_reads": {
-        "required": "optional",
-        "calculated": false,
-        "choice": [
-
-        ],
-        "default": "8",
-        "type": "string",
-        "recipes": [
-
-        ],
-        "display_name": "",
-        "description": ""
-      },
-      "cassandra/commit_log_rotation_threshold": {
-        "required": "optional",
-        "calculated": false,
-        "choice": [
-
-        ],
-        "default": "128",
-        "type": "string",
-        "recipes": [
-
-        ],
-        "display_name": "",
-        "description": ""
-      },
-      "cassandra/column_index_size": {
-        "required": "optional",
-        "calculated": false,
-        "choice": [
-
-        ],
-        "default": "64",
-        "type": "string",
-        "recipes": [
-
-        ],
-        "display_name": "",
-        "description": ""
-      },
-      "cassandra/seeds": {
-        "required": "optional",
-        "calculated": false,
-        "choice": [
-
-        ],
-        "default": [
-          "127.0.0.1"
-        ],
-        "type": "string",
-        "recipes": [
-
-        ],
-        "display_name": "",
-        "description": ""
-      },
-      "cassandra/partitioner": {
-        "required": "optional",
-        "calculated": false,
-        "choice": [
-
-        ],
-        "default": "org.apache.cassandra.dht.RandomPartitioner",
-        "type": "string",
-        "recipes": [
-
-        ],
-        "display_name": "",
-        "description": ""
-      },
-      "cassandra/gc_grace": {
-        "required": "optional",
-        "calculated": false,
-        "choice": [
-
-        ],
-        "default": "864000",
-        "type": "string",
-        "recipes": [
-
-        ],
-        "display_name": "",
-        "description": ""
-      },
-      "cassandra/concurrent_writes": {
-        "required": "optional",
-        "calculated": false,
-        "choice": [
-
-        ],
-        "default": "32",
-        "type": "string",
-        "recipes": [
-
-        ],
-        "display_name": "",
-        "description": ""
-      },
-      "cassandra/commit_log_dir": {
-        "required": "optional",
-        "calculated": false,
-        "choice": [
-
-        ],
-        "default": "/var/lib/cassandra/commitlog",
-        "type": "string",
-        "recipes": [
-
-        ],
-        "display_name": "",
-        "description": ""
-      },
-      "cassandra": {
-        "required": "optional",
-        "calculated": false,
-        "choice": [
-
-        ],
-        "type": "hash",
-        "recipes": [
-
-        ],
-        "display_name": "Cassandra",
-        "description": "Hash of Cassandra attributes"
-      }
-    },
-    "maintainer_email": "b@b3k.us",
-    "groupings": {
-    },
-    "dependencies": {
-      "ebs": [
+  "name": "cassandra",
+  "description": "Installs and configures the Cassandra distributed storage system",
+  "long_description": "",
+  "maintainer": "Benjamin Black",
+  "maintainer_email": "b@b3k.us",
+  "license": "Apache 2.0",
+  "platforms": {
+    "ubuntu": [
+
+    ],
+    "debian": [
+
+    ]
+  },
+  "dependencies": {
+    "java": [
+
+    ],
+    "runit": [
+
+    ],
+    "thrift": [
+
+    ],
+    "ebs": [
+
+    ],
+    "cluster_service_discovery": [
+
+    ],
+    "iptables": [
+
+    ]
+  },
+  "recommendations": {
+  },
+  "suggestions": {
+  },
+  "conflicting": {
+  },
+  "providing": {
+  },
+  "replacing": {
+  },
+  "attributes": {
+    "cassandra": {
+      "display_name": "Cassandra",
+      "description": "Hash of Cassandra attributes",
+      "type": "hash",
+      "choice": [
 
       ],
-      "cluster_service_discovery": [
-
-      ],
-      "runit": [
-
-      ],
-      "iptables": [
-
-      ],
-      "java": [
-
-      ],
-      "thrift": [
+      "calculated": false,
+      "required": "optional",
+      "recipes": [
 
       ]
     },
-    "recommendations": {
-    },
-    "suggestions": {
-    },
-    "platforms": {
-      "debian": [
+    "cassandra/cluster_name": {
+      "display_name": "Cassandra cluster name",
+      "description": "The name for the Cassandra cluster in which this node should participate.  The default is 'Test Cluster'.",
+      "default": "Test Cluster",
+      "choice": [
 
       ],
-      "ubuntu": [
+      "calculated": false,
+      "type": "string",
+      "required": "optional",
+      "recipes": [
 
       ]
     },
-    "license": "Apache 2.0",
-    "version": "0.1.0",
-    "recipes": {
-      "cassandra::iptables": "Automatically configure iptables rules for cassandra.",
-      "cassandra::ec2snitch": "Automatically configure properties snitch for clusters on EC2.",
-      "cassandra::autoconf": "Automatically configure nodes from chef-server information."
+    "cassandra/auto_bootstrap": {
+      "display_name": "Cassandra automatic boostrap boolean",
+      "description": "Boolean indicating whether a node should automatically boostrap on startup.",
+      "default": "false",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string",
+      "required": "optional",
+      "recipes": [
+
+      ]
     },
-    "conflicting": {
+    "cassandra/keyspaces": {
+      "display_name": "Cassandra keyspaces",
+      "description": "Hash of keyspace definitions.",
+      "type": "array",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "required": "optional",
+      "recipes": [
+
+      ]
     },
-    "name": "cassandra",
-    "providing": {
+    "cassandra/authenticator": {
+      "display_name": "Cassandra authenticator",
+      "description": "The IAuthenticator to be used for access control.",
+      "default": "org.apache.cassandra.auth.AllowAllAuthenticator",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string",
+      "required": "optional",
+      "recipes": [
+
+      ]
     },
-    "description": "Installs and configures the Cassandra distributed storage system",
-    "maintainer": "Benjamin Black",
-    "long_description": ""
-  }
+    "cassandra/partitioner": {
+      "display_name": "",
+      "description": "",
+      "default": "org.apache.cassandra.dht.RandomPartitioner",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string",
+      "required": "optional",
+      "recipes": [
+
+      ]
+    },
+    "cassandra/initial_token": {
+      "display_name": "",
+      "description": "",
+      "default": "",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string",
+      "required": "optional",
+      "recipes": [
+
+      ]
+    },
+    "cassandra/commitlog_dir": {
+      "display_name": "",
+      "description": "",
+      "default": "/var/lib/cassandra/commitlog",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string",
+      "required": "optional",
+      "recipes": [
+
+      ]
+    },
+    "cassandra/data_file_dirs": {
+      "display_name": "",
+      "description": "",
+      "default": [
+        "/var/lib/cassandra/data"
+      ],
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string",
+      "required": "optional",
+      "recipes": [
+
+      ]
+    },
+    "cassandra/callout_location": {
+      "display_name": "",
+      "description": "",
+      "default": "/var/lib/cassandra/callouts",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string",
+      "required": "optional",
+      "recipes": [
+
+      ]
+    },
+    "cassandra/staging_file_dir": {
+      "display_name": "",
+      "description": "",
+      "default": "/var/lib/cassandra/staging",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string",
+      "required": "optional",
+      "recipes": [
+
+      ]
+    },
+    "cassandra/seeds": {
+      "display_name": "",
+      "description": "",
+      "default": [
+        "127.0.0.1"
+      ],
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string",
+      "required": "optional",
+      "recipes": [
+
+      ]
+    },
+    "cassandra/rpc_timeout": {
+      "display_name": "",
+      "description": "",
+      "default": "5000",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string",
+      "required": "optional",
+      "recipes": [
+
+      ]
+    },
+    "cassandra/commitlog_rotation_threshold": {
+      "display_name": "",
+      "description": "",
+      "default": "128",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string",
+      "required": "optional",
+      "recipes": [
+
+      ]
+    },
+    "cassandra/listen_addr": {
+      "display_name": "",
+      "description": "",
+      "default": "localhost",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string",
+      "required": "optional",
+      "recipes": [
+
+      ]
+    },
+    "cassandra/storage_port": {
+      "display_name": "",
+      "description": "",
+      "default": "7000",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string",
+      "required": "optional",
+      "recipes": [
+
+      ]
+    },
+    "cassandra/thrift_addr": {
+      "display_name": "",
+      "description": "",
+      "default": "localhost",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string",
+      "required": "optional",
+      "recipes": [
+
+      ]
+    },
+    "cassandra/thrift_port": {
+      "display_name": "",
+      "description": "",
+      "default": "9160",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string",
+      "required": "optional",
+      "recipes": [
+
+      ]
+    },
+    "cassandra/thrift_framed_transport": {
+      "display_name": "",
+      "description": "",
+      "default": "false",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string",
+      "required": "optional",
+      "recipes": [
+
+      ]
+    },
+    "cassandra/disk_access_mode": {
+      "display_name": "",
+      "description": "",
+      "default": "auto",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string",
+      "required": "optional",
+      "recipes": [
+
+      ]
+    },
+    "cassandra/sliced_buffer_size": {
+      "display_name": "",
+      "description": "",
+      "default": "64",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string",
+      "required": "optional",
+      "recipes": [
+
+      ]
+    },
+    "cassandra/flush_data_buffer_size": {
+      "display_name": "",
+      "description": "",
+      "default": "32",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string",
+      "required": "optional",
+      "recipes": [
+
+      ]
+    },
+    "cassandra/flush_index_buffer_size": {
+      "display_name": "",
+      "description": "",
+      "default": "8",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string",
+      "required": "optional",
+      "recipes": [
+
+      ]
+    },
+    "cassandra/column_index_size": {
+      "display_name": "",
+      "description": "",
+      "default": "64",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string",
+      "required": "optional",
+      "recipes": [
+
+      ]
+    },
+    "cassandra/memtable_throughput": {
+      "display_name": "",
+      "description": "",
+      "default": "64",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string",
+      "required": "optional",
+      "recipes": [
+
+      ]
+    },
+    "cassandra/binary_memtable_throughput": {
+      "display_name": "",
+      "description": "",
+      "default": "256",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string",
+      "required": "optional",
+      "recipes": [
+
+      ]
+    },
+    "cassandra/memtable_ops": {
+      "display_name": "",
+      "description": "",
+      "default": "0.3",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string",
+      "required": "optional",
+      "recipes": [
+
+      ]
+    },
+    "cassandra/memtable_flush_after": {
+      "display_name": "",
+      "description": "",
+      "default": "60",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string",
+      "required": "optional",
+      "recipes": [
+
+      ]
+    },
+    "cassandra/concurrent_reads": {
+      "display_name": "",
+      "description": "",
+      "default": "8",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string",
+      "required": "optional",
+      "recipes": [
+
+      ]
+    },
+    "cassandra/concurrent_writes": {
+      "display_name": "",
+      "description": "",
+      "default": "32",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string",
+      "required": "optional",
+      "recipes": [
+
+      ]
+    },
+    "cassandra/commitlog_sync": {
+      "display_name": "",
+      "description": "",
+      "default": "periodic",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string",
+      "required": "optional",
+      "recipes": [
+
+      ]
+    },
+    "cassandra/commitlog_sync_period": {
+      "display_name": "",
+      "description": "",
+      "default": "10000",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string",
+      "required": "optional",
+      "recipes": [
+
+      ]
+    },
+    "cassandra/gc_grace": {
+      "display_name": "",
+      "description": "",
+      "default": "864000",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string",
+      "required": "optional",
+      "recipes": [
+
+      ]
+    },
+    "cassandra/public_access": {
+      "display_name": "Public access",
+      "description": "If the node is on a cloud server with public and private IP addresses and public_access is true, then Thrift will be bound on the public IP address.  Disabled by default.",
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string",
+      "required": "optional",
+      "recipes": [
+
+      ]
+    }
+  },
+  "groupings": {
+  },
+  "recipes": {
+    "cassandra::autoconf": "Automatically configure nodes from chef-server information.",
+    "cassandra::ec2snitch": "Automatically configure properties snitch for clusters on EC2.",
+    "cassandra::iptables": "Automatically configure iptables rules for cassandra."
+  },
+  "version": "0.2.2"
+}

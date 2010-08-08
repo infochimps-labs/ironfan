@@ -22,7 +22,7 @@ override_attributes({
       :jmx_port          => 12345,
       :concurrent_reads  => 4,
       :concurrent_writes => 64,
-      :commit_log_sync   => 'periodic',
+      :commitlog_sync    => 'periodic',
       :data_file_dirs    => ["/data/db/cassandra"],
     }
   })

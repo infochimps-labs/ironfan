@@ -2,14 +2,15 @@
 set[:hadoop][:hadoop_handle] = 'hadoop-0.20'
 set[:hadoop][:cdh_version]   = 'cdh3b2'
 
-CLUSTER_SIZE = 31
+# Make sure you define a cluster_size in roles/WHATEVER_cluster.rb
+# default[:cluster_size] = 5
 
-default[:hadoop][:cluster_reduce_tasks        ] = (CLUSTER_SIZE * 1.95).to_i
+default[:hadoop][:cluster_reduce_tasks        ] = (node[:cluster_size] * 1.95).to_i
 default[:hadoop][:dfs_replication             ] =  3
-default[:hadoop][:reduce_parallel_copies      ] = CLUSTER_SIZE
-default[:hadoop][:jobtracker_handler_count    ] = CLUSTER_SIZE * 2
-default[:hadoop][:tasktracker_http_threads    ] = CLUSTER_SIZE * 2
-default[:hadoop][:namenode_handler_count      ] = CLUSTER_SIZE * 2
+default[:hadoop][:reduce_parallel_copies      ] = node[:cluster_size]
+default[:hadoop][:jobtracker_handler_count    ] = node[:cluster_size] * 2
+default[:hadoop][:tasktracker_http_threads    ] = node[:cluster_size] * 2
+default[:hadoop][:namenode_handler_count      ] = node[:cluster_size] * 2
 default[:hadoop][:datanode_handler_count      ] = 10
 
 default[:hadoop][:compress_map_output         ] = 'true'
@@ -34,7 +35,7 @@ default[:hadoop][:use_root_as_persistent_vol] = false
 
 # Extra directories for the Namenode metadata to persist to, for example an
 # off-cluster NFS path (only necessary to use if you have a physical cluster)
-default[:hadoop][:extra_nn_metadata_path] = ''
+set[:hadoop][:extra_nn_metadata_path] = nil
 
 # Other hadoop settings
 default[:hadoop][:max_balancer_bandwidth]     = 1048576  # bytes per second -- 1MB/s by default

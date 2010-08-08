@@ -17,8 +17,8 @@ cd var
 exec chpst -u${CASSANDRA_USER} -e /etc/sv/cassandra/env -o 65535 \
   /usr/bin/java                                                   \
       -ea                                                         \
-      -Xms=256m                                                   \
-      -Xmx=<%= node[:cassandra][:java_max_heap] %>                \
+      -Xms128M                                                    \
+      -Xmx<%= node[:cassandra][:java_max_heap] %>                 \
       -XX:TargetSurvivorRatio=90                                  \
       -XX:+AggressiveOpts                                         \
       -XX:+UseParNewGC                                            \
@@ -27,10 +27,12 @@ exec chpst -u${CASSANDRA_USER} -e /etc/sv/cassandra/env -o 65535 \
       -XX:+HeapDumpOnOutOfMemoryError                             \
       -XX:SurvivorRatio=128                                       \
       -XX:MaxTenuringThreshold=0                                  \
-      -Dcom.sun.management.jmxremote.port=<%= node[:cassandra][:jmx_remote_port] %>                    \
+      -Djava.rmi.server.hostname=<%= node[:ec2][:public_hostname] %> \
+      -Dcom.sun.management.jmxremote.port=<%= node[:cassandra][:jmx_port] %>                    \
       -Dcom.sun.management.jmxremote.ssl=false                    \
       -Dcom.sun.management.jmxremote.authenticate=false           \
       -Dcassandra -Dstorage-config=${CASSANDRA_CONF}              \
       -Dcassandra-foreground=yes                                  \
       -cp ${CLASSPATH}                                            \
       org.apache.cassandra.thrift.CassandraDaemon 2>&1
+

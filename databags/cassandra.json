@@ -1,42 +1,34 @@
 [
 {
   "id": "clusters",
-  "zaius": {
-    "keyspaces": {
-      "Twitter": {
-        "columns": {
-          "Users":               { "compare_with": "AsciiType" },
-          "UserAudits":          { "compare_with": "AsciiType" },
-          "Usernames":           { "compare_with": "AsciiType" },
-          "UserSearchIds":       { "compare_with": "AsciiType" },
-          "Statuses":            { "compare_with": "AsciiType" },
-          "StatusAudits":        { "compare_with": "AsciiType" },
-          "Index":               { "compare_with": "AsciiType", "column_type": "Super" },
-          "UserRelationships":   { "compare_with": "AsciiType", "column_type": "Super", "compare_subcolumns_with": "AsciiType" },
-          "StatusRelationships": { "compare_with": "AsciiType", "column_type": "Super", "compare_subcolumns_with": "TimeUUIDType" }
-        },
-        "replica_placement_strategy": "org.apache.cassandra.locator.RackUnawareStrategy",
+  "gibbon": {
+    "keyspaces": [
+      { "name":                       "soc_net_tw",
         "replication_factor":         "2",
-        "end_point_snitch":           "org.apache.cassandra.locator.EndPointSnitch"
-      },
-      "SocNetTw": {
-        "columns": {
-          "Users":                 { "compare_with": "AsciiType"  },
-          "UserSearchIds":         { "compare_with": "AsciiType"  },
-          "UserScreenNames":       { "compare_with": "AsciiType" },
-          "Tokens":                { "compare_with": "AsciiType" },
-          "wordbag_user_id":       { "compare_with": "UTF8Type" },
-          "influence_user_id":     { "compare_with": "UTF8Type" },
-          "trstrank_user_id":      { "compare_with": "UTF8Type" },
-          "wordbag_screen_name":   { "compare_with": "UTF8Type" },
-          "influence_screen_name": { "compare_with": "UTF8Type" },
-          "trstrank_screen_name":  { "compare_with": "UTF8Type" }
-        },
-        "replica_placement_strategy": "org.apache.cassandra.locator.RackUnawareStrategy",
-        "replication_factor":         "2",
-        "end_point_snitch":           "org.apache.cassandra.locator.EndPointSnitch"
+        "column_families": {
+          { "name": "Users",                "compare_with": "AsciiType" },
+          { "name": "UserSearchIds",        "compare_with": "AsciiType" },
+          { "name": "UserScreenNames",      "compare_with": "AsciiType" },
+
+          { "name": "AFollowsB",            "compare_with": "" },
+          { "name": "AAtsignsB",            "compare_with": "", "column_type": "Super", "compare_subcolumns_with": "TimeUUIDType" },
+          { "name": "AStrLinkB",            "compare_with": "" },
+          
+          { "name": "Statuses",             "compare_with": "AsciiType" },
+          { "name": "StatusRelationships",  "compare_with": "AsciiType", "column_type": "Super", "compare_subcolumns_with": "TimeUUIDType" },
+          
+          { "name": "Tokens",               "compare_with": "AsciiType" },
+          { "name": "Wordbag",              "compare_with": "UTF8Type" },
+          { "name": "Influence",            "compare_with": "UTF8Type" },
+          { "name": "Trstrank",             "compare_with": "UTF8Type" }
+
+          // { "name": "UserRelationships",    "compare_with": "AsciiType", "column_type": "Super", "compare_subcolumns_with": "AsciiType",
+          //   "preload_row_cache": false, "rows_cached": 0, "keys_cached": 0, "read_repair_chance": 0.1, 
+          //   "clock_type": "Timestamp", "reconciler": "TimestampReconciler", "gc_grace_seconds": 0
+          //   "comment": "" },
+        }
       }
-    }
+    ]
   }
 }
 ]

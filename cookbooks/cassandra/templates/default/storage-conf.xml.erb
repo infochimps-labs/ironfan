@@ -67,7 +67,7 @@
    ~ disk.  Keep the data disks and the CommitLog disks separate for best
    ~ performance
   -->
-  <CommitLogDirectory><%= @node[:cassandra][:commit_log_dir] %></CommitLogDirectory>
+  <CommitLogDirectory><%= @node[:cassandra][:commitlog_dir] %></CommitLogDirectory>
   <DataFileDirectories>
       <% @node[:cassandra][:data_file_dirs].each do |dir| %>
       <DataFileDirectory><%= dir %></DataFileDirectory>
@@ -94,7 +94,7 @@
   <!-- Time to wait for a reply from other nodes before failing the command -->
   <RpcTimeoutInMillis><%= @node[:cassandra][:rpc_timeout] %></RpcTimeoutInMillis>
   <!-- Size to allow commitlog to grow to before creating a new segment -->
-  <CommitLogRotationThresholdInMB><%= @node[:cassandra][:commit_log_rotation_threshold] %></CommitLogRotationThresholdInMB>
+  <CommitLogRotationThresholdInMB><%= @node[:cassandra][:commitlog_rotation_threshold] %></CommitLogRotationThresholdInMB>
 
 
   <!-- Local hosts and ports -->
@@ -230,13 +230,13 @@
    ~ and the CommitLog is simply synced every CommitLogSyncPeriodInMS
    ~ milliseconds.
   -->
-  <CommitLogSync><%= @node[:cassandra][:commit_log_sync] %></CommitLogSync>
+  <CommitLogSync><%= @node[:cassandra][:commitlog_sync] %></CommitLogSync>
   <!--
    ~ Interval at which to perform syncs of the CommitLog in periodic mode.
    ~ Usually the default of 10000ms is fine; increase it if your i/o
    ~ load is such that syncs are taking excessively long times.
   -->
-  <CommitLogSyncPeriodInMS><%= @node[:cassandra][:commit_log_sync_period] %></CommitLogSyncPeriodInMS>
+  <CommitLogSyncPeriodInMS><%= @node[:cassandra][:commitlog_sync_period] %></CommitLogSyncPeriodInMS>
   <!--
    ~ Delay (in milliseconds) during which additional commit log entries
    ~ may be written before fsync in batch mode.  This will increase
@@ -245,8 +245,8 @@
    ~ individually).  Reasonable values range from a minimal 0.1 to 10 or
    ~ even more if throughput matters more than latency.
   -->
-  <% unless @node[:cassandra][:commit_log_sync_batch_window].nil? %>
-  <CommitLogSyncBatchWindowInMS><%= @node[:cassandra][:commit_log_sync_batch_window] %></CommitLogSyncBatchWindowInMS>
+  <% unless @node[:cassandra][:commitlog_sync_batch_window].nil? %>
+  <CommitLogSyncBatchWindowInMS><%= @node[:cassandra][:commitlog_sync_batch_window] %></CommitLogSyncBatchWindowInMS>
   <% end %>
 
   <!--

@@ -2,7 +2,7 @@ maintainer        "Benjamin Black"
 maintainer_email  "b@b3k.us"
 license           "Apache 2.0"
 description       "Installs and configures the Cassandra distributed storage system"
-version           "0.1"
+version           "0.2.2"
 recipe            "cassandra::autoconf", "Automatically configure nodes from chef-server information."
 recipe            "cassandra::ec2snitch", "Automatically configure properties snitch for clusters on EC2."
 recipe            "cassandra::iptables", "Automatically configure iptables rules for cassandra."
@@ -52,7 +52,7 @@ attribute "cassandra/initial_token",
   :description => "",
   :default => ""
 
-attribute "cassandra/commit_log_dir",
+attribute "cassandra/commitlog_dir",
   :display_name => "",
   :description => "",
   :default => "/var/lib/cassandra/commitlog"
@@ -82,7 +82,7 @@ attribute "cassandra/rpc_timeout",
   :description => "",
   :default => "5000"
 
-attribute "cassandra/commit_log_rotation_threshold",
+attribute "cassandra/commitlog_rotation_threshold",
   :display_name => "",
   :description => "",
   :default => "128"
@@ -167,12 +167,12 @@ attribute "cassandra/concurrent_writes",
   :description => "",
   :default => "32"
 
-attribute "cassandra/commit_log_sync",
+attribute "cassandra/commitlog_sync",
   :display_name => "",
   :description => "",
   :default => "periodic"
 
-attribute "cassandra/commit_log_sync_period",
+attribute "cassandra/commitlog_sync_period",
   :display_name => "",
   :description => "",
   :default => "10000"
@@ -181,3 +181,7 @@ attribute "cassandra/gc_grace",
   :display_name => "",
   :description => "",
   :default => "864000"
+
+attribute "cassandra/public_access",
+  :display_name => "Public access",
+  :description => "If the node is on a cloud server with public and private IP addresses and public_access is true, then Thrift will be bound on the public IP address.  Disabled by default."

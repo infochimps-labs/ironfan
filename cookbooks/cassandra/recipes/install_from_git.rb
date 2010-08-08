@@ -1,4 +1,4 @@
-cassandra_home    = node[:cassandra][:cassandra_home]
+cassandra_home        = node[:cassandra][:cassandra_home]
 cassandra_install_dir = cassandra_home + '-git'
 
 directory File.dirname(cassandra_home) do
@@ -10,12 +10,11 @@ directory File.dirname(cassandra_home) do
 end
 
 git cassandra_install_dir do
-  repository    cassandra_git_repo
+  repository    node[:cassandra][:git_repo]
   action        :sync
   group         'admin'
-  revision      node[:cassandra][:git_revision] || 'HEAD'
+  revision      node[:cassandra][:git_revision]
   depth      	1
-  enable_submodules true
 end
 
 bash 'install from source' do
@@ -24,8 +23,8 @@ bash 'install from source' do
   code <<EOF
   ant jar
   ant avro-generate
-  mv                conf/storage-conf.xml conf/storage-conf.xml.orig
-  ln -nfs /etc/cassandra/storage-conf.xml conf/storage-conf.xml
+  mv                conf/cassandra.yaml conf/cassandra.yaml.orig
+  ln -nfs #{cassandra_install_dir}/conf/* /etc/cassandra/
   chmod a+x bin/*
   true
 EOF
@@ -34,7 +33,7 @@ end
 
 link cassandra_home do
   to        	cassandra_install_dir
-  action 	:create, :modify
+  action 	:create
 end
 
 
@@ -45,5 +44,5 @@ end
 # 
 # link "/usr/sbin/cassandra" do
 #   to          "#{cassandra_home}/bin/cassandra"
-#   action      :create, :modify
+#   action      :create
 # end

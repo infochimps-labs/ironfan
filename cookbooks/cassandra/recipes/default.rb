@@ -36,7 +36,7 @@ end
 
 [ "/var/lib/cassandra", "/var/log/cassandra",
   node[:cassandra][:data_file_dirs],
-  node[:cassandra][:commit_log_dir],
+  node[:cassandra][:commitlog_dir],
 ].flatten.each do |cassandra_dir|
   directory cassandra_dir do
     owner    "cassandra"
@@ -52,16 +52,17 @@ directory "/etc/cassandra" do
   group     "root"
   mode      "0755"
   action    :create
-  not_if    "test -d /etc/cassandra"
 end
 
-template "/etc/cassandra/storage-conf.xml" do
-  source    "storage-conf.xml.erb"
+directory('/etc/sv/cassandra/env'){ owner 'root' ; action :create ; recursive true }
+runit_service "cassandra"
+
+Chef::Log.info([ node[:cassandra] ].inspect)
+
+template "/etc/cassandra/cassandra.yaml" do
+  source    "cassandra.yaml.erb"
   owner     "root"
   group     "root"
   mode      0644
-  # notifies  :restart, resources(:service => "cassandra")
+  notifies  :restart, resources(:service => "cassandra")
 end
-
-directory('/etc/sv/cassandra/env'){ owner 'root' ; action :create }
-runit_service "cassandra"

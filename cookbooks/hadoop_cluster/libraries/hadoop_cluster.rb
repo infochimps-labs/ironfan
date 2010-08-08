@@ -82,13 +82,19 @@ module HadoopCluster
   end
   # The HDFS metadata. Keep this on two different volumes, at least one persistent
   def dfs_name_dirs
-    extra_nn_dir  = File.join(node[:hadoop][:extra_nn_metadata_path].to_s, node[:cluster_name], 'hdfs/name')
-    persistent_hadoop_dirs.map{|dir| File.join(dir, 'hdfs/name')}      + [extra_nn_dir]
+    dirs = persistent_hadoop_dirs.map{|dir| File.join(dir, 'hdfs/name')}
+    unless node[:hadoop][:extra_nn_metadata_path].blank?
+      dirs << File.join(node[:hadoop][:extra_nn_metadata_path].to_s, node[:cluster_name], 'hdfs/name')
+    end
+    dirs
   end
   # HDFS metadata checkpoint dir. Keep this on two different volumes, at least one persistent.
   def fs_checkpoint_dirs
-    extra_2nn_dir = File.join(node[:hadoop][:extra_nn_metadata_path].to_s, node[:cluster_name], 'hdfs/secondary')
-    persistent_hadoop_dirs.map{|dir| File.join(dir, 'hdfs/secondary')} + [extra_2nn_dir]
+    dirs = persistent_hadoop_dirs.map{|dir| File.join(dir, 'hdfs/secondary')}
+    unless node[:hadoop][:extra_nn_metadata_path].blank?
+      dirs << File.join(node[:hadoop][:extra_nn_metadata_path].to_s, node[:cluster_name], 'hdfs/secondary')
+    end
+    dirs
   end
   # Local storage during map-reduce jobs. Point at every local disk.
   def mapred_local_dirs
