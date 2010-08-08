@@ -2,10 +2,10 @@
 default[:cassandra][:cluster_name]                  = node[:cluster_name] || "Test"
 default[:cassandra][:keyspaces]                     = {}
 # Directories
+default[:cassandra][:cassandra_home]                = '/usr/local/share/cassandra'
+default[:cassandra][:cassandra_conf]                = '/etc/cassandra'
 default[:cassandra][:data_file_dirs]                = ["/data/db/cassandra"]
-default[:cassandra][:commit_log_dir]                = "/var/lib/cassandra/commitlog"
-default[:cassandra][:callout_location]              = "/var/lib/cassandra/callouts"
-default[:cassandra][:staging_file_dir]              = "/var/lib/cassandra/staging"
+default[:cassandra][:commit_log_dir]                = "/mnt/cassandra/commitlog"
 # Partitioning
 default[:cassandra][:auto_bootstrap]                = false
 default[:cassandra][:authenticator]                 = "org.apache.cassandra.auth.AllowAllAuthenticator"
@@ -35,10 +35,19 @@ default[:cassandra][:memtable_flush_after]          = 60
 default[:cassandra][:concurrent_reads]              = 8
 default[:cassandra][:concurrent_writes]             = 32
 default[:cassandra][:commit_log_sync]               = "periodic"
-default[:cassandra][:commit_log_sync_period]        = 10000
-default[:cassandra][:gc_grace]                      = 864000
-# Install from release
+default[:cassandra][:commit_log_sync_period]        = 1000
+default[:cassandra][:gc_grace]                      = 864_000
+
+# For install_from_release recipe
 default[:cassandra][:install_url] = "http://apache.mirrors.tds.net/cassandra/0.6.1/apache-cassandra-0.6.1-bin.tar.gz"
+# For install_from_git
+default[:cassandra][:git_repo]                      = 'git://git.apache.org/cassandra.git'
+
+#
+# Other JVM options
+#
+default[:cassandra][:jmx_remote_port]               = '12345'  # moved from default of 8080 (conflicts with hadoop)
+
 
 # if node[:ec2] && node[:ec2][:instance_type]
 #   cassandra_settings =

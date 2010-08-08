@@ -1,0 +1,112 @@
+Please know that the configuration settings for cassandra are
+
+  NOT TO BE DIDDLED LIGHTLY!!!!
+
+Unless your settings well fit one of the scenarios below, you should leave them
+at the defaults.
+
+In all of the above:
+
+* Data to be stored will be many times larger than available memory
+* Writes will be **extremely** bursty, and may come from 30 or more processes on 20 or more nodes
+* Desirable if the cluster allows massive-scale writes at low consistency levels (ZERO, ANY or ONE)
+
+h2. Dedicated Cassandra cluster, high-memory nodes
+
+h4. Nodes:
+
+* AWS m2.xlarge instances ($0.50 / hr)
+* 17.7 GB ram, 64-bit, 2 cores
+* Moderate IO rate
+* single 420 GB local drive mounted as /mnt, ext3-formatted
+* Two EBS volumes, mounted as /ebs1 and /ebs2, XFS-formatted
+* No swap
+* Overcommit enabled
+* Ubuntu lucid
+
+h4. Cluster:
+
+* 10 machines
+* Completely dedicated to cassandra
+* Much more data stored than memory available (say, 2TB with 2x replication + overhead)
+* Load is constant reads and writes, with occasional need to cross-load from hadoop cluster
+* Optimize for random reads
+* Must not fall down when hadoop cluster attacks it.
+
+h4. Proposed:
+
+* Commitlog goes to the ephemeral partition
+* Data is stored on EBS volumes
+* Initial java heap set to XXXX
+* 
+
+h2. Dedicated Cassandra cluster, medium-memory nodes
+
+Side question: what are the tradeoffs to consider to choose between the same $$ amount being spent on 
+
+* AWS m1.large instances ($0.34 / hr)
+* 7.5 GB ram, 64-bit, 2 cores
+* High IO rate
+* single 850 GB local drive mounted as /mnt, ext3-formatted
+
+h2. Cassandra nodes and Hadoop workers on same machines
+
+h4. Each node:
+
+* AWS m2.xlarge instances ($0.50 / hr)
+* 17.7 GB ram, 64-bit, 2 cores
+* Moderate IO
+* single 420 GB local drive mounted as /mnt, ext3-formatted
+* Two EBS volumes, mounted as /ebs1 and /ebs2, XFS-formatted
+* No swap
+* Overcommit enabled
+* Ubuntu lucid
+
+h4. Cluster:
+
+* 10-30 machines
+* ?? allocate non-OS machine resources as 1/3 to cassandra 2/3 to hadoop
+* Much more data stored (say, 2TB with 2x replication + overhead) than memory available
+* Load is usually bulk reads and bulk writes
+* No need to optimize for random reads
+
+h4. Proposed:
+
+* Commitlog goes to the ephemeral partition
+* Data is stored on EBS volumes
+* Initial java heap set to XXXX
+
+h2. Just screwing around with cassandra: 32-bit, much-too-little-memory nodes
+
+* AWS m1.small instances ($0.08 / hr)
+* EBS-backed, so the root partition is VERY SLOW
+* 1.7 GB ram, 32-bit, 1 core
+* single 160 GB local drive mounted as /mnt, ext3-formatted
+* Commitlog and database both go to the same local (ephemeral) partition
+* Moderate IO
+* No swap
+* Overcommit enabled
+* Ubuntu lucid
+
+
+h2. AWS Machine Sizes
+
+In case it helps:
+
+<pre>
+
+type      	name            	code		$/hr	CPU/$	Mem/$	 mem	cpu	cores	cpcore	storage	bits	IO
+-----------------------------------------------------------------------------------------------------------------------------------------
+Standard	Small            	m1.small	$0.085	11.76	20.00	 1.7	 1	1	 1	 160	   32	Moderate
+High-CPU	Medium            	c1.medium       $0.17	29.41	10.00	 1.7	 5	2	 2.5	 350	   32	Moderate
+Standard	Large            	m1.large        $0.34	11.76	22.06	 7.5	 4	2	 2	 850	   64	High
+High-Memory	Extra Large     	m2.xlarge       $0.50	13.00	35.40	17.7	 6.5	2	 3.25	 420	   64	Moderate
+High-CPU	Extra Large      	c1.xlarge       $0.68	29.41	10.29	 7	20	8	 2.5	1690	   64	High
+Standard	Extra Large     	m1.xlarge       $0.68	11.76	22.06	15	 8	4	 2	1690	   64	High
+High-Memory	Double Extra Large	m2.2xlarge      $1.20	10.83	28.50	34.2	13	4	 3.25	 850	   64	High
+High-Memory	Quadruple Extra Large	m2.4xlarge      $2.40	10.83	28.50	68.4	26	8	 3.25	1690	   64	High
+
+</pre>
+
+* http://aws.amazon.com/ec2/instance-types/
+* http://aws.amazon.com/ec2/#pricing
