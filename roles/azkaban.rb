@@ -1,7 +1,6 @@
 name        'azkaban'
 description 'Runs azkaban'
 
-# FIXME what are these?
 run_list *%w[
   java
   runit

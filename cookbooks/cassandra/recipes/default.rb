@@ -37,8 +37,6 @@ end
 [ "/var/lib/cassandra", "/var/log/cassandra",
   node[:cassandra][:data_file_dirs],
   node[:cassandra][:commit_log_dir],
-  node[:cassandra][:callout_location],
-  node[:cassandra][:staging_file_dir],
 ].flatten.each do |cassandra_dir|
   directory cassandra_dir do
     owner    "cassandra"
@@ -65,9 +63,5 @@ template "/etc/cassandra/storage-conf.xml" do
   # notifies  :restart, resources(:service => "cassandra")
 end
 
+directory('/etc/sv/cassandra/env'){ owner 'root' ; action :create }
 runit_service "cassandra"
-
-service "cassandra" do
-  supports :status => true, :restart => true, :reload => true
-  action [ :enable, :start ]
-end

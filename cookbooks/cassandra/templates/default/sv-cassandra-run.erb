@@ -14,7 +14,7 @@ done
 ulimit -n 65535
 cd var
 
-exec chpst -u${CASSANDRA_USER} -e /service/cassandra/env -o 65535 \
+exec chpst -u${CASSANDRA_USER} -e /etc/sv/cassandra/env -o 65535 \
   /usr/bin/java                                                   \
       -ea                                                         \
       -Xms=256m                                                   \
