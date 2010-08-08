@@ -1,4 +1,36 @@
 #!/bin/sh
 export JAVA_HOME=/usr/lib/jvm/java-6-sun/jre CASSANDRA_CONF=/etc/cassandra/storage-conf.xml CASSANDRA_HOME=/usr/local/share/cassandra
-exec 2>&1
-exec chpst -u cassandra /usr/local/share/cassandra/bin/cassandra -f
+
+cassandra_home=<%= node[:cassandra][:cassandra_home] %>
+cassandra_bin=${cassandra_home}/build/classes
+CASSANDRA_CONF=<%= node[:cassandra][:cassandra_conf] %>
+CASSANDRA_USER=cassandra
+CLASSPATH=$CASSANDRA_CONF:$cassandra_bin
+
+for jar in $cassandra_home/lib/*.jar; do
+  CLASSPATH=$CLASSPATH:$jar
+done
+
+ulimit -n 65535
+cd var
+
+exec chpst -u${CASSANDRA_USER} -e /service/cassandra/env -o 65535 \
+  /usr/bin/java                                                   \
+      -ea                                                         \
+      -Xms=256m                                                   \
+      -Xmx=<%= node[:cassandra][:java_max_heap] %>                \
+      -XX:TargetSurvivorRatio=90                                  \
+      -XX:+AggressiveOpts                                         \
+      -XX:+UseParNewGC                                            \
+      -XX:+UseConcMarkSweepGC                                     \
+      -XX:+CMSParallelRemarkEnabled                               \
+      -XX:+HeapDumpOnOutOfMemoryError                             \
+      -XX:SurvivorRatio=128                                       \
+      -XX:MaxTenuringThreshold=0                                  \
+      -Dcom.sun.management.jmxremote.port=<%= node[:cassandra][:jmx_remote_port] %>                    \
+      -Dcom.sun.management.jmxremote.ssl=false                    \
+      -Dcom.sun.management.jmxremote.authenticate=false           \
+      -Dcassandra -Dstorage-config=${CASSANDRA_CONF}              \
+      -Dcassandra-foreground=yes                                  \
+      -cp ${CLASSPATH}                                            \
+      org.apache.cassandra.thrift.CassandraDaemon 2>&1

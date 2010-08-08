@@ -6,7 +6,7 @@ run_list *%w[
   runit
   boost
   thrift
-  cassandra::install_from_release
+  cassandra::install_from_git
   cassandra::autoconf
   cassandra
   ]
