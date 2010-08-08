@@ -1,5 +1,5 @@
 {
-    "providing": {
+    "replacing": {
     },
     "attributes": {
       "runit/sv_dir": {
@@ -13,8 +13,8 @@
         "recipes": [
 
         ],
-        "description": "Location of services managed by runit",
-        "display_name": "Runit sv directory"
+        "display_name": "Runit sv directory",
+        "description": "Location of services managed by runit"
       },
       "runit/service_dir": {
         "required": "optional",
@@ -27,8 +27,8 @@
         "recipes": [
 
         ],
-        "description": "Symlinks to services managed under runit",
-        "display_name": "Runit service directory"
+        "display_name": "Runit service directory",
+        "description": "Symlinks to services managed under runit"
       },
       "runit": {
         "required": "optional",
@@ -40,8 +40,8 @@
         "recipes": [
 
         ],
-        "description": "Hash of runit attributes",
-        "display_name": "Runit"
+        "display_name": "Runit",
+        "description": "Hash of runit attributes"
       },
       "runit/sv_bin": {
         "required": "optional",
@@ -54,20 +54,18 @@
         "recipes": [
 
         ],
-        "description": "Location of the sv binary",
-        "display_name": "Runit sv bin"
+        "display_name": "Runit sv bin",
+        "description": "Location of the sv binary"
       }
-    },
-    "maintainer": "Opscode, Inc.",
-    "long_description": "",
-    "replacing": {
-    },
-    "dependencies": {
     },
     "maintainer_email": "cookbooks@opscode.com",
     "groupings": {
     },
+    "dependencies": {
+    },
     "recommendations": {
+    },
+    "suggestions": {
     },
     "platforms": {
       "debian": [
@@ -82,10 +80,12 @@
     "recipes": {
       "runit": "Installs and configures runit"
     },
-    "suggestions": {
-    },
-    "name": "runit",
     "conflicting": {
     },
-    "description": "Installs runit and provides runit_service definition"
+    "name": "runit",
+    "providing": {
+    },
+    "description": "Installs runit and provides runit_service definition",
+    "maintainer": "Opscode, Inc.",
+    "long_description": ""
   }

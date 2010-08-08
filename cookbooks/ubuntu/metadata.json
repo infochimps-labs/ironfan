@@ -1,21 +1,19 @@
 {
-    "providing": {
+    "replacing": {
     },
     "attributes": {
     },
-    "maintainer": "Opscode, Inc.",
-    "long_description": "",
-    "replacing": {
+    "maintainer_email": "cookbooks@opscode.com",
+    "groupings": {
     },
     "dependencies": {
       "apt": [
 
       ]
     },
-    "maintainer_email": "cookbooks@opscode.com",
-    "groupings": {
-    },
     "recommendations": {
+    },
+    "suggestions": {
     },
     "platforms": {
       "ubuntu": [
@@ -27,10 +25,12 @@
     "recipes": {
       "ubuntu": "Sets up sources for the node's ubuntu release"
     },
-    "suggestions": {
-    },
-    "name": "ubuntu",
     "conflicting": {
     },
-    "description": "Sets up sources for ubuntu"
+    "name": "ubuntu",
+    "providing": {
+    },
+    "description": "Sets up sources for ubuntu",
+    "maintainer": "Opscode, Inc.",
+    "long_description": ""
   }

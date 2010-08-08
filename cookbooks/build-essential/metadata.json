@@ -1,18 +1,16 @@
 {
-    "providing": {
-    },
-    "attributes": {
-    },
-    "maintainer": "Opscode, Inc.",
-    "long_description": "",
     "replacing": {
     },
-    "dependencies": {
+    "attributes": {
     },
     "maintainer_email": "cookbooks@opscode.com",
     "groupings": {
     },
+    "dependencies": {
+    },
     "recommendations": {
+    },
+    "suggestions": {
     },
     "platforms": {
       "debian": [
@@ -36,10 +34,12 @@
     "recipes": {
       "build-essential": "Installs C compiler and build tools on Linux"
     },
-    "suggestions": {
-    },
-    "name": "build-essential",
     "conflicting": {
     },
-    "description": "Installs C compiler / build tools"
+    "name": "build-essential",
+    "providing": {
+    },
+    "description": "Installs C compiler / build tools",
+    "maintainer": "Opscode, Inc.",
+    "long_description": ""
   }

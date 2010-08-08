@@ -1,11 +1,10 @@
 {
-    "providing": {
+    "replacing": {
     },
     "attributes": {
     },
-    "maintainer": "Infochimps Org",
-    "long_description": "= DESCRIPTION:\n\nInstalls and configures Azkaban.\n\n= REQUIREMENTS:\n\nA working Hadoop cluster and Java.\n\nDepends on runit for starting the server.\n\n= ATTRIBUTES:\n\n= USAGE:\n\nRun the default recipe to set up an Azkaban system \n\n",
-    "replacing": {
+    "maintainer_email": "coders@infochimps.org",
+    "groupings": {
     },
     "dependencies": {
       "hadoop_cluster": [
@@ -18,10 +17,9 @@
 
       ]
     },
-    "maintainer_email": "coders@infochimps.org",
-    "groupings": {
-    },
     "recommendations": {
+    },
+    "suggestions": {
     },
     "platforms": {
     },
@@ -29,10 +27,12 @@
     "version": "0.1.0",
     "recipes": {
     },
-    "suggestions": {
-    },
-    "name": "azkaban",
     "conflicting": {
     },
-    "description": "Installs/Configures azkaban"
+    "name": "azkaban",
+    "providing": {
+    },
+    "description": "Installs/Configures azkaban",
+    "maintainer": "Infochimps Org",
+    "long_description": "= DESCRIPTION:\n\nInstalls and configures Azkaban.\n\n= REQUIREMENTS:\n\nA working Hadoop cluster and Java.\n\nDepends on runit for starting the server.\n\n= ATTRIBUTES:\n\n= USAGE:\n\nRun the default recipe to set up an Azkaban system \n\n"
   }

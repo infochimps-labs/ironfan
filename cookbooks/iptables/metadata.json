@@ -1,18 +1,16 @@
 {
-    "providing": {
-    },
-    "attributes": {
-    },
-    "maintainer": "Opscode, Inc.",
-    "long_description": "",
     "replacing": {
     },
-    "dependencies": {
+    "attributes": {
     },
     "maintainer_email": "cookbooks@opscode.com",
     "groupings": {
     },
+    "dependencies": {
+    },
     "recommendations": {
+    },
+    "suggestions": {
     },
     "platforms": {
       "debian": [
@@ -33,10 +31,12 @@
     "recipes": {
       "iptables": "Installs iptables and sets up .d style config directory of iptables rules"
     },
-    "suggestions": {
-    },
-    "name": "iptables",
     "conflicting": {
     },
-    "description": "Sets up iptables to use a script to maintain rules"
+    "name": "iptables",
+    "providing": {
+    },
+    "description": "Sets up iptables to use a script to maintain rules",
+    "maintainer": "Opscode, Inc.",
+    "long_description": ""
   }

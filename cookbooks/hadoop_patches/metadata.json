@@ -1,18 +1,16 @@
 {
-    "providing": {
-    },
-    "attributes": {
-    },
-    "maintainer": "Example Com",
-    "long_description": "= DESCRIPTION:\n\n= REQUIREMENTS:\n\n= ATTRIBUTES: \n\n= USAGE:\n\n",
     "replacing": {
     },
-    "dependencies": {
+    "attributes": {
     },
     "maintainer_email": "ops@example.com",
     "groupings": {
     },
+    "dependencies": {
+    },
     "recommendations": {
+    },
+    "suggestions": {
     },
     "platforms": {
     },
@@ -20,10 +18,12 @@
     "version": "0.1.0",
     "recipes": {
     },
-    "suggestions": {
-    },
-    "name": "hadoop_patches",
     "conflicting": {
     },
-    "description": "Installs/Configures lzo_hadoop"
+    "name": "hadoop_patches",
+    "providing": {
+    },
+    "description": "Installs/Configures lzo_hadoop",
+    "maintainer": "Example Com",
+    "long_description": "= DESCRIPTION:\n\n= REQUIREMENTS:\n\n= ATTRIBUTES: \n\n= USAGE:\n\n"
   }

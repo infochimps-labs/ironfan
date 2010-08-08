@@ -1,18 +1,16 @@
 {
-    "providing": {
-    },
-    "attributes": {
-    },
-    "maintainer": "Opscode, Inc.",
-    "long_description": "",
     "replacing": {
     },
-    "dependencies": {
+    "attributes": {
     },
     "maintainer_email": "cookbooks@opscode.com",
     "groupings": {
     },
+    "dependencies": {
+    },
     "recommendations": {
+    },
+    "suggestions": {
     },
     "platforms": {
       "debian": [
@@ -29,10 +27,12 @@
       "apt": "Runs apt-get update during compile phase and sets up preseed directories",
       "apt::cacher": "Set up an APT cache"
     },
-    "suggestions": {
-    },
-    "name": "apt",
     "conflicting": {
     },
-    "description": "Configures apt and apt services"
+    "name": "apt",
+    "providing": {
+    },
+    "description": "Configures apt and apt services",
+    "maintainer": "Opscode, Inc.",
+    "long_description": ""
   }

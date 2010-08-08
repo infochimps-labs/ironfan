@@ -1,18 +1,16 @@
 {
-    "providing": {
-    },
-    "attributes": {
-    },
-    "maintainer": "Opscode, Inc.",
-    "long_description": "",
     "replacing": {
     },
-    "dependencies": {
+    "attributes": {
     },
     "maintainer_email": "cookbooks@opscode.com",
     "groupings": {
     },
+    "dependencies": {
+    },
     "recommendations": {
+    },
+    "suggestions": {
     },
     "platforms": {
       "debian": [
@@ -36,10 +34,12 @@
     "recipes": {
       "subversion": "Installs subversion and extra svn packages"
     },
-    "suggestions": {
-    },
-    "name": "subversion",
     "conflicting": {
     },
-    "description": "Installs subversion"
+    "name": "subversion",
+    "providing": {
+    },
+    "description": "Installs subversion",
+    "maintainer": "Opscode, Inc.",
+    "long_description": ""
   }

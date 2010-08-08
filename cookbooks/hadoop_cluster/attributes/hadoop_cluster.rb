@@ -32,9 +32,9 @@ default[:groups]['supergroup'][:gid]          = 301
 default[:hadoop][:use_root_as_scratch_vol]    = true
 default[:hadoop][:use_root_as_persistent_vol] = false
 
-# You should give at least one NFS-backed directory for the Namenode metadata to
-# persist to.
-default[:hadoop][:extra_nn_metadata_path] = '/home/hadoop'
+# Extra directories for the Namenode metadata to persist to, for example an
+# off-cluster NFS path (only necessary to use if you have a physical cluster)
+default[:hadoop][:extra_nn_metadata_path] = ''
 
 # Other hadoop settings
 default[:hadoop][:max_balancer_bandwidth]     = 1048576  # bytes per second -- 1MB/s by default
@@ -69,7 +69,7 @@ hadoop_performance_settings =
   when 'm1.large'   then { :max_map_tasks => 3, :max_reduce_tasks => 2, :java_child_opts => '-Xmx1152m', :java_child_ulimit => 3670016, :io_sort_factor => 25, :io_sort_mb => 250, }
   when 'c1.xlarge'  then { :max_map_tasks => 8, :max_reduce_tasks => 4, :java_child_opts =>  '-Xmx1152m', :java_child_ulimit => 3670016, :io_sort_factor => 20, :io_sort_mb => 150, }
   when 'm1.xlarge'  then { :max_map_tasks => 6, :max_reduce_tasks => 4, :java_child_opts => '-Xmx2048m', :java_child_ulimit => 4194304, :io_sort_factor => 25, :io_sort_mb => 250, }
-  when 'm2.xlarge'  then { :max_map_tasks => 3, :max_reduce_tasks => 2, :java_child_opts => '-Xmx2719m', :java_child_ulimit => 5567939, :io_sort_factor => 32, :io_sort_mb => 320, }
+  when 'm2.xlarge'  then { :max_map_tasks => 4, :max_reduce_tasks => 2, :java_child_opts => '-Xmx3072m', :java_child_ulimit => 6291456, :io_sort_factor => 32, :io_sort_mb => 320, }
   when 'm2.2xlarge' then { :max_map_tasks => 6, :max_reduce_tasks => 3, :java_child_opts => '-Xmx2918m', :java_child_ulimit => 5976883, :io_sort_factor => 32, :io_sort_mb => 320, }
   when 'm2.4xlarge' then { :max_map_tasks => 8, :max_reduce_tasks => 4, :java_child_opts => '-Xmx4378m', :java_child_ulimit => 8965325, :io_sort_factor => 40, :io_sort_mb => 400, }
   else

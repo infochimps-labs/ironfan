@@ -1,21 +1,19 @@
 {
-    "providing": {
+    "replacing": {
     },
     "attributes": {
     },
-    "maintainer": "37signals",
-    "long_description": "",
-    "replacing": {
+    "maintainer_email": "sysadmins@37signals.com",
+    "groupings": {
     },
     "dependencies": {
       "cluster_service_discovery": [
 
       ]
     },
-    "maintainer_email": "sysadmins@37signals.com",
-    "groupings": {
-    },
     "recommendations": {
+    },
+    "suggestions": {
     },
     "platforms": {
     },
@@ -23,10 +21,12 @@
     "version": "0.1.0",
     "recipes": {
     },
-    "suggestions": {
-    },
-    "name": "nfs",
     "conflicting": {
     },
-    "description": "Configures NFS"
+    "name": "nfs",
+    "providing": {
+    },
+    "description": "Configures NFS",
+    "maintainer": "37signals",
+    "long_description": ""
   }
