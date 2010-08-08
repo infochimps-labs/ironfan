@@ -53,7 +53,7 @@ h3. Scenario Ia: Dedicated Cassandra cluster, medium-memory nodes
 Side question: what are the tradeoffs to consider to choose between the same $$ amount being spent on 
 
 * AWS m1.large instances ($0.34 / hr)
-* 7.5 GB ram, 64-bit, 2 cores
+* 7.5 GB ram, 64-bit, 2 cores, CPU is 35% slower (4 bogoflops vs 6.5 bogoflops) than the m2.xlarge
 * High IO rate
 * single 850 GB local drive mounted as /mnt, ext3-formatted
 
