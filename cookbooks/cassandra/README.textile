@@ -19,7 +19,7 @@ In all of the above:
 * Writes will be **extremely** bursty, and may come from 30 or more processes on 20 or more nodes
 * Desirable if the cluster allows massive-scale writes at low consistency levels (ZERO, ANY or ONE)
 
-h2. Dedicated Cassandra cluster, high-memory nodes
+h2. Scenario I: Dedicated Cassandra cluster, high-memory nodes
 
 h4. Nodes:
 
@@ -48,7 +48,7 @@ h4. Proposed:
 * ?? Initial java heap set to XXXX
 * ?? Increase concurrent reads and concurrent writes
 
-h2. Dedicated Cassandra cluster, medium-memory nodes
+h3. Scenario Ia: Dedicated Cassandra cluster, medium-memory nodes
 
 Side question: what are the tradeoffs to consider to choose between the same $$ amount being spent on 
 
@@ -57,7 +57,7 @@ Side question: what are the tradeoffs to consider to choose between the same $$ 
 * High IO rate
 * single 850 GB local drive mounted as /mnt, ext3-formatted
 
-h2. Cassandra nodes and Hadoop workers on same machines
+h2. Scenario II: Cassandra nodes and Hadoop workers on same machines
 
 h4. Each node:
 
@@ -84,7 +84,7 @@ h4. Proposed:
 * Data is stored on EBS volumes
 * Initial java heap set to XXXX
 
-h2. Just screwing around with cassandra: 32-bit, much-too-little-memory nodes
+h2. Scenario III: Just screwing around with cassandra: 32-bit, much-too-little-memory nodes
 
 * AWS m1.small instances ($0.08 / hr)
 * EBS-backed, so the root partition is VERY SLOW
