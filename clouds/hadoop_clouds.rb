@@ -33,7 +33,6 @@ pool POOL_NAME do
     mounts_ebs_volumes          settings
     has_role                    settings, "hadoop_master"
     has_role                    settings, "hadoop_worker"
-    has_role                    settings, "pig"
     # is_cassandra_node           settings
     #
     user_data_is_json_hash      settings
@@ -58,7 +57,6 @@ pool POOL_NAME do
     is_hadoop_node              settings
     mounts_ebs_volumes          settings
     has_role                    settings, "hadoop_worker"
-    has_role                    settings, "pig"
     # is_cassandra_node         settings
     #
     # user_data_is_bootstrap_script(settings, 'bootstrap_chef_client')

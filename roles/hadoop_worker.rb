@@ -5,6 +5,7 @@ run_list *%w[
   hadoop_cluster::ec2_conf
   hadoop_cluster::hadoop_dir_perms
   hadoop_cluster::worker
+  pig::install_from_package
 ]
 
 default_attributes({

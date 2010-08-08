@@ -31,7 +31,6 @@ pool POOL_NAME do
     has_role                    settings, "hadoop_master"
     has_role                    settings, "hadoop_worker"
     has_recipe                  settings, 'hadoop_cluster::std_hdfs_dirs'
-    has_role                    settings, "pig"
     #
     user_data_is_bootstrap_script(settings, 'bootstrap_chef_server')
   end
@@ -51,13 +50,12 @@ pool POOL_NAME do
     has_big_package             settings
     is_nfs_client               settings
     is_chef_client              settings
-    has_role   settings, "#{POOL_NAME}_cluster"
+    has_role                    settings, "#{POOL_NAME}_cluster"
     #
     is_hadoop_node              settings
-    has_role   settings, "hadoop_master"
-    has_role   settings, "hadoop_worker"
-    has_recipe settings, 'hadoop_cluster::std_hdfs_dirs'
-    has_role   settings, "pig"
+    has_role                    settings, "hadoop_master"
+    has_role                    settings, "hadoop_worker"
+    has_recipe                  settings, 'hadoop_cluster::std_hdfs_dirs'
     #
     user_data_is_json_hash      settings
   end
@@ -74,11 +72,10 @@ pool POOL_NAME do
     has_big_package             settings
     is_nfs_client               settings
     is_chef_client              settings
-    has_role   settings, "#{POOL_NAME}_cluster"
+    has_role                    settings, "#{POOL_NAME}_cluster"
     #
     is_hadoop_node              settings
-    has_role   settings, "hadoop_worker"
-    has_role   settings, "pig"
+    has_role                    settings, "hadoop_worker"
     #
     user_data_is_json_hash      settings
   end
