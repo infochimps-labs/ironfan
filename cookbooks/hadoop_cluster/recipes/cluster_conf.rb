@@ -38,7 +38,6 @@ template "/etc/default/#{node[:hadoop][:hadoop_handle]}" do
   source "etc_default_hadoop.erb"
 end
 
-
 # Make hadoop logs live on /mnt/hadoop
 hadoop_log_dir = '/mnt/hadoop/logs'
 make_hadoop_dir(hadoop_log_dir)
