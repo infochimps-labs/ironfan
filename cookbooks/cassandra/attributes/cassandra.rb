@@ -78,7 +78,8 @@ default[:cassandra][:request_scheduler_id]          = 'keyspace'
 default[:cassandra][:install_url] = "http://apache.mirrors.tds.net/cassandra/0.6.1/apache-cassandra-0.6.1-bin.tar.gz"
 # For install_from_git
 default[:cassandra][:git_repo]                      = 'git://git.apache.org/cassandra.git'
-default[:cassandra][:git_revision]                  = 'HEAD'
+# until ruby gem is updated, use cdd239dcf82ab52cb840e070fc01135efb512799
+default[:cassandra][:git_revision]                  = 'cdd239dcf82ab52cb840e070fc01135efb512799' # 'HEAD'
 
 
 # see http://www.mail-archive.com/user@cassandra.apache.org/msg04447.html
