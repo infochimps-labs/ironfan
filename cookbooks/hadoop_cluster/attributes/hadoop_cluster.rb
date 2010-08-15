@@ -16,10 +16,6 @@ default[:hadoop][:datanode_handler_count      ] = 10
 default[:hadoop][:compress_map_output         ] = 'true'
 default[:hadoop][:output_compression_type     ] = 'BLOCK'
 
-# You may wish to set the following to the same as your HDFS block size, esp if
-# you're seeing issues with s3:// turning 1TB files into 30_000+ map tasks
-# default[:hadoop][:min_split_size] = (128 * 1024 * 1024)
-
 default[:hadoop][:mapred_userlog_retain_hours ] = 24
 default[:hadoop][:mapred_jobtracker_completeuserjobs_maximum ] = 100
 
@@ -111,3 +107,9 @@ end
 Chef::Log.info(["Hadoop mapreduce tuning", hadoop_performance_settings].inspect)
 
 hadoop_performance_settings.each{|k,v| set[:hadoop][k] = v }
+
+# You may wish to set the following to the same as your HDFS block size, esp if
+# you're seeing issues with s3:// turning 1TB files into 30_000+ map tasks
+# default[:hadoop][:min_split_size] = (128 * 1024 * 1024)
+# default[:hadoop][:s3_block_size]  =  67108864
+# default[:hadoop][:dfs_block_size] = 134217728

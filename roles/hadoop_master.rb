@@ -7,6 +7,7 @@ run_list %w[
   hadoop_cluster::jobtracker
   hadoop_cluster::hadoop_webfront
   hadoop_cluster::std_hdfs_dirs
+  pig::install_from_package
 ]
 
 default_attributes({
