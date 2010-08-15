@@ -17,14 +17,9 @@ pool POOL_NAME do
     using :ec2
     settings = settings_for_node(POOL_NAME, :chefmaster)
     instances                   1
-    user                        'ubuntu'
-    is_spot_priced              settings
-    sends_aws_keys              settings
     is_generic_node             settings
-    has_big_package             settings
     is_nfs_server               settings
     is_chef_server              settings
-    has_role                    settings, "#{POOL_NAME}_cluster"
     #
     is_hadoop_node              settings
     has_recipe                  settings, 'hadoop_cluster::format_namenode_once'
@@ -32,6 +27,8 @@ pool POOL_NAME do
     has_role                    settings, "hadoop_worker"
     has_recipe                  settings, 'hadoop_cluster::std_hdfs_dirs'
     #
+    has_big_package             settings
+    has_role                    settings, "#{POOL_NAME}_cluster"
     user_data_is_bootstrap_script(settings, 'bootstrap_chef_server')
   end
 
@@ -42,21 +39,18 @@ pool POOL_NAME do
     using :ec2
     settings = settings_for_node(POOL_NAME, :master)
     instances                   1
-    user                        'ubuntu'
-    is_spot_priced              settings
-    sends_aws_keys              settings
-    #
+    # Order matters here: specifically, attaches_ebs > nfs_client > most things
     is_generic_node             settings
-    has_big_package             settings
     is_nfs_client               settings
     is_chef_client              settings
-    has_role                    settings, "#{POOL_NAME}_cluster"
     #
     is_hadoop_node              settings
     has_role                    settings, "hadoop_master"
     has_role                    settings, "hadoop_worker"
     has_recipe                  settings, 'hadoop_cluster::std_hdfs_dirs'
     #
+    has_big_package             settings
+    has_role                    settings, "#{POOL_NAME}_cluster"
     user_data_is_json_hash      settings
   end
 
@@ -64,19 +58,16 @@ pool POOL_NAME do
     using :ec2
     settings = settings_for_node(POOL_NAME, :slave)
     instances                   (settings[:instances] || 3)
-    user                        'ubuntu'
-    is_spot_priced              settings
-    sends_aws_keys              settings
     #
     is_generic_node             settings
-    has_big_package             settings
     is_nfs_client               settings
     is_chef_client              settings
-    has_role                    settings, "#{POOL_NAME}_cluster"
     #
     is_hadoop_node              settings
     has_role                    settings, "hadoop_worker"
     #
+    has_big_package             settings
+    has_role                    settings, "#{POOL_NAME}_cluster"
     user_data_is_json_hash      settings
   end
 end

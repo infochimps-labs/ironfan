@@ -35,7 +35,7 @@ def is_generic_node settings
   elastic_ip              settings[:elastic_ip]               if settings[:elastic_ip]
   set_instance_backing    settings
   keypair                 POOL_NAME, File.join(ENV['HOME'], '.poolparty', 'keypairs')
-  has_role settings, "base_role"
+  has_role                settings, "base_role"
   settings[:user_data][:attributes][:cluster_name] = self.parent.name
   settings[:user_data][:attributes][:cluster_role] = self.name
   security_group POOL_NAME do
@@ -45,7 +45,10 @@ def is_generic_node settings
     authorize :from_port => 22,  :to_port => 22
     authorize :from_port => 80,  :to_port => 80
   end
-  # security_group "default"
+  security_group "default"
+  user                        'ubuntu'
+  is_spot_priced              settings
+  sends_aws_keys              settings
 end
 
 # Poolparty rules to impart the 'big_package' role:
