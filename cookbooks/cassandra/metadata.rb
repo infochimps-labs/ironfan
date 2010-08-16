@@ -97,12 +97,12 @@ attribute "cassandra/storage_port",
   :description => "",
   :default => "7000"
 
-attribute "cassandra/thrift_addr",
+attribute "cassandra/rpc_addr",
   :display_name => "",
   :description => "",
   :default => "localhost"
 
-attribute "cassandra/thrift_port",
+attribute "cassandra/rpc_port",
   :display_name => "",
   :description => "",
   :default => "9160"

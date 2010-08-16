@@ -14,7 +14,12 @@
   <name>io.sort.record.percent</name>
   <value>0.05</value>
 </property>
-
+<%- if node[:hadoop][:min_split_size] %>
+<property>
+  <name>mapred.min.split.size</name>
+  <value><%= node[:hadoop][:min_split_size] %></value>
+</property>
+<%- end %>
 
 <property>
   <name>mapred.child.java.opts</name>

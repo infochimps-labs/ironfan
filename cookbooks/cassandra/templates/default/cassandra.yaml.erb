@@ -115,7 +115,7 @@ in_memory_compaction_limit_in_mb:       <%= node[:cassandra][:in_memory_compacti
 commitlog_directory:                    <%= node[:cassandra][:commitlog_dir] %>                   # /var/lib/cassandra/commitlog
 
 # Size to allow commitlog to grow to before creating a new segment 
-commitlog_rotation_threshold_in_mb:     <%= node[:cassandra][:commitlog_rotation_threshold_in_mb] %>    # 128
+commitlog_rotation_threshold_in_mb:     <%= node[:cassandra][:commitlog_rotation_threshold] %>        # 128
 
 # commitlog_sync may be either "periodic" or "batch." 
 # When in batch mode, Cassandra won't ack writes until the commit log
