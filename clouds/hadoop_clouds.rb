@@ -28,6 +28,7 @@ pool POOL_NAME do
     is_chef_client              settings
     has_role                    settings, "infochimps_base"
     has_role                    settings, "#{POOL_NAME}_cluster"
+    has_role                    settings, "azkaban"
     #
     is_hadoop_node              settings
     mounts_ebs_volumes          settings
