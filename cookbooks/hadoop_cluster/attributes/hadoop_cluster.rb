@@ -75,7 +75,7 @@ hadoop_performance_settings =
   when 'm1.small'   then { :max_map_tasks =>  2, :max_reduce_tasks => 1, :java_child_opts =>  '-Xmx870m', :java_child_ulimit =>  2673869, :io_sort_factor => 10, :io_sort_mb => 160, }
   when 'c1.medium'  then { :max_map_tasks =>  3, :max_reduce_tasks => 2, :java_child_opts =>  '-Xmx870m', :java_child_ulimit =>  2673869, :io_sort_factor => 10, :io_sort_mb => 160, }
   when 'm1.large'   then { :max_map_tasks =>  3, :max_reduce_tasks => 2, :java_child_opts => '-Xmx2432m', :java_child_ulimit =>  7471104, :io_sort_factor => 25, :io_sort_mb => 256, }
-  when 'c1.xlarge'  then { :max_map_tasks => 12, :max_reduce_tasks => 4, :java_child_opts =>  '-Xmx870m', :java_child_ulimit =>  2673869, :io_sort_factor => 20, :io_sort_mb => 160, }
+  when 'c1.xlarge'  then { :max_map_tasks => 10, :max_reduce_tasks => 4, :java_child_opts =>  '-Xmx870m', :java_child_ulimit =>  1673869, :io_sort_factor => 20, :io_sort_mb => 160, }
   when 'm1.xlarge'  then { :max_map_tasks =>  6, :max_reduce_tasks => 4, :java_child_opts => '-Xmx1920m', :java_child_ulimit =>  5898240, :io_sort_factor => 25, :io_sort_mb => 256, }
   when 'm2.xlarge'  then { :max_map_tasks =>  4, :max_reduce_tasks => 2, :java_child_opts => '-Xmx4531m', :java_child_ulimit => 13447987, :io_sort_factor => 32, :io_sort_mb => 256, }
   when 'm2.2xlarge' then { :max_map_tasks =>  6, :max_reduce_tasks => 4, :java_child_opts => '-Xmx4378m', :java_child_ulimit => 13447987, :io_sort_factor => 32, :io_sort_mb => 256, }
