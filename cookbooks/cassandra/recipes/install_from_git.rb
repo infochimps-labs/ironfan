@@ -14,7 +14,6 @@ git cassandra_install_dir do
   action        :sync
   group         'admin'
   revision      node[:cassandra][:git_revision]
-  depth      	1
 end
 
 bash 'install from source' do
@@ -32,8 +31,8 @@ EOF
 end
 
 link cassandra_home do
-  to        	cassandra_install_dir
-  action 	:create
+  to            cassandra_install_dir
+  action        :create
 end
 
 
@@ -41,7 +40,7 @@ end
 #   to          "#{cassandra_home}/bin/cassandra.in.sh"
 #   action      :create
 # end
-# 
+#
 # link "/usr/sbin/cassandra" do
 #   to          "#{cassandra_home}/bin/cassandra"
 #   action      :create
