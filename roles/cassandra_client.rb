@@ -1,4 +1,4 @@
-name        'cassandra_node'
+name        'cassandra_client'
 description 'Part of a cassandra database'
 
 run_list *%w[
@@ -8,8 +8,6 @@ run_list *%w[
   thrift
   cassandra
   cassandra::install_from_git
-  cassandra::autoconf
-  cassandra::daemon
   ]
 
 # Attributes applied if the node doesn't have it set already.

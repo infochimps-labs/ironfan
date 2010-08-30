@@ -60,14 +60,11 @@ end
 # We want to find all nodes in our cluster that rock the cassandra.
 cassandra_cluster_name = node[:cassandra][:cluster_name] + '-cassandra'
 
-# have some fraction of the nodes register as a seed with cluster_service_discovery
-provide_service(cassandra_cluster_name) if (node[:cluster_role_index].blank?) || (node[:cluster_role_index].to_i % 4 == 0)
-
 # Configure the various addrs for binding
 node[:cassandra][:listen_addr] = private_ip_of(node)
 node[:cassandra][:rpc_addr]    = private_ip_of(node)
 # And find out who all else provides cassandra in our cluster
-all_seeds  = all_provider_private_ips(cassandra_cluster_name)
+all_seeds  = all_provider_private_ips(cassandra_cluster_name+'-seed')
 all_seeds  = [private_ip_of(node), all_seeds] if (all_seeds.length < 2)
 node[:cassandra][:seeds] = all_seeds.flatten.compact.uniq.sort
 

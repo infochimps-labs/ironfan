@@ -45,3 +45,9 @@ end
 #   to          "#{cassandra_home}/bin/cassandra"
 #   action      :create
 # end
+
+
+# check out other version
+# patches
+# sudo apt-get install -y asciidoc source-highlight libboost-regex-dev libboost-dev libboost-system-dev libboost-dev
+# svn export --force . build/avro-src-$VERSION || rsync -alvi ./ ./build/avro-src-$VERSION --exclude={build,.git,.svn,dist,*.cache,lang/c++/config,lang/py/avro.egg-info,lang/ruby/{pkg,Manifest,avro.gemspec}}

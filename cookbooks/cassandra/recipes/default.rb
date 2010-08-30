@@ -22,9 +22,11 @@ include_recipe "java"
 include_recipe "thrift"
 include_recipe "runit"
 
-gem_package "cassandra" do
-  action :install
-end
+%w[ cassandra avro
+].each{|pkg| gem_package(pkg) }
+
+%w[ simplejson avro
+].each{|pkg| easy_install_package(pkg) }
 
 user "cassandra" do
   uid       '330'
@@ -52,17 +54,4 @@ directory "/etc/cassandra" do
   group     "root"
   mode      "0755"
   action    :create
-end
-
-directory('/etc/sv/cassandra/env'){ owner 'root' ; action :create ; recursive true }
-runit_service "cassandra"
-
-Chef::Log.info([ node[:cassandra] ].inspect)
-
-template "/etc/cassandra/cassandra.yaml" do
-  source    "cassandra.yaml.erb"
-  owner     "root"
-  group     "root"
-  mode      0644
-  notifies  :restart, resources(:service => "cassandra")
 end

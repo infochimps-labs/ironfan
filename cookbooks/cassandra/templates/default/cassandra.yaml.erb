@@ -13,6 +13,10 @@ cluster_name:                           <%= node[:cassandra][:cluster_name] %>
 # this off for the initial start simplifies that.
 auto_bootstrap:                         <%= node[:cassandra][:auto_bootstrap] %>                        # false
 
+<%- unless node[:cassandra][:initial_token].blank? %>
+initial_token:                          <%= node[:cassandra][:initial_token] %>
+<%- end %>
+
 # See http://wiki.apache.org/cassandra/HintedHandoff
 hinted_handoff_enabled:                 <%= node[:cassandra][:hinted_handoff_enabled] %>                # true
 
@@ -64,7 +68,7 @@ concurrent_writes:                      <%= node[:cassandra][:concurrent_writes]
 # while blocked. If you have a large heap and many data directories,
 # you can increase this value for better flush performance.
 # By default this will be set to the amount of data directories defined.
-#memtable_flush_writers:                1
+memtable_flush_writers:                 <%= node[:cassandra][:memtable_flush_writers] %>                # 1
 
 # Buffer size to use when performing contiguous column slices. 
 # Increase this to the size of the column slices you typically perform
@@ -133,8 +137,8 @@ commitlog_sync_period_in_ms:            <%= node[:cassandra][:commitlog_sync_per
 rpc_timeout_in_ms:                      <%= node[:cassandra][:rpc_timeout_in_ms] %>                     # 10000
 
 # phi value that must be reached for a host to be marked down.
-# most users should never need to adjust this.
-# phi_convict_threshold:                8
+# most users should never need to adjust this, but if you're on Amazon EC2 consider raising it to 10.
+phi_convict_threshold:                  <%= node[:cassandra][:phi_convict_threshold] %>                 # 8
 
 # endpoint_snitch -- Set this to a class that implements
 # IEndpointSnitch, which will let Cassandra know enough

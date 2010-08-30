@@ -13,20 +13,22 @@ done
 
 ulimit -n 65535
 cd var
-
 exec chpst -u${CASSANDRA_USER} -e /etc/sv/cassandra/env -o 65535 \
   /usr/bin/java                                                   \
       -ea                                                         \
-      -Xms128M                                                    \
+      -Xms<%= node[:cassandra][:java_min_heap] %>                 \
       -Xmx<%= node[:cassandra][:java_max_heap] %>                 \
-      -XX:TargetSurvivorRatio=90                                  \
-      -XX:+AggressiveOpts                                         \
+      -Xss128k                                                    \
       -XX:+UseParNewGC                                            \
       -XX:+UseConcMarkSweepGC                                     \
       -XX:+CMSParallelRemarkEnabled                               \
       -XX:+HeapDumpOnOutOfMemoryError                             \
-      -XX:SurvivorRatio=128                                       \
-      -XX:MaxTenuringThreshold=0                                  \
+      -XX:SurvivorRatio=8                                         \
+      -XX:MaxTenuringThreshold=1                                  \
+      -XX:+AggressiveOpts                                         \
+      -XX:+UseThreadPriorities                                    \
+      -XX:ThreadPriorityPolicy=42                                 \
+      -Dcassandra.compaction.priority=1                           \
       -Djava.rmi.server.hostname=<%= node[:ec2][:public_hostname] %> \
       -Dcom.sun.management.jmxremote.port=<%= node[:cassandra][:jmx_port] %>                    \
       -Dcom.sun.management.jmxremote.ssl=false                    \
@@ -35,4 +37,7 @@ exec chpst -u${CASSANDRA_USER} -e /etc/sv/cassandra/env -o 65535 \
       -Dcassandra-foreground=yes                                  \
       -cp ${CLASSPATH}                                            \
       org.apache.cassandra.thrift.CassandraDaemon 2>&1
+
+# add in for 64-bit
+#      -XX:+UseCompressedOops                                      \
 
