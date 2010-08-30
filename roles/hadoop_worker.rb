@@ -6,6 +6,7 @@ run_list *%w[
   hadoop_cluster::ec2_conf
   hadoop_cluster::hadoop_dir_perms
   hadoop_cluster::worker
+  hadoop_cluster::system_internals
   pig::install_from_package
 ]
 
