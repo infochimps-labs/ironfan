@@ -35,19 +35,23 @@ link cassandra_home do
   action        :create
 end
 
-
-# link "#{cassandra_home}/cassandra.in.sh" do
-#   to          "#{cassandra_home}/bin/cassandra.in.sh"
-#   action      :create
-# end
-#
-# link "/usr/sbin/cassandra" do
-#   to          "#{cassandra_home}/bin/cassandra"
-#   action      :create
-# end
-
+%w[cassandra schematool cassandra-cli clustertool nodetool sstablekeys].each do |util|
+  link "/usr/local/bin/#{util}" do
+    to          "#{cassandra_home}/bin/#{util}"
+    action      :create
+  end
+end
 
 # check out other version
 # patches
 # sudo apt-get install -y asciidoc source-highlight libboost-regex-dev libboost-dev libboost-system-dev libboost-dev
 # svn export --force . build/avro-src-$VERSION || rsync -alvi ./ ./build/avro-src-$VERSION --exclude={build,.git,.svn,dist,*.cache,lang/c++/config,lang/py/avro.egg-info,lang/ruby/{pkg,Manifest,avro.gemspec}}
+
+# bash 'Push compatible Jackson into hadoop if hadoop exists' do
+#   code <<EOF
+# sudo mv /usr/lib/hadoop/lib/jackson-*1.0.1.jar /tmp && true ;
+# sudo cp /usr/local/share/cassandra/lib/jackson-* /usr/lib/hadoop/lib/
+# EOF
+#   only_if{ File.exists?('/usr/lib/hadoop/lib') }
+#   only_if{ Dir['/usr/lib/hadoop/lib/jackson*1.4*'].blank? }
+# end
