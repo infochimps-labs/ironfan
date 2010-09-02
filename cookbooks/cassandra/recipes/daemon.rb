@@ -31,5 +31,5 @@ template "/etc/cassandra/cassandra.yaml" do
 end
 
 # have some fraction of the nodes register as a seed with cluster_service_discovery
-provide_service(node[:cassandra][:cluster_name] + '-cassandra-seed') if (node[:cluster_role_index].blank?) || (node[:cluster_role_index].to_i % 4 == 0)
+provide_service(node[:cassandra][:cluster_name] + '-cassandra-seed') if (node[:cluster_role_index].blank?) || (node[:cluster_role_index].to_i % 3 == 0)
 provide_service(node[:cassandra][:cluster_name] + '-cassandra')
