@@ -28,6 +28,12 @@ exec chpst -u${CASSANDRA_USER} -e /etc/sv/cassandra/env -o 65535 \
       -XX:+AggressiveOpts                                         \
       -XX:+UseThreadPriorities                                    \
       -XX:ThreadPriorityPolicy=42                                 \
+      \
+      -XX:+PrintGCTimeStamps                                      \
+      -XX:+PrintGCDetails                                         \
+      -XX:+PrintTenuringDistribution                              \
+      -Xloggc:/var/log/cassandra/cassandra-gc.log                 \
+      \
       -Dcassandra.compaction.priority=1                           \
       -Djava.rmi.server.hostname=<%= node[:ec2][:public_hostname] %> \
       -Dcom.sun.management.jmxremote.port=<%= node[:cassandra][:jmx_port] %>                    \
@@ -40,4 +46,3 @@ exec chpst -u${CASSANDRA_USER} -e /etc/sv/cassandra/env -o 65535 \
 
 # add in for 64-bit
 #      -XX:+UseCompressedOops                                      \
-
