@@ -28,15 +28,27 @@ exec chpst -u${CASSANDRA_USER} -e /etc/sv/cassandra/env -o 65535 \
       -XX:+AggressiveOpts                                       \
       -XX:+UseThreadPriorities                                  \
       -XX:ThreadPriorityPolicy=42                               \
+      -Dcassandra.compaction.priority=1                         \
       -XX:+UseCompressedOops                                    \
-<%- if true %>
+      -XX:NewSize=384m                                          \
+      -XX:MaxNewSize=384m                                       \
+<%- if false %>
       -XX:+PrintGCTimeStamps                                    \
       -XX:+PrintGCDetails                                       \
       -XX:+PrintTenuringDistribution                            \
       -XX:-TraceClassUnloading                                  \
       -Xloggc:/var/log/cassandra/cassandra-gc.log               \
 <%- end %>
-      -Dcassandra.compaction.priority=1                         \
+<%- if false %>
+      -XX:+CMSIncrementalMode                                   \
+      -XX:+CMSIncrementalPacing                                 \
+      -XX:CMSIncrementalDutyCycleMin=0                          \
+      -XX:CMSIncrementalDutyCycle=10                            \
+<%- end %>
+<%- if true %>
+      -XX:CMSInitiatingOccupancyFraction=70                     \
+      -XX:+UseCMSInitiatingOccupancyOnly                        \
+<%- end %>
       -Djava.rmi.server.hostname=<%= node[:ec2][:public_hostname] %> \
       -Dcom.sun.management.jmxremote.port=<%= node[:cassandra][:jmx_port] %> \
       -Dcom.sun.management.jmxremote.ssl=false                  \
@@ -46,13 +58,9 @@ exec chpst -u${CASSANDRA_USER} -e /etc/sv/cassandra/env -o 65535 \
       -cp ${CLASSPATH}                                          \
       org.apache.cassandra.thrift.CassandraDaemon 2>&1
 
-      # -XX:NewSize=21m                                           \
-      # -XX:MaxNewSize=42m                                        \
       # -XX:+DisableExplicitGC                                  \
       # -verbose:gc                                             \
 
-      # -XX:CMSInitiatingOccupancyFraction=80                   \
-      # -XX:+UseCMSInitiatingOccupancyOnly                      \
 
 # # Very Large Heaps and Caches         http://www.devwebsphere.com/devwebsphere/2007/02/very_large_heap.htmla          ## great overview
 # # Cassandra Garbage Collection Tuning http://blog.mikiobraun.de/2010/08/cassandra-gc-tuning.html                      
@@ -83,7 +91,7 @@ exec chpst -u${CASSANDRA_USER} -e /etc/sv/cassandra/env -o 65535 \
 # -XX:+CMSIncrementalMode                 \
 # -XX:+CMSIncrementalPacing               \
 # -XX:CMSIncrementalDutyCycleMin=0        \
-# -XX:+CMSIncrementalDutyCycle=10         \
+# -XX:CMSIncrementalDutyCycle=10          \
 # -XX:ParallelCMSThreads=4                ## limit the number of threads used for iCMS
 # 
 # # If too many full collections occur, try the following three steps, one at a time:
