@@ -23,30 +23,29 @@ exec chpst -u${CASSANDRA_USER} -e /etc/sv/cassandra/env -o 65535 \
       -XX:+UseConcMarkSweepGC                                   \
       -XX:+CMSParallelRemarkEnabled                             \
       -XX:+HeapDumpOnOutOfMemoryError                           \
-      -XX:SurvivorRatio=8                                       \
-      -XX:MaxTenuringThreshold=1                                \
+      -XX:CMSInitiatingOccupancyFraction=70                     \
+      -XX:SurvivorRatio=4                                       \
+      -XX:MaxTenuringThreshold=2                                \
       -XX:+AggressiveOpts                                       \
       -XX:+UseThreadPriorities                                  \
       -XX:ThreadPriorityPolicy=42                               \
       -Dcassandra.compaction.priority=1                         \
       -XX:+UseCompressedOops                                    \
-      -XX:NewSize=384m                                          \
-      -XX:MaxNewSize=384m                                       \
+      -XX:NewSize=512m                                          \
+      -XX:MaxNewSize=512m                                       \
 <%- if false %>
       -XX:+PrintGCTimeStamps                                    \
-      -XX:+PrintGCDetails                                       \
       -XX:+PrintTenuringDistribution                            \
-      -XX:-TraceClassUnloading                                  \
-      -Xloggc:/var/log/cassandra/cassandra-gc.log               \
+      -XX:+TraceClassUnloading                                  \
 <%- end %>
+      -XX:+PrintGCDetails                                       \
+      -Xloggc:/var/log/cassandra/cassandra-gc.log               \
 <%- if false %>
       -XX:+CMSIncrementalMode                                   \
       -XX:+CMSIncrementalPacing                                 \
       -XX:CMSIncrementalDutyCycleMin=0                          \
       -XX:CMSIncrementalDutyCycle=10                            \
-<%- end %>
-<%- if true %>
-      -XX:CMSInitiatingOccupancyFraction=70                     \
+<%- else %>        
       -XX:+UseCMSInitiatingOccupancyOnly                        \
 <%- end %>
       -Djava.rmi.server.hostname=<%= node[:ec2][:public_hostname] %> \
