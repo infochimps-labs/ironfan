@@ -19,28 +19,29 @@ exec chpst -u${CASSANDRA_USER} -e /etc/sv/cassandra/env -o 65535 \
       -Xms<%= node[:cassandra][:java_min_heap] %>               \
       -Xmx<%= node[:cassandra][:java_max_heap] %>               \
       -Xss128k                                                  \
+      -XX:NewSize=1024m                                         \
+      -XX:MaxNewSize=1024m                                      \
       -XX:+UseParNewGC                                          \
       -XX:+UseConcMarkSweepGC                                   \
       -XX:+CMSParallelRemarkEnabled                             \
       -XX:+HeapDumpOnOutOfMemoryError                           \
       -XX:CMSInitiatingOccupancyFraction=70                     \
-      -XX:SurvivorRatio=4                                       \
-      -XX:MaxTenuringThreshold=2                                \
+      -XX:SurvivorRatio=8                                       \
+      -XX:MaxTenuringThreshold=1                                \
       -XX:+AggressiveOpts                                       \
       -XX:+UseThreadPriorities                                  \
       -XX:ThreadPriorityPolicy=42                               \
       -Dcassandra.compaction.priority=1                         \
       -XX:+UseCompressedOops                                    \
-      -XX:NewSize=512m                                          \
-      -XX:MaxNewSize=512m                                       \
 <%- if false %>
       -XX:+PrintGCTimeStamps                                    \
       -XX:+PrintTenuringDistribution                            \
       -XX:+TraceClassUnloading                                  \
-<%- end %>
       -XX:+PrintGCDetails                                       \
+      -verbose:gc                                               \
       -Xloggc:/var/log/cassandra/cassandra-gc.log               \
-<%- if false %>
+<%- end %>
+<%- if true %>
       -XX:+CMSIncrementalMode                                   \
       -XX:+CMSIncrementalPacing                                 \
       -XX:CMSIncrementalDutyCycleMin=0                          \
@@ -57,10 +58,6 @@ exec chpst -u${CASSANDRA_USER} -e /etc/sv/cassandra/env -o 65535 \
       -cp ${CLASSPATH}                                          \
       org.apache.cassandra.thrift.CassandraDaemon 2>&1
 
-      # -XX:+DisableExplicitGC                                  \
-      # -verbose:gc                                             \
-
-
 # # Very Large Heaps and Caches         http://www.devwebsphere.com/devwebsphere/2007/02/very_large_heap.htmla          ## great overview
 # # Cassandra Garbage Collection Tuning http://blog.mikiobraun.de/2010/08/cassandra-gc-tuning.html                      
 # # Garbage Collection FAQ              http://www.oracle.com/technetwork/java/faq-140837.html
@@ -68,34 +65,43 @@ exec chpst -u${CASSANDRA_USER} -e /etc/sv/cassandra/env -o 65535 \
 # # Turbocharging Java HotSpot VM       http://java.sun.com/developer/technicalArticles/Programming/turbo/
 # # Java HotSpot VM Options             http://www.oracle.com/technetwork/java/javase/tech/vmoptions-jsp-140102.html
 # # jvmstat FAQ                         http://www.oracle.com/technetwork/java/faq-141822.html
-# # Tuning GV with JVM 1.4.2            http://www.oracle.com/technetwork/java/index-136692.html
+# # Tuning GC with JVM 1.4.2            http://www.oracle.com/technetwork/java/index-136692.html
 #
-# -XX:+UseCompressedOops                  ## Greatly improves memory consumption on 64-bit machines
+#   -XX:+UseCompressedOops                  ## Greatly improves memory consumption on 64-bit machines
 #
 # # Here are the main options for tuning the size of the young generation.
-# -XX:NewSize=21m                         ## Initial size of the young generation. (You may use suffixes such as m, g, e.g. -XX:NewSize=32m)
-# -XX:MaxNewSize=42m                      ## Maximal size of the young generation.
-# -Xmnsize                                ## sets size of the young generation fixed to given size. (For example, -Xmn32m)
-# -XX:NewRatio=n                          ## sets the ratio of young generation to old generation to 1:n (for example n = 3 means you’ll have 25% new generation and 75% old generation.
+#   -XX:NewSize=21m                         ## Initial size of the young generation. (You may use suffixes such as m, g, e.g. -XX:NewSize=32m)
+#   -XX:MaxNewSize=42m                      ## Maximal size of the young generation.
+#   -XX:NewRatio=n                          ## sets the ratio of young generation to old generation to 1:n (for example n = 3 means you’ll have 25% new generation and 75% old generation.
 # 
 # # The size of the survivor space and the migration is controlled by the following options:
-# -XX:SurvivorRatio=8                     ## sets the ratio of “young eden” to “young survivors” to 1:n.
-# -XX:MaxTenuringThreshold=31             ## controls at what age (that is, number of survived garbage collections) objects migrate to the old generation.
+#   -XX:SurvivorRatio=8                     ## sets the ratio of “young eden” to “young survivors” to 1:n.
+#   -XX:MaxTenuringThreshold=1              ## controls at what age (that is, number of survived garbage collections) objects migrate to the old generation.
 # 
-# -XX:CMSInitiatingOccupancyFraction=pct  ## Controls the percentage of the old generation when the CMS is triggered.
-# -XX:+UseCMSInitiatingOccupancyOnly      ## ensures that the percentage is kept fixed.
+#   -XX:CMSInitiatingOccupancyFraction=pct  ## Controls the percentage of the old generation when the CMS is triggered.
+#   -XX:+UseCMSInitiatingOccupancyOnly      ## ensures that the percentage is kept fixed.
 # 
 # # for incremental mark-and-sweep
-# -XX:+UseConcMarkSweepGC                 \
-# -XX:+CMSIncrementalMode                 \
-# -XX:+CMSIncrementalPacing               \
-# -XX:CMSIncrementalDutyCycleMin=0        \
-# -XX:CMSIncrementalDutyCycle=10          \
-# -XX:ParallelCMSThreads=4                ## limit the number of threads used for iCMS
+#   -XX:+UseConcMarkSweepGC                 \
+#   -XX:+CMSIncrementalMode                 \
+#   -XX:+CMSIncrementalPacing               \
+#   -XX:CMSIncrementalDutyCycleMin=0        \
+#   -XX:CMSIncrementalDutyCycle=10          \
+#   -XX:ParallelCMSThreads=4                ## limit the number of threads used for iCMS
 # 
 # # If too many full collections occur, try the following three steps, one at a time:
-# -XX:CMSIncrementalSafetyFactor=<N>      ## Increase the safety factor:
-# -XX:CMSIncrementalDutyCycleMin=<N>      ## Increase the minimum duty cycle:
-# -XX:-CMSIncrementalPacing               ## Disable automatic pacing and use a fixed duty cycle
-# -XX:CMSIncrementalDutyCycle=<N>         
+#   -XX:CMSIncrementalSafetyFactor=<N>      ## Increase the safety factor:
+#   -XX:CMSIncrementalDutyCycleMin=<N>      ## Increase the minimum duty cycle:
+#   -XX:-CMSIncrementalPacing               ## Disable automatic pacing and use a fixed duty cycle
+#   -XX:CMSIncrementalDutyCycle=<N>         
+
+      
+# If application has mid- or long-lived objects: Objects that survive a young
+# generation collection have a copying cost (part of the algorithm for a young
+# generation collection is to copy any objects that survive). Mid- or long-lived
+# objects may be copied multiple times. Use -XX:MaxTenuringThreshold=0 to move an
+# object that survives a young generation collection immediately to the tenured
+# generation. If that improves the performance of the application, the copying
+# of long-lived objects is significant.
+
 
