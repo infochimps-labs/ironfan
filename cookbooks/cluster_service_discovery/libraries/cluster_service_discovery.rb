@@ -62,7 +62,7 @@ module ClusterServiceDiscovery
   # after violating the above constraints, then we give up and return
   # the most we can.
   def all_providers_for_service service_name, options={}
-    Chef::Log.info("Looking up providers for #{service_name} given #{options.inspect}")
+    # Chef::Log.debug("Looking up providers for #{service_name} given #{options.inspect}")
     # set the horizon
     horizon = case
               when options[:within_last]
@@ -84,11 +84,11 @@ module ClusterServiceDiscovery
         servers_before_horizon << server
       end
     end
-    
+
     # pad what we've found if necessary
     if options[:at_least]
       extra_servers = servers_before_horizon.sort_by { |server| server[:provides_service][service_name]['timestamp'] }
-      while (servers_after_horizon.length < options[:at_least].to_i) && (! extra_servers.empty?) 
+      while (servers_after_horizon.length < options[:at_least].to_i) && (! extra_servers.empty?)
         servers_after_horizon << extra_servers.pop
       end
     end
