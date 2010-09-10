@@ -12,42 +12,30 @@ for jar in $cassandra_home/lib/*.jar; do
 done
 
 ulimit -n 65535
-cd var
 exec chpst -u${CASSANDRA_USER} -e /etc/sv/cassandra/env -o 65535 \
   /usr/bin/java                                                 \
       -ea                                                       \
+      -XX:+UseThreadPriorities                                  \
+      -XX:ThreadPriorityPolicy=42                               \
       -Xms<%= node[:cassandra][:java_min_heap] %>               \
       -Xmx<%= node[:cassandra][:java_max_heap] %>               \
       -Xss128k                                                  \
-      -XX:NewSize=1024m                                         \
-      -XX:MaxNewSize=1024m                                      \
       -XX:+UseParNewGC                                          \
       -XX:+UseConcMarkSweepGC                                   \
       -XX:+CMSParallelRemarkEnabled                             \
       -XX:+HeapDumpOnOutOfMemoryError                           \
-      -XX:CMSInitiatingOccupancyFraction=70                     \
-      -XX:SurvivorRatio=8                                       \
+      -XX:NewRatio=3                                            \
+      -XX:SurvivorRatio=4                                       \
       -XX:MaxTenuringThreshold=1                                \
-      -XX:+AggressiveOpts                                       \
-      -XX:+UseThreadPriorities                                  \
-      -XX:ThreadPriorityPolicy=42                               \
+      -XX:CMSInitiatingOccupancyFraction=70                     \
       -Dcassandra.compaction.priority=1                         \
-      -XX:+UseCompressedOops                                    \
-<%- if false %>
+<%- if true %>
       -XX:+PrintGCTimeStamps                                    \
       -XX:+PrintTenuringDistribution                            \
       -XX:+TraceClassUnloading                                  \
       -XX:+PrintGCDetails                                       \
       -verbose:gc                                               \
       -Xloggc:/var/log/cassandra/cassandra-gc.log               \
-<%- end %>
-<%- if true %>
-      -XX:+CMSIncrementalMode                                   \
-      -XX:+CMSIncrementalPacing                                 \
-      -XX:CMSIncrementalDutyCycleMin=0                          \
-      -XX:CMSIncrementalDutyCycle=10                            \
-<%- else %>        
-      -XX:+UseCMSInitiatingOccupancyOnly                        \
 <%- end %>
       -Djava.rmi.server.hostname=<%= node[:ec2][:public_hostname] %> \
       -Dcom.sun.management.jmxremote.port=<%= node[:cassandra][:jmx_port] %> \
@@ -58,6 +46,20 @@ exec chpst -u${CASSANDRA_USER} -e /etc/sv/cassandra/env -o 65535 \
       -cp ${CLASSPATH}                                          \
       org.apache.cassandra.thrift.CassandraDaemon 2>&1
 
+#      -XX:NewSize=1524m                                         \
+#      -XX:MaxNewSize=1524m                                      \
+
+#       -XX:+AggressiveOpts                                       \
+#       -XX:+UseCompressedOops                                    \
+# <%- if false %>
+#       -XX:+CMSIncrementalMode                                   \
+#       -XX:+CMSIncrementalPacing                                 \
+#       -XX:CMSIncrementalDutyCycleMin=0                          \
+#       -XX:CMSIncrementalDutyCycle=10                            \
+# <%- else %>        
+#       -XX:+UseCMSInitiatingOccupancyOnly                        \
+# <%- end %>
+      
 # # Very Large Heaps and Caches         http://www.devwebsphere.com/devwebsphere/2007/02/very_large_heap.htmla          ## great overview
 # # Cassandra Garbage Collection Tuning http://blog.mikiobraun.de/2010/08/cassandra-gc-tuning.html                      
 # # Garbage Collection FAQ              http://www.oracle.com/technetwork/java/faq-140837.html
