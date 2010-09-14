@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-set[:hadoop][:hadoop_handle] = 'hadoop-0.20'
-set[:hadoop][:cdh_version]   = 'cdh3b2'
+default[:hadoop][:hadoop_handle] = 'hadoop-0.20'
+default[:hadoop][:cdh_version]   = 'cdh3b2'
 
 # Make sure you define a cluster_size in roles/WHATEVER_cluster.rb
 default[:cluster_size] = 5
