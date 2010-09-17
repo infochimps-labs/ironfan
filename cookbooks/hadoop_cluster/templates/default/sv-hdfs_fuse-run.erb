@@ -1,25 +1,32 @@
 #!/bin/bash
 
-/sbin/modprobe fuse
+# pull in default env vars for hadoop
 
-export HADOOP_HOME={$HADOOP_HOME-/usr/lib/hadoop}
+. /etc/default/<%= node[:hadoop][:hadoop_handle] %>
 
-if [ -f /etc/default/hadoop-0.20-fuse ]; then
-  . /etc/default/hadoop-0.20-fuse
+if [ -f /etc/default/<%= node[:hadoop][:hadoop_handle] %>-fuse ]; then
+  . /etc/default/<%= node[:hadoop][:hadoop_handle] %>-fuse
 fi
 
-if [ -f $HADOOP_HOME/bin/hadoop-config.sh ] then
+if [ -f $HADOOP_HOME/bin/hadoop-config.sh ]; then
   . $HADOOP_HOME/bin/hadoop-config.sh  
 fi
 
-if [ "$LD_LIBRARY_PATH" = "" ]; then
-  export JVM_LIB=`find $JAVA_HOME/jre/lib -name libjvm.so |tail -n1`
-  export LD_LIBRARY_PATH=`dirname $JVM_LIB`:/usr/lib/
+# is this already set as a node[:something] ?
+export JAVA_HOME=/usr/lib/jvm/java-6-sun/jre
+
+if [ "$OS_ARCH" = "" ]; then
+export OS_ARCH=<%= @options[:os_arch] %>
 fi
 
-for i in ${HADOOP_HOME}/*.jar ${HADOOP_HOME}/lib/*.jar
-  do CLASSPATH+=$i:
+if [ "$LD_LIBRARY_PATH" = "" ]; then
+  export LD_LIBRARY_PATH=$JAVA_HOME/lib/$OS_ARCH/server:/usr/local/share/hdfs/libhdfs/:/usr/local/lib
+fi
+
+for f in ${HADOOP_HOME}/*.jar ${HADOOP_HOME}/lib/*.jar ; do 
+  export CLASSPATH=$CLASSPATH:$f
 done
 
-export PATH=$PATH:${HADOOP_HOME}/bin/
-env CLASSPATH=$CLASSPATH ${HADOOP_HOME}/bin/fuse_dfs $@
+export HADOOP_HOME=$HADOOP_HOME
+export PATH=$PATH:${HADOOP_HOME}/bin
+exec chpst -u hadoop $HADOOP_HOME/bin/fuse_dfs rw -odebug -oserver=<%= @options[:namenode_address] %> -oport=8020 /hdfs
