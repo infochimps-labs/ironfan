@@ -17,8 +17,6 @@
 # limitations under the License.
 #
 
-include_recipe "hadoop_cluster"
-
 #
 # Install pig from latest release
 #

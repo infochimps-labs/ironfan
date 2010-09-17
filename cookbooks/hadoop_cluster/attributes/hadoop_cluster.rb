@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-set[:hadoop][:hadoop_handle] = 'hadoop-0.20'
-set[:hadoop][:cdh_version]   = 'cdh3b2'
+default[:hadoop][:hadoop_handle] = 'hadoop-0.20'
+default[:hadoop][:cdh_version]   = 'cdh3b2'
 
 # Make sure you define a cluster_size in roles/WHATEVER_cluster.rb
-default[:cluster_size] = 40
+default[:cluster_size] = 5
 
 default[:hadoop][:cluster_reduce_tasks        ] = (node[:cluster_size] * 1.95).to_i
 default[:hadoop][:dfs_replication             ] =  3
