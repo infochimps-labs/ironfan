@@ -5,7 +5,7 @@ include_recipe "runit"
 
 directory "/hdfs" do
   owner    "hadoop"
-  group    "hadoop"
+  group    "supergroup"
   mode     "0755"
   action   :create
   recursive true
