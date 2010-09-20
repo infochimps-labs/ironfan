@@ -8,7 +8,6 @@ run_list %w[
   hadoop_cluster::hadoop_webfront
   hadoop_cluster::std_hdfs_dirs
   hadoop_cluster::system_internals
-  hadoop_cluster::hdfs_fuse
   pig::install_from_package
 ]
 
