@@ -5,10 +5,11 @@ include_recipe "runit"
 
 directory "/hdfs" do
   owner    "hadoop"
-  group    "hadoop"
+  group    "supergroup"
   mode     "0755"
   action   :create
   recursive true
+  # not_if{ File.exists?('/hdfs') }
 end
 
 execute "add fuse module to kernel" do
