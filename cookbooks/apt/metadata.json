@@ -1,16 +1,15 @@
 {
-    "replacing": {
+    "recommendations": {
     },
     "attributes": {
     },
-    "maintainer_email": "cookbooks@opscode.com",
-    "groupings": {
+    "maintainer": "Opscode, Inc.",
+    "suggestions": {
     },
     "dependencies": {
     },
-    "recommendations": {
-    },
-    "suggestions": {
+    "maintainer_email": "cookbooks@opscode.com",
+    "conflicting": {
     },
     "platforms": {
       "debian": [
@@ -22,17 +21,18 @@
     },
     "license": "Apache 2.0",
     "version": "0.9.1",
+    "providing": {
+    },
     "recipes": {
       "apt::proxy": "Set up an APT proxy",
       "apt": "Runs apt-get update during compile phase and sets up preseed directories",
       "apt::cacher": "Set up an APT cache"
     },
-    "conflicting": {
+    "replacing": {
     },
     "name": "apt",
-    "providing": {
-    },
     "description": "Configures apt and apt services",
-    "maintainer": "Opscode, Inc.",
+    "groupings": {
+    },
     "long_description": ""
   }

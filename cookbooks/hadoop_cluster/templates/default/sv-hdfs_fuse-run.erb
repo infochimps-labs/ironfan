@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# pull in default env vars for hadoop
+
+. /etc/default/<%= node[:hadoop][:hadoop_handle] %>
+
+if [ -f /etc/default/<%= node[:hadoop][:hadoop_handle] %>-fuse ]; then
+  . /etc/default/<%= node[:hadoop][:hadoop_handle] %>-fuse
+fi
+
+if [ -f $HADOOP_HOME/bin/hadoop-config.sh ]; then
+  . $HADOOP_HOME/bin/hadoop-config.sh  
+fi
+
+# is this already set as a node[:something] ?
+export JAVA_HOME=/usr/lib/jvm/java-6-sun/jre
+
+if [ "$OS_ARCH" = "" ]; then
+export OS_ARCH=<%= @options[:os_arch] %>
+fi
+
+if [ "$LD_LIBRARY_PATH" = "" ]; then
+  export LD_LIBRARY_PATH=$JAVA_HOME/lib/$OS_ARCH/server:/usr/local/share/hdfs/libhdfs/:/usr/local/lib
+fi
+
+for f in ${HADOOP_HOME}/*.jar ${HADOOP_HOME}/lib/*.jar ; do 
+  export CLASSPATH=$CLASSPATH:$f
+done
+
+export HADOOP_HOME=$HADOOP_HOME
+export PATH=$PATH:${HADOOP_HOME}/bin
+exec chpst -u hadoop $HADOOP_HOME/bin/fuse_dfs rw -odebug -oserver=<%= @options[:namenode_address] %> -oport=8020 /hdfs
