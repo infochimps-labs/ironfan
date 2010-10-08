@@ -44,10 +44,8 @@ exec chpst -u${CASSANDRA_USER} -e /etc/sv/cassandra/env -o 65535 \
       -Dcassandra-config=${CASSANDRA_CONF}                      \
       -Dcassandra-foreground=yes                                \
       -cp ${CLASSPATH}                                          \
-      org.apache.cassandra.thrift.CassandraDaemon 2>&1
-
-#      -XX:NewSize=1524m                                         \
-#      -XX:MaxNewSize=1524m                                      \
+org.apache.cassandra.thrift.CassandraDaemon 2>&1
+      
 
 #       -XX:+AggressiveOpts                                       \
 #       -XX:+UseCompressedOops                                    \
@@ -56,12 +54,13 @@ exec chpst -u${CASSANDRA_USER} -e /etc/sv/cassandra/env -o 65535 \
 #       -XX:+CMSIncrementalPacing                                 \
 #       -XX:CMSIncrementalDutyCycleMin=0                          \
 #       -XX:CMSIncrementalDutyCycle=10                            \
-# <%- else %>        
+# <%- else %>
 #       -XX:+UseCMSInitiatingOccupancyOnly                        \
 # <%- end %>
+#
       
 # # Very Large Heaps and Caches         http://www.devwebsphere.com/devwebsphere/2007/02/very_large_heap.htmla          ## great overview
-# # Cassandra Garbage Collection Tuning http://blog.mikiobraun.de/2010/08/cassandra-gc-tuning.html                      
+# # Cassandra Garbage Collection Tuning http://blog.mikiobraun.de/2010/08/cassandra-gc-tuning.html
 # # Garbage Collection FAQ              http://www.oracle.com/technetwork/java/faq-140837.html
 # # Java HotSpot VM FAQ                 http://www.oracle.com/technetwork/java/hotspotfaq-138619.html
 # # Turbocharging Java HotSpot VM       http://java.sun.com/developer/technicalArticles/Programming/turbo/
@@ -75,14 +74,14 @@ exec chpst -u${CASSANDRA_USER} -e /etc/sv/cassandra/env -o 65535 \
 #   -XX:NewSize=21m                         ## Initial size of the young generation. (You may use suffixes such as m, g, e.g. -XX:NewSize=32m)
 #   -XX:MaxNewSize=42m                      ## Maximal size of the young generation.
 #   -XX:NewRatio=n                          ## sets the ratio of young generation to old generation to 1:n (for example n = 3 means you’ll have 25% new generation and 75% old generation.
-# 
+#
 # # The size of the survivor space and the migration is controlled by the following options:
 #   -XX:SurvivorRatio=8                     ## sets the ratio of “young eden” to “young survivors” to 1:n.
 #   -XX:MaxTenuringThreshold=1              ## controls at what age (that is, number of survived garbage collections) objects migrate to the old generation.
-# 
+#
 #   -XX:CMSInitiatingOccupancyFraction=pct  ## Controls the percentage of the old generation when the CMS is triggered.
 #   -XX:+UseCMSInitiatingOccupancyOnly      ## ensures that the percentage is kept fixed.
-# 
+#
 # # for incremental mark-and-sweep
 #   -XX:+UseConcMarkSweepGC                 \
 #   -XX:+CMSIncrementalMode                 \
@@ -90,14 +89,23 @@ exec chpst -u${CASSANDRA_USER} -e /etc/sv/cassandra/env -o 65535 \
 #   -XX:CMSIncrementalDutyCycleMin=0        \
 #   -XX:CMSIncrementalDutyCycle=10          \
 #   -XX:ParallelCMSThreads=4                ## limit the number of threads used for iCMS
-# 
+#
 # # If too many full collections occur, try the following three steps, one at a time:
 #   -XX:CMSIncrementalSafetyFactor=<N>      ## Increase the safety factor:
 #   -XX:CMSIncrementalDutyCycleMin=<N>      ## Increase the minimum duty cycle:
 #   -XX:-CMSIncrementalPacing               ## Disable automatic pacing and use a fixed duty cycle
-#   -XX:CMSIncrementalDutyCycle=<N>         
+#   -XX:CMSIncrementalDutyCycle=<N>
+#
+# # Log the GC info
+#   -XX:+PrintGCTimeStamps                                    \
+#   -XX:+PrintTenuringDistribution                            \
+#   -XX:+TraceClassUnloading                                  \
+#   -XX:+PrintGCDetails                                       \
+#   -verbose:gc                                               \
+#   -Xloggc:/var/log/cassandra/cassandra-gc.log               \
+#
 
-      
+#
 # If application has mid- or long-lived objects: Objects that survive a young
 # generation collection have a copying cost (part of the algorithm for a young
 # generation collection is to copy any objects that survive). Mid- or long-lived
