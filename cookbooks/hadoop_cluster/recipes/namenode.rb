@@ -18,8 +18,14 @@
 #
 
 include_recipe "hadoop_cluster"
-package "#{node[:hadoop][:hadoop_handle]}-namenode"
-package "#{node[:hadoop][:hadoop_handle]}-secondarynamenode"
+# package "#{node[:hadoop][:hadoop_handle]}-namenode" do
+#   version "0.20.2+320-1~lucid-cdh3b2"
+# end
+#
+# package "#{node[:hadoop][:hadoop_handle]}-secondarynamenode" do
+#   version "0.20.2+320-1~lucid-cdh3b2"
+# end
+
 
 # use cluster_service_discovery to register our ip address
 register_as_namenode
