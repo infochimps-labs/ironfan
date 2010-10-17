@@ -18,7 +18,10 @@
 #
 
 include_recipe "hadoop_cluster"
-package "#{node[:hadoop][:hadoop_handle]}-jobtracker"
+# package "#{node[:hadoop][:hadoop_handle]}-jobtracker" do
+#   version "0.20.2+320-1~lucid-cdh3b2"
+# end
+
 
 # use cluster_service_discovery to register our ip address
 register_as_jobtracker

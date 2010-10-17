@@ -23,7 +23,7 @@ include_recipe "runit"
 
 user "azkaban" do
   uid       '332'
-  gid       "nogroup"
+  gid       "supergroup"
   shell     "/bin/false"
   action    :create
   not_if{ node[:etc][:passwd] && node[:etc][:passwd]['azkaban'] }

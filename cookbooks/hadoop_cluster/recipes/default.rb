@@ -43,6 +43,7 @@ group 'hadoop' do
   gid         node[:groups]['hadoop'][:gid]
   action      [:create, :manage]
 end
+
 user 'hadoop' do
   comment    'Hadoop User'
   uid        300
@@ -53,6 +54,7 @@ user 'hadoop' do
   supports   :manage_home => true
   action     [:create, :manage]
 end
+
 # Create the group hadoop uses to mean 'can act as filesystem root'
 group 'supergroup' do
   group_name 'supergroup'
@@ -63,5 +65,10 @@ end
 #
 # Hadoop packages
 #
-package "#{node[:hadoop][:hadoop_handle]}"
-package "#{node[:hadoop][:hadoop_handle]}-native"
+package "#{node[:hadoop][:hadoop_handle]}" do
+  version "0.20.2+320-1~lucid-cdh3b2"
+end
+
+package "#{node[:hadoop][:hadoop_handle]}-native" do
+  version "0.20.2+320-1~lucid-cdh3b2"
+end
