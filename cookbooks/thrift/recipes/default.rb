@@ -25,11 +25,13 @@ include_recipe "subversion"
   package pkg
 end
 
+THRIFT_REPO_URL = 'http://svn.apache.org/repos/asf/thrift'
+
 bash "install_thrift" do
   user "root"
   cwd "/tmp"
   code <<-EOH
-    svn co http://svn.apache.org/repos/asf/incubator/thrift thrift
+    svn co #{THRIFT_REPO_URL} thrift
     cd thrift/trunk;
     cp /usr/share/aclocal/pkg.m4 ./aclocal
     sh bootstrap.sh
