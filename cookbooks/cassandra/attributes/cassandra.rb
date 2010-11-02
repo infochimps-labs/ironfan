@@ -78,7 +78,7 @@ default[:cassandra][:throttle_limit]                = 80           # 2x (concurr
 default[:cassandra][:request_scheduler_id]          = 'keyspace'
 
 # For install_from_release recipe
-default[:cassandra][:install_url] = "http://apache.mirrors.tds.net/cassandra/0.6.1/apache-cassandra-0.6.1-bin.tar.gz"
+default[:cassandra][:install_url] = "http://apache.mirrors.tds.net/cassandra/0.7.0/apache-cassandra-0.7.0-beta2-bin.tar.gz"
 # For install_from_git
 default[:cassandra][:git_repo]                      = 'git://git.apache.org/cassandra.git'
 # until ruby gem is updated, use cdd239dcf82ab52cb840e070fc01135efb512799

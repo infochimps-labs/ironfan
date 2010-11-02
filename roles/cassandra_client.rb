@@ -7,7 +7,7 @@ run_list *%w[
   boost
   thrift
   cassandra
-  cassandra::install_from_git
+  cassandra::install_from_release
   ]
 
 # Attributes applied if the node doesn't have it set already.
