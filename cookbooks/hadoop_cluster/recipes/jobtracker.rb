@@ -19,7 +19,7 @@
 
 include_recipe "hadoop_cluster"
 # package "#{node[:hadoop][:hadoop_handle]}-jobtracker" do
-#   version "0.20.2+320-1~lucid-cdh3b2"
+#   # version "0.20.2+320-1~lucid-cdh3b2"
 # end
 
 

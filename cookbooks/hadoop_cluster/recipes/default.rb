@@ -21,7 +21,7 @@ include_recipe "java"
 class Chef::Recipe; include HadoopCluster ; end
 
 execute "apt-get update" do
-  action :nothing
+  action :run
 end
 
 # Add cloudera package repo
@@ -46,7 +46,7 @@ end
 
 user 'hadoop' do
   comment    'Hadoop User'
-  # uid        300
+  uid        300
   group      'hadoop'
   home       "/var/run/hadoop-0.20"
   shell      "/bin/false"
@@ -66,9 +66,9 @@ end
 # Hadoop packages
 #
 package "#{node[:hadoop][:hadoop_handle]}-native" do
-  # version "0.20.2+320-1~lucid-cdh3b2"
+  version "0.20.2+320-1~lucid-cdh3b2"
 end
-
+ 
 package "#{node[:hadoop][:hadoop_handle]}" do
-  # version "0.20.2+320-1~lucid-cdh3b2"
+  version "0.20.2+320-1~lucid-cdh3b2"
 end
