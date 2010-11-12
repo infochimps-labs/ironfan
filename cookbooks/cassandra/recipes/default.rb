@@ -25,8 +25,8 @@ include_recipe "runit"
 %w[ cassandra avro
 ].each{|pkg| gem_package(pkg){ action :install } }
 
-%w[ simplejson avro
-].each{|pkg| easy_install_package(pkg){ action :install } }
+#%w[ simplejson avro
+#].each{|pkg| easy_install_package(pkg){ action :install } }
 
 user "cassandra" do
   uid       '330'
