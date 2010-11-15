@@ -1,4 +1,3 @@
-POOL_NAME     = 'zaius'
 require File.dirname(__FILE__)+'/cloud_aspects'
 
 #
@@ -7,7 +6,7 @@ require File.dirname(__FILE__)+'/cloud_aspects'
 # If you use the west coast availability zone, to avoid 'ami not found' errors, first run
 #   export EC2_URL=https://us-west-1.ec2.amazonaws.com
 
-pool POOL_NAME do
+pool 'zaius' do
 
   #
   # Combined chef server, nfs server and hadoop master. Run this if you're just
@@ -15,7 +14,7 @@ pool POOL_NAME do
   #
   cloud :chefmaster do
     using :ec2
-    settings = settings_for_node(POOL_NAME, :chefmaster)
+    settings = settings_for_node(name, :chefmaster)
     instances                   1
     is_generic_node             settings
     is_nfs_server               settings
@@ -28,7 +27,7 @@ pool POOL_NAME do
     has_recipe                  settings, 'hadoop_cluster::std_hdfs_dirs'
     #
     has_big_package             settings
-    has_role                    settings, "#{POOL_NAME}_cluster"
+    has_role                    settings, "#{name}_cluster"
     user_data_is_bootstrap_script(settings, 'bootstrap_chef_server')
   end
 
@@ -37,7 +36,7 @@ pool POOL_NAME do
   #
   cloud :master do
     using :ec2
-    settings = settings_for_node(POOL_NAME, :master)
+    settings = settings_for_node(name, :master)
     instances                   1
     # Order matters here: specifically, attaches_ebs > nfs_client > most things
     is_generic_node             settings
@@ -50,13 +49,13 @@ pool POOL_NAME do
     has_recipe                  settings, 'hadoop_cluster::std_hdfs_dirs'
     #
     has_big_package             settings
-    has_role                    settings, "#{POOL_NAME}_cluster"
+    has_role                    settings, "#{name}_cluster"
     user_data_is_json_hash      settings
   end
 
   cloud :slave do
     using :ec2
-    settings = settings_for_node(POOL_NAME, :slave)
+    settings = settings_for_node(name, :slave)
     instances                   (settings[:instances] || 3)
     #
     is_generic_node             settings
@@ -67,7 +66,7 @@ pool POOL_NAME do
     has_role                    settings, "hadoop_worker"
     #
     has_big_package             settings
-    has_role                    settings, "#{POOL_NAME}_cluster"
+    has_role                    settings, "#{name}_cluster"
     user_data_is_json_hash      settings
   end
 end

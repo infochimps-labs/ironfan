@@ -1,4 +1,3 @@
-POOL_NAME     = 'gibbon'
 require File.dirname(__FILE__)+'/cloud_aspects'
 
 #
@@ -7,7 +6,7 @@ require File.dirname(__FILE__)+'/cloud_aspects'
 # If you use the west coast availability zone, to avoid 'ami not found' errors, first run
 #   export EC2_URL=https://us-west-1.ec2.amazonaws.com
 
-pool POOL_NAME do
+pool 'gibbon' do
 
   #
   # Hadoop master, to be used with a standalone chef server and (optional) nfs server.
@@ -15,7 +14,7 @@ pool POOL_NAME do
   #
   cloud :master do
     using :ec2
-    settings = settings_for_node(POOL_NAME, :master)
+    settings = settings_for_node(name, :master)
     instances                   1
     #
     attaches_ebs_volumes        settings
@@ -32,13 +31,13 @@ pool POOL_NAME do
     # is_cassandra_node         settings
     #
     has_big_package             settings
-    has_role                    settings, "#{POOL_NAME}_cluster"
+    has_role                    settings, "#{name}_cluster"
     user_data_is_json_hash      settings
   end
 
   cloud :slave do
     using :ec2
-    settings = settings_for_node(POOL_NAME, :slave)
+    settings = settings_for_node(name, :slave)
     instances                   (settings[:instances] || 5)
     #
     attaches_ebs_volumes        settings
@@ -53,7 +52,7 @@ pool POOL_NAME do
     # is_cassandra_node         settings
     #
     has_big_package             settings
-    has_role                    settings, "#{POOL_NAME}_cluster"
+    has_role                    settings, "#{name}_cluster"
     user_data_is_json_hash      settings
   end
 end

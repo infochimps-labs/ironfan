@@ -34,12 +34,12 @@ def is_generic_node settings
   disable_api_termination settings[:disable_api_termination]  if settings[:instance_backing] == 'ebs'
   elastic_ip              settings[:elastic_ip]               if settings[:elastic_ip]
   set_instance_backing    settings
-  keypair                 POOL_NAME, File.join(ENV['HOME'], '.poolparty', 'keypairs')
+  keypair                 settings[:cluster_name], File.join(ENV['HOME'], '.poolparty', 'keypairs')
   has_role                settings, "base_role"
-  settings[:user_data][:attributes][:cluster_name] = self.parent.name
-  settings[:user_data][:attributes][:cluster_role] = self.name
-  security_group POOL_NAME do
-    authorize :group_name => POOL_NAME
+  settings[:user_data][:attributes][:cluster_name] = settings[:cluster_name]
+  settings[:user_data][:attributes][:cluster_role] = settings[:cluster_role]
+  security_group settings[:cluster_name] do
+    authorize :group_name => settings[:cluster_name]
   end
   security_group do
     authorize :from_port => 22,  :to_port => 22
@@ -69,8 +69,13 @@ end
 def settings_for_node cluster_name, cluster_role
   cluster_name = cluster_name.to_sym
   cluster_role = cluster_role.to_sym
-  node_settings = { :user_data => { :attributes => { :run_list => [] } } }.deep_merge(Settings)
+  node_settings = {
+    :user_data => { :attributes => { :run_list => [] } },
+    :cluster_name => cluster_name,
+    :cluster_role => cluster_role,
+  }.deep_merge(Settings)
   node_settings.delete :pools
+  raise "Please define the '#{cluster_name}' cluster and the '#{cluster_role}' role in your poolparty.yaml" if (Settings[:pools][cluster_name].blank? || Settings[:pools][cluster_name][cluster_role].blank?)
   node_settings = node_settings.deep_merge(
     Settings[:pools][cluster_name][:common]      ||{ }).deep_merge(
     Settings[:pools][cluster_name][cluster_role] ||{ })
