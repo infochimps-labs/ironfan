@@ -5,7 +5,6 @@ CLOUD_ASPECTS_DIR=File.dirname(__FILE__)
 require CLOUD_ASPECTS_DIR+'/aws_service_data'
 require CLOUD_ASPECTS_DIR+'/cloud_aspects/aws'
 require CLOUD_ASPECTS_DIR+'/cloud_aspects/chef'
-require CLOUD_ASPECTS_DIR+'/cloud_aspects/cassandra'
 require CLOUD_ASPECTS_DIR+'/cloud_aspects/hadoop'
 require CLOUD_ASPECTS_DIR+'/cloud_aspects/nfs'
 
@@ -34,12 +33,12 @@ def is_generic_node settings
   disable_api_termination settings[:disable_api_termination]  if settings[:instance_backing] == 'ebs'
   elastic_ip              settings[:elastic_ip]               if settings[:elastic_ip]
   set_instance_backing    settings
-  keypair                 settings[:cluster_name], File.join(ENV['HOME'], '.poolparty', 'keypairs')
+  keypair                 settings[:cluster_name].to_s, File.join(ENV['HOME'], '.poolparty', 'keypairs')
   has_role                settings, "base_role"
   settings[:user_data][:attributes][:cluster_name] = settings[:cluster_name]
   settings[:user_data][:attributes][:cluster_role] = settings[:cluster_role]
-  security_group settings[:cluster_name] do
-    authorize :group_name => settings[:cluster_name]
+  security_group settings[:cluster_name].to_s do
+    authorize :group_name => settings[:cluster_name].to_s
   end
   security_group do
     authorize :from_port => 22,  :to_port => 22
@@ -66,9 +65,9 @@ end
 # Build settings for a given cluster_name and role folding together the common
 # settings for everything, common settings for cluster, and the role itself.
 #
-def settings_for_node cluster_name, cluster_role
-  cluster_name = cluster_name.to_sym
-  cluster_role = cluster_role.to_sym
+def settings_for_node
+  cluster_name = self.parent.name.to_sym
+  cluster_role = self.name.to_sym
   node_settings = {
     :user_data => { :attributes => { :run_list => [] } },
     :cluster_name => cluster_name,

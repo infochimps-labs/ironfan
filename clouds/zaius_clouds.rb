@@ -14,7 +14,7 @@ pool 'zaius' do
   #
   cloud :chefmaster do
     using :ec2
-    settings = settings_for_node(name, :chefmaster)
+    settings = settings_for_node
     instances                   1
     is_generic_node             settings
     is_nfs_server               settings
@@ -27,7 +27,7 @@ pool 'zaius' do
     has_recipe                  settings, 'hadoop_cluster::std_hdfs_dirs'
     #
     has_big_package             settings
-    has_role                    settings, "#{name}_cluster"
+    has_role                    settings, "#{settings[:cluster_name]}_cluster"
     user_data_is_bootstrap_script(settings, 'bootstrap_chef_server')
   end
 
@@ -36,7 +36,7 @@ pool 'zaius' do
   #
   cloud :master do
     using :ec2
-    settings = settings_for_node(name, :master)
+    settings = settings_for_node
     instances                   1
     # Order matters here: specifically, attaches_ebs > nfs_client > most things
     is_generic_node             settings
@@ -49,13 +49,13 @@ pool 'zaius' do
     has_recipe                  settings, 'hadoop_cluster::std_hdfs_dirs'
     #
     has_big_package             settings
-    has_role                    settings, "#{name}_cluster"
+    has_role                    settings, "#{settings[:cluster_name]}_cluster"
     user_data_is_json_hash      settings
   end
 
   cloud :slave do
     using :ec2
-    settings = settings_for_node(name, :slave)
+    settings = settings_for_node
     instances                   (settings[:instances] || 3)
     #
     is_generic_node             settings
@@ -66,7 +66,7 @@ pool 'zaius' do
     has_role                    settings, "hadoop_worker"
     #
     has_big_package             settings
-    has_role                    settings, "#{name}_cluster"
+    has_role                    settings, "#{settings[:cluster_name]}_cluster"
     user_data_is_json_hash      settings
   end
 end

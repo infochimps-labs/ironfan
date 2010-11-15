@@ -14,45 +14,44 @@ pool 'gibbon' do
   #
   cloud :master do
     using :ec2
-    settings = settings_for_node(name, :master)
+    settings = settings_for_node
     instances                   1
     #
     attaches_ebs_volumes        settings
     is_generic_node             settings
     is_nfs_client               settings
     is_chef_client              settings
-    has_role                    settings, "infochimps_base"
-    has_role                    settings, "azkaban"
     mounts_ebs_volumes          settings
     #
     is_hadoop_node              settings
     has_role                    settings, "hadoop_master"
     has_role                    settings, "hadoop_worker"
-    # is_cassandra_node         settings
+    has_recipe                  settings, 'hadoop_cluster::std_hdfs_dirs'
+    has_role                    settings, "azkaban"
+    # has_role                  settings, "cassandra_client"
     #
     has_big_package             settings
-    has_role                    settings, "#{name}_cluster"
+    has_role                    settings, "#{settings[:cluster_name]}_cluster"
     user_data_is_json_hash      settings
   end
 
   cloud :slave do
     using :ec2
-    settings = settings_for_node(name, :slave)
+    settings = settings_for_node
     instances                   (settings[:instances] || 5)
     #
     attaches_ebs_volumes        settings
     is_generic_node             settings
     is_nfs_client               settings
     is_chef_client              settings
-    has_role                    settings, "infochimps_base"
     mounts_ebs_volumes          settings
     #
     is_hadoop_node              settings
     has_role                    settings, "hadoop_worker"
-    # is_cassandra_node         settings
+    # has_role                  settings, "cassandra_client"
     #
     has_big_package             settings
-    has_role                    settings, "#{name}_cluster"
+    has_role                    settings, "#{settings[:cluster_name]}_cluster"
     user_data_is_json_hash      settings
   end
 end
