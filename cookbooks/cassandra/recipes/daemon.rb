@@ -18,7 +18,6 @@
 # limitations under the License.
 #
 
-
 directory('/etc/sv/cassandra/env'){ owner 'root' ; action :create ; recursive true }
 runit_service "cassandra"
 

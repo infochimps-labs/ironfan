@@ -8,14 +8,12 @@ run_list *%w[
   thrift
   cassandra
   cassandra::install_from_release
+  cassandra::autoconf
+  cassandra::client
   ]
 
 # Attributes applied if the node doesn't have it set already.
 default_attributes({
-  })
-
-# Attributes applied if the node doesn't have it set already.
-override_attributes({
     :cassandra => {
       :auto_bootstrap    => true,
       :jmx_port          => 12345,
