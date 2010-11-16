@@ -6,7 +6,3 @@ run_list *%w[
   runit
   azkaban
   ]
-
-# Attributes applied if the node doesn't have it set already.
-default_attributes({
-  })

@@ -16,7 +16,6 @@ default_attributes({
     :hadoop => {
       :hadoop_handle => 'hadoop-0.20',
       :cdh_version   => 'cdh3',
-
     },
     # Needed if you want to access S3 files via s3n:// and s3:// urls
     :aws => {

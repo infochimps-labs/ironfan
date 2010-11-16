@@ -10,6 +10,3 @@ run_list %w[
   hadoop_cluster::system_internals
   pig::install_from_package
 ]
-
-default_attributes({
-  })
