@@ -43,6 +43,7 @@ exec chpst -u${CASSANDRA_USER} -e /etc/sv/cassandra/env -o 65535 \
       -Dcom.sun.management.jmxremote.authenticate=false         \
       -Dcassandra-config=${CASSANDRA_CONF}                      \
       -Dcassandra-foreground=yes                                \
+      -Dlog4j.configuration=log4j-server.properties             \
       -cp ${CLASSPATH}                                          \
 org.apache.cassandra.thrift.CassandraDaemon 2>&1
       
