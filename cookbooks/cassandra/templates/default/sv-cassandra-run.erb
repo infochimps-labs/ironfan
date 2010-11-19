@@ -4,7 +4,7 @@ export JAVA_HOME=/usr/lib/jvm/java-6-sun/jre CASSANDRA_CONF=/etc/cassandra/stora
 cassandra_home=<%= node[:cassandra][:cassandra_home] %>
 cassandra_bin=${cassandra_home}/build/classes
 CASSANDRA_CONF=<%= node[:cassandra][:cassandra_conf] %>
-CASSANDRA_USER=cassandra
+CASSANDRA_USER=<%= node[:cassandra][:cassandra_user] %>
 CLASSPATH=$CASSANDRA_CONF:$cassandra_bin
 
 for jar in $cassandra_home/lib/*.jar; do

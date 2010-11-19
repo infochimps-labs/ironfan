@@ -35,6 +35,7 @@ default[:cassandra][:keyspaces]                     = {}
 # Directories, hosts and ports
 default[:cassandra][:cassandra_home]                = '/usr/local/share/cassandra'
 default[:cassandra][:cassandra_conf]                = '/etc/cassandra'
+default[:cassandra][:cassandra_user]                = 'cassandra'
 default[:cassandra][:data_file_dirs]                = ["/data/db/cassandra"]
 default[:cassandra][:commitlog_dir]                 = "/mnt/cassandra/commitlog"
 default[:cassandra][:listen_addr]                   = "localhost"

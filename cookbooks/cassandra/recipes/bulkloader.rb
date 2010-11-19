@@ -1,7 +1,7 @@
 # This stuff needs to be owned by hadoop
 
 runit_service "cassandra"
-
+node[:cassandra][:cassandra_user] = 'hadoop'
 [ "/var/lib/cassandra", "/var/log/cassandra",
   node[:cassandra][:data_file_dirs],
   node[:cassandra][:commitlog_dir],
