@@ -1,4 +1,4 @@
-# Cassandra storage config YAML 
+# Cassandra storage config -*- yaml -*-
 # See http://wiki.apache.org/cassandra/StorageConfiguration for
 # explanations of configuration directives.
 
@@ -36,14 +36,39 @@ data_file_directories:
     - <%= data_file_dir %>
 <%- end -%>
 
-# Addresses of hosts that are deemed contact points. 
-# Cassandra nodes use this list of hosts to find each other and learn
-# the topology of the ring.  You must change this if you are running
-# multiple nodes!
-seeds:
-<%- node[:cassandra][:seeds].each do |seed_hostname| %>
-    - <%= seed_hostname %>
-<%- end -%>
+# commit log
+commitlog_directory:                    <%= node[:cassandra][:commitlog_dir] %>                         # /var/lib/cassandra/commitlog
+
+# saved caches
+saved_caches_directory: /var/lib/cassandra/saved_caches
+
+# Size to allow commitlog to grow to before creating a new segment 
+commitlog_rotation_threshold_in_mb:     <%= node[:cassandra][:commitlog_rotation_threshold] %>        	# 128
+
+# commitlog_sync may be either "periodic" or "batch." 
+# When in batch mode, Cassandra won't ack writes until the commit log
+# has been fsynced to disk.  It will wait up to
+# CommitLogSyncBatchWindowInMS milliseconds for other writes, before
+# performing the sync.
+commitlog_sync:                         <%= node[:cassandra][:commitlog_sync] %>                        # periodic
+
+# the other option is "timed," where writes may be acked immediately
+# and the CommitLog is simply synced every commitlog_sync_period_in_ms
+# milliseconds.
+commitlog_sync_period_in_ms:            <%= node[:cassandra][:commitlog_sync_period] %>                 # 10000
+
+
+# any class that implements the SeedProvider interface and has a constructor that takes a Map<String, String> of
+# parameters will do.
+seed_provider:
+  # Addresses of hosts that are deemed contact points. 
+  # Cassandra nodes use this list of hosts to find each other and learn
+  # the topology of the ring.  You must change this if you are running
+  # multiple nodes!
+  - class_name: org.apache.cassandra.locator.SimpleSeedProvider
+    parameters:
+      # seeds is actually a comma-delimited list of addresses.
+      - seeds: <%= node[:cassandra][:seeds].join(",") %>
 
 # Access mode.  mmapped i/o is substantially faster, but only practical on
 # a 64bit machine (which notably does not include EC2 "small" instances)
@@ -86,6 +111,16 @@ rpc_address:                            <%= node[:cassandra][:rpc_addr] %>      
 # port for Thrift to listen on
 rpc_port:                               <%= node[:cassandra][:rpc_port] %>                              # 9160
 
+# enable or disable keepalive on rpc connections
+rpc_keepalive:                          <%= node[:cassandra][:rpc_keepalive] %>                         # true
+
+# Time to wait for a reply from other nodes before failing the command 
+rpc_timeout_in_ms:                      <%= node[:cassandra][:rpc_timeout_in_ms] %>                     # 10000
+
+# uncomment to set socket buffer sizes on rpc connections
+# rpc_send_buff_size_in_bytes:
+# rpc_recv_buff_size_in_bytes:
+
 # Frame size for thrift (maximum field length).
 # 0 disables TFramedTransport in favor of TSocket. 
 thrift_framed_transport_size_in_mb:     <%= node[:cassandra][:thrift_framed_transport] %>               # 15
@@ -94,47 +129,31 @@ thrift_framed_transport_size_in_mb:     <%= node[:cassandra][:thrift_framed_tran
 # internal thrift overhead.
 thrift_max_message_length_in_mb:        <%= node[:cassandra][:thrift_max_message_length] %>             # 16
 
+# Whether or not to take a snapshot before each compaction.  Be careful using
+# this option, since Cassandra won't clean up the snapshots for you.  Mostly
+# useful if you're paranoid when there is a data format change.
 snapshot_before_compaction:             <%= node[:cassandra][:snapshot_before_compaction] %>            # false
+
+# change this to increase the compaction thread's priority.  In java, 1 is the
+# lowest priority and that is our default.
+# compaction_thread_priority: 1
 
 # The threshold size in megabytes the binary memtable must grow to,
 # before it's submitted for flushing to disk.
 binary_memtable_throughput_in_mb:       <%= node[:cassandra][:binary_memtable_throughput] %>            # 256
-# The maximum time to leave a dirty memtable unflushed.
-# (While any affected columnfamilies have unflushed data from a
-# commit log segment, that segment cannot be deleted.)
-# This needs to be large enough that it won't cause a flush storm
-# of all your memtables flushing at once because none has hit
-# the size or count thresholds yet.
-memtable_flush_after_mins:              <%= node[:cassandra][:memtable_flush_after] %>                  # 60
-# Size of the memtable in memory before it is flushed`
-memtable_throughput_in_mb:              <%= node[:cassandra][:memtable_throughput] %>                   # 64
-# Number of objects in millions in the memtable before it is flushed
-memtable_operations_in_millions:        <%= node[:cassandra][:memtable_ops] %>                          # 0.3
 
+# Add column indexes to a row after its contents reach this size.  Increase if
+# your column values are large, or if you have a very large number of columns.
+# The competing causes are, Cassandra has to deserialize this much of the row to
+# read a single column, so you want it to be small - at least if you do many
+# partial-row reads - but all the index data is read for each access, so you
+# don't want to generate that wastefully either.
 column_index_size_in_kb:                <%= node[:cassandra][:column_index_size] %>                     # 64
 
+# Size limit for rows being compacted in memory.  Larger rows will spill
+# over to disk and use a slower two-pass compaction process.  A message
+# will be logged specifying the row key.
 in_memory_compaction_limit_in_mb:       <%= node[:cassandra][:in_memory_compaction_limit] %>            # 64
-
-# commit log
-commitlog_directory:                    <%= node[:cassandra][:commitlog_dir] %>                   # /var/lib/cassandra/commitlog
-
-# Size to allow commitlog to grow to before creating a new segment 
-commitlog_rotation_threshold_in_mb:     <%= node[:cassandra][:commitlog_rotation_threshold] %>        # 128
-
-# commitlog_sync may be either "periodic" or "batch." 
-# When in batch mode, Cassandra won't ack writes until the commit log
-# has been fsynced to disk.  It will wait up to
-# CommitLogSyncBatchWindowInMS milliseconds for other writes, before
-# performing the sync.
-commitlog_sync:                         <%= node[:cassandra][:commitlog_sync] %>                        # periodic
-
-# the other option is "timed," where writes may be acked immediately
-# and the CommitLog is simply synced every commitlog_sync_period_in_ms
-# milliseconds.
-commitlog_sync_period_in_ms:            <%= node[:cassandra][:commitlog_sync_period] %>                 # 10000
-
-# Time to wait for a reply from other nodes before failing the command 
-rpc_timeout_in_ms:                      <%= node[:cassandra][:rpc_timeout_in_ms] %>                     # 10000
 
 # phi value that must be reached for a host to be marked down.
 # most users should never need to adjust this, but if you're on Amazon EC2 consider raising it to 10.
@@ -154,6 +173,20 @@ endpoint_snitch:                        <%= node[:cassandra][:endpoint_snitch] %
 # and avoid reading from hosts that have slowed (due to compaction,
 # for instance)
 dynamic_snitch:                         <%= node[:cassandra][:dynamic_snitch] %>                        # true
+# controls how often to perform the more expensive part of host score
+# calculation
+dynamic_snitch_update_interval_in_ms:   100 
+# controls how often to reset all host scores, allowing a bad host to
+# possibly recover
+dynamic_snitch_reset_interval_in_ms:    600000
+# if set greater than zero and read_repair_chance is < 1.0, this will allow
+# 'pinning' of replicas to hosts in order to increase cache capacity.
+# The badness threshold will control how much worse the pinned host has to be
+# before the dynamic snitch will prefer other replicas over it.  This is
+# expressed as a double which represents a percentage.  Thus, a value of
+# 0.2 means Cassandra would continue to prefer the static snitch values
+# until the pinned host was 20% worse than the fastest.
+dynamic_snitch_badness_threshold:       0.0
 
 # request_scheduler -- Set this to a class that implements
 # RequestScheduler, which will schedule incoming client requests
