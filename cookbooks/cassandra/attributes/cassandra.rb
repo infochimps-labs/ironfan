@@ -59,6 +59,7 @@ default[:cassandra][:disk_access_mode]              = "auto"
 default[:cassandra][:concurrent_reads]              = 8             # 2 per core
 default[:cassandra][:concurrent_writes]             = 32            # typical number of clients
 default[:cassandra][:memtable_flush_writers]        = 1             # see comment in cassandra.yaml.erb
+default[:cassandra][:memtable_flush_after]          = 60
 default[:cassandra][:sliced_buffer_size]            = 64            # size of column slices
 default[:cassandra][:thrift_framed_transport]       = 15            # default 15; fixes CASSANDRA-475, but make sure your client is happy (Set to nil for debugging)
 default[:cassandra][:thrift_max_message_length]     = 16

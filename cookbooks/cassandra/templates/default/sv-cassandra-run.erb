@@ -11,7 +11,11 @@ for jar in $cassandra_home/lib/*.jar; do
   CLASSPATH=$CLASSPATH:$jar
 done
 
+# bump number of open files allowed way way up
 ulimit -n 65535
+# allow cassandra to lock itself into memory if JNA is installed
+ulimit -l unlimited
+
 exec chpst -u${CASSANDRA_USER} -e /etc/sv/cassandra/env -o 65535 \
   /usr/bin/java                                                 \
       -ea                                                       \
