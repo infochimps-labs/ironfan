@@ -22,6 +22,9 @@ include_recipe "java"
 include_recipe "thrift"
 include_recipe "runit"
 
+
+%w[ sun-java6-jdk  sun-java6-bin ].each{|pkg| package(pkg) }
+
 %w[ cassandra avro
 ].each{|pkg| gem_package(pkg){ action :install } }
 

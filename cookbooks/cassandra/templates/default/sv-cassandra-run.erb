@@ -18,20 +18,24 @@ ulimit -l unlimited
 
 exec chpst -u${CASSANDRA_USER} -e /etc/sv/cassandra/env -o 65535 \
   /usr/bin/java                                                 \
+<%- if false %>
       -ea                                                       \
+<%- end %>
       -XX:+UseThreadPriorities                                  \
       -XX:ThreadPriorityPolicy=42                               \
-      -Xms<%= node[:cassandra][:java_min_heap] %>               \
-      -Xmx<%= node[:cassandra][:java_max_heap] %>               \
-      -Xss128k                                                  \
       -XX:+UseParNewGC                                          \
       -XX:+UseConcMarkSweepGC                                   \
       -XX:+CMSParallelRemarkEnabled                             \
       -XX:+HeapDumpOnOutOfMemoryError                           \
-      -XX:NewRatio=3                                            \
+      -Xms<%= node[:cassandra][:java_min_heap] %>               \
+      -Xmx<%= node[:cassandra][:java_max_heap] %>               \
+      -Xmn3500m                                                 \
+      -Xss128k                                                  \
       -XX:SurvivorRatio=4                                       \
       -XX:MaxTenuringThreshold=1                                \
+      -XX:TargetSurvivorRatio=70                                \
       -XX:CMSInitiatingOccupancyFraction=70                     \
+      -XX:+UseCMSInitiatingOccupancyOnly                        \
       -Dcassandra.compaction.priority=1                         \
 <%- if true %>
       -XX:+PrintGCTimeStamps                                    \
@@ -52,15 +56,16 @@ exec chpst -u${CASSANDRA_USER} -e /etc/sv/cassandra/env -o 65535 \
 org.apache.cassandra.thrift.CassandraDaemon 2>&1
       
 
+#     -XX:NewRatio=3                                            \
+#     -XX:+UseCompressedOops                                    \
+      
 #       -XX:+AggressiveOpts                                       \
-#       -XX:+UseCompressedOops                                    \
 # <%- if false %>
 #       -XX:+CMSIncrementalMode                                   \
 #       -XX:+CMSIncrementalPacing                                 \
 #       -XX:CMSIncrementalDutyCycleMin=0                          \
 #       -XX:CMSIncrementalDutyCycle=10                            \
 # <%- else %>
-#       -XX:+UseCMSInitiatingOccupancyOnly                        \
 # <%- end %>
 #
       
@@ -72,6 +77,10 @@ org.apache.cassandra.thrift.CassandraDaemon 2>&1
 # # Java HotSpot VM Options             http://www.oracle.com/technetwork/java/javase/tech/vmoptions-jsp-140102.html
 # # jvmstat FAQ                         http://www.oracle.com/technetwork/java/faq-141822.html
 # # Tuning GC with JVM 1.4.2            http://www.oracle.com/technetwork/java/index-136692.html
+# # Tuning Garbage Collection Outline   http://www.petefreitag.com/articles/gctuning/
+# # Java Tuning White Paper             http://java.sun.com/performance/reference/whitepapers/tuning.html
+# # GC Tuning in the HotSpot VM         http://www.slideshare.net/ludomp/gc-tuning-in-the-hotspot-java-vm-a-fisl-10-presentation
+# #       
 #
 #   -XX:+UseCompressedOops                  ## Greatly improves memory consumption on 64-bit machines
 #
@@ -110,6 +119,8 @@ org.apache.cassandra.thrift.CassandraDaemon 2>&1
 #   -Xloggc:/var/log/cassandra/cassandra-gc.log               \
 #
 
+#   -XX:TargetSurvivorRatio=90              ##Allows 90% of the survivor spaces to be occupied instead of the default 50%, allowing better utilization of the survivor space memory. 
+      
 #
 # If application has mid- or long-lived objects: Objects that survive a young
 # generation collection have a copying cost (part of the algorithm for a young
