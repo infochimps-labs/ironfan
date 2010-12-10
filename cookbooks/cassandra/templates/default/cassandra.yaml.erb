@@ -40,7 +40,7 @@ data_file_directories:
 commitlog_directory:                    <%= node[:cassandra][:commitlog_dir] %>                         # /var/lib/cassandra/commitlog
 
 # # saved caches
-# saved_caches_directory: /var/lib/cassandra/saved_caches
+saved_caches_directory:                 <%= node[:cassandra][:saved_caches_dir] %>
 
 # Size to allow commitlog to grow to before creating a new segment 
 commitlog_rotation_threshold_in_mb:     <%= node[:cassandra][:commitlog_rotation_threshold] %>          # 128
@@ -137,17 +137,19 @@ snapshot_before_compaction:             <%= node[:cassandra][:snapshot_before_co
 # The threshold size in megabytes the binary memtable must grow to,
 # before it's submitted for flushing to disk.
 binary_memtable_throughput_in_mb:       <%= node[:cassandra][:binary_memtable_throughput] %>            # 256
+
+# These options all went away in 7.0-rc1
 # The maximum time to leave a dirty memtable unflushed.
 # (While any affected columnfamilies have unflushed data from a
 # commit log segment, that segment cannot be deleted.)
 # This needs to be large enough that it won't cause a flush storm
 # of all your memtables flushing at once because none has hit
 # the size or count thresholds yet.
-memtable_flush_after_mins:              <%= node[:cassandra][:memtable_flush_after] %>                  # 60
+#memtable_flush_after_mins:              <%= node[:cassandra][:memtable_flush_after] %>                  # 60
 # Size of the memtable in memory before it is flushed`
-memtable_throughput_in_mb:              <%= node[:cassandra][:memtable_throughput] %>                   # 64
+#memtable_throughput_in_mb:              <%= node[:cassandra][:memtable_throughput] %>                   # 64
 # Number of objects in millions in the memtable before it is flushed
-memtable_operations_in_millions:        <%= node[:cassandra][:memtable_ops] %>                          # 0.3
+#memtable_operations_in_millions:        <%= node[:cassandra][:memtable_ops] %>                          # 0.3
 
 # Add column indexes to a row after its contents reach this size.  Increase if
 # your column values are large, or if you have a very large number of columns.

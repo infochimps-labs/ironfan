@@ -29,13 +29,12 @@ exec chpst -u${CASSANDRA_USER} -e /etc/sv/cassandra/env -o 65535 \
       -XX:+HeapDumpOnOutOfMemoryError                           \
       -Xms<%= node[:cassandra][:java_min_heap] %>               \
       -Xmx<%= node[:cassandra][:java_max_heap] %>               \
-      -Xmn3500m                                                 \
+      -Xmn1500m                                                 \
       -Xss128k                                                  \
       -XX:SurvivorRatio=4                                       \
-      -XX:MaxTenuringThreshold=1                                \
+      -XX:MaxTenuringThreshold=8                                \
       -XX:TargetSurvivorRatio=70                                \
-      -XX:CMSInitiatingOccupancyFraction=70                     \
-      -XX:+UseCMSInitiatingOccupancyOnly                        \
+      -XX:CMSInitiatingOccupancyFraction=65                     \
       -Dcassandra.compaction.priority=1                         \
 <%- if true %>
       -XX:+PrintGCTimeStamps                                    \
