@@ -21,6 +21,13 @@
   <value><%= node[:hadoop][:datanode_handler_count] %></value>
   <final>true</final>
 </property>
+
+<property>
+  <name>dfs.datanode.max.xceivers</name>
+  <value>1536</value>
+  <final>true</final>
+</property>
+  
 <!--property>
   <name>dfs.hosts</name>
   <value>/etc/<%= node[:hadoop][:hadoop_handle] %>/conf/dfs.hosts</value>

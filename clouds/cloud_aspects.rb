@@ -22,6 +22,11 @@ Settings.resolve!
 # Generic aspects
 #
 
+def security_group_unless_exists *args, &block
+  return if security_groups.map(&:to_s).include?(args.first)
+  security_group(*args, &block)
+end
+
 # Poolparty definitions for a generic node.
 # Assigns security group named after the cluster (eg 'clyde') and after the
 # cluster-role (eg 'clyde-master')
@@ -37,14 +42,14 @@ def is_generic_node settings
   has_role                settings, "base_role"
   settings[:user_data][:attributes][:cluster_name] = settings[:cluster_name]
   settings[:user_data][:attributes][:cluster_role] = settings[:cluster_role]
-  security_group settings[:cluster_name].to_s do
+  security_group_unless_exists settings[:cluster_name].to_s do
     authorize :group_name => settings[:cluster_name].to_s
   end
   security_group do
     authorize :from_port => 22,  :to_port => 22
     authorize :from_port => 80,  :to_port => 80
   end
-  security_group "default"
+  security_group_unless_exists "default"
   user                        'ubuntu'
   is_spot_priced              settings
   sends_aws_keys              settings

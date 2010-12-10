@@ -19,6 +19,9 @@ default[:hadoop][:output_compression_type     ] = 'BLOCK'
 default[:hadoop][:mapred_userlog_retain_hours ] = 24
 default[:hadoop][:mapred_jobtracker_completeuserjobs_maximum ] = 100
 
+# uses /etc/default/hadoop-0.20 to set the hadoop daemon's heapsize
+default[:hadoop][:hadoop_daemon_heapsize]       = 1500
+
 #
 # fs.inmemory.size.mb  # default XX
 #

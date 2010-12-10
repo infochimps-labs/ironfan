@@ -16,8 +16,6 @@ end
 # Poolparty rules to make the node act as a chef client
 def is_chef_client settings
   get_chef_validation_key settings
-  security_group 'chef-client' do
-    authorize :from_port => 22, :to_port => 22
-  end
+  security_group 'chef-client'
   has_role settings, "chef_client"
 end
