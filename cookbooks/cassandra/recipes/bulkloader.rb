@@ -5,6 +5,7 @@ node[:cassandra][:cassandra_user] = 'hadoop'
 [ "/var/lib/cassandra", "/var/log/cassandra",
   node[:cassandra][:data_file_dirs],
   node[:cassandra][:commitlog_dir],
+  node[:cassandra][:saved_caches_dir]
 ].flatten.each do |cassandra_dir|
   directory cassandra_dir do
     owner    "hadoop"
