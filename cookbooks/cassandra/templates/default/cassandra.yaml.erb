@@ -59,7 +59,7 @@ data_file_directories:
     #- /var/lib/cassandra/data
 
 # commit log
-commitlog_directory: <%= conf[commitlog_dir] %> #/var/lib/cassandra/commitlog
+commitlog_directory: <%= conf[:commitlog_dir] %> #/var/lib/cassandra/commitlog
 
 # saved caches
 saved_caches_directory: <%= conf[:saved_caches_dir] %> #/var/lib/cassandra/saved_caches
