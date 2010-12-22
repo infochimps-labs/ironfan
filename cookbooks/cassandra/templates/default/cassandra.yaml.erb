@@ -30,7 +30,7 @@ initial_token: <%= conf[:initial_token] %> # blank
 # an existing cluster of N, so if you are bringing up a cluster of
 # 10 machines with 3 seeds you would have to do it in stages.  Leaving
 # this off for the initial start simplifies that.
-auto_bootstrap: <%= conf[:auto_bootstrap %> #false
+auto_bootstrap: <%= conf[:auto_bootstrap] %> #false
 
 # See http://wiki.apache.org/cassandra/HintedHandoff
 hinted_handoff_enabled: <%= conf[:hinted_handoff_enabled] %> #true
@@ -121,8 +121,8 @@ disk_access_mode: <%= conf[:disk_access_mode ] %> #auto
 # concurrent reads per processor core.  Increase ConcurrentWrites to
 # the number of clients writing at once if you enable CommitLogSync +
 # CommitLogSyncDelay. -->
-concurrent_reads: <%= conf[ :concurrent_reads %> #8
-concurrent_writes: <%= conf[ :concurrent_writes %> #32
+concurrent_reads: <%= conf[ :concurrent_reads ] %> #8
+concurrent_writes: <%= conf[ :concurrent_writes ] %> #32
 
 # This sets the amount of memtable flush writer threads.  These will
 # be blocked by disk io, and each one will hold a memtable in memory
@@ -231,7 +231,7 @@ endpoint_snitch: <%= conf[:endpoint_snitch] %> #org.apache.cassandra.locator.Sim
 # wrapped with a dynamic snitch, which will monitor read latencies
 # and avoid reading from hosts that have slowed (due to compaction,
 # for instance)
-dynamic_snitch: <%= conf[:dynamic_snitch %> #true
+dynamic_snitch: <%= conf[:dynamic_snitch ] %> #true
 # controls how often to perform the more expensive part of host score
 # calculation
 dynamic_snitch_update_interval_in_ms: 100 
@@ -258,7 +258,7 @@ dynamic_snitch_badness_threshold: 0.0
 # client requests to a node with a separate queue for each
 # request_scheduler_id. The scheduler is further customized by
 # request_scheduler_options as described below.
-request_scheduler: <%= conf[:request_scheduler %> #org.apache.cassandra.scheduler.NoScheduler
+request_scheduler: <%= conf[:request_scheduler] %> #org.apache.cassandra.scheduler.NoScheduler
 
 # Scheduler Options vary based on the type of scheduler
 # NoScheduler - Has no options
