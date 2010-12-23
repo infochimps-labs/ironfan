@@ -62,7 +62,7 @@ data_file_directories:
 commitlog_directory: <%= conf[:commitlog_dir] %> #/var/lib/cassandra/commitlog
 
 # saved caches
-saved_caches_directory: <%= conf[:saved_caches_dir] %> #/var/lib/cassandra/saved_caches
+saved_caches_directory: /var/lib/cassandra/saved_caches
 
 # Size to allow commitlog to grow to before creating a new segment 
 commitlog_rotation_threshold_in_mb: <%= conf[:commitlog_rotation_threshold] %> #128
@@ -202,7 +202,7 @@ column_index_size_in_kb: <%= conf[:column_index_size] %> #64
 # Size limit for rows being compacted in memory.  Larger rows will spill
 # over to disk and use a slower two-pass compaction process.  A message
 # will be logged specifying the row key.
-in_memory_compaction_limit_in_mb: <%= conf[:in_memory_compation_limit_in_mb] %> #64
+in_memory_compaction_limit_in_mb: <%= conf[:in_memory_compation_limit ] %> #64
 
 # Time to wait for a reply from other nodes before failing the command 
 rpc_timeout_in_ms: <%= conf[:rpc_timeout_in_ms] %> #10000
