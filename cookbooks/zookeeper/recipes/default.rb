@@ -19,4 +19,15 @@
 
 include_recipe "hadoop_cluster"
 
+user 'zookeeper' do
+  comment    'Hadoop Zookeeper Daemon'
+  uid        305
+  group      'zookeeper'
+  home       "/var/zookeeper"
+  shell      "/bin/false"
+  password   nil
+  supports   :manage_home => true
+  action     [:create, :manage]
+end
+
 package "hadoop-zookeeper"

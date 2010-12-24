@@ -23,6 +23,7 @@ class Chef::Recipe; include HadoopCluster ; end
 bash 'uninstall old hadoop' do
   user          "root"
   code           %Q{
+    apt-get update
     apt-get -y --purge remove hadoop-0.20=0.20.2+320-1~lucid-cdh3b2 hadoop-0.20-{native,datanode,namenode,tasktracker,datanode,secondarynamenode}=0.20.2+320-1~lucid-cdh3b2
     true
   }
@@ -44,13 +45,6 @@ execute "curl -s http://archive.cloudera.com/debian/archive.key | apt-key add -"
   not_if "apt-key export 'Cloudera Apt Repository' | grep 'BEGIN PGP PUBLIC KEY'"
   notifies :run, resources("execute[apt-get update]"), :immediately
 end
-
-
-#
-# Hadoop packages
-#
-hadoop_package nil
-hadoop_package "native"
 
 #
 # Hadoop users and group
@@ -92,4 +86,8 @@ group 'supergroup' do
   action     [:create]
 end
 
-
+#
+# Hadoop packages
+#
+hadoop_package nil
+hadoop_package "native"

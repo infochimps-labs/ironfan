@@ -9,6 +9,12 @@
 
 include_recipe "hadoop_cluster"
 
+group 'hbase' do
+  group_name 'hbase'
+  gid         node[:groups]['hbase'][:gid]
+  action      [:create, :manage]
+end
+
 user 'hbase' do
   comment    'Hadoop HBase Daemon'
   uid        304
@@ -23,6 +29,16 @@ end
 # Install
 package "hadoop-hbase"
 package "hadoop-hbase-thrift"
+
+%w[/var/run/hbase /var/log/hbase].each do |dir|
+  directory dir do
+    owner    'hbase'
+    group    "hadoop"
+    mode     '0755'
+    action   :create
+    recursive true
+  end
+end
 
 #
 # Configuration files

@@ -23,17 +23,6 @@ include_recipe "zookeeper"
 # register with cluster_service_discovery
 provide_service ("#{node[:cluster_name]}-zookeeper")
 
-user 'zookeeper' do
-  comment    'Hadoop Zookeeper Daemon'
-  uid        305
-  group      'zookeeper'
-  home       "/var/run/hadoop-0.20"
-  shell      "/bin/false"
-  password   nil
-  supports   :manage_home => true
-  action     [:create, :manage]
-end
-
 # Install
 package "hadoop-zookeeper"
 package "hadoop-zookeeper-server"

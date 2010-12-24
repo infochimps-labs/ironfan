@@ -37,14 +37,16 @@ module AwsServiceData
     %w[us-east-1             32-bit  instance        opscode-chef-client ] => 'ami-17f51c7e',
     %w[us-east-1             64-bit  instance        opscode-chef-client ] => 'ami-eff51c86',
     # Public AMIs, compatible with chef 0.9+ only
-    %w[us-east-1             32-bit  ebs             infochimps-chef-client    ] => 'ami-393ed550', # infochimps.chef-client.lucid.east.32bit.20100610a
-    %w[us-east-1             64-bit  ebs             infochimps-chef-client    ] => 'ami-813ad1e8', # infochimps.chef-client.lucid.east.64bit.20100612
-    %w[us-east-1             32-bit  instance        infochimps-chef-client    ] => '', # infochimps.chef-client.lucid.east.ami-32bit-20100609
-    %w[us-east-1             64-bit  instance        infochimps-chef-client    ] => '', # infochimps.chef-client.lucid.east.ami-64bit-20100609
+    %w[us-east-1             32-bit  ebs             infochimps-chef-client     ] => 'ami-393ed550', # infochimps.chef-client.lucid.east.32bit.20100610a
+    %w[us-east-1             64-bit  ebs             infochimps-chef-client     ] => 'ami-813ad1e8', # infochimps.chef-client.lucid.east.64bit.20100612
+    %w[us-east-1             32-bit  instance        infochimps-chef-client     ] => '', # infochimps.chef-client.lucid.east.ami-32bit-20100609
+    %w[us-east-1             64-bit  instance        infochimps-chef-client     ] => '', # infochimps.chef-client.lucid.east.ami-64bit-20100609
     # sorry to stuff these in here -- the above are generic, these are infochimps internal
-    %w[us-east-1             32-bit  ebs             infochimps-scraper-client ] => '', # infochimps.chef-client.lucid.east.32bit.20100610a
-    %w[us-east-1             64-bit  ebs             infochimps-scraper-client ] => 'ami-d13ed5b8', # infochimps.chef-client.lucid.east.32bit.20100610a
-    %w[us-east-1             64-bit  instance        infochimps-hadoop-client  ] => 'ami-ad3ad1c4', # infochimps.chef-client.lucid.east.ami-64bit-20100714
+    %w[us-east-1             32-bit  ebs             infochimps-scraper-client  ] => '', # infochimps.chef-client.lucid.east.32bit.20100610a
+    %w[us-east-1             64-bit  ebs             infochimps-scraper-client  ] => 'ami-d13ed5b8', # infochimps.chef-client.lucid.east.32bit.20100610a
+    %w[us-east-1             64-bit  instance        infochimps-hadoop-client-1 ] => 'ami-ad3ad1c4', # infochimps.chef-client.lucid.east.ami-64bit-20100714
+    %w[us-east-1             64-bit  instance        infochimps-hadoop-client   ] => 'ami-589c6d31', # infochimps.hadoop-client.lucid.east.ami-64bit-20101224b
+
   }
   AmiInfo = Struct.new(:region, :bits, :backing, :os)
 

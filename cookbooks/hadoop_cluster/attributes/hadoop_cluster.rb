@@ -3,7 +3,6 @@ default[:hadoop][:hadoop_handle] = 'hadoop-0.20'
 default[:hadoop][:cdh_version]   = 'cdh3b3'
 default[:hadoop][:deb_version]   = "0.20.2+737-1~lucid-cdh3b3"
 
-
 # Make sure you define a cluster_size in roles/WHATEVER_cluster.rb
 default[:cluster_size] = 5
 
@@ -28,8 +27,10 @@ default[:hadoop][:hadoop_daemon_heapsize]       = 1500
 # fs.inmemory.size.mb  # default XX
 #
 
-default[:groups]['hadoop'    ][:gid]          = 300
-default[:groups]['supergroup'][:gid]          = 301
+default[:groups]['hadoop'    ][:gid] = 300
+default[:groups]['supergroup'][:gid] = 301
+default[:groups]['hdfs'      ][:gid] = 302
+default[:groups]['mapred'    ][:gid] = 303
 
 #
 # For ebs-backed volumes (or in general, machines with small or slow root
