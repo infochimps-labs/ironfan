@@ -1,32 +1,32 @@
 {
-    "replacing": {
-    },
-    "attributes": {
-    },
-    "maintainer_email": "info@infochimps.org",
-    "groupings": {
-    },
-    "dependencies": {
-      "aws": [
+  "name": "ebs",
+  "description": "Attaches and mounts ebs volumes for use in the hadoop cluster. Heavily inspired by Robert Berger's http://blog.ibd.com/scalable-deployment/using-the-opscode-aws-cookbook-to-attach-an-ec2-ebs-volume/",
+  "long_description": "",
+  "maintainer": "Flip Kromer",
+  "maintainer_email": "info@infochimps.org",
+  "license": "Apache v2.0",
+  "platforms": {
+  },
+  "dependencies": {
+    "aws": [
 
-      ]
-    },
-    "recommendations": {
-    },
-    "suggestions": {
-    },
-    "platforms": {
-    },
-    "license": "Apache v2.0",
-    "version": "0.1.0",
-    "recipes": {
-    },
-    "conflicting": {
-    },
-    "name": "ebs",
-    "providing": {
-    },
-    "description": "Attaches and mounts ebs volumes for use in the hadoop cluster. Heavily inspired by Robert Berger's http://blog.ibd.com/scalable-deployment/using-the-opscode-aws-cookbook-to-attach-an-ec2-ebs-volume/",
-    "maintainer": "Flip Kromer",
-    "long_description": ""
-  }
+    ]
+  },
+  "recommendations": {
+  },
+  "suggestions": {
+  },
+  "conflicting": {
+  },
+  "providing": {
+  },
+  "replacing": {
+  },
+  "attributes": {
+  },
+  "groupings": {
+  },
+  "recipes": {
+  },
+  "version": "0.1.0"
+}
