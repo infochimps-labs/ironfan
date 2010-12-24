@@ -21,7 +21,7 @@ include_recipe "java"
 class Chef::Recipe; include HadoopCluster ; end
 
 execute "apt-get update" do
-  action :run
+  action :nothing
 end
 
 # Add cloudera package repo
@@ -37,22 +37,52 @@ execute "curl -s http://archive.cloudera.com/debian/archive.key | apt-key add -"
   notifies :run, resources("execute[apt-get update]"), :immediately
 end
 
-# Hadoop user and group
-group 'hadoop' do
-  group_name 'hadoop'
-  gid         node[:groups]['hadoop'][:gid]
-  action      [:create, :manage]
+bash 'uninstall old hadoop' do
+  user          "root"
+  code           %Q{
+    apt-get -y --purge remove hadoop-0.20 hadoop-0.20-native hadoop-0.20-datanode hadoop-0.20-tasktracker hadoop-0.20-namenode hadoop-0.20-secondarynamenode hadoop-0.20-jobtracker
+    true
+  }
 end
 
-user 'hadoop' do
-  comment    'Hadoop User'
-  uid        300
-  group      'hadoop'
+
+#
+# Hadoop packages
+#
+hadoop_package nil
+hadoop_package "native"
+
+#
+# Hadoop users and group
+#
+
+user 'hdfs' do
+  comment    'Hadoop HDFS User'
+  uid        302
+  group      'hdfs'
   home       "/var/run/hadoop-0.20"
   shell      "/bin/false"
   password   nil
   supports   :manage_home => true
   action     [:create, :manage]
+end
+
+user 'mapred' do
+  comment    'Hadoop Mapred User'
+  uid        303
+  group      'mapred'
+  home       "/var/run/hadoop-0.20"
+  shell      "/bin/false"
+  password   nil
+  supports   :manage_home => true
+  action     [:create, :manage]
+end
+
+group 'hadoop' do
+  group_name 'hadoop'
+  gid         node[:groups]['hadoop'][:gid]
+  action      [:create, :manage]
+  members     ['hdfs', 'mapred']
 end
 
 # Create the group hadoop uses to mean 'can act as filesystem root'
@@ -62,13 +92,4 @@ group 'supergroup' do
   action     [:create]
 end
 
-#
-# Hadoop packages
-#
-package "#{node[:hadoop][:hadoop_handle]}-native" do
-  version "0.20.2+320-1~lucid-cdh3b2"
-end
- 
-package "#{node[:hadoop][:hadoop_handle]}" do
-  version "0.20.2+320-1~lucid-cdh3b2"
-end
+

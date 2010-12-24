@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: hadoop
-# Recipe:: pseudo_distributed
+# Recipe::        datanode
 #
 # Copyright 2009, Opscode, Inc.
 #
@@ -17,24 +17,13 @@
 # limitations under the License.
 #
 
-#
-# This installs packages for running hadoop in 'pseudo-distributed' mode, which
-# some use for testing purposes.
-#
-# I haven't really tested pseudo-distributed mode out with the larger
-# scripts, so ymmv.
-#
-
 include_recipe "hadoop_cluster"
-include_recipe "hadoop_cluster::cluster_conf"
 
-package "#{node[:hadoop][:hadoop_handle]}-conf-pseudo" do
-  version node[:hadoop][:deb_version]
+# Install
+hadoop_package 'datanode'
+# Launch
+service "#{node[:hadoop][:hadoop_handle]}-datanode" do
+  action [ :enable, :start ]
+  running true
+  supports :status => true, :restart => true
 end
-
-%w{namenode secondarynamenode datanode jobtracker tasktracker}.each do |d|
-  service "#{node[:hadoop][:hadoop_handle]}-#{d}" do
-    action [ :start, :enable ]
-  end
-end
-

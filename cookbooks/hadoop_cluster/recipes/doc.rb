@@ -18,4 +18,4 @@
 #
 
 include_recipe "java"
-package "#{node[:hadoop][:hadoop_handle]}-doc"
+hadoop_package doc

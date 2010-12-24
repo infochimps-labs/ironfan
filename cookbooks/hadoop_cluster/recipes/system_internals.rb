@@ -20,19 +20,19 @@ set_proc_sys_limit "VM overcommit memory", '/proc/sys/vm/overcommit_ratio',  ove
 # set_proc_sys_limit "Increase epoll instances limit", '/proc/sys/fs/epoll/max_user_instances', fs_epoll_max_user_instances
 
 
-bash "Increase open files hard ulimit for hadoop user" do
-  not_if "egrep -q 'hadoop.*hard.*nofile.*#{ulimit_hard_nofile}' /etc/security/limits.conf"
+bash "Increase open files hard ulimit for @hadoop group" do
+  not_if "egrep -q '@hadoop.*hard.*nofile.*#{ulimit_hard_nofile}' /etc/security/limits.conf"
   code <<EOF
-    egrep -q 'hadoop.*hard.*nofile' || ( echo 'hadoop hard nofile' >> /etc/security/limits.conf )
-    sed -i "s/hadoop.*hard.*nofile.*/hadoop    hard    nofile  #{ulimit_hard_nofile}/" /etc/security/limits.conf
+    egrep -q '@hadoop.*hard.*nofile' || ( echo '@hadoop hard nofile' >> /etc/security/limits.conf )
+    sed -i "s/@hadoop.*hard.*nofile.*/@hadoop    hard    nofile  #{ulimit_hard_nofile}/" /etc/security/limits.conf
 EOF
 end
 
-bash "Increase open files soft ulimit for hadoop user" do
-  not_if "egrep -q 'hadoop.*soft.*nofile.*#{ulimit_soft_nofile}' /etc/security/limits.conf"
+bash "Increase open files soft ulimit for @hadoop group" do
+  not_if "egrep -q '@hadoop.*soft.*nofile.*#{ulimit_soft_nofile}' /etc/security/limits.conf"
   code <<EOF
-    egrep -q 'hadoop.*soft.*nofile' || ( echo 'hadoop soft nofile' >> /etc/security/limits.conf )
-    sed -i "s/hadoop.*soft.*nofile.*/hadoop    soft    nofile  #{ulimit_soft_nofile}/" /etc/security/limits.conf
+    egrep -q '@hadoop.*soft.*nofile' || ( echo '@hadoop soft nofile' >> /etc/security/limits.conf )
+    sed -i "s/@hadoop.*soft.*nofile.*/@hadoop    soft    nofile  #{ulimit_soft_nofile}/" /etc/security/limits.conf
 EOF
 end
 

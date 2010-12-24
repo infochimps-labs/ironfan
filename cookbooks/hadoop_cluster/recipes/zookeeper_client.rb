@@ -1,8 +1,8 @@
 #
 # Cookbook Name:: hadoop
-# Recipe::        worker
+# Recipe:: zookeeper_client
 #
-# Copyright 2009, Opscode, Inc.
+# Copyright 2010, Infochimps, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,18 +19,4 @@
 
 include_recipe "hadoop_cluster"
 
-# package "#{node[:hadoop][:hadoop_handle]}-datanode" do
-#   # version "0.20.2+320-1~lucid-cdh3b2"
-# end
-#
-# package "#{node[:hadoop][:hadoop_handle]}-tasktracker" do
-#   # version "0.20.2+320-1~lucid-cdh3b2"
-# end
-
-%w{datanode tasktracker}.each do |d|
-  service "#{node[:hadoop][:hadoop_handle]}-#{d}" do
-    action [ :enable, :start ]
-    running true
-    supports :status => true, :restart => true
-  end
-end
+package "hadoop-zookeeper"

@@ -40,12 +40,12 @@ end
 
 # Make hadoop logs live on /mnt/hadoop
 hadoop_log_dir = '/mnt/hadoop/logs'
-make_hadoop_dir(hadoop_log_dir)
+make_hadoop_dir(hadoop_log_dir, 'hdfs', "0775")
 force_link("/var/log/hadoop", hadoop_log_dir )
 force_link("/var/log/#{node[:hadoop][:hadoop_handle]}", hadoop_log_dir )
 
 # Make hadoop point to /var/run for pids
-make_hadoop_dir('/var/run/hadoop-0.20')
+make_hadoop_dir('/var/run/hadoop-0.20', 'root', "0775")
 force_link('/var/run/hadoop', '/var/run/hadoop-0.20')
 # Fix the hadoop-env.sh to point to /var/run for pids
 hadoop_env_file = "/etc/#{node[:hadoop][:hadoop_handle]}/conf/hadoop-env.sh"

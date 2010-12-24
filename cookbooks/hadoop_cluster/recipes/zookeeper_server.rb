@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: hadoop
-# Recipe:: cloudera_desktop
+# Recipe:: zookeeper_client
 #
 # Copyright 2010, Infochimps, Inc.
 #
@@ -19,18 +19,16 @@
 
 include_recipe "hadoop_cluster"
 
-# package 'python-devel'   # on redhat-ish
-package 'libxslt1.1'
-package 'cloudera-desktop'
-package 'cloudera-desktop-plugins'
+# Install
+package "hadoop-zookeeper"
+package "hadoop-zookeeper-server"
 
-template '/usr/share/cloudera-desktop/conf/cloudera-desktop.ini' do
-  owner "root"
-  mode "0644"
-  source "cloudera_desktop.ini.erb"
+# launch service
+service "hadoop-zookeeper" do
+  action [ :enable, :start ]
+  running true
+  supports :status => true, :restart => true
 end
 
-service "cloudera_desktop" do
-  action [ :start, :enable ]
-end
-
+# register with cluster_service_discovery
+provide_service ("#{node[:cluster_name]}-zookeeper")

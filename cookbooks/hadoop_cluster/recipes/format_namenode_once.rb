@@ -22,7 +22,7 @@
 #
 execute 'format_namenode' do
   command %Q{yes 'Y' | hadoop namenode -format ; true}
-  user 'hadoop'
+  user 'hdfs'
   creates '/mnt/hadoop/hdfs/name/current/VERSION'
   creates '/mnt/hadoop/hdfs/name/current/fsimage'
 end

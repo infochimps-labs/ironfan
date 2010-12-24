@@ -9,7 +9,6 @@ pool 'clyde' do
     using :ec2
     settings = settings_for_node
     instances                   (settings[:instances] || 4)
-
     #
     attaches_ebs_volumes        settings
     is_generic_node             settings

@@ -1,12 +1,5 @@
 module HadoopCluster
 
-  def register_as_namenode
-    provide_service ("#{node[:cluster_name]}-namenode")
-  end
-  def register_as_jobtracker
-    provide_service ("#{node[:cluster_name]}-jobtracker")
-  end
-
   # The namenode's hostname, or the local node's numeric ip if 'localhost' is given
   def namenode_address
     provider_private_ip("#{node[:cluster_name]}-namenode")
@@ -17,32 +10,40 @@ module HadoopCluster
     provider_private_ip("#{node[:cluster_name]}-jobtracker")
   end
 
+  def hadoop_package component
+    package_name = (component ? "#{node[:hadoop][:hadoop_handle]}-#{component}" : "#{node[:hadoop][:hadoop_handle]}")
+    package package_name do
+      version node[:hadoop][:deb_version]
+    end
+  end
+
   # Make a hadoop-owned directory
-  def make_hadoop_dir dir
+  def make_hadoop_dir dir, dir_owner, dir_mode="0755"
     directory dir do
-      owner    "hadoop"
+      owner    dir_owner
       group    "hadoop"
-      mode     "0755"
+      mode     dir_mode
       action   :create
       recursive true
     end
   end
 
-  def make_hadoop_dir_on_ebs dir
+  def make_hadoop_dir_on_ebs dir, dir_owner, dir_mode="0755"
     directory dir do
-      owner    "hadoop"
+      owner    dir_owner
       group    "hadoop"
-      mode     "0755"
+      mode     dir_mode
       action   :create
       recursive true
       only_if{ cluster_ebs_volumes_are_mounted? }
     end
   end
 
-  def ensure_hadoop_owns_hadoop_dirs dir
+  def ensure_hadoop_owns_hadoop_dirs dir, dir_owner, dir_mode="0755"
     execute "Make sure hadoop owns hadoop dirs" do
-      command %Q{chown -R hadoop:hadoop #{dir}}
-      not_if{ (File.stat(dir).uid == 300) && (File.stat(dir).gid == 300) }
+      command %Q{chown -R #{dir_owner}:hadoop #{dir}}
+      command %Q{chmod -R #{dir_mode}         #{dir}}
+      not_if{ (File.stat(dir).uid == dir_owner) && (File.stat(dir).gid == 300) }
     end
   end
 
