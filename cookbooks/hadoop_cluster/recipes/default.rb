@@ -20,6 +20,14 @@
 include_recipe "java"
 class Chef::Recipe; include HadoopCluster ; end
 
+bash 'uninstall old hadoop' do
+  user          "root"
+  code           %Q{
+    apt-get -y --purge remove hadoop-0.20=0.20.2+320-1~lucid-cdh3b2 hadoop-0.20-{native,datanode,namenode,tasktracker,datanode,secondarynamenode}=0.20.2+320-1~lucid-cdh3b2
+    true
+  }
+end
+
 execute "apt-get update" do
   action :nothing
 end
@@ -35,14 +43,6 @@ end
 execute "curl -s http://archive.cloudera.com/debian/archive.key | apt-key add -" do
   not_if "apt-key export 'Cloudera Apt Repository' | grep 'BEGIN PGP PUBLIC KEY'"
   notifies :run, resources("execute[apt-get update]"), :immediately
-end
-
-bash 'uninstall old hadoop' do
-  user          "root"
-  code           %Q{
-    apt-get -y --purge remove hadoop-0.20 hadoop-0.20-native hadoop-0.20-datanode hadoop-0.20-tasktracker hadoop-0.20-namenode hadoop-0.20-secondarynamenode hadoop-0.20-jobtracker
-    true
-  }
 end
 
 
@@ -68,7 +68,7 @@ user 'hdfs' do
 end
 
 user 'mapred' do
-  comment    'Hadoop Mapred User'
+  comment    'Hadoop Mapred Runner'
   uid        303
   group      'mapred'
   home       "/var/run/hadoop-0.20"

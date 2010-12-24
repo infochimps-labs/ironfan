@@ -21,10 +21,12 @@ set_proc_sys_limit "VM overcommit memory", '/proc/sys/vm/overcommit_ratio',  ove
 
 
 bash "Increase open files hard ulimit for @hadoop group" do
-  not_if "egrep -q '@hadoop.*hard.*nofile.*#{ulimit_hard_nofile}' /etc/security/limits.conf"
+  not_if "egrep -q 'hbase.*hard.*nofile.*#{ulimit_hard_nofile}' /etc/security/limits.conf"
   code <<EOF
     egrep -q '@hadoop.*hard.*nofile' || ( echo '@hadoop hard nofile' >> /etc/security/limits.conf )
     sed -i "s/@hadoop.*hard.*nofile.*/@hadoop    hard    nofile  #{ulimit_hard_nofile}/" /etc/security/limits.conf
+    egrep -q 'hbase.*hard.*nofile' || ( echo 'hbase   hard nofile' >> /etc/security/limits.conf )
+    sed -i "s/hbase.*hard.*nofile.*/hbase      hard    nofile  #{ulimit_hard_nofile}/" /etc/security/limits.conf
 EOF
 end
 

@@ -47,6 +47,7 @@ execute 'create user dirs on HDFS' do
     hadoop fs -chmod +w /tmp /user /user/hive/warehouse;
     hadoop fs -mkdir           /hadoop/system
     hadoop fs -chown -R mapred /hadoop/system
+    hadoop fs -mkdir           /hadoop/hbase
     for user in $hadoop_users ; do
       hadoop fs -chown ${user#/user/} $user;
     done ;

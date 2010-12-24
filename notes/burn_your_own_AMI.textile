@@ -1,6 +1,9 @@
 h2. Burn an AMI 
 
 <pre><code>
+
+for foo in flip jacob dhruv doncarlo jesse dsnyder howech ryan nickster deploy robochimp joe ; do sudo userdel $foo ; sudo groupdel $foo ; done
+
 # Shutdown services  and make the following ones not restart on bootup
 for foo in god apeyeye nginx hadoop-0.20-{namenode,jobtracker,tasktracker,datanode,secondarynamenode} cassandra couchdb thttpd chef-client nfs-kernel-server rabbitmq-server chef-{solr,solr-indexer,client,server,server-webui} elasticsearch ; do sudo service $foo stop ; done
 killall redis-server tail nginx console-kil-daemon
