@@ -1,6 +1,6 @@
 #
-# Cookbook Name:: hadoop
-# Recipe:: zookeeper_client
+# Cookbook Name:: zookeeper
+# Recipe:: default
 #
 # Copyright 2010, Infochimps, Inc.
 #

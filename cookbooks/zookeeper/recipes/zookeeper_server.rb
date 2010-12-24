@@ -1,6 +1,6 @@
 #
-# Cookbook Name:: hadoop
-# Recipe:: zookeeper_client
+# Cookbook Name:: zookeeper
+# Recipe:: zookeeper_server
 #
 # Copyright 2010, Infochimps, Inc.
 #
@@ -18,17 +18,45 @@
 #
 
 include_recipe "hadoop_cluster"
+include_recipe "zookeeper"
+
+# register with cluster_service_discovery
+provide_service ("#{node[:cluster_name]}-zookeeper")
+
+user 'zookeeper' do
+  comment    'Hadoop Zookeeper Daemon'
+  uid        305
+  group      'zookeeper'
+  home       "/var/run/hadoop-0.20"
+  shell      "/bin/false"
+  password   nil
+  supports   :manage_home => true
+  action     [:create, :manage]
+end
 
 # Install
 package "hadoop-zookeeper"
 package "hadoop-zookeeper-server"
 
 # launch service
-service "hadoop-zookeeper" do
+service "hadoop-zookeeper-server" do
   action [ :enable, :start ]
   running true
   supports :status => true, :restart => true
 end
 
-# register with cluster_service_discovery
-provide_service ("#{node[:cluster_name]}-zookeeper")
+#
+# Configuration files
+#
+template_variables = {
+  :private_ip             => private_ip_of(node),
+}
+Chef::Log.debug template_variables.inspect
+%w[ zoo.cfg ].each do |conf_file|
+  template "/etc/zookeeper/#{conf_file}" do
+    owner "root"
+    mode "0644"
+    variables(template_variables)
+    source "#{conf_file}.erb"
+  end
+end
