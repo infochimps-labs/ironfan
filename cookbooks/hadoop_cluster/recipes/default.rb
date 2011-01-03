@@ -20,11 +20,13 @@
 include_recipe "java"
 class Chef::Recipe; include HadoopCluster ; end
 
+# Remove hadoop user because of https://issues.cloudera.org/browse/DISTRO-51
 bash 'uninstall old hadoop' do
   user          "root"
   code           %Q{
     apt-get update
     apt-get -y --purge remove hadoop-0.20=0.20.2+320-1~lucid-cdh3b2 hadoop-0.20-{native,datanode,namenode,tasktracker,datanode,secondarynamenode}=0.20.2+320-1~lucid-cdh3b2
+    userdel hadoop
     true
   }
 end
@@ -91,3 +93,4 @@ end
 #
 hadoop_package nil
 hadoop_package "native"
+hadoop_package "sbin"
