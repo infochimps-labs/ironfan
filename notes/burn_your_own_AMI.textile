@@ -1,10 +1,13 @@
 h2. Burn an AMI 
 
 <pre><code>
+
+for foo in flip jacob dhruv doncarlo jesse dsnyder howech ryan nickster robochimp joe deploy instiki integrity webservers ; do sudo userdel $foo ; sudo groupdel $foo ; done
+
 # Shutdown services  and make the following ones not restart on bootup
-for foo in god apeyeye nginx hadoop-0.20-{namenode,jobtracker,tasktracker,datanode,secondarynamenode} cassandra couchdb thttpd chef-client nfs-kernel-server rabbitmq-server chef-{solr,solr-indexer,client,server,server-webui} ; do sudo service $foo stop ; done
+for foo in hadoop-0.20-{namenode,jobtracker,tasktracker,datanode,secondarynamenode} hadoop-{zookeeper-server,hbase-master,hbase-regionserver} cassandra couchdb thttpd chef-client nfs-kernel-server god apeyeye nginx  rabbitmq-server chef-{solr,solr-indexer,client,server,server-webui} elasticsearch ; do sudo service $foo stop ; done
 killall redis-server tail nginx console-kil-daemon
-for foo in hadoop-0.20-{tasktracker,datanode,namenode,jobtracker,secondarynamenode} cassandra ; do sudo update-rc.d -f $foo remove ; done
+for foo in hadoop-0.20-{tasktracker,datanode,namenode,jobtracker,secondarynamenode} hadoop-{zookeeper-server,hbase-master,hbase-regionserver} cassandra elasticsearch ; do sudo update-rc.d -f $foo remove ; done
 # Give the process list a how's your father -- nothing interesting should be running.
 ps auxf
 # Unmount anything that's mounted,
@@ -37,7 +40,7 @@ away_dir=/mnt/tmp/away-`date "+%Y%m%d%H"`
 sudo mkdir -p $away_dir
 # Move files out of the way that will confuse on reboot
 sudo mv /var/lib/couchdb/0.10.0/chef.couch /var/lib/rabbitmq/mnesia/rabbit /etc/hostname /etc/chef/{client-config.json,chef-config.json,*.pem} /var/www/index.html $away_dir
-sudo mv /srv/chef/cache/chef_server_cookie_id /var/chef /etc/hadoop/conf/{*.xml,raw_settings.yaml*} /etc/cassandra/storage-conf* $away_dir
+sudo mv /srv/chef/cache/chef_server_cookie_id /var/chef /etc/hadoop/conf/{*.xml,raw_settings.yaml*} /etc/cassandra/storage-conf* /etc/elasticsearch/* $away_dir
 sudo mkdir -p $away_dir/chef_cache; sudo mv /var/cache/chef/* $away_dir/chef_cache/
 # flush files that might have history or credentials
 sudo rm -rf /root/{.cache,.chef,emacs.d,.bash_history,.gem} ~ubuntu/{.cache,.chef,emacs.d,.bash_history,.gem} /var/backups/*
@@ -65,7 +68,7 @@ h3. Burning an Instance-backed (s3) AMIs
 From your local machine, bring over your credentials
 
 <pre><code>
-  scp -i ~/.hadoop-ec2/keypairs/zaius.pem ~/.hadoop-ec2/{certs/cert.pem,certs/pk.pem,keypairs/zaius.pem} ubuntu@ec2-204-236-189-83.us-west-1.compute.amazonaws.com:/tmp
+  scp -i ~/.hadoop-ec2/keypairs/bonobo.pem ~/.hadoop-ec2/{certs/cert.pem,certs/pk.pem,keypairs/bonobo.pem} ubuntu@50.16.13.146:/tmp
 </code></pre>
 
 On the target machine:
@@ -87,7 +90,7 @@ though, because it is a VERY BAD THING if directories that do exist (say, a
 BITS=64bit
 AMI_BUCKET=s3amis.infinitemonkeys.info
 # might need to add: /ebs1,/ebs2,/data,/var/lib/cassandra,/srv/chef/cache
-AMI_EXCLUDES=/mnt,/root/.ssh/authorized_keys,/home/ubuntu/.ssh/authorized_keys
+AMI_EXCLUDES=/mnt,/mnt2,/root/.ssh/authorized_keys,/home/ubuntu/.ssh/authorized_keys
 
 export EC2_CERT=/mnt/cert.pem
 export EC2_PRIVATE_KEY=/mnt/pk.pem
@@ -97,11 +100,10 @@ sudo mkdir -p /mnt/$ami_bucket
 
 # This will take a long fucking time. 15 minutes on a small instance. It fucking sucks.
 time sudo ec2-bundle-vol --exclude=$AMI_EXCLUDES -d /mnt/$ami_bucket -u $AWS_ACCOUNT_ID --cert cert.pem --privatekey pk.pem --ec2cert /etc/ec2/amitools/cert-ec2.pem
+
 time ec2-upload-bundle    -b $ami_bucket -m /mnt/$ami_bucket/image.manifest.xml -a $AWS_ACCESS_KEY_ID -s $AWS_SECRET_ACCESS_KEY
 time ec2-register -n $ami_name -d $ami_name $ami_bucket/image.manifest.xml
 </code></pre>
-
-time ec2-register -n infochimps.chef-client.32bit.20100608 -d 'Chef client image: use with http://github.com/infochimps/cluster_chef - Hadoop Cassandra & NFS under Chef' $ami_bucket/image.manifest.xml
 
 h4. If you are in a region other than us-east-1
 
@@ -112,9 +114,6 @@ h4. If you are in a region other than us-east-1
 # time ec2-migrate-manifest      --manifest /mnt/$ami_bucket/image.manifest.xml   --region   $AWS_REGION -a $AWS_ACCESS_KEY_ID -s $AWS_SECRET_ACCESS_KEY 
 # time ec2-upload-bundle    -b $ami_bucket -m /mnt/$ami_bucket/image.manifest.xml --location $AWS_REGION -a $AWS_ACCESS_KEY_ID -s $AWS_SECRET_ACCESS_KEY
 # time ec2-register -n $ami_name -d $ami_name $ami_bucket/image.manifest.xml      --region $AWS_REGION
-
-
-
 
 
 h2. Bootstrap chef server

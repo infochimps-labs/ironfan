@@ -28,7 +28,9 @@
 include_recipe "hadoop_cluster"
 include_recipe "hadoop_cluster::cluster_conf"
 
-package "#{node[:hadoop][:hadoop_handle]}-conf-pseudo"
+package "#{node[:hadoop][:hadoop_handle]}-conf-pseudo" do
+  version node[:hadoop][:deb_version]
+end
 
 %w{namenode secondarynamenode datanode jobtracker tasktracker}.each do |d|
   service "#{node[:hadoop][:hadoop_handle]}-#{d}" do

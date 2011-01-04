@@ -12,11 +12,6 @@ run_list *%w[
 
 # Attributes applied if the node doesn't have it set already.
 default_attributes({
-    # hadoop version and distribution version
-    :hadoop => {
-      :hadoop_handle => 'hadoop-0.20',
-      :cdh_version   => 'cdh3',
-    },
     # Needed if you want to access S3 files via s3n:// and s3:// urls
     :aws => {
       :aws_access_key        => Settings[:access_key],

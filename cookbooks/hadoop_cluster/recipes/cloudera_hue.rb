@@ -21,16 +21,16 @@ include_recipe "hadoop_cluster"
 
 # package 'python-devel'   # on redhat-ish
 package 'libxslt1.1'
-package 'cloudera-desktop'
-package 'cloudera-desktop-plugins'
+package 'hue'
+package 'hue-plugins'
 
-template '/usr/share/cloudera-desktop/conf/cloudera-desktop.ini' do
-  owner "root"
-  mode "0644"
-  source "cloudera_desktop.ini.erb"
-end
+# template '/etc/hue/hue.ini' do
+#   owner "root"
+#   mode "0644"
+#   source "hue.ini.erb"
+# end
 
-service "cloudera_desktop" do
+service "hue" do
   action [ :start, :enable ]
 end
 

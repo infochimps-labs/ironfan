@@ -9,4 +9,5 @@ run_list %w[
   hadoop_cluster::std_hdfs_dirs
   hadoop_cluster::system_internals
   pig::install_from_package
+  zookeeper
 ]

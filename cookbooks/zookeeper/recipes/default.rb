@@ -1,8 +1,8 @@
 #
-# Cookbook Name:: hadoop
-# Recipe::        worker
+# Cookbook Name:: zookeeper
+# Recipe:: default
 #
-# Copyright 2009, Opscode, Inc.
+# Copyright 2010, Infochimps, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,18 +19,15 @@
 
 include_recipe "hadoop_cluster"
 
-# package "#{node[:hadoop][:hadoop_handle]}-datanode" do
-#   # version "0.20.2+320-1~lucid-cdh3b2"
-# end
-#
-# package "#{node[:hadoop][:hadoop_handle]}-tasktracker" do
-#   # version "0.20.2+320-1~lucid-cdh3b2"
-# end
-
-%w{datanode tasktracker}.each do |d|
-  service "#{node[:hadoop][:hadoop_handle]}-#{d}" do
-    action [ :enable, :start ]
-    running true
-    supports :status => true, :restart => true
-  end
+user 'zookeeper' do
+  comment    'Hadoop Zookeeper Daemon'
+  uid        305
+  group      'zookeeper'
+  home       "/var/zookeeper"
+  shell      "/bin/false"
+  password   nil
+  supports   :manage_home => true
+  action     [:create, :manage]
 end
+
+package "hadoop-zookeeper"

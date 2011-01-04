@@ -18,21 +18,25 @@
 #
 
 include_recipe "hadoop_cluster"
-# package "#{node[:hadoop][:hadoop_handle]}-namenode" do
-#   # version "0.20.2+320-1~lucid-cdh3b2"
-# end
-#
-# package "#{node[:hadoop][:hadoop_handle]}-secondarynamenode" do
-#   # version "0.20.2+320-1~lucid-cdh3b2"
-# end
 
-# use cluster_service_discovery to register our ip address
-register_as_namenode
-
-%w{namenode secondarynamenode}.each do |d|
-  service "#{node[:hadoop][:hadoop_handle]}-#{d}" do
-    action [ :enable, :start ]
-    running true
-    supports :status => true, :restart => true
-  end
+# Install
+hadoop_package "namenode"
+# Launch service
+service "#{node[:hadoop][:hadoop_handle]}-namenode" do
+  action [ :enable, :start ]
+  running true
+  supports :status => true, :restart => true
 end
+# register with cluster_service_discovery
+provide_service ("#{node[:cluster_name]}-namenode")
+
+# Install
+hadoop_package "secondarynamenode"
+# launch service
+service "#{node[:hadoop][:hadoop_handle]}-secondarynamenode" do
+  action [ :enable, :start ]
+  running true
+  supports :status => true, :restart => true
+end
+# register with cluster_service_discovery
+provide_service ("#{node[:cluster_name]}-secondarynamenode")

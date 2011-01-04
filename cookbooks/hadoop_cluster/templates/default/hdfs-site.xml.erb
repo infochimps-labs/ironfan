@@ -61,7 +61,8 @@
   <name>dfs.balance.bandwidthPerSec</name>
   <value><%= node[:hadoop][:max_balancer_bandwidth] %></value>
 </property>
-<!-- Start Cloudera Desktop -->
+
+<!-- Start Cloudera Hue -->
 <!-- <property> -->
 <!--   <name>dfs.namenode.plugins</name> -->
 <!--   <value>org.apache.hadoop.thriftfs.NamenodePlugin</value> -->
@@ -74,5 +75,11 @@
 <!--   <description>Comma-separated list of datanode plug-ins to be activated. -->
 <!--   </description> -->
 <!-- </property> -->
-<!-- End Cloudera Desktop -->
+<!-- <property> -->
+<!--   <name>dfs.thrift.address</name> -->
+<!--   <value>0.0.0.0:9090</value> -->
+<!-- </property> -->
+
 </configuration>
+
+

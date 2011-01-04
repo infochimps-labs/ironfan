@@ -2,9 +2,9 @@
 dfs.class=org.apache.hadoop.metrics.spi.NullContext
 
 # Configuration of the "dfs" context for file
-#dfs.class=org.apache.hadoop.metrics.file.FileContext
-#dfs.period=10
-#dfs.fileName=/tmp/dfsmetrics.log
+# dfs.class=org.apache.hadoop.metrics.file.FileContext
+# dfs.period=10
+# dfs.fileName=/tmp/dfsmetrics.log
 
 # Configuration of the "dfs" context for ganglia
 # Pick one: Ganglia 3.0 (former) or Ganglia 3.1 (latter)
@@ -17,9 +17,9 @@ dfs.class=org.apache.hadoop.metrics.spi.NullContext
 mapred.class=org.apache.hadoop.metrics.spi.NullContext
 
 # Configuration of the "mapred" context for file
-#mapred.class=org.apache.hadoop.metrics.file.FileContext
-#mapred.period=10
-#mapred.fileName=/tmp/mrmetrics.log
+# mapred.class=org.apache.hadoop.metrics.file.FileContext
+# mapred.period=10
+# mapred.fileName=/tmp/mrmetrics.log
 
 # Configuration of the "mapred" context for ganglia
 
@@ -30,23 +30,21 @@ mapred.class=org.apache.hadoop.metrics.spi.NullContext
 # mapred.servers=localhost:8649
 
 # Configuration of the "jvm" context for null
-#jvm.class=org.apache.hadoop.metrics.spi.NullContext
+# jvm.class=org.apache.hadoop.metrics.spi.NullContext
 
 # Configuration of the "jvm" context for file
-#jvm.class=org.apache.hadoop.metrics.file.FileContext
-#jvm.period=10
-#jvm.fileName=/tmp/jvmmetrics.log
+# jvm.class=org.apache.hadoop.metrics.file.FileContext
+# jvm.period=10
+# jvm.fileName=/tmp/jvmmetrics.log
 
 # Configuration of the "jvm" context for ganglia
 # jvm.class=org.apache.hadoop.metrics.ganglia.GangliaContext
 # jvm.period=10
 # jvm.servers=localhost:8649
 
+# Configuration of the "ugi" context for null
+ugi.class=org.apache.hadoop.metrics.spi.NullContext
+
 #
-# for cloudera_desktop, change the above as follows (http://archive.cloudera.com/desktop/packages.html):
-#
-# # Exposes /metrics URL endpoint for metrics information.
-# dfs.class=org.apache.hadoop.metrics.spi.NoEmitMetricsContext
-# mapred.class=org.apache.hadoop.metrics.spi.NoEmitMetricsContext
-# jvm.class=org.apache.hadoop.metrics.spi.NoEmitMetricsContext
-# rpc.class=org.apache.hadoop.metrics.spi.NoEmitMetricsContext
+# for hue, you need to change the above following cloudera's directions:
+#   http://archive.cloudera.com/desktop/packages.html

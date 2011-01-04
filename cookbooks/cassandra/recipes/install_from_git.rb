@@ -53,5 +53,5 @@ cp /usr/local/share/cassandra/lib/jackson-* /usr/lib/hadoop/lib/
 true
 EOF
   only_if{ File.exists?('/usr/lib/hadoop/lib') }
-  only_if{ Dir['/usr/lib/hadoop/lib/jackson*1.4*'].blank? }
+  only_if{ Dir['/usr/lib/hadoop/lib/jackson*1.[456789]*'].blank? }
 end

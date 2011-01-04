@@ -1,10 +1,10 @@
 class Chef::Recipe; include HadoopCluster ; end
 
-package "hadoop-0.20-fuse"
+hadoop_package "fuse"
 include_recipe "runit"
 
 directory "/hdfs" do
-  owner    "hadoop"
+  owner    "hdfs"
   group    "supergroup"
   mode     "0755"
   action   :create
@@ -17,7 +17,7 @@ execute "add fuse module to kernel" do
 end
 
 execute 'fix fuse configuration to allow hadoop' do
-  command %Q{sed -i -e 's|#user_allow_other|user_allow_other|' /etc/fuse.conf && chown hadoop:admin /etc/fuse.conf}
+  command %Q{sed -i -e 's|#user_allow_other|user_allow_other|' /etc/fuse.conf && chown hdfs:hadoop /etc/fuse.conf}
   user 'root'
   not_if "egrep '^user_allow_other' /etc/fuse.conf"
 end

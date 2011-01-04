@@ -10,8 +10,8 @@ class Chef::Recipe; include HadoopCluster ; end
 # Find these variables in ../hadoop_cluster/libraries/hadoop_cluster.rb
 #
 template_variables = {
-  :namenode_address       => namenode_address,
-  :jobtracker_address     => jobtracker_address,
+  :namenode_address       => provider_private_ip("#{node[:cluster_name]}-namenode"),
+  :jobtracker_address     => provider_private_ip("#{node[:cluster_name]}-jobtracker"),
   :mapred_local_dirs      => mapred_local_dirs.join(','),
   :dfs_name_dirs          => dfs_name_dirs.join(','),
   :dfs_data_dirs          => dfs_data_dirs.join(','),
@@ -40,12 +40,12 @@ end
 
 # Make hadoop logs live on /mnt/hadoop
 hadoop_log_dir = '/mnt/hadoop/logs'
-make_hadoop_dir(hadoop_log_dir)
+make_hadoop_dir(hadoop_log_dir, 'hdfs', "0775")
 force_link("/var/log/hadoop", hadoop_log_dir )
 force_link("/var/log/#{node[:hadoop][:hadoop_handle]}", hadoop_log_dir )
 
 # Make hadoop point to /var/run for pids
-make_hadoop_dir('/var/run/hadoop-0.20')
+make_hadoop_dir('/var/run/hadoop-0.20', 'root', "0775")
 force_link('/var/run/hadoop', '/var/run/hadoop-0.20')
 # Fix the hadoop-env.sh to point to /var/run for pids
 hadoop_env_file = "/etc/#{node[:hadoop][:hadoop_handle]}/conf/hadoop-env.sh"

@@ -14,10 +14,11 @@
     <a href="https://addons.mozilla.org/en-US/firefox/addon/2464">FoxyProxy</a> along with a persistent tunnel to the hadoop master node. See below.
     <ul>
       <!-- FIXME: this is incorrect if the webfront isn't the jobtracker and namenode. Or if you're not on ec2 -->
-      <li><a href="http://<%= node[:ec2][:public_hostname] %>:50070/">NameNode</a>
-      <li><a href="http://<%= node[:ec2][:public_hostname] %>:50030/">JobTracker</a>
+      <li><a href="http://<%= node[:ec2][:public_hostname] %>:50070/">NameNode</a></li>
+      <li><a href="http://<%= node[:ec2][:public_hostname] %>:50030/">JobTracker</a></li>
       <!-- Uncomment if you use cloudera Desktop -->
-      <!-- <li><a href="http://<%= node[:ec2][:public_hostname] %>:8088/">Cloudera Desktop</a> -->
+      <!-- <li><a href="http://<%= node[:ec2][:public_hostname] %>:8088/">Cloudera Desktop</a></li> -->
+      <li><a href="http://<%= node[:ec2][:public_hostname] %>:60010/">HBase Master</a> (if any)</li>
     </ul>
 
     <hr/>
