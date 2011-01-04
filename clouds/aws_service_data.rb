@@ -2,6 +2,7 @@ module AwsServiceData
   INSTANCE_PRICES = {
     'm1.small'    => 0.085, 'c1.medium'   => 0.17,  'm1.large'    => 0.34,  'c1.xlarge'   => 0.68,
     'm1.xlarge'   => 0.68,  'm2.xlarge'   => 0.50,  'm2.2xlarge'  => 1.20,  'm2.4xlarge'  => 2.40,
+    't1.micro'    => 0.02, 
   }
 
   # http://uec-images.ubuntu.com/releases/lucid/release/
