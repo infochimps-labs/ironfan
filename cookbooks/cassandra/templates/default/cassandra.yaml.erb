@@ -202,7 +202,7 @@ column_index_size_in_kb: <%= conf[:column_index_size] %> #64
 # Size limit for rows being compacted in memory.  Larger rows will spill
 # over to disk and use a slower two-pass compaction process.  A message
 # will be logged specifying the row key.
-in_memory_compaction_limit_in_mb: <%= conf[:in_memory_compation_limit ] %> #64
+in_memory_compaction_limit_in_mb: <%= conf[:in_memory_compaction_limit ] %> #64
 
 # Time to wait for a reply from other nodes before failing the command 
 rpc_timeout_in_ms: <%= conf[:rpc_timeout_in_ms] %> #10000
