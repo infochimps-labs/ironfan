@@ -45,6 +45,7 @@ module AwsServiceData
     # sorry to stuff these in here -- the above are generic, these are infochimps internal
     %w[us-east-1             32-bit  ebs             infochimps-scraper-client  ] => '', # infochimps.chef-client.lucid.east.32bit.20100610a
     %w[us-east-1             64-bit  ebs             infochimps-scraper-client  ] => 'ami-d13ed5b8', # infochimps.chef-client.lucid.east.32bit.20100610a
+    %w[us-east-1             64-bit  ebs             infochimps-hadoop-client  ] => 'ami-a236c7cb', # microchimps
     %w[us-east-1             64-bit  instance        infochimps-hadoop-client-1 ] => 'ami-ad3ad1c4', # infochimps.chef-client.lucid.east.ami-64bit-20100714
     %w[us-east-1             64-bit  instance        infochimps-hadoop-client   ] => 'ami-589c6d31', # infochimps.hadoop-client.lucid.east.ami-64bit-20101224b
 

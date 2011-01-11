@@ -44,6 +44,19 @@ h3. Cluster Roles
 * 
 
 
+h2. Adding a cluster
+
+Suppose you're adding a cluster called 'ham'
+
+* Create a keypair called ham
+* Add an entry in ~/.chef/poolparty.yaml -- make sure to change any elastic_ip's or node_name's
+* Copy a file in clouds/ to one named for your cluster, eg clouds/ham_clouds.rb -- change at least the pool name at the top of the file.
+* Copy a file in roles/ to one named for your cluster, eg roles/ham_cluster.rb -- make sure to change the name at the top of the file
+
+
+===========================================================================
+
+
 h2. Feedback on documentation:
 
 
