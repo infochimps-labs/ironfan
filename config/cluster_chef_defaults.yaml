@@ -29,8 +29,11 @@
 #
 :user_data:
   :chef_server:                         "http://edit_your_cluster_chef_yaml.com:4000"
-  :validation_key_file:                 "~/.hadoop-ec2/keypairs/chef-validator.pem"
+  # chef client name used to validate with chef server
   :validation_client_name:              "chef-validator"
+  # location of that client's private key. KEEP THIS FILE SECURE
+  :validation_key_file:                 "~/.hadoop-ec2/keypairs/chef-validator.pem"
+  # How the machine should get its name: uses the client.rb by default (eg. instance ID), or specify 'broham' here
   :get_name_from:                       ''
   :attributes:
     
