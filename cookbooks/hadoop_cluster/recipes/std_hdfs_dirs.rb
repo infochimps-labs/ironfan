@@ -48,6 +48,7 @@ execute 'create user dirs on HDFS' do
     hadoop fs -mkdir           /hadoop/system
     hadoop fs -chown -R mapred /hadoop/system
     hadoop fs -mkdir           /hadoop/hbase
+    hadoop fs -chown -R hbase  /hadoop/hbase
     for user in $hadoop_users ; do
       hadoop fs -chown ${user#/user/} $user;
     done ;
