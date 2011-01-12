@@ -44,7 +44,7 @@ execute 'create user dirs on HDFS' do
   command %Q{
     hadoop_users=/user/"`grep supergroup /etc/group | cut -d: -f4 | sed -e 's|,| /user/|g'`" ;
     hadoop fs -mkdir    /tmp /user /user/hive/warehouse $hadoop_users;
-    hadoop fs -chmod +w /tmp /user /user/hive/warehouse;
+    hadoop fs -chmod a+w /tmp /user /user/hive/warehouse;
     hadoop fs -mkdir           /hadoop/system
     hadoop fs -chown -R mapred /hadoop/system
     hadoop fs -mkdir           /hadoop/hbase
