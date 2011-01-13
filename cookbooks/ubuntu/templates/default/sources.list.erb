@@ -18,4 +18,4 @@ deb-src http://security.ubuntu.com/ubuntu <%= @code_name %>-security main restri
 deb http://archive.canonical.com/ <%= @code_name %> partner
 
 # Opscode chef repo
-deb http://apt.opscode.com/ <%= @code_name %> main
+deb http://apt.opscode.com/ <%= ( @code_name == 'maverick' ? 'lucid' : @code_name ) %> main

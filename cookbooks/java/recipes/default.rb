@@ -17,6 +17,7 @@
 # limitations under the License.
 #
 
+
 java_pkg = value_for_platform(
   [ "ubuntu", "debian" ] => {
     "default" => "sun-java6-jdk",

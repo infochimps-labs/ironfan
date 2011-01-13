@@ -19,9 +19,11 @@
 
 include_recipe "apt"
 
-template "/etc/apt/sources.list" do
-  mode 0644
-  variables :code_name => node[:lsb][:codename]
-  notifies :run, resources(:execute => "apt-get update"), :immediately
-  source "sources.list.erb"
+%w[ partner opscode multiverse ].each do |repo|
+  template "/etc/apt/sources.list.d/#{repo}.list" do
+    mode 0644
+    variables :code_name => node[:lsb][:codename]
+    notifies :run, resources(:execute => "apt-get update"), :immediately
+    source "sources.list.d-#{repo}.list.erb"
+  end
 end
