@@ -1,29 +1,39 @@
 {
-  "name": "zookeeper",
-  "description": "Installs/Configures zookeeper",
-  "long_description": "= DESCRIPTION:\n\n= REQUIREMENTS:\n\n= ATTRIBUTES:\n\n= USAGE:\n\n",
-  "maintainer": "YOUR_COMPANY_NAME",
-  "maintainer_email": "YOUR_EMAIL",
-  "license": "All rights reserved",
-  "platforms": {
-  },
-  "dependencies": {
-  },
-  "recommendations": {
-  },
-  "suggestions": {
-  },
+  "version": "0.0.1",
   "conflicting": {
-  },
-  "providing": {
-  },
-  "replacing": {
+
   },
   "attributes": {
+
+  },
+  "providing": {
+
+  },
+  "long_description": "= DESCRIPTION:\n\n= REQUIREMENTS:\n\n= ATTRIBUTES:\n\n= USAGE:\n\n",
+  "dependencies": {
+
+  },
+  "maintainer": "YOUR_COMPANY_NAME",
+  "replacing": {
+
+  },
+  "maintainer_email": "YOUR_EMAIL",
+  "recipes": {
+
   },
   "groupings": {
+
   },
-  "recipes": {
+  "license": "All rights reserved",
+  "recommendations": {
+
   },
-  "version": "0.0.1"
+  "name": "zookeeper",
+  "suggestions": {
+
+  },
+  "platforms": {
+
+  },
+  "description": "Installs/Configures zookeeper"
 }
