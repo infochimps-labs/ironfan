@@ -24,28 +24,19 @@ include_recipe "zookeeper"
 provide_service ("#{node[:cluster_name]}-zookeeper")
 
 # Install
-package "hadoop-zookeeper"
 package "hadoop-zookeeper-server"
+
+directory node[:zookeeper][:data_dir] do
+  owner      "zookeeper"
+  group      "zookeeper"
+  mode       "0644"
+  action     :create
+  recursive  true
+end
 
 # launch service
 service "hadoop-zookeeper-server" do
   action [ :enable, :start ]
   running true
   supports :status => true, :restart => true
-end
-
-#
-# Configuration files
-#
-template_variables = {
-  :private_ip             => private_ip_of(node),
-}
-Chef::Log.debug template_variables.inspect
-%w[ zoo.cfg ].each do |conf_file|
-  template "/etc/zookeeper/#{conf_file}" do
-    owner "root"
-    mode "0644"
-    variables(template_variables)
-    source "#{conf_file}.erb"
-  end
 end

@@ -19,7 +19,7 @@ user 'hbase' do
   comment    'Hadoop HBase Daemon'
   uid        304
   group      'hbase'
-  home       "/var/run/hadoop-0.20"
+  home       "/var/run/hbase"
   shell      "/bin/false"
   password   nil
   supports   :manage_home => true
@@ -30,10 +30,10 @@ end
 package "hadoop-hbase"
 package "hadoop-hbase-thrift"
 
-%w[/var/run/hbase /var/log/hbase].each do |dir|
+["/var/run/hbase", "/var/log/hbase", node[:hbase][:tmp_dir]].each do |dir|
   directory dir do
     owner    'hbase'
-    group    "hadoop"
+    group    "hbase"
     mode     '0755'
     action   :create
     recursive true
@@ -46,10 +46,11 @@ end
 # Find these variables in ../hadoop_cluster/libraries/hadoop_cluster.rb
 #
 template_variables = {
-  :namenode_address       => provider_private_ip("#{node[:cluster_name]}-namenode"),
+  :namenode_fqdn          => provider_fqdn("#{node[:cluster_name]}-namenode"),
   :jobtracker_address     => provider_private_ip("#{node[:cluster_name]}-jobtracker"),
   :zookeeper_address      => provider_private_ip("#{node[:cluster_name]}-zookeeper"),
   :private_ip             => private_ip_of(node),
+  :jmx_hostname           => public_ip_of(node),
 }
 Chef::Log.debug template_variables.inspect
 %w[ hbase-env.sh hbase-site.xml ].each do |conf_file|
@@ -61,4 +62,6 @@ Chef::Log.debug template_variables.inspect
   end
 end
 
-# bump
+# Stuff the HBase jars into the classpath
+node[:hadoop][:extra_classpaths][:hbase] = '/usr/lib/hbase/hbase.jar:/usr/lib/hbase/lib/zookeeper.jar:/usr/lib/hbase/conf'
+node.save

@@ -1,11 +1,5 @@
 
-
-* zookeeper data => /data/db/zookeeper/
-
-zookeeper txlog => ??somewhere??
-
-hbase site.xml => fix the hdfs to be a hostname not IP
-
-* chown zookeeper:zookeeper /var/
-
-(and others... there's a fix permissions script in hadoop_cluster
+* (DONE) zookeeper data => /data/db/zookeeper/
+*        chown zookeeper:zookeeper /var/zookeeper
+*        zookeeper txlog => ??somewhere??
+* (DONE) hbase site.xml => fix the hdfs to be a hostname not IP
