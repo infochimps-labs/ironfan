@@ -35,6 +35,8 @@ bash "Increase open files soft ulimit for @hadoop group" do
   code <<EOF
     egrep -q '@hadoop.*soft.*nofile' || ( echo '@hadoop soft nofile' >> /etc/security/limits.conf )
     sed -i "s/@hadoop.*soft.*nofile.*/@hadoop    soft    nofile  #{ulimit_soft_nofile}/" /etc/security/limits.conf
+    egrep -q 'hbase.*soft.*nofile' || ( echo 'hbase   soft nofile' >> /etc/security/limits.conf )
+    sed -i "s/hbase.*soft.*nofile.*/hbase      soft    nofile  #{ulimit_soft_nofile}/" /etc/security/limits.conf
 EOF
 end
 

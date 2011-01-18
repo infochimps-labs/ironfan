@@ -7,7 +7,7 @@ for foo in flip jacob dhruv doncarlo jesse dsnyder howech ryan nickster robochim
 # Shutdown services  and make the following ones not restart on bootup
 for foo in hadoop-0.20-{namenode,jobtracker,tasktracker,datanode,secondarynamenode} hadoop-{zookeeper-server,hbase-master,hbase-regionserver} cassandra couchdb thttpd chef-client nfs-kernel-server god apeyeye nginx  rabbitmq-server chef-{solr,solr-indexer,client,server,server-webui} elasticsearch ; do sudo service $foo stop ; done
 killall redis-server tail nginx console-kil-daemon
-for foo in hadoop-0.20-{tasktracker,datanode,namenode,jobtracker,secondarynamenode} hadoop-{zookeeper-server,hbase-master,hbase-regionserver} cassandra elasticsearch ; do sudo update-rc.d -f $foo remove ; done
+for foo in thttpd hadoop-0.20-{tasktracker,datanode,namenode,jobtracker,secondarynamenode} hadoop-{zookeeper-server,hbase-master,hbase-regionserver} cassandra elasticsearch ; do sudo update-rc.d -f $foo remove ; done
 # Give the process list a how's your father -- nothing interesting should be running.
 ps auxf
 # Unmount anything that's mounted,
