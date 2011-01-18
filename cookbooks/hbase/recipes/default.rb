@@ -19,7 +19,8 @@ user 'hbase' do
   comment    'Hadoop HBase Daemon'
   uid        304
   group      'hbase'
-  home       "/var/run/hbase"
+  # home       "/var/run/hbase"
+  home       "/var/run/hadoop-0.20" ## FIXME: should be the line above but current cluster is complaining
   shell      "/bin/false"
   password   nil
   supports   :manage_home => true

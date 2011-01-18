@@ -25,6 +25,11 @@
   <name>mapred.child.java.opts</name>
   <value><%= node[:hadoop][:java_child_opts] %></value>
 </property>
+
+<property>
+  <name>mapred.job.reuse.jvm.num.tasks</name>
+  <value>-1</value>
+</property>
 <property>
   <name>mapred.child.ulimit</name>
   <value><%= node[:hadoop][:java_child_ulimit] %></value>

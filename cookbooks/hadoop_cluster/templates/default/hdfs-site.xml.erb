@@ -23,21 +23,30 @@
 </property>
 
 <property>
-  <name>dfs.datanode.max.xceivers</name>
-  <value>1536</value>
+  <name>dfs.datanode.max.xcievers</name>
+  <value>4096</value>
   <final>true</final>
 </property>
-  
+<property>
+  <name>dfs.datanode.max.xceivers</name>
+  <value>4096</value>
+  <final>true</final>
+</property>
+<property>
+  <name>dfs.datanode.socket.write.timeout</name>
+  <value>0</value>
+</property>
+
 <!--property>
   <name>dfs.hosts</name>
   <value>/etc/<%= node[:hadoop][:hadoop_handle] %>/conf/dfs.hosts</value>
   <final>true</final>
 </property-->
-<!--property>
+<property>
   <name>dfs.hosts.exclude</name>
   <value>/etc/<%= node[:hadoop][:hadoop_handle] %>/conf/dfs.hosts.exclude</value>
   <final>true</final>
-</property-->
+</property>
 <property>
   <name>dfs.name.dir</name>
   <value><%= @dfs_name_dirs %></value>
