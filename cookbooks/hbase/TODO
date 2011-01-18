@@ -35,8 +35,30 @@ hbase write into table - while read from other tables?
 hbase LZO
 
 
-  HBase --N--> Pig
+  Java  --N--> HBase
+  Java  --∞--> HBase
   HBase --1--> Ruby
-  HBase 
+  
+  HBase --N--> Pig
+  Ruby  --1--> HBase
+  Pig   --N--> Hbase
+
+
+twitter datasets loaded
+apeyeye datasets loaded
+apeyeye handler
+hbase => trstrank
+
+schemas
+- size cluster in regions? blocks? NN ram? hb master ram? rs ram?
+
+monitoring
+extra cluster roles
+lzo?
+
+nn metadata safety
+ebs volumes
+
+compute vs production clusters -- how? S3?
 
 
