@@ -50,56 +50,15 @@ module ClusterServiceDiscovery
   # Find all nodes that have indicated they provide the given service,
   # in descending order of when they registered.
   #
-  # If :within_last is passed as an option, only return servers
-  # registering for the service within the last given seconds.
-  #
-  # If :since is passed as an option, only return servers registering
-  # for the service since the given time.
-  #
-  # If :at_least is passed as an option, try to return at least the
-  # given number of servers, even if they violate the constraints
-  # given above.  If fewer servers are available than requested, even
-  # after violating the above constraints, then we give up and return
-  # the most we can.
-  def all_providers_for_service service_name, options={}
-    # Chef::Log.debug("Looking up providers for #{service_name} given #{options.inspect}")
-    # set the horizon
-    horizon = case
-              when options[:within_last]
-                Time.now - options[:within_last].to_i
-              when options[:since]
-                Time.at(options[:since]) # works for either epoch seconds or Time object
-              else
-                Time.at(0)
-              end
-
-    # find servers before and after horizon
-    all_servers = search(:node, "provides_service:#{service_name}" ).find_all{ |server| server[:provides_service][service_name] && server[:provides_service][service_name]['timestamp'] }
-
-    servers_before_horizon, servers_after_horizon = [], []
-    all_servers.each do |server|
-      if Time.parse(server[:provides_service][service_name]['timestamp']) >= horizon
-        servers_after_horizon << server
-      else
-        servers_before_horizon << server
-      end
-    end
-
-    # pad what we've found if necessary
-    if options[:at_least]
-      extra_servers = servers_before_horizon.sort_by { |server| server[:provides_service][service_name]['timestamp'] }
-      while (servers_after_horizon.length < options[:at_least].to_i) && (! extra_servers.empty?)
-        servers_after_horizon << extra_servers.pop
-      end
-    end
-
-    # return sorted servers
-    servers_after_horizon.sort_by { |server| server[:provides_service][service_name]['timestamp'] }
+  def all_providers_for_service service_name
+    search(:node, "provides_service:#{service_name}" ).
+      find_all{|server| server[:provides_service][service_name] && server[:provides_service][service_name]['timestamp'] }.
+      sort_by{|server| server[:provides_service][service_name]['timestamp'] } rescue []
   end
 
   # Find the most recent node that registered to provide the given service
-  def provider_for_service service_name, options={}
-    all_providers_for_service(service_name, options).last
+  def provider_for_service service_name
+    all_providers_for_service(service_name).last
   end
 
   # Register to provide the given service.
@@ -116,28 +75,35 @@ module ClusterServiceDiscovery
   # given service, get most recent address
 
   # The local-only ip address for the most recent provider for service_name
-  def provider_private_ip service_name, options={}
-    server = provider_for_service(service_name, options) or return
+  def provider_private_ip service_name
+    server = provider_for_service(service_name) or return
     private_ip_of(server)
   end
 
+  # The local-only ip address for the most recent provider for service_name
+  def provider_fqdn service_name
+    server = provider_for_service(service_name) or return
+    # Chef::Log.info("for #{service_name} got #{server.inspect} with #{fqdn_of(server)}")
+    fqdn_of(server)
+  end
+
   # The globally-accessable ip address for the most recent provider for service_name
-  def provider_public_ip service_name, options={}
-    server = provider_for_service(service_name, options) or return
+  def provider_public_ip service_name
+    server = provider_for_service(service_name) or return
     public_ip_of(server)
   end
 
   # given service, get many addresses
 
   # The local-only ip address for all providers for service_name
-  def all_provider_private_ips service_name, options={}
-    servers = all_providers_for_service(service_name, options)
+  def all_provider_private_ips service_name
+    servers = all_providers_for_service(service_name)
     servers.map{ |server| private_ip_of(server) }
   end
 
   # The globally-accessable ip address for all providers for service_name
-  def all_provider_public_ips service_name, options={}
-    servers = all_providers_for_service(service_name, options)
+  def all_provider_public_ips service_name
+    servers = all_providers_for_service(service_name)
     servers.map{ |server| public_ip_of(server) }
   end
 
@@ -146,6 +112,11 @@ module ClusterServiceDiscovery
   # The local-only ip address for the given server
   def private_ip_of server
     server[:cloud][:private_ips].first rescue server[:ipaddress]
+  end
+
+  # The local-only ip address for the given server
+  def fqdn_of server
+    server[:fqdn]
   end
 
   # The globally-accessable ip address for the given server

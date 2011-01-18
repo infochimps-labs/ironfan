@@ -20,6 +20,11 @@ default[:hadoop][:output_compression_type     ] = 'BLOCK'
 default[:hadoop][:mapred_userlog_retain_hours ] = 24
 default[:hadoop][:mapred_jobtracker_completeuserjobs_maximum ] = 100
 
+# Other recipes can add to this under their own special key, for instance
+#  node[:hadoop][:extra_classpaths][:hbase] = '/usr/lib/hbase/hbase.jar:/usr/lib/hbase/lib/zookeeper.jar:/usr/lib/hbase/conf'
+#
+default[:hadoop][:extra_classpaths]  = { }
+
 # uses /etc/default/hadoop-0.20 to set the hadoop daemon's heapsize
 default[:hadoop][:hadoop_daemon_heapsize]       = 1500
 
