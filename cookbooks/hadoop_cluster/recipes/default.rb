@@ -52,6 +52,7 @@ end
 # Hadoop users and group
 #
 
+group 'hdfs' do gid 302 ; action [:create] ; end
 user 'hdfs' do
   comment    'Hadoop HDFS User'
   uid        302
@@ -63,6 +64,7 @@ user 'hdfs' do
   action     [:create, :manage]
 end
 
+group 'mapred' do gid 303 ; action [:create] ; end
 user 'mapred' do
   comment    'Hadoop Mapred Runner'
   uid        303

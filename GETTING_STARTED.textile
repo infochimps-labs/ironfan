@@ -1,3 +1,7 @@
+h2. On your machine
+
+sudo gem install configliere poolparty amazon-ec2 broham
+
 
 
 h2. AWS Setup

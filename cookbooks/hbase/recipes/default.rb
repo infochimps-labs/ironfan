@@ -15,6 +15,7 @@ group 'hbase' do
   action      [:create, :manage]
 end
 
+group 'hbase' do gid 304 ; action [:create] ; end
 user 'hbase' do
   comment    'Hadoop HBase Daemon'
   uid        304

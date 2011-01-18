@@ -1,4 +1,9 @@
 
+
+
+
+
+
 h2. Top Priorities
 
 * *Role discovery* sucks right now -- broham = weak, too much setup, ick
