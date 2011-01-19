@@ -39,6 +39,8 @@ gem install --no-rdoc --no-ri broham uuidtools configliere right_aws ;
 # gem install --no-rdoc --no-ri mixlib-authentication chef --pre
 gem list >> $progresslog
 
+apt-get -y install chef
+
 echo "`date` Hostname"  >> $progresslog 
 # This patches the ec2-set-hostname script to use /etc/hostname (otherwise it
 # crams the ec2-assigned hostname in there regardless)
@@ -46,15 +48,7 @@ cp /usr/bin/ec2-set-hostname /usr/bin/ec2-set-hostname.`date "+%Y%m%d%H"`.orig ;
 wget --no-check-certificate -nv ${REMOTE_FILE_URL_BASE}/ec2-set-hostname_replacement.py -O /usr/bin/ec2-set-hostname ;
 chmod a+x /usr/bin/ec2-set-hostname
 
-apt-get -y install chef
-
-# echo "`date` Bootstrap chef client"  >> $progresslog 
-# echo '{ "bootstrap": { "chef": { "server_fqdn":"<%= chef_server_fqdn %>", "url_type":"http", "init_style":"runit", "path":"/var/lib/chef", "cache_path":"/var/cache/chef", "run_path":"/var/run", "serve_path":"/var/lib/chef/srv", "log_dir":"/var/log/chef" } }, "run_list": [ "recipe[chef::bootstrap_client]" ] }' > /tmp/chef_client.json ;
-# wget --no-check-certificate -nv ${REMOTE_FILE_URL_BASE}/chef_bootstrap.rb -O /tmp/chef_bootstrap.rb ;
-# # sudo stop runsvdir ;
-# chef-solo -c /tmp/chef_bootstrap.rb -j /tmp/chef_client.json  >> $progresslog 
-
-echo "`date` Pulling in chef client and server scripts"  >> $progresslog 
+echo "`date` Pulling in chef client script"  >> $progresslog 
 cp /etc/chef/client.rb /etc/chef/client-orig.rb ;
 wget --no-check-certificate -nv ${REMOTE_FILE_URL_BASE}/client.rb -O /etc/chef/client.rb ;
 cat > /etc/chef/client-config.json <<EOF
@@ -79,13 +73,13 @@ exec 2>&1
 exec /usr/bin/env chef-client -i 1800 -s 20 -L /var/log/chef/client.log
 EOF
 chmod +x  /etc/sv/chef-client/log/run /etc/sv/chef-client/run
-ln -nfs   /etc/sv/chef-client /etc/service/chef-client
+ln -nfs /usr/bin/sv /etc/init.d/chef-client
 
 echo "`date` Cleanup"  >> $progresslog 
 apt-get autoremove;
 updatedb;
 
 echo "`date` Enabling chef client service"  >> $progresslog
-ln -nfs /usr/bin/sv /etc/init.d/chef-client
+ln -s   /etc/sv/chef-client /etc/service/chef-client
 
 echo "`date` User data script (chef client bootstrap) complete: `date`"  >> $progresslog 
