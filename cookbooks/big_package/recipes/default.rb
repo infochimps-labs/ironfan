@@ -16,3 +16,14 @@ end
 packages_list.each do |pkg|
   package pkg
 end
+
+%w[
+   extlib oniguruma fastercsv json yajl-ruby crack htmlentities addressable
+   uuidtools configliere fog right_aws whenever rest-client cheat
+   rails wirble wukong
+].each do |pkg|
+  gem_package pkg do
+    action :install
+  end
+end
+

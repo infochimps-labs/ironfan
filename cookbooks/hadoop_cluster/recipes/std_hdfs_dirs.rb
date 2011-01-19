@@ -32,17 +32,19 @@
 #
 # I'd love feedback on whether this can be made less kludgey,
 # and whether the logic for creating the user dirs makes sense.
-
-# This is a bit kludgey, but it minimizes hits to the HDFS
+#
 # Also, quoting Tom White:
 #   "The [chmod +w] is questionable, as it allows a user to delete another
 #    user. It's needed to allow users to create their own user directories"
+#
 execute 'create user dirs on HDFS' do
   only_if "service hadoop-0.20-namenode status"
+  only_if "hadoop dfsadmin -safemode get | grep -q OFF"
   not_if do File.exists?("/mnt/hadoop/logs/made_initial_dirs.log") end
   user 'hdfs'
   command %Q{
-    hadoop_users=/user/"`grep supergroup /etc/group | cut -d: -f4 | sed -e 's|,| /user/|g'`" ;
+    hadoop_users=/user/"`grep supergroup /etc/group | cut -d: -f4 | sed -e 's|,| /user/|g'`"
+    hadoop_users="/user/ubuntu $hadoop_users"
     hadoop fs -mkdir    /tmp /user /user/hive/warehouse $hadoop_users;
     hadoop fs -chmod a+w /tmp /user /user/hive/warehouse;
     hadoop fs -mkdir           /hadoop/system
