@@ -10,5 +10,8 @@ run_list *%w[
 
 # Attributes applied if the node doesn't have it set already.
 default_attributes({
+    :java => {
+      :install_flavor => 'sun'
+    },
     :cluster_size => 5,
   })
