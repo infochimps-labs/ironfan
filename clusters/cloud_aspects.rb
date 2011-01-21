@@ -1,4 +1,4 @@
-# Load settings from ~/.hadoop-ec2/poolparty.yaml
+# Load settings from ~/.chef/cluster_chef.yaml
 # Node/cluster/common settings are merged in #settings_for_node (below)
 require 'configliere'
 CLOUD_ASPECTS_DIR=File.dirname(__FILE__)
@@ -14,7 +14,7 @@ Settings.define :account_id,        :env_var => 'AWS_ACCOUNT_ID',        :descri
 Settings.define :ec2_url,           :env_var => 'EC2_URL',               :description => 'EC2 endpoint URL for api calls; should match the AWS region; eg https://us-west-1.ec2.amazonaws.com for us-west-1'
 Settings.define :aws_region,                                             :description => 'AWS region: currently, us-east-1, us-west-1, eu-west-1, or ap-southeast-1'
 Settings.read File.join(File.dirname(__FILE__), '/../config/cluster_chef_defaults.yaml')
-Settings.read File.join(ENV['HOME'],'.hadoop-ec2','poolparty.yaml');
+Settings.read File.join(ENV['HOME'],'.chef','cluster_chef.yaml');
 Settings.resolve!
 
 # ===========================================================================
@@ -38,7 +38,7 @@ def is_generic_node settings
   disable_api_termination settings[:disable_api_termination]  if settings[:instance_backing] == 'ebs'
   elastic_ip              settings[:elastic_ip]               if settings[:elastic_ip]
   set_instance_backing    settings
-  keypair                 settings[:cluster_name].to_s, File.join(ENV['HOME'], '.poolparty', 'keypairs')
+  keypair                 settings[:cluster_name].to_s, File.join(ENV['HOME'], '.chef', 'keypairs')
   has_role                settings, "base_role"
   settings[:user_data][:attributes][:cluster_name] = settings[:cluster_name]
   settings[:user_data][:attributes][:cluster_role] = settings[:cluster_role]
@@ -79,7 +79,7 @@ def settings_for_node
     :cluster_role => cluster_role,
   }.deep_merge(Settings)
   node_settings.delete :pools
-  raise "Please define the '#{cluster_name}' cluster and the '#{cluster_role}' role in your poolparty.yaml" if (Settings[:pools][cluster_name].blank? || Settings[:pools][cluster_name][cluster_role].blank?)
+  raise "Please define the '#{cluster_name}' cluster and the '#{cluster_role}' role in your ~/.chef/cluster_chef.yaml" if (Settings[:pools][cluster_name].blank? || Settings[:pools][cluster_name][cluster_role].blank?)
   node_settings = node_settings.deep_merge(
     Settings[:pools][cluster_name][:common]      ||{ }).deep_merge(
     Settings[:pools][cluster_name][cluster_role] ||{ })

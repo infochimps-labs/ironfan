@@ -1,13 +1,13 @@
 #
-# Copy this file to ~/.hadoop-ec2/poolparty.yaml
+# Copy this file to ~/.chef/cluster_chef.yaml
 #
 
 #
 # Machines are defined by:
 #
 # * cluster_chef/config/cluster_chef_defaults.yaml -- generic base settings
-# * ~/.hadoop-ec2/poolparty.yaml                   -- customize settings for your cluster. Overrides cluster_chef_defaults.yaml
-# * cluster_chef/clouds/[poolname]_clouds.rb       -- methods that define the instance metadata and pass user-data attribute hash (which is then sent on to chef)
+# * ~/.chef/cluster_chef.yaml                      -- customize settings for your cluster. Overrides cluster_chef_defaults.yaml
+# * cluster_chef/clouds/[clustername]_clouds.rb    -- methods that define the instance metadata and pass user-data attribute hash (which is then sent on to chef)
 # * roles/, cookbooks/, databags/, etc.            -- sent to the chef server using knife
 
 
@@ -90,22 +90,7 @@
     :master:
       # Make an elastic IP; use your DNS service (or http://dyndns.org) to point a hostname to it
       :elastic_ip:                      1.2.3.4
-      # Force values into EC2 userdata and chef attributes
-      :user_data:
-        :attributes:
-          # enter the hostname for your chef server
-          :node_name:                   zaius.yourdomain.com
-
-    # settings for a combined master and chef server
-    :chefmaster:
-      # Use an EBS-backed AMI. You can substitute 'lucid' (a plain Ubuntu 10.x machine)
-      :instance_os:                     infochimps-chef-client
-      :instance_backing:                ebs
-      # Make an elastic IP; use your DNS service (or http://dyndns.org) to point a hostname to it
-      :elastic_ip:                      1.2.3.4
-      # Don't spot price the chef server/master. You can stop it when not in use
-      :spot_price_fraction:             ~
-      # Don't delete the root EBS volume when the machine shuts down.
+      # Leave volume up after termination
       :boot_volume:                     
         :ebs_volume_size:               15
         :ebs_delete_on_termination:     false
@@ -115,7 +100,7 @@
       :user_data:
         :attributes:
           # enter the hostname for your chef server
-          :node_name:                   chef.yourdomain.com
+          :node_name:                   zaius.yourdomain.com
 
   #
   # The big badassed hadoop cluster 
