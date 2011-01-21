@@ -20,6 +20,9 @@ template_variables = {
   :persistent_hadoop_dirs => persistent_hadoop_dirs,
   :all_cluster_volumes    => all_cluster_volumes,
   :cluster_ebs_volumes    => cluster_ebs_volumes,
+  :ganglia                => node[:hadoop][:ganglia],
+  :ganglia_host           => provider_private_ip("#{node[:cluster_name]}-gmetad"),
+  :ganglia_port           => 8649,
 }
 Chef::Log.debug template_variables.inspect
 %w[raw_settings.yaml core-site.xml fairscheduler.xml hdfs-site.xml mapred-site.xml hadoop-metrics.properties].each do |conf_file|
