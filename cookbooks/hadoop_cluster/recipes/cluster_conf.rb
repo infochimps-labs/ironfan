@@ -20,7 +20,7 @@ template_variables = {
   :persistent_hadoop_dirs => persistent_hadoop_dirs,
   :all_cluster_volumes    => all_cluster_volumes,
   :cluster_ebs_volumes    => cluster_ebs_volumes,
-  :ganglia                => node[:hadoop][:ganglia],
+  :ganglia                => !provider("#{node[:cluster_name]}-gmetad"),
   :ganglia_host           => provider_private_ip("#{node[:cluster_name]}-gmetad"),
   :ganglia_port           => 8649,
 }
