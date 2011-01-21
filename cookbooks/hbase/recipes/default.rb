@@ -53,6 +53,10 @@ template_variables = {
   :zookeeper_address      => provider_private_ip("#{node[:cluster_name]}-zookeeper"),
   :private_ip             => private_ip_of(node),
   :jmx_hostname           => public_ip_of(node),
+  :ganglia                => node[:hbase][:ganglia],
+  :ganglia_address        => provider_fqdn("#{node[:cluster_name]}-gmetad"),
+  :ganglia_port           => 8649,
+  :period                 => 10
 }
 Chef::Log.debug template_variables.inspect
 %w[ hbase-env.sh hbase-site.xml ].each do |conf_file|
