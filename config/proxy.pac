@@ -1,4 +1,3 @@
-
 function FindProxyForURL(url, host) {
   if ((shExpMatch(host, "*ec2*.amazonaws.com*")) ||
       (shExpMatch(host, "*ec2.internal*")) ||

@@ -3,7 +3,7 @@ require File.join(File.dirname(__FILE__), '/../clouds/cloud_aspects')
 name        'hadoop'
 description 'applies to all nodes in the hadoop cluster'
 require 'configliere'
-Settings.read File.join(ENV['HOME'],'.poolparty','aws'); Settings.resolve!
+Settings.read File.join(ENV['HOME'],'.chef','cluster_chef.yaml'); Settings.resolve!
 
 run_list *%w[
   hadoop_cluster

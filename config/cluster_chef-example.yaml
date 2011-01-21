@@ -1,0 +1,123 @@
+#
+# Copy this file to ~/.chef/cluster_chef.yaml
+#
+
+#
+# Machines are defined by:
+#
+# * cluster_chef/config/cluster_chef_defaults.yaml -- generic base settings
+# * ~/.chef/cluster_chef.yaml                      -- customize settings for your cluster. Overrides cluster_chef_defaults.yaml
+# * cluster_chef/clouds/[clustername]_clouds.rb    -- methods that define the instance metadata and pass user-data attribute hash (which is then sent on to chef)
+# * roles/, cookbooks/, databags/, etc.            -- sent to the chef server using knife
+
+
+#
+# AWS Credentials
+#
+#
+:access_key:                          1235125ABCD
+:secret_access_key:                   asdfasdjghalskgjhsadkgjhaslkgjashgkls
+:account_id:                          12321346546
+
+#
+# AWS instance settings: set the following to override cluster_chef/config/cluster_chef_defaults.yaml
+# For west coast availability zone, before poolparty run: export EC2_URL=https://us-west-1.ec2.amazonaws.com
+#
+
+# :spot_price_fraction:                   ~
+# :availability_zones:                    [ "us-east-1d" ]
+# :instance_type:                         m1.small
+# :instance_backing:                      instance
+# :instance_os:                           lucid
+
+#
+# EC2 user_data
+#
+# A hash passed to /etc/chef/client.rb via the EC2 user-data setting -- converted to JSON format
+#
+:user_data:
+  # hostname and port for chef server
+  :chef_server:                         "http://chef.yourdomain.com:4000"
+  # Change to "broham" for cluster role identification (requires some setup first though)
+  :get_name_from:                       instance_id
+  # Attributes for the node. Anything set here overrides all other node attributes
+  :attributes:
+    #
+
+#
+# Cluster definition
+#
+# This folds up the settings as
+#   top level < that_cloud:common < that_cloud:that_role
+# (role-specific settings take precedence)
+#
+:pools:
+
+
+  #
+  # Zaius: a small testing cluster.
+  # * chefmaster node is Chef server, hadoop master and nfs-server.
+  # * OR use master with a standalone chef-server + nfs-server
+  # * slaves use local drives for HDFS
+  #
+  :zaius:
+    # settings that apply to all machines in zaius cluster
+    :common:
+      :instance_type:                   m1.small
+      # By default, use instance-backed AMI that runs chef-client at startup
+      :instance_os:                     opscode-chef-client
+      :instance_backing:                instance
+      # You might instead prefer to use the infochimps' AMI: it's EBS backed,
+      # has a more cluster-friendly client.rb, and is much faster to populate.
+      # :instance_os:                     infochimps-chef-client
+      # :instance_backing:                ebs
+      #
+      # Force values into EC2 userdata and chef attributes
+      :user_data:
+        # user data fields go here
+        :attributes:
+          #chef attributes go here
+          
+    # settings for all slave machines
+    :slave:
+      # use spot pricing for the slaves, who cares if they get called to heaven
+      # neeed to be running the infochimps version of the poolparty gem
+      # to use spot instances -- see notes for instructions
+      :spot_price_fraction:             1.0
+      :instances:                       5
+
+    # settings for a master if you have a separate chef server
+    :master:
+      # Make an elastic IP; use your DNS service (or http://dyndns.org) to point a hostname to it
+      :elastic_ip:                      1.2.3.4
+      # Leave volume up after termination
+      :boot_volume:                     
+        :ebs_volume_size:               15
+        :ebs_delete_on_termination:     false
+      # Once things are running well, set this to true to prevent accidental chef-icide.
+      :disable_api_termination:         false
+      # Force values into EC2 userdata and chef attributes
+      :user_data:
+        :attributes:
+          # enter the hostname for your chef server
+          :node_name:                   zaius.yourdomain.com
+
+  #
+  # The big badassed hadoop cluster 
+  #
+  :gibbon:
+    :common:
+      # 1.0 (full price) will almost never shut down. 0.4 will dance right near the us-east-1 average. 
+      :spot_price_fraction:             1.0
+      :instance_type:                   m1.large
+      :instance_os:                     infochimps-chef-client
+      :instance_backing:                instance
+    :master:
+      :instance_type:                   m1.xlarge
+      :user_data:
+        :attributes:
+          :node_name:                   gibbon-master-0
+          :cluster_role_index:          0
+      :elastic_ip:                      1.2.3.6
+    :slave:
+      :instances:                       10

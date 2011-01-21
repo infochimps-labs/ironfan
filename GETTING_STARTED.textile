@@ -26,13 +26,13 @@ git clone git+ssh://yourcompany.com/gitrepos/ics/sysadmin/infochimps_chef
 
 3. Make symlinks for chef, poolparty, knife, and broham config files:
 <pre><code>
-cd ~/.hadoop-ec2 #you should have this already if you followed "Initial Setup"
-ln -s examples/poolparty.yaml poolparty.yaml
+cd ~/.chef   
+ln -s examples/cluster_chef.yaml cluster_chef.yaml
 ln -s examples/knife.rb knife.rb
 ln -s poolparty.yaml aws
-ln -s ~/.hadoop-ec2 ~/.chef
-ln -s ~/.hadoop-ec2 ~/.poolparty
-ln -s ~/.hadoop-ec2/poolparty.yaml ~/.configliere/broham.yaml
+ln -s ~/.chef ~/.hadoop-ec2
+ln -s ~/.chef ~/.poolparty
+ln -s ~/.chef/cluster_chef.yaml ~/.configliere/broham.yaml
 </code></pre>
 
 4. Install other necessary gems
@@ -62,7 +62,7 @@ I'm going to assume from here on out that you're spinning up the "chimpmark" clu
 
 0. Always make sure all relevant git repositories are up to date.
 
-1. Edit {{~/.hadoop-ec2/poolparty.yaml}} to reflect the way you'd like the master node to be spun up. This includes setting the spot price fraction, availability zone, and slave instances among other things. {{~/.hadoop-ec2/notes/pricing.tsv}} has options for instance types.
+1. Edit {{~/.chef/cluster_chef.yaml}} to reflect the way you'd like the master node to be spun up. This includes setting the spot price fraction, availability zone, and slave instances among other things. {{~/.hadoop-ec2/notes/pricing.tsv}} has options for instance types.
 
 2. Edit {{clouds/chimpmark_clouds.rb}} to reflect your cluster specifications. Change {{pool 'cluster-name'}} and comment in/out roles for the master node.
 
@@ -120,7 +120,7 @@ sudo sed -i -e "s|<value>:8021/</value>|<value>`hostname -i`:8021</value>|" /etc
 
 h2. Spin up the Slaves
 
-1. Again you'll want to edit {{~/.hadoop-ec2/poolparty.yaml}} to reflect the number of slaves, spot price fraction, etc.
+1. Again you'll want to edit {{~/.chef/cluster_chef.yaml}} to reflect the number of slaves, spot price fraction, etc.
 
 <pre><code>
 cloud start -n slave -c clouds/chimpmark_clouds.rb

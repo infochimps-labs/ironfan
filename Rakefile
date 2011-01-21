@@ -1,72 +1,54 @@
-#
-# Rakefile for Chef Server Repository
-#
-# Author:: Adam Jacob (<adam@opscode.com>)
-# Copyright:: Copyright (c) 2008 Opscode, Inc.
-# License:: Apache License, Version 2.0
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
-
 require 'rubygems'
 require 'chef'
 require 'json'
+TOPDIR = File.expand_path(File.join(File.dirname(__FILE__), ".."))
 
-# Load constants from rake config file.
-require File.join(File.dirname(__FILE__), 'config', 'rake')
 
-# Detect the version control system and assign to $vcs. Used by the update
-# task in chef_repo.rake (below). The install task calls update, so this
-# is run whenever the repo is installed.
-#
-# Comment out these lines to skip the update.
-
-if File.directory?(File.join(TOPDIR, ".svn"))
-  $vcs = :svn
-elsif File.directory?(File.join(TOPDIR, ".git"))
-  $vcs = :git
-end
-
-# Load common, useful tasks from Chef.
-# rake -T to see the tasks this loads.
-
-load 'chef/tasks/chef_repo.rake'
-
-desc "Bundle a single cookbook for distribution"
-task :bundle_cookbook => [ :metadata ]
-task :bundle_cookbook, :cookbook do |t, args|
-  tarball_name = "#{args.cookbook}.tar.gz"
-  temp_dir = File.join(Dir.tmpdir, "chef-upload-cookbooks")
-  temp_cookbook_dir = File.join(temp_dir, args.cookbook)
-  tarball_dir = File.join(TOPDIR, "pkgs")
-  FileUtils.mkdir_p(tarball_dir)
-  FileUtils.mkdir(temp_dir)
-  FileUtils.mkdir(temp_cookbook_dir)
-
-  child_folders = [ "cookbooks/#{args.cookbook}", "site-cookbooks/#{args.cookbook}" ]
-  child_folders.each do |folder|
-    file_path = File.join(TOPDIR, folder, ".")
-    FileUtils.cp_r(file_path, temp_cookbook_dir) if File.directory?(file_path)
-  end
-
-  system("tar", "-C", temp_dir, "-cvzf", File.join(tarball_dir, tarball_name), "./#{args.cookbook}")
-
-  FileUtils.rm_rf temp_dir
-end
+TOPDIR = File.expand_path(File.join(File.dirname(__FILE__), ".."))
+TEST_CACHE = File.expand_path(File.join(TOPDIR, ".rake_test_cache"))
+COMPANY_NAME = "Opscode, Inc."
+SSL_EMAIL_ADDRESS = "cookbooks@opscode.com"
+NEW_COOKBOOK_LICENSE = :apachev2
 
 #
 # load all rake tasks in ./tasks/*.rake
 #
 Dir[ File.join(File.dirname(__FILE__), 'tasks', '*.rake') ].sort.each do |f|
   load f
+end
+
+load 'chef/tasks/chef_repo.rake'
+task :default => [ :test ]
+
+desc "Build a bootstrap.tar.gz"
+task :build_bootstrap do
+  bootstrap_files = Rake::FileList.new
+  %w(apache2 runit couchdb stompserver chef passenger ruby packages).each do |cookbook|
+    bootstrap_files.include "#{cookbook}/**/*"
+  end
+
+  tmp_dir = "tmp"
+  cookbooks_dir = File.join(tmp_dir, "cookbooks")
+  rm_rf tmp_dir
+  mkdir_p cookbooks_dir
+  bootstrap_files.each do |fn|
+    f = File.join(cookbooks_dir, fn)
+    fdir = File.dirname(f)
+    mkdir_p(fdir) if !File.exist?(fdir)
+    if File.directory?(fn)
+      mkdir_p(f)
+    else
+      rm_f f
+      safe_ln(fn, f)
+    end
+  end
+
+  chdir(tmp_dir) do
+    sh %{tar zcvf bootstrap.tar.gz cookbooks}
+  end
+end
+
+# remove unnecessary tasks
+%w{update install roles ssl_cert}.each do |t|
+  Rake.application.instance_variable_get('@tasks').delete(t.to_s)
 end
