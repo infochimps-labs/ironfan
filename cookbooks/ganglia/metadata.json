@@ -1,0 +1,29 @@
+{
+  "recipes": {
+  },
+  "recommendations": {
+  },
+  "description": "Installs/Configures ganglia",
+  "suggestions": {
+  },
+  "attributes": {
+  },
+  "conflicting": {
+  },
+  "dependencies": {
+  },
+  "providing": {
+  },
+  "platforms": {
+  },
+  "maintainer": "YOUR_COMPANY_NAME",
+  "version": "0.0.1",
+  "replacing": {
+  },
+  "license": "All rights reserved",
+  "name": "ganglia",
+  "maintainer_email": "YOUR_EMAIL",
+  "groupings": {
+  },
+  "long_description": "= DESCRIPTION:\n\n= REQUIREMENTS:\n\n= ATTRIBUTES:\n\n= USAGE:\n\n"
+}
