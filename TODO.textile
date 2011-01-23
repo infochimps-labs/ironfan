@@ -1,4 +1,7 @@
 
+* Check all dependencies (ant, git etc needed for many)
+* Copyright notices, etc
+
 
 
 
