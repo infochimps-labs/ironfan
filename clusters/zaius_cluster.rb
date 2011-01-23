@@ -12,19 +12,6 @@ require 'cluster_chef'
 
 cluster 'zaius' do |cl|
 
-  cl.role_implication "nfs_server" do |cl|
-    cl.cloud.security_group "nfs_server"
-    # open_to_group  "nfs_client"
-  end
-
-  cl.role_implication "nfs_client" do |cl|
-    cl.cloud.security_group "nfs_client"
-  end
-
-  cl.role_implication "ssh" do |cl|
-    cl.cloud.security_group 'ssh'
-  end
-  cl.cloud.user_data :get_name_from => 'broham'
   cl.cloud :ec2 do |c|
     c.region                  'us-east-1'
     c.availability_zones      ['us-east-1d']
@@ -53,6 +40,25 @@ cluster 'zaius' do |cl|
         :cluster_size => 3,
       })
   end
+
+  cl.cloud.user_data :get_name_from => 'broham'
+
+  cl.role_implication "nfs_server" do |cl|
+    cl.cloud.security_group "nfs_server" do |g|
+      g.authorize_group "nfs_server"
+    end
+  end
+
+  cl.role_implication "nfs_client" do |cl|
+    cl.cloud.security_group "nfs_client"
+  end
+
+  cl.role_implication "ssh" do |cl|
+    cl.cloud.security_group 'ssh' do |g|
+      g.authorize_port_range 22..22
+    end
+  end
+
 end
 
 # puts Chef::Config.configuration.to_yaml

@@ -11,13 +11,14 @@
 module ClusterChef
   module Cloud
     class SecurityGroup < DslObject
-      def initialize cloud, group_name, group_description=nil
+      def initialize cloud, group_name, group_description=nil, group_owner_id=nil
         super()
         name group_name
         description group_description || "cluster_chef generated group #{group_name}"
         @cloud         = cloud
         @group_authorizations = []
         @range_authorizations = []
+        owner_id group_owner_id || Chef::Config.knife[:aws_account_id]
       end
 
       def connection
@@ -26,11 +27,14 @@ module ClusterChef
 
       @@all = nil
       def all
-        return @@all if @@all
-        get_all
+        self.class.all(connection)
       end
-      def get_all
-        groups_list = @cloud.connection.security_groups.all
+      def self.all(connection)
+        return @@all if @@all
+        get_all(connection)
+      end
+      def self.get_all connection
+        groups_list = connection.security_groups.all
         @@all = groups_list.inject({}) do |hsh, group|
           hsh[group.name] = group ; hsh
         end
@@ -40,36 +44,41 @@ module ClusterChef
         all[name] || @cloud.connection.security_groups.get(name)
       end
 
+      def self.get_or_create group_name, description, connection
+        group = all(connection)[group_name] || connection.security_groups.get(group_name)
+        if ! group
+          group = all(connection)[group_name] = Fog::AWS::Compute::SecurityGroup.new(:name => group_name, :description => description, :connection => connection)
+          group.save
+        end
+        group
+      end
+
       def authorize_group_and_owner group, owner_id=nil
         @group_authorizations << [group, owner_id]
+      end
+
+      # Alias for authorize_group_and_owner
+      def authorize_group *args
+        authorize_group_and_owner *args
       end
 
       def authorize_port_range range, cidr_ip = '0.0.0.0/0', ip_protocol = 'tcp'
         @range_authorizations << [range, cidr_ip, ip_protocol]
       end
 
-      def owner_id
-        Chef::Config.knife[:aws_account_id]
-      end
-
-      def converge!
-        group = get
-        if ! group
-          group = all[name] = Fog::AWS::Compute::SecurityGroup.new(:name => name, :description => description, :connection => connection)
-          group.save
-        end
+      def run
+        group = self.class.get_or_create name, description, connection
         p group
         @group_authorizations.uniq.each do |authed_group, authed_owner|
           authed_owner ||= self.owner_id
-          next if group.ip_permissions.include?({"groups"=>[{"userId"=>authed_owner, "groupName"=>authed_group}], "ipRanges"=>[], "ipProtocol"=>'tcp', "fromPort"=> 1, "toPort"=> 65535 })
-          p group.ip_permissions
-          p( {"groups"=>[{"userId"=>authed_owner, "groupName"=>authed_group}], "ipRanges"=>[], "ipProtocol"=>'tcp', "fromPort"=> 1, "toPort"=> 65535 })
-          Chef::Log.info ['authorizing group', authed_group, authed_owner]
+          next if group.ip_permissions && group.ip_permissions.include?({"groups"=>[{"userId"=>authed_owner, "groupName"=>authed_group}], "ipRanges"=>[], "ipProtocol"=>'tcp', "fromPort"=> 1, "toPort"=> 65535 })
+          warn ['authorizing group', authed_group, authed_owner].inspect
+          self.class.get_or_create(authed_group, "Authorized to access nfs server", connection)
           group.authorize_group_and_owner(authed_group, authed_owner)
         end
         @range_authorizations.uniq.each do |range, cidr_ip, ip_protocol|
-          next if group.ip_permissions.include?({"groups"=>[], "ipRanges"=>[{"cidrIp"=>cidr_ip}], "ipProtocol"=>ip_protocol, "fromPort"=>range.first, "toPort"=>range.last})
-          Chef::Log.info ['authorizing', range, { :cidr_ip => cidr_ip, :ip_protocol => ip_protocol }]
+          next if group.ip_permissions && group.ip_permissions.include?({"groups"=>[], "ipRanges"=>[{"cidrIp"=>cidr_ip}], "ipProtocol"=>ip_protocol, "fromPort"=>range.first, "toPort"=>range.last})
+          warn ['authorizing', range, { :cidr_ip => cidr_ip, :ip_protocol => ip_protocol }]
           group.authorize_port_range(range, { :cidr_ip => cidr_ip, :ip_protocol => ip_protocol })
         end
       end

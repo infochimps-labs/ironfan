@@ -97,8 +97,10 @@ module ClusterChef
       end
 
       # adds a security group to the cloud instance
-      def security_group sg_name
-        security_groups[sg_name] = {}
+      def security_group sg_name, &block
+        security_groups[sg_name] ||= ClusterChef::Cloud::SecurityGroup.new(self, sg_name)
+        yield security_groups[sg_name] if block
+        security_groups[sg_name]
       end
 
       # With a value, sets the spot price to the given fraction of the
