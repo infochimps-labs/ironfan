@@ -33,6 +33,8 @@ cluster 'zaius' do |cl|
   cl.role                     "ssh"
   cl.role                     "mounts_ebs_volumes"
   cl.role                     "attaches_ebs_volumes"
+  cl.role                     "hadoop_s3_keys"
+  cl.recipe                   "cluster_chef::dedicated_server_tuning"
 
   cl.facet 'master' do |f|
     f.instances                3
@@ -41,10 +43,12 @@ cluster 'zaius' do |cl|
     end
     f.role                     "nfs_server"
     f.role                     "hadoop_namenode"
+    f.role                     "hadoop_datanode"
     f.role                     "hadoop_secondarynamenode"
     f.role                     "hadoop_jobtracker"
+    f.role                     "hadoop_tasktracker"
     f.role                     "big_package"
-    f.role                     "hadoop_cluster_initial_setup"
+    f.role                     "hadoop_initial_bootstrap"
     f.chef_attributes({
         :cluster_size => f.instances,
       })

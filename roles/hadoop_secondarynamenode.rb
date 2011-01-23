@@ -3,5 +3,4 @@ description 'runs a secondarynamenode in fully-distributed mode. There should be
 
 run_list %w[
   hadoop_cluster::secondarynamenode
-  hadoop_cluster::hadoop_webfront
 ]
