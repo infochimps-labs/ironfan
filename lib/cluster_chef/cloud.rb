@@ -1,125 +1,64 @@
-require 'configliere'
-
-class RHash < Hash
-  def self.new *args
-    super(*args){|h,k| h[k] = RHash.new }
-  end
-end
-
-def cluster name, &block
-  Settings[:cluster_name]       = name
-  Settings[name]                = RHash.new
-  set[:run_list]                = []
-  set[:cloud] = ClusterChef::Cloud::Aws.new
-  cloud.keypair name
-  # set[:cloud][:security_groups] = [name]
-  block.call
-  role "#{cluster_name}_cluster"
-end
-
-def cloud provider=nil, &block
-  set[:cloud].provider provider
-  yield set[:cloud] if block
-  set[:cloud]
-end
-def facet facet_name, &block
-  role "#{cluster_name}-#{facet_name}"
-  block.call
-end
-
-# Reads the validation key in directly from a file
-def get_chef_validation_key settings
-  set[:validation_key_file] = '~/.chef/keypairs/mrflip-validator.pem'
-  validation_key_file = File.expand_path(set[:validation_key_file])
-  return unless File.exists?(validation_key_file)
-  set[:userdata][:validation_key] ||= File.read(validation_key_file)
-end
-
-def cluster_name
-  Settings[:cluster_name]
-end
-
-def set
-  Settings[cluster_name]
-end
-
-def user_data()               end
-
-def instances n_instances
-  set[:instances] = n_instances
-end
-def role name
-  set[:run_list] << "role[#{name}]"
-end
-def recipe name
-  set[:run_list] << name
-end
-
-def security_group name, options={}, &block
-  set[:cloud][:security_groups] << name
-end
-
-def role_implication name
-end
-
-def has_dynamic_volumes
-  set[:run_list] << 'attaches_volumes'
-  set[:run_list] << 'mounts_volumes'
-end
-
-def override_attributes options
-  set[:override_attributes].merge! options
-end
 
 module ClusterChef
   module Cloud
-
-    class Base
+    class Base < ClusterChef::DslObject
       def initialize
-        @settings = RHash.new
-        @settings[:security_groups] = []
+        super
       end
 
-      def set key=nil, val=nil
-        @settings[key] = val unless val.nil?
-        @settings[key]
-      end
-
-      def method_missing meth, *args
-        set meth, *args
-      end
-
-      def keys
-        @settings.keys
-      end
-
-      def to_hash
-        keys.inject({}){|h,k| h[k] = send(k) ; h }
-      end
-
-      def to_s
-        to_hash.merge({ :settings => @settings }).to_s
-      end
-
-      def from_setting_or_image_info key, val=nil, default=nil
-        @settings[key] = val if val
-        return @settings[key]  if @settings.include?(key)
-        return image_info[key] unless image_info.blank?
-        return default             # otherwise
-      end
-    end
-
-    class Aws < Base
-      # The username to ssh with
+      # The username to ssh with.
+      # @return the ssh_user if set explicitly; otherwise, the user implied by the image name, if any; or else 'root'
       def ssh_user val=nil
         from_setting_or_image_info :ssh_user, val, 'root'
       end
+
+      # The directory holding
+      def ssh_identity_dir val=nil
+        set :ssh_identity_dir, File.expand_path(val) unless val.nil?
+        @settings.include?(:ssh_identity_dir) ? @settings[:ssh_identity_dir] : File.expand_path('~/.chef/keypairs')
+      end
+
+      # The SSH identity file used for authentication
+      def ssh_identity_file val=nil
+        set :ssh_identity_file, File.expand_path(val) unless val.nil?
+        @settings.include?(:ssh_identity_file) ? @settings[:ssh_identity_file] : File.join(ssh_identity_dir, "#{keypair}.pem")
+      end
+
+      # The ID of the image to use.
+      # @return the image_id if set explicitly; otherwise, the id implied by the image name
       def image_id val=nil
         from_setting_or_image_info :image_id, val
       end
+
+      # The distribution knife should target when bootstrapping an instance
+      # @return the bootstrap_distro if set explicitly; otherwise, the bootstrap_distro implied by the image name
       def bootstrap_distro val=nil
         from_setting_or_image_info :bootstrap_distro, val, "ubuntu10.04-gems"
       end
+
+      def from_setting_or_image_info key, val=nil, default=nil
+        @settings[key] = val unless val.nil?
+        return @settings[key]  if @settings.include?(key)
+        return image_info[key] unless image_info.blank?
+        return default       # otherwise
+      end
+    end
+
+    class Slicehost < Base
+      # server_name
+      # slicehost_password
+      # Proc.new { |password| Chef::Config[:knife][:slicehost_password] = password }
+    end
+
+    class Rackspace < Base
+      # api_key, api_username, server_name
+    end
+
+    class Terremark < Base
+      # password, username, service
+    end
+
+    class Aws < Base
 
       # An alias for disable_api_termination. Prevents the instance from being
       # terminated without flipping its disable_api_termination attribute back
@@ -138,6 +77,13 @@ module ClusterChef
         flavor_info[:bits]
       end
 
+      def security_group sg_name
+        security_groups[sg_name] = {}
+      end
+
+      # With a value, sets the spot price to the given fraction of the
+      #   instance's full price (as found in ClusterChef::Cloud::Aws::FLAVOR_INFO)
+      # With no value, returns the spot price as a fraction of the full instance price.
       def spot_price_fraction val=nil
         if val
           spot_price( price.to_f * val )
@@ -146,25 +92,45 @@ module ClusterChef
         end
       end
 
+      def validation_key
+        IO.read(Chef::Config[:validation_key]) rescue ''
+      end
+
+      def user_data hsh={}
+        if hsh.blank?
+          @settings[:user_data].merge({
+              :chef_server => Chef::Config.chef_server_url,
+              :validation_client_name => Chef::Config.validation_client_name,
+              :validation_key         => validation_key,
+            })
+        else
+          @settings[:user_data].merge! hsh
+          user_data
+        end
+      end
+
       # Utility methods
 
-      def keys
-        [ :provider, :keypair,
-          :region, :availability_zones,
-          :flavor, :instance_backing,
-          :image_name, :image_id, :bits, :ssh_user, :bootstrap_distro,
-          :permanent, :elastic_ip,
-          :price, :spot_price, :spot_price_fraction,
-          :flavor_info
-        ]
-      end
+      # def to_hash
+      #   [ :provider, :keypair,
+      #     :region, :availability_zones,
+      #     :flavor, :instance_backing,
+      #     :image_name, :image_id, :bits,
+      #     :ssh_user, :bootstrap_distro, :ssh_identity_file,
+      #     :permanent, :elastic_ip,
+      #     :price, :spot_price, :spot_price_fraction,
+      #     :flavor_info,
+      #     :user_data,
+      #     :security_groups,
+      #   ].inject({}){|h,k| h[k] = send(k) ; h }
+      # end
 
       def image_info
         IMAGE_INFO[ [region, bits, backing, image_name] ] or warn "Make sure to define the machine's region, bits, backing and image_name."
       end
 
       def flavor_info
-        FLAVOR_INFO[ flavor ] or raise "Please define the machine's flavor."
+        FLAVOR_INFO[ flavor ] || {} # or raise "Please define the machine's flavor."
       end
 
       FLAVOR_INFO = {
@@ -178,9 +144,6 @@ module ClusterChef
         'm2.4xlarge'  => { :price => 2.40,  :bits => '64-bit', :ram => 0, :cores => 0, :core_size => 0, },
         't1.micro'    => { :price => 0.02,  :bits => '64-bit', :ram => 0, :cores => 0, :core_size => 0, },
       }
-
-      # http://uec-images.ubuntu.com/releases/lucid/release/
-      # http://uec-images.ubuntu.com/releases/karmic/
 
       IMAGE_INFO =  {
         %w[us-east-1             64-bit  instance        karmic                     ] => { :image_id => 'ami-55739e3c', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
@@ -242,18 +205,12 @@ module ClusterChef
         #
         # Infochimps
         #
-        # # Public AMIs, compatible with chef 0.9+ only
-        # %w[us-east-1             32-bit  ebs             infochimps-chef-client   ] => { :image_id => 'ami-393ed550', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # infochimps.chef-client.lucid.east.32bit.20100610a
-        # %w[us-east-1             64-bit  ebs             infochimps-chef-client   ] => { :image_id => 'ami-813ad1e8', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # infochimps.chef-client.lucid.east.64bit.20100612
-        # %w[us-east-1             32-bit  instance        infochimps-chef-client   ] => { :image_id => '', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # infochimps.chef-client.lucid.east.ami-32bit-20100609
-        # %w[us-east-1             64-bit  instance        infochimps-chef-client   ] => { :image_id => '', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # infochimps.chef-client.lucid.east.ami-64bit-20100609
         # sorry to stuff these in here -- the above are generic, these are infochimps internal
         %w[us-east-1             32-bit  ebs             infochimps-scraper-client  ] => { :image_id => '', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # infochimps.chef-client.lucid.east.32bit.20100610a
         %w[us-east-1             64-bit  ebs             infochimps-scraper-client  ] => { :image_id => 'ami-d13ed5b8', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # infochimps.chef-client.lucid.east.32bit.20100610a
         %w[us-east-1             64-bit  ebs             infochimps-hadoop-client   ] => { :image_id => 'ami-a236c7cb', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # microchimps
         %w[us-east-1             64-bit  instance        infochimps-hadoop-client-1 ] => { :image_id => 'ami-ad3ad1c4', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # infochimps.chef-client.lucid.east.ami-64bit-20100714
         %w[us-east-1             64-bit  instance        infochimps-hadoop-client   ] => { :image_id => 'ami-589c6d31', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # infochimps.hadoop-client.lucid.east.ami-64bit-20101224b
-
         %w[us-east-1             64-bit  ebs             infochimps-chef-client     ] => { :image_id => 'ami-48be4e21', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # infochimps.chef-client.maverick.east.ami-64bit-20110118
 
         %w[us-east-1             64-bit  instance        infochimps-maverick-client ] => { :image_id => 'ami-50659439', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # infochimps.hadoop-client.maverick.east.ami-64bit-20110113
@@ -262,13 +219,3 @@ module ClusterChef
     end
   end
 end
-
-def compile_cloud
-  # set region from AZ's
-  # set AMI from region, image_name, backing
-  # set ssh_user     from image_name
-  # set knife distro from image_name
-  # set identity file from keypair
-end
-
-# class ClusterChef ; def method_missing(*args) ; end ; end

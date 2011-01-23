@@ -1,27 +1,25 @@
-$: << File.dirname(__FILE__)
+$: << File.dirname(__FILE__)+'/../lib'
 require 'cluster_chef'
 
+# ACTIVE_FACET = 'master'
+# # Chef::Config.from_file(File.expand_path("~/ics/sysadmin/cluster_chef/clusters/foo.rb"))
 
-role_implication "nfs_server" do
-  cloud do
-    security_group "nfs_server"
-    open_to_group  "nfs_client"
+cluster 'zaius' do |cl|
+
+  cl.role_implication "nfs_server" do |cl|
+    cl.cloud.security_group "nfs_server"
+    # open_to_group  "nfs_client"
   end
-end
 
-role_implication "nfs_client" do
-  cloud do
-    security_group "nfs_client"
+  cl.role_implication "nfs_client" do |cl|
+    cl.cloud.security_group "nfs_client"
   end
-end
 
-role_implication "ssh" do
-  cloud.security_groups << ['ssh']
-end
+  cl.role_implication "ssh" do |cl|
+    cl.cloud.security_group 'ssh'
+  end
 
-cluster 'zaius' do
-
-  cloud :aws do |c|
+  cl.cloud :ec2 do |c|
     c.region                  'us-east-1'
     c.availability_zones      ['us-east-1d']
     c.flavor                  'm1.small'
@@ -32,33 +30,27 @@ cluster 'zaius' do
     c.spot_price_fraction     1.0
   end
 
-  role                      "base_role"
-  role                      "default"
-  role                      "ssh" do
-    authorize :from_port => 22,  :to_port => 22
-  end
-
-  facet 'master' do
-    instances                1
-    role                     "nfs_server"
-    role                     "chef_client"
-    has_dynamic_volumes
-    role                     "hadoop_namenode"
-    role                     "hadoop_secondarynamenode"
-    role                     "hadoop_jobtracker"
-    recipe                   'hadoop_cluster::format_namenode_once'
-    role                     "big_package"
-
-    override_attributes({
+  cl.facet 'master' do |f|
+    f.instances                1
+    f.role                     "nfs_server"
+    f.role                     "chef_client"
+    f.role                     "ssh"
+    f.has_dynamic_volumes      true
+    f.role                     "hadoop_namenode"
+    f.role                     "hadoop_secondarynamenode"
+    f.role                     "hadoop_jobtracker"
+    f.recipe                   'hadoop_cluster::format_namenode_once'
+    f.role                     "big_package"
+    f.chef_attributes({
         :cluster_size => 3,
       })
   end
 end
 
+# puts Chef::Config.configuration.to_yaml
 
-puts Settings.to_yaml
-
-puts cloud.to_s
+puts Chef::Config.clusters['zaius'].to_hash.to_yaml
+puts Chef::Config.clusters['zaius'].facet('master').to_hash.to_yaml
 
 #   has_big_package             settings
 #   has_role                    settings, "#{settings[:cluster_name]}_cluster"
