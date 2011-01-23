@@ -67,7 +67,7 @@ module ClusterChef
       # password, username, service
     end
 
-    class Aws < Base
+    class Ec2 < Base
 
       def provider_klass
         Fog::AWS::Compute
@@ -118,6 +118,9 @@ module ClusterChef
         IO.read(Chef::Config[:validation_key]) rescue ''
       end
 
+      # When given a hash, merge with the existing user data
+      #
+      # FIXME: use a deep merge
       def user_data hsh={}
         if hsh.blank?
           @settings[:user_data].merge({
@@ -131,11 +134,31 @@ module ClusterChef
         end
       end
 
-      def reverse_merge! cloud
+      def resolve! cloud
         @settings = cloud.to_hash.merge @settings
         @settings[:security_groups] = cloud.security_groups.merge(self.security_groups)
         @settings[:user_data]       = cloud.to_hash[:user_data].merge(@settings[:user_data])
+        resolve_region!
+        resolve_block_device_mapping!
         self
+      end
+
+      def resolve_region!
+        region availability_zones.first.gsub(/^(\w+-\w+-\d)[a-z]/, '\1') if region.blank?
+      end
+
+      def resolve_block_device_mapping!
+        # FIXME: finish this
+        # if settings[:instance_backing] == 'ebs'
+        #   # Bring the ephemeral storage (local scratch disks) online
+        #   block_device_mapping([
+        #       { :device_name => '/dev/sda1' }.merge(settings[:boot_volume]||{}),
+        #       { :device_name => '/dev/sdc',  :virtual_name => 'ephemeral0' },
+        #     ])
+        #   instance_initiated_shutdown_behavior 'stop'
+        # else
+        #   settings.delete :boot_volume
+        # end
       end
 
       # Utility methods
@@ -155,7 +178,7 @@ module ClusterChef
       # end
 
       def image_info
-        IMAGE_INFO[ [region, bits, backing, image_name] ] or warn "Make sure to define the machine's region, bits, backing and image_name."
+        IMAGE_INFO[ [region, bits, backing, image_name] ] or warn "Make sure to define the machine's region, bits, backing and image_name. (Have #{[region, bits, backing, image_name].inspect})"
       end
 
       def flavor_info

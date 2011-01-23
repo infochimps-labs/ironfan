@@ -7,10 +7,18 @@ require 'cluster_chef/dsl_object'
 require 'cluster_chef/cloud'
 require 'cluster_chef/security_group'
 
+def cluster name, &block
+  Chef::Config[:clusters]       ||= {}
+  cl = Chef::Config[:clusters][name] = ClusterChef::Cluster.new(name)
+  yield cl
+  cl
+end
 
 module ClusterChef
-
-  class NodeBuilder < ClusterChef::DslObject
+  #
+  # Base class allowing us to layer settings for facet over cluster
+  #
+  class ComputeBuilder < ClusterChef::DslObject
     attr_reader :cloud
     @@role_implications ||= {}
     
@@ -18,43 +26,56 @@ module ClusterChef
       super()
       name         builder_name
       run_list     []
+      @settings[:chef_attributes] = {}
     end
 
     def cloud cloud_provider=nil, &block
       raise "Only have ec2 so far" if cloud_provider && (cloud_provider != :ec2)
-      @cloud ||= ClusterChef::Cloud::Aws.new
+      @cloud ||= ClusterChef::Cloud::Ec2.new
       yield @cloud if block
       @cloud
     end
 
+    # Merges the given hash into 
+    # FIXME: needs to be a deep_merge
     def chef_attributes hsh={}
-      @settings[:chef_attributes] ||= {}
+      # The DSL attribute for 'chef_attributes' merges not overwrites
       @settings[:chef_attributes].merge! hsh unless hsh.blank?
       @settings[:chef_attributes]
     end
 
+    # Adds the given role to the run list, and invokes any role_implications it
+    # implies (for instance, the 'ssh' role on an ec2 machine requires port 22
+    # be explicity opened.)
+    #
     def role role_name
       run_list << "role[#{role_name}]"
       @@role_implications[role_name].call(self) if @@role_implications[role_name]
     end
+    # Add the given recipe to the run list
     def recipe name
       run_list << name
     end
+
+    # Some roles imply aspects of the machine that have to exist at creation.
+    # For instance, on an ec2 machine you may wish the 'ssh' role to imply a
+    # security group explicity opening port 22.
+    #
+    # FIXME: This feels like it should be done at resolve time
+    #
     def role_implication name, &block
       @@role_implications[name] = block 
     end
-    
-    def to_yaml
-      to_hash.merge({ :cloud => cloud.to_hash, }).to_yaml
-    end
   end
 
-  class Cluster < ClusterChef::NodeBuilder
+  #
+  # A cluster has many facets. Any setting applied here is merged with the facet
+  # at resolve time; if the facet explicitly sets any attributes they will win out.
+  #
+  class Cluster < ClusterChef::ComputeBuilder
     def initialize cluster_name
       super(cluster_name)
       @facets = {}
-      cloud.keypair         cluster_name
-      cloud.security_group  cluster_name
       role               "#{cluster_name}_cluster"
       chef_attributes :cluster_name => cluster_name
       chef_attributes :aws => { :access_key => Chef::Config[:knife][:aws_access_key_id], :secret_access_key => Chef::Config[:knife][:aws_secret_access_key],}
@@ -67,19 +88,18 @@ module ClusterChef
     end
   end
 
-  class Facet < ClusterChef::NodeBuilder
+  class Facet < ClusterChef::ComputeBuilder
     attr_reader :cluster
     
     def initialize cluster, facet_name
       super(facet_name)
       @cluster = cluster
-      cloud.security_group "#{cluster.name}_#{facet_name}"
-      role                 "#{cluster.name}_#{facet_name}"
-      chef_node_name       "#{cluster.name}-#{facet_name}-0"
       chef_attributes :node_name          => chef_node_name
-      chef_attributes :cluster_role       => facet_name
+      chef_attributes :cluster_role       => facet_name # backwards compatibility
       chef_attributes :facet_name         => facet_name
       chef_attributes :cluster_role_index => 0
+      role           "#{cluster.name}_#{facet_name}"
+      chef_node_name "#{cluster.name}-#{facet_name}-0"
     end
 
     #
@@ -89,10 +109,13 @@ module ClusterChef
       @settings = builder.to_hash.merge @settings
       @settings[:run_list]        = builder.run_list + self.run_list
       @settings[:chef_attributes] = builder.chef_attributes.merge(self.chef_attributes)
-      cloud.reverse_merge! builder.cloud
+      cloud.resolve! builder.cloud
+      cloud.keypair         cluster.name if cloud.keypair.blank?
+      cloud.security_group  cluster.name
+      cloud.security_group "#{cluster.name}_#{self.name}"
       self
     end
-    
+
     # FIXME: a lot of AWS logic in here. This probably lives in the facet.cloud
     # but for the one or two things that come from the facet
     def create_servers
@@ -115,43 +138,10 @@ module ClusterChef
 
     def list_servers
       cloud.connection.servers.all
-    end    
+    end
+    
+    def to_hash_with_cloud
+      to_hash.merge({ :cloud => cloud.to_hash, })
+    end
   end
 end
-
-def cluster name, &block
-  Chef::Config[:clusters]       ||= {}
-  Chef::Config[:clusters][name] = ClusterChef::Cluster.new(name)
-  yield Chef::Config[:clusters][name]
-end
-
-# # Reads the validation key in directly from a file
-# def get_chef_validation_key settings
-#   set[:validation_key_file] = '~/.chef/keypairs/mrflip-validator.pem'
-#   validation_key_file = File.expand_path(set[:validation_key_file])
-#   return unless File.exists?(validation_key_file)
-#   set[:userdata][:validation_key] ||= File.read(validation_key_file)
-# end
-# 
-# def cluster_name
-#   Settings[:cluster_name]
-# end
-# 
-# def instances n_instances
-#   set[:instances] = n_instances
-# end
-# 
-
-# def security_group name, options={}, &block
-#   set[:cloud][:security_groups] << name
-# end
-# 
-# 
-# def has_dynamic_volumes
-#   set[:run_list] << 'attaches_volumes'
-#   set[:run_list] << 'mounts_volumes'
-# end
-# 
-# def override_attributes options
-#   set[:override_attributes].merge! options
-# end
