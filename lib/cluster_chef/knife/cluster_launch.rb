@@ -70,8 +70,6 @@ class Chef
 
         $: << File.expand_path('~/ics/sysadmin/cluster_chef/clusters')
         require 'zaius_cluster'
-        Fog.mock!
-        Fog::Mock.delay = 0
 
         cluster_name, facet_name = @name_args
         cluster = Chef::Config[:clusters][cluster_name]
