@@ -29,6 +29,7 @@ cookbook_path            [
 # EC2:
 knife[:aws_access_key_id]      = "AWS_KEY"
 knife[:aws_secret_access_key]  = "AWS_SECRET_ACCESS_KEY"
+knife[:aws_account_id]         = "AWS_ACCOUNT_ID"
 
 # Rackspace:
 knife[:rackspace_api_key]      = "Your Rackspace API Key"

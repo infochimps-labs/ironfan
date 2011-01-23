@@ -1,10 +1,11 @@
 
-require 'cluster_chef/rhash'
-require 'cluster_chef/dsl_object'
-require 'cluster_chef/cloud'
-
+require 'fog'
 require 'chef'
 require 'chef/knife'
+
+require 'cluster_chef/dsl_object'
+require 'cluster_chef/cloud'
+require 'cluster_chef/security_group'
 
 
 module ClusterChef
@@ -39,23 +40,33 @@ module ClusterChef
     def recipe name
       run_list << name
     end
-    
-    def to_hash
-      super.merge({ :cloud => cloud.to_hash, })
-    end
-
     def role_implication name, &block
       @@role_implications[name] = block 
     end
+    
+    def to_yaml
+      to_hash.merge({ :cloud => cloud.to_hash, }).to_yaml
+    end
 
+    def reverse_merge! builder
+      @settings = builder.to_hash.merge @settings
+      @settings[:run_list]        = builder.run_list + self.run_list
+      @settings[:chef_attributes] = builder.chef_attributes.merge(self.chef_attributes)
+      cloud.reverse_merge! builder.cloud
+      self
+    end
   end
 
   class Cluster < ClusterChef::NodeBuilder
     def initialize cluster_name
       super(cluster_name)
       @facets = {}
-      cloud.keypair   name
-      role      "#{name}_cluster"
+      cloud.keypair cluster_name
+      cloud.security_group cluster_name
+      chef_attributes :cluster_name => cluster_name
+      role "#{name}_cluster"
+      chef_attributes :cluster_name => cluster_name
+      chef_attributes :aws => { :access_key => Chef::Config[:knife][:aws_access_key_id], :secret_access_key => Chef::Config[:knife][:aws_secret_access_key],}
     end
 
     def facet facet_name, &block
@@ -63,7 +74,7 @@ module ClusterChef
       yield @facets[facet_name] if block
       @facets[facet_name]
     end
-    
+
     # def to_hash
     #   super.merge({ :my_facets => @facets.inject({}){|h,(k,v)| h[k] = v.to_hash ; h } })
     # end
@@ -73,11 +84,39 @@ module ClusterChef
     attr_reader :cluster
     
     def initialize cluster, facet_name
-      @cluster = cluster
       super(facet_name)
+      @cluster = cluster
+      cloud.security_group "#{cluster.name}_#{facet_name}"
+      chef_attributes :facet_name => facet_name
       role "#{cluster.name}_#{facet_name}"
+      chef_attributes :cluster_role => facet_name
+      chef_attributes :facet_name   => facet_name
+      chef_attributes :cluster_role_index => 0
+      chef_node_name "#{cluster.name}-#{facet_name}-0"
+      chef_attributes :node_name    => chef_node_name
     end
-    
+
+    def create_servers
+      cloud.connection.servers.create(
+        :image_id          => cloud.image_id,
+        :flavor_id         => cloud.flavor,
+        # 
+        :min_count         => instances,
+        :max_count         => instances,
+        :groups            => cloud.security_groups.keys,
+        :key_name          => cloud.keypair,
+        :tags              => cloud.security_groups.keys,
+        :user_data         => JSON.pretty_generate(cloud.user_data.merge(:attributes => chef_attributes.merge(:run_list => run_list))),
+        # :block_device_mapping => [],
+        # :disable_api_termination => disable_api_termination,
+        # :instance_initiated_shutdown_behavior => instance_initiated_shutdown_behavior,
+        :availability_zone => cloud.availability_zones.first
+        )
+    end
+
+    def list_servers
+      cloud.connection.servers.all
+    end    
   end
 end
 

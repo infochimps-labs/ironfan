@@ -4,6 +4,12 @@ require 'cluster_chef'
 # ACTIVE_FACET = 'master'
 # # Chef::Config.from_file(File.expand_path("~/ics/sysadmin/cluster_chef/clusters/foo.rb"))
 
+# FIXME: delete_on_termination
+# FIXME: disable_api_termination
+# FIXME: block_device_mapping
+# FIXME: instance_initiated_shutdown_behavior
+# FIXME: elastic_ip's
+
 cluster 'zaius' do |cl|
 
   cl.role_implication "nfs_server" do |cl|
@@ -18,7 +24,7 @@ cluster 'zaius' do |cl|
   cl.role_implication "ssh" do |cl|
     cl.cloud.security_group 'ssh'
   end
-
+  cl.cloud.user_data :get_name_from => 'broham'
   cl.cloud :ec2 do |c|
     c.region                  'us-east-1'
     c.availability_zones      ['us-east-1d']
@@ -28,10 +34,12 @@ cluster 'zaius' do |cl|
     c.permanent               false
     c.elastic_ip              false
     c.spot_price_fraction     1.0
+
+    c.security_group "foo"
   end
 
   cl.facet 'master' do |f|
-    f.instances                1
+    f.instances                3
     f.role                     "nfs_server"
     f.role                     "chef_client"
     f.role                     "ssh"
@@ -49,15 +57,7 @@ end
 
 # puts Chef::Config.configuration.to_yaml
 
-puts Chef::Config.clusters['zaius'].to_hash.to_yaml
-puts Chef::Config.clusters['zaius'].facet('master').to_hash.to_yaml
-
-#   has_big_package             settings
-#   has_role                    settings, "#{settings[:cluster_name]}_cluster"
-#   user_data_is_json_hash      settings
-#
-#
-# end
-
-
-# knife bootstrap mynode.example.com -r 'role[webserver]','role[production]' --distro debian5.0-apt
+mycluster = Chef::Config.clusters['zaius']
+myfacet = mycluster.facet('master')
+myfacet.reverse_merge!(Chef::Config.clusters['zaius'])
+puts myfacet.to_yaml

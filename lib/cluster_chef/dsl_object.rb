@@ -13,6 +13,10 @@ module ClusterChef
       set meth, *args
     end
 
+    def [] key
+      @settings[key]
+    end
+
     def to_hash
       @settings.dup
     end

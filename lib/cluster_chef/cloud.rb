@@ -42,12 +42,21 @@ module ClusterChef
         return image_info[key] unless image_info.blank?
         return default       # otherwise
       end
+
+      #
+      # Fog interface
+      #
+      def connection
+        @connection ||= provider_klass.new(provider_credentials)
+      end
     end
 
     class Slicehost < Base
       # server_name
       # slicehost_password
       # Proc.new { |password| Chef::Config[:knife][:slicehost_password] = password }
+
+      # personality
     end
 
     class Rackspace < Base
@@ -59,6 +68,16 @@ module ClusterChef
     end
 
     class Aws < Base
+
+      def provider_klass
+        Fog::AWS::Compute
+      end
+
+      def provider_credentials
+        { :aws_access_key_id     => Chef::Config[:knife][:aws_access_key_id],
+          :aws_secret_access_key => Chef::Config[:knife][:aws_secret_access_key],
+          :region                => region }
+      end
 
       # An alias for disable_api_termination. Prevents the instance from being
       # terminated without flipping its disable_api_termination attribute back
@@ -77,6 +96,7 @@ module ClusterChef
         flavor_info[:bits]
       end
 
+      # adds a security group to the cloud instance
       def security_group sg_name
         security_groups[sg_name] = {}
       end
@@ -99,7 +119,7 @@ module ClusterChef
       def user_data hsh={}
         if hsh.blank?
           @settings[:user_data].merge({
-              :chef_server => Chef::Config.chef_server_url,
+              :chef_server            => Chef::Config.chef_server_url,
               :validation_client_name => Chef::Config.validation_client_name,
               :validation_key         => validation_key,
             })
@@ -107,6 +127,13 @@ module ClusterChef
           @settings[:user_data].merge! hsh
           user_data
         end
+      end
+
+      def reverse_merge! cloud
+        @settings = cloud.to_hash.merge @settings
+        @settings[:security_groups] = cloud.security_groups.merge(self.security_groups)
+        @settings[:user_data]       = cloud.to_hash[:user_data].merge(@settings[:user_data])
+        self
       end
 
       # Utility methods
