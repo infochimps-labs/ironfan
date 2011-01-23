@@ -1,3 +1,4 @@
+
 overcommit_memory  =     1
 overcommit_ratio   =   100
 ulimit_hard_nofile = 32768
@@ -14,11 +15,9 @@ end
 set_proc_sys_limit "VM overcommit ratio", '/proc/sys/vm/overcommit_memory', overcommit_memory
 set_proc_sys_limit "VM overcommit memory", '/proc/sys/vm/overcommit_ratio',  overcommit_ratio
 
-
 # recent kernels do away with this limit, so these lines aren't necessary.
 # # http://pero.blogs.aprilmayjune.org/2009/01/22/hadoop-and-linux-kernel-2627-epoll-limits/
 # set_proc_sys_limit "Increase epoll instances limit", '/proc/sys/fs/epoll/max_user_instances', fs_epoll_max_user_instances
-
 
 bash "Increase open files hard ulimit for @hadoop group" do
   not_if "egrep -q 'hbase.*hard.*nofile.*#{ulimit_hard_nofile}' /etc/security/limits.conf"

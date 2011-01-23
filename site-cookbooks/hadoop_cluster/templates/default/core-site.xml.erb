@@ -43,9 +43,10 @@
   <name>io.compression.codecs</name>
   <value>org.apache.hadoop.io.compress.DefaultCodec,org.apache.hadoop.io.compress.GzipCodec,org.apache.hadoop.io.compress.BZip2Codec</value>
 </property>
+<%- unless node[:aws].blank? %>
 <property>
   <name>fs.s3.awsAccessKeyId</name>
-  <value><%= node[:aws][:aws_access_key] %></value>
+  <value><%= node[:aws][:aws_access_key_id] %></value>
 </property>
 <property>
   <name>fs.s3.awsSecretAccessKey</name>
@@ -53,10 +54,11 @@
 </property>
 <property>
   <name>fs.s3n.awsAccessKeyId</name>
-  <value><%= node[:aws][:aws_access_key] %></value>
+  <value><%= node[:aws][:aws_access_key_id] %></value>
 </property>
 <property>
   <name>fs.s3n.awsSecretAccessKey</name>
   <value><%= node[:aws][:aws_secret_access_key] %></value>
 </property>
+<%- end %>
 </configuration>

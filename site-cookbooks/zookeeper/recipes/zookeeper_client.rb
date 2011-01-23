@@ -1,8 +1,8 @@
 #
-# Cookbook Name:: hadoop
-# Recipe::        worker
+# Cookbook Name:: zookeeper
+# Recipe:: default
 #
-# Copyright 2010, Infochimps, Inc
+# Copyright 2010, Infochimps, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,12 +17,5 @@
 # limitations under the License.
 #
 
-#
-# Format Namenode
-#
-execute 'format_namenode' do
-  command %Q{yes 'Y' | hadoop namenode -format ; true}
-  user 'hdfs'
-  creates '/mnt/hadoop/hdfs/name/current/VERSION'
-  creates '/mnt/hadoop/hdfs/name/current/fsimage'
-end
+include_recipe "java"
+include_recipe "zookeeper"

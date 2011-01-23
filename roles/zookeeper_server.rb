@@ -1,9 +1,6 @@
-name 'hbase_master'
+name 'zookeeper server'
 description 'runs a zookeeper and hbase-master in fully-distributed mode. There should be exactly one of these per cluster.'
 
 run_list %w[
-  hadoop_cluster::ec2_conf
-  hadoop_cluster::hadoop_webfront
-  hadoop_cluster::system_internals
-  hbase::hbase_master
+  zookeeper::zookeeper_server
 ]

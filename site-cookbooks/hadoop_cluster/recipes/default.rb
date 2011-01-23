@@ -20,20 +20,12 @@
 include_recipe "java"
 class Chef::Recipe; include HadoopCluster ; end
 
-# Remove hadoop user because of https://issues.cloudera.org/browse/DISTRO-51
-bash 'uninstall old hadoop' do
-  user          "root"
-  code           %Q{
-    apt-get update
-    apt-get -y --purge remove hadoop-0.20=0.20.2+320-1~lucid-cdh3b2 hadoop-0.20-{native,datanode,namenode,tasktracker,datanode,secondarynamenode}=0.20.2+320-1~lucid-cdh3b2
-    userdel hadoop
-    true
-  }
-end
+#
+# Cloudera repo
+#
 
-execute "apt-get update" do
-  action :nothing
-end
+# Dummy apt-get resource, will only be run if the apt repo requires updating
+execute("apt-get update"){ action :nothing }
 
 # Add cloudera package repo
 template "/etc/apt/sources.list.d/cloudera.list" do
@@ -93,6 +85,7 @@ end
 #
 # Hadoop packages
 #
+
 hadoop_package nil
 hadoop_package "native"
 hadoop_package "sbin"
