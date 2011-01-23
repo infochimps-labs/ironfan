@@ -47,37 +47,24 @@ module ClusterChef
     def to_yaml
       to_hash.merge({ :cloud => cloud.to_hash, }).to_yaml
     end
-
-    def reverse_merge! builder
-      @settings = builder.to_hash.merge @settings
-      @settings[:run_list]        = builder.run_list + self.run_list
-      @settings[:chef_attributes] = builder.chef_attributes.merge(self.chef_attributes)
-      cloud.reverse_merge! builder.cloud
-      self
-    end
   end
 
   class Cluster < ClusterChef::NodeBuilder
     def initialize cluster_name
       super(cluster_name)
       @facets = {}
-      cloud.keypair cluster_name
-      cloud.security_group cluster_name
-      chef_attributes :cluster_name => cluster_name
-      role "#{name}_cluster"
+      cloud.keypair         cluster_name
+      cloud.security_group  cluster_name
+      role               "#{cluster_name}_cluster"
       chef_attributes :cluster_name => cluster_name
       chef_attributes :aws => { :access_key => Chef::Config[:knife][:aws_access_key_id], :secret_access_key => Chef::Config[:knife][:aws_secret_access_key],}
     end
 
     def facet facet_name, &block
-      @facets[facet_name] = ClusterChef::Facet.new(self, facet_name) unless @facets.include?(facet_name)
+      @facets[facet_name] ||= ClusterChef::Facet.new(self, facet_name)
       yield @facets[facet_name] if block
       @facets[facet_name]
     end
-
-    # def to_hash
-    #   super.merge({ :my_facets => @facets.inject({}){|h,(k,v)| h[k] = v.to_hash ; h } })
-    # end
   end
 
   class Facet < ClusterChef::NodeBuilder
@@ -87,15 +74,27 @@ module ClusterChef
       super(facet_name)
       @cluster = cluster
       cloud.security_group "#{cluster.name}_#{facet_name}"
-      chef_attributes :facet_name => facet_name
-      role "#{cluster.name}_#{facet_name}"
-      chef_attributes :cluster_role => facet_name
-      chef_attributes :facet_name   => facet_name
+      role                 "#{cluster.name}_#{facet_name}"
+      chef_node_name       "#{cluster.name}-#{facet_name}-0"
+      chef_attributes :node_name          => chef_node_name
+      chef_attributes :cluster_role       => facet_name
+      chef_attributes :facet_name         => facet_name
       chef_attributes :cluster_role_index => 0
-      chef_node_name "#{cluster.name}-#{facet_name}-0"
-      chef_attributes :node_name    => chef_node_name
     end
 
+    #
+    # Resolve: 
+    #
+    def resolve! builder
+      @settings = builder.to_hash.merge @settings
+      @settings[:run_list]        = builder.run_list + self.run_list
+      @settings[:chef_attributes] = builder.chef_attributes.merge(self.chef_attributes)
+      cloud.reverse_merge! builder.cloud
+      self
+    end
+    
+    # FIXME: a lot of AWS logic in here. This probably lives in the facet.cloud
+    # but for the one or two things that come from the facet
     def create_servers
       cloud.connection.servers.create(
         :image_id          => cloud.image_id,
