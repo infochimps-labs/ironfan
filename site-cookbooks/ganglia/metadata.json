@@ -1,29 +1,29 @@
 {
-  "recipes": {
-  },
-  "recommendations": {
-  },
+  "name": "ganglia",
   "description": "Installs/Configures ganglia",
-  "suggestions": {
-  },
-  "attributes": {
-  },
-  "conflicting": {
+  "long_description": "= DESCRIPTION:\n\n= REQUIREMENTS:\n\n= ATTRIBUTES:\n\n= USAGE:\n\n",
+  "maintainer": "YOUR_COMPANY_NAME",
+  "maintainer_email": "YOUR_EMAIL",
+  "license": "All rights reserved",
+  "platforms": {
   },
   "dependencies": {
   },
+  "recommendations": {
+  },
+  "suggestions": {
+  },
+  "conflicting": {
+  },
   "providing": {
   },
-  "platforms": {
-  },
-  "maintainer": "YOUR_COMPANY_NAME",
-  "version": "0.0.1",
   "replacing": {
   },
-  "license": "All rights reserved",
-  "name": "ganglia",
-  "maintainer_email": "YOUR_EMAIL",
+  "attributes": {
+  },
   "groupings": {
   },
-  "long_description": "= DESCRIPTION:\n\n= REQUIREMENTS:\n\n= ATTRIBUTES:\n\n= USAGE:\n\n"
+  "recipes": {
+  },
+  "version": "0.0.1"
 }
