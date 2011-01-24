@@ -91,17 +91,20 @@ module ClusterChef
 
   class Facet < ClusterChef::ComputeBuilder
     attr_reader :cluster
-    has_keys :chef_node_name, :instances
+    has_keys :chef_node_name, :instances, :facet_index
     
     def initialize cluster, facet_name
       super(facet_name)
       @cluster = cluster
-      chef_node_name "#{cluster.name}-#{facet_name}-0"
       role           "#{cluster.name}_#{facet_name}"
-      chef_attributes :node_name          => chef_node_name
       chef_attributes :cluster_role       => facet_name # backwards compatibility
       chef_attributes :facet_name         => facet_name
-      chef_attributes :cluster_role_index => 0
+      if facet_index
+        chef_node_name "#{cluster.name}-#{facet_name}-#{facet_index}"
+        chef_attributes :node_name          => chef_node_name
+        chef_attributes :cluster_role_index => facet_index # backwards compatibility
+        chef_attributes :facet_index        => facet_index
+      end
     end
 
     #
@@ -116,14 +119,14 @@ module ClusterChef
       cloud.security_group    cluster.name do |g|
         g.authorize_group cluster.name
       end
-      cloud.security_group "#{cluster.name}_#{self.name}"
+      cloud.security_group "#{cluster.name}-#{self.name}"
+      chef_attributes :run_list => run_list
       self
     end
 
     # FIXME: a lot of AWS logic in here. This probably lives in the facet.cloud
     # but for the one or two things that come from the facet
     def create_servers
-      # chef_attributes :run_list => run_list
       cloud.connection.servers.create(
         :image_id          => cloud.image_id,
         :flavor_id         => cloud.flavor,

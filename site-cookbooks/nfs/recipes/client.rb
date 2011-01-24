@@ -4,7 +4,7 @@ if node[:nfs] && node[:nfs][:mounts]
   node[:nfs][:mounts].each do |target, config|
     mount target do
       fstype "nfs"
-      options %w(rw,soft,intr)
+      options %w(rw,soft,intr,nfsvers=3)
       device config[:device] ? config[:device] : "#{provider_private_ip('nfs_server')}:#{config[:remote_path]}"
       dump 0
       pass 0

@@ -253,8 +253,9 @@ module ClusterChef
         %w[us-east-1             64-bit  instance        infochimps-hadoop-client-1 ] => { :image_id => 'ami-ad3ad1c4', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # infochimps.chef-client.lucid.east.ami-64bit-20100714
         %w[us-east-1             64-bit  instance        infochimps-hadoop-client   ] => { :image_id => 'ami-589c6d31', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # infochimps.hadoop-client.lucid.east.ami-64bit-20101224b
         %w[us-east-1             64-bit  ebs             infochimps-chef-client     ] => { :image_id => 'ami-48be4e21', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # infochimps.chef-client.maverick.east.ami-64bit-20110118
-
         %w[us-east-1             64-bit  instance        infochimps-maverick-client ] => { :image_id => 'ami-50659439', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # infochimps.hadoop-client.maverick.east.ami-64bit-20110113
+
+        %w[us-east-1             32-bit  ebs             mrflip-maverick-client     ] => { :image_id => 'ami-f4f6069d', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.10-cluster_chef", }, # mrflip.chef-client.maverick.east.ebs-32bit-20110124
       }
 
     end

@@ -4,7 +4,7 @@
 
 set -v
 
-sudo apt-get install linux-server
+sudo apt-get install -y linux-server
 
 # on x86_64 there is a '-server' kernel, on i386, it is '-generic-pae'
 flav="server"

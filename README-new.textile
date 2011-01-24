@@ -2,9 +2,19 @@
 
 
 
+h3. Gotchas
 
-require 'rubygems'
-require 'broham'
+* For problems starting NFS server on ubuntu maverick systems, read, understand
+  and then run /tmp/fix_nfs_on_maverick_amis.sh -- See
+  "this thread for more":http://fossplanet.com/f10/[ec2ubuntu]-not-starting-nfs-kernel-daemon-no-support-current-kernel-90948/
 
-Broham.establish_connection :access_key=>'YOUR_ACCESS_KEY', :secret_access_key=>'YOUR_KEY'
-Broham.create_domain
+h3. Zero-bootstrap, fire and forget cluster launch!
+
+* Use the client.rb script in cluster_chef/config
+
+* You'll have to 
+  <pre>
+    sudo gem install broham configliere right_aws
+    ruby -rubygems -e 'require "broham"; Broham.establish_connection :access_key=>"YOUR_ACCESS_KEY", :secret_access_key=>"YOUR_KEY"; Broham.create_domain'
+  <pre>
+  

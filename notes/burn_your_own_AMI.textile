@@ -8,7 +8,7 @@ for foo in flip jacob dhruv doncarlo jesse dsnyder howech ryan nickster robochim
 for foo in hadoop-0.20-{namenode,jobtracker,tasktracker,datanode,secondarynamenode} hadoop-{zookeeper-server,hbase-master,hbase-regionserver} cassandra couchdb thttpd chef-client nfs-kernel-server god apeyeye nginx  rabbitmq-server chef-{solr,solr-indexer,client,server,server-webui} elasticsearch ; do sudo service $foo stop ; done
 killall redis-server tail nginx console-kil-daemon
 for foo in thttpd hadoop-0.20-{tasktracker,datanode,namenode,jobtracker,secondarynamenode} hadoop-{zookeeper-server,hbase-master,hbase-regionserver} cassandra elasticsearch ; do sudo update-rc.d -f $foo remove ; done
-# Give the process list a how's your father -- nothing interesting should be running.
+# Give the process list a hows-your-father -- nothing interesting should be running.
 ps auxf
 # Unmount anything that's mounted,
 sudo umount /home
@@ -59,8 +59,7 @@ h3. Burning an EBS-backed AMI
 
 Just use the console. MAKE SURE TO STOP, UNMOUNT AND DETACH ALL EBS volumes first.
 
-  infochimps.chef-client.lucid.east.ebs-32bit-20100725
-  infochimps.scraper-client.lucid.east.ebs-32bit-20100725
+  infochimps.chef-client.maverick.east.ebs-32bit-20110124
   Chef client: use with http://github.com/infochimps/cluster_chef - Hadoop Cassandra & NFS under Chef
 
 h3. Burning an Instance-backed (s3) AMIs

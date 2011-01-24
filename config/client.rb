@@ -58,13 +58,15 @@ client_key             "/etc/chef/client.pem"
 # and use it to set the node_name
 #
 if chef_config['get_name_from'] == 'broham' && (attrs['node_name'].blank?)
+  puts "Getting name from broham within [#{attrs['cluster_name']}-#{attrs['cluster_role']}]"
   begin
     require 'broham'
     BrohamNode.set_cluster_info!(attrs)
+    attrs["facet_index"] ||= attrs["cluster_role_index"]
   rescue Exception => e ; warn "Error getting cluster role from broham: #{e.message}\n#{e.backtrace}" ; end
 end
-attrs["cluster_role_index"] ||= OHAI_INFO[:ec2][:instance_id]
-attrs["node_name"]          ||= [ attrs["cluster_name"], attrs["cluster_role"], attrs["cluster_role_index"] ].reject(&:blank?).join('-')
+attrs["facet_index"] ||= OHAI_INFO[:ec2][:instance_id]
+attrs["node_name"]   ||= [ attrs["cluster_name"], attrs["cluster_role"], attrs["facet_index"] ].reject(&:blank?).join('-')
 node_name attrs["node_name"]
 
 # If the client file is missing, write the validation key out so chef-client can register

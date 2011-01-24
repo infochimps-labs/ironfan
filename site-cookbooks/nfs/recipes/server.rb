@@ -15,19 +15,20 @@ if node[:nfs] && node[:nfs][:exports]
     running true
     supports :status => true, :restart => true
   end
-
 else
   Chef::Log.warn "You included the NFS server recipe without defining nfs exports: set node[:nfs][:exports]."
 end
 
-if node[:lsb][:release].to_f == 10.10
+#
+# For problems starting NFS server on ubuntu maverick systems: read, understand
+# and then run /tmp/fix_nfs_on_maverick_amis.sh
+#
+if (node[:lsb][:release].to_f == 10.10) && (`service nfs-kernel-server status` =~ /not running/)
   template "/tmp/fix_nfs_on_maverick_amis.sh" do
     source "fix_nfs_on_maverick_amis.sh"
     owner "root"
     group "root"
     mode 0700
   end
-  unless File.exists?("/tmp/fix_nfs_on_maverick_amis.sh")
-    Chef::Log.warn "For problems starting NFS server on ubuntu maverick systems: read, understand and then run /tmp/fix_nfs_on_maverick_amis.sh"
-  end
+  Chef::Log.warn "\n\n****\nFor problems starting NFS server on ubuntu maverick systems: read, understand and then run /tmp/fix_nfs_on_maverick_amis.sh\n****\n"
 end

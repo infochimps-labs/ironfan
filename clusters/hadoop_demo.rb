@@ -61,13 +61,14 @@ cluster 'hadoop_demo' do |cl|
   cl.role                     "base_role"
   cl.role                     "chef_client"
   cl.role                     "ssh"
-  cl.role                     "ebs_volumes_attach"
-  cl.role                     "ebs_volumes_mount"
-  cl.role                     "hadoop_s3_keys"
   cl.recipe                   "cluster_chef::dedicated_server_tuning"
+  # cl.role                     "ebs_volumes_attach"
+  # cl.role                     "ebs_volumes_mount"
+  # cl.role                     "hadoop_s3_keys"
 
   cl.facet 'master' do |f|
     f.instances                1
+    f.facet_index              0
     f.cloud :ec2 do |ec2|
       ec2.flavor                 "c1.medium"
     end
@@ -85,8 +86,9 @@ cluster 'hadoop_demo' do |cl|
   end
 
   cl.facet 'worker' do |f|
-    f.instances                1
+    f.instances                2
     f.cloud :ec2 do |ec2|
+      ec2.image_name           'maverick'
       ec2.flavor               "c1.medium"
     end
     f.role                     "nfs_client"

@@ -66,6 +66,9 @@ class Chef
         require 'net/ssh/multi'
         require 'readline'
 
+        # Fog.mock!
+        # Fog::Mock.delay = 0
+
         $stdout.sync = true
 
         $: << File.expand_path('~/ics/sysadmin/cluster_chef/clusters')
@@ -77,9 +80,6 @@ class Chef
         facet.resolve!
         facet.cloud.security_groups.each{|name,group| group.run }
         puts facet.to_hash_with_cloud.to_yaml
-
-        Fog::Mock.delay = 0
-        Fog.mock!
 
         # servers = facet.list_servers
         # server  = servers.last
@@ -119,7 +119,7 @@ class Chef
         config[:run_list]       = facet.run_list
         # config[:template_file]  = facet.cloud.template_file
 
-#        bootstrap_for_node(server).run
+        bootstrap_for_node(server).run
 
         puts "\n"
         puts "#{h.color("Instance ID        ", :cyan)}: #{server.id}"
