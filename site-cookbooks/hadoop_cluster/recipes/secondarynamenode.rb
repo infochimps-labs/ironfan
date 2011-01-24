@@ -1,8 +1,8 @@
 #
 # Cookbook Name:: hadoop
-# Recipe::        worker
+# Recipe:: namenode
 #
-# Copyright 2010, Infochimps, Inc
+# Copyright 2009, Opscode, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,13 +17,15 @@
 # limitations under the License.
 #
 
-#
-# Format Namenode
-#
-execute 'format_namenode **REMOVE FROM RUNLIST ON SUCCESSFUL BOOTSTRAP**' do
-  command %Q{yes 'Y' | hadoop namenode -format ; true}
-  user 'hdfs'
-  creates '/mnt/hadoop/hdfs/name/current/VERSION'
-  creates '/mnt/hadoop/hdfs/name/current/fsimage'
-  notifies  :restart, resources(:service => "#{node[:hadoop][:hadoop_handle]}-namenode")
+include_recipe "hadoop_cluster"
+
+# Install
+hadoop_package "secondarynamenode"
+# launch service
+service "#{node[:hadoop][:hadoop_handle]}-secondarynamenode" do
+  action [ :enable, :start ]
+  running true
+  supports :status => true, :restart => true
 end
+# register with cluster_service_discovery
+provide_service ("#{node[:cluster_name]}-secondarynamenode")

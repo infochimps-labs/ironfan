@@ -14,49 +14,17 @@ require 'cluster_chef'
 #        and dispatch those to the chef server?
 # FIXME: EBS volumes?
 
-cluster 'zaius' do |cl|
-
-  cl.cloud :ec2 do |ec2|
-    ec2.region                'us-east-1'
-    ec2.availability_zones    ['us-east-1d']
-    ec2.flavor                'm1.small'
-    ec2.image_name            'lucid'
-    ec2.backing               'ebs'
-    ec2.permanent             false
-    ec2.elastic_ip            false
-    ec2.spot_price_fraction   1.0
-    ec2.user_data :get_name_from => 'broham'
-  end
-
-  cl.role                     "base_role"
-  cl.role                     "chef_client"
-  cl.role                     "ssh"
-  cl.role                     "mounts_ebs_volumes"
-  cl.role                     "attaches_ebs_volumes"
-  cl.role                     "hadoop_s3_keys"
-  cl.recipe                   "cluster_chef::dedicated_server_tuning"
-
-  cl.facet 'master' do |f|
-    f.instances                3
-    f.cloud :ec2 do |ec2|
-      f.flavor                 "c1.medium"
-    end
-    f.role                     "nfs_server"
-    f.role                     "hadoop_namenode"
-    f.role                     "hadoop_datanode"
-    f.role                     "hadoop_secondarynamenode"
-    f.role                     "hadoop_jobtracker"
-    f.role                     "hadoop_tasktracker"
-    f.role                     "big_package"
-    f.role                     "hadoop_initial_bootstrap"
-    f.chef_attributes({
-        :cluster_size => f.instances,
-      })
-  end
+cluster 'hadoop_demo' do |cl|
 
   cl.role_implication "nfs_server" do |cl|
     cl.cloud.security_group "nfs_server" do |g|
       g.authorize_group "nfs_server"
+    end
+  end
+
+  cl.role_implication "hadoop_namenode" do |cl|
+    cl.cloud.security_group 'hadoop_namenode' do |g|
+      g.authorize_port_range 80..80
     end
   end
 
@@ -77,11 +45,42 @@ cluster 'zaius' do |cl|
     end
   end
 
+  cl.cloud :ec2 do |ec2|
+    ec2.region                'us-east-1'
+    ec2.availability_zones    ['us-east-1d']
+    ec2.flavor                'm1.small'
+    ec2.image_name            'maverick'
+    ec2.backing               'ebs'
+    ec2.permanent             false
+    ec2.elastic_ip            false
+    ec2.spot_price_fraction   1.0
+    ec2.user_data :get_name_from => 'broham'
+  end
+
+  cl.role                     "base_role"
+  cl.role                     "chef_client"
+  cl.role                     "ssh"
+  cl.role                     "ebs_volumes_attach"
+  cl.role                     "ebs_volumes_mount"
+  cl.role                     "hadoop_s3_keys"
+  cl.recipe                   "cluster_chef::dedicated_server_tuning"
+
+  cl.facet 'master' do |f|
+    f.instances                3
+    f.cloud :ec2 do |ec2|
+      ec2.flavor                 "c1.medium"
+    end
+    f.role                     "nfs_server"
+    f.role                     "hadoop_namenode"
+    f.role                     "hadoop_datanode"
+    f.role                     "hadoop_secondarynamenode"
+    f.role                     "hadoop_jobtracker"
+    f.role                     "hadoop_tasktracker"
+    f.role                     "big_package"
+    f.role                     "hadoop_initial_bootstrap"
+    f.chef_attributes({
+        :cluster_size => f.instances,
+      })
+  end
+
 end
-
-# puts Chef::Config.configuration.to_yaml
-
-mycluster = Chef::Config.clusters['zaius']
-myfacet   = mycluster.facet('master')
-myfacet.resolve!(Chef::Config.clusters['zaius'])
-puts myfacet.to_hash_with_cloud.to_yaml

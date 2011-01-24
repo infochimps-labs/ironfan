@@ -1,4 +1,4 @@
-name 'hadoop_namenode_initial_setup'
+name 'hadoop_initial_bootstrap'
 description 'Janitorial tasks required on initial construction of a hadoop cluster. REMOVE THIS ROLE AFTER CLUSTER IS SUCCESSFULLY LAUNCHED'
 
 run_list(%w[

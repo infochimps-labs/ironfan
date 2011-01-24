@@ -69,12 +69,14 @@ class Chef
         $stdout.sync = true
 
         $: << File.expand_path('~/ics/sysadmin/cluster_chef/clusters')
-        require 'zaius_cluster'
+        require 'hadoop_demo'
 
         cluster_name, facet_name = @name_args
         cluster = Chef::Config[:clusters][cluster_name]
         facet   = cluster.facet(facet_name)
-        facet.reverse_merge!(cluster)
+        facet.resolve!
+        facet.cloud.security_groups.each{|name,group| group.run }
+        puts facet.to_hash_with_cloud.to_yaml
         
         server = facet.create_servers
 
@@ -97,9 +99,9 @@ class Chef
         puts "#{h.color("Public IP Address  ", :cyan)}: #{server.ip_address}"
         puts "#{h.color("Private DNS Name   ", :cyan)}: #{server.private_dns_name}"
         puts "#{h.color("Private IP Address ", :cyan)}: #{server.private_ip_address}"
-        
-        puts "#{h.color("Server ", :cyan)}: #{JSON.pretty_generate(JSON.load(server.to_json))}"
-        puts "#{h.color("All Servers ", :cyan)}: #{JSON.pretty_generate(JSON.load(facet.list_servers.to_json))}"
+
+        # puts "#{h.color("Server ", :cyan)}: #{JSON.pretty_generate(JSON.load(server.to_json))}"
+        # puts "#{h.color("All Servers ", :cyan)}: #{JSON.pretty_generate(JSON.load(facet.list_servers.to_json))}"
 
         print "\n#{h.color("Waiting for sshd", :magenta)}"
 

@@ -1,4 +1,4 @@
-name        'hadoop'
+name        'hadoop_s3_keys'
 description 'applies to all nodes in the hadoop cluster'
 
 # Attributes applied if the node doesn't have it set already.

@@ -11,6 +11,7 @@
 module ClusterChef
   module Cloud
     class SecurityGroup < DslObject
+      has_keys :name, :description, :owner_id
       def initialize cloud, group_name, group_description=nil, group_owner_id=nil
         super()
         name group_name
@@ -68,7 +69,6 @@ module ClusterChef
 
       def run
         group = self.class.get_or_create name, description, connection
-        p group
         @group_authorizations.uniq.each do |authed_group, authed_owner|
           authed_owner ||= self.owner_id
           next if group.ip_permissions && group.ip_permissions.include?({"groups"=>[{"userId"=>authed_owner, "groupName"=>authed_group}], "ipRanges"=>[], "ipProtocol"=>'tcp', "fromPort"=> 1, "toPort"=> 65535 })
@@ -78,7 +78,7 @@ module ClusterChef
         end
         @range_authorizations.uniq.each do |range, cidr_ip, ip_protocol|
           next if group.ip_permissions && group.ip_permissions.include?({"groups"=>[], "ipRanges"=>[{"cidrIp"=>cidr_ip}], "ipProtocol"=>ip_protocol, "fromPort"=>range.first, "toPort"=>range.last})
-          warn ['authorizing', range, { :cidr_ip => cidr_ip, :ip_protocol => ip_protocol }]
+          warn ['authorizing range', range, { :cidr_ip => cidr_ip, :ip_protocol => ip_protocol }]
           group.authorize_port_range(range, { :cidr_ip => cidr_ip, :ip_protocol => ip_protocol })
         end
       end

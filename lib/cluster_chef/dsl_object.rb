@@ -1,5 +1,13 @@
+require 'active_support/core_ext/class/attribute'
+
 module ClusterChef
   class DslObject
+    class_attribute :keys
+    self.keys = []
+    def self.has_keys *k
+      self.keys += k
+    end
+
     def initialize
       @settings = Hash.new{|h,k| h[k] = {} }
     end
@@ -10,7 +18,11 @@ module ClusterChef
     end
 
     def method_missing meth, *args
-      set meth, *args
+      if self.class.keys.include?(meth)
+        set meth, *args
+      else
+        super
+      end
     end
 
     def [] key

@@ -31,7 +31,7 @@ execute("apt-get update"){ action :nothing }
 template "/etc/apt/sources.list.d/cloudera.list" do
   owner "root"
   mode "0644"
-  source "apt-sources-cloudera.list.erb"
+  source "sources.list.d-cloudera.list.erb"
   notifies :run, resources("execute[apt-get update]")
 end
 # Get the archive key for cloudera package repo

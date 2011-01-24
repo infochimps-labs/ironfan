@@ -2,6 +2,8 @@
 module ClusterChef
   module Cloud
     class Base < ClusterChef::DslObject
+      has_keys :name, :flavor, :image_name, :image_id, :keypair
+
       def initialize
         super
       end
@@ -51,23 +53,10 @@ module ClusterChef
       end
     end
 
-    class Slicehost < Base
-      # server_name
-      # slicehost_password
-      # Proc.new { |password| Chef::Config[:knife][:slicehost_password] = password }
-
-      # personality
-    end
-
-    class Rackspace < Base
-      # api_key, api_username, server_name
-    end
-
-    class Terremark < Base
-      # password, username, service
-    end
-
     class Ec2 < Base
+      has_keys(
+        :region, :availability_zones, :backing, :permanent, :elastic_ip,
+        :spot_price, :spot_price_fraction, :user_data, :security_groups)
 
       def provider_klass
         Fog::AWS::Compute
@@ -268,6 +257,22 @@ module ClusterChef
         %w[us-east-1             64-bit  instance        infochimps-maverick-client ] => { :image_id => 'ami-50659439', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # infochimps.hadoop-client.maverick.east.ami-64bit-20110113
       }
 
+    end
+
+    class Slicehost < Base
+      # server_name
+      # slicehost_password
+      # Proc.new { |password| Chef::Config[:knife][:slicehost_password] = password }
+
+      # personality
+    end
+
+    class Rackspace < Base
+      # api_key, api_username, server_name
+    end
+
+    class Terremark < Base
+      # password, username, service
     end
   end
 end

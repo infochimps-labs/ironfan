@@ -20,6 +20,7 @@ module ClusterChef
   #
   class ComputeBuilder < ClusterChef::DslObject
     attr_reader :cloud
+    has_keys :name, :chef_attributes, :roles, :run_list, :cloud
     @@role_implications ||= {}
     
     def initialize builder_name
@@ -90,28 +91,29 @@ module ClusterChef
 
   class Facet < ClusterChef::ComputeBuilder
     attr_reader :cluster
+    has_keys :chef_node_name, :instances
     
     def initialize cluster, facet_name
       super(facet_name)
       @cluster = cluster
+      chef_node_name "#{cluster.name}-#{facet_name}-0"
+      role           "#{cluster.name}_#{facet_name}"
       chef_attributes :node_name          => chef_node_name
       chef_attributes :cluster_role       => facet_name # backwards compatibility
       chef_attributes :facet_name         => facet_name
       chef_attributes :cluster_role_index => 0
-      role           "#{cluster.name}_#{facet_name}"
-      chef_node_name "#{cluster.name}-#{facet_name}-0"
     end
 
     #
     # Resolve: 
     #
-    def resolve! builder
-      @settings = builder.to_hash.merge @settings
-      @settings[:run_list]        = builder.run_list + self.run_list
-      @settings[:chef_attributes] = builder.chef_attributes.merge(self.chef_attributes)
-      cloud.resolve! builder.cloud
-      cloud.keypair         cluster.name if cloud.keypair.blank?
-      cloud.security_group  cluster.name
+    def resolve! 
+      @settings = cluster.to_hash.merge @settings
+      @settings[:run_list]        = cluster.run_list + self.run_list
+      @settings[:chef_attributes] = cluster.chef_attributes.merge(self.chef_attributes)
+      cloud.resolve!          cluster.cloud
+      cloud.keypair           cluster.name if cloud.keypair.blank?
+      cloud.security_group    cluster.name
       cloud.security_group "#{cluster.name}_#{self.name}"
       self
     end
