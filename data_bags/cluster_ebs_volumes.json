@@ -4,6 +4,11 @@
   "worker":       [],
   "regionserver": []  
 },
+{"id":"demohbase",
+  "master":       [],
+  "worker":       [],
+  "regionserver": []  
+},
 {"id":"democassandra",
   "datanode":     []
 },

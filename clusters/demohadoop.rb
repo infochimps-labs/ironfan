@@ -8,8 +8,6 @@
 #        and dispatch those to the chef server?
 # FIXME: EBS volumes?
 
-require File.dirname(__FILE__)+'/defaults'
-
 ClusterChef.cluster 'demohadoop' do
   merge!('defaults')
   setup_role_implications

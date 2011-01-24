@@ -6,7 +6,7 @@ ClusterChef.cluster 'defaults' do
     region              'us-east-1'
     availability_zones  ['us-east-1d']
     flavor              'm1.small'
-    image_name          'mrflip-maverick-client'
+    image_name          'lucid'   # 'mrflip-maverick-client'
     backing             'ebs'
     permanent           false
     elastic_ip          false
