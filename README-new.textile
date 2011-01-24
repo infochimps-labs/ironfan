@@ -1,6 +1,28 @@
 
 
+h3. Getting Started
 
+Follow the normal knife
+
+
+h3. Stupid Surgical bits
+
+In your knife.rb, add a line
+
+  <pre>
+    cluster_chef_path '/path/to/your/cluster_chef'
+  </pre>
+
+Until I figure out how to integrate things into knife,
+
+  <pre>
+    # modify these two lines to your system
+    CHEF_GEM_PATH=/usr/local/lib/ruby/gems/*/gems/chef-0.9.12 
+    CLUSTER_CHEF_PATH=$HOME/path/to/cluster_chef
+
+    sudo ln -s $CLUSTER_CHEF_PATH/lib/cluster_chef/knife/*.rb $CHEF_GEM_PATH/lib/chef/knife/
+    sudo ln -s $CLUSTER_CHEF_PATH/lib/cluster_chef/knife/bootstrap/*.erb $CHEF_GEM_PATH/lib/chef/knife/bootstrap/
+  </pre>
 
 h3. Gotchas
 
@@ -10,9 +32,9 @@ h3. Gotchas
 
 h3. Zero-bootstrap, fire and forget cluster launch!
 
-* Use the client.rb script in cluster_chef/config
-
-* You'll have to 
+* Use the client.rb script in cluster_chef/config as your chef client
+* Register for Amazon SimpleDB. (Although you do need a credit card, there's no conceivable way broham will approach the free limit.)
+* You'll have to run the following one-time command:
   <pre>
     sudo gem install broham configliere right_aws
     ruby -rubygems -e 'require "broham"; Broham.establish_connection :access_key=>"YOUR_ACCESS_KEY", :secret_access_key=>"YOUR_KEY"; Broham.create_domain'
