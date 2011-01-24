@@ -49,7 +49,7 @@ module ClusterChef
     #
     def role role_name
       run_list << "role[#{role_name}]"
-      @@role_implications[role_name].call(self) if @@role_implications[role_name]
+      self.instance_eval(&@@role_implications[role_name]) if @@role_implications[role_name]
     end
     # Add the given recipe to the run list
     def recipe name
@@ -65,6 +65,41 @@ module ClusterChef
     def role_implication name, &block
       @@role_implications[name] = block
     end
+
+    #
+    # This is an outright kludge, awaiting a refactoring of the
+    # securit group bullshit
+    #
+    def setup_role_implications
+      role_implication "hadoop_namenode" do
+        self.cloud.security_group 'hadoop_namenode' do
+          authorize_port_range 80..80
+        end
+      end
+
+      role_implication "nfs_server" do
+        self.cloud.security_group "nfs_server" do
+          authorize_group "nfs_client"
+        end
+      end
+
+      role_implication "nfs_client" do
+        self.cloud.security_group "nfs_client"
+      end
+
+      role_implication "ssh" do
+        self.cloud.security_group 'ssh' do
+          authorize_port_range 22..22
+        end
+      end
+
+      role_implication "chef_server" do
+        self.cloud.security_group "chef_server" do
+          authorize_port_range 4000..4000  # chef-server-api
+          authorize_port_range 4040..4040  # chef-server-webui
+        end
+      end
+    end
   end
 
   #
@@ -72,12 +107,11 @@ module ClusterChef
   # at resolve time; if the facet explicitly sets any attributes they will win out.
   #
   class Cluster < ClusterChef::ComputeBuilder
+    attr_reader :facets
     def initialize cluster_name
       super(cluster_name)
       @facets = {}
-      role           "#{cluster_name}_cluster"
       chef_attributes  :cluster_name => cluster_name
-      chef_attributes  :aws => { :access_key => Chef::Config[:knife][:aws_access_key_id], :secret_access_key => Chef::Config[:knife][:aws_secret_access_key],}
     end
 
     def facet facet_name, &block
@@ -103,7 +137,6 @@ module ClusterChef
     def initialize cluster, facet_name
       super(facet_name)
       @cluster = cluster
-      role           "#{cluster.name}_#{facet_name}"
       chef_attributes :cluster_role       => facet_name # backwards compatibility
       chef_attributes :facet_name         => facet_name
       unless facet_index.blank?
@@ -118,17 +151,18 @@ module ClusterChef
     # Resolve:
     #
     def resolve!
-      @settings = @cluster.to_hash.merge @settings
-      @settings[:run_list]        = @cluster.run_list + self.run_list
-      @settings[:chef_attributes] = @cluster.chef_attributes.merge(self.chef_attributes)
       cluster_name = @cluster.name
+      @settings    = @cluster.to_hash.merge @settings
       cloud.resolve!          @cluster.cloud
       cloud.keypair           cluster_name if cloud.keypair.blank?
-      cloud.security_group    cluster_name do
-        authorize_group cluster_name
-      end
-      cloud.security_group "#{@cluster.name}-#{self.name}"
+      role                 "#{cluster_name}_cluster"
+      cloud.security_group    cluster_name do authorize_group cluster_name end
+      role                 "#{cluster_name}_#{self.name}"
+      cloud.security_group "#{cluster_name}-#{self.name}"
+      @settings[:run_list]        = @cluster.run_list + self.run_list
+      @settings[:chef_attributes] = @cluster.chef_attributes.merge(self.chef_attributes)
       chef_attributes :run_list => run_list
+      chef_attributes :aws => { :access_key => Chef::Config[:knife][:aws_access_key_id], :secret_access_key => Chef::Config[:knife][:aws_secret_access_key],}
       self
     end
 

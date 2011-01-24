@@ -12,6 +12,8 @@ require File.dirname(__FILE__)+'/defaults'
 
 ClusterChef.cluster 'demohadoop' do
   merge!('defaults')
+  setup_role_implications
+
   recipe                "cluster_chef::dedicated_server_tuning"
   role                  "ebs_volumes_attach"
   role                  "ebs_volumes_mount"
@@ -32,7 +34,7 @@ ClusterChef.cluster 'demohadoop' do
   end
 
   facet 'worker' do
-    instances           4
+    instances           2
     cloud.flavor        "c1.medium"
     role                "nfs_client"
     role                "hadoop_datanode"
@@ -53,17 +55,24 @@ ClusterChef.cluster 'demohadoop' do
 end
 
 ClusterChef.cluster 'democassandra' do
+  merge!('defaults')
+  setup_role_implications
+
   recipe                "cluster_chef::dedicated_server_tuning"
   role                  "ebs_volumes_attach"
   role                  "ebs_volumes_mount"
   role                  "hadoop_s3_keys"
 
   facet 'datanode' do
-    instances           3
-    cloud.flavor        "m1.large"
+    instances           2
+    cloud.flavor        "c1.medium"
     role                "nfs_client"
     role                "cassandra_datanode"
     role                "big_package"
     role                "hadoop_initial_bootstrap"
   end
+
+  chef_attributes({
+      :cluster_size => facet('datanode').instances,
+    })
 end

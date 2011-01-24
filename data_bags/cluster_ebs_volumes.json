@@ -1,7 +1,17 @@
 [
-{"id":"hadoop_demo",
-  "master":     [],
-  "slave":      []  
+{"id":"demohadoop",
+  "master":       [],
+  "worker":       [],
+  "regionserver": []  
+},
+{"id":"democassandra",
+  "datanode":     []
+},
+{"id":"demoelasticsearch",
+  "datanode":     [],
+  "master":       [],
+  "slave":        []  
 }
+
 ]
 

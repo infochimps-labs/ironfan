@@ -4,6 +4,7 @@ require 'cluster_chef/security_group'
 require 'cluster_chef/compute'
 
 module ClusterChef
+  Chef::Config[:clusters] ||= {}
 
   def self.connection
     @connection ||= Fog::AWS::Compute.new({
@@ -20,12 +21,30 @@ module ClusterChef
   def self.running_servers
   end
 
+  def self.clusters
+    Chef::Config[:clusters]
+  end
+
 
   def self.cluster name, &block
-    Chef::Config[:clusters] ||= {}
-    cl = Chef::Config[:clusters][name] ||= ClusterChef::Cluster.new(name)
+    cl = self.clusters[name] ||= ClusterChef::Cluster.new(name)
     cl.instance_eval(&block) if block
     cl
   end
 
+  #
+  # From chef, find each node by its cluster_name
+  #
+  def self.find_chef_by_cluster_name
+    # cluster_name:*
+  end
+
+  #
+  # From fog, find each node and match cluster_facets against security groups
+  #
+
+
+  def self.cluster_facets
+    clusters.map{|cluster_name, cl| cl.facets.map{|facet_name, f| "#{cluster_name}-#{facet_name}" }}.flatten
+  end
 end

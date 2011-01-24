@@ -109,6 +109,14 @@ class Chef
         # servers = facet.list_servers.select{|s| s.state == "running" }
         servers = (1..facet.instances).map{ facet.create_server }
         server = servers.last
+        p ClusterChef.cluster_facets
+        exit
+
+        config[:ssh_user]       = facet.cloud.ssh_user
+        config[:identity_file]  = facet.cloud.ssh_identity_file
+        config[:chef_node_name] = facet.chef_node_name
+        config[:distro]         = facet.cloud.bootstrap_distro
+        config[:run_list]       = facet.run_list
 
         puts "#{h.color("Instance ID      ", :cyan)}: #{server.id}"
         puts "#{h.color("Flavor           ", :cyan)}: #{server.flavor_id}"
@@ -118,33 +126,31 @@ class Chef
         puts "#{h.color("SSH Key          ", :cyan)}: #{server.key_name}"
         puts "#{h.color("User Data        ", :cyan)}: #{server.user_data}"
 
-        print "\n#{h.color("Waiting for server ", :magenta)}"
+        servers.each do |server|
+          #
+          # Wait for it to be ready to do stuff
+          #
+          print "\n#{h.color("Waiting for server ", :magenta)}"
+          server.wait_for { print "."; ready? }
+          puts("\n")
+          #
+          puts "#{h.color("Public DNS Name    ", :cyan)}: #{server.dns_name}"
+          puts "#{h.color("Public IP Address  ", :cyan)}: #{server.ip_address}"
+          puts "#{h.color("Private DNS Name   ", :cyan)}: #{server.private_dns_name}"
+          puts "#{h.color("Private IP Address ", :cyan)}: #{server.private_ip_address}"
+          print "\n#{h.color("Waiting for sshd ", :magenta)}"
+          print(".") until tcp_test_ssh(server.dns_name) { sleep @initial_sleep_delay ||= 10; puts("done") }
 
-        #
-        # Wait for it to be ready to do stuff
-        #
-        server.wait_for { print "."; ready? }
-        puts("\n")
-        #
-        puts "#{h.color("Public DNS Name    ", :cyan)}: #{server.dns_name}"
-        puts "#{h.color("Public IP Address  ", :cyan)}: #{server.ip_address}"
-        puts "#{h.color("Private DNS Name   ", :cyan)}: #{server.private_dns_name}"
-        puts "#{h.color("Private IP Address ", :cyan)}: #{server.private_ip_address}"
-        print "\n#{h.color("Waiting for sshd ", :magenta)}"
-        print(".") until tcp_test_ssh(server.dns_name) { sleep @initial_sleep_delay ||= 10; puts("done") }
-
-        #
-        # Bootstrap it (if requested)
-        #
-        config[:ssh_user]       = facet.cloud.ssh_user
-        config[:identity_file]  = facet.cloud.ssh_identity_file
-        config[:chef_node_name] = facet.chef_node_name
-        config[:distro]         = facet.cloud.bootstrap_distro
-        config[:run_list]       = facet.run_list
-        #
-        if config[:bootstrap]
-          servers.each do |server|
-            bootstrap_for_node(server).run
+          #
+          # Bootstrap it (if requested)
+          #
+          if config[:bootstrap]
+            begin
+              bootstrap_for_node(server).run
+            rescue StandardError => e
+              warn e
+              warn e.backtrace
+            end
           end
         end
 
