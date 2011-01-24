@@ -109,8 +109,6 @@ class Chef
         # servers = facet.list_servers.select{|s| s.state == "running" }
         servers = (1..facet.instances).map{ facet.create_server }
         server = servers.last
-        # p ClusterChef.cluster_facets
-        # exit
 
         config[:ssh_user]       = facet.cloud.ssh_user
         config[:identity_file]  = facet.cloud.ssh_identity_file
