@@ -1,0 +1,10 @@
+
+
+
+
+
+require 'rubygems'
+require 'broham'
+
+Broham.establish_connection :access_key=>'YOUR_ACCESS_KEY', :secret_access_key=>'YOUR_KEY'
+Broham.create_domain

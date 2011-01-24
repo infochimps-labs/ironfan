@@ -113,7 +113,9 @@ module ClusterChef
       @settings[:chef_attributes] = cluster.chef_attributes.merge(self.chef_attributes)
       cloud.resolve!          cluster.cloud
       cloud.keypair           cluster.name if cloud.keypair.blank?
-      cloud.security_group    cluster.name
+      cloud.security_group    cluster.name do |g|
+        g.authorize_group cluster.name
+      end
       cloud.security_group "#{cluster.name}_#{self.name}"
       self
     end
@@ -130,7 +132,7 @@ module ClusterChef
         :groups            => cloud.security_groups.keys,
         :key_name          => cloud.keypair,
         :tags              => cloud.security_groups.keys,
-        :user_data         => JSON.pretty_generate(cloud.user_data.merge(:attributes => chef_attributes.merge(:run_list => run_list))),
+        :user_data         => JSON.pretty_generate(cloud.user_data), # .merge(:attributes => chef_attributes.merge(:run_list => run_list))),
         # :block_device_mapping => [],
         # :disable_api_termination => disable_api_termination,
         # :instance_initiated_shutdown_behavior => instance_initiated_shutdown_behavior,

@@ -115,7 +115,7 @@ module ClusterChef
           @settings[:user_data].merge({
               :chef_server            => Chef::Config.chef_server_url,
               :validation_client_name => Chef::Config.validation_client_name,
-              :validation_key         => validation_key,
+              # :validation_key         => validation_key,
             })
         else
           @settings[:user_data].merge! hsh

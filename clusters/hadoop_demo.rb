@@ -16,15 +16,15 @@ require 'cluster_chef'
 
 cluster 'hadoop_demo' do |cl|
 
-  cl.role_implication "nfs_server" do |cl|
-    cl.cloud.security_group "nfs_server" do |g|
-      g.authorize_group "nfs_server"
-    end
-  end
-
   cl.role_implication "hadoop_namenode" do |cl|
     cl.cloud.security_group 'hadoop_namenode' do |g|
       g.authorize_port_range 80..80
+    end
+  end
+
+  cl.role_implication "nfs_server" do |cl|
+    cl.cloud.security_group "nfs_server" do |g|
+      g.authorize_group "nfs_client"
     end
   end
 
@@ -55,6 +55,7 @@ cluster 'hadoop_demo' do |cl|
     ec2.elastic_ip            false
     ec2.spot_price_fraction   1.0
     ec2.user_data :get_name_from => 'broham'
+    ec2.bootstrap_distro      'ubuntu10.04-cluster_chef'
   end
 
   cl.role                     "base_role"
@@ -66,19 +67,32 @@ cluster 'hadoop_demo' do |cl|
   cl.recipe                   "cluster_chef::dedicated_server_tuning"
 
   cl.facet 'master' do |f|
-    f.instances                3
+    f.instances                1
     f.cloud :ec2 do |ec2|
       ec2.flavor                 "c1.medium"
     end
     f.role                     "nfs_server"
     f.role                     "hadoop_namenode"
-    f.role                     "hadoop_datanode"
     f.role                     "hadoop_secondarynamenode"
     f.role                     "hadoop_jobtracker"
+    f.role                     "hadoop_datanode"
     f.role                     "hadoop_tasktracker"
     f.role                     "big_package"
     f.role                     "hadoop_initial_bootstrap"
     f.chef_attributes({
+        :cluster_size => f.instances,
+      })
+  end
+
+  cl.facet 'worker' do |f|
+    f.instances                1
+    f.cloud :ec2 do |ec2|
+      ec2.flavor               "c1.medium"
+    end
+    f.role                     "nfs_client"
+    f.role                     "hadoop_datanode"
+    f.role                     "hadoop_tasktracker"
+    cl.chef_attributes({
         :cluster_size => f.instances,
       })
   end

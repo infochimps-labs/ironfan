@@ -67,17 +67,31 @@ module ClusterChef
         @range_authorizations << [range, cidr_ip, ip_protocol]
       end
 
+      def group_permission_already_set? group, authed_group, authed_owner
+        return false if group.ip_permissions.blank?
+        group.ip_permissions.any? do |existing_permission|
+          existing_permission["groups"].include?({"userId"=>authed_owner, "groupName"=>authed_group}) &&
+            existing_permission["fromPort"] == 1 &&
+            existing_permission["toPort"] == 65535
+        end
+      end
+
+      def range_permission_already_set? group, range, cidr_ip, ip_protocol
+        return false if group.ip_permissions.blank?
+        group.ip_permissions.include?({"groups"=>[], "ipRanges"=>[{"cidrIp"=>cidr_ip}], "ipProtocol"=>ip_protocol, "fromPort"=>range.first, "toPort"=>range.last})
+      end
+
       def run
         group = self.class.get_or_create name, description, connection
         @group_authorizations.uniq.each do |authed_group, authed_owner|
           authed_owner ||= self.owner_id
-          next if group.ip_permissions && group.ip_permissions.include?({"groups"=>[{"userId"=>authed_owner, "groupName"=>authed_group}], "ipRanges"=>[], "ipProtocol"=>'tcp', "fromPort"=> 1, "toPort"=> 65535 })
+          next if group_permission_already_set?(group, authed_group, authed_owner)
           warn ['authorizing group', authed_group, authed_owner].inspect
           self.class.get_or_create(authed_group, "Authorized to access nfs server", connection)
           group.authorize_group_and_owner(authed_group, authed_owner)
         end
         @range_authorizations.uniq.each do |range, cidr_ip, ip_protocol|
-          next if group.ip_permissions && group.ip_permissions.include?({"groups"=>[], "ipRanges"=>[{"cidrIp"=>cidr_ip}], "ipProtocol"=>ip_protocol, "fromPort"=>range.first, "toPort"=>range.last})
+          next if range_permission_already_set?(group, range, cidr_ip, ip_protocol)
           warn ['authorizing range', range, { :cidr_ip => cidr_ip, :ip_protocol => ip_protocol }]
           group.authorize_port_range(range, { :cidr_ip => cidr_ip, :ip_protocol => ip_protocol })
         end

@@ -58,7 +58,7 @@ client_key             "/etc/chef/client.pem"
 # Find the cluster name, role and index
 # and use it to set the node_name
 #
-if chef_config['get_name_from'] == 'broham'
+if chef_config['get_name_from'] == 'broham' && (attrs['node_name'].blank?)
   begin
     require 'broham'
     BrohamNode.set_cluster_info!(attrs)

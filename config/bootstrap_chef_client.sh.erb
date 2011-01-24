@@ -5,7 +5,6 @@ mkdir -p /tmp ; chmod a+rwx /tmp
 
 # A url directory with the scripts you'd like to stuff into the machine
 REMOTE_FILE_URL_BASE="http://github.com/infochimps/cluster_chef/raw/master/config"
-CHEF_SERVER_URL="https://api.opscode.com/organizations/mrflip"
 OPSCODE_DISTRIB_CODENAME=lucid # opscode not on maverick yet
 eval `cat /etc/lsb-release `
 
@@ -50,9 +49,7 @@ wget --no-check-certificate -nv ${REMOTE_FILE_URL_BASE}/ec2-set-hostname_replace
 chmod a+x /usr/bin/ec2-set-hostname
 
 echo "`date` Pulling in chef client script"  
-cp /etc/chef/client.rb /etc/chef/client-orig.rb ;
 wget --no-check-certificate -nv ${REMOTE_FILE_URL_BASE}/client.rb -O /etc/chef/client.rb ;
-echo '{ "chef_server":"'$CHEF_SERVER_URL'" }' > /etc/chef/chef-config.json
 
 echo "`date` Adding chef client runit scripts"
 service chef-client stop ; sleep 1 ; killall chef-client
@@ -74,6 +71,6 @@ apt-get autoremove;
 updatedb;
 
 echo "`date` Enabling chef client service" 
-# ln -s   /etc/sv/chef-client /etc/service/chef-client
+sudo ln -s   /etc/sv/chef-client /etc/service/chef-client
 
 echo "`date` User data script (chef client bootstrap) complete: `date`"  
