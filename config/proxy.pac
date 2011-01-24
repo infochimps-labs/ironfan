@@ -4,7 +4,7 @@ function FindProxyForURL(url, host) {
       (shExpMatch(host, "10.*")) ||
       (shExpMatch(host, "*compute-*.internal*")) ||
       (shExpMatch(host, "*domu*.internal*"))) {
-    return "SOCKS localhost:6666";
+    return "SOCKS5 localhost:6666";
   }
   return "DIRECT";
 }
