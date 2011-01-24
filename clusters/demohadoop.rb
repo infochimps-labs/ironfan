@@ -8,23 +8,10 @@
 #        and dispatch those to the chef server?
 # FIXME: EBS volumes?
 
-ClusterChef.cluster 'demohadoop' do
-  cloud :ec2 do
-    region              'us-east-1'
-    availability_zones  ['us-east-1d']
-    flavor              'm1.small'
-    image_name          'mrflip-maverick-client'
-    backing             'ebs'
-    permanent           false
-    elastic_ip          false
-    user_data           :get_name_from => 'broham'
-    spot_price_fraction nil
-    bootstrap_distro    'ubuntu10.04-cluster_chef'
-  end
+require File.dirname(__FILE__)+'/defaults'
 
-  role                  "base_role"
-  role                  "chef_client"
-  role                  "ssh"
+ClusterChef.cluster 'demohadoop' do
+  merge!('defaults')
   recipe                "cluster_chef::dedicated_server_tuning"
   role                  "ebs_volumes_attach"
   role                  "ebs_volumes_mount"
@@ -66,22 +53,6 @@ ClusterChef.cluster 'demohadoop' do
 end
 
 ClusterChef.cluster 'democassandra' do
-  cloud :ec2 do
-    region              'us-east-1'
-    availability_zones  ['us-east-1d']
-    flavor              'm1.small'
-    image_name          'mrflip-maverick-client'
-    backing             'ebs'
-    permanent           false
-    elastic_ip          false
-    user_data           :get_name_from => 'broham'
-    spot_price_fraction nil
-    bootstrap_distro    'ubuntu10.04-cluster_chef'
-  end
-
-  role                  "base_role"
-  role                  "chef_client"
-  role                  "ssh"
   recipe                "cluster_chef::dedicated_server_tuning"
   role                  "ebs_volumes_attach"
   role                  "ebs_volumes_mount"
