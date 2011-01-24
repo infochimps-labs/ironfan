@@ -9,7 +9,7 @@ module ClusterChef
     end
 
     def initialize
-      @settings = Hash.new{|h,k| h[k] = {} }
+      @settings = Hash.new          # {|h,k| h[k] = {} }
     end
 
     def set key=nil, val=nil

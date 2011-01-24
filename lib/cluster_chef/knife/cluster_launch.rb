@@ -28,6 +28,14 @@ class Chef
 
       attr_accessor :initial_sleep_delay
 
+      option :dry_run,
+        :long => "--dry_run",
+        :description => "Don't really run, just use mock calls"
+
+      option :bootstrap,
+        :long => "--bootstrap",
+        :description => "Also bootstrap the launched node"
+
       option :ssh_password,
         :short => "-P PASSWORD",
         :long => "--ssh-password PASSWORD",
@@ -35,7 +43,12 @@ class Chef
 
       option :prerelease,
         :long => "--prerelease",
-        :description => "Install the pre-release chef gems"
+        :description => "Install the pre-release chef gems when bootstrapping"
+
+      option :template_file,
+        :long => "--template-file TEMPLATE",
+        :description => "Full path to location of template to use when bootstrapping",
+        :default => false
 
       def h
         @highline ||= HighLine.new
@@ -65,25 +78,34 @@ class Chef
         require 'highline'
         require 'net/ssh/multi'
         require 'readline'
-
-        # Fog.mock!
-        # Fog::Mock.delay = 0
-
+        $: << Chef::Config[:cluster_chef_path]+'/lib'
+        require 'cluster_chef'
         $stdout.sync = true
 
-        $: << File.expand_path('~/ics/sysadmin/cluster_chef/clusters')
-        require 'hadoop_demo'
+        if config[:dry_run]
+          Fog.mock!
+          Fog::Mock.delay = 0
+        end
 
+        #
+        # Load the facet
+        #
         cluster_name, facet_name = @name_args
-        cluster = Chef::Config[:clusters][cluster_name]
-        facet   = cluster.facet(facet_name)
+        require Chef::Config[:cluster_chef_path]+"/clusters/#{cluster_name}"
+        facet = Chef::Config[:clusters][cluster_name].facet(facet_name)
         facet.resolve!
-        facet.cloud.security_groups.each{|name,group| group.run }
-        puts facet.to_hash_with_cloud.to_yaml
 
-        # servers = facet.list_servers
-        # server  = servers.last
-        server = facet.create_servers
+        #
+        # Make security groups
+        #
+        facet.cloud.security_groups.each{|name,group| group.run }
+
+        #
+        # Launch server
+        #
+        # servers = facet.list_servers.select{|s| s.state == "running" }
+        servers = (1..facet.instances).map{ facet.create_server }
+        server = servers.last
         
         puts "#{h.color("Instance ID      ", :cyan)}: #{server.id}"
         puts "#{h.color("Flavor           ", :cyan)}: #{server.flavor_id}"
@@ -94,8 +116,10 @@ class Chef
         puts "#{h.color("User Data        ", :cyan)}: #{server.user_data}"
         
         print "\n#{h.color("Waiting for server", :magenta)}"
-        
-        # wait for it to be ready to do stuff
+
+        #
+        # Wait for it to be ready to do stuff
+        #
         server.wait_for { print "."; ready? }
         
         puts("\n")
@@ -104,12 +128,10 @@ class Chef
         puts "#{h.color("Public IP Address  ", :cyan)}: #{server.ip_address}"
         puts "#{h.color("Private DNS Name   ", :cyan)}: #{server.private_dns_name}"
         puts "#{h.color("Private IP Address ", :cyan)}: #{server.private_ip_address}"
-        
-        # puts "#{h.color("Server ", :cyan)}: #{JSON.pretty_generate(JSON.load(server.to_json))}"
-        # puts "#{h.color("All Servers ", :cyan)}: #{JSON.pretty_generate(JSON.load(facet.list_servers.to_json))}"
+
+        p servers
         
         print "\n#{h.color("Waiting for sshd", :magenta)}"
-        
         print(".") until tcp_test_ssh(server.dns_name) { sleep @initial_sleep_delay ||= 10; puts("done") }
         
         config[:ssh_user]       = facet.cloud.ssh_user                
@@ -117,22 +139,30 @@ class Chef
         config[:chef_node_name] = facet.chef_node_name
         config[:distro]         = facet.cloud.bootstrap_distro
         config[:run_list]       = facet.run_list
-        # config[:template_file]  = facet.cloud.template_file
 
-        bootstrap_for_node(server).run
-
-        puts "\n"
-        puts "#{h.color("Instance ID        ", :cyan)}: #{server.id}"
-        puts "#{h.color("Flavor             ", :cyan)}: #{server.flavor_id}"
-        puts "#{h.color("Image              ", :cyan)}: #{server.image_id}"
-        puts "#{h.color("Availability Zone  ", :cyan)}: #{server.availability_zone}"
-        puts "#{h.color("Security Groups    ", :cyan)}: #{server.groups.join(", ")}"
-        puts "#{h.color("SSH Key            ", :cyan)}: #{server.key_name}"
-        puts "#{h.color("Public DNS Name    ", :cyan)}: #{server.dns_name}"
-        puts "#{h.color("Public IP Address  ", :cyan)}: #{server.ip_address}"
-        puts "#{h.color("Private DNS Name   ", :cyan)}: #{server.private_dns_name}"
-        puts "#{h.color("Private IP Address ", :cyan)}: #{server.private_ip_address}"
-        puts "#{h.color("Run List           ", :cyan)}: #{@name_args.join(', ')}"
+        #
+        # Bootstrap it (if requested)
+        #
+        if config[:bootstrap]
+          servers.each do |server|
+            bootstrap_for_node(server).run
+          end
+        end
+        
+        servers.each do |server|
+          puts "\n"
+          puts "#{h.color("Instance ID        ", :cyan)}: #{server.id}"
+          puts "#{h.color("Flavor             ", :cyan)}: #{server.flavor_id}"
+          puts "#{h.color("Image              ", :cyan)}: #{server.image_id}"
+          puts "#{h.color("Availability Zone  ", :cyan)}: #{server.availability_zone}"
+          puts "#{h.color("Security Groups    ", :cyan)}: #{server.groups.join(", ")}"
+          puts "#{h.color("SSH Key            ", :cyan)}: #{server.key_name}"
+          puts "#{h.color("Public DNS Name    ", :cyan)}: #{server.dns_name}"
+          puts "#{h.color("Public IP Address  ", :cyan)}: #{server.ip_address}"
+          puts "#{h.color("Private DNS Name   ", :cyan)}: #{server.private_dns_name}"
+          puts "#{h.color("Private IP Address ", :cyan)}: #{server.private_ip_address}"
+          puts "#{h.color("Run List           ", :cyan)}: #{facet.run_list.join(', ')}"
+        end
       end
 
       def bootstrap_for_node(server)

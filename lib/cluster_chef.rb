@@ -1,20 +1,17 @@
-
-require 'fog'
-require 'chef'
-require 'chef/knife'
-
 require 'cluster_chef/dsl_object'
 require 'cluster_chef/cloud'
 require 'cluster_chef/security_group'
 
-def cluster name, &block
-  Chef::Config[:clusters]       ||= {}
-  cl = Chef::Config[:clusters][name] = ClusterChef::Cluster.new(name)
-  yield cl
-  cl
-end
-
 module ClusterChef
+
+  def self.connection
+    @connection ||= Fog::AWS::Compute.new({
+        :aws_access_key_id     => Chef::Config[:knife][:aws_access_key_id],
+        :aws_secret_access_key => Chef::Config[:knife][:aws_secret_access_key],
+        #  :region                => region
+      })
+  end
+  
   #
   # Base class allowing us to layer settings for facet over cluster
   #
@@ -33,7 +30,7 @@ module ClusterChef
     def cloud cloud_provider=nil, &block
       raise "Only have ec2 so far" if cloud_provider && (cloud_provider != :ec2)
       @cloud ||= ClusterChef::Cloud::Ec2.new
-      yield @cloud if block
+      @cloud.instance_eval(&block) if block
       @cloud
     end
 
@@ -84,7 +81,7 @@ module ClusterChef
 
     def facet facet_name, &block
       @facets[facet_name] ||= ClusterChef::Facet.new(self, facet_name)
-      yield @facets[facet_name] if block
+      @facets[facet_name].instance_eval(&block) if block
       @facets[facet_name]
     end
   end
@@ -99,7 +96,7 @@ module ClusterChef
       role           "#{cluster.name}_#{facet_name}"
       chef_attributes :cluster_role       => facet_name # backwards compatibility
       chef_attributes :facet_name         => facet_name
-      if facet_index
+      unless facet_index.blank?
         chef_node_name "#{cluster.name}-#{facet_name}-#{facet_index}"
         chef_attributes :node_name          => chef_node_name
         chef_attributes :cluster_role_index => facet_index # backwards compatibility
@@ -110,29 +107,28 @@ module ClusterChef
     #
     # Resolve: 
     #
-    def resolve! 
-      @settings = cluster.to_hash.merge @settings
-      @settings[:run_list]        = cluster.run_list + self.run_list
-      @settings[:chef_attributes] = cluster.chef_attributes.merge(self.chef_attributes)
-      cloud.resolve!          cluster.cloud
-      cloud.keypair           cluster.name if cloud.keypair.blank?
-      cloud.security_group    cluster.name do |g|
-        g.authorize_group cluster.name
+    def resolve!
+      @settings = @cluster.to_hash.merge @settings
+      @settings[:run_list]        = @cluster.run_list + self.run_list
+      @settings[:chef_attributes] = @cluster.chef_attributes.merge(self.chef_attributes)
+      cluster_name = @cluster.name
+      cloud.resolve!          @cluster.cloud
+      cloud.keypair           cluster_name if cloud.keypair.blank?
+      cloud.security_group    cluster_name do 
+        authorize_group cluster_name
       end
-      cloud.security_group "#{cluster.name}-#{self.name}"
+      cloud.security_group "#{@cluster.name}-#{self.name}"
       chef_attributes :run_list => run_list
       self
     end
 
     # FIXME: a lot of AWS logic in here. This probably lives in the facet.cloud
     # but for the one or two things that come from the facet
-    def create_servers
-      cloud.connection.servers.create(
+    def create_server
+      ClusterChef.connection.servers.create(
         :image_id          => cloud.image_id,
         :flavor_id         => cloud.flavor,
         # 
-        :min_count         => instances,
-        :max_count         => instances,
         :groups            => cloud.security_groups.keys,
         :key_name          => cloud.keypair,
         :tags              => cloud.security_groups.keys,
@@ -145,11 +141,18 @@ module ClusterChef
     end
 
     def list_servers
-      cloud.connection.servers.all
+      ClusterChef.connection.servers.all
     end
     
     def to_hash_with_cloud
       to_hash.merge({ :cloud => cloud.to_hash, })
     end
   end
+end
+
+def cluster name, &block
+  Chef::Config[:clusters]       ||= {}
+  cl = Chef::Config[:clusters][name] = ClusterChef::Cluster.new(name)
+  cl.instance_eval(&block)
+  cl
 end

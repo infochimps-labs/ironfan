@@ -44,13 +44,6 @@ module ClusterChef
         return image_info[key] unless image_info.blank?
         return default       # otherwise
       end
-
-      #
-      # Fog interface
-      #
-      def connection
-        @connection ||= provider_klass.new(provider_credentials)
-      end
     end
 
     class Ec2 < Base
@@ -58,14 +51,10 @@ module ClusterChef
         :region, :availability_zones, :backing, :permanent, :elastic_ip,
         :spot_price, :spot_price_fraction, :user_data, :security_groups)
 
-      def provider_klass
-        Fog::AWS::Compute
-      end
-
-      def provider_credentials
-        { :aws_access_key_id     => Chef::Config[:knife][:aws_access_key_id],
-          :aws_secret_access_key => Chef::Config[:knife][:aws_secret_access_key],
-          :region                => region }
+      def initialize *args
+        super *args
+        @settings[:security_groups] = {}
+        @settings[:user_data]       = {}
       end
 
       # An alias for disable_api_termination. Prevents the instance from being
@@ -88,7 +77,7 @@ module ClusterChef
       # adds a security group to the cloud instance
       def security_group sg_name, &block
         security_groups[sg_name] ||= ClusterChef::Cloud::SecurityGroup.new(self, sg_name)
-        yield security_groups[sg_name] if block
+        security_groups[sg_name].instance_eval(&block) if block
         security_groups[sg_name]
       end
 
@@ -111,6 +100,7 @@ module ClusterChef
       #
       # FIXME: use a deep merge
       def user_data hsh={}
+        @settings[:user_data] ||= {}
         if hsh.blank?
           @settings[:user_data].merge({
               :chef_server            => Chef::Config.chef_server_url,
