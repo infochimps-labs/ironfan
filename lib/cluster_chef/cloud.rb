@@ -113,17 +113,21 @@ module ClusterChef
         end
       end
 
-      def resolve! cloud
+      def merge! cloud
         @settings = cloud.to_hash.merge @settings
         @settings[:security_groups] = cloud.security_groups.merge(self.security_groups)
         @settings[:user_data]       = cloud.to_hash[:user_data].merge(@settings[:user_data])
+      end
+
+      def resolve! cloud
+        merge! cloud
         resolve_region!
         resolve_block_device_mapping!
         self
       end
 
       def resolve_region!
-        region availability_zones.first.gsub(/^(\w+-\w+-\d)[a-z]/, '\1') if region.blank?
+        region availability_zones.first.gsub(/^(\w+-\w+-\d)[a-z]/, '\1') if region.blank? && !availability_zones.blank?
       end
 
       def resolve_block_device_mapping!

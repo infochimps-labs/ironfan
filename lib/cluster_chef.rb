@@ -5,7 +5,6 @@ require 'cluster_chef/compute'
 
 module ClusterChef
 
-  
   def self.connection
     @connection ||= Fog::AWS::Compute.new({
         :aws_access_key_id     => Chef::Config[:knife][:aws_access_key_id],
@@ -23,10 +22,10 @@ module ClusterChef
 
 
   def self.cluster name, &block
-    Chef::Config[:clusters]       ||= {}
-    cl = Chef::Config[:clusters][name] = ClusterChef::Cluster.new(name)
-    cl.instance_eval(&block)
+    Chef::Config[:clusters] ||= {}
+    cl = Chef::Config[:clusters][name] ||= ClusterChef::Cluster.new(name)
+    cl.instance_eval(&block) if block
     cl
   end
-  
+
 end

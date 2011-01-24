@@ -14,6 +14,20 @@ module ClusterChef
       @settings[:chef_attributes] = {}
     end
 
+    # Magic method to produce cloud instance:
+    # * returns the cloud instance, creating it if necessary.
+    # * executes the block in the cloud's object context
+    #
+    # @example
+    #   # defines a security group
+    #   cloud :ec2 do
+    #     security_group :foo
+    #   end
+    #
+    # @example
+    #   # same effect
+    #   cloud.security_group :foo
+    #
     def cloud cloud_provider=nil, &block
       raise "Only have ec2 so far" if cloud_provider && (cloud_provider != :ec2)
       @cloud ||= ClusterChef::Cloud::Ec2.new
@@ -70,6 +84,15 @@ module ClusterChef
       @facets[facet_name] ||= ClusterChef::Facet.new(self, facet_name)
       @facets[facet_name].instance_eval(&block) if block
       @facets[facet_name]
+    end
+
+    def merge! other_cluster
+      if(other_cluster.is_a?(String)) then other_cluster = ClusterChef.cluster(other_cluster) end
+      @settings = other_cluster.to_hash.merge @settings
+      @settings[:run_list]        = other_cluster.run_list + self.run_list
+      @settings[:chef_attributes] = other_cluster.chef_attributes.merge(self.chef_attributes)
+      cloud.merge! other_cluster.cloud
+      self
     end
   end
 
