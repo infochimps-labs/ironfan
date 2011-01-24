@@ -29,7 +29,7 @@ package "hadoop-zookeeper-server"
 directory node[:zookeeper][:data_dir] do
   owner      "zookeeper"
   group      "zookeeper"
-  mode       "0644"
+  mode       "0755"
   action     :create
   recursive  true
 end
@@ -40,3 +40,5 @@ service "hadoop-zookeeper-server" do
   running true
   supports :status => true, :restart => true
 end
+
+include_recipe "zookeeper::client"

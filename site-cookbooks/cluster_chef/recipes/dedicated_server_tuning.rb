@@ -17,6 +17,7 @@ set_proc_sys_limit "VM overcommit memory", '/proc/sys/vm/overcommit_ratio',  ove
 
 # recent kernels do away with this limit, so these lines aren't necessary.
 # # http://pero.blogs.aprilmayjune.org/2009/01/22/hadoop-and-linux-kernel-2627-epoll-limits/
+# # https://patchwork.kernel.org/patch/4548/
 # set_proc_sys_limit "Increase epoll instances limit", '/proc/sys/fs/epoll/max_user_instances', fs_epoll_max_user_instances
 
 bash "Increase open files hard ulimit for @hadoop group" do

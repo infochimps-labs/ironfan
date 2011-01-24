@@ -32,28 +32,3 @@ user 'zookeeper' do
 end
 
 package "hadoop-zookeeper"
-
-#
-# Configuration files
-
-directory node[:zookeeper][:data_dir] do
-  owner      "zookeeper"
-  group      "zookeeper"
-  mode       "0644"
-  action     :create
-  recursive  true
-end
-#
-template_variables = {
-  :zookeeper_server_ips   => all_provider_private_ips("#{node[:cluster_name]}-zookeeper").sort,
-  :zookeeper_data_dir     => node[:zookeeper][:data_dir],
-}
-Chef::Log.debug template_variables.inspect
-%w[ zoo.cfg ].each do |conf_file|
-  template "/etc/zookeeper/#{conf_file}" do
-    owner "root"
-    mode "0644"
-    variables(template_variables)
-    source "#{conf_file}.erb"
-  end
-end
