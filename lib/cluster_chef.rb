@@ -77,9 +77,9 @@ module ClusterChef
     def initialize cluster_name
       super(cluster_name)
       @facets = {}
-      role               "#{cluster_name}_cluster"
-      chef_attributes :cluster_name => cluster_name
-      chef_attributes :aws => { :access_key => Chef::Config[:knife][:aws_access_key_id], :secret_access_key => Chef::Config[:knife][:aws_secret_access_key],}
+      role           "#{cluster_name}_cluster"
+      chef_attributes  :cluster_name => cluster_name
+      chef_attributes  :aws => { :access_key => Chef::Config[:knife][:aws_access_key_id], :secret_access_key => Chef::Config[:knife][:aws_secret_access_key],}
     end
 
     def facet facet_name, &block
@@ -123,6 +123,7 @@ module ClusterChef
     # FIXME: a lot of AWS logic in here. This probably lives in the facet.cloud
     # but for the one or two things that come from the facet
     def create_servers
+      # chef_attributes :run_list => run_list
       cloud.connection.servers.create(
         :image_id          => cloud.image_id,
         :flavor_id         => cloud.flavor,
@@ -132,7 +133,7 @@ module ClusterChef
         :groups            => cloud.security_groups.keys,
         :key_name          => cloud.keypair,
         :tags              => cloud.security_groups.keys,
-        :user_data         => JSON.pretty_generate(cloud.user_data), # .merge(:attributes => chef_attributes.merge(:run_list => run_list))),
+        :user_data         => JSON.pretty_generate(cloud.user_data.merge(:attributes => chef_attributes)),
         # :block_device_mapping => [],
         # :disable_api_termination => disable_api_termination,
         # :instance_initiated_shutdown_behavior => instance_initiated_shutdown_behavior,

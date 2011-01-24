@@ -78,6 +78,8 @@ class Chef
         facet.cloud.security_groups.each{|name,group| group.run }
         puts facet.to_hash_with_cloud.to_yaml
 
+        Fog::Mock.delay = 0
+        Fog.mock!
 
         # servers = facet.list_servers
         # server  = servers.last
@@ -89,6 +91,7 @@ class Chef
         puts "#{h.color("Availability Zone", :cyan)}: #{server.availability_zone}"
         puts "#{h.color("Security Groups  ", :cyan)}: #{server.groups.join(", ")}"
         puts "#{h.color("SSH Key          ", :cyan)}: #{server.key_name}"
+        puts "#{h.color("User Data        ", :cyan)}: #{server.user_data}"
         
         print "\n#{h.color("Waiting for server", :magenta)}"
         
@@ -116,7 +119,7 @@ class Chef
         config[:run_list]       = facet.run_list
         # config[:template_file]  = facet.cloud.template_file
 
-        bootstrap_for_node(server).run
+#        bootstrap_for_node(server).run
 
         puts "\n"
         puts "#{h.color("Instance ID        ", :cyan)}: #{server.id}"

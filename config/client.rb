@@ -46,7 +46,6 @@ chef_config.merge!(chef_config_from_file)
 attrs                 = chef_config['attributes']
 attrs_from_file       = JSON.load(File.open(CLIENT_CONFIG_FILE)) rescue {}
 attrs.merge!(attrs_from_file)
-p [chef_config]
 
 # How to identify node to chef server.
 chef_server_url        chef_config["chef_server"]            || 'http://localhost:4000'
@@ -83,4 +82,4 @@ unless File.exists?(CLIENT_CONFIG_FILE)
 end
 json_attribs CLIENT_CONFIG_FILE if File.exists?(CLIENT_CONFIG_FILE)
 
-puts "=> chef client #{node_name} on #{chef_server_url} in #{attrs["cluster_name"]} running #{attrs["run_list"].inspect}"
+puts "=> chef client #{node_name} on #{chef_server_url} in cluster '#{attrs["cluster_name"]}'"
