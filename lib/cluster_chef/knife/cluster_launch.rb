@@ -82,6 +82,9 @@ class Chef
         require 'cluster_chef'
         $stdout.sync = true
 
+        #
+        # Put Fog into mock mode if --dry_run
+        #
         if config[:dry_run]
           Fog.mock!
           Fog::Mock.delay = 0
@@ -106,7 +109,7 @@ class Chef
         # servers = facet.list_servers.select{|s| s.state == "running" }
         servers = (1..facet.instances).map{ facet.create_server }
         server = servers.last
-        
+
         puts "#{h.color("Instance ID      ", :cyan)}: #{server.id}"
         puts "#{h.color("Flavor           ", :cyan)}: #{server.flavor_id}"
         puts "#{h.color("Image            ", :cyan)}: #{server.image_id}"
@@ -114,41 +117,37 @@ class Chef
         puts "#{h.color("Security Groups  ", :cyan)}: #{server.groups.join(", ")}"
         puts "#{h.color("SSH Key          ", :cyan)}: #{server.key_name}"
         puts "#{h.color("User Data        ", :cyan)}: #{server.user_data}"
-        
-        print "\n#{h.color("Waiting for server", :magenta)}"
+
+        print "\n#{h.color("Waiting for server ", :magenta)}"
 
         #
         # Wait for it to be ready to do stuff
         #
         server.wait_for { print "."; ready? }
-        
         puts("\n")
-        
+        #
         puts "#{h.color("Public DNS Name    ", :cyan)}: #{server.dns_name}"
         puts "#{h.color("Public IP Address  ", :cyan)}: #{server.ip_address}"
         puts "#{h.color("Private DNS Name   ", :cyan)}: #{server.private_dns_name}"
         puts "#{h.color("Private IP Address ", :cyan)}: #{server.private_ip_address}"
-
-        p servers
-        
-        print "\n#{h.color("Waiting for sshd", :magenta)}"
+        print "\n#{h.color("Waiting for sshd ", :magenta)}"
         print(".") until tcp_test_ssh(server.dns_name) { sleep @initial_sleep_delay ||= 10; puts("done") }
-        
-        config[:ssh_user]       = facet.cloud.ssh_user                
+
+        #
+        # Bootstrap it (if requested)
+        #
+        config[:ssh_user]       = facet.cloud.ssh_user
         config[:identity_file]  = facet.cloud.ssh_identity_file
         config[:chef_node_name] = facet.chef_node_name
         config[:distro]         = facet.cloud.bootstrap_distro
         config[:run_list]       = facet.run_list
-
-        #
-        # Bootstrap it (if requested)
         #
         if config[:bootstrap]
           servers.each do |server|
             bootstrap_for_node(server).run
           end
         end
-        
+
         servers.each do |server|
           puts "\n"
           puts "#{h.color("Instance ID        ", :cyan)}: #{server.id}"
@@ -175,7 +174,7 @@ class Chef
         bootstrap.config[:prerelease]     = config[:prerelease]
         bootstrap.config[:distro]         = config[:distro]
         bootstrap.config[:use_sudo]       = true
-        bootstrap.config[:template_file]  = config[:template_file]                  
+        bootstrap.config[:template_file]  = config[:template_file]
         bootstrap
       end
 

@@ -22,33 +22,29 @@ module ClusterChef
         owner_id group_owner_id || Chef::Config.knife[:aws_account_id]
       end
 
-      def connection
-        @cloud.connection
-      end
-
       @@all = nil
       def all
-        self.class.all(connection)
+        self.class.all
       end
-      def self.all(connection)
+      def self.all
         return @@all if @@all
-        get_all(connection)
+        get_all
       end
-      def self.get_all connection
-        groups_list = connection.security_groups.all
+      def self.get_all
+        groups_list = ClusterChef.connection.security_groups.all
         @@all = groups_list.inject({}) do |hsh, group|
           hsh[group.name] = group ; hsh
         end
       end
 
       def get
-        all[name] || @cloud.connection.security_groups.get(name)
+        all[name] || ClusterChef.connection.security_groups.get(name)
       end
 
-      def self.get_or_create group_name, description, connection
-        group = all(connection)[group_name] || connection.security_groups.get(group_name)
+      def self.get_or_create group_name, description
+        group = all[group_name] || ClusterChef.connection.security_groups.get(group_name)
         if ! group
-          group = all(connection)[group_name] = Fog::AWS::Compute::SecurityGroup.new(:name => group_name, :description => description, :connection => connection)
+          group = all[group_name] = Fog::AWS::Compute::SecurityGroup.new(:name => group_name, :description => description, :connection => ClusterChef.connection)
           group.save
         end
         group
@@ -82,12 +78,12 @@ module ClusterChef
       end
 
       def run
-        group = self.class.get_or_create name, description, connection
+        group = self.class.get_or_create name, description
         @group_authorizations.uniq.each do |authed_group, authed_owner|
           authed_owner ||= self.owner_id
           next if group_permission_already_set?(group, authed_group, authed_owner)
           warn ['authorizing group', authed_group, authed_owner].inspect
-          self.class.get_or_create(authed_group, "Authorized to access nfs server", connection)
+          self.class.get_or_create(authed_group, "Authorized to access nfs server")
           group.authorize_group_and_owner(authed_group, authed_owner)
         end
         @range_authorizations.uniq.each do |range, cidr_ip, ip_protocol|
