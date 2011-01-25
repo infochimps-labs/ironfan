@@ -38,3 +38,6 @@ pkg
 ## PROJECT::SPECIFIC
 .rake_test_cache
 metadata.json
+
+.chef
+*.pem

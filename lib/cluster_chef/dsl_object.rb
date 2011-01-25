@@ -1,4 +1,4 @@
-require 'active_support/core_ext/class/attribute'
+require 'cluster_chef/core_ext/class'
 
 module ClusterChef
   class DslObject

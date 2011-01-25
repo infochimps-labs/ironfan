@@ -71,7 +71,7 @@ module ClusterChef
     # securit group bullshit
     #
     def setup_role_implications
-      role_implication "hadoop_namenode" do
+      role_implication "hadoop_master" do
         self.cloud.security_group 'hadoop_namenode' do
           authorize_port_range 80..80
         end

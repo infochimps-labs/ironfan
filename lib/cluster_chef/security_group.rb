@@ -85,12 +85,14 @@ module ClusterChef
           next if group_permission_already_set?(group, authed_group, authed_owner)
           warn ['authorizing group for', self.name, authed_group, authed_owner].inspect
           self.class.get_or_create(authed_group, "Authorized to access nfs server")
-          group.authorize_group_and_owner(authed_group, authed_owner)
+          begin group.authorize_group_and_owner(authed_group, authed_owner)
+          rescue StandardError => e ; warn e ; end
         end
         @range_authorizations.uniq.each do |range, cidr_ip, ip_protocol|
           next if range_permission_already_set?(group, range, cidr_ip, ip_protocol)
           warn ['authorizing range for', self.name, range, { :cidr_ip => cidr_ip, :ip_protocol => ip_protocol }]
-          group.authorize_port_range(range, { :cidr_ip => cidr_ip, :ip_protocol => ip_protocol })
+          begin group.authorize_port_range(range, { :cidr_ip => cidr_ip, :ip_protocol => ip_protocol })
+          rescue StandardError => e ; warn e ; end
         end
       end
 
