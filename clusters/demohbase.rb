@@ -1,4 +1,3 @@
-
 ClusterChef.cluster 'demohbase' do
   merge!('defaults')
   setup_role_implications
@@ -7,17 +6,15 @@ ClusterChef.cluster 'demohbase' do
   role                  "ebs_volumes_attach"
   role                  "ebs_volumes_mount"
   role                  "hadoop_s3_keys"
+  cloud.flavor          "c1.medium"
 
   facet 'master' do
     instances           1
     facet_index         0
-    cloud.flavor        "c1.medium"
     role                "nfs_server"
     role                "hadoop_namenode"
     role                "hadoop_secondarynamenode"
     role                "hadoop_jobtracker"
-    role                "hadoop_datanode"
-    role                "hadoop_tasktracker"
     role                "hbase_master"
     role                "zookeeper_server"
     role                "big_package"
