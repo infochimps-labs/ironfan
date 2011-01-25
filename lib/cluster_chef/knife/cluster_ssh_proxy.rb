@@ -28,7 +28,7 @@
 # 
 # class Chef
 #   class Knife
-#     class Ssh < Knife
+#     class ClusterSshProxy < Knife
 # 
 #       attr_writer :password
 # 

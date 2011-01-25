@@ -139,8 +139,10 @@ module ClusterChef
       @cluster = cluster
       chef_attributes :cluster_role       => facet_name # backwards compatibility
       chef_attributes :facet_name         => facet_name
+      role             "#{@cluster.name}_cluster"
+      role             "#{@cluster.name}_#{facet_name}"
       unless facet_index.blank?
-        chef_node_name "#{cluster.name}-#{facet_name}-#{facet_index}"
+        chef_node_name "#{@cluster.name}-#{facet_name}-#{facet_index}"
         chef_attributes :node_name          => chef_node_name
         chef_attributes :cluster_role_index => facet_index # backwards compatibility
         chef_attributes :facet_index        => facet_index
@@ -155,9 +157,7 @@ module ClusterChef
       @settings    = @cluster.to_hash.merge @settings
       cloud.resolve!          @cluster.cloud
       cloud.keypair           cluster_name if cloud.keypair.blank?
-      role                 "#{cluster_name}_cluster"
       cloud.security_group    cluster_name do authorize_group cluster_name end
-      role                 "#{cluster_name}_#{self.name}"
       cloud.security_group "#{cluster_name}-#{self.name}"
       @settings[:run_list]        = @cluster.run_list + self.run_list
       @settings[:chef_attributes] = @cluster.chef_attributes.merge(self.chef_attributes)
