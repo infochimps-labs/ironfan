@@ -21,6 +21,7 @@ ClusterChef.cluster 'demohadoop' do
     facet_index         0
     role                "nfs_server"
     role                "hadoop_master"
+    recipe              'hadoop_cluster::bootstrap_format_namenode'
     role                "hadoop_worker"
     role                "hadoop_initial_bootstrap"
   end
