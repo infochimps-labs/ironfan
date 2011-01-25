@@ -1,0 +1,61 @@
+bash -c '
+REMOTE_FILE_URL_BASE="http://github.com/infochimps/cluster_chef/raw/version_2/config"
+export DEBIAN_FRONTEND=noninteractive
+apt-get update
+
+echo "`date` Installing base packages"
+apt-get install -y ruby ruby1.8-dev build-essential wget libruby-extras libruby1.8-extras runit runit-services
+echo "`date` Unchaining rubygems from the tyrrany of ubuntu"  
+gem install --no-rdoc --no-ri rubygems-update --version=1.3.7; /var/lib/gems/1.8/bin/update_rubygems ; gem update --no-rdoc --no-ri --system ; gem --version
+echo "`date` Installing support gems"  
+gem install --no-rdoc --no-ri broham uuidtools configliere right_aws
+
+echo "`date` Installing chef"
+gem install ohai chef --no-rdoc --no-ri --verbose <%= '--prerelease' if @config[:prerelease] %>
+
+echo "`date` Knifing in the chef client config files"
+mkdir -p /etc/chef
+
+(
+cat <<'EOP'
+<%= IO.read(Chef::Config[:validation_key]) %>
+EOP
+) > /tmp/validation.pem
+awk NF /tmp/validation.pem > /etc/chef/validation.pem
+rm /tmp/validation.pem
+
+echo "`date` Pulling in chef client script"  
+wget --no-check-certificate -nv ${REMOTE_FILE_URL_BASE}/client.rb -O /etc/chef/client.rb 
+
+echo "`date` Adding chef client runit scripts"
+service chef-client stop ; sleep 1 ; killall chef-client
+mkdir -p /var/log/chef /var/chef /etc/sv/chef-client/log/main
+cat > /etc/sv/chef-client/log/run <<EOF
+#!/bin/bash
+exec svlogd -tt ./main
+EOF
+cat > /etc/sv/chef-client/run <<EOF
+#!/bin/bash
+exec 2>&1
+exec /usr/bin/env chef-client -i 1800 -s 20 -L /var/log/chef/client.log
+EOF
+chmod +x  /etc/sv/chef-client/log/run /etc/sv/chef-client/run
+ln -nfs /usr/bin/sv /etc/init.d/chef-client
+
+(
+cat <<'EOP'
+<%= { "run_list" => @run_list }.to_json %>
+EOP
+) > /etc/chef/first-boot.json
+
+echo "`date` First run of chef"
+/usr/bin/chef-client -j /etc/chef/first-boot.json
+
+echo "`date` Cleanup"  
+updatedb
+
+echo "`date` Enabling chef client service" 
+ln -s   /etc/sv/chef-client /etc/service/chef-client
+
+echo "`date` Cluster Chef client bootstrap complete."  
+'
