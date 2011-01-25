@@ -21,7 +21,7 @@ template_variables = {
   :all_cluster_volumes    => all_cluster_volumes,
   :cluster_ebs_volumes    => cluster_ebs_volumes,
   :ganglia                => provider_for_service("#{node[:cluster_name]}-gmetad"),
-  :ganglia_host           => provider_private_ip("#{node[:cluster_name]}-gmetad"),
+  :ganglia_address           => provider_private_ip("#{node[:cluster_name]}-gmetad"),
   :ganglia_port           => 8649,
 }
 Chef::Log.debug template_variables.inspect
