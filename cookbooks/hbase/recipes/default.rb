@@ -50,7 +50,7 @@ end
 template_variables = {
   :namenode_fqdn          => provider_fqdn("#{node[:cluster_name]}-namenode"),
   :jobtracker_address     => provider_private_ip("#{node[:cluster_name]}-jobtracker"),
-  :zookeeper_address      => provider_private_ip("#{node[:cluster_name]}-zookeeper"),
+  :zookeeper_address      => all_provider_private_ips("#{node[:cluster_name]}-zookeeper").join(":"),
   :private_ip             => private_ip_of(node),
   :jmx_hostname           => public_ip_of(node),
   :ganglia                => !provider_for_service("#{node[:cluster_name]}-gmetad"),
