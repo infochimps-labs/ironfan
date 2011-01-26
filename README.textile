@@ -7,7 +7,8 @@ h3. Setup
 
   <pre>
     sudo gem install chef fog broham highline readline 
-
+  </pre>
+  
 h4. AWS credentials
 
 You need to make a cloud keypair, a secure key for communication with Amazon AWS
