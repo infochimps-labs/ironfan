@@ -53,13 +53,13 @@ template_variables = {
   :zookeeper_address      => all_provider_private_ips("#{node[:cluster_name]}-zookeeper").join(":"),
   :private_ip             => private_ip_of(node),
   :jmx_hostname           => public_ip_of(node),
-  :ganglia                => !provider_for_service("#{node[:cluster_name]}-gmetad"),
+  :ganglia                => provider_for_service("#{node[:cluster_name]}-gmetad"),
   :ganglia_address        => provider_fqdn("#{node[:cluster_name]}-gmetad"),
   :ganglia_port           => 8649,
   :period                 => 10
 }
 Chef::Log.debug template_variables.inspect
-%w[ hbase-env.sh hbase-site.xml ].each do |conf_file|
+%w[ hbase-env.sh hbase-site.xml hadoop-metrics.properties ].each do |conf_file|
   template "/etc/hbase/conf/#{conf_file}" do
     owner "root"
     mode "0644"
