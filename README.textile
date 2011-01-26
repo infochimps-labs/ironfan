@@ -1,3 +1,65 @@
+
+h1. cluster_chef
+
+Chef is a powerful tool for maintaining and describing the software and configurations that let a machine provide its services.
+
+cluster_chef is
+
+* a clean, expressive way to describe how machines and roles are assembled into a working cluster
+* Our collection of Industrial-strength, cloud-ready recipes for Hadoop, Cassandra, HBase, Elasticsearch and more
+* a set of conventions and helpers that make provisioning cloud machines easier
+
+Here's a basic 3-node hadoop cluster:
+
+<pre>
+    ClusterChef.cluster 'demohadoop' do
+      merge!('defaults')
+      
+      facet 'master' do
+        instances           1
+        role                "nfs_server"
+        role                "hadoop_master"
+        role                "hadoop_worker"
+        role                "hadoop_initial_bootstrap"
+      end
+
+      facet 'worker' do
+        instances           2
+        role                "nfs_client"
+        role                "hadoop_worker"
+      end
+
+      cloud :ec2 do
+        image_name          "lucid"
+        flavor              "c1.medium"
+        availability_zones  ['us-east-1d']
+        security_group :logmunchers do
+          authorize_group "webnodes"
+        end
+      end
+      
+    end
+</pre>
+
+This defines a cluster with two type of machines. The master serves out a home directory over NFS, and runs the processes that distribute jobs to hadoop workers. In this small cluster, the master also has workers itself, and a utility role that helps initialize it out of the box.
+
+There are 2 workers; they use the home directory served out by the master, and run the hadoop worker processes.
+
+Finally, we define what machines to use for this clluster. Instead of having to look up and type in an image ID, we just say we want the Ubuntu 'Lucid' distribution on a c1.medium machine. Cluster_chef understands that this means we need the 32-bit image in the us-east-1 region, and makes the cloud instance request accordingly.
+
+Setup is still a bit of a pain, but running cluster_chef is easy.
+
+<pre>
+    knife cluster launch demohadoop master --bootstrap
+    knife cluster launch demohadoop worker --bootstrap
+</pre>
+
+These commands launch the machine, and once ready, ssh in to install chef and converge all its software.
+
+---------------------------------------------------------------------------
+
+h2. Getting Started
+
 h3. Prelaunch
 
 Follow the normal knife setup. If you can use the normal knife bootstrap
@@ -79,8 +141,12 @@ Go ahead and launch a cluster:
     knife cluster launch demohadoop master --bootstrap
 </pre>
 
-It will kick off a node and then bootstrap it.  By the time it's done, you should be able to see the hadoop dashboard (follow the instructions for proxy setup).
-  
+It will kick off a node and then bootstrap it.  By the time it's done, you should be able to see the hadoop dashboard (follow the instructions for proxy setup). Once you're convinced the cluster works, kick off the workers:
+
+<pre>
+    knife cluster launch demohadoop worker --bootstrap
+</pre>
+
 h3. Gotchas
 
 * The initial startup is still finicky, but is at least down to only two passes for hadoop:
@@ -104,13 +170,14 @@ h3. Gotchas
 h3. Zero-bootstrap, fire and forget cluster launch!
 
 * Register for Amazon SimpleDB. (Although you do need a credit card, there's no conceivable way broham will approach the free limit.)
-* You'll have to run the following one-time command:<pre>
+* You'll have to run the following one-time command:
+
+<pre>
     sudo gem install broham configliere right_aws
     ruby -rubygems -e 'require "broham"; Broham.establish_connection :access_key=>"YOUR_ACCESS_KEY", :secret_access_key=>"YOUR_KEY"; Broham.create_domain'
-  </pre>
-* Now you should be able to use broham:<pre>
-    broham-register `hostname`
-  </pre>
+</pre>
+  
+* Now you should be able to use broham:<pre> broham-register `hostname` </pre>
 * To have it assign node names dynamically, se the client.rb script in cluster_chef/config as your /etc/chef/client.rb
 
 
