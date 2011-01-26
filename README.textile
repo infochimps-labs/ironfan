@@ -25,7 +25,7 @@ Clusterchef uses the 'knife' tool to control both chef and the cloud APIs.
 
 We'll need to make some additions to its configuration file, which is probably in ~/.chef/knife.rb. If you already have a @cookbook_path@ definition, just make sure that @"#{cluster_chef_path}/cookbooks"@ and @"#{cluster_chef_path}/site-cookbooks"@ appear in there too.
 
-<pre>
+<pre><notextile>
     # Type in the full path to your cluster_chef installation
     cluster_chef_path File.expand_path('~/ics/sysadmin/cluster_chef')
     # Type in the full path to the directory holding your cloud keypairs.
@@ -37,7 +37,7 @@ We'll need to make some additions to its configuration file, which is probably i
     # Set your AWS access credentials
     knife[:aws_access_key_id]      = "XXXXXXXXXXX"
     knife[:aws_secret_access_key]  = "XXXXXXXXXXXXX"
-</pre>
+</notextile></pre>
 
 h4. Push to chef server
 
