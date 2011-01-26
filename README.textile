@@ -67,17 +67,17 @@ h4. knife cluster launch
 
 Now if you type @knife cluster launch@ you should see it found the new scripts:
 
-  <pre>
+<pre>
     ** CLUSTER COMMANDS **
     knife cluster launch CLUSTER_NAME FACET_NAME (options)
     knife cluster show CLUSTER_NAME FACET_NAME (options)
-  </pre>
+</pre>
 
 Go ahead and launch a cluster:
 
-  <pre>
+<pre>
     knife cluster launch demohadoop master --bootstrap
-  </pre>
+</pre>
 
 It will kick off a node and then bootstrap it.  By the time it's done, you should be able to see the hadoop dashboard (follow the instructions for proxy setup).
   
@@ -85,17 +85,17 @@ h3. Gotchas
 
 * The initial startup is still finicky, but is at least down to only two passes for hadoop:
 
-  <pre>
+<pre>
     for foo in hadoop-0.20-{datanode,namenode,tasktracker,jobtracker,secondarynamenode} ; do sudo service $foo stop ; done
     sudo chef-client
-  </pre>
+</pre>
 
 * For hbase, still dialing it in but there's also this:  
   
-  <pre>
+<pre>
     sudo -u hdfs hadoop fs -chown -R hbase:hbase /hadoop/hbase
     sudo chef-client
-  </pre>
+</pre>
 
 * Once the master runs to completion with all daemons started, remove the hadoop_initial_bootstrap recipe from its run_list. (Note that you may have to edit the runlist on the machine itself depending on how you bootstrapped the node).
 
