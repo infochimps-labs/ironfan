@@ -104,15 +104,13 @@ h3. Gotchas
 h3. Zero-bootstrap, fire and forget cluster launch!
 
 * Register for Amazon SimpleDB. (Although you do need a credit card, there's no conceivable way broham will approach the free limit.)
-* You'll have to run the following one-time command:
-<pre>
+* You'll have to run the following one-time command:<pre>
     sudo gem install broham configliere right_aws
     ruby -rubygems -e 'require "broham"; Broham.establish_connection :access_key=>"YOUR_ACCESS_KEY", :secret_access_key=>"YOUR_KEY"; Broham.create_domain'
-</pre>
-* Now you should be able to use broham:
-<pre>
+  </pre>
+* Now you should be able to use broham:<pre>
     broham-register `hostname`
-</pre>
+  </pre>
 * To have it assign node names dynamically, se the client.rb script in cluster_chef/config as your /etc/chef/client.rb
 
 
