@@ -33,8 +33,8 @@ Here's a basic 3-node hadoop cluster:
         image_name          "lucid"
         flavor              "c1.medium"
         availability_zones  ['us-east-1d']
-        security_group :logmunchers do
-          authorize_group "webnodes"
+        security_group :logmuncher do
+          authorize_group "webnode"
         end
       end
       
@@ -45,16 +45,14 @@ This defines a cluster with two type of machines. The master serves out a home d
 
 There are 2 workers; they use the home directory served out by the master, and run the hadoop worker processes.
 
-Finally, we define what machines to use for this clluster. Instead of having to look up and type in an image ID, we just say we want the Ubuntu 'Lucid' distribution on a c1.medium machine. Cluster_chef understands that this means we need the 32-bit image in the us-east-1 region, and makes the cloud instance request accordingly.
+Finally, we define what machines to use for this clluster. Instead of having to look up and type in an image ID, we just say we want the Ubuntu 'Lucid' distribution on a c1.medium machine. Cluster_chef understands that this means we need the 32-bit image in the us-east-1 region, and makes the cloud instance request accordingly. It also creates a 'logmunchers' security group, opening it so all the 'webnode' machines can push their server logs onto the HDFS.
 
-Setup is still a bit of a pain, but running cluster_chef is easy.
+These commands launch the machine, and once ready, ssh in to install chef and converge all its software.
 
 <pre>
     knife cluster launch demohadoop master --bootstrap
     knife cluster launch demohadoop worker --bootstrap
 </pre>
-
-These commands launch the machine, and once ready, ssh in to install chef and converge all its software.
 
 ---------------------------------------------------------------------------
 
