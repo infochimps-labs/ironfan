@@ -9,6 +9,8 @@ cluster_chef is
 * Our collection of Industrial-strength, cloud-ready recipes for Hadoop, Cassandra, HBase, Elasticsearch and more
 * a set of conventions and helpers that make provisioning cloud machines easier
 
+h2. Walkthrough
+
 Here's a basic 3-node hadoop cluster:
 
 <pre>
@@ -41,13 +43,15 @@ Here's a basic 3-node hadoop cluster:
     end
 </pre>
 
-This defines a cluster with two type of machines. The master serves out a home directory over NFS, and runs the processes that distribute jobs to hadoop workers. In this small cluster, the master also has workers itself, and a utility role that helps initialize it out of the box.
+This defines a *cluster* (group of machines that serve some common purpose) with two *facets*, or unique configurations of machines within the cluster. (For another example, a webserver farm might have a loadbalancer facet, a database facet, and a webnode facet).
+
+In the example above, the master serves out a home directory over NFS, and runs the processes that distribute jobs to hadoop workers. In this small cluster, the master also has workers itself, and a utility role that helps initialize it out of the box.
 
 There are 2 workers; they use the home directory served out by the master, and run the hadoop worker processes.
 
-Finally, we define what machines to use for this clluster. Instead of having to look up and type in an image ID, we just say we want the Ubuntu 'Lucid' distribution on a c1.medium machine. Cluster_chef understands that this means we need the 32-bit image in the us-east-1 region, and makes the cloud instance request accordingly. It also creates a 'logmunchers' security group, opening it so all the 'webnode' machines can push their server logs onto the HDFS.
+Lastly, we define what machines to use for this cluster. Instead of having to look up and type in an image ID, we just say we want the Ubuntu 'Lucid' distribution on a c1.medium machine. Cluster_chef understands that this means we need the 32-bit image in the us-east-1 region, and makes the cloud instance request accordingly. It also creates a 'logmunchers' security group, opening it so all the 'webnode' machines can push their server logs onto the HDFS.
 
-These commands launch the machine, and once ready, ssh in to install chef and converge all its software.
+The following commands launch each machine, and once ready, ssh in to install chef and converge all its software.
 
 <pre>
     knife cluster launch demohadoop master --bootstrap
@@ -65,29 +69,43 @@ commands to launch a machine, you're ready to start.
 
 h3. Setup
 
+Install these gems,
+
 <pre>
-    sudo gem install chef fog broham highline readline 
+    sudo gem install chef fog broham highline readline configliere
 </pre>
-  
+
+and (if you haven't already), git clone or "download":https://github.com/infochimps/cluster_chef/zipball/version_2 the repo:
+
+<pre>
+  git clone git@github.com:infochimps/cluster_chef.git
+</pre>
+
+Since we'll need to refer back to it a few times in the setup that follows, please set an environment variable called CLUSTER_CHEF_PATH (modifying it to match the actual location):
+
+<pre>
+  CLUSTER_CHEF_PATH=$HOME/path/to/cluster_chef
+</pre>
+
 h4. AWS credentials
 
 You need to make a cloud keypair, a secure key for communication with Amazon AWS cloud. 
 
-# Log in to the "AWS console":http://bit.ly/awsconsole and create a new keypair named @demohadoop@. Your browser will download the private half of it.
+# Log in to the "AWS console":http://bit.ly/awsconsole and create a new keypair named @demohadoop@. Your browser will download the private key file.
 # Create a directory ~/.chef/keypairs/, and move the private key file you just downloaded to be ~/.chef/keypairs/demohadoop.pem. 
 # Make the private key unsnoopable, or ssh will complain: <pre>  chmod 600 ~/.chef/keypairs/*.pem   </pre>
 
-While you're there, also go to Account/Security Credentials and take a not of your aws_access_key_id and aws_secret_access_key -- you'll need to add them to your knife.rb as shown below.
+While you're on the AWS console, also go to Account/Security Credentials and take note of your aws_access_key_id and aws_secret_access_key -- you'll need to add them to your knife.rb as shown below.
 
 h4. Knife setup
 
 Clusterchef uses the 'knife' tool to control both chef and the cloud APIs.
 
-We'll need to make some additions to its configuration file, which is probably in ~/.chef/knife.rb. If you already have a @cookbook_path@ definition, just make sure that @"#{cluster_chef_path}/cookbooks"@ and @"#{cluster_chef_path}/site-cookbooks"@ appear in there too.
+Make the following additions to its configuration file (typically found at ~/.chef/knife.rb). 
 
 <pre>
     # Type in the full path to your cluster_chef installation
-    cluster_chef_path File.expand_path('~/ics/sysadmin/cluster_chef')
+    cluster_chef_path File.expand_path('~/path/to/cluster_chef')
     # Type in the full path to the directory holding your cloud keypairs.
     keypair_path      File.expand_path("~/.chef/keypairs")
 
@@ -99,23 +117,25 @@ We'll need to make some additions to its configuration file, which is probably i
     knife[:aws_secret_access_key]  = "XXXXXXXXXXXXX"
 </pre>
 
+Please hand-edit the cluster_chef_path line to give the correct location. If you already have a @cookbook_path@ definition, you should merge it with the cookbook_path line above --just make sure that @"#{cluster_chef_path}/cookbooks"@ and @"#{cluster_chef_path}/site-cookbooks"@ appear in there too.
+
 h4. Push to chef server
 
 We need to send all the cookbooks and role to the chef server. Visit your cluster_chef directory and run:
 
 <pre>
-    cd ~/path/to/cluster_chef
+    cd $CLUSTER_CHEF_PATH
     knife cookbook upload --all
     for foo in roles/*.rb ; do knife role from file $foo & sleep 1 ; done
 </pre>
+
+You should see all the cookbooks defined in cluster_chef/cookbooks (ant, apt, ...) and cluster_chef/site-cookbooks (azkaban, cassandra, ...) listed among 
 
 h4. Stupid Surgical bits
 
 Unfortunately the current version of chef doesn't have a plugin mechanism for new commands. This means we have to do surgery on the knife itself... we'll just symlink the new commands into chef's lib/chef/knife directory, and symlink the bootstrap templates into chef's lib/chef/knife/bootstrap directory. Set the path to your cluster_chef directory and run the following:
 
 <pre>
-    CLUSTER_CHEF_PATH=$HOME/path/to/cluster_chef
-
     sudo ln -s $CLUSTER_CHEF_PATH/lib/cluster_chef/knife/*.rb            $(dirname `gem which chef`)/chef/knife/
     sudo ln -s $CLUSTER_CHEF_PATH/lib/cluster_chef/knife/bootstrap/*.erb $(dirname `gem which chef`)/chef/knife/bootstrap/
 </pre>

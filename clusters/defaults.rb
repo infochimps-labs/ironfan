@@ -10,7 +10,6 @@ ClusterChef.cluster 'defaults' do
     backing             'ebs'
     permanent           false
     elastic_ip          false
-    user_data           :get_name_from => 'broham'
     spot_price_fraction nil
     bootstrap_distro    'ubuntu10.04-cluster_chef'
     security_group      :default

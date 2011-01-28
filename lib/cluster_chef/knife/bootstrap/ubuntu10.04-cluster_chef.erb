@@ -1,6 +1,9 @@
 bash -c '
+
 REMOTE_FILE_URL_BASE="http://github.com/infochimps/cluster_chef/raw/version_2/config"
+eval `cat /etc/lsb-release `
 export DEBIAN_FRONTEND=noninteractive
+
 apt-get update
 
 echo "`date` Installing base packages"

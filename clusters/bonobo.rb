@@ -6,8 +6,9 @@ ClusterChef.cluster 'bonobo' do
   role                  "hadoop_s3_keys"
   cloud do
     flavor              "c1.xlarge"
-    backing             "instance"
-    image_name          "infochimps-maverick-client"
+    backing             "ebs"
+    image_name          "maverick" # "infochimps-maverick-client"
+    user_data           :get_name_from => 'broham'
   end
 
   facet 'master' do
