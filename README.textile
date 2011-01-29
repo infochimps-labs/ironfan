@@ -137,7 +137,7 @@ Unfortunately the current version of chef doesn't have a plugin mechanism for ne
 
 <pre>
     sudo ln -s $CLUSTER_CHEF_PATH/lib/cluster_chef/knife/*.rb            $(dirname `gem which chef`)/chef/knife/
-    sudo ln -s $CLUSTER_CHEF_PATH/lib/cluster_chef/knife/bootstrap/*.erb $(dirname `gem which chef`)/chef/knife/bootstrap/
+    sudo ln -s $CLUSTER_CHEF_PATH/lib/cluster_chef/knife/bootstrap/*     $(dirname `gem which chef`)/chef/knife/bootstrap/
 </pre>
 
 h3. Cluster chef knife commands

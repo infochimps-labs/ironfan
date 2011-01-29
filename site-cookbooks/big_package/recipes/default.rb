@@ -5,6 +5,7 @@ packages_list = %w[
   g++ python-setuptools python-dev
   s3cmd
   tidy
+  ifstat
 ]
 if node[:lsb][:release].to_f > 9.0
   packages_list += %w[ ec2-api-tools ec2-ami-tools ]
