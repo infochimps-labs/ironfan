@@ -24,12 +24,14 @@ ClusterChef.cluster 'demohadoop' do
     recipe              'hadoop_cluster::bootstrap_format_namenode'
     role                "hadoop_worker"
     role                "hadoop_initial_bootstrap"
+    role                "big_package"
   end
 
   facet 'worker' do
     instances           2
     role                "nfs_client"
     role                "hadoop_worker"
+    role                "big_package"
   end
 
   chef_attributes({

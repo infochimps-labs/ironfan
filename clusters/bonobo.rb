@@ -7,7 +7,7 @@ ClusterChef.cluster 'bonobo' do
   cloud do
     flavor              "c1.xlarge"
     backing             "ebs"
-    image_name          "maverick" # "infochimps-maverick-client"
+    image_name          "lucid"
     user_data           :get_name_from => 'broham'
   end
 
