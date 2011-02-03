@@ -63,12 +63,12 @@ module HadoopCluster
   end
 
   def persistent_hadoop_dirs
-    if not cluster_ebs_volumes.blank?
+    if node[:hadoop][:ignore_ebs_volumes] or cluster_ebs_volumes.blank?
+      (['/mnt/hadoop'] + local_hadoop_dirs).uniq
+    else
       dirs = cluster_ebs_volumes.map{|vol_info| vol_info['mount_point']+'/hadoop' }
       dirs.unshift('/mnt/hadoop') if node[:hadoop][:use_root_as_persistent_vol]
       dirs.uniq
-    else
-      (['/mnt/hadoop'] + local_hadoop_dirs).uniq
     end
   end
 
