@@ -8,6 +8,6 @@ run_list *%w[
   hadoop_cluster::datanode
   hadoop_cluster::tasktracker
   hadoop_cluster::system_internals
-  pig::install_from_package
+  pig::apache_plus_cloudera_best_friends_forever
   zookeeper
 ]
