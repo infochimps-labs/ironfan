@@ -9,8 +9,11 @@
 
 include_recipe "hbase"
 
-# Install
-package "hadoop-hbase-stargate"
+cookbook_file "/etc/init.d/hadoop-hbase-stargate" do
+  owner "root"
+  mode "0744"
+  source "hadoop-hbase-stargate"
+end
 
 # launch service
 service "hadoop-hbase-stargate" do
