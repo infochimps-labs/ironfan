@@ -114,16 +114,7 @@ script 'fetch fucked up apache hbase jar because pig wont compile without its ex
   wget --no-check-certificate https://repository.apache.org/content/repositories/snapshots/org/apache/hbase/hbase/0.89.0-SNAPSHOT/hbase-${hbase_version}.jar
   wget --no-check-certificate https://repository.apache.org/content/repositories/snapshots/org/apache/hbase/hbase/0.89.0-SNAPSHOT/hbase-${hbase_version}-tests.jar
   EOH
-end
-
-#
-# Link hbase jars to $PIG_HOME/lib
-#
-node[:pig][:hbase_jars].each do |hbase_jar|
-  link "/usr/local/share/pig/lib/#{hbase_jar}" do
-    to "/usr/lib/hbase/#{hbase_jar}"
-    action :create
-  end
+  not_if{ File.exists?("/usr/local/share/pig/pig.jar")}
 end
 
 #
@@ -156,8 +147,19 @@ script 'cleanup build and rename jar' do
   code <<-EOH
   mv pig-withouthadoop.jar pig.jar
   rm -r build
+  rm -r lib/hbase*
   EOH
   not_if{File.exists?("/usr/local/share/pig/pig.jar")}  
+end
+
+#
+# Link hbase jars to $PIG_HOME/lib
+#
+node[:pig][:hbase_jars].each do |hbase_jar|
+  link "/usr/local/share/pig/lib/#{hbase_jar}" do
+    to "/usr/lib/hbase/#{hbase_jar}"
+    action :create
+  end
 end
 
 #
