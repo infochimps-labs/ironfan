@@ -43,6 +43,7 @@ default[:groups]['mapred'    ][:gid] = 303
 #
 default[:hadoop][:use_root_as_scratch_vol]    = true
 default[:hadoop][:use_root_as_persistent_vol] = false
+default[:hadoop][:ignore_ebs_volumes]         = false
 
 # Extra directories for the Namenode metadata to persist to, for example an
 # off-cluster NFS path (only necessary to use if you have a physical cluster)
