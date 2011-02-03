@@ -85,14 +85,14 @@ end
 bash 'apply pig 0.8 + hbase 0.89 patch' do
   user 'root'
   cwd  '/usr/local/share/pig'
-  code "patch -fN --ignore-whitespace -p0 < #{pig_hbase_patch_name}"
+  code "patch -fN --ignore-whitespace -p0 < #{pig_hbase_patch_name}; true"
 end
 
 #
 # Need to move existing lib dir out of the way
 #
 script 'move some pig jars around' do
-  intepreter "bash"
+  interpreter "bash"
   user       "root"
   cwd        "/usr/local/share/pig"
   code <<-EOH
@@ -105,6 +105,26 @@ script 'move some pig jars around' do
   not_if{File.exists?("/usr/local/share/pig/lib-0.20.6")}
 end
 
+script 'fetch fucked up apache hbase jar because pig wont compile without its extra special secret version and some people dont know all the fucked up places that ant looks for it' do
+  interpreter "bash"
+  user        "root"
+  cwd         "/usr/local/share/pig/lib"
+  code <<-EOH
+  hbase_version=`grep -e "^hbase.version=" ../ivy/libraries.properties |sed 's/hbase.version=//g'`
+  wget --no-check-certificate https://repository.apache.org/content/repositories/snapshots/org/apache/hbase/hbase/0.89.0-SNAPSHOT/hbase-${hbase_version}.jar
+  wget --no-check-certificate https://repository.apache.org/content/repositories/snapshots/org/apache/hbase/hbase/0.89.0-SNAPSHOT/hbase-${hbase_version}-tests.jar
+  EOH
+end
+
+#
+# Link hbase jars to $PIG_HOME/lib
+#
+node[:pig][:hbase_jars].each do |hbase_jar|
+  link "/usr/local/share/pig/lib/#{hbase_jar}" do
+    to "/usr/lib/hbase/#{hbase_jar}"
+    action :create
+  end
+end
 
 #
 # Fetch updated zookeeper jar so it's in the pig classpath
@@ -130,7 +150,7 @@ end
 # Rename pig jar and remove build dir
 #
 script 'cleanup build and rename jar' do
-  intepreter "bash"
+  interpreter "bash"
   user       "root"
   cwd        "/usr/local/share/pig"
   code <<-EOH
@@ -146,16 +166,6 @@ end
 node[:pig][:hbase_configs].each do |xml_conf|
   link "/usr/local/share/pig/conf/#{xml_conf}" do
     to "/etc/hbase/conf/#{xml_conf}"
-    action :create
-  end
-end
-
-#
-# Link hbase jars to $PIG_HOME/lib
-#
-node[:pig][:hbase_jars].each do |hbase_jar|
-  link "/usr/local/share/pig/lib/#{hbase_jar}" do
-    to "/usr/lib/hbase/#{hbase_jar}"
     action :create
   end
 end
