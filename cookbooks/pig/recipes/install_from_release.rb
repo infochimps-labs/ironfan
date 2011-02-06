@@ -33,8 +33,9 @@ directory "/usr/local/src" do
   recursive true
 end
 
-pig_install_pkg = File.basename(node[:pig][:install_url])
-pig_install_dir = pig_install_pkg.gsub(%r{(?:-bin)?\.tar\.gz}, '')
+pig_install_pkg     = File.basename(node[:pig][:install_url])
+pig_install_dir     = pig_install_pkg.gsub(%r{(?:-bin)?\.tar\.gz}, '')
+pig_hbase_path_name = File.basename(node[:pig][:pig_hbase_patch])
 
 remote_file "/usr/local/src/#{pig_install_pkg}" do
   source    node[:pig][:install_url]
