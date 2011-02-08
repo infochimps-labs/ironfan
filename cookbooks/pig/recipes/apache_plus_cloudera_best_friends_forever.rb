@@ -134,7 +134,7 @@ bash 'build pig without apache hadoop jars stuffed in' do
   cwd  '/usr/local/share/pig'
   environment 'JAVA_HOME' => node[:pig][:java_home]
   code "ant jar-withouthadoop"
-  not_if{ File.exists?("/usr/local/share/pig/pig-withouthadoop.jar") }
+  not_if{ File.exists?("/usr/local/share/pig/pig-withouthadoop.jar") || File.exists?("/usr/local/share/pig/pig.jar")}
 end
 
 #
