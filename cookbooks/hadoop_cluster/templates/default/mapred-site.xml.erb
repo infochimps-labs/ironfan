@@ -58,10 +58,6 @@
   <value><%= node[:hadoop][:reduce_parallel_copies] %></value>
 </property>
 <property>
-  <name>mapred.reduce.tasks</name>
-  <value><%= node[:hadoop][:cluster_reduce_tasks] %></value>
-</property>
-<property>
   <name>mapred.reduce.tasks.speculative.execution</name>
   <value>false</value>
 </property>
