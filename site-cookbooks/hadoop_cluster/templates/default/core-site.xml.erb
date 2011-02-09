@@ -17,6 +17,7 @@
 </property>
 <property>
   <name>hadoop.tmp.dir</name>
+  <!-- *NOT* an erb bug: hadoop will interpolate the $ part -->
   <value>/mnt/tmp/hadoop-${user.name}</value>
   <final>true</final>
 </property>

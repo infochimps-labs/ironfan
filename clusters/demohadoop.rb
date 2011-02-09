@@ -14,7 +14,6 @@ ClusterChef.cluster 'demohadoop' do
 
   recipe                "cluster_chef::dedicated_server_tuning"
   role                  "hadoop_s3_keys"
-  cloud.flavor          "c1.medium"
 
   facet 'master' do
     instances           1

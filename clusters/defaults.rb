@@ -1,4 +1,3 @@
-
 ClusterChef.cluster 'defaults' do
   setup_role_implications
 

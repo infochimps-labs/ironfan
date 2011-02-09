@@ -40,7 +40,7 @@ user "cassandra" do
 end
 
 # ignore this please
-directory('/ebs1/data'){ owner("root"); group("admin"); mode("0775"); action(:create) }
+directory('/ebs1/data'){ owner("root"); group("admin"); mode("0775"); action(:create); recursive true }
 
 [ "/var/lib/cassandra", "/var/log/cassandra",
   node[:cassandra][:data_file_dirs],
