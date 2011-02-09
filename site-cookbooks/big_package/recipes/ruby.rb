@@ -49,9 +49,4 @@ end
 
 gem_package("nokogiri"){action :install ; version "1.4.2" }
 gem_package("hpricot"){ action :install ; version "0.8.2" }
-if node[:lsb][:release].to_f < 10.10
-  packages_list += %w[ rdoc libopenssl-ruby ]
-else
-  packages_list += %w[ libruby-extras ]
-end
 
