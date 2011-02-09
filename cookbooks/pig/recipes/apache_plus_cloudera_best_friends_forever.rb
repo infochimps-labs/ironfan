@@ -65,6 +65,15 @@ template "/usr/local/share/pig/bin/pig" do
   source "pig.erb"
 end
 
+#
+# Pig configuration
+#
+template "/usr/local/share/pig/conf/pig.properties" do
+  owner "root"
+  mode "0644"
+  source "pig.properties.erb"
+end
+
 link "/usr/local/bin/pig" do
   to "/usr/local/share/pig/bin/pig"
   action :create
