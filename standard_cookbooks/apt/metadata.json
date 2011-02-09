@@ -34,5 +34,5 @@
     "apt::cacher": "Set up an APT cache",
     "apt::proxy": "Set up an APT proxy"
   },
-  "version": "0.9.1"
+  "version": "0.9.3"
 }
