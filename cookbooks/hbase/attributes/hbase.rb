@@ -14,4 +14,4 @@ default[:hbase][:regionserver_heap_size]      = "2000m"
 default[:hbase][:regionserver_gc_new_size]    = "256m"
 default[:hbase][:regionserver_gc_tuning_opts] = "-XX:+UseConcMarkSweepGC -XX:+AggressiveOpts -XX:CMSInitiatingOccupancyFraction=88"
 default[:hbase][:regionserver_gc_log_opts]    = "-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -Xloggc:/var/log/hbase/hbase-regionserver-gc.log"
-
+default[:hbase][:cluster_name]                = node[:cluster_name]

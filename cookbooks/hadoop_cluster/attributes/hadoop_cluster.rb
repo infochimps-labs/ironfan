@@ -6,12 +6,12 @@ default[:hadoop][:deb_version]   = "0.20.2+737-1~lucid-cdh3b3"
 # Make sure you define a cluster_size in roles/WHATEVER_cluster.rb
 default[:cluster_size] = 5
 
-default[:hadoop][:cluster_reduce_tasks        ] = (node[:cluster_size] * 1.95).to_i
+
 default[:hadoop][:dfs_replication             ] =  3
-default[:hadoop][:reduce_parallel_copies      ] = node[:cluster_size]
-default[:hadoop][:jobtracker_handler_count    ] = node[:cluster_size] * 2
-default[:hadoop][:tasktracker_http_threads    ] = node[:cluster_size] * 2
-default[:hadoop][:namenode_handler_count      ] = node[:cluster_size] * 2
+default[:hadoop][:reduce_parallel_copies      ] =  7
+default[:hadoop][:tasktracker_http_threads    ] = 40
+default[:hadoop][:jobtracker_handler_count    ] = [node[:cluster_size] * 4, 32].min
+default[:hadoop][:namenode_handler_count      ] = [node[:cluster_size] * 4, 32].min
 default[:hadoop][:datanode_handler_count      ] = 10
 
 default[:hadoop][:compress_map_output         ] = 'true'
@@ -43,6 +43,7 @@ default[:groups]['mapred'    ][:gid] = 303
 #
 default[:hadoop][:use_root_as_scratch_vol]    = true
 default[:hadoop][:use_root_as_persistent_vol] = false
+default[:hadoop][:ignore_ebs_volumes]         = false
 
 # Extra directories for the Namenode metadata to persist to, for example an
 # off-cluster NFS path (only necessary to use if you have a physical cluster)

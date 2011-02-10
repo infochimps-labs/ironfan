@@ -1,0 +1,193 @@
+{
+  "long_description": "",
+  "recipes": {
+    "zenoss": "Defaults to the client recipe.",
+    "zenoss::server": "Installs Zenoss, handling and configuring all the dependencies while adding Device Classes, Groups, Systems and Locations.  All nodes using the `zenoss::client` recipe are added for monitoring.",
+    "zenoss::client": "Includes the `openssh` recipe and adds the device to the Zenoss server for monitoring."
+  },
+  "attributes": {
+    "zenoss/device/properties": {
+      "required": "optional",
+      "calculated": false,
+      "choice": [
+
+      ],
+      "type": "hash",
+      "recipes": [
+
+      ],
+      "description": "Hash of configuration properties for the node. Node takes precendence over the Role if set.",
+      "display_name": "Hash of configuration properties for the node."
+    },
+    "zenoss/device/modeler_plugins": {
+      "required": "optional",
+      "calculated": false,
+      "choice": [
+
+      ],
+      "type": "array",
+      "recipes": [
+
+      ],
+      "description": "List of modeler plugins for the node. Node takes precendence over the Role if set.",
+      "display_name": "List of modeler plugins for the node."
+    },
+    "zenoss/device/location": {
+      "required": "optional",
+      "calculated": false,
+      "choice": [
+
+      ],
+      "type": "string",
+      "recipes": [
+
+      ],
+      "description": "Location for the node. May be overridden by the Role.",
+      "display_name": "Location for the node."
+    },
+    "zenoss/server/zenoss_pubkey": {
+      "required": "optional",
+      "calculated": false,
+      "choice": [
+
+      ],
+      "type": "string",
+      "recipes": [
+
+      ],
+      "description": "zenoss user's public key on the server for use with SSH monitoring.",
+      "display_name": "zenoss user's public key"
+    },
+    "zenoss/device/templates": {
+      "required": "optional",
+      "calculated": false,
+      "choice": [
+
+      ],
+      "type": "array",
+      "recipes": [
+
+      ],
+      "description": "List of templates for the node. Node takes precendence over the Role if set.",
+      "display_name": "List of templates for the node."
+    },
+    "zenoss/server/version": {
+      "required": "optional",
+      "calculated": false,
+      "choice": [
+
+      ],
+      "default": "3.0.3-0",
+      "type": "string",
+      "recipes": [
+
+      ],
+      "display_name": "Zenoss Version"
+    },
+    "zenoss/server/zenhome": {
+      "required": "optional",
+      "calculated": false,
+      "choice": [
+
+      ],
+      "default": "/usr/local/zenoss/zenoss",
+      "type": "string",
+      "recipes": [
+
+      ],
+      "description": "$ZENHOME environment variable, directory where Zenoss is installed.",
+      "display_name": "Environment variable $ZENHOME"
+    },
+    "zenoss/device/device_class": {
+      "required": "optional",
+      "calculated": false,
+      "choice": [
+
+      ],
+      "default": "/Discovered",
+      "type": "string",
+      "recipes": [
+
+      ],
+      "description": "Device Class for the node. May be overridden by the Role.",
+      "display_name": "Device Class for the node."
+    },
+    "zenoss/server/installed_zenpacks": {
+      "required": "optional",
+      "calculated": false,
+      "choice": [
+
+      ],
+      "type": "hash",
+      "recipes": [
+
+      ],
+      "description": "Hash of ZenPacks to install. Key/value of Name/Version.",
+      "display_name": "Hash of ZenPacks to install."
+    },
+    "zenoss/server/admin_password": {
+      "required": "optional",
+      "calculated": false,
+      "choice": [
+
+      ],
+      "default": "randomly generated",
+      "type": "string",
+      "recipes": [
+
+      ],
+      "description": "Randomly generated password for the admin user",
+      "display_name": "Zenoss Admin Password"
+    },
+    "zenoss/server/zenpatches": {
+      "required": "optional",
+      "calculated": false,
+      "choice": [
+
+      ],
+      "type": "hash",
+      "recipes": [
+
+      ],
+      "description": "Hash of patches to install with zenpatch. Key/value of patch number/ticket url",
+      "display_name": "zenpatch patches"
+    }
+  },
+  "providing": {
+  },
+  "dependencies": {
+    "openssl": [
+
+    ],
+    "apt": [
+      ">> 0.9"
+    ],
+    "openssh": [
+
+    ]
+  },
+  "maintainer": "Opscode, Inc.",
+  "replacing": {
+  },
+  "maintainer_email": "matt@opscode.com",
+  "groupings": {
+  },
+  "platforms": {
+    "debian": [
+
+    ],
+    "ubuntu": [
+
+    ]
+  },
+  "license": "Apache 2.0",
+  "version": "0.6.0",
+  "recommendations": {
+  },
+  "suggestions": {
+  },
+  "name": "zenoss",
+  "description": "Installs and configures Zenoss and registers nodes as devices",
+  "conflicting": {
+  }
+}
