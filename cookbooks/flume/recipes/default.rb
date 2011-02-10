@@ -9,11 +9,11 @@
 
 package "flume"
 
-flume_cluster = node[:fume][:cluster_name]
+flume_cluster = node[:flume][:cluster_name]
  
 template_vars = {
   :master_id       => node[:node_name],
-  :masters         => all_provider_private_ips( "#{flume_cluster}-flume-master" ),
+  :masters         => all_provider_private_ips( "#{flume_cluster}-flume-master" ).join(","),
   :plugin_classes  => node[:flume][:plugin_classes],
   :flume_classpath => node[:flume][:classpath].join(":"),
   :zookeepers      => if node[:flume][:master][:external_zookeeper] then

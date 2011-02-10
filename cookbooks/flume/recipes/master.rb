@@ -7,4 +7,8 @@
 # All rights reserved - Do Not Redistribute
 #
 
+include_recipe "flume"
+
 package "flume-master"
+
+provide_service ("#{node[:flume][:cluster_name]}-flume-master")
