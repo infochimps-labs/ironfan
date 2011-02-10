@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-include_recipe "hadoop_cluster"
+#include_recipe "hadoop_cluster"
 
 group 'zookeeper' do gid 305 ; action [:create] ; end
 user 'zookeeper' do

@@ -17,9 +17,9 @@
 # limitations under the License.
 #
 
-include_recipe "hadoop_cluster"
+#include_recipe "hadoop_cluster"
 include_recipe "zookeeper"
-
+#
 # register with cluster_service_discovery
 provide_service ("#{node[:zookeeper][:cluster_name]}-zookeeper")
 
