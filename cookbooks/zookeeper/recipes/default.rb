@@ -45,7 +45,7 @@ directory node[:zookeeper][:data_dir] do
 end
 #
 template_variables = {
-  :zookeeper_server_ips   => all_provider_private_ips("#{node[:cluster_name]}-zookeeper").sort,
+  :zookeeper_server_ips   => all_provider_private_ips("#{node[:zookeeper][:cluster_name]}-zookeeper").sort,
   :zookeeper_data_dir     => node[:zookeeper][:data_dir],
 }
 Chef::Log.debug template_variables.inspect
