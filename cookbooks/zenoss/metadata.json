@@ -1,9 +1,13 @@
 {
-  "long_description": "",
   "recipes": {
     "zenoss": "Defaults to the client recipe.",
     "zenoss::server": "Installs Zenoss, handling and configuring all the dependencies while adding Device Classes, Groups, Systems and Locations.  All nodes using the `zenoss::client` recipe are added for monitoring.",
     "zenoss::client": "Includes the `openssh` recipe and adds the device to the Zenoss server for monitoring."
+  },
+  "recommendations": {
+  },
+  "description": "Installs and configures Zenoss and registers nodes as devices",
+  "suggestions": {
   },
   "attributes": {
     "zenoss/device/properties": {
@@ -153,7 +157,7 @@
       "display_name": "zenpatch patches"
     }
   },
-  "providing": {
+  "conflicting": {
   },
   "dependencies": {
     "openssl": [
@@ -161,16 +165,9 @@
     ],
     "apt": [
       ">> 0.9"
-    ],
-    "openssh": [
-
     ]
   },
-  "maintainer": "Opscode, Inc.",
-  "replacing": {
-  },
-  "maintainer_email": "matt@opscode.com",
-  "groupings": {
+  "providing": {
   },
   "platforms": {
     "debian": [
@@ -180,14 +177,14 @@
 
     ]
   },
-  "license": "Apache 2.0",
+  "maintainer": "Opscode, Inc.",
   "version": "0.6.0",
-  "recommendations": {
+  "replacing": {
   },
-  "suggestions": {
-  },
+  "license": "Apache 2.0",
   "name": "zenoss",
-  "description": "Installs and configures Zenoss and registers nodes as devices",
-  "conflicting": {
-  }
+  "maintainer_email": "matt@opscode.com",
+  "groupings": {
+  },
+  "long_description": ""
 }
