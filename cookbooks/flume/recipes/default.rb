@@ -28,10 +28,12 @@ template "/etc/flume/conf/flume-site.xml" do
   source "flume-site.xml.erb"
   owner  "root"
   mode   "0644"
+  variables(template_vars)
 end
 
 template "/usr/lib/flume/bin/flume-env.sh" do
   source "flume-env.sh.erb"
   owner  "root"
   mode   "0744"
+  variables(template_vars)
 end
