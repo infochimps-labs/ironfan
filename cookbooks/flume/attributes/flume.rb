@@ -11,5 +11,13 @@ default[:flume][:cluster_name] = node[:cluster_name]
 default[:flume][:master][:external_zookeeper] = false
 default[:flume][:master][:zookeeper_port] = 2181  
 
-default[:flume][:plugin_classes] = []
+# configuration data for plugins.
+# node[:flume][:plugins][:some_plugin][:classes]    = [ 'java.lang.String' ]
+# node[:flume][:plugins][:some_plugin][:classpath]  = [ "/usr/lib/jruby/jruby.jar" ]
+default[:flume][:plugins] = {}
+
+# classes to include as plugins
+default[:flume][:classes] = []
+
+# jars and dirs to put on FLUME_CLASSPATH
 default[:flume][:classpath] = []

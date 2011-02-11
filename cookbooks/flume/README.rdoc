@@ -19,15 +19,25 @@ zookeeper. True to attach to an external zookeeprs.
 node[:flume][:master][:zookeeper_port] - port to talk to zookeeper on
 (for external zookeeper) - defaults to 2181
 
-node[:flume][:plugin_classes] - list of classes to add to the
-flume.plugin.classed configuration value.
+node[:flume][:classes] - list of classes to include as plugins 
 
 node[:flume][:classpath] - list of directories and jars to add to the
-FLUME_CLASSPATH (not yet implemented).
+FLUME_CLASSPATH.
+
+
+If you have a particular plugin to configure, you can also configure
+the classpath and the classes to include in the configuration file 
+with attributes in the following forms:
+
+node[:flume][:plugin][:plugin_name][:classes]
+node[:flume][:plugin][:plugin_name][:classpath]
+
 
 
 = USAGE:
 
 Use flume::master to set up a master node. Use flume::node to set up a
-physical node. Currently only one physical node per machines.
+physical node. Currently only one physical node per machines. 
+
+Coming soon flume::xxx_plugin.
 

@@ -24,7 +24,7 @@
 
   <property>
     <name>flume.master.servers</name>
-    <value> <%= @masters.join(",") %> </value>
+    <value><%= @masters %></value>
     <description>
       A comma-separated list of hostnames, one for each machine in the Flume Master.
       Updated automatically by Chef.
@@ -56,7 +56,8 @@
   </property>
 <% end %>
 
-<% if @zookeepers %>
+
+<% if @external_zookeeper %>
 <property>
   <name>flume.master.zk.use.external</name>
   <value>true</value>
@@ -67,7 +68,7 @@
 
 <property>
   <name>flume.master.zk.servers</name>
-  <value><%= @zookeepers.map {|zk| "#{zk}:#{@zookeeper_port}" }.join(",") %></value>
+  <value><%= @zookeepers.join(",") %></value>
   <description>
     External zookeepers for flume to talk to. Managed by Chef.
   </description>

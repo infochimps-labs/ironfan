@@ -22,5 +22,5 @@
 # export FLUME_MASTER="localhost"
 
 <% if @classpath %>
-export FLUME_CLASSPATH=<%= @classpath %>
+export FLUME_CLASSPATH=<%= @classpath.join(":") %>
 <% end %>
