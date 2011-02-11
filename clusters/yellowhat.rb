@@ -1,4 +1,4 @@
-ClusterChef.cluster 'bonobo' do
+ClusterChef.cluster 'yellowhat' do
   merge!('defaults')
   setup_role_implications
 
@@ -9,7 +9,7 @@ ClusterChef.cluster 'bonobo' do
   role                  "mounts_ebs_volumes"
   cloud do
     backing             "ebs"
-    image_name          "maverick"
+    image_name          "infochimps-maverick-client"
     user_data           :get_name_from => 'broham'
   end
 
@@ -17,12 +17,14 @@ ClusterChef.cluster 'bonobo' do
     instances           1
     cloud.flavor        "m1.small"
     role                "redis_server"
+    role                "nginx"
     role                "elasticsearch_data_esnode"
+    role                "elasticsearch_http_esnode"
     role                "big_package"
   end
 
   facet 'webnode' do
-    instances           2
+    instances           1
     cloud.flavor        "t1.micro"
     role                "redis_client"
     role                "elasticsearch_client"

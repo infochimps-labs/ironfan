@@ -1,4 +1,4 @@
-name        'ebs_volumes_attach'
+name        'attaches_ebs_volumes'
 description "Attaches ebs volumes"
 
 run_list *%w[

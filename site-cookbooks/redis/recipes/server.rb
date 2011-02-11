@@ -8,7 +8,7 @@ template "/etc/init.d/redis-server" do
   mode 0744
 end
 
-service redis_package do
+service "redis-server" do
   action :enable
 end
 
@@ -17,5 +17,5 @@ template "/etc/redis/redis.conf" do
   owner "root"
   group "root"
   mode 0644
-  notifies(:restart, resources(:service => redis_package)) unless node[:platform_version].to_f < 9.0
+  notifies(:restart, resources(:service => "redis-server")) unless node[:platform_version].to_f < 9.0
 end

@@ -52,11 +52,16 @@ template "/etc/elasticsearch/elasticsearch.in.sh" do
   mode          0644
 end
 
+elasticsearch_seeds  = [node[:elasticsearch][:seeds]]
+elasticsearch_seeds += all_provider_private_ips(node[:elasticsearch][:cluster_name]+"-data_esnode") rescue []
 template "/etc/elasticsearch/elasticsearch.yml" do
   source        "elasticsearch.yml.erb"
   owner         "elasticsearch"
   group         "elasticsearch"
   mode          0644
+  variables(
+    :elasticsearch_seeds => elasticsearch_seeds.flatten.reject(&:blank?).uniq
+    )
 end
 
 #

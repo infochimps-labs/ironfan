@@ -105,7 +105,7 @@ module ClusterChef
           @settings[:user_data].merge({
               :chef_server            => Chef::Config.chef_server_url,
               :validation_client_name => Chef::Config.validation_client_name,
-              # :validation_key         => validation_key,
+              :validation_key         => validation_key,
             })
         else
           @settings[:user_data].merge! hsh
@@ -233,10 +233,6 @@ module ClusterChef
         %w[ us-west-1            32-bit  ebs             maverick                   ] => { :image_id => 'ami-ad7e2ee8', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
         %w[ us-west-1            32-bit  instance        maverick                   ] => { :image_id => 'ami-957e2ed0', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
 
-        %w[us-east-1             32-bit  instance        opscode-chef-client        ] => { :image_id => 'ami-17f51c7e', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[us-east-1             64-bit  instance        opscode-chef-client        ] => { :image_id => 'ami-eff51c86', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[us-east-1             64-bit  ebs             opscode-chef-client        ] => { :image_id => 'ami-a2f405cb', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-
         #
         # Infochimps
         #
@@ -246,7 +242,9 @@ module ClusterChef
         %w[us-east-1             64-bit  ebs             infochimps-hadoop-client   ] => { :image_id => 'ami-a236c7cb', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # microchimps
         %w[us-east-1             64-bit  instance        infochimps-hadoop-client-1 ] => { :image_id => 'ami-ad3ad1c4', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # infochimps.chef-client.lucid.east.ami-64bit-20100714
         %w[us-east-1             64-bit  instance        infochimps-hadoop-client   ] => { :image_id => 'ami-589c6d31', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # infochimps.hadoop-client.lucid.east.ami-64bit-20101224b
-        %w[us-east-1             64-bit  ebs             infochimps-chef-client     ] => { :image_id => 'ami-48be4e21', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # infochimps.chef-client.maverick.east.ami-64bit-20110118
+        #
+        %w[us-east-1             32-bit  ebs             infochimps-maverick-client ] => { :image_id => 'ami-32a0535b', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # infochimps.chef-client.maverick.east.ami-32bit-20110211
+        %w[us-east-1             64-bit  ebs             infochimps-maverick-client ] => { :image_id => 'ami-48be4e21', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # infochimps.chef-client.maverick.east.ami-64bit-20110118
         %w[us-east-1             64-bit  instance        infochimps-maverick-client ] => { :image_id => 'ami-50659439', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # infochimps.hadoop-client.maverick.east.ami-64bit-20110113
 
         %w[us-east-1             32-bit  ebs             mrflip-maverick-client     ] => { :image_id => 'ami-f4f6069d', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.10-cluster_chef", }, # mrflip.chef-client.maverick.east.ebs-32bit-20110124
