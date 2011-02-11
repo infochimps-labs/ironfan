@@ -26,7 +26,7 @@ template_vars = {
                         else
                           nil
                         end,
-  :zookeeper_port => node[:flume][:zookeeper_port],
+  :zookeeper_port => node[:flume][:master][:zookeeper_port],
 }
 
 template_vars[:master_id]
