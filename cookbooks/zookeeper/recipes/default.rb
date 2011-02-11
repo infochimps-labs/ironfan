@@ -47,8 +47,8 @@ end
 zookeeper_server_ips =  all_provider_private_ips("#{node[:zookeeper][:cluster_name]}-zookeeper").sort
 myid = zookeeper_server_ips.find( private_ip_of node )
 template_variables = {
-  :zookeeper_server_ips   => zookeeper_server_ips
-  :myid                   => myid
+  :zookeeper_server_ips   => zookeeper_server_ips,
+  :myid                   => myid,
   :zookeeper_data_dir     => node[:zookeeper][:data_dir],
 }
 Chef::Log.debug template_variables.inspect
@@ -65,6 +65,6 @@ template "/var/zookeeper/myid" do
  owner "zookeeper"
  mode "0644"
  variables(template_variables)
- sourece "myid.erb"
+ source "myid.erb"
 end
 
