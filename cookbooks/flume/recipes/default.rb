@@ -36,3 +36,8 @@ template "/usr/lib/flume/bin/flume-env.sh" do
               :classpath          => flume_classpath,
             })
 end
+
+
+directory "/usr/lib/flume/plugins" do
+  owner "flume"
+done
