@@ -31,23 +31,10 @@
     </description>
   </property>
 
-<% if @plugin_classes and @plugin_classes.length > 0 %>
-  <property>
-    <name>flume.plugin.classes</name>
-    <value>
-       <%= @plugin_classes.join(",") %>
-    </value>   
-    <description>
-      Comma separated list of plugin classes.
-      Automatically updated by Chef.
-    </description>
-  </property>
-<% end %>
-
 <% if @master_id %>
   <property>
     <name>flume.master.serverid</name>
-    <value><%= @master_id %> </value>
+    <value><%= @master_id %></value>
     <description>The unique identifier for a machine in a
       Flume Master ensemble. Must be different on every
       master instance.
@@ -56,6 +43,16 @@
   </property>
 <% end %>
 
+<% if @plugin_classes and @plugin_classes.length > 0 %>
+  <property>
+    <name>flume.plugin.classes</name>
+    <value><%= @plugin_classes.join(",") %></value>   
+    <description>
+      Comma separated list of plugin classes.
+      Automatically updated by Chef.
+    </description>
+  </property>
+<% end %>
 
 <% if @external_zookeeper %>
 <property>

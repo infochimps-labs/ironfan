@@ -38,14 +38,14 @@ end
   
   # returns the list of plugin classes to include
   def flume_plugin_classes
-    node[:flume][:plugins].inject( node[:flume][:classes] ) do |classes,plugin| 
+    node[:flume][:plugins].inject( node[:flume][:classes] ) do |classes,(name,plugin)| 
       classes + plugin[:classes]
     end.sort.uniq
   end
   
   # returns the list of dirs and jars to include on the FLUME_CLASSPATH
   def flume_classpath
-    node[:flume][:plugins].inject( node[:flume][:classpath] ) do | cp, plugin |
+    node[:flume][:plugins].inject( node[:flume][:classpath] ) do | cp, (name,plugin) |
       cp + plugin[:classpath]
     end.sort.uniq
   end

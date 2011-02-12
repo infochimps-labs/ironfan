@@ -9,11 +9,16 @@
 
 cookbook_file "/usr/lib/flume/plugins/hbase-sink.jar" do
   source "hbase-sink.jar"
+  owner "flume"
+  mode "0644"
 end
 
 # Load Attr2HbaseEventSink as a plugin
-node[:flume][:plugin][:hbase_sink][:classes]    ||=  %w[ com.cloudera.flume.hbase.Attr2HBaseEventSink ]
+node[:flume][:plugins][:hbase_sink]  ||= {}
+node[:flume][:plugins][:hbase_sink][:classes] =  [ "com.cloudera.flume.hbase.Attr2HBaseEventSink" ]
 
 # Make sure that hbase-sink.jar and hbase-site.xml can be located on the
 # classpath
-node[:flume][:plugin][:hbase_sink][:classpath]  ||=  %w[ /usr/lib/flume/plugins/hbase-sink.jar /usr/hbase/conf ] 
+node[:flume][:plugins][:hbase_sink][:classpath]  ||=  [ "/usr/lib/flume/plugins/hbase-sink.jar", "/etc/hbase/conf" ] 
+
+node.save
