@@ -7,7 +7,7 @@
 # All rights reserved - Do Not Redistribute
 #
 
-include_recipe "hadoop_cluster"
+#include_recipe "hadoop_cluster"
 
 group 'hbase' do
   group_name 'hbase'
@@ -75,5 +75,5 @@ link "/etc/hadoop/conf/hbase-site.xml" do
 end
 
 # Stuff the HBase jars into the classpath
-node[:hadoop][:extra_classpaths][:hbase] = '/usr/lib/hbase/hbase.jar:/usr/lib/hbase/lib/zookeeper.jar:/usr/lib/hbase/conf'
+node[:hadoop][:extra_classpaths][:hbase] = '/usr/lib/hbase/hbase.jar:/usr/lib/hbase/lib/zookeeper.jar:/usr/lib/hbase/conf' if node[:hadoop] and node[:hadoop_extra_classpaths]
 node.save
