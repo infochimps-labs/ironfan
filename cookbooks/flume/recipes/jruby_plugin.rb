@@ -9,7 +9,7 @@
 # Note: at the moment, you are on your own for installing jruby. You will have to set node[:flume][:classpath] to include the location for jruby to get this
 # to work.
 
-cookbookfile "/usr/lib/flume/plugins/jruby-flume.jar" do
+cookbook_file "/usr/lib/flume/plugins/jruby-flume.jar" do
   source "jruby-flume.jar"
 end
 

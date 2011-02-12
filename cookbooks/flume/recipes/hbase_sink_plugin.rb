@@ -7,7 +7,7 @@
 #
 
 
-cookbookfile "/usr/lib/flume/plugins/hbase-sink.jar" do
+cookbook_file "/usr/lib/flume/plugins/hbase-sink.jar" do
   source "hbase-sink.jar"
 end
 
