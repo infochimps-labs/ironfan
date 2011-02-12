@@ -99,6 +99,14 @@ module ClusterChef
           authorize_port_range 4040..4040  # chef-server-webui
         end
       end
+
+      role_implication("george") do
+        p [chef_attributes, self, self.class]
+        self.cloud.security_group(cluster_name+"george") do
+          authorize_port_range  80..80
+          authorize_port_range 443..443
+        end
+      end
     end
   end
 
@@ -108,16 +116,20 @@ module ClusterChef
   #
   class Cluster < ClusterChef::ComputeBuilder
     attr_reader :facets
-    def initialize cluster_name
-      super(cluster_name)
+    def initialize clname
+      super(clname)
       @facets = {}
-      chef_attributes  :cluster_name => cluster_name
+      chef_attributes  :cluster_name => clname
     end
 
     def facet facet_name, &block
       @facets[facet_name] ||= ClusterChef::Facet.new(self, facet_name)
       @facets[facet_name].instance_eval(&block) if block
       @facets[facet_name]
+    end
+
+    def cluster_name
+      self.name
     end
 
     def merge! other_cluster
@@ -149,16 +161,20 @@ module ClusterChef
       end
     end
 
+    def cluster_name
+      cluster.name
+    end
+
     #
     # Resolve:
     #
     def resolve!
-      cluster_name = @cluster.name
+      clname = @cluster.name
       @settings    = @cluster.to_hash.merge @settings
       cloud.resolve!          @cluster.cloud
-      cloud.keypair           cluster_name if cloud.keypair.blank?
-      cloud.security_group    cluster_name do authorize_group cluster_name end
-      cloud.security_group "#{cluster_name}-#{self.name}"
+      cloud.keypair           clname if cloud.keypair.blank?
+      cloud.security_group    clname do authorize_group clname end
+      cloud.security_group "#{clname}-#{self.name}"
       @settings[:run_list]        = @cluster.run_list + self.run_list
       @settings[:chef_attributes] = @cluster.chef_attributes.merge(self.chef_attributes)
       chef_attributes :run_list => run_list

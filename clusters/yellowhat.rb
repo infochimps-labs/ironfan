@@ -25,7 +25,7 @@ ClusterChef.cluster 'yellowhat' do
 
   facet 'webnode' do
     instances           1
-    cloud.flavor        "t1.micro"
+    cloud.flavor        "m1.large"
     role                "redis_client"
     role                "elasticsearch_client"
     role                "george"
