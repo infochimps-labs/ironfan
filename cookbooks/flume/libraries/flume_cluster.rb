@@ -49,6 +49,12 @@ end
       cp + plugin[:classpath]
     end.sort.uniq
   end
+
+  def flume_java_opts
+    node[:flume][:plugins].inject( node[:flume][:java_opts] ) do | cp, (name,plugin) |
+      cp + plugin[:java_opts]
+    end.sort.uniq
+  end
   
 end
  

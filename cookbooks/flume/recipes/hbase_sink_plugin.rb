@@ -19,6 +19,8 @@ node[:flume][:plugins][:hbase_sink][:classes] =  [ "com.cloudera.flume.hbase.Att
 
 # Make sure that hbase-sink.jar and hbase-site.xml can be located on the
 # classpath
-node[:flume][:plugins][:hbase_sink][:classpath]  ||=  [ "/usr/lib/flume/plugins/hbase-sink.jar", "/etc/hbase/conf" ] 
+node[:flume][:plugins][:hbase_sink][:classpath]  =  [ "/usr/lib/flume/plugins/hbase-sink.jar", "/etc/hbase/conf" ] 
+
+node[:flume][:plugins][:hbase_sink][:jruby_opts] =  []
 
 node.save

@@ -34,6 +34,7 @@ template "/usr/lib/flume/bin/flume-env.sh" do
   mode   "0744"
   variables({
               :classpath          => flume_classpath,
+              :java_opts          => flume_java_opts,
             })
 end
 

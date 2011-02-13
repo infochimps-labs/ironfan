@@ -15,11 +15,13 @@ cookbook_file "/usr/lib/flume/plugins/jruby-flume.jar" do
   mode "0644"
 end
 
-node[:flume][:plugins][:jruby_flume]  ||= {}
-node[:flume][:plugins][:jruby_flume][:classes]  = [ 
-           "com.infochimps.flume.jruby.JRubySink", 
-           "com.infochimps.flume.jruby.JRubySource", 
-           "com.infochimps.flume.jruby.JRubyDecorator", ]
-node[:flume][:plugins][:jruby_flume][:classpath]  ||=  [ "/usr/lib/flume/plugins/jruby-flume.jar" ] 
+node[:flume][:plugins][:jruby_flume] ||= {}
+node[:flume][:plugins][:jruby_flume][:classes]    = [ "com.infochimps.flume.jruby.JRubySink", 
+                                                      "com.infochimps.flume.jruby.JRubySource", 
+                                                      "com.infochimps.flume.jruby.JRubyDecorator", ]
+node[:flume][:plugins][:jruby_flume][:classpath]  = [ "/usr/lib/flume/plugins/jruby-flume.jar" ] 
+node[:flume][:plugins][:jruby_flume][:java_opts]  = [ "-Djruby.home=/usr/lib/jruby",
+                                                      "-Djruby.lib=/usr/lib/jruby/lib",
+                                                      "-Djruby.script=jruby", ]
 
 node.save
