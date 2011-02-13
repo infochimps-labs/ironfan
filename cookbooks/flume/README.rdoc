@@ -24,6 +24,8 @@ node[:flume][:classes] - list of classes to include as plugins
 node[:flume][:classpath] - list of directories and jars to add to the
 FLUME_CLASSPATH.
 
+noe[:flume][:java_opts] - list of command line parameters to add to the 
+jvm.
 
 If you have a particular plugin to configure, you can also configure
 the classpath and the classes to include in the configuration file 
@@ -31,7 +33,7 @@ with attributes in the following forms:
 
 node[:flume][:plugin][:plugin_name][:classes]
 node[:flume][:plugin][:plugin_name][:classpath]
-
+node[:flume][:plugin][:plugin_name][:java_opts]
 
 
 = USAGE:
