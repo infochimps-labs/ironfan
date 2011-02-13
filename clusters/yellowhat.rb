@@ -7,6 +7,7 @@ ClusterChef.cluster 'yellowhat' do
   role                  "nfs_client"
   role                  "infochimps_base"
   role                  "mounts_ebs_volumes"
+  role                  "benchmarkable"
   cloud do
     backing             "ebs"
     image_name          "infochimps-maverick-client"
@@ -27,6 +28,7 @@ ClusterChef.cluster 'yellowhat' do
     instances           1
     cloud.flavor        "m1.large"
     role                "redis_client"
+    role                "mysql_client"
     role                "elasticsearch_client"
     role                "george"
     role                "big_package"
