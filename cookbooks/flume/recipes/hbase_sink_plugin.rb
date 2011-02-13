@@ -21,6 +21,6 @@ node[:flume][:plugins][:hbase_sink][:classes] =  [ "com.cloudera.flume.hbase.Att
 # classpath
 node[:flume][:plugins][:hbase_sink][:classpath]  =  [ "/usr/lib/flume/plugins/hbase-sink.jar", "/etc/hbase/conf" ] 
 
-node[:flume][:plugins][:hbase_sink][:jruby_opts] =  []
+node[:flume][:plugins][:hbase_sink][:java_opts] =  []
 
 node.save
