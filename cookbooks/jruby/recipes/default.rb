@@ -14,11 +14,11 @@ user "root"
   cd /usr/local/lib
   tar -xzf /tmp/jruby-bin-1.5.6.tar.gz
   EOH
-  not_if "test -d /usr/local/lib/jruby-bin-1.5.6.tar.gz"
+  not_if "test -d /usr/local/lib/jruby-1.5.6"
 end
 
 link "/usr/lib/jruby" do
-  to "/usr/local/lib/jruby-bin-1.5.6"
+  to "/usr/local/lib/jruby-1.5.6"
 end
 
 %w[ jruby jrubyc jruby.rb jirb ].each do |file|
