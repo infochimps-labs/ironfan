@@ -26,5 +26,5 @@ export FLUME_CLASSPATH=<%= @classpath.join(":") %>
 <% end %>
 
 <% if @java_opts %>
-export UOPTS=<%= @java_opts.join(" ") %>
+export UOPTS="<%= @java_opts.join(" ") %>"
 <% end %>
