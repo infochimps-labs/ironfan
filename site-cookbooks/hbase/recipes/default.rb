@@ -7,7 +7,7 @@
 # All rights reserved - Do Not Redistribute
 #
 
-include_recipe "hadoop_cluster"
+#include_recipe "hadoop_cluster"
 
 group 'hbase' do
   group_name 'hbase'
@@ -48,18 +48,18 @@ end
 # Find these variables in ../hadoop_cluster/libraries/hadoop_cluster.rb
 #
 template_variables = {
-  :namenode_fqdn          => provider_fqdn("#{node[:cluster_name]}-namenode"),
-  :jobtracker_address     => provider_private_ip("#{node[:cluster_name]}-jobtracker"),
-  :zookeeper_address      => provider_private_ip("#{node[:cluster_name]}-zookeeper"),
+  :namenode_fqdn          => provider_fqdn("#{node[:hbase][:cluster_name]}-namenode"),
+  :jobtracker_address     => provider_private_ip("#{node[:hbase][:cluster_name]}-jobtracker"),
+  :zookeeper_address      => all_provider_private_ips("#{node[:hbase][:cluster_name]}-zookeeper").join(","),
   :private_ip             => private_ip_of(node),
   :jmx_hostname           => public_ip_of(node),
-  :ganglia                => node[:hbase][:ganglia],
-  :ganglia_address        => provider_fqdn("#{node[:cluster_name]}-gmetad"),
+  :ganglia                => provider_for_service("#{node[:hbase][:cluster_name]}-gmetad"),
+  :ganglia_address        => provider_fqdn("#{node[:hbase][:cluster_name]}-gmetad"),
   :ganglia_port           => 8649,
   :period                 => 10
 }
 Chef::Log.debug template_variables.inspect
-%w[ hbase-env.sh hbase-site.xml ].each do |conf_file|
+%w[ hbase-env.sh hbase-site.xml hadoop-metrics.properties ].each do |conf_file|
   template "/etc/hbase/conf/#{conf_file}" do
     owner "root"
     mode "0644"
@@ -68,6 +68,12 @@ Chef::Log.debug template_variables.inspect
   end
 end
 
+
+link "/etc/hadoop/conf/hbase-site.xml" do
+  to "/etc/hbase/conf/hbase-site.xml"
+  only_if{ File.directory?("/etc/hadoop/conf") }
+end
+
 # Stuff the HBase jars into the classpath
-node[:hadoop][:extra_classpaths][:hbase] = '/usr/lib/hbase/hbase.jar:/usr/lib/hbase/lib/zookeeper.jar:/usr/lib/hbase/conf'
+node[:hadoop][:extra_classpaths][:hbase] = '/usr/lib/hbase/hbase.jar:/usr/lib/hbase/lib/zookeeper.jar:/usr/lib/hbase/conf' if node[:hadoop] and node[:hadoop_extra_classpaths]
 node.save

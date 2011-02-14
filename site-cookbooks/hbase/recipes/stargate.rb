@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: hbase
-# Recipe:: default
+# Recipe:: stargate
 #
 # Copyright 2010, YOUR_COMPANY_NAME
 #
@@ -9,15 +9,18 @@
 
 include_recipe "hbase"
 
-# Install
-package "hadoop-hbase-regionserver"
+cookbook_file "/etc/init.d/hadoop-hbase-stargate" do
+  owner "root"
+  mode "0744"
+  source "hadoop-hbase-stargate"
+end
 
 # launch service
-service "hadoop-hbase-regionserver" do
+service "hadoop-hbase-stargate" do
   action [ :enable, :start ]
   running true
   supports :status => true, :restart => true
 end
 
 # register with cluster_service_discovery
-provide_service ("#{node[:hbase][:cluster_name]}-hbase-regionserver")
+provide_service ("#{node[:hbase][:cluster_name]}-hbase-stargate")
