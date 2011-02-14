@@ -71,7 +71,7 @@ end
 
 link "/etc/hadoop/conf/hbase-site.xml" do
   to "/etc/hbase/conf/hbase-site.xml"
-  only_if "test -d /etc/hadoop/conf"
+  only_if{ File.directory?("/etc/hadoop/conf") }
 end
 
 # Stuff the HBase jars into the classpath
