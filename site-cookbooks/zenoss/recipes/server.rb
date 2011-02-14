@@ -19,7 +19,6 @@
 # limitations under the License.
 #
 
-include_recipe "openssh"
 include_recipe "apt"
 
 # Zenoss apt repository
@@ -79,7 +78,7 @@ end
 
 #walk the 'users' databag and pull out users and groups for creation
 #sort out password, whether 1-time or unset
-sysadmins = search(:users, 'groups:sysadmin')
+sysadmins = search(:zenoss_users, 'groups:sysadmin')
 #dmd.ZenUsers.manage_addUser(userid=<string>, password=<string>, roles=('ZenUser','ZenManager'))
 #dmd.ZenUsers.getUserSettings(user.getId()).email = <string>
 

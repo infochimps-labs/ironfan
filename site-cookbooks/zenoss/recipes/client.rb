@@ -19,7 +19,6 @@
 # limitations under the License.
 #
 
-include_recipe "openssh"
 
 #create a 'zenoss' user for monitoring
 user "zenoss" do
@@ -41,7 +40,7 @@ end
 
 #get the zenoss user public key via search
 server = search(:node, 'recipes:zenoss\:\:server') || []
-if server.length > 0
+if server.length > 0 and server[0]["zenoss"]
   zenoss = server[0]["zenoss"]
   if zenoss["server"] and zenoss["server"]["zenoss_pubkey"]
     pubkey = zenoss["server"]["zenoss_pubkey"]
