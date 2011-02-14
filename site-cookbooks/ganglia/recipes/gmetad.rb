@@ -6,7 +6,7 @@ end
 
 provide_service ("#{node[:cluster_name]}-gmetad")
 
-cluster_nodes = { node['cluster_name'] => [ node['clouds']['private-ip'].first ] }
+cluster_nodes = { node['cluster_name'] => [ node['ip-address'] ] }
 
 template "/etc/ganglia/gmetad.conf" do
   source "gmetad.conf.erb"
