@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl"  href="configuration.xsl"?>
+
+<!--
+ Licensed to Cloudera, Inc. under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  Cloudera, Inc. licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<!-- site specific configuration variables should go here. --> 
+<configuration>
+
+  <property>
+    <name>flume.master.servers</name>
+    <value><%= @masters %></value>
+    <description>
+      A comma-separated list of hostnames, one for each machine in the Flume Master.
+      Updated automatically by Chef.
+    </description>
+  </property>
+
+<% if @master_id %>
+  <property>
+    <name>flume.master.serverid</name>
+    <value><%= @master_id %></value>
+    <description>The unique identifier for a machine in a
+      Flume Master ensemble. Must be different on every
+      master instance.
+      Automatically updated by Chef
+    </description>
+  </property>
+<% end %>
+
+<% if @plugin_classes and @plugin_classes.length > 0 %>
+  <property>
+    <name>flume.plugin.classes</name>
+    <value><%= @plugin_classes.join(",") %></value>   
+    <description>
+      Comma separated list of plugin classes.
+      Automatically updated by Chef.
+    </description>
+  </property>
+<% end %>
+
+<% if @external_zookeeper %>
+<property>
+  <name>flume.master.zk.use.external</name>
+  <value>true</value>
+  <description>
+    Whether or not to use external zookeepers. Managed by Chef.
+  </description>
+</property>
+
+<property>
+  <name>flume.master.zk.servers</name>
+  <value><%= @zookeepers.join(",") %></value>
+  <description>
+    External zookeepers for flume to talk to. Managed by Chef.
+  </description>
+</property>
+<% end %>
+
+</configuration>
+

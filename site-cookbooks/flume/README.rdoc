@@ -1,0 +1,45 @@
+= DESCRIPTION:
+
+Cookbook to install flume on a cluster.
+
+= REQUIREMENTS:
+
+This recipe relies on cluster_discovery_services to determine which nodes 
+across the cluster act as flume masters, and which nodes provide zookeeper
+servers.
+
+= ATTRIBUTES:
+
+node[:flume][:cluster_name] - The name of the cluster to participate
+with (masters and zookeepers...) defaults to node[:cluster_name].
+
+node[:flume][:master][:external_zookeeper] - false to use flume's
+zookeeper. True to attach to an external zookeeprs.
+
+node[:flume][:master][:zookeeper_port] - port to talk to zookeeper on
+(for external zookeeper) - defaults to 2181
+
+node[:flume][:classes] - list of classes to include as plugins 
+
+node[:flume][:classpath] - list of directories and jars to add to the
+FLUME_CLASSPATH.
+
+noe[:flume][:java_opts] - list of command line parameters to add to the 
+jvm.
+
+If you have a particular plugin to configure, you can also configure
+the classpath and the classes to include in the configuration file 
+with attributes in the following forms:
+
+node[:flume][:plugin][:plugin_name][:classes]
+node[:flume][:plugin][:plugin_name][:classpath]
+node[:flume][:plugin][:plugin_name][:java_opts]
+
+
+= USAGE:
+
+Use flume::master to set up a master node. Use flume::node to set up a
+physical node. Currently only one physical node per machines. 
+
+Coming soon flume::xxx_plugin.
+
