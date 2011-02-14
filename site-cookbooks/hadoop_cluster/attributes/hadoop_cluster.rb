@@ -6,7 +6,6 @@ default[:hadoop][:deb_version]   = "0.20.2+737-1~lucid-cdh3b3"
 # Make sure you define a cluster_size in roles/WHATEVER_cluster.rb
 default[:cluster_size] = 5
 
-default[:hadoop][:cluster_reduce_tasks        ] = (node[:cluster_size] * 1.95).to_i
 default[:hadoop][:dfs_replication             ] =  3
 default[:hadoop][:reduce_parallel_copies      ] =  7
 default[:hadoop][:tasktracker_http_threads    ] = 40
