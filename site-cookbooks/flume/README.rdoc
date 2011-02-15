@@ -41,6 +41,14 @@ Set the following two attributes to allow writing to s3 buckets:
 node[:flume][:aws_access_key]
 node[:flume][:aws_secret_key]
 
+
+node[:flume][:collector][:output_format]
+Controls what format the node writes logs (using collectorSink)
+
+node[:flume][:collector][:gzip]
+Controls whether or not collected logs are gzipped before writing
+them to their final resting place (using collectorSink)
+
 = USAGE:
 
 Use flume::master to set up a master node. Use flume::node to set up a

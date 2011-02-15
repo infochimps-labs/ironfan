@@ -92,5 +92,24 @@
 
 <% end %>
 
+<% if @collector_output_format %>
+ <property>
+  <name>flume.collector.output.format</name>
+  <value>@collector_output_format</value>
+  <description>This is the output format for the data written to the
+  collector.  
+  </description>
+ </property>
+<% end %>
+
+<% if @collector_gzip %>
+  <property>
+    <name>flume.collector.dfs.compress.gzip</name>
+    <value><%=@collector_gzip%></value>
+    <description>Writes compressed output in gzip format to dfs. Setting value to false or empty writes uncompressed data to disk
+    </description>
+  </property>
+<% end %>
+
 </configuration>
 
