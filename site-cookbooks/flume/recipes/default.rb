@@ -17,7 +17,8 @@ end
 template "/etc/flume/conf/flume-site.xml" do
   source "flume-site.xml.erb"
   owner  "root"
-  mode   "0644"
+  group  "flume"
+  mode   "0640"
   variables({
               :masters            => flume_masters.join(","),
               :plugin_classes     => flume_plugin_classes,
@@ -25,6 +26,8 @@ template "/etc/flume/conf/flume-site.xml" do
               :master_id          => flume_master_id,
               :external_zookeeper => flume_external_zookeeper,
               :zookeepers         => flume_zookeeper_list,
+              :aws_access_key     => node[:flume][:aws_access_key],
+              :aws_secret_key     => node[:flume][:aws_secret_key],
             })
 end
 
@@ -38,6 +41,13 @@ template "/usr/lib/flume/bin/flume-env.sh" do
             })
 end
 
+%w[commons-codec-1.4.jar commons-httpclient-3.0.1.jar 
+   jets3t-0.6.1.jar].each do |file|
+  cookbook_file "/usr/lib/flume/lib/#{file}" do
+    owner "root"
+    mode "644"
+  end
+end
 
 directory "/usr/lib/flume/plugins" do
   owner "flume"

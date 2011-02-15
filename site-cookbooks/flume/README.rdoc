@@ -36,6 +36,11 @@ node[:flume][:plugin][:plugin_name][:classpath]
 node[:flume][:plugin][:plugin_name][:java_opts]
 
 
+Set the following two attributes to allow writing to s3 buckets:
+
+node[:flume][:aws_access_key]
+node[:flume][:aws_secret_key]
+
 = USAGE:
 
 Use flume::master to set up a master node. Use flume::node to set up a

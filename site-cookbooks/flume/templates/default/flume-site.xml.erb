@@ -72,5 +72,25 @@
 </property>
 <% end %>
 
+<% if @aws_access_key %>
+<property>
+  <name>fs.s3.awsAccessKeyId</name>
+  <value><%=@aws_access_key%></value>
+</property>
+<property>
+  <name>fs.s3.awsSecretAccessKey</name>
+  <value><%=@aws_secret_key%></value>
+</property>
+<property>
+  <name>fs.s3n.awsAccessKeyId</name>
+  <value><%=@aws_access_key%></value>
+</property>
+<property>
+  <name>fs.s3n.awsSecretAccessKey</name>
+  <value><%=@aws_secret_key%></value>
+</property>
+
+<% end %>
+
 </configuration>
 
