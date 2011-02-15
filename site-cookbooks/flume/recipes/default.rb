@@ -28,6 +28,9 @@ template "/etc/flume/conf/flume-site.xml" do
               :zookeepers         => flume_zookeeper_list,
               :aws_access_key     => node[:flume][:aws_access_key],
               :aws_secret_key     => node[:flume][:aws_secret_key],
+              :collector_output_format =>
+                                     node[:flume][:collector][:output_format],
+              :collector_gzip     => node[:flume][:collector][:gzip],
             })
 end
 
