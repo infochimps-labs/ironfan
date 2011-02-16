@@ -7,7 +7,7 @@
 #
 # Install basic gems
 #
-%w[json configliere erubis].each do |rubygem|
+%w[json configliere erubis extlib].each do |rubygem|
   bash "install jruby version of #{rubygem}" do
     user "root"
     code <<-EOH
