@@ -25,3 +25,5 @@ default[:flume][:classpath] = []
 
 # pass in extra options to the java virtual machine
 default[:flume][:java_opts] = []
+
+default[:flume][:collector] = {}
