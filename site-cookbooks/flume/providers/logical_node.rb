@@ -10,8 +10,8 @@ end
 
 # This is an imperfect way to determine if the node is mapped
 def get_status(name,master)
-  status = `/usr/lib/flume/bin/flume shell -c #{master} -e getconfigs | grep #{name}`
-  if !status or status.empty? or status ~= /DECOMISSIONED/
+  status = `/usr/lib/flume/bin/flume shell -c #{master} -e getnodestatus | grep "#{name} --"`
+  if !status or status.empty? or status =~ /DECOMMISSIONED/
     return :unmapped
   else
     return :mapped
