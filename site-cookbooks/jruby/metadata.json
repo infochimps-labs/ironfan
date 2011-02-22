@@ -1,0 +1,29 @@
+{
+  "recipes": {
+  },
+  "groupings": {
+  },
+  "recommendations": {
+  },
+  "description": "Installs/Configures jruby",
+  "suggestions": {
+  },
+  "attributes": {
+  },
+  "conflicting": {
+  },
+  "dependencies": {
+  },
+  "long_description": "= DESCRIPTION:\n\nA very basic recipe to install jruby-1.5.6 from a downloaded tarball.\n\n= REQUIREMENTS:\n\nJava.\n\n= ATTRIBUTES:\n\nNone.\n\n= USAGE:\n\nJust use the default.",
+  "providing": {
+  },
+  "platforms": {
+  },
+  "version": "0.0.1",
+  "license": "All rights reserved",
+  "maintainer": "YOUR_COMPANY_NAME",
+  "name": "jruby",
+  "replacing": {
+  },
+  "maintainer_email": "YOUR_EMAIL"
+}

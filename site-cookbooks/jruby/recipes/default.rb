@@ -26,6 +26,3 @@ end
     to "/usr/lib/jruby/bin/#{file}"
   end
 end
-
-
-
