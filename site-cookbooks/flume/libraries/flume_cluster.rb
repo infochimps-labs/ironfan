@@ -4,10 +4,15 @@ module FlumeCluster
   def flume_cluster
     node[:flume][:cluster_name]
   end
+
   
   # returns an array containing the list of flume-masters in this cluster
   def flume_masters
     all_provider_private_ips( "#{flume_cluster}-flume-master" ).sort
+  end
+
+  def flume_master
+    flume_masters.first
   end
 
   # returns the index of the current host in th list of flume masters
