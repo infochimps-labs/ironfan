@@ -101,8 +101,7 @@ module ClusterChef
       end
 
       role_implication("george") do
-        p [chef_attributes, self, self.class]
-        self.cloud.security_group(cluster_name+"george") do
+        self.cloud.security_group(cluster_name+"-george") do
           authorize_port_range  80..80
           authorize_port_range 443..443
         end
