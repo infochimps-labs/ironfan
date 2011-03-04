@@ -102,10 +102,10 @@
  </property>
 <% end %>
 
-<% if @collector_gzip %>
+<% if @collector_codec %>
   <property>
-    <name>flume.collector.dfs.compress.gzip</name>
-    <value><%=@collector_gzip%></value>
+    <name>flume.collector.dfs.compress.codec</name>
+    <value><%=@collector_codec%></value>
     <description>Writes compressed output in gzip format to dfs. Setting value to false or empty writes uncompressed data to disk
     </description>
   </property>
