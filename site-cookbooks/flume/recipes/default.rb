@@ -50,6 +50,8 @@ template "/etc/flume/conf/flume-site.xml" do
                                      node[:flume][:collector][:output_format],
               :collector_codec     => node[:flume][:collector][:codec],
             })
+  notifies :restart, "service[flume-node]"
+  notifies :restart, "service[flume-master]"
 end
 
 template "/usr/lib/flume/bin/flume-env.sh" do
@@ -60,6 +62,8 @@ template "/usr/lib/flume/bin/flume-env.sh" do
               :classpath          => flume_classpath,
               :java_opts          => flume_java_opts,
             })
+  notifies :restart, "service[flume-node]"
+  notifies :restart, "service[flume-master]"
 end
 
 %w[commons-codec-1.4.jar commons-httpclient-3.0.1.jar 
