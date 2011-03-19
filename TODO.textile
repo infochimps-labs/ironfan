@@ -1,0 +1,21 @@
+
+* fix people's laptops to work with new
+* tell people about new commands / to RTFM
+
+* knife cluster launch to be efficient at 30 machines
+* knife cluster ssh command to work (& in parallel)
+* verify current recipes that Jacob uses
+* knife cluster stop
+* yellowhat in staging or production
+* move to chef 9.14
+
+* move current clusters from poolparty to cluster_chef
+
+--- 
+
+* knife cluster list
+* knife cluster terminate to work at all
+* verify all recipes
+* knife plugins ?
+* automatic elastic IP application
+* idempotent cluster sizing 
