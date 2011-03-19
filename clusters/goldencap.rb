@@ -1,4 +1,4 @@
-ClusterChef.cluster 'flyingmonkeys' do
+ClusterChef.cluster 'goldencap' do
   merge!('defaults')
   setup_role_implications
 
@@ -15,7 +15,12 @@ ClusterChef.cluster 'flyingmonkeys' do
     user_data           :get_name_from => 'broham'
   end
 
-  facet 'slave' do
+  facet 'twstream' do
+    instances           1
+    cloud.flavor        "t1.micro"
+  end
+
+  facet 'twscraper' do
     instances           1
     cloud.flavor        "t1.micro"
   end
