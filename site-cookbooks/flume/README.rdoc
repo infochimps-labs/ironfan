@@ -13,6 +13,9 @@ servers.
 node[:flume][:cluster_name] - The name of the cluster to participate
 with (masters and zookeepers...) defaults to node[:cluster_name].
 
+node[:flume][:data_dir] - Directory flume should use to store local 
+temporary files.
+
 node[:flume][:master][:external_zookeeper] - false to use flume's
 zookeeper. True to attach to an external zookeeprs.
 
