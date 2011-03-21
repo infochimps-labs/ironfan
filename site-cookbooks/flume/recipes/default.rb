@@ -49,6 +49,7 @@ template "/usr/lib/flume/conf/flume-site.xml" do
               :collector_output_format =>
                                      node[:flume][:collector][:output_format],
               :collector_codec     => node[:flume][:collector][:codec],
+              :flume_data_dir      => node[:flume][:data_dir]
             })
 end
 

@@ -7,7 +7,9 @@
 # All rights reserved - Do Not Redistribute
 #
 
-include_recipe "flume"
+# We need to explicitly include the default recipe, because we need access
+# to the templates.
+include_recipe "flume::default"
 
 package "flume-node" 
 
