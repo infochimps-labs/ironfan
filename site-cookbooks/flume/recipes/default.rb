@@ -74,3 +74,8 @@ end
 directory "/usr/lib/flume/plugins" do
   owner "flume"
 end
+
+directory node[:flume][:data_dir] do
+  owner "flume"
+  recursive true
+end
