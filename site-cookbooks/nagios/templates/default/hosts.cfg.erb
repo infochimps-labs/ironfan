@@ -5,7 +5,7 @@
 define host {
   use server
   address <%= n['ipaddress'] %>
-  host_name <%= n['hostname'] %>
+  host_name <%= n['node_name'] %>
 <% if n.run_list.roles.nil? -%>
   hostgroups all
 <% else -%>
