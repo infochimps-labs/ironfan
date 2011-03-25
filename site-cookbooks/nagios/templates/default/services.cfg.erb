@@ -30,7 +30,7 @@ define service {
 # Uncomment if you're running chef-client as a daemon
 define service {
     service_description Chef Client
-    hostgroup_name      base
+    hostgroup_name      chef_client
     check_command    	check_chef_client
     use                 default-service
 }
