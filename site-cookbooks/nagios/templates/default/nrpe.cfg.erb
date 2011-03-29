@@ -27,3 +27,4 @@ command[check_mysql_server]=/usr/lib/nagios/plugins/check_mysql -H localhost -u 
 #command[check_memcached_response]=/usr/local/bin/check_memcached -H <%= node[:ipaddress] %> -w 3 -c 5
 #command[check_memcached_size]=/usr/local/bin/check_memcached -H <%= node[:ipaddress] %> --size-warning 60 --size-critical 80
 #command[check_memcached_hit]=/usr/local/bin/check_memcached -H <%= node[:ipaddress] %> --hit-warning 40 --hit-critical 20
+command[check_es_procs]=/usr/lib/nagios/plugins/check_procs -w 1:1 -c 1:1 -C java -a elasticsearch

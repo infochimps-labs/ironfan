@@ -13,4 +13,22 @@ define host {
 <% end -%>
 }
 
+define hostescalation {
+  contact_groups       <%= nagios_attr(:default_contact_groups).join(",") %>
+  escalation_options   d,u,r
+  first_notification   2
+  last_notification    4
+  notification_interval 15
+  host_name <%= n['node_name'] %>
+}
+
+define hostescalation {
+  contact_groups       <%= nagios_attr(:default_escalation_groups).join(",") %>
+  escalation_options   d,u,r
+  first_notification   5
+  last_notification    8
+  notification_interval 60
+  host_name <%= n['node_name'] %>
+}
+
 <% end -%>

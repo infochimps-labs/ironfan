@@ -46,7 +46,8 @@ define host {
   check_command           check-host-alive
   notification_interval   <%= nagios_interval(nagios_attr(:default_host)[:notification_interval]) %>
   notification_options    d,u,r
-  contact_groups          <%= nagios_attr(:default_contact_groups).join(",") %>
+  contacts		  root
+#  contact_groups          <%= nagios_attr(:default_contact_groups).join(",") %>
   register                0
 }
 
@@ -70,9 +71,11 @@ define service {
   max_check_attempts              <%= nagios_attr(:default_service)[:max_check_attempts] %>
   check_interval                  <%= nagios_interval(nagios_attr(:default_service)[:check_interval]) %>
   retry_interval                  <%= nagios_interval(nagios_attr(:default_service)[:retry_interval]) %>
-  contact_groups                  <%= nagios_attr(:default_contact_groups).join(",") %>
+  contacts			  root
+  #contact_groups                  <%= nagios_attr(:default_contact_groups).join(",") %>
   notification_options            w,u,c,r
   notification_interval           <%= nagios_interval(nagios_attr(:default_service)[:notification_interval]) %>
   notification_period             24x7
   register                        0
 }
+

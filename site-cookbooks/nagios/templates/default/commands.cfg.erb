@@ -207,6 +207,22 @@ define command {
 	command_line	$USER1$/check_udp -H $HOSTADDRESS$ -p $ARG1$
 }
 
+# elastic search health checks
+define command {
+       command_name check_es_proc
+       command_line $USER1$/check_nrpe -H $HOSTADDRESS$ -c check_es_procs -t 20
+}
+
+define command {
+       command_name check_es_node
+       command_line $USER1$/check_http -H $HOSTADDRESS$ -p 9200 -s "\"ok\" : true"
+}
+
+define command {
+       command_name check_es_cluster
+       command_line $USER1$/check_http -H $HOSTADDRESS$ -p 9200 -r "\"status\":\"(yellow|green)\"" -u /_cluster/health 
+}
+
 # 'check_mysql' check mysql connectivity
 define command {
 	command_name	check_mysql
