@@ -18,18 +18,29 @@ define contactgroup {
 
 define contactgroup {
   contactgroup_name admins-sms
-  alias             Sysadmin SMS
-  members           <%= @members.join(',') %>
+  alias             Nagios Administrators
+  members           <%= @admins.select{|a| a && a['nagios'] && a['nagios']['pager']}.map {|s| "#{s['id']}-sms"}.join(',') %>
 }
+
+#define contactgroup {
+#  contactgroup_name admins-sms
+#  alias             Sysadmin SMS
+#  members           <%= @members.join(',') %>
+#}
 
 <% @admins.each do |a| -%>
 define contact {
   use          default-contact
   contact_name <%= a['id'] %>
   email        <%= a['nagios']['email'] %>
-  <% if a['nagios']['pager'] %>
-  pager        <%= a['nagios']['pager'] %>
-  <% end %>
 }
 
+  <% if a['nagios']['pager'] %>
+define contact {
+  use          default-contact
+  contact_name <%= a['id'] %>-sms
+  email        <%= a['nagios']['pager'] %>
+  can_submit_commands 0
+}
+  <% end %>
 <% end -%>
