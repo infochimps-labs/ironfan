@@ -11,7 +11,6 @@ define service {
     check_command       check_ping!200.0,20%!500.0,60%
 }
 
-<% escalation_services["ping"]="all" %>
 
 # monitoring service checks
 define service {
@@ -22,7 +21,6 @@ define service {
     use                 default-service
 }
 
-<% escalation_services["Nagios"]="monitoring" %>
 
 
 # Uncomment if you're using Munin
@@ -42,7 +40,6 @@ define service {
     use                 default-service
 }
 
-<% escalation_services["Chef Client"]="chef_client" %>
 
 
 define service {
@@ -52,7 +49,6 @@ define service {
     use                 default-service
 }
 
-<% escalation_services["Free Space All Disks"]="all" %>
 
 define service {
     service_description Load Average
@@ -61,7 +57,6 @@ define service {
     use                 default-service
 }
 
-<% escalation_services["Load Average"]="all" %>
 
 define service {
     service_description Free Memory
@@ -70,7 +65,6 @@ define service {
     use                 default-service
 }
 
-<% escalation_services["Free Memory"] ="all" %>
 
 define service {
     service_description SSH
@@ -79,7 +73,6 @@ define service {
     use                 default-service
 }
 
-<% escalation_services["SSH"]="all" %>
 
 
 define service {
@@ -89,7 +82,6 @@ define service {
     use                 default-service
 }
 
-<% escalation_services["Processes"]="all" %>
 
 
 <% unless @service_hosts['monitoring'].nil? -%>
@@ -170,31 +162,121 @@ define service {
        use		   default-service
 }
 
-<% escalation_services["elastic_search_process"]="elasticsearch_data_esnode" %>
-<% escalation_services["elastic_search_node"]="elasticsearch_data_esnode" %>
-<% escalation_services["elastic_search_cluster"]="elasticsearch_data_esnode" %>
+
 <% end %>
 
 
-<% escalation_services.each_pair do |service_description,hostgroup_name| %>
-define serviceescalation {
-  service_description  <%= service_description %>
-  hostgroup_name       <%= hostgroup_name %>
-  first_notification   2
-  last_notification    4
-  notification_interval 15
-  contact_groups       <%= nagios_attr(:default_contact_groups).join(",") %>
+define service {
+       service_description zookeeper
+       host_name	   ham-alpha,ham-beta,ham-gamma-0,ham-gamma-1,ham-gamma-2
+       check_command       check_zookeeper_procs
+       use		   default-service
 }
 
-define serviceescalation {
-  service_description  <%= service_description %>
-  hostgroup_name       <%= hostgroup_name %>
-  first_notification   5
-  last_notification    8
-  notification_interval 60
-  contact_groups       <%= nagios_attr(:default_escalation_groups).join(",") %>
+define service {
+       service_description hadoop-namenode-proc
+       host_name	   ham-alpha
+       check_command       check_hadoop_namenode_proc
+       use		   default-service
 }
 
-<%end%>
+define service {
+       service_description hadoop-secondarynn-proc
+       host_name	   ham-alpha,ham-beta
+       check_command       check_hadoop_secondarynn_proc
+       use		   default-service
+}
+
+define service {
+       service_description hadoop-tasktracker-proc
+       host_name	   ham-gamma-0,ham-gamma-1,ham-gamma-2,ham-delta-0,ham-delta-1,ham-delta-2,ham-delta-3,ham-delta-4,ham-delta-5,ham-delta-6,ham-delta-7,ham-delta-8,ham-delta-9,ham-delta-10
+       check_command       check_hadoop_tasktracker_proc
+       use		   default-service
+}
+
+define service {
+       service_description hadoop-jobtracker-proc
+       host_name	   ham-alpha
+       check_command       check_hadoop_jobtracker_proc
+       use		   default-service
+}
+
+#define service {
+#       service_description hadoop-datanode-proc
+#       hostgroup_name	   ham_cluster
+#       check_command       check_hadoop_datanode_proc
+#       use		   default-service
+#}
+
+#define service {
+#       service_description hbase-master-proc
+#       host_name	   ham-alpha,ham-beta
+#       check_command       check_hbase_master_proc
+#       use		   default-service
+#}
+
+define service {
+       service_description hbase-regionserver-proc
+       host_name	   ham-gamma-0,ham-gamma-1,ham-gamma-2,ham-delta-0,ham-delta-1,ham-delta-2,ham-delta-3,ham-delta-4,ham-delta-5,ham-delta-6,ham-delta-7,ham-delta-8,ham-delta-9,ham-delta-10
+       check_command       check_hbase_regionserver_proc
+       use		   default-service
+}
+
+define service {
+       service_description hbase-rest-proc
+       host_name	   ham-alpha
+       check_command       check_hbase_rest_proc
+       use		   default-service
+}
+
+
+define service {
+       service_description hadoop-namenode-status
+       host_name	   ham-alpha
+       check_command       check_hadoop_namenode_status
+       use		   default-service
+}
+
+define service {
+       service_description hadoop-secondarynn-status
+       host_name	   ham-alpha,ham-beta
+       check_command       check_hadoop_secondarynn_status
+       use		   default-service
+}
+
+define service {
+       service_description hadoop-tasktracker-status
+       host_name	   ham-gamma-0,ham-gamma-1,ham-gamma-2,ham-delta-0,ham-delta-1,ham-delta-2,ham-delta-3,ham-delta-4,ham-delta-5,ham-delta-6,ham-delta-7,ham-delta-8,ham-delta-9,ham-delta-10
+       check_command       check_hadoop_tasktracker_status
+       use		   default-service
+}
+
+define service {
+       service_description hadoop-jobtracker-status
+       host_name	   ham-alpha
+       check_command       check_hadoop_jobtracker_status
+       use		   default-service
+}
+
+#define service {
+#       service_description hadoop-datanode-status
+#       hostgroup_name	   ham_cluster
+#       check_command       check_hadoop_datanode_status
+#       use		   default-service
+#}
+
+define service {
+       service_description hbase-master-status
+       host_name	   ham-alpha,ham-beta
+       check_command       check_hbase_master_status
+       use		   default-service
+}
+
+
+
+
+
+
+
 
 

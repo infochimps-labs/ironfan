@@ -28,3 +28,20 @@ command[check_mysql_server]=/usr/lib/nagios/plugins/check_mysql -H localhost -u 
 #command[check_memcached_size]=/usr/local/bin/check_memcached -H <%= node[:ipaddress] %> --size-warning 60 --size-critical 80
 #command[check_memcached_hit]=/usr/local/bin/check_memcached -H <%= node[:ipaddress] %> --hit-warning 40 --hit-critical 20
 command[check_es_procs]=/usr/lib/nagios/plugins/check_procs -w 1:1 -c 1:1 -C java -a elasticsearch
+command[check_zookeeper_procs]=/usr/lib/nagios/plugins/check_procs -w 1:1 -c 1:1 -C java -a org.apache.zookeeper.server.quorum.QuorumPeerMain
+command[check_hadoop_namenode_proc]=/usr/lib/nagios/plugins/check_procs -w 1:1 -c 1:1 -C java -a org.apache.hadoop.hdfs.server.namenode.NameNode
+command[check_hadoop_secondarynn_proc]=/usr/lib/nagios/plugins/check_procs -w 1:1 -c 1:1 -C java -a org.apache.hadoop.hdfs.server.namenode.SecondaryNameNode
+command[check_hadoop_jobtracker_proc]=/usr/lib/nagios/plugins/check_procs -w 1:1 -c 1:1 -C java -a org.apache.hadoop.mapred.JobTracker
+command[check_hadoop_tasktracker_proc]=/usr/lib/nagios/plugins/check_procs -w 1:1 -c 1:1 -C java -a org.apache.hadoop.mapred.TaskTracker 
+command[check_hadoop_datanode_proc]=/usr/lib/nagios/plugins/check_procs -w 1:2 -c 1:2 -C java -a org.apache.hadoop.hdfs.server.datanode.SecureDataNodeStarter
+command[check_hbase_regionserver_proc]=/usr/lib/nagios/plugins/check_procs -w 1:1 -c 1:1 -C java -a org.apache.hadoop.hbase.regionserver.HRegionServer
+command[check_hbase_master_proc]=/usr/lib/nagios/plugins/check_procs -w 1:1 -c 1:1 -C java -a org.apache.hadoop.hbase.master.HMaster
+command[check_hbase_rest_proc]=/usr/lib/nagios/plugins/check_procs -w 1:1 -c 1:1 -C java -a org.apache.hadoop.hbase.rest.Main
+
+command[check_hadoop_namenode_status]=/usr/lib/nagios/plugins/check_http -H localhost -p 50070 -u /dfshealth.jsp
+command[check_hadoop_secondarynn_status]=/usr/lib/nagios/plugins/check_http -H localhost -p 50090 -u /
+command[check_hadoop_jobtracker_status]=/usr/lib/nagios/plugins/check_http -H localhost -p 50030 -u /jobtracker.jsp
+command[check_hadoop_tasktracker_status]=/usr/lib/nagios/plugins/check_http -H localhost -p 50060 -u /tasktracker.jsp
+command[check_hadoop_datanode_status]=/usr/lib/nagios/plugins/check_http -H localhost -p 50075 -u /
+
+command[check_hbase_master_status]=/usr/lib/nagios/plugins/check_hbase.rb 

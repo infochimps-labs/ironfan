@@ -11,6 +11,15 @@ define host {
 <% else -%>
   hostgroups <%= n.run_list.roles.to_a.join(",") %>
 <% end -%>
+<% if cluster = n['cluster_name'] %>
+  <% image = "#{cluster}.png" %>
+  icon_image <%= image %>
+  statusmap_image <%= image %>
+  <% parent = @clusters[ n['cluster_name'] ].first %>
+  <% if parent != n['node_name'] %>
+  parents <%= parent %>
+  <% end %>
+<% end %>
 }
 
 define hostescalation {
@@ -18,7 +27,7 @@ define hostescalation {
   escalation_options   d,u,r
   first_notification   2
   last_notification    4
-  notification_interval 15
+  notification_interval 600
   host_name <%= n['node_name'] %>
 }
 
@@ -27,8 +36,26 @@ define hostescalation {
   escalation_options   d,u,r
   first_notification   5
   last_notification    8
-  notification_interval 60
+  notification_interval 1200
   host_name <%= n['node_name'] %>
+}
+
+define serviceescalation {
+  service_description  *
+  host_name            <%= n['node_name'] %>
+  first_notification   2
+  last_notification    4
+  notification_interval 600
+  contact_groups       <%= nagios_attr(:default_contact_groups).join(",") %>
+}
+
+define serviceescalation {
+  service_description  *
+  host_name       <%= n['node_name'] %>
+  first_notification   5
+  last_notification    8
+  notification_interval 1200
+  contact_groups       <%= nagios_attr(:default_escalation_groups).join(",") %>
 }
 
 <% end -%>

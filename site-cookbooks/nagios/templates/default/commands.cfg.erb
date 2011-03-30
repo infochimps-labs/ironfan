@@ -223,6 +223,27 @@ define command {
        command_line $USER1$/check_http -H $HOSTADDRESS$ -p 9200 -r "\"status\":\"(yellow|green)\"" -u /_cluster/health 
 }
 
+# hbase health checks
+
+define command {
+       command_name check_zookeeper_procs
+       command_line $USER1$/check_nrpe -H $HOSTADDRESS$ -c check_zookeeper_procs -t 20
+}
+
+<% %w[hadoop_namenode hadoop_secondarynn hadoop_jobtracker hadoop_tasktracker hbase_regionserver hbase_master hbase_rest].each do |svc| %>
+define command {
+       command_name check_<%= svc %>_proc
+       command_line $USER1$/check_nrpe -H $HOSTADDRESS$ -c check_<%= svc %>_proc -t 20
+}
+<% end %>
+
+<% %w[hadoop_namenode hadoop_secondarynn hadoop_jobtracker hadoop_tasktracker hbase_master].each do |svc| %>
+define command {
+       command_name check_<%= svc %>_status
+       command_line $USER1$/check_nrpe -H $HOSTADDRESS$ -c check_<%= svc %>_status -t 20
+}    
+<% end %>
+
 # 'check_mysql' check mysql connectivity
 define command {
 	command_name	check_mysql
