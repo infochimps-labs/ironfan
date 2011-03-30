@@ -49,6 +49,13 @@ search(:role, "*:*") do |r|
   end
 end
 
+clusters = nodes.inject( {} ) do |cluster_hash,node|
+  cluster_hash[ node['cluster_name'] ] ||= []
+  cluster_hash[ node['cluster_name'] ].push node['node_name']
+  cluster_hash
+end
+clusters.values.each {|v| v.sort! }
+
 if node[:public_domain]
   public_domain = node[:public_domain]
 else
@@ -144,9 +151,17 @@ nagios_conf "contacts" do
 end
 
 nagios_conf "hostgroups" do
-  variables :roles => role_list
+  variables :roles => role_list, :clusters => clusters
 end
 
 nagios_conf "hosts" do
-  variables :nodes => nodes
+  variables :nodes => nodes, :clusters => clusters
+end
+
+remote_directory "/usr/share/nagios3/htdocs/images/logos" do
+  source "logos"
+  owner "nagios"
+  group "nagios"
+  mode 0755
+  files_mode 0755
 end
