@@ -180,12 +180,12 @@ define service {
        use		   default-service
 }
 
-define service {
-       service_description hadoop-secondarynn-proc
-       host_name	   ham-alpha,ham-beta
-       check_command       check_hadoop_secondarynn_proc
-       use		   default-service
-}
+#define service {
+#       service_description hadoop-secondarynn-proc
+#       host_name	   ham-alpha,ham-beta
+#       check_command       check_hadoop_secondarynn_proc
+#       use		   default-service
+#}
 
 define service {
        service_description hadoop-tasktracker-proc
@@ -237,12 +237,12 @@ define service {
        use		   default-service
 }
 
-define service {
-       service_description hadoop-secondarynn-status
-       host_name	   ham-alpha,ham-beta
-       check_command       check_hadoop_secondarynn_status
-       use		   default-service
-}
+#define service {
+#       service_description hadoop-secondarynn-status
+#       host_name	   ham-alpha,ham-beta
+#       check_command       check_hadoop_secondarynn_status
+#       use		   default-service
+#}
 
 define service {
        service_description hadoop-tasktracker-status
