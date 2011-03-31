@@ -27,7 +27,6 @@ define hostescalation {
   escalation_options   d,u,r
   first_notification   2
   last_notification    4
-  notification_interval 600
   host_name <%= n['node_name'] %>
 }
 
@@ -36,25 +35,24 @@ define hostescalation {
   escalation_options   d,u,r
   first_notification   5
   last_notification    8
-  notification_interval 1200
   host_name <%= n['node_name'] %>
 }
 
 define serviceescalation {
   service_description  *
   host_name            <%= n['node_name'] %>
+  escalation_options   w,u,c,r
   first_notification   2
   last_notification    4
-  notification_interval 600
   contact_groups       <%= nagios_attr(:default_contact_groups).join(",") %>
 }
 
 define serviceescalation {
   service_description  *
   host_name       <%= n['node_name'] %>
+  escalation_options   w,u,c,r
   first_notification   5
   last_notification    8
-  notification_interval 1200
   contact_groups       <%= nagios_attr(:default_escalation_groups).join(",") %>
 }
 
