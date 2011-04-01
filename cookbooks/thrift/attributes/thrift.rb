@@ -17,4 +17,4 @@
 # limitations under the License.
 #
 
-default[:node][:repo_url] = 'http://svn.apache.org/repos/asf/thrift'
+default[:thrift][:repo_url] = 'http://svn.apache.org/repos/asf/thrift'
