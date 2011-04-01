@@ -25,6 +25,12 @@ include_recipe "subversion"
   package pkg
 end
 
+if node[:platform] == "ubuntu"
+  %w{ libssl-dev python-dev }.each do |pkg|
+    package pkg
+  end
+end
+
 bash "install_thrift" do
   user "root"
   cwd "/tmp"
