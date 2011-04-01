@@ -72,7 +72,7 @@ h3. Setup
 Install these gems,
 
 <pre>
-    sudo gem install chef fog broham highline readline configliere
+    sudo gem install chef fog broham highline configliere right_aws net-ssh-multi
 </pre>
 
 and (if you haven't already), git clone or "download":https://github.com/infochimps/cluster_chef/zipball/version_2 the repo:
