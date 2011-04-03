@@ -34,7 +34,7 @@ command[check_hadoop_secondarynn_proc]=/usr/lib/nagios/plugins/check_procs -w 1:
 command[check_hadoop_jobtracker_proc]=/usr/lib/nagios/plugins/check_procs -w 1:1 -c 1:1 -C java -a org.apache.hadoop.mapred.JobTracker
 command[check_hadoop_tasktracker_proc]=/usr/lib/nagios/plugins/check_procs -w 1:1 -c 1:1 -C java -a org.apache.hadoop.mapred.TaskTracker 
 command[check_hadoop_datanode_proc]=/usr/lib/nagios/plugins/check_procs -w 1:2 -c 1:2 -C java -a org.apache.hadoop.hdfs.server.datanode.SecureDataNodeStarter
-command[check_hbase_regionserver_proc]=/usr/lib/nagios/plugins/check_procs -w 1:1 -c 1:1 -C java -a org.apache.hadoop.hbase.regionserver.HRegionServer
+command[check_hbase_regionserver_proc]=/usr/lib/nagios/plugins/check_procs -w 1:1 -c 1:1 -C java -a regionserver
 command[check_hbase_master_proc]=/usr/lib/nagios/plugins/check_procs -w 1:1 -c 1:1 -C java -a org.apache.hadoop.hbase.master.HMaster
 command[check_hbase_rest_proc]=/usr/lib/nagios/plugins/check_procs -w 1:1 -c 1:1 -C java -a org.apache.hadoop.hbase.rest.Main
 
