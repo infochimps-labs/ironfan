@@ -6,6 +6,7 @@ dont_blame_nrpe=0
 debug=0
 command_timeout=60
 allowed_hosts=<%= @mon_host.join(',') %>
+include_dir=/etc/nagios/nrpe.d
 
 command[check_users]=/usr/lib/nagios/plugins/check_users -w 20 -c 30
 command[check_load]=/usr/lib/nagios/plugins/check_load -w <%= node[:nagios][:checks][:load][:warning] %> -c <%= node[:nagios][:checks][:load][:critical] %>
