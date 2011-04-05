@@ -44,7 +44,7 @@ define service {
 
 define service {
     service_description Free Space All Disks
-    hostgroup_name      all
+    hostgroup_name      infochimps_base
     check_command    	check_all_disks
     use                 default-service
 }
@@ -52,7 +52,7 @@ define service {
 
 define service {
     service_description Load Average
-    hostgroup_name      all
+    hostgroup_name      infochimps_base
     check_command			  check_load
     use                 default-service
 }
@@ -60,7 +60,7 @@ define service {
 
 define service {
     service_description Free Memory
-    hostgroup_name      all
+    hostgroup_name      infochimps_base
     check_command    	check_mem
     use                 default-service
 }
@@ -68,7 +68,7 @@ define service {
 
 define service {
     service_description SSH
-    hostgroup_name      all
+    hostgroup_name      infochimps_base
     check_command       check_ssh
     use                 default-service
 }
@@ -77,7 +77,7 @@ define service {
 
 define service {
     service_description Processes
-    hostgroup_name      all
+    hostgroup_name      infochimps_base
     check_command       check_local_procs
     use                 default-service
 }
