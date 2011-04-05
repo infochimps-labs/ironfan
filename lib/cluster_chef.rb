@@ -7,7 +7,8 @@ module ClusterChef
   Chef::Config[:clusters] ||= {}
 
   def self.connection
-    @connection ||= Fog::AWS::Compute.new({
+    @connection ||= Fog::Compute.new({
+        :provider              => 'AWS',
         :aws_access_key_id     => Chef::Config[:knife][:aws_access_key_id],
         :aws_secret_access_key => Chef::Config[:knife][:aws_secret_access_key],
         #  :region                => region
