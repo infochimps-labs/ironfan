@@ -6,7 +6,7 @@
 
 define service {
     use                 default-service
-    host_name           *
+    hostgroup_name      infochimps_base
     service_description ping
     check_command       check_ping!200.0,20%!500.0,60%
 }
