@@ -26,6 +26,8 @@ include_recipe "apache2::mod_rewrite"
 include_recipe "nagios::client"
 
 sysadmins = search(:users, 'groups:sysadmin')
+nagios_users = search(:users, 'groups:nagios-users')
+
 nodes = search(:node, "hostname:[* TO *] AND app_environment:#{node[:app_environment]}")
 
 if nodes.empty?
@@ -36,6 +38,9 @@ end
 
 members = Array.new
 sysadmins.each do |s|
+  members << s['id']
+end
+nagios_users.each do |s|
   members << s['id']
 end
 
@@ -112,7 +117,8 @@ else
     group node[:apache][:user]
     mode 0640
     variables(
-      :sysadmins => sysadmins
+      :sysadmins => sysadmins,
+      :users     => nagios_users
     )
   end
 end
@@ -147,7 +153,7 @@ nagios_conf "services" do
 end
 
 nagios_conf "contacts" do
-  variables :admins => sysadmins, :members => members
+  variables :admins => sysadmins, :members => members, :users => nagios_users
 end
 
 nagios_conf "hostgroups" do

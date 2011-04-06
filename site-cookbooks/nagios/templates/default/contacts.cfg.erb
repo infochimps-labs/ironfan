@@ -32,7 +32,9 @@ define contactgroup {
 define contact {
   use          default-contact
   contact_name <%= a['id'] %>
+  <% if a['nagios']['email'] %>
   email        <%= a['nagios']['email'] %>
+  <% end %>
 }
 
   <% if a['nagios']['pager'] %>
@@ -44,3 +46,13 @@ define contact {
 }
   <% end %>
 <% end -%>
+
+<% @users.each do |a| -%>
+define contact {
+  use          default-contact
+  contact_name <%= a['id'] %>
+  <% if a['nagios']['email'] %>
+  email        <%= a['nagios']['email'] %>
+  <% end %>
+}
+<% end %>
