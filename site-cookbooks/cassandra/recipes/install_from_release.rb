@@ -48,3 +48,5 @@ link "/usr/sbin/cassandra" do
   to "/usr/local/share/cassandra/bin/cassandra"
   action :create
 end
+
+include_recipe "cassandra::bintools"
