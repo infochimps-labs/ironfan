@@ -93,7 +93,7 @@ default[:cassandra][:git_repo]                      = 'git://git.apache.org/cass
 default[:cassandra][:git_revision]                  = 'cdd239dcf82ab52cb840e070fc01135efb512799' # 'HEAD'
 
 # JNA deb location
-default[:cassandra][:jna_deb_amd64_url] = "http://debian.riptano.com/debian/pool/libjna-java_3.2.7-0~nmu.2_amd64.deb"
+default[:cassandra][:jna_deb_amd64_url] = "http://debian.riptano.com/maverick/pool/libjna-java_3.2.7-0~nmu.2_amd64.deb"
 
 # see http://www.mail-archive.com/user@cassandra.apache.org/msg04447.html
 
