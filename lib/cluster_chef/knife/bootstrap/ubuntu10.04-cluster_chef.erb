@@ -51,14 +51,17 @@ cat <<'EOP'
 EOP
 ) > /etc/chef/first-boot.json
 
-echo "`date` First run of chef"
-/usr/bin/chef-client -j /etc/chef/first-boot.json
+#echo "`date` First run of chef"
+#/usr/bin/chef-client -j /etc/chef/first-boot.json
 
 echo "`date` Cleanup"  
 updatedb
 
 echo "`date` Enabling chef client service" 
 ln -s   /etc/sv/chef-client /etc/service/chef-client
+
+echo "`date` Starting chef-client"
+service chef-client start
 
 echo "`date` Cluster Chef client bootstrap complete."  
 '
