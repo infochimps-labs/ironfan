@@ -57,6 +57,7 @@ default[:cassandra][:seeds]                         = ["127.0.0.1"]
 # Memory, Disk and Performance
 default[:cassandra][:java_min_heap]                 = "128M"        # consider setting equal to max_heap in production
 default[:cassandra][:java_max_heap]                 = "1650M"
+default[:cassandra][:java_eden_heap]                = "1500M"
 default[:cassandra][:disk_access_mode]              = "auto"
 default[:cassandra][:concurrent_reads]              = 8             # 2 per core
 default[:cassandra][:concurrent_writes]             = 32            # typical number of clients
