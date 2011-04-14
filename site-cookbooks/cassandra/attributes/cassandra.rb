@@ -46,6 +46,7 @@ default[:cassandra][:jmx_port]                      = 12345         # moved from
 # Partitioning
 default[:cassandra][:auto_bootstrap]                = 'false'
 default[:cassandra][:authenticator]                 = "org.apache.cassandra.auth.AllowAllAuthenticator"
+default[:cassandra][:authority]                     = "org.apache.cassandra.auth.AllowAllAuthority"
 default[:cassandra][:hinted_handoff_enabled]        = 'true'
 default[:cassandra][:max_hint_window_in_ms]         = 3600000
 default[:cassandra][:hinted_handoff_throttle_delay_in_ms] = 50

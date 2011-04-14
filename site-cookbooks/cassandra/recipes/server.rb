@@ -21,6 +21,8 @@
 directory('/etc/sv/cassandra/env'){ owner 'root' ; action :create ; recursive true }
 runit_service "cassandra"
 
+include_recipe("cassandra::authentication")
+
 template "/etc/cassandra/cassandra.yaml" do
   source    "cassandra.yaml.erb"
   owner     "root"

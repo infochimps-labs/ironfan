@@ -27,15 +27,26 @@ exec chpst -u${CASSANDRA_USER} -e /etc/sv/cassandra/env -o 65535 \
       -XX:+UseConcMarkSweepGC                                   \
       -XX:+CMSParallelRemarkEnabled                             \
       -XX:+HeapDumpOnOutOfMemoryError                           \
-      -Xms<%= node[:cassandra][:java_min_heap] %>               \
-      -Xmx<%= node[:cassandra][:java_max_heap] %>               \
-      -Xmn<%= node[:cassandra][:java_eden_heap] %>              \
+<%- [["ms", :java_min_heap], ["mx", :java_max_heap], ["mn", :java_eden_heap]].each do |opt| %>
+<%-   unless node[:cassandra][opt[1]].blank? %>
+      -X<%= opt[0] %><%= node[:cassandra][opt[1]] %>            \
+<%-   end %>
+<%- end %>
       -Xss128k                                                  \
       -XX:SurvivorRatio=4                                       \
       -XX:MaxTenuringThreshold=8                                \
       -XX:TargetSurvivorRatio=70                                \
       -XX:CMSInitiatingOccupancyFraction=65                     \
       -Dcassandra.compaction.priority=1                         \
+<%- if node[:cassandra][:passwd_use_md5] %>
+      -Dpasswd.mode=MD5                                         \
+<%- end %>
+<%- if node[:cassandra][:passwd_properties] %>
+      -Dpasswd.properties=<%= node[:cassandra][:passwd_properties] %>  \
+<%- end %>
+<%- if node[:cassandra][:access_properties] %>
+      -Daccess.properties=<%= node[:cassandra][:access_properties] %>  \
+<%- end %>
 <%- if true %>
       -XX:+PrintGCTimeStamps                                    \
       -XX:+PrintTenuringDistribution                            \
