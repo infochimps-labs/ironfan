@@ -6,6 +6,7 @@ run_list *%w[
   runit
   boost
   thrift
+  ntp
   cassandra
   cassandra::install_from_release
   cassandra::autoconf
