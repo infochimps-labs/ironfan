@@ -30,8 +30,6 @@
 clusters = data_bag_item('cassandra', 'clusters') rescue nil
 return unless clusters
 
-Chef::Log.info("AUTHENTICATION DATABAG: #{clusters.inspect}")
-
 cluster = clusters[node[:cassandra][:cluster_name]]
 return unless cluster
 
