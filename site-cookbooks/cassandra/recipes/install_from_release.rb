@@ -24,14 +24,8 @@ bash 'install from tarball' do
   cd  #{cassandra_install_dir}
   mv                conf/storage-conf.xml conf/storage-conf.xml.orig
   ln -nfs /etc/cassandra/storage-conf.xml conf/storage-conf.xml
-  if [ -e build.xml ] ; then
-    ant ivy-retrieve
-    ant build
-  fi
-  chmod a+x bin/*
-  true
 EOF
-  not_if{ File.directory?("/usr/local/share/"+cassandra_install_dir) && (not Dir['/usr/local/share/apache-cassandra/build/apache-cassandra-*.jar'].blank?) }
+  not_if {File.directory?("/usr/local/share/#{cassandra_install_dir}")}
 end
 
 link "/usr/local/share/cassandra" do
