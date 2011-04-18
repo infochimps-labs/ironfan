@@ -67,7 +67,7 @@ data_file_directories:
 commitlog_directory: <%= conf[:commitlog_dir] %> #/var/lib/cassandra/commitlog
 
 # saved caches
-saved_caches_directory: /var/lib/cassandra/saved_caches
+saved_caches_directory: <%= conf[:saved_caches_dir] %> #/var/lib/cassandra/saved_caches
 
 # Size to allow commitlog to grow to before creating a new segment 
 commitlog_rotation_threshold_in_mb: <%= conf[:commitlog_rotation_threshold] %> #128
