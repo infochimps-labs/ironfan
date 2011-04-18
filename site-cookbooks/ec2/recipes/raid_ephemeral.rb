@@ -17,9 +17,10 @@
 ruby_block "remove_mnt_from_fstab" do
   block do
     lines = File.readlines("/etc/fstab")
-    f = File.open("/etc/fstab", "w")
-    lines.each do |l|
-      f << l unless l.include?("/mnt")
+    File.open("/etc/fstab", "w") do |f|
+      lines.each do |l|
+        f << l unless l.include?("/mnt")
+      end
     end
   end
   only_if {File.read("/etc/fstab").include?("/mnt")}
