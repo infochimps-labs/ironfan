@@ -38,6 +38,7 @@ default[:cassandra][:cassandra_conf]                = '/etc/cassandra'
 default[:cassandra][:cassandra_user]                = 'cassandra'
 default[:cassandra][:data_file_dirs]                = ["/data/db/cassandra"]
 default[:cassandra][:commitlog_dir]                 = "/mnt/cassandra/commitlog"
+default[:cassandra][:saved_caches_dir]              = "/var/lib/cassandra/saved_caches"
 default[:cassandra][:listen_addr]                   = "localhost"
 default[:cassandra][:storage_port]                  = 7000
 default[:cassandra][:rpc_addr]                      = "localhost"
