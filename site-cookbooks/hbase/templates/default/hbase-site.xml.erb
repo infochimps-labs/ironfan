@@ -113,5 +113,12 @@
     <name>hbase.tmp.dir</name>
     <value><%= node[:hbase][:tmp_dir] %>/hbase-\${user.name}</value>
   </property>
+
+<% if node[:hbase][:client_scanner_caching] %>
+<property>
+ <name>hbase.client.scanner.caching</Name>
+ <value><%= node[:hbase][:client_scanner_caching] %></value>
+</property>
+<% end %>
  
 </configuration>
