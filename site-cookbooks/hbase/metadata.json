@@ -1,29 +1,29 @@
 {
-  "recipes": {
-  },
-  "recommendations": {
+  "long_description": "= DESCRIPTION:\n\n= REQUIREMENTS:\n\n= ATTRIBUTES:\n\n= USAGE:\n\n",
+  "providing": {
   },
   "description": "Installs/Configures hbase",
-  "suggestions": {
+  "maintainer": "YOUR_COMPANY_NAME",
+  "replacing": {
   },
   "attributes": {
   },
-  "conflicting": {
+  "maintainer_email": "YOUR_EMAIL",
+  "recipes": {
+  },
+  "groupings": {
   },
   "dependencies": {
   },
-  "providing": {
+  "recommendations": {
   },
   "platforms": {
   },
-  "maintainer": "YOUR_COMPANY_NAME",
   "version": "0.0.1",
-  "replacing": {
+  "suggestions": {
   },
   "license": "All rights reserved",
   "name": "hbase",
-  "maintainer_email": "YOUR_EMAIL",
-  "groupings": {
-  },
-  "long_description": "= DESCRIPTION:\n\n= REQUIREMENTS:\n\n= ATTRIBUTES:\n\n= USAGE:\n\n"
+  "conflicting": {
+  }
 }

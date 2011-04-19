@@ -19,6 +19,36 @@
 
 package "hadoop-pig"
 
+#
+# Link hbase jars to $PIG_HOME/lib
+#
+node[:pig][:hbase_jars].each do |hbase_jar|
+  link "/usr/lib/pig/lib/#{hbase_jar}" do
+    to "/usr/lib/hbase/#{hbase_jar}"
+    action :create
+  end
+end
+
+#
+# Link zookeeper jars to $PIG_HOME/lib
+#
+node[:pig][:zookeeper_jars].each do |zoo_jar|
+  link "/usr/lib/pig/lib/#{zoo_jar}" do
+    to "/usr/lib/zookeeper/#{zoo_jar}"
+    action :create
+  end
+end
+
+
+#
+# Link hbase configuration to $PIG_HOME/conf
+#
+node[:pig][:hbase_configs].each do |xml_conf|
+  link "/usr/lib/pig/conf/#{xml_conf}" do
+    to "/etc/hbase/conf/#{xml_conf}"
+    action :create
+  end
+end
 
 # bash 'build piggybank' do
 #   user 'root'
