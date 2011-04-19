@@ -111,5 +111,22 @@
   </property>
 <% end %>
 
+  <property>
+    <name>flume.agent.logdir</name>
+    <value><%=@flume_data_dir%>/flume-${user.name}/agent</value>
+    <description> This is the directory that write-ahead logging data
+      or disk-failover data is collected from applications gets
+      written to. The agent watches this directory.
+    </description>
+  </property>
+
+  <property>
+    <name>flume.master.zk.logdir</name>
+    <value><%=@flume_data_dir%>/flume-${user.name}-zk</value>
+    <description>The base directory in which the ZBCS stores data.</description>
+  </property>
+
+
+
 </configuration>
 
