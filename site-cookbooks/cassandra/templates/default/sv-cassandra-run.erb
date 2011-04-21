@@ -47,6 +47,10 @@ exec chpst -u${CASSANDRA_USER} -e /etc/sv/cassandra/env -o 65535 \
 <%- if node[:cassandra][:access_properties] %>
       -Daccess.properties=<%= node[:cassandra][:access_properties] %>  \
 <%- end %>
+<%- if node[:cassandra][:enable_mx4j] %>
+      -Dmx4jaddress=<%= node[:cassandra][:mx4j_listen_addr] %>  \
+      -Dmx4jport=<%= node[:cassandra][:mx4j_listen_port] %>     \
+<%- end %>
 <%- if true %>
       -XX:+PrintGCTimeStamps                                    \
       -XX:+PrintTenuringDistribution                            \
