@@ -98,6 +98,12 @@ default[:cassandra][:git_revision]                  = 'cdd239dcf82ab52cb840e070f
 # JNA deb location
 default[:cassandra][:jna_deb_amd64_url] = "http://debian.riptano.com/maverick/pool/libjna-java_3.2.7-0~nmu.2_amd64.deb"
 
+# MX4J Location (Version 3.0.2)
+default[:cassandra][:mx4j_url] = "http://downloads.sourceforge.net/project/mx4j/MX4J%20Binary/3.0.2/mx4j-3.0.2.zip?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fmx4j%2Ffiles%2F&ts=1303407638&use_mirror=iweb"
+
+default[:cassandra][:mx4j_listen_addr] = "127.0.0.1"
+default[:cassandra][:mx4j_listen_port] = "8081"
+
 # see http://www.mail-archive.com/user@cassandra.apache.org/msg04447.html
 
 # if node[:ec2] && node[:ec2][:instance_type]
