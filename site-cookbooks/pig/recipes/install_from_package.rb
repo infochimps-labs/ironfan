@@ -50,6 +50,15 @@ node[:pig][:hbase_configs].each do |xml_conf|
   end
 end
 
+#
+# Pig configuration
+#
+template "/usr/lib/pig/conf/pig.properties" do
+  owner "root"
+  mode "0644"
+  source "pig.properties.erb"
+end
+
 # bash 'build piggybank' do
 #   user 'root'
 #   cwd  '/usr/local/share/pig/contrib/piggybank/java'
