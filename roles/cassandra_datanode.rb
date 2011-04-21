@@ -12,6 +12,7 @@ run_list *%w[
   cassandra::autoconf
   cassandra::server
   cassandra::jna_support
+  cassandra::mx4j
   ]
 
 # Attributes applied if the node doesn't have it set already.
