@@ -43,6 +43,14 @@ directory node[:zookeeper][:data_dir] do
   action     :create
   recursive  true
 end
+
+directory node[:zookeeper][:log_dir] do
+  owner      "zookeeper"
+  group      "zookeeper"
+  mode       "0644"
+  action     :create
+  recursive  true
+end
 #
 zookeeper_server_ips =  all_provider_private_ips("#{node[:zookeeper][:cluster_name]}-zookeeper").sort
 myid = zookeeper_server_ips.find_index( private_ip_of node )
@@ -52,7 +60,7 @@ template_variables = {
   :zookeeper_data_dir     => node[:zookeeper][:data_dir],
 }
 Chef::Log.debug template_variables.inspect
-%w[ zoo.cfg ].each do |conf_file|
+%w[ zoo.cfg log4j.properties].each do |conf_file|
   template "/etc/zookeeper/#{conf_file}" do
     owner "root"
     mode "0644"
