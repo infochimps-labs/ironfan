@@ -11,19 +11,19 @@
 #include_recipe "apt"
 
 
-early = execute "add cloudera key" do
-  command "curl -s http://archive.cloudera.com/debian/archive.key | sudo apt-key add -"
-  action :nothing
-end
-
-early.run_action(:run)
-
-apt_repository "cloudera" do
-  uri "http://archive.cloudera.com/debian"
-  distribution "maverick-cdh3" 
-  components ["contrib"]
-  action :add
-end
+#early = execute "add cloudera key" do
+#  command "curl -s http://archive.cloudera.com/debian/archive.key | sudo apt-k#ey add -"
+#  action :nothing
+#end
+#
+#early.run_action(:run)
+#
+#apt_repository "cloudera" do
+#  uri "http://archive.cloudera.com/debian"
+#  distribution "maverick-cdh3" 
+#  components ["contrib"]
+#  action :add
+#end
  
 package "flume"
 
