@@ -34,6 +34,14 @@ directory node[:zookeeper][:data_dir] do
   recursive  true
 end
 
+directory node[:zookeeper][:log_dir] do
+  owner      "zookeeper"
+  group      "zookeeper"
+  mode       "0755"
+  action     :create
+  recursive  true
+end
+
 # launch service
 service "hadoop-zookeeper-server" do
   action [ :enable, :start ]

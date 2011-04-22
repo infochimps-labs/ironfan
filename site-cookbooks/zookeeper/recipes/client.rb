@@ -31,8 +31,17 @@ template_variables = {
   :myid                   => myid,
   :zookeeper_data_dir     => node[:zookeeper][:data_dir],
 }
+
+directory node[:zookeeper][:log_dir] do
+  owner      "zookeeper"
+  group      "zookeeper"
+  mode       "0755"
+  action     :create
+  recursive  true
+end
+
 Chef::Log.debug template_variables.inspect
-%w[ zoo.cfg ].each do |conf_file|
+%w[ zoo.cfg log4j.properties ].each do |conf_file|
   template "/etc/zookeeper/#{conf_file}" do
     owner "root"
     mode "0644"
