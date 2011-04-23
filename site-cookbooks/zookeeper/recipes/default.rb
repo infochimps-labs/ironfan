@@ -39,7 +39,7 @@ package "hadoop-zookeeper"
 directory node[:zookeeper][:data_dir] do
   owner      "zookeeper"
   group      "zookeeper"
-  mode       "0644"
+  mode       "0755"
   action     :create
   recursive  true
 end
@@ -47,7 +47,7 @@ end
 directory node[:zookeeper][:log_dir] do
   owner      "zookeeper"
   group      "zookeeper"
-  mode       "0644"
+  mode       "0755"
   action     :create
   recursive  true
 end
@@ -58,6 +58,7 @@ template_variables = {
   :zookeeper_server_ips   => zookeeper_server_ips,
   :myid                   => myid,
   :zookeeper_data_dir     => node[:zookeeper][:data_dir],
+  :zookeeper_max_client_connections => node[:zookeeper][:max_client_connections],
 }
 Chef::Log.debug template_variables.inspect
 %w[ zoo.cfg log4j.properties].each do |conf_file|
