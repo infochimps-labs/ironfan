@@ -1,4 +1,4 @@
-<%- distro = @node[:lsb][:codename]  %>
+<%- distro = @node[:hadoop][:cloudera_codename] || @node[:lsb][:codename]  %>
 <%- repo = [ distro, @node[:hadoop][:cdh_version] ].compact.join('-') %>
 deb http://archive.cloudera.com/debian <%= repo %> contrib
 deb-src http://archive.cloudera.com/debian <%= repo %> contrib
