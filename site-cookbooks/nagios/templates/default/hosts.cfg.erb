@@ -6,10 +6,11 @@ define host {
   use server
   address <%= n['ipaddress'] %>
   host_name <%= n['node_name'] %>
-<% if n.run_list.roles.nil? -%>
+<% roles = ( n['roles'] || [] ) - ( n[:nagios][:hostgroups_exclude] || [] ) %>
+<% if roles.length == 0 -%>
   hostgroups all
 <% else -%>
-  hostgroups <%= n.run_list.roles.to_a.join(",") %>
+  hostgroups <%= roles.join(",") %>
 <% end -%>
 <% if cluster = n['cluster_name'] %>
   <% image = "#{cluster}.png" %>
