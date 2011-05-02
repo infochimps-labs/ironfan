@@ -14,7 +14,8 @@ echo "`date` Installing support gems"
 gem install --no-rdoc --no-ri broham uuidtools configliere right_aws
 
 echo "`date` Installing chef"
-gem install ohai chef --no-rdoc --no-ri --verbose <%= '--prerelease' if @config[:prerelease] %>
+#gem install ohai chef --no-rdoc --no-ri --verbose <%= '--prerelease' if @config[:prerelease] %>
+gem install chef --no-rdoc --no-ri --verbose --version "~> 0.9.0"
 
 echo "`date` Knifing in the chef client config files"
 mkdir -p /etc/chef
