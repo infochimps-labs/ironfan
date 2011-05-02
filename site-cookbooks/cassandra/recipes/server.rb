@@ -39,6 +39,10 @@ template "/etc/cassandra/log4j-server.properties" do
   notifies  :restart, resources(:service => "cassandra")
 end
 
-# have some fraction of the nodes register as a seed with cluster_service_discovery
-provide_service(node[:cassandra][:cluster_name] + '-cassandra-seed') if (node[:cluster_role_index].blank?) || (node[:cluster_role_index].to_i % 3 == 0)
+# have some fraction of the nodes register as a seed with
+# cluster_service_discovery
+if (node[:cluster_role_index].blank?) || (node[:cluster_role_index].to_i % 3 == 0) ||
+    node[:cassandra][:seed_node]
+  provide_service(node[:cassandra][:cluster_name] + '-cassandra-seed')
+end
 provide_service(node[:cassandra][:cluster_name] + '-cassandra')
