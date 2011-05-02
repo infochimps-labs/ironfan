@@ -13,6 +13,7 @@ run_list *%w[
   cassandra::server
   cassandra::jna_support
   cassandra::mx4j
+  cassandra::iptables
   ]
 
 # Attributes applied if the node doesn't have it set already.
