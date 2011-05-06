@@ -183,7 +183,7 @@ module ClusterChef
 
     # FIXME: a lot of AWS logic in here. This probably lives in the facet.cloud
     # but for the one or two things that come from the facet
-    def create_server
+    def create_server(idx)
       ClusterChef.connection.servers.create(
         :image_id          => cloud.image_id,
         :flavor_id         => cloud.flavor,
@@ -195,7 +195,7 @@ module ClusterChef
         # :block_device_mapping => [],
         # :disable_api_termination => disable_api_termination,
         # :instance_initiated_shutdown_behavior => instance_initiated_shutdown_behavior,
-        :availability_zone => cloud.availability_zones.first
+        :availability_zone => cloud.availability_zones[idx]
         )
     end
 

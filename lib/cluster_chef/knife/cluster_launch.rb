@@ -108,8 +108,8 @@ class Chef
         #
         # Launch server
         #
-        # servers = facet.list_servers.select{|s| s.state == "running" }
-        servers = (1..facet.instances).map{ facet.create_server }
+
+        servers = (0..(facet.instances - 1)).map {|i| facet.create_server(i) }
         server = servers.last
 
         config[:ssh_user]       = facet.cloud.ssh_user
