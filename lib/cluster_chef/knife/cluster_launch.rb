@@ -50,6 +50,10 @@ class Chef
         :description => "Full path to location of template to use when bootstrapping",
         :default => false
 
+      option :facet_index,
+        :long => "--facet-index INDEX",
+        :description => "Only boot a specific facet instance. This index provides the one to boot"
+
       def h
         @highline ||= HighLine.new
       end
@@ -100,6 +104,15 @@ class Chef
         facet = Chef::Config[:clusters][cluster_name].facet(facet_name)
         facet.resolve!
 
+        if config[:facet_index]
+          config[:facet_index] = config[:facet_index].to_i
+          if config[:facet_index] < 0 || config[:facet_index] >= facet.instances
+            puts "Invalid facet index: #{config[:facet_index]}"
+            exit 1
+          end
+        end
+
+
         #
         # Make security groups
         #
@@ -108,8 +121,11 @@ class Chef
         #
         # Launch server
         #
-
-        servers = (0..(facet.instances - 1)).map {|i| facet.create_server(i) }
+        if config[:facet_index]
+          servers = [facet.create_server(config[:facet_index])]
+        else
+          servers = (0..(facet.instances - 1)).map {|i| facet.create_server(i) }
+        end
         server = servers.last
 
         config[:ssh_user]       = facet.cloud.ssh_user
