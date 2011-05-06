@@ -1,3 +1,4 @@
+require 'clusters/defaults'
 
 ClusterChef.cluster 'democassandra' do
   merge!('defaults')

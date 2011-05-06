@@ -1,3 +1,5 @@
+require 'clusters/defaults'
+
 ClusterChef.cluster 'yellowhat_staging' do
   merge!('defaults')
   setup_role_implications

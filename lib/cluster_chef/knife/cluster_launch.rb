@@ -95,7 +95,6 @@ class Chef
         #
         cluster_name, facet_name = @name_args
         raise "Launch the cluster as: knife cluster launch CLUSTER_NAME FACET_NAME (options)" if facet_name.blank?
-        require File.expand_path(Chef::Config[:cluster_chef_path]+"/clusters/defaults")
         require File.expand_path(Chef::Config[:cluster_chef_path]+"/clusters/#{cluster_name}")
         facet = Chef::Config[:clusters][cluster_name].facet(facet_name)
         facet.resolve!
