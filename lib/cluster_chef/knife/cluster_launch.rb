@@ -29,7 +29,7 @@ class Chef
       attr_accessor :initial_sleep_delay
 
       option :dry_run,
-        :long => "--dry_run",
+        :long => "--dry-run",
         :description => "Don't really run, just use mock calls"
 
       option :bootstrap,
