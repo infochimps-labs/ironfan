@@ -36,7 +36,7 @@ template "/usr/lib/flume/conf/flume-site.xml" do
   source "flume-site.xml.erb"
   owner  "root"
   group  "flume"
-  mode   "0640"
+  mode   "0644"
   variables({
               :masters            => flume_masters.join(","),
               :plugin_classes     => flume_plugin_classes,
