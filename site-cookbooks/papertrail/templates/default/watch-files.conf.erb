@@ -3,12 +3,12 @@
 
 $ModLoad imfile
 
-<%- @watch_files.each do |wf| %>
+<%- @watch_files.each_with_index do |wf, idx| %>
 
 # File 1
 $InputFileName <%= wf[:filename] %>
 $InputFileTag <%= wf[:tag] %>
-$InputFileStateFile state_file_<%= rand 99999 %>
+$InputFileStateFile state_file_<%= idx %>
 #$InputFileSeverity error
 #$InputFileFacility local7
 $InputRunFileMonitor
