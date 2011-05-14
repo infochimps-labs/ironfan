@@ -19,4 +19,7 @@ clientPort=2181
 <%- @zookeeper_server_ips.each_with_index do |ip_address, idx| %>
 server.<%= idx %>=<%= ip_address %>:2888:3888
 <%- end %>
+
+maxClientCnxns=<%= @zookeeper_max_client_connections %>
+
 <%- end %>
