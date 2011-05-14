@@ -2,15 +2,9 @@ package "nfs-common"
 
 if node[:nfs] && node[:nfs][:mounts]
   node[:nfs][:mounts].each do |target, config|
-    directory target do
-      recursive true
-      owner (config[:owner]||'root')
-      group (config[:owner]||'root')
-    end
     mount target do
       fstype "nfs"
-      options %w(rw,soft,intr)
-      # options %w(rsize=32768,wsize=32768,bg,nfsvers=3,intr,tcp)
+      options %w(rw,soft,intr,nfsvers=3)
       device config[:device] ? config[:device] : "#{provider_private_ip('nfs_server')}:#{config[:remote_path]}"
       dump 0
       pass 0
@@ -23,3 +17,4 @@ if node[:nfs] && node[:nfs][:mounts]
 else
   Chef::Log.warn "You included the NFS client recipe without defining nfs mounts."
 end
+
