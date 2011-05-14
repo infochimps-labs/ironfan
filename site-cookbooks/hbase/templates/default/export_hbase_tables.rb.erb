@@ -8,7 +8,7 @@ tables_to_backup = %w[
 
 date=`date -u +%Y%m%d`.chomp
 
-export_dir = "#{@backup_dir}/#{date}"
+export_dir = "#{@backup_location}/#{date}"
 hadoop_classpath="HADOOP_CLASSPATH=/usr/lib/hbase/hbase.jar:/usr/lib/zookeeper/zookeeper.jar:/usr/lib/hbase/lib/guava-r05.jar:/usr/lib/hbase/conf"
 
 tables_to_backup.each do |table|

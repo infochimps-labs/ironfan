@@ -27,3 +27,4 @@ default[:flume][:classpath] = []
 default[:flume][:java_opts] = []
 
 default[:flume][:collector] = {}
+default[:flume][:data_dir] = "/data/db/flume"

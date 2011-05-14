@@ -7,6 +7,24 @@
 # All rights reserved - Do Not Redistribute
 #
 
+
+#include_recipe "apt"
+
+
+#early = execute "add cloudera key" do
+#  command "curl -s http://archive.cloudera.com/debian/archive.key | sudo apt-k#ey add -"
+#  action :nothing
+#end
+#
+#early.run_action(:run)
+#
+#apt_repository "cloudera" do
+#  uri "http://archive.cloudera.com/debian"
+#  distribution "maverick-cdh3" 
+#  components ["contrib"]
+#  action :add
+#end
+ 
 package "flume"
 
 
@@ -14,11 +32,11 @@ class Chef::Resource::Template
  include FlumeCluster
 end
 
-template "/etc/flume/conf/flume-site.xml" do
+template "/usr/lib/flume/conf/flume-site.xml" do
   source "flume-site.xml.erb"
   owner  "root"
   group  "flume"
-  mode   "0640"
+  mode   "0644"
   variables({
               :masters            => flume_masters.join(","),
               :plugin_classes     => flume_plugin_classes,
@@ -30,7 +48,8 @@ template "/etc/flume/conf/flume-site.xml" do
               :aws_secret_key     => node[:flume][:aws_secret_key],
               :collector_output_format =>
                                      node[:flume][:collector][:output_format],
-              :collector_gzip     => node[:flume][:collector][:gzip],
+              :collector_codec     => node[:flume][:collector][:codec],
+              :flume_data_dir      => node[:flume][:data_dir]
             })
 end
 
@@ -54,4 +73,9 @@ end
 
 directory "/usr/lib/flume/plugins" do
   owner "flume"
+end
+
+directory node[:flume][:data_dir] do
+  owner "flume"
+  recursive true
 end
