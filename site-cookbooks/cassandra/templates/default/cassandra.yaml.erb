@@ -417,4 +417,4 @@ index_interval: 128
 # /NOTE
 
 keyspaces:
-    <%= JSON.load(conf[:keyspaces].to_json).to_yaml.split(/\n/)[1..-1].join("\n    ") %>
+    <%= JSON.load(conf[:keyspaces].to_json).to_yaml.split(/\n/)[1..-1].join("\n    ") rescue "" %>
