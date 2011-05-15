@@ -4,16 +4,6 @@ REMOTE_FILE_URL_BASE="http://github.com/infochimps/cluster_chef/raw/version_2/co
 eval `cat /etc/lsb-release `
 export DEBIAN_FRONTEND=noninteractive
 
-egrep "^model.* E5507" /proc/cpuinfo
-if [ $? -eq 0 ]; then
-   echo
-   echo "ERROR: DETECTED E5507 CPU!"
-   echo "Aborting due to bad CPU"
-   echo "ERROR"
-   echo
-   exit 1
-fi
-
 apt-get update
 
 echo "`date` Installing base packages"
