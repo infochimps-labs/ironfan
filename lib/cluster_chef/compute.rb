@@ -121,7 +121,7 @@ module ClusterChef
       super(clname)
       @facets = {}
       chef_attributes  :cluster_name => clname
-      cluster_role clname
+      cluster_role "#{clname}_cluster"
     end
 
     def facet facet_name, &block
