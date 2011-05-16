@@ -68,12 +68,6 @@ Chef::Log.debug template_variables.inspect
   end
 end
 
-
-link "/etc/hadoop/conf/hbase-site.xml" do
-  to "/etc/hbase/conf/hbase-site.xml"
-  only_if{ File.directory?("/etc/hadoop/conf") }
-end
-
 # Stuff the HBase jars into the classpath
 node[:hadoop][:extra_classpaths][:hbase] = '/usr/lib/hbase/hbase.jar:/usr/lib/hbase/lib/zookeeper.jar:/usr/lib/hbase/conf' if node[:hadoop] and node[:hadoop_extra_classpaths]
 node.save

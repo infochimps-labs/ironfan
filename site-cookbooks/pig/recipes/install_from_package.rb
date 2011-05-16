@@ -41,16 +41,6 @@ end
 
 
 #
-# Link hbase configuration to $PIG_HOME/conf
-#
-node[:pig][:hbase_configs].each do |xml_conf|
-  link "/usr/lib/pig/conf/#{xml_conf}" do
-    to "/etc/hbase/conf/#{xml_conf}"
-    action :create
-  end
-end
-
-#
 # Pig configuration
 #
 template "/usr/lib/pig/conf/pig.properties" do
