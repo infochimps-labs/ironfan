@@ -1,3 +1,5 @@
+require 'clusters/defaults'
+
 ClusterChef.cluster 'bonobo' do
   merge!('defaults')
   setup_role_implications

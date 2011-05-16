@@ -7,6 +7,7 @@
 # FIXME: should we autogenerate the "foo_cluster" and "foo_bar_facet" roles,
 #        and dispatch those to the chef server?
 # FIXME: EBS volumes?
+require 'clusters/defaults'
 
 ClusterChef.cluster 'demohadoop' do
   merge!('defaults')
