@@ -118,7 +118,7 @@ index:
       # segments. Defaults to unbounded
       # max_merge_docs
     scheduler:
-      max_thread_count:         64
+      max_thread_count:         <%= @node[:elasticsearch][:max_thread_count] %>
   # deletionpolicy:             keep_only_last
 
   # How often to schedule the refresh operation (the same one the Refresh

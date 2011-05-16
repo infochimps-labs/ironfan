@@ -16,9 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# seeds = search(:node, "elasticsearch_cluster_name:#{node[:elasticsearch][:cluster_name]} AND elasticsearch_seed:true").sort_by { |n| n.name }.map{|n| n["ipaddress"].to_s + '[9300-9400]' }
-# node[:elasticsearch][:seeds] = seeds
-
 #
 # ensure ephemeral drives are mounted
 #
