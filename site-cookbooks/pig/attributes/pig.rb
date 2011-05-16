@@ -6,3 +6,4 @@ default[:pig][:zookeeper_jars]    = ["zookeeper.jar"]
 default[:pig][:hbase_jars]        = ["hbase-0.90.1-cdh3u0.jar", "hbase-0.90.1-cdh3u0-tests.jar"]
 default[:pig][:hbase_configs]     = ["hbase-default.xml", "hbase-site.xml"]
 default[:pig][:combine_splits]    = "false"
+default[:pig][:hbase_conf_dir]    = "fheujahgfyu"

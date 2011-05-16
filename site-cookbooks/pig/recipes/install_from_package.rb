@@ -41,7 +41,16 @@ end
 
 
 #
-# Pig configuration
+# Pig configuration, by default HBASE_CONF_DIR is set to garbage
+#
+template "/usr/lib/pig/conf/pig-env.sh" do
+  owner "root"
+  mode "0644"
+  source "pig-env.sh.erb"
+end
+
+#
+# Pig hbase stuff
 #
 template "/usr/lib/pig/conf/pig.properties" do
   owner "root"
