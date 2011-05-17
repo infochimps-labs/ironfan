@@ -35,8 +35,8 @@ bash "install_thrift" do
   user "root"
   cwd "/tmp"
   code <<-EOH
-    svn co #{node[:thrift][:repo_url]} thrift
-    cd thrift/trunk;
+    svn co #{node[:thrift][:repo_url]}/#{node[:thrift][:repo_rel]} thrift
+    cd thrift;
     cp /usr/share/aclocal/pkg.m4 ./aclocal
     sh bootstrap.sh
     ./configure --with-boost=/usr/local --with-libevent=/usr/local --prefix=/usr/local --with-erlang=no

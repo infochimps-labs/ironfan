@@ -9,12 +9,13 @@ apt-get update
 echo "`date` Installing base packages"
 apt-get install -y ruby ruby1.8-dev build-essential wget libruby-extras libruby1.8-extras runit runit-services
 echo "`date` Unchaining rubygems from the tyrrany of ubuntu"  
-gem install --no-rdoc --no-ri rubygems-update --version=1.3.7; /var/lib/gems/1.8/bin/update_rubygems ; gem update --no-rdoc --no-ri --system ; gem --version
+gem install --no-rdoc --no-ri rubygems-update --version=1.3.7; /var/lib/gems/1.8/bin/update_rubygems ; gem update --no-rdoc --no-ri --system 1.6.2; gem --version
 echo "`date` Installing support gems"  
 gem install --no-rdoc --no-ri broham uuidtools configliere right_aws
 
 echo "`date` Installing chef"
-gem install ohai chef --no-rdoc --no-ri --verbose <%= '--prerelease' if @config[:prerelease] %>
+#gem install ohai chef --no-rdoc --no-ri --verbose <%= '--prerelease' if @config[:prerelease] %>
+gem install chef --no-rdoc --no-ri --verbose --version "~> 0.9.0"
 
 echo "`date` Knifing in the chef client config files"
 mkdir -p /etc/chef
@@ -51,14 +52,17 @@ cat <<'EOP'
 EOP
 ) > /etc/chef/first-boot.json
 
-echo "`date` First run of chef"
-/usr/bin/chef-client -j /etc/chef/first-boot.json
+#echo "`date` First run of chef"
+#/usr/bin/chef-client -j /etc/chef/first-boot.json
 
 echo "`date` Cleanup"  
 updatedb
 
 echo "`date` Enabling chef client service" 
 ln -s   /etc/sv/chef-client /etc/service/chef-client
+
+echo "`date` Starting chef-client"
+service chef-client start
 
 echo "`date` Cluster Chef client bootstrap complete."  
 '

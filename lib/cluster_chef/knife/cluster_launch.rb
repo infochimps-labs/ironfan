@@ -29,7 +29,7 @@ class Chef
       attr_accessor :initial_sleep_delay
 
       option :dry_run,
-        :long => "--dry_run",
+        :long => "--dry-run",
         :description => "Don't really run, just use mock calls"
 
       option :bootstrap,
@@ -135,7 +135,7 @@ class Chef
           puts("\n")
           #
           puts "#{h.color("Public DNS Name    ", :cyan)}: #{server.dns_name}"
-          puts "#{h.color("Public IP Address  ", :cyan)}: #{server.ip_address}"
+          puts "#{h.color("Public IP Address  ", :cyan)}: #{server.public_ip_address}"
           puts "#{h.color("Private DNS Name   ", :cyan)}: #{server.private_dns_name}"
           puts "#{h.color("Private IP Address ", :cyan)}: #{server.private_ip_address}"
           print "\n#{h.color("Waiting for sshd ", :magenta)}"
@@ -163,7 +163,7 @@ class Chef
           puts "#{h.color("Security Groups    ", :cyan)}: #{server.groups.join(", ")}"
           puts "#{h.color("SSH Key            ", :cyan)}: #{server.key_name}"
           puts "#{h.color("Public DNS Name    ", :cyan)}: #{server.dns_name}"
-          puts "#{h.color("Public IP Address  ", :cyan)}: #{server.ip_address}"
+          puts "#{h.color("Public IP Address  ", :cyan)}: #{server.public_ip_address}"
           puts "#{h.color("Private DNS Name   ", :cyan)}: #{server.private_dns_name}"
           puts "#{h.color("Private IP Address ", :cyan)}: #{server.private_ip_address}"
           puts "#{h.color("Run List           ", :cyan)}: #{facet.run_list.join(', ')}"

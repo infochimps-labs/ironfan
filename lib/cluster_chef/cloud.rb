@@ -17,7 +17,7 @@ module ClusterChef
       # The directory holding
       def ssh_identity_dir val=nil
         set :ssh_identity_dir, File.expand_path(val) unless val.nil?
-        @settings.include?(:ssh_identity_dir) ? @settings[:ssh_identity_dir] : File.expand_path('~/.chef/keypairs')
+        @settings.include?(:ssh_identity_dir) ? @settings[:ssh_identity_dir] : Chef::Config.keypair_path
       end
 
       # The SSH identity file used for authentication

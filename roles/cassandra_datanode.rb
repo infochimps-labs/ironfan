@@ -6,11 +6,14 @@ run_list *%w[
   runit
   boost
   thrift
+  ntp
   cassandra
   cassandra::install_from_release
   cassandra::autoconf
   cassandra::server
   cassandra::jna_support
+  cassandra::mx4j
+  cassandra::iptables
   ]
 
 # Attributes applied if the node doesn't have it set already.

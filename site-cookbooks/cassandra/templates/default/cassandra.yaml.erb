@@ -44,7 +44,7 @@ hinted_handoff_throttle_delay_in_ms: <%= conf[:hinted_handoff_throttle_delay_in_
 authenticator: <%=conf[:authenticator] %>  #org.apache.cassandra.auth.AllowAllAuthenticator
 
 # authorization backend, implementing IAuthority; used to limit access/provide permissions
-authority: org.apache.cassandra.auth.AllowAllAuthority
+authority: <%= conf[:authority] %>  #org.apache.cassandra.auth.AllowAllAuthority
 
 # any IPartitioner may be used, including your own as long as it is on
 # the classpath.  Out of the box, Cassandra provides
@@ -67,7 +67,7 @@ data_file_directories:
 commitlog_directory: <%= conf[:commitlog_dir] %> #/var/lib/cassandra/commitlog
 
 # saved caches
-saved_caches_directory: /var/lib/cassandra/saved_caches
+saved_caches_directory: <%= conf[:saved_caches_dir] %> #/var/lib/cassandra/saved_caches
 
 # Size to allow commitlog to grow to before creating a new segment 
 commitlog_rotation_threshold_in_mb: <%= conf[:commitlog_rotation_threshold] %> #128

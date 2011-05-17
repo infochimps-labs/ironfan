@@ -115,10 +115,13 @@ module ClusterChef
   #
   class Cluster < ClusterChef::ComputeBuilder
     attr_reader :facets
+    has_keys :cluster_role
+    
     def initialize clname
       super(clname)
       @facets = {}
       chef_attributes  :cluster_name => clname
+      cluster_role "#{clname}_cluster"
     end
 
     def facet facet_name, &block
@@ -152,7 +155,7 @@ module ClusterChef
 
   class Facet < ClusterChef::ComputeBuilder
     attr_reader :cluster,:servers
-    has_keys  :instances
+    has_keys  :instances, :facet_role
 
     def initialize cluster, facet_name
       super(facet_name)
@@ -160,15 +163,9 @@ module ClusterChef
       @servers = {}
       chef_attributes :cluster_role       => facet_name # backwards compatibility
       chef_attributes :facet_name         => facet_name
-      role             "#{@cluster.name}_cluster"
-      role             "#{@cluster.name}_#{facet_name}"
 
-#      unless facet_index.blank?
-#        chef_node_name "#{@cluster.name}-#{facet_name}-#{facet_index}"
-#        chef_attributes :node_name          => chef_node_name
-#        chef_attributes :cluster_role_index => facet_index # backwards compatibility
-#        chef_attributes :facet_index        => facet_index
-#      end
+      facet_role      "#{@cluster.name}_#{facet_name}"
+
     end
 
     def cluster_name
@@ -185,6 +182,10 @@ module ClusterChef
       cloud.keypair           clname unless cloud.keypair
       cloud.security_group    clname do authorize_group clname end
       cloud.security_group "#{clname}-#{self.name}"
+      
+      role cluster.cluster_role if cluster.cluster_role
+      role self.facet_role if self.facet_role
+      
       @settings[:run_list]        = @cluster.run_list + self.run_list
       @settings[:chef_attributes] = @cluster.chef_attributes.merge(self.chef_attributes)
       chef_attributes :run_list => run_list

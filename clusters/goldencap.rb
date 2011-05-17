@@ -9,6 +9,7 @@ ClusterChef.cluster 'goldencap' do
   role                  "mounts_ebs_volumes"
   role                  "benchmarkable"
   role                  "big_package"
+
   cloud do
     backing             "ebs"
     image_name          "infochimps-maverick-client"
@@ -17,12 +18,12 @@ ClusterChef.cluster 'goldencap' do
 
   facet 'twstream' do
     instances           1
-    cloud.flavor        "t1.micro"
+    cloud.flavor        "m1.small"
   end
 
   facet 'twscraper' do
     instances           1
-    cloud.flavor        "t1.micro"
+    cloud.flavor        "m1.small"
   end
 
   facet 'nikko' do

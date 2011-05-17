@@ -18,3 +18,4 @@
 #
 
 default[:thrift][:repo_url] = 'http://svn.apache.org/repos/asf/thrift'
+default[:thrift][:repo_rel] = 'branches/0.6.x'
