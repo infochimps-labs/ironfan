@@ -39,7 +39,7 @@ module ClusterChef
     # FIXME: needs to be a deep_merge
     def chef_attributes hsh={}
       # The DSL attribute for 'chef_attributes' merges not overwrites
-      @settings[:chef_attributes].merge! hsh unless hsh.blank?
+      @settings[:chef_attributes].merge! hsh unless hsh.empty? 
       @settings[:chef_attributes]
     end
 
@@ -139,25 +139,36 @@ module ClusterChef
       cloud.merge! other_cluster.cloud
       self
     end
+
+    def resolve!
+      @facets.values.each { |f| f.resolve! }
+    end
+
+    def servers
+      @facets.values.map {|facet| facet.servers.values }.flatten
+    end
+
   end
 
   class Facet < ClusterChef::ComputeBuilder
-    attr_reader :cluster
-    has_keys :chef_node_name, :instances, :facet_index
+    attr_reader :cluster,:servers
+    has_keys  :instances
 
     def initialize cluster, facet_name
       super(facet_name)
       @cluster = cluster
+      @servers = {}
       chef_attributes :cluster_role       => facet_name # backwards compatibility
       chef_attributes :facet_name         => facet_name
       role             "#{@cluster.name}_cluster"
       role             "#{@cluster.name}_#{facet_name}"
-      unless facet_index.blank?
-        chef_node_name "#{@cluster.name}-#{facet_name}-#{facet_index}"
-        chef_attributes :node_name          => chef_node_name
-        chef_attributes :cluster_role_index => facet_index # backwards compatibility
-        chef_attributes :facet_index        => facet_index
-      end
+
+#      unless facet_index.blank?
+#        chef_node_name "#{@cluster.name}-#{facet_name}-#{facet_index}"
+#        chef_attributes :node_name          => chef_node_name
+#        chef_attributes :cluster_role_index => facet_index # backwards compatibility
+#        chef_attributes :facet_index        => facet_index
+#      end
     end
 
     def cluster_name
@@ -171,11 +182,83 @@ module ClusterChef
       clname = @cluster.name
       @settings    = @cluster.to_hash.merge @settings
       cloud.resolve!          @cluster.cloud
-      cloud.keypair           clname if cloud.keypair.blank?
+      cloud.keypair           clname unless cloud.keypair
       cloud.security_group    clname do authorize_group clname end
       cloud.security_group "#{clname}-#{self.name}"
       @settings[:run_list]        = @cluster.run_list + self.run_list
       @settings[:chef_attributes] = @cluster.chef_attributes.merge(self.chef_attributes)
+      chef_attributes :run_list => run_list
+      chef_attributes :aws => { :access_key => Chef::Config[:knife][:aws_access_key_id], :secret_access_key => Chef::Config[:knife][:aws_secret_access_key],}
+      resolve_servers!
+      self
+
+      # Generate server definitions if they have not already been created
+      
+    end
+
+    def to_hash_with_cloud
+      to_hash.merge({ :cloud => cloud.to_hash, })
+    end
+
+    def resolve_servers!
+      # Create facets not explicitly defined
+      instances.times do |facet_index| 
+        server facet_index unless @servers[facet_index]
+      end
+      servers.each do |s|
+        s.resolve!
+      end
+    end
+
+    def server facet_index, &block
+      @servers[facet_index] ||= ClusterChef::Server.new(self, facet_index)
+      @servers[facet_index].instance_eval(&block) if block
+      @servers[facet_index]
+    end
+
+  end
+
+
+  class Server < ClusterChef::ComputeBuilder
+    attr_reader :cluster, :facet, :facet_index
+    has_keys :chef_node_name, :instances
+
+    def initialize facet, index
+      node_name = facet.get_node_name( index )
+      super(node_name)
+      @facet = facet
+      @cluster = facet.cluster
+      
+      chef_attributes :cluster_role       => facet_name # backwards compatibility
+      chef_attributes :facet_name         => facet_name
+      role             "#{@cluster.name}_cluster"
+      role             "#{@cluster.name}_#{facet_name}"
+      
+      chef_node_name = node_name
+      chef_attributes :node_name => node_name
+      chef_attributes :cluster_role_index => index
+      chef_attributes :facet_index => index
+    end
+
+    def cluster_name
+      cluster.name
+    end
+
+    #
+    # Resolve:
+    #
+    def resolve!
+      clname = @cluster.name
+      facetname = @facet.name
+      
+      @settings    = @facet.to_hash.merge @settings
+
+      cloud.resolve!          @cluster.cloud
+      cloud.keypair           clname unless cloud.keypair
+      cloud.security_group    clname do authorize_group clname end
+      cloud.security_group "#{clname}-#{self.name}"
+      @settings[:run_list]        = @facet.run_list + self.run_list
+      @settings[:chef_attributes] = @facet.chef_attributes.merge(self.chef_attributes)
       chef_attributes :run_list => run_list
       chef_attributes :aws => { :access_key => Chef::Config[:knife][:aws_access_key_id], :secret_access_key => Chef::Config[:knife][:aws_secret_access_key],}
       self

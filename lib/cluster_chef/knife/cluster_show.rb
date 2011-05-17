@@ -24,7 +24,7 @@ class Chef
   class Knife
     class ClusterShow < Knife
 
-      banner "knife cluster show CLUSTER_NAME FACET_NAME (options)"
+      banner "knife cluster show CLUSTER_NAME FACET_NAME INDEX (options)"
 
       attr_accessor :initial_sleep_delay
 
@@ -56,17 +56,34 @@ class Chef
         #
         # Load the facet
         #
-        cluster_name, facet_name = @name_args
+        cluster_name, facet_name, index = @name_args
         require Chef::Config[:cluster_chef_path]+"/clusters/#{cluster_name}"
-        facet = Chef::Config[:clusters][cluster_name].facet(facet_name)
-        facet.resolve!
+       
+        cluster = Chef::Config[:clusters][cluster_name]
+        facet = cluster.facet(facet_name) if facet_name
 
-        #
-        # Launch server
-        #
-        servers = facet.list_servers.select{|s| s.state == "running" }
-        p ClusterChef.cluster_facets
+        servers = []
+
+        if facet
+          facet.resolve!
+          
+          if index
+            servers = [ facet.servers[index] ]
+          else
+            servers = facet.servers.values
+          end
+        else
+          cluster.resolve!
+          servers = cluster.servers
+        end
         
+        #
+        # Display server info
+        #
+        servers.each do |s|
+          p s
+        end
+
       end
 
     end

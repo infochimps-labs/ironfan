@@ -65,7 +65,7 @@ module ClusterChef
       end
 
       def group_permission_already_set? group, authed_group, authed_owner
-        return false if group.ip_permissions.blank?
+        return false if group.ip_permissions.nil? || group.ip_permissions.empty?
         group.ip_permissions.any? do |existing_permission|
           existing_permission["groups"].include?({"userId"=>authed_owner, "groupName"=>authed_group}) &&
             existing_permission["fromPort"] == 1 &&
@@ -74,7 +74,7 @@ module ClusterChef
       end
 
       def range_permission_already_set? group, range, cidr_ip, ip_protocol
-        return false if group.ip_permissions.blank?
+        return false if group.ip_permissions.nil? || group.ip_permissions.empty?
         group.ip_permissions.include?({"groups"=>[], "ipRanges"=>[{"cidrIp"=>cidr_ip}], "ipProtocol"=>ip_protocol, "fromPort"=>range.first, "toPort"=>range.last})
       end
 

@@ -41,7 +41,7 @@ module ClusterChef
       def from_setting_or_image_info key, val=nil, default=nil
         @settings[key] = val unless val.nil?
         return @settings[key]  if @settings.include?(key)
-        return image_info[key] unless image_info.blank?
+        return image_info[key] if image_info && image_info.includes?(key)
         return default       # otherwise
       end
     end
@@ -101,7 +101,7 @@ module ClusterChef
       # FIXME: use a deep merge
       def user_data hsh={}
         @settings[:user_data] ||= {}
-        if hsh.blank?
+        if hsh.empty?
           @settings[:user_data].merge({
               :chef_server            => Chef::Config.chef_server_url,
               :validation_client_name => Chef::Config.validation_client_name,
@@ -127,7 +127,8 @@ module ClusterChef
       end
 
       def resolve_region!
-        region availability_zones.first.gsub(/^(\w+-\w+-\d)[a-z]/, '\1') if region.blank? && !availability_zones.blank?
+        return unless availabiltiy_zones
+        region availability_zones.first.gsub(/^(\w+-\w+-\d)[a-z]/, '\1') if !region || (region.empty? && availability_zones && !availability_zones.empty?)
       end
 
       def resolve_block_device_mapping!
