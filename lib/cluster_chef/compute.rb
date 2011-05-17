@@ -131,6 +131,14 @@ module ClusterChef
       self.name
     end
 
+    def use *clusters
+      clusters.each do |cluster|
+        cluster = cluster.to_s
+        require "clusters/#{cluster}"
+        merge! cluster
+      end
+    end
+    
     def merge! other_cluster
       if(other_cluster.is_a?(String)) then other_cluster = ClusterChef.cluster(other_cluster) end
       @settings = other_cluster.to_hash.merge @settings

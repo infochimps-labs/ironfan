@@ -112,7 +112,7 @@ module ClusterChef
           user_data
         end
       end
-
+      
       def merge! cloud
         @settings = cloud.to_hash.merge @settings
         @settings[:security_groups] = cloud.security_groups.merge(self.security_groups)

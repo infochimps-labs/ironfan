@@ -1,7 +1,5 @@
-require 'clusters/defaults'
-
 ClusterChef.cluster 'yellowhat' do
-  merge!('defaults')
+  use :defaults
   setup_role_implications
 
   recipe                "hadoop_cluster::system_internals"

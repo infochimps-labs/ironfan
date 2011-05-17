@@ -1,7 +1,5 @@
-require 'clusters/defaults'
-
 ClusterChef.cluster 'demohbase' do
-  merge!('defaults')
+  use :defaults
   setup_role_implications
 
   recipe                "cluster_chef::dedicated_server_tuning"
