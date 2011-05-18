@@ -39,7 +39,7 @@ module ClusterChef
     # FIXME: needs to be a deep_merge
     def chef_attributes hsh={}
       # The DSL attribute for 'chef_attributes' merges not overwrites
-      @settings[:chef_attributes].merge! hsh unless hsh.blank?
+      @settings[:chef_attributes].merge! hsh unless hsh.empty? #.blank?
       @settings[:chef_attributes]
     end
 
@@ -155,7 +155,7 @@ module ClusterChef
       chef_attributes :facet_name         => facet_name
       facet_role      "#{@cluster.name}_#{facet_name}"
 
-      unless facet_index.blank?
+      unless facet_index.nil? #.blank?
         chef_node_name "#{@cluster.name}-#{facet_name}-#{facet_index}"
         chef_attributes :node_name          => chef_node_name
         chef_attributes :cluster_role_index => facet_index # backwards compatibility
@@ -174,7 +174,7 @@ module ClusterChef
       clname = @cluster.name
       @settings    = @cluster.to_hash.merge @settings
       cloud.resolve!          @cluster.cloud
-      cloud.keypair           clname if cloud.keypair.blank?
+      cloud.keypair           clname if cloud.keypair.nil? #.blank?
       cloud.security_group    clname do authorize_group clname end
       cloud.security_group "#{clname}-#{self.name}"
       

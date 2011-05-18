@@ -63,7 +63,7 @@ class Chef
         # Load the facet
         #
         cluster_name, facet_name, server_name = @name_args
-        raise "Bootstrap a node with: knife cluster bootstrap CLUSTER_NAME FACET_NAME SERVER_FQDN (options)" if facet_name.blank?
+        raise "Bootstrap a node with: knife cluster bootstrap CLUSTER_NAME FACET_NAME SERVER_FQDN (options)" if facet_name.nil? #.blank?
         require File.expand_path(Chef::Config[:cluster_chef_path]+"/clusters/defaults")
         require File.expand_path(Chef::Config[:cluster_chef_path]+"/clusters/#{cluster_name}")
         facet = Chef::Config[:clusters][cluster_name].facet(facet_name)
