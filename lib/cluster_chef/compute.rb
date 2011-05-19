@@ -286,7 +286,8 @@ module ClusterChef
       end
     end
 
-    def server facet_index, &block
+    def server index, &block
+      facet_index = index.to_s
       @servers[facet_index] ||= ClusterChef::Server.new(self, facet_index)
       @servers[facet_index].instance_eval(&block) if block
       @servers[facet_index]
@@ -302,14 +303,15 @@ module ClusterChef
   class Server < ClusterChef::ComputeBuilder
     attr_reader :cluster, :facet, :facet_index
     attr_accessor :chef_node, :fog_server
-    has_keys :chef_node_name, :instances
+    has_keys :chef_node_name, :instances, :facet_name
 
     def initialize facet, index
       super facet.get_node_name( index )
       @facet_index = index
       @facet = facet
       @cluster = facet.cluster
-      facet_name = @facet.facet_name
+   
+      @settings[:facet_name] = @facet.facet_name
       
       @settings[:chef_node_name] = name
       chef_attributes :node_name => name
@@ -319,9 +321,6 @@ module ClusterChef
 
     def cluster_name
       cluster.name
-    end
-    def facet_name
-      facet.name
     end
 
     #
