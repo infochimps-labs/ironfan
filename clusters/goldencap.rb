@@ -14,6 +14,7 @@ ClusterChef.cluster 'goldencap' do
     backing             "ebs"
     image_name          "infochimps-maverick-client"
     user_data           :get_name_from => 'broham'
+    region "us-east"
   end
 
   facet 'twstream' do
