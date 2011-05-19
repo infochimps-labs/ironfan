@@ -134,6 +134,13 @@ module ClusterChef
       self.name
     end
 
+    def use other_cluster_name
+      ClusterChef.load_cluster(other_cluster_name)
+      merge! other_cluster_name
+      self
+    end
+
+
     def merge! other_cluster
       if(other_cluster.is_a?(String)) then other_cluster = ClusterChef.cluster(other_cluster) end
       @settings = other_cluster.to_hash.merge @settings
@@ -149,7 +156,7 @@ module ClusterChef
     end
 
     def servers
-      @facets.values.map {|facet| facet.servers.values }.flatten
+      @facets.values.map {|facet| facet.servers }.flatten
     end
 
     def cluster_group
@@ -157,7 +164,7 @@ module ClusterChef
     end
 
     def fog_servers
-      @fog_servers ||= ClusterChef.servers.select {|s| s.groups.index( cluster_group ) }
+      @fog_servers ||= ClusterChef.servers.select {|s| s.groups.index( cluster_group ) && s.state != "terminated" }
     end
 
     def chef_nodes
@@ -221,10 +228,12 @@ module ClusterChef
         end
       end
     end
+
+
   end
 
   class Facet < ClusterChef::ComputeBuilder
-    attr_reader :cluster,:servers, :facet_name
+    attr_reader :cluster, :facet_name
     has_keys  :instances, :facet_role
 
     def initialize cluster, fct_name
@@ -236,6 +245,10 @@ module ClusterChef
       chef_attributes :facet_name         => facet_name
 
       facet_role      "#{@cluster.name}_#{facet_name}"
+    end
+
+    def servers
+      @servers.values
     end
 
     def get_node_name index
@@ -255,7 +268,7 @@ module ClusterChef
       cloud.resolve!          @cluster.cloud
       cloud.keypair           clname if cloud.keypair.nil? #.blank?
       cloud.security_group    clname do authorize_group clname end
-      cloud.security_group "#{clname}-#{self.name}"
+      cloud.security_group    "#{clname}-#{facet_name}"
       
       role cluster.cluster_role if cluster.cluster_role
       role self.facet_role if self.facet_role
@@ -281,7 +294,8 @@ module ClusterChef
 
         server facet_index unless @servers[facet_index]
       end
-      servers.values.each do |s|
+
+      servers.each do |s|
         s.resolve!
       end
     end
@@ -332,19 +346,22 @@ module ClusterChef
       
       @settings    = @facet.to_hash.merge @settings
 
-      cloud.resolve!          @cluster.cloud
-      cloud.keypair           clname unless cloud.keypair
-      cloud.security_group    clname do authorize_group clname end
-      cloud.security_group "#{clname}-#{self.name}"
+      cloud.resolve!          @facet.cloud
+      #cloud.keypair           clname unless cloud.keypair
+      #cloud.security_group    clname do authorize_group clname end
+      #cloud.security_group "#{clname}-#{self.name}"
+
       @settings[:run_list]        = @facet.run_list + self.run_list
       @settings[:chef_attributes] = @facet.chef_attributes.merge(self.chef_attributes)
+
       chef_attributes :run_list => run_list
       chef_attributes :aws => { :access_key => Chef::Config[:knife][:aws_access_key_id], :secret_access_key => Chef::Config[:knife][:aws_secret_access_key],}
       chef_attributes :cluster_chef => { 
-        :name => cluster_name,
+        :cluster => cluster_name,
         :facet => facet_name,
         :index => facet_index,
       }
+      chef_attributes :node_name => chef_node_name
 
       self
     end
@@ -352,7 +369,10 @@ module ClusterChef
     # FIXME: a lot of AWS logic in here. This probably lives in the facet.cloud
     # but for the one or two things that come from the facet
     def create_server
-      ClusterChef.connection.servers.create(
+      # only create a server if it does not already exist
+      return nil if fog_server
+
+      fog_server = ClusterChef.connection.servers.create(
         :image_id          => cloud.image_id,
         :flavor_id         => cloud.flavor,
         #

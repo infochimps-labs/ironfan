@@ -57,6 +57,7 @@ module ClusterChef
     cl
   end
 
+
   #
   # From chef, find each node by its cluster_name
   #
