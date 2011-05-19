@@ -41,7 +41,7 @@ module ClusterChef
       def from_setting_or_image_info key, val=nil, default=nil
         @settings[key] = val unless val.nil?
         return @settings[key]  if @settings.include?(key)
-        return image_info[key] if image_info && image_info.includes?(key)
+        return image_info[key] unless image_info.nil? #.blank?
         return default       # otherwise
       end
     end
@@ -101,7 +101,7 @@ module ClusterChef
       # FIXME: use a deep merge
       def user_data hsh={}
         @settings[:user_data] ||= {}
-        if hsh.empty?
+        if hsh.empty? #blank?
           @settings[:user_data].merge({
               :chef_server            => Chef::Config.chef_server_url,
               :validation_client_name => Chef::Config.validation_client_name,

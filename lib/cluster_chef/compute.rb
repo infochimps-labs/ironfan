@@ -39,7 +39,7 @@ module ClusterChef
     # FIXME: needs to be a deep_merge
     def chef_attributes hsh={}
       # The DSL attribute for 'chef_attributes' merges not overwrites
-      @settings[:chef_attributes].merge! hsh unless hsh.empty? 
+      @settings[:chef_attributes].merge! hsh unless hsh.empty? #.blank?
       @settings[:chef_attributes]
     end
 
@@ -253,7 +253,7 @@ module ClusterChef
       clname = @cluster.name
       @settings    = @cluster.to_hash.merge @settings
       cloud.resolve!          @cluster.cloud
-      cloud.keypair           clname unless cloud.keypair
+      cloud.keypair           clname if cloud.keypair.nil? #.blank?
       cloud.security_group    clname do authorize_group clname end
       cloud.security_group "#{clname}-#{self.name}"
       
