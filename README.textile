@@ -29,6 +29,9 @@ Here's a basic 3-node hadoop cluster:
         instances           2
         role                "nfs_client"
         role                "hadoop_worker"
+        server 0 do
+	  chef_node_name 'demohadoop_worker_zero'
+        end 
       end
 
       cloud :ec2 do
@@ -47,7 +50,7 @@ This defines a *cluster* (group of machines that serve some common purpose) with
 
 In the example above, the master serves out a home directory over NFS, and runs the processes that distribute jobs to hadoop workers. In this small cluster, the master also has workers itself, and a utility role that helps initialize it out of the box.
 
-There are 2 workers; they use the home directory served out by the master, and run the hadoop worker processes.
+There are 2 workers; they use the home directory served out by the master, and run the hadoop worker processes. 
 
 Lastly, we define what machines to use for this cluster. Instead of having to look up and type in an image ID, we just say we want the Ubuntu 'Lucid' distribution on a c1.medium machine. Cluster_chef understands that this means we need the 32-bit image in the us-east-1 region, and makes the cloud instance request accordingly. It also creates a 'logmunchers' security group, opening it so all the 'webnode' machines can push their server logs onto the HDFS.
 
@@ -57,6 +60,14 @@ The following commands launch each machine, and once ready, ssh in to install ch
     knife cluster launch demohadoop master --bootstrap
     knife cluster launch demohadoop worker --bootstrap
 </pre>
+
+You can also now launch the entire cluster at once with the following
+
+<pre>
+   knife cluster launch demohadoop --bootstrap
+<end>
+
+The cluster launch operation is (mostly) idempotent. (There is currently a short time after the completion of a cluster launch where a second cluster launch will create extra nodes that do not belong.)
 
 ---------------------------------------------------------------------------
 
@@ -72,7 +83,7 @@ h3. Setup
 Install these gems,
 
 <pre>
-    sudo gem install chef fog broham highline configliere right_aws net-ssh-multi
+    sudo gem install chef fog broham highline configliere right_aws net-ssh-multi formatador terminal-table
 </pre>
 
 and (if you haven't already), git clone or "download":https://github.com/infochimps/cluster_chef/zipball/version_2 the repo:
@@ -133,12 +144,18 @@ You should see all the cookbooks defined in cluster_chef/cookbooks (ant, apt, ..
 
 h4. Stupid Surgical bits
 
-Unfortunately the current version of chef doesn't have a plugin mechanism for new commands. This means we have to do surgery on the knife itself... we'll just symlink the new commands into chef's lib/chef/knife directory, and symlink the bootstrap templates into chef's lib/chef/knife/bootstrap directory. Set the path to your cluster_chef directory and run the following:
+On older versions of chef that don't have a plugin mechanism for new commands, we have to do surgery on the knife itself... we'll just symlink the new commands into chef's lib/chef/knife directory, and symlink the bootstrap templates into chef's lib/chef/knife/bootstrap directory. Set the path to your cluster_chef directory and run the following:
 
 <pre>
     sudo ln -s $CLUSTER_CHEF_PATH/lib/cluster_chef/knife/*.rb            $(dirname `gem which chef`)/chef/knife/
     sudo ln -s $CLUSTER_CHEF_PATH/lib/cluster_chef/knife/bootstrap/*     $(dirname `gem which chef`)/chef/knife/bootstrap/
 </pre>
+
+Cluster chef is not currently set up to work as a pluggable gem for chef 0.10.0, but will in the near future. Until that time, you can use the knife commands in your local plugins directory with the following command:
+
+<pre>
+    ln -s $CLUSTER_CHEF_PATH/lib/cluster_chef/knife  ~/.chef/plugins/knife
+</pre> 
 
 h3. Cluster chef knife commands
 
@@ -149,8 +166,8 @@ Now if you type @knife cluster launch@ you should see it found the new scripts:
 
 <pre>
     ** CLUSTER COMMANDS **
-    knife cluster launch CLUSTER_NAME FACET_NAME (options)
-    knife cluster show CLUSTER_NAME FACET_NAME (options)
+    knife cluster launch CLUSTER_NAME [FACET_NAME] (options)
+    knife cluster show CLUSTER_NAME [FACET_NAME] (options)
 </pre>
 
 Go ahead and launch a cluster:
@@ -186,6 +203,8 @@ h3. Gotchas
 * For problems starting NFS server on ubuntu maverick systems, read, understand and then run /tmp/fix_nfs_on_maverick_amis.sh -- See "this thread for more":http://fossplanet.com/f10/[ec2ubuntu]-not-starting-nfs-kernel-daemon-no-support-current-kernel-90948/
 
 h3. Zero-bootstrap, fire and forget cluster launch!
+
+Note: Although you can (probably) still use broham to launch a cluster, cluster chef no longer needs it. ClusterChef is now able to assign node with node names without external assistnace.
 
 * Register for Amazon SimpleDB. (Although you do need a credit card, there's no conceivable way broham will approach the free limit.)
 * You'll have to run the following one-time command:
