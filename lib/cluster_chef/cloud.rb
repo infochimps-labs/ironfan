@@ -127,8 +127,7 @@ module ClusterChef
       end
 
       def resolve_region!
-        return unless availabiltiy_zones
-        region availability_zones.first.gsub(/^(\w+-\w+-\d)[a-z]/, '\1') if !region || (region.empty? && availability_zones && !availability_zones.empty?)
+        region availability_zones.first.gsub(/^(\w+-\w+-\d)[a-z]/, '\1') if !region && availability_zones.respond_to?(:first) 
       end
 
       def resolve_block_device_mapping!

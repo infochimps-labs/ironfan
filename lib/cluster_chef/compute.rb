@@ -114,7 +114,7 @@ module ClusterChef
   # at resolve time; if the facet explicitly sets any attributes they will win out.
   #
   class Cluster < ClusterChef::ComputeBuilder
-    attr_reader :facets
+    attr_reader :facets, :undefined_servers
     has_keys :cluster_role
     
     def initialize clname
@@ -145,29 +145,103 @@ module ClusterChef
 
     def resolve!
       @facets.values.each { |f| f.resolve! }
+      discover!
     end
 
     def servers
       @facets.values.map {|facet| facet.servers.values }.flatten
     end
 
+    def cluster_group
+      return cluster_name
+    end
+
+    def fog_servers
+      @fog_servers ||= ClusterChef.servers.select {|s| s.groups.index( cluster_group ) }
+    end
+
+    def chef_nodes
+      return @chef_nodes if @chef_nodes
+      @chef_nodes = []
+      Chef::Search::Query.new.search(:node,"cluster_name:#{cluster_name}") do |n|
+        next if n.nil? or n.cluster_name != cluster_name
+        @chef_nodes.push n unless n.nil?
+      end
+      @chef_nodes
+    end
+
+    def discover!
+      # Build a crossover table between what should be, what is in fog
+      # and what is in chef.
+      node_name_hash = Hash.new { |hash,key| hash[key] = [nil,nil,nil] }
+      servers.each { |s|
+        node_name_hash[ s.chef_node_name ][0] = s
+      }
+      
+      # The only way to link up to an actual instance is throug
+      # what Ohai discovered about the node in chef, so we need
+      # to build an instance_id to node_name map
+      aws_instance_hash = {}
+      chef_nodes.each do |n|
+        node_name_hash[ n.node_name ][1] = n
+        aws_instance_hash[ n.ec2.instance_id ] = n.node_name if n.ec2.instance_id
+      end
+    
+      fog_servers.each do |s|
+        nn = aws_instance_hash[ s.id ] || s.id
+        node_name_hash[ nn ][2] = s
+      end
+       
+      @undefined_servers = []
+      node_name_hash.values.each do |svr,chef_node,fog_svr|
+        if svr
+
+          # Note that it is possible that either one of these could be
+          # nil. If fog_svr is nil and chef_node is defined, it means
+          # that the actual instance has been terminated, but that it
+          # did probably exist at one time. When we go to launch the 
+          # cluster, this node will be rebuilt.
+
+          # If the fog_server is defined, but the chef node is not,
+          # it means that someone has started the node but chef has
+          # not managed to set things up yet. It also means that someone
+          # has worked out a way to map a fog_server to a specific
+          # facet_index.
+          svr.chef_node = chef_node
+          svr.fog_server = fog_svr
+        else
+          # If we are here, we have discovered some nodes that belong
+          # to the cluster but are not actually defined implictly or
+          # explicitly by the cluster definition. We could probably
+          # try to work out what facet and index they are supposed to
+          # be, but I am not sure that it is useful. Instead, we will
+          # just collect them into one big bag and we can deal with
+          # them as needed later on.
+          @undefined_servers.push( { :chef_node => chef_node, :fog_server => fog_svr } )
+        end
+      end
+    end
   end
 
   class Facet < ClusterChef::ComputeBuilder
-    attr_reader :cluster,:servers
+    attr_reader :cluster,:servers, :facet_name
     has_keys  :instances, :facet_role
 
-    def initialize cluster, facet_name
+    def initialize cluster, fct_name
       super(facet_name)
       @cluster = cluster
+      @facet_name = fct_name
       @servers = {}
       chef_attributes :cluster_role       => facet_name # backwards compatibility
       chef_attributes :facet_name         => facet_name
 
       facet_role      "#{@cluster.name}_#{facet_name}"
-
     end
 
+    def get_node_name index
+      "#{cluster_name}-#{facet_name}-#{index}"
+    end
+    
     def cluster_name
       cluster.name
     end
@@ -190,10 +264,9 @@ module ClusterChef
       @settings[:chef_attributes] = @cluster.chef_attributes.merge(self.chef_attributes)
       chef_attributes :run_list => run_list
       chef_attributes :aws => { :access_key => Chef::Config[:knife][:aws_access_key_id], :secret_access_key => Chef::Config[:knife][:aws_secret_access_key],}
+      # Generate server definitions if they have not already been created
       resolve_servers!
       self
-
-      # Generate server definitions if they have not already been created
       
     end
 
@@ -203,10 +276,12 @@ module ClusterChef
 
     def resolve_servers!
       # Create facets not explicitly defined
-      instances.times do |facet_index| 
+      instances.times do |index| 
+        facet_index = index.to_s
+
         server facet_index unless @servers[facet_index]
       end
-      servers.each do |s|
+      servers.values.each do |s|
         s.resolve!
       end
     end
@@ -217,32 +292,36 @@ module ClusterChef
       @servers[facet_index]
     end
 
+    def cluster_group
+      return "#{cluster_name}-#{facet_name}"
+    end
+
   end
 
 
   class Server < ClusterChef::ComputeBuilder
     attr_reader :cluster, :facet, :facet_index
+    attr_accessor :chef_node, :fog_server
     has_keys :chef_node_name, :instances
 
     def initialize facet, index
-      node_name = facet.get_node_name( index )
-      super(node_name)
+      super facet.get_node_name( index )
+      @facet_index = index
       @facet = facet
       @cluster = facet.cluster
+      facet_name = @facet.facet_name
       
-      chef_attributes :cluster_role       => facet_name # backwards compatibility
-      chef_attributes :facet_name         => facet_name
-      role             "#{@cluster.name}_cluster"
-      role             "#{@cluster.name}_#{facet_name}"
-      
-      chef_node_name = node_name
-      chef_attributes :node_name => node_name
+      @settings[:chef_node_name] = name
+      chef_attributes :node_name => name
       chef_attributes :cluster_role_index => index
       chef_attributes :facet_index => index
     end
 
     def cluster_name
       cluster.name
+    end
+    def facet_name
+      facet.name
     end
 
     #
@@ -262,6 +341,12 @@ module ClusterChef
       @settings[:chef_attributes] = @facet.chef_attributes.merge(self.chef_attributes)
       chef_attributes :run_list => run_list
       chef_attributes :aws => { :access_key => Chef::Config[:knife][:aws_access_key_id], :secret_access_key => Chef::Config[:knife][:aws_secret_access_key],}
+      chef_attributes :cluster_chef => { 
+        :name => cluster_name,
+        :facet => facet_name,
+        :index => facet_index,
+      }
+
       self
     end
 
@@ -286,5 +371,7 @@ module ClusterChef
     def to_hash_with_cloud
       to_hash.merge({ :cloud => cloud.to_hash, })
     end
+
+
   end
 end

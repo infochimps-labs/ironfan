@@ -2,6 +2,7 @@ require 'cluster_chef/dsl_object'
 require 'cluster_chef/cloud'
 require 'cluster_chef/security_group'
 require 'cluster_chef/compute'
+require 'chef'
 
 module ClusterChef
   Chef::Config[:clusters] ||= {}
@@ -16,7 +17,30 @@ module ClusterChef
   end
 
   def self.servers
-    ClusterChef.connection.servers.all
+    @servers ||=  ClusterChef.connection.servers.all
+  end
+
+  def self.servers_for_cluster cluster
+    cluster_group = cluster.cluster_name
+
+  end
+  
+  def self.servers_for_facet facet
+    cluster_name = facet.cluster_name
+    facet_name = facet.facet_name
+    facet_group = "#{cluster_name}-#{facet_name}"
+    servers.select {|s| s.groups.index( facet_group ) }
+  end
+
+  def self.load_cluster cluster_name
+    begin
+      require "clusters/#{cluster_name}"
+      return clusters[cluster_name]
+    rescue Exception => e
+      $stderr.puts "Error when loading cluster #{cluster_name}"
+      $stderr.puts e
+      exit -1
+    end
   end
 
   def self.running_servers
