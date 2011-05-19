@@ -125,7 +125,7 @@ class Chef
             chef_node = hash[:chef_node]
             fog_server = hash[:fog_server]
             if chef_node
-              chef_part = [ chef_node.node_name, chef_node.facet_name, chef_node.facet_index ]
+              chef_part = [ chef_node[:node_name], chef_node[:facet_name], chef_node[:facet_index] ]
             else
               chef_part = [ {:value=>"", :colspan => 3 } ]
             end
