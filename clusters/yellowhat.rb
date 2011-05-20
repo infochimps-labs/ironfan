@@ -1,5 +1,5 @@
 ClusterChef.cluster 'yellowhat' do
-  merge!('defaults')
+  use :defaults
   setup_role_implications
 
   recipe                "hadoop_cluster::system_internals"
@@ -15,7 +15,12 @@ ClusterChef.cluster 'yellowhat' do
   end
 
   facet 'esnode' do
-    instances           1
+    # Because of some legacy behavior, yellowhat-esnode now only has a single
+    # instance named yellowhat-esnode-1. The following two lines make that
+    # "as defined" by this cluster def.
+    instances           0
+    server 1 
+
     cloud.flavor        "m1.small"
     role                "redis_server"
     role                "nginx"
@@ -25,7 +30,15 @@ ClusterChef.cluster 'yellowhat' do
   end
 
   facet 'webnode' do
-    instances           3
+    # Because of some legacy behavior, yellowhat-webnode now has four
+    # instances but the indexes start at 7 instead of 0.  The
+    # following five lines make that "as defined" by this cluster def.
+    instances           0
+    server 7 do end
+    server 8 do end
+    server 9 do end
+    server 10 do end
+
     cloud.flavor        "m1.small"
     role                "redis_client"
     role                "mysql_client"
