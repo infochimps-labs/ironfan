@@ -1,4 +1,3 @@
-
 module ClusterChef
   module Cloud
     class Base < ClusterChef::DslObject
@@ -127,7 +126,7 @@ module ClusterChef
       end
 
       def resolve_region!
-        region availability_zones.first.gsub(/^(\w+-\w+-\d)[a-z]/, '\1') if !region && availability_zones.respond_to?(:first) 
+        region availability_zones.first.gsub(/^(\w+-\w+-\d)[a-z]/, '\1') if !region && availability_zones.respond_to?(:first)
       end
 
       def resolve_block_device_mapping!

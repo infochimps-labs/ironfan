@@ -5,16 +5,19 @@ nohup.out
 
 ## EDITORS
 \#*
-.\#*
+.#*
 *~
 *.swp
+.bak
 REVISION
 TAGS*
 tmtags
 *_flymake.*
+*_flymake
 *.tmproj
 .project
 .settings
+mkmf.log
 
 ## COMPILED
 a.out

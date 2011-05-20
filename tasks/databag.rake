@@ -19,7 +19,7 @@
 #
 
 require 'chef/knife'
-require 'ruby-debug'
+require 'ruby-debug' if (RUBY_VERSION.to_f < 1.9)
 
 def knife_client
   return @knife_client if @knife_client
