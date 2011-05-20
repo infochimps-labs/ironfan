@@ -51,6 +51,10 @@ class Chef
         :description => "Full path to location of template to use when bootstrapping",
         :default => false
 
+      option :force,
+        :long => "--force",
+        :description => "Perform launch operations even if it may not be safe to do so."
+
       def h
         @highline ||= HighLine.new
       end
@@ -104,6 +108,23 @@ class Chef
  
         target = cluster.facet(facet_name) if facet_name
 
+        unless cluster.undefined_servers.empty?
+          puts
+          puts "Cluster has undefined servers."
+          unless config[:force]
+            puts "Launch operations may be unpredictable under these circumstances."
+            puts "You should wait for the cluster to stabilize, fix the undefined server problems"
+            puts "(run \"knife cluster show CLUSTER\" to see what the problems are), or launch"
+            puts "the cluster anyway using the --force option."
+            puts
+            exit 1
+          end
+          puts 
+          puts "--force specified"
+          puts "Proceeding to launch anyway. This may produce undesired results."
+          puts
+        end
+          
         # 
         # Make access key ?
         #
