@@ -1,7 +1,7 @@
 # Note that this file is retro-experimental. The original ham was set up with poolparty.
 
 ClusterChef.cluster 'ham' do
-  merge!('defaults')
+  use :defaults
   setup_role_implications
   
   cloud do 

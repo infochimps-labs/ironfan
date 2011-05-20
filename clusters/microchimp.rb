@@ -1,5 +1,5 @@
 ClusterChef.cluster 'microchimp' do
- merge!('defaults')
+ use :defaults
  setup_role_implications
 
  cloud do

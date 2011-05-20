@@ -1,6 +1,6 @@
 
 ClusterChef.cluster 'democassandra' do
-  merge!('defaults')
+  use :defaults
   setup_role_implications
 
   recipe                "cluster_chef::dedicated_server_tuning"
