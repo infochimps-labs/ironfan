@@ -34,7 +34,8 @@ module ClusterChef
 
   def self.load_cluster cluster_name
     begin
-      require "clusters/#{cluster_name}"
+      require File.expand_path(Chef::Config[:cluster_chef_path]+"/clusters/#{cluster_name}")
+      #require "clusters/#{cluster_name}"
       return clusters[cluster_name]
     rescue Exception => e
       $stderr.puts "Error when loading cluster #{cluster_name}"

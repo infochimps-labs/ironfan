@@ -59,6 +59,10 @@ class Chef
         :long => "--no",
         :description => "No matter what, do not delete anything."
 
+      option :client,
+        :long => "--client",
+        :description => "Delete the chef client along with the chef node."
+
       def h
         @highline ||= HighLine.new
       end
@@ -69,6 +73,7 @@ class Chef
         require 'net/ssh/multi'
         require 'readline'
         require 'chef/node'
+        require 'chef/client'
 
         # TODO: this is a hack - remove when ClusterChef is deployed as a gem
         $: << Chef::Config[:cluster_chef_path]+'/lib'
@@ -112,8 +117,10 @@ class Chef
               chef_nodes  = facet.server_by_index[index] ? [ facet.server[index].chef_node ] : []
               fog_servers = facet.server_by_index[index] ? [ facet.server[index].fog_server ] : []
             else
-              chef_nodes  = facet.chef_nodes
-              fog_servers = facet.fog_servers
+              facet.servers.each do |server|
+                chef_nodes.push server.chef_node
+                fog_servers.push server.fog_server
+              end
             end
           else
             cluster.servers.each do |server|
@@ -130,8 +137,8 @@ class Chef
           end
         end
         
-        chef_nodes.uniq!.compact!
-        fog_servers.uniq!.compact!
+        chef_nodes.uniq!
+        fog_servers.uniq!
         
         if config[:no_chef]
           chef_nodes = []
@@ -194,7 +201,10 @@ class Chef
 
 
         fog_servers.each {|fog_server| fog_server.destroy; puts "terminating #{fog_server.id}" }
-        chef_nodes.each {|node| delete_object(Chef::Node, node.node_name) }
+        chef_nodes.each do |node| 
+          delete_object(Chef::Node, node.node_name) 
+          delete_object(Chef::Client, node.node_name) if config[:client]
+        end
 
    
       end

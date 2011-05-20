@@ -80,9 +80,9 @@ class Chef
         cluster.resolve!
         if facet          
           if index
-            servers = facet.servers[index] ? [ facet.servers[index] ] : []
+            servers = facet.server_by_index[index] ? [ facet.server_by_index[index] ] : []
           else
-            servers = facet.servers.values
+            servers = facet.servers
           end
         else
           servers = cluster.servers

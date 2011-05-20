@@ -134,9 +134,12 @@ module ClusterChef
       self.name
     end
 
-    def use other_cluster_name
-      ClusterChef.load_cluster(other_cluster_name)
-      merge! other_cluster_name
+    def use *clusters
+      clusters.each do |c|
+        cluster = c.to_s
+        ClusterChef.load_cluster(cluster)
+        merge! cluster
+      end
       self
     end
 

@@ -64,14 +64,14 @@ class Chef
         #
         cluster_name, facet_name, server_name = @name_args
         raise "Bootstrap a node with: knife cluster bootstrap CLUSTER_NAME FACET_NAME SERVER_FQDN (options)" if facet_name.nil? #.blank?
-        require File.expand_path(Chef::Config[:cluster_chef_path]+"/clusters/defaults")
-        require File.expand_path(Chef::Config[:cluster_chef_path]+"/clusters/#{cluster_name}")
+
+        cluster = ClusterChef.load_cluster(cluster_name)
         facet = Chef::Config[:clusters][cluster_name].facet(facet_name)
         facet.resolve!
 
         config[:ssh_user]       = facet.cloud.ssh_user
         config[:identity_file]  = facet.cloud.ssh_identity_file
-        config[:chef_node_name] = facet.chef_node_name
+#        config[:chef_node_name] = facet.chef_node_name
         config[:distro]         = facet.cloud.bootstrap_distro
         config[:run_list]       = facet.run_list
 
