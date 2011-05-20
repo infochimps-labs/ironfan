@@ -251,6 +251,10 @@ module ClusterChef
       @servers.values
     end
 
+    def server_by_index index
+      @servers[index]
+    end
+
     def get_node_name index
       "#{cluster_name}-#{facet_name}-#{index}"
     end
