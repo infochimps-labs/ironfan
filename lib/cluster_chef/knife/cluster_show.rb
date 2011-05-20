@@ -15,11 +15,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 require 'socket'
 require 'chef/knife'
 require 'json'
-require 'terminal-table/import'
+require 'formatador'
 
 class Chef
   class Knife
@@ -96,20 +95,22 @@ class Chef
         # [ cluster, fog, chef ]
 
 
-        defined_data = servers.map do |svr|
-          main_part = [ svr.chef_node_name,
-                        svr.facet_name,
-                        svr.facet_index, 
-                        svr.chef_node ? "yes" : "NO" ] 
-          if svr.fog_server
-            fog_part = [ svr.fog_server.id, 
-                         svr.fog_server.state, 
-                         svr.fog_server.public_ip_address ] 
+        defined_data = servers.sort{ |a,b| (a.facet_name <=> b.facet_name) *3 + (a.facet_index <=> b.facet_index) }.map do |svr|
+          x = { "Node"    => svr.chef_node_name,
+                "Facet"   => svr.facet_name,
+                "Index"   => svr.facet_index,
+                "Chef?"   => svr.chef_node ? "yes" : "[red]no[reset]",
+          }
+
+          if svr.fog_server 
+            x["AWS ID"]  = svr.fog_server.id
+            x["State"]   = svr.fog_server.state
+            x["Address"] = svr.fog_server.public_ip_address
           else
-            fog_part = [ { :value => "not started", :colspan => 3 } ]
+            x["State"] = "not running"
           end
-          
-          main_part + fog_part
+
+          x
         end
         
        
@@ -117,32 +118,36 @@ class Chef
         if defined_data.empty?
           puts "Nothing to report"
         else
-          puts table(["Node Name","Facet","Index","Chef?","AWS ID","State","Address"], *defined_data)
+          Formatador.display_compact_table(defined_data,["Node","Facet","Index","Chef?","AWS ID","State","Address"])
         end
 
         if facet.nil?
           undefined_data = cluster.undefined_servers.map do |hash|
             chef_node = hash[:chef_node]
             fog_server = hash[:fog_server]
+            x = {}
+
             if chef_node
-              chef_part = [ chef_node[:node_name], chef_node[:facet_name], chef_node[:facet_index] ]
-            else
-              chef_part = [ {:value=>"", :colspan => 3 } ]
+              x["Node"]  = chef_node[:node_name]
+              x["Facet"] = chef_node[:facet_name]
+              x["Index"] = chef_node[:facet_index]
             end
+
             
             if fog_server
-              fog_part = [ fog_server.id, fog_server.state, fog_server.public_ip_address ]
+              x["AWS ID"]  = fog_server.id
+              x["State"]   = fog_server.state
+              x["Address"] = fog_server.public_ip_address
             else
-              fog_part = [ { :value => "not started", :colspan => 3 } ]
+              x["State"]  = "not running" 
             end
-            
-            chef_part + fog_part
+            x
           end
 
           unless undefined_data.empty?
             puts
-            puts "Cluster contains undefined servers"
-            puts table(["Node Name", "Facet", "Index", "AWS ID", "State", "Address"], *undefined_data )
+            Formatador.display_line "[red]Cluster contains undefined servers[reset]"
+            Formatador.display_compact_table(  undefined_data.sort_by {|x| "#{x["Facet"]}-#{x["Index"]}"},                                              ["Node", "Facet", "Index", "AWS ID", "State", "Address"])
           end
         end
         
