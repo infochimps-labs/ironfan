@@ -17,6 +17,7 @@ Gem::Specification.new do |s|
   ]
   s.files = [
     ".gitignore",
+    ".rspec",
     "Gemfile",
     "Gemfile.lock",
     "README.textile",
@@ -47,6 +48,8 @@ Gem::Specification.new do |s|
     "notes/pt1-initial-settings-and-credentials.textile",
     "notes/pt2-chef_server_and_local_chef.textile",
     "notes/tips_and_troubleshooting.textile",
+    "spec/cluster_chef_spec.rb",
+    "spec/spec_helper.rb",
     "tasks/databag.rake"
   ]
   s.homepage = %q{http://infochimps.com/labs}
@@ -54,6 +57,10 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   s.rubygems_version = %q{1.5.0}
   s.summary = %q{Chef is a powerful tool for maintaining and describing the software and configurations that let a machine provide its services.}
+  s.test_files = [
+    "spec/cluster_chef_spec.rb",
+    "spec/spec_helper.rb"
+  ]
 
   if s.respond_to? :specification_version then
     s.specification_version = 3
