@@ -73,7 +73,7 @@ class Chef
         require 'net/ssh/multi'
         require 'readline'
         require 'chef/node'
-        require 'chef/client'
+        require 'chef/api_client'
 
         # TODO: this is a hack - remove when ClusterChef is deployed as a gem
         $: << Chef::Config[:cluster_chef_path]+'/lib'
@@ -203,7 +203,7 @@ class Chef
         fog_servers.each {|fog_server| fog_server.destroy; puts "terminating #{fog_server.id}" }
         chef_nodes.each do |node| 
           delete_object(Chef::Node, node.node_name) 
-          delete_object(Chef::Client, node.node_name) if config[:client]
+          delete_object(Chef::ApiClient, node.node_name) if config[:client]
         end
 
    
