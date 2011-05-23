@@ -27,7 +27,6 @@ ClusterChef.cluster 'yellowhat_staging' do
     role                "elasticsearch_http_esnode"
     role                "elasticsearch_client"
     role                "george"
-    role                "yellowhat_staging"
     role                "big_package"
   end
   
