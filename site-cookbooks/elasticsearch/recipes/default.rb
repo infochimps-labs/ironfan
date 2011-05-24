@@ -91,6 +91,7 @@ if node[:ec2]
       owner       "elasticsearch"
       group       "elasticsearch"
       mode        0755
+      recursive   true
     end
   end
 end
