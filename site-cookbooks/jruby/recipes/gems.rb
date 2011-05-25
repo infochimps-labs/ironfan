@@ -7,7 +7,7 @@
 #
 # Install basic gems
 #
-%w[json configliere erubis extlib chimps net-http-persistent hbase-stargate i18n wukong activesupport].each do |rubygem|
+%w[json configliere gorillib erubis extlib chimps net-http-persistent hbase-stargate i18n wukong activesupport].each do |rubygem|
   bash "install jruby version of #{rubygem}" do
     user "root"
     code <<-EOH

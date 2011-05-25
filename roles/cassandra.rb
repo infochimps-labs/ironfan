@@ -9,7 +9,8 @@ run_list *%w[
   cassandra
   cassandra::install_from_release
   cassandra::autoconf
-  cassandra::daemon
+  cassandra::server
+  cassandra::jna_support
   ]
 
 # Attributes applied if the node doesn't have it set already.

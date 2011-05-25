@@ -41,17 +41,16 @@ end
 
 
 #
-# Link hbase configuration to $PIG_HOME/conf
+# Pig configuration, by default HBASE_CONF_DIR is set to garbage
 #
-node[:pig][:hbase_configs].each do |xml_conf|
-  link "/usr/lib/pig/conf/#{xml_conf}" do
-    to "/etc/hbase/conf/#{xml_conf}"
-    action :create
-  end
+template "/usr/lib/pig/conf/pig-env.sh" do
+  owner "root"
+  mode "0644"
+  source "pig-env.sh.erb"
 end
 
 #
-# Pig configuration
+# Pig hbase stuff
 #
 template "/usr/lib/pig/conf/pig.properties" do
   owner "root"

@@ -17,6 +17,7 @@ default[:elasticsearch][:default_shards]          =  6   # 6 shards per index * 
 default[:elasticsearch][:flush_threshold]         = 5000
 default[:elasticsearch][:index_buffer_size]       = "10%"  # can be a percent ("10%") or a number ("128m")
 default[:elasticsearch][:merge_factor]            = 10
+default[:elasticsearch][:max_thread_count]        = 4    # Twice the recommended value, max allowed by max_merge_count = 4
 default[:elasticsearch][:term_index_interval]     = 128
 default[:elasticsearch][:refresh_interval]        = "1s"
 default[:elasticsearch][:snapshot_interval]       = '-1'

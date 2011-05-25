@@ -4,6 +4,7 @@ export ES_WORK_DIR=${ES_WORK_DIR-<%= @node[:elasticsearch][:data_root] %>/work}
 
 export CLASSPATH=$ES_HOME/plugins/cloud-aws.zip
 CLASSPATH=$CLASSPATH:$ES_HOME/lib/elasticsearch-*.jar:$ES_HOME/lib/*:$ES_HOME/lib/sigar/*
+export ES_CLASSPATH=$CLASSPATH
 
 if [ "x$ES_MIN_MEM" = "x" ]; then
   ES_MIN_MEM=256m
