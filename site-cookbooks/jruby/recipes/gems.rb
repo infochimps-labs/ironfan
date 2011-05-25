@@ -12,6 +12,8 @@
     user "root"
     code <<-EOH
       jruby -S gem install --no-ri --no-rdoc #{rubygem}
+      touch /usr/lib/jruby/lib/hack-installed-gem-#{rubygem}
     EOH
+    creates "/usr/lib/jruby/lib/hack-installed-gem-#{rubygem}"
   end
 end
