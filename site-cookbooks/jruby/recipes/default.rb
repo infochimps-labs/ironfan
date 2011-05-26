@@ -26,3 +26,9 @@ end
     to "/usr/lib/jruby/bin/#{file}"
   end
 end
+
+cookbook_file "/usr/lib/jruby/bin/chef-jgem" do
+  source "chef-jgem"
+  owner "root"
+  mode "0755"
+end
