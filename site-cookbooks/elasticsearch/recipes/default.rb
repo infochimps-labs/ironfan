@@ -87,10 +87,13 @@ end
 
 if node[:ec2]
   node[:elasticsearch][:local_disks].each do |mnt, dev|
-    directory "#{mnt}/elasticsearch" do
-      owner       "elasticsearch"
-      group       "elasticsearch"
-      mode        0755
+    ["elasticsearch/data","elasticsearch/work"].each do |dir|
+      directory "#{mnt}/#{dir}" do
+        owner       "elasticsearch"
+        group       "elasticsearch"
+        mode        0755
+        recursive
+      end
     end
   end
 end
