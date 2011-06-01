@@ -140,24 +140,24 @@ define service {
 }
 <% end -%>
 
-<% unless @service_hosts['elasticsearch_data_esnode'].nil? %>
+<% unless @service_hosts['elasticsearch_peer'].nil? %>
 define service {
        service_description elastic_search_process
-       hostgroup_name	   elasticsearch_data_esnode
+       hostgroup_name	   elasticsearch_peer
        check_command       check_es_proc
        use		   default-service
 }
 
 define service {
        service_description elastic_search_node
-       hostgroup_name	   elasticsearch_data_esnode
+       hostgroup_name	   elasticsearch_peer
        check_command       check_es_node
        use		   default-service
 }
 
 define service {
        service_description elastic_search_cluster
-       hostgroup_name	   elasticsearch_data_esnode
+       hostgroup_name	   elasticsearch_peer
        check_command       check_es_cluster
        use		   default-service
 }
