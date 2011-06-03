@@ -14,15 +14,17 @@ ClusterChef.cluster 'ham' do
   facet 'alpha' do
     instances 1
     role "hbase_alpha"
-    chef_node_name "ham-alpha"
-    facet_index 0
+    server 0 do
+      chef_node_name "ham-alpha"
+    end
   end
 
   facet 'beta' do
     instances 1
     role "hbase_beta"
-    chef_node_name "ham-beta"
-    facet_index 0
+    server 0 do
+      chef_node_name "ham-beta"
+    end
   end
   
   facet 'gamma' do
