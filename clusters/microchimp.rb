@@ -16,7 +16,7 @@ ClusterChef.cluster 'microchimp' do
   facet 'beta' do
     instances 1
     server 0 do
-      chef_node_name 'microchimp_big_guy'
+      chef_node_name 'microchimp-beta'
     end
   end
 
@@ -24,7 +24,7 @@ ClusterChef.cluster 'microchimp' do
     instances 1
     cloud.flavor "t1.micro"
     server 0 do
-      chef_node_name 'gamma_gamma_gamma'
+      chef_node_name 'microchimp-gamma'
     end
   end
 

@@ -2,32 +2,37 @@ ClusterChef.cluster 'bonobo' do
   use :defaults
   setup_role_implications
 
+  recipe                "hadoop_cluster::system_internals"
+  role                  "nfs_client"
+  role                  "infochimps_base"
+  role                  "big_package"
+  role                  "hadoop"
+  role                  "hadoop_worker"
+
   recipe                "cluster_chef::dedicated_server_tuning"
-  role                  "hadoop_s3_keys"
+  recipe                "hadoop_cluster::std_hdfs_dirs"
+
+#  role                  "hadoop_s3_keys"
   cloud do
-    flavor              "c1.xlarge"
+    flavor              "m1.xlarge"
     backing             "ebs"
-    image_name          "lucid"
-    user_data           :get_name_from => 'broham'
+    image_name          "infochimps-maverick-client"
+    #user_data           :get_name_from => 'broham'
   end
 
   facet 'master' do
     instances           1
-    facet_index         0
-    role                "nfs_server"
     role                "hadoop_master"
-    recipe              'hadoop_cluster::bootstrap_format_namenode'
-    role                "hadoop_worker"
-    role                "hadoop_initial_bootstrap"
+    role                "super_herder_server"
+    role                  "super_herder_worker"
+    role                  "herder_worker"
   end
 
   facet 'worker' do
-    instances           2
-    role                "nfs_client"
-    role                "hadoop_worker"
+    instances           29
   end
 
   chef_attributes({
-      :cluster_size => facet('worker').instances,
+      :cluster_size => facet('worker').instances + facet('master').instances,
     })
 end

@@ -16,9 +16,6 @@ ClusterChef.cluster 'yellowhat_staging' do
 
   facet 'webnode' do
     instances           1
-    server 0 do
-      chef_node_name "yellowhat_staging-webnode"
-    end
     cloud.flavor        "m1.small"
     role                "redis_client"
     role                "mysql_client"

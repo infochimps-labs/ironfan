@@ -13,25 +13,25 @@ ClusterChef.cluster 'greeneggs' do
 
   facet 'alpha' do
     instances 1
-    chef_node_name = 'greeneggs-alpha'
+    server 0 do
+      chef_node_name = 'greeneggs-alpha'
+    end
     role "hbase_alpha"
-    facet_index 0
   end
 
   facet 'beta' do
     instances 1
     chef_node_name = 'greeneggs-beta'
     role "hbase_beta"
-    facet_index 0
   end
   
   facet 'gamma' do
-    instances 1
+    instances 3
     role "hbase_gamma"
   end
 
   facet 'delta' do
-    instances 4
+    instances 7
     role "hbase_delta"
   end
 end
