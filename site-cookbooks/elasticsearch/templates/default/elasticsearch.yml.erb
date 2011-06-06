@@ -204,14 +204,14 @@ discovery:
   type:                         zen
   zen:
     ping:
-      <%- if @node[:elasticsearch][:seeds].blank? %>
+      <%- if @elasticsearch_seeds.blank? %>
       multicast:
         enabled:                true
       <%- else %>
       multicast:
         enabled:                false
       unicast:
-        hosts:                  <%= [@node[:elasticsearch][:seeds]].flatten.join(",") %>
+        hosts:                  <%= @elasticsearch_seeds.join(",") %>
       <%- end %>
     # There are two fault detection processes running. The first is by the
     # master, to ping all the other nodes in the cluster and verify that they

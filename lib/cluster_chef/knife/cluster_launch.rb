@@ -19,6 +19,7 @@
 require 'socket'
 require 'chef/knife'
 require 'json'
+require 'formatador'
 
 class Chef
   class Knife
@@ -29,7 +30,7 @@ class Chef
       attr_accessor :initial_sleep_delay
 
       option :dry_run,
-        :long => "--dry_run",
+        :long => "--dry-run",
         :description => "Don't really run, just use mock calls"
 
       option :bootstrap,
@@ -49,6 +50,10 @@ class Chef
         :long => "--template-file TEMPLATE",
         :description => "Full path to location of template to use when bootstrapping",
         :default => false
+
+      option :force,
+        :long => "--force",
+        :description => "Perform launch operations even if it may not be safe to do so."
 
       def h
         @highline ||= HighLine.new
@@ -94,80 +99,130 @@ class Chef
         # Load the facet
         #
         cluster_name, facet_name = @name_args
-        raise "Launch the cluster as: knife cluster launch CLUSTER_NAME FACET_NAME (options)" if facet_name.blank?
-        require File.expand_path(Chef::Config[:cluster_chef_path]+"/clusters/defaults")
-        require File.expand_path(Chef::Config[:cluster_chef_path]+"/clusters/#{cluster_name}")
-        facet = Chef::Config[:clusters][cluster_name].facet(facet_name)
-        facet.resolve!
+        raise "Launch the cluster as: knife cluster launch CLUSTER_NAME FACET_NAME (options)" if cluster_name.nil? #blank?
+
+        cluster = ClusterChef.load_cluster( cluster_name )
+
+        cluster.resolve!        
+        target = cluster
+ 
+        target = cluster.facet(facet_name) if facet_name
+
+        unless cluster.undefined_servers.empty?
+          puts
+          puts "Cluster has undefined servers."
+          unless config[:force]
+            puts "Launch operations may be unpredictable under these circumstances."
+            puts "You should wait for the cluster to stabilize, fix the undefined server problems"
+            puts "(run \"knife cluster show CLUSTER\" to see what the problems are), or launch"
+            puts "the cluster anyway using the --force option."
+            puts
+            exit 1
+          end
+          puts 
+          puts "--force specified"
+          puts "Proceeding to launch anyway. This may produce undesired results."
+          puts
+        end
+          
+        # 
+        # Make access key ?
+        #
+
+        # TODO: do the right thing when the security key has not yet been created ?!?!?!?
 
         #
         # Make security groups
         #
-        facet.cloud.security_groups.each{|name,group| group.run }
+
+        # TODO: write cluster/facet/server security groups method that returns all of the relevent security groups
+        target.cloud.security_groups.each{|name,group| group.run }
 
         #
         # Launch server
         #
-        # servers = facet.list_servers.select{|s| s.state == "running" }
-        servers = (1..facet.instances).map{ facet.create_server }
-        server = servers.last
+        
+        created_servers = target.servers.map { |s| s.create_server }.compact
 
-        config[:ssh_user]       = facet.cloud.ssh_user
-        config[:identity_file]  = facet.cloud.ssh_identity_file
-        config[:chef_node_name] = facet.chef_node_name
-        config[:distro]         = facet.cloud.bootstrap_distro
-        config[:run_list]       = facet.run_list
 
-        puts "#{h.color("Instance ID      ", :cyan)}: #{server.id}"
-        puts "#{h.color("Flavor           ", :cyan)}: #{server.flavor_id}"
-        puts "#{h.color("Image            ", :cyan)}: #{server.image_id}"
-        puts "#{h.color("Availability Zone", :cyan)}: #{server.availability_zone}"
-        puts "#{h.color("Security Groups  ", :cyan)}: #{server.groups.join(", ")}"
-        puts "#{h.color("SSH Key          ", :cyan)}: #{server.key_name}"
-        puts "#{h.color("User Data        ", :cyan)}: #{server.user_data}"
+        if created_servers.empty?
+          puts
+          puts "#{h.color("No servers created!!",:red)}"
+          puts
+          exit 1
+        end
 
-        servers.each do |server|
-          #
-          # Wait for it to be ready to do stuff
-          #
-          print "\n#{h.color("Waiting for server ", :magenta)}"
-          server.wait_for { print "."; ready? }
-          puts("\n")
-          #
-          puts "#{h.color("Public DNS Name    ", :cyan)}: #{server.dns_name}"
-          puts "#{h.color("Public IP Address  ", :cyan)}: #{server.ip_address}"
-          puts "#{h.color("Private DNS Name   ", :cyan)}: #{server.private_dns_name}"
-          puts "#{h.color("Private IP Address ", :cyan)}: #{server.private_ip_address}"
-          print "\n#{h.color("Waiting for sshd ", :magenta)}"
-          print(".") until tcp_test_ssh(server.dns_name) { sleep @initial_sleep_delay ||= 10; puts("done") }
+        config[:ssh_user]       = target.cloud.ssh_user
+        config[:identity_file]  = target.cloud.ssh_identity_file
+        config[:distro]         = target.cloud.bootstrap_distro
+        config[:run_list]       = target.run_list
 
-          #
-          # Bootstrap it (if requested)
-          #
-          if config[:bootstrap]
-            begin
-              bootstrap_for_node(server).run
-            rescue StandardError => e
-              warn e
-              warn e.backtrace
+        table_rows = created_servers.map do |s|
+          { "Instance"          => (s.id && s.id.length > 0) ? s.id : "???", # We should really have an id by this time
+            "Flavor"            => s.flavor_id,
+            "Image"             => s.image_id,
+            "Availability Zone" => s.availability_zone,
+            "SSH Key"           => s.key_name,
+            "Public IP"         => s.public_ip_address,
+            "Private IP"        => s.private_ip_address,
+          }
+        end
+        Formatador.display_table( table_rows, ["Instance", "Flavor", "Image", "Availability Zone", "SSH Key", "Public IP", "Private IP"] )
+        
+        print "\n#{h.color("Waiting for servers", :magenta)}"
+        watcher_threads = created_servers.map do |s| 
+          Thread.new(s) do  |server|
+            server.wait_for { print "."; ready? }
+            #table_row = { "Instance"          => (s.id && s.id.length > 0) ? s.id : "???", # We should really have an id by this time
+            #  "Flavor"            => s.flavor_id,
+            #  "Image"             => s.image_id,
+            #  "Availability Zone" => s.availability_zone,
+            #  "SSH Key"           => s.key_name,
+            #  "Public IP"         => s.public_ip_address,
+            #  "Private IP"        => s.private_ip_address,
+            #}
+            #Formatador.display_table( [table_row], ["Instance", "Flavor", "Image", "Availability Zone", "SSH Key", "Public IP", "Private IP"] )             
+            print(".") until tcp_test_ssh(server.dns_name) { sleep @initial_sleep_delay ||= 10; print("!") }
+            if config[:bootstrap]
+              begin
+                bootstrap_for_node(server).run
+              rescue StandardError => e
+                warn e
+                warn e.backtrace
+              end
             end
           end
         end
 
-        servers.each do |server|
-          puts "\n"
-          puts "#{h.color("Instance ID        ", :cyan)}: #{server.id}"
-          puts "#{h.color("Flavor             ", :cyan)}: #{server.flavor_id}"
-          puts "#{h.color("Image              ", :cyan)}: #{server.image_id}"
-          puts "#{h.color("Availability Zone  ", :cyan)}: #{server.availability_zone}"
-          puts "#{h.color("Security Groups    ", :cyan)}: #{server.groups.join(", ")}"
-          puts "#{h.color("SSH Key            ", :cyan)}: #{server.key_name}"
-          puts "#{h.color("Public DNS Name    ", :cyan)}: #{server.dns_name}"
-          puts "#{h.color("Public IP Address  ", :cyan)}: #{server.ip_address}"
-          puts "#{h.color("Private DNS Name   ", :cyan)}: #{server.private_dns_name}"
-          puts "#{h.color("Private IP Address ", :cyan)}: #{server.private_ip_address}"
-          puts "#{h.color("Run List           ", :cyan)}: #{facet.run_list.join(', ')}"
+        watcher_threads.each {|thr| thr.join; puts }
+        
+        table_rows = created_servers.map do |s|
+          { "Instance"          => (s.id && s.id.length > 0) ? s.id : "???", # We should really have an id by this time
+            "Flavor"            => s.flavor_id,
+            "Image"             => s.image_id,
+            "Availability Zone" => s.availability_zone,
+            "SSH Key"           => s.key_name,
+            "Public IP"         => s.public_ip_address,
+            "Private IP"        => s.private_ip_address,
+          }
         end
+        Formatador.display_table( table_rows, ["Instance", "Flavor", "Image", "Availability Zone", "SSH Key", "Public IP", "Private IP"] )
+
+
+#        created_servers.each do |server|
+#          puts "\n"
+#          puts "#{h.color("Instance ID        ", :cyan)}: #{server.id}"
+#          puts "#{h.color("Flavor             ", :cyan)}: #{server.flavor_id}"
+#          puts "#{h.color("Image              ", :cyan)}: #{server.image_id}"
+#          puts "#{h.color("Availability Zone  ", :cyan)}: #{server.availability_zone}"
+#          puts "#{h.color("Security Groups    ", :cyan)}: #{server.groups.join(", ")}"
+#          puts "#{h.color("SSH Key            ", :cyan)}: #{server.key_name}"
+#          puts "#{h.color("Public DNS Name    ", :cyan)}: #{server.dns_name}"
+#          puts "#{h.color("Public IP Address  ", :cyan)}: #{server.public_ip_address}"
+#          puts "#{h.color("Private DNS Name   ", :cyan)}: #{server.private_dns_name}"
+#          puts "#{h.color("Private IP Address ", :cyan)}: #{server.private_ip_address}"
+#          puts "#{h.color("Run List           ", :cyan)}: #{facet.run_list.join(', ')}"
+#        end
       end
 
       def bootstrap_for_node(server)

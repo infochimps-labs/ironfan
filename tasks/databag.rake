@@ -19,7 +19,7 @@
 #
 
 require 'chef/knife'
-require 'ruby-debug'
+require 'ruby-debug' if (RUBY_VERSION.to_f < 1.9)
 
 def knife_client
   return @knife_client if @knife_client
@@ -36,7 +36,7 @@ def rest; knife_client.rest end
 desc "Dump out data bags"
 task :dump_data_bags do
   # TODO: replace with direct REST access
-  bags_dir = File.join(TOPDIR, "databags")
+  bags_dir = File.join(TOPDIR, "data_bags")
   Dir.mkdir bags_dir unless File.directory? bags_dir
 
   bag_ids = JSON.parse %x(knife data bag list)
@@ -61,7 +61,7 @@ end
 # TODO: use DataBag interface
 desc "Load data bags"
 task :load_data_bags do
-  bags_dir = File.join(TOPDIR, "databags")
+  bags_dir = File.join(TOPDIR, "data_bags")
 
   bag_ids = JSON.parse %x(knife data bag list)
   files = Dir[ File.join(bags_dir, '*.json') ].map {|f|

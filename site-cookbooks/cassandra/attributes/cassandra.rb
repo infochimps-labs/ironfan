@@ -38,6 +38,7 @@ default[:cassandra][:cassandra_conf]                = '/etc/cassandra'
 default[:cassandra][:cassandra_user]                = 'cassandra'
 default[:cassandra][:data_file_dirs]                = ["/data/db/cassandra"]
 default[:cassandra][:commitlog_dir]                 = "/mnt/cassandra/commitlog"
+default[:cassandra][:saved_caches_dir]              = "/var/lib/cassandra/saved_caches"
 default[:cassandra][:listen_addr]                   = "localhost"
 default[:cassandra][:storage_port]                  = 7000
 default[:cassandra][:rpc_addr]                      = "localhost"
@@ -46,6 +47,7 @@ default[:cassandra][:jmx_port]                      = 12345         # moved from
 # Partitioning
 default[:cassandra][:auto_bootstrap]                = 'false'
 default[:cassandra][:authenticator]                 = "org.apache.cassandra.auth.AllowAllAuthenticator"
+default[:cassandra][:authority]                     = "org.apache.cassandra.auth.AllowAllAuthority"
 default[:cassandra][:hinted_handoff_enabled]        = 'true'
 default[:cassandra][:max_hint_window_in_ms]         = 3600000
 default[:cassandra][:hinted_handoff_throttle_delay_in_ms] = 50
@@ -57,6 +59,7 @@ default[:cassandra][:seeds]                         = ["127.0.0.1"]
 # Memory, Disk and Performance
 default[:cassandra][:java_min_heap]                 = "128M"        # consider setting equal to max_heap in production
 default[:cassandra][:java_max_heap]                 = "1650M"
+default[:cassandra][:java_eden_heap]                = "1500M"
 default[:cassandra][:disk_access_mode]              = "auto"
 default[:cassandra][:concurrent_reads]              = 8             # 2 per core
 default[:cassandra][:concurrent_writes]             = 32            # typical number of clients
@@ -86,14 +89,25 @@ default[:cassandra][:throttle_limit]                = 80           # 2x (concurr
 default[:cassandra][:request_scheduler_id]          = 'keyspace'
 
 # For install_from_release recipe
-default[:cassandra][:install_url] = "http://www.eng.lsu.edu/mirrors/apache//cassandra/0.7.4/apache-cassandra-0.7.4-bin.tar.gz"
+cassversion = "0.7.5"
+default[:cassandra][:install_url] = "http://www.eng.lsu.edu/mirrors/apache/cassandra/#{cassversion}/apache-cassandra-#{cassversion}-bin.tar.gz"
 # For install_from_git
 default[:cassandra][:git_repo]                      = 'git://git.apache.org/cassandra.git'
 # until ruby gem is updated, use cdd239dcf82ab52cb840e070fc01135efb512799
 default[:cassandra][:git_revision]                  = 'cdd239dcf82ab52cb840e070fc01135efb512799' # 'HEAD'
 
 # JNA deb location
+<<<<<<< HEAD
 default[:cassandra][:jna_deb_amd64_url] = "http://debian.riptano.com/debian/pool/libjna-java_3.2.7-0~nmu.2_amd64.deb"
+=======
+default[:cassandra][:jna_deb_amd64_url] = "http://debian.riptano.com/maverick/pool/libjna-java_3.2.7-0~nmu.2_amd64.deb"
+
+# MX4J Location (Version 3.0.2)
+default[:cassandra][:mx4j_url] = "http://downloads.sourceforge.net/project/mx4j/MX4J%20Binary/3.0.2/mx4j-3.0.2.zip?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fmx4j%2Ffiles%2F&ts=1303407638&use_mirror=iweb"
+
+default[:cassandra][:mx4j_listen_addr] = "127.0.0.1"
+default[:cassandra][:mx4j_listen_port] = "8081"
+>>>>>>> origin/version_2
 
 # see http://www.mail-archive.com/user@cassandra.apache.org/msg04447.html
 

@@ -17,3 +17,16 @@ After spinning down/starting up your cluster, if you use role-based names (zaius
   broham-unregister 'zaius-.*'
 </code></pre>
 (Use a more limited regex if some of those are still alive!) Chef won't authenticate a client if one already exists for that name.
+
+h2. Service Discovery
+
+h3. cluster_service_discovery
+
+These scripts let individual nodes register as providing a service ("nfs-server", say; or "my_cluster-namenode").  Other scripts can ask for all nodes that have so registered (a cassandra cluster wants to know where all its friends are), or can ask for the most recent provider (in the case of a namenode or other single central resource). 
+
+You typically will want to ensure that every node has "cluster_role" and "cluster_name" attributes: many services scope themselves within a cluster_name.
+
+bq. _How cluster_service_discovery works_: Take the hadoop namenode as an example.  The @hadoop_cluster/namenode@ script says 'I provide "zaius-namenode", that is to say I'm the namenode for everyone in the Zaius cluster'. Internally, this sets node["provides_service"]["zaius-namenode"] to { "timestamp": 20100518185356Z } (the current time).
+
+bq. To find the zaius namenode, we use the chef search function to query on "provides_service":"zaius-namenode". Chef returns the full matching node object: anything you would ask of a
+

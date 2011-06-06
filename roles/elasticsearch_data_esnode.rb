@@ -3,7 +3,7 @@ description "[Infochimps internal] Data esnode (holds and indexes data) for elas
 
 # List of recipes and roles to apply
 run_list(*%w[
-  hadoop_cluster::system_internals
+  cluster_chef::dedicated_server_tuning
   elasticsearch::autoconf
   elasticsearch::default
   elasticsearch::install_from_release

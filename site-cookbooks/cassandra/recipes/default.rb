@@ -39,12 +39,11 @@ user "cassandra" do
   not_if{ node[:etc][:passwd] && node[:etc][:passwd]['cassandra'] }
 end
 
-# ignore this please
-directory('/ebs1/data'){ owner("root"); group("admin"); mode("0775"); action(:create); recursive true }
 
 [ "/var/lib/cassandra", "/var/log/cassandra",
   node[:cassandra][:data_file_dirs],
   node[:cassandra][:commitlog_dir],
+  node[:cassandra][:saved_caches_dir]
 ].flatten.each do |cassandra_dir|
   directory cassandra_dir do
     owner    "cassandra"

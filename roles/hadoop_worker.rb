@@ -1,13 +1,7 @@
 name 'hadoop_worker'
-description 'runs one of many workers in fully-distributed mode.'
+description 'A combined role requiring the distributed parts of a hadoop cluster, namely tasktracker and datanode.'
 
-run_list *%w[
-  hadoop_cluster
-  hadoop_cluster::ec2_conf
-  hadoop_cluster::hadoop_dir_perms
-  hadoop_cluster::datanode
-  hadoop_cluster::tasktracker
-  hadoop_cluster::system_internals
-  pig::install_from_package
-  zookeeper
+run_list %w[
+  role[hadoop_datanode]
+  role[hadoop_tasktracker]
 ]

@@ -1,4 +1,4 @@
-name        'ebs_volumes_mount'
+name        'mounts_ebs_volumes'
 description "Mounts ebs volumes once they're attached"
 
 run_list *%w[

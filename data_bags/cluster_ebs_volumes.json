@@ -1,0 +1,22 @@
+[
+{"id":"demohadoop",
+  "master":       [],
+  "worker":       [],
+  "regionserver": []  
+},
+{"id":"demohbase",
+  "master":       [],
+  "worker":       [],
+  "regionserver": []  
+},
+{"id":"democassandra",
+  "datanode":     []
+},
+{"id":"demoelasticsearch",
+  "datanode":     [],
+  "master":       [],
+  "slave":        []  
+}
+
+]
+

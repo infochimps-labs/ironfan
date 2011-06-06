@@ -1,67 +1,47 @@
 #!/usr/bin/env bash
 set -v
-progresslog='/tmp/user_data-progress.log'
-mkdir -p /tmp ; chmod a+rwx /tmp
 
 # A url directory with the scripts you'd like to stuff into the machine
-REMOTE_FILE_URL_BASE="<%= bootstrap_scripts_url_base %>"
+REMOTE_FILE_URL_BASE="http://github.com/infochimps/cluster_chef/raw/master/config"
 eval `cat /etc/lsb-release `
-OPSCODE_DISTRIB_CODENAME=lucid # opscode not on maverick yet
-
-echo "`date` Broaden the apt universe" >> $progresslog
-add-apt-repository "deb http://archive.canonical.com/ ${DISTRIB_CODENAME} partner"
-add-apt-repository "deb http://us.archive.ubuntu.com/ubuntu ${DISTRIB_CODENAME} universe multiverse"
-add-apt-repository "deb http://apt.opscode.com/             ${OPSCODE_DISTRIB_CODENAME} main"
-curl http://apt.opscode.com/packages@opscode.com.gpg.key | sudo apt-key add -
-
-# wait for system dpkg to finish
-while sudo fuser /var/lib/dpkg/lock ; do echo "`date` Waiting for apt to become free" >> $progresslog ;  sleep 5 ; done  
-
 # Do a non interactive apt-get so the user is never prompted for input
 export DEBIAN_FRONTEND=noninteractive
 
 # Update package index and update the basic system files to newest versions
-echo "`date` Apt update"  >> $progresslog 
+echo "`date` Apt update"  
 apt-get -y update  ;
 dpkg --configure -a
-echo "`date` Apt upgrade, could take a while"  >> $progresslog 
+echo "`date` Apt upgrade, could take a while"  
 apt-get -y upgrade ;
-echo "`date` Apt install"  >> $progresslog 
+echo "`date` Apt install"  
 apt-get -f install ;
 
-echo "`date` Installing base packages"  >> $progresslog 
-apt-get install -y ruby ruby1.8-dev libopenssl-ruby1.8 rubygems ri irb build-essential wget ssl-cert git-core zlib1g-dev libxml2-dev runit runit-services;
-echo "`date` Unchaining rubygems from the tyrrany of ubuntu"  >> $progresslog 
-gem install --no-rdoc --no-ri rubygems-update; gem update --no-rdoc --no-ri --system ; gem --version
 
-echo "`date` Installing chef gems"  >> $progresslog 
-gem install --no-rdoc --no-ri broham uuidtools configliere right_aws ;
-# gem install --no-rdoc --no-ri mixlib-authentication chef --pre
-gem list >> $progresslog
+echo "`date` Installing base packages"
+apt-get install -y ruby ruby1.8-dev build-essential wget libruby-extras libruby1.8-extras runit runit-services
+echo "`date` Unchaining rubygems from the tyrrany of ubuntu"  
+gem install --no-rdoc --no-ri rubygems-update --version=1.3.7; /var/lib/gems/1.8/bin/update_rubygems ; gem update --no-rdoc --no-ri --system ; gem --version
+echo "`date` Installing support gems"  
+gem install --no-rdoc --no-ri broham uuidtools configliere right_aws
 
-apt-get -y install chef
+echo "`date` Installing chef"
+gem install ohai chef --no-rdoc --no-ri --verbose <%= '--prerelease' if @config[:prerelease] %>
 
-echo "`date` Hostname"  >> $progresslog 
+echo "`date` Knifing in the chef client config files"
+mkdir -p /etc/chef
+
+echo "`date` Hostname"  
 # This patches the ec2-set-hostname script to use /etc/hostname (otherwise it
 # crams the ec2-assigned hostname in there regardless)
 cp /usr/bin/ec2-set-hostname /usr/bin/ec2-set-hostname.`date "+%Y%m%d%H"`.orig ;
 wget --no-check-certificate -nv ${REMOTE_FILE_URL_BASE}/ec2-set-hostname_replacement.py -O /usr/bin/ec2-set-hostname ;
 chmod a+x /usr/bin/ec2-set-hostname
 
-echo "`date` Pulling in chef client script"  >> $progresslog 
-cp /etc/chef/client.rb /etc/chef/client-orig.rb ;
+echo "`date` Pulling in chef client script"  
 wget --no-check-certificate -nv ${REMOTE_FILE_URL_BASE}/client.rb -O /etc/chef/client.rb ;
-cat > /etc/chef/client-config.json <<EOF
-<%= chef_config[:attributes].to_json %>
-EOF
-cat > /etc/chef/chef-config.json <<EOF
-{ "chef_server":"http://<%= chef_server_fqdn %>:4000" }
-EOF
-cat > /etc/chef/validation.pem <<EOF
-<%= chef_config[:validation_key] -%>
-EOF
 
-echo "`date` Adding chef client runit scripts"  >> $progresslog
+echo "`date` Adding chef client runit scripts"
+service chef-client stop ; sleep 1 ; killall chef-client
 mkdir -p /var/log/chef /var/chef /etc/sv/chef-client/log/main
 cat > /etc/sv/chef-client/log/run <<EOF
 #!/bin/bash
@@ -75,11 +55,14 @@ EOF
 chmod +x  /etc/sv/chef-client/log/run /etc/sv/chef-client/run
 ln -nfs /usr/bin/sv /etc/init.d/chef-client
 
-echo "`date` Cleanup"  >> $progresslog 
+echo "`date` First run of chef"
+/usr/bin/chef-client -j /etc/chef/first-boot.json
+
+echo "`date` Cleanup"  
 apt-get autoremove;
 updatedb;
 
-echo "`date` Enabling chef client service"  >> $progresslog
-ln -s   /etc/sv/chef-client /etc/service/chef-client
+echo "`date` Enabling chef client service" 
+sudo ln -s   /etc/sv/chef-client /etc/service/chef-client
 
-echo "`date` User data script (chef client bootstrap) complete: `date`"  >> $progresslog 
+echo "`date` User data script (chef client bootstrap) complete: `date`"  

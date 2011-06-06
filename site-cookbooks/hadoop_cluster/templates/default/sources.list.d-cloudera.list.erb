@@ -1,0 +1,6 @@
+<%- distro = (@node[:lsb][:codename] == 'maverick' ) ? 'lucid' : @node[:lsb][:codename]  %>
+<%- repo = [ distro, @node[:hadoop][:cdh_version] ].compact.join('-') %>
+deb http://archive.cloudera.com/debian <%= repo %> contrib
+deb-src http://archive.cloudera.com/debian <%= repo %> contrib
+
+# bump 0.9.5
