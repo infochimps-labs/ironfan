@@ -34,10 +34,6 @@ class Chef
         :long => "--dry-run",
         :description => "Don't really run, just use mock calls"
 
-      option :compact,
-        :long => "--compact",
-        :description => "Use compact table displays."
-
       def h
         @highline ||= HighLine.new
       end
@@ -124,11 +120,7 @@ class Chef
         if defined_data.empty?
           puts "Nothing to report"
         else
-          if config[:compact]
-            Formatador.display_compact_table(defined_data,["Node","Facet","Index","Chef?","AWS ID","State","Address"])
-          else
-            Formatador.display_table(defined_data,["Node","Facet","Index","Chef?","AWS ID","State","Address"])
-          end
+          Formatador.display_compact_table(defined_data,["Node","Facet","Index","Chef?","AWS ID","State","Address"])
         end
 
         if facet.nil?
@@ -157,11 +149,7 @@ class Chef
           unless undefined_data.empty?
             puts
             Formatador.display_line "[red]Cluster contains undefined servers[reset]"
-            if config[:compact]
-              Formatador.display_compact_table(  undefined_data.sort_by {|x| "#{x["Facet"]}-#{x["Index"]}"},                                              ["Node", "Facet", "Index", "AWS ID", "State", "Address"])
-            else
-Formatador.display_table(  undefined_data.sort_by {|x| "#{x["Facet"]}-#{x["Index"]}"}, ["Node", "Facet", "Index", "AWS ID", "State", "Address"])
-            end
+            Formatador.display_compact_table(  undefined_data.sort_by {|x| "#{x["Facet"]}-#{x["Index"]}"},                                              ["Node", "Facet", "Index", "AWS ID", "State", "Address"])
           end
         end
       end

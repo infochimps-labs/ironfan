@@ -167,7 +167,7 @@ class Chef
             "Private IP"        => s.private_ip_address,
           }
         end
-        Formatador.display_table( table_rows, ["Instance", "Flavor", "Image", "Availability Zone", "SSH Key", "Public IP", "Private IP"] )
+        Formatador.display_compact_table( table_rows, ["Instance", "Flavor", "Image", "Availability Zone", "SSH Key", "Public IP", "Private IP"] )
         
         print "\n#{h.color("Waiting for servers", :magenta)}"
         watcher_threads = created_servers.map do |s| 
@@ -206,7 +206,7 @@ class Chef
             "Private IP"        => s.private_ip_address,
           }
         end
-        Formatador.display_table( table_rows, ["Instance", "Flavor", "Image", "Availability Zone", "SSH Key", "Public IP", "Private IP"] )
+        Formatador.display_compact_table( table_rows, ["Instance", "Flavor", "Image", "Availability Zone", "SSH Key", "Public IP", "Private IP"] )
 
 
 #        created_servers.each do |server|
