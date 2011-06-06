@@ -1,5 +1,8 @@
 <%= node[:node_name] %>
- Roles:	<%= @provides_service || '[none]' %>
+ Provides services:	<%= @provides_service || '[none]' %>
+ <% if node && node[:roles] %>
+ Roles:	<%= node[:roles].sort.join(' ') %>
+ <% end %>
  IP:	<%= node[:ipaddress] %>
  <%- if node[:ec2] -%>EC2:	<%= [ :instance_id, :instance_type, :public_hostname ].map{|attr| node[:ec2][attr] }.join("\t") %><%- end -%>
 CHIMP CHIMP CHIMP <%= @silliness %>

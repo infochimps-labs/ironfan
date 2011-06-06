@@ -13,7 +13,9 @@ module HadoopCluster
   def hadoop_package component
     package_name = (component ? "#{node[:hadoop][:hadoop_handle]}-#{component}" : "#{node[:hadoop][:hadoop_handle]}")
     package package_name do
-      version node[:hadoop][:deb_version]
+      if node[:hadoop][:deb_version] != 'current'
+        version node[:hadoop][:deb_version]
+      end
     end
   end
 
