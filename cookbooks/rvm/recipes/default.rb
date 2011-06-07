@@ -36,17 +36,17 @@ end
 
 include_recipe "rvm::system"
 
-unless node[:rvm][:install_rubies] == "disable"
+if node['rvm']['install_rubies'] == true || node['rvm']['install_rubies'] == "true"
   # set a default ruby
-  rvm_default_ruby node[:rvm][:default_ruby]
+  rvm_default_ruby node['rvm']['default_ruby']
 
   # install additional rubies
-  node[:rvm][:rubies].each do |rubie|
+  node['rvm']['rubies'].each do |rubie|
     rvm_ruby rubie
   end
 
   # install global gems
-  node[:rvm][:global_gems].each do |gem|
+  node['rvm']['global_gems'].each do |gem|
     rvm_global_gem gem[:name] do
       version   gem[:version] if gem[:version]
       action    gem[:action]  if gem[:action]
@@ -56,7 +56,7 @@ unless node[:rvm][:install_rubies] == "disable"
   end
 
   # install additional gems
-  node[:rvm][:gems].each_pair do |rstring, gems|
+  node['rvm']['gems'].each_pair do |rstring, gems|
     rvm_environment rstring
 
     gems.each do |gem|

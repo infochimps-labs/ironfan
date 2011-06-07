@@ -1,10 +1,10 @@
 #
 # Cookbook Name:: rvm
-# Attributes:: vagrant
+# Library: gem_package resource monkey patch
 #
 # Author:: Fletcher Nichol <fnichol@nichol.ca>
 #
-# Copyright 2010, 2011, Fletcher Nichol
+# Copyright 2011, Fletcher Nichol
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,4 +19,16 @@
 # limitations under the License.
 #
 
-default['rvm']['vagrant']['system_chef_solo'] = "/usr/bin/chef-solo"
+##
+# Patch Chef::Reousrce::GemPackage resource to use the RVMRubygems provider.
+# This has potentially dangerous side effects and should be considered
+# experimental. You have been warned.
+def patch_gem_package
+  ::Chef::Resource::GemPackage.class_eval do
+    def initialize(name, run_context=nil)
+      super
+      @resource_name = :gem_package
+      @provider = Chef::Provider::Package::RVMRubygems
+    end
+  end
+end

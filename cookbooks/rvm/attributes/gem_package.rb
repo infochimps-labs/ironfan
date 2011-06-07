@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: rvm
-# Attributes:: vagrant
+# Attributes:: gem_package
 #
 # Author:: Fletcher Nichol <fnichol@nichol.ca>
 #
@@ -19,4 +19,5 @@
 # limitations under the License.
 #
 
-default['rvm']['vagrant']['system_chef_solo'] = "/usr/bin/chef-solo"
+# rvm ruby that will be used for gem_package resources
+default['rvm']['gem_package']['rvm_string'] = node['rvm']['default_ruby']

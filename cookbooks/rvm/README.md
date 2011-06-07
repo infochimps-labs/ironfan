@@ -1,16 +1,19 @@
 # DESCRIPTION
 
-Installs a system-wide RVM and manages installed rubies.
+Installs a system-wide RVM and manages installed rubies. Several lightweight
+resources and providers (LWRP) are also defined.
 
 # REQUIREMENTS
 
 ## Platform
 
-For the moment this is targeted at Ubuntu, other platforms to be tested.
+Tested on Ubuntu 10.04/10.10, Debian 6.0, and OpenSuSE 11.4. Also reported
+to work on CentOS, Redhat and Fedora.
 
 ## Cookbooks
 
-TBD
+There are no explicit external cookbook dependencies. However, the Opscode
+*java* cookbook can be used when installing JRuby.
 
 # RECIPES
 
@@ -32,7 +35,28 @@ default vagrant user to the RVM unix group and installs a `chef-solo`
 wrapper script so Chef doesn't need to be re-installed in the default
 RVM Ruby.
 
+## gem_package
+
+An experimental recipe that patches the
+[gem_package resource](http://wiki.opscode.com/display/chef/Resources#Resources-Package)
+to use the `Chef::Provider::Package::RVMRubygems` provider. An attribute
+`rvm/gem_package/rvm_string` will determine which RVM ruby is used for
+install/remove/upgrade/purge actions. This may help when using a third
+party or upstream cookbook that assumes a non-RVM managed system ruby.
+
+**Warning:** Here be dragons! This is either brilliant or the dumbest idea
+ever, so feedback is appreciated.
+
 # USAGE
+
+The typical case will be to include the `rvm` recipe which will install RVM
+system-wide, install all listed RVM rubies and gems and set a default RVM ruby.
+
+If node is running in a Vagrant VM, then the `rvm::vagrant` recipe can help
+with resolving the *chef-solo* binary on subsequent provision executions.
+
+There are also several resources declared which can be used in other recipes
+that are RVM-supported. See below for more details.
 
 # ATTRIBUTES
 
@@ -40,12 +64,12 @@ RVM Ruby.
 
 The default ruby for RVM. If the RVM ruby is not installed, it will be
 built as a pre-requisite. The value can also contain a gemset in the form of
-`ruby-1.8.7-p330@awesome`.
+`"ruby-1.8.7-p330@awesome"`.
 
 **Note:** a fully qualified RVM string name needs to be used, which can be
 found when running `rvm list known`.
 
-The default is `ruby-1.9.2-p180`. To disable a default ruby from being
+The default is `"ruby-1.9.2-p180"`. To disable a default ruby from being
 set, use an empty string (`""`) or a value of `"system"`.
 
 ## `rubies`
@@ -54,7 +78,7 @@ A list of additional RVM rubies to be built and installed. This list does not ne
 necessarily contain your default ruby as the `rvm_default_ruby` resource will take
 care of installing itself. For example:
 
-    node[:rvm][:rubies] = [ "ree-1.8.7", "jruby-1.5.6" ]
+    node['rvm']['rubies'] = [ "ree-1.8.7", "jruby-1.5.6" ]
 
 **Note:** a fully qualified RVM string name needs to be used, which can be
 found when running `rvm list known`.
@@ -68,9 +92,9 @@ Can enable or disable installation of a default ruby and additional rubies set
 attribute metadata. The primary use case for this attribute is when you don't
 want any rubies installed (but you want RVM installed). To do so:
 
-    node[:rvm][:install_rubies] = "disable"
+    node['rvm']['install_rubies'] = "false"
 
-The default is `enable`.
+The default is `"true"`.
 
 ## `global_gems`
 
@@ -80,8 +104,8 @@ installed rubies will be iterated over to ensure full installation coverage.
 See the `rvm_gem` resource for more details about the options for each
 gem hash. The default puts bundler in each ruby:
 
-    node[:rvm][:global_gems] = [
-      { :name => "bundler" }
+    node['rvm']['global_gems'] = [
+      { 'name' => "bundler" }
     ]
 
 ## `gems`
@@ -96,7 +120,7 @@ A hash of system-wide `rvmrc` options. The key is the RVM setting name
 (in String or Symbol form) and the value is the desired setting value.
 An example used on a build box might be:
 
-    node[:rvm][:rvmrc] = {
+    node['rvm']['rvmrc'] = {
       'rvm_gemset_create_on_use_flag' => 1,
       'rvm_trust_rvmrcs_flag'         => 1
     }
@@ -107,7 +131,7 @@ The default is an empty hash.
 
 A specific git branch to use when installing system-wide. For example:
 
-    node[:rvm][:branch] = "crazy"
+    node['rvm']['branch'] = "crazy"
 
 The default is `nil` which corresponds to the master branch.
 
@@ -115,31 +139,32 @@ The default is `nil` which corresponds to the master branch.
 
 A specific tagged version to use when installing system-wide. This value is
 passed directly to the `rvm-installer` script and current valid values are:
-`head` (the default, last git commit), `latest` (last tagged release version)
-and a specific tagged version of the form `1.2.3`. You may want to use a
-specific version of RVM to prevent differences in deployment from one day
-to the next (RVM head moves pretty darn quickly):
+`"head"` (the default, last git commit), `"latest"` (last tagged release
+version) and a specific tagged version of the form `"1.2.3"`. You may want
+to use a specific version of RVM to prevent differences in deployment from
+one day to the next (RVM head moves pretty darn quickly):
 
-    node[:rvm][:version] = "1.5.3"
+    node['rvm']['version'] = "1.5.3"
 
-The default is `nil`, which corresponds to RVM `head`.
+The default is `nil`, which corresponds to RVM `"head"`.
 
 ## `upgrade`
 
 Determines how to handle installing updates to the RVM framework. There are
 currently 3 valid values:
 
-* `none`: will not update RVM and leave it in its current state. **Note** that
-  this is the default.
-* `latest`: runs `rvm get latest` which downloads and installs the latest
-  *"stable"* RVM release listed by [http://rvm.beginrescueend.com/releases/stable-version.txt](http://rvm.beginrescueend.com/releases/stable-version.txt).
-* `head`: runs the infamous `rvm get head` which clones (via git) and installs
+* `"none"`, `false`, or `nil`: will not update RVM and leave it in its
+  current state. **Note** that this is the default.
+* `"latest"`: runs `rvm get latest` which downloads and installs the latest
+  *"stable"* RVM release listed by
+  [http://rvm.beginrescueend.com/releases/stable-version.txt](http://rvm.beginrescueend.com/releases/stable-version.txt).
+* `"head"`: runs the infamous `rvm get head` which clones (via git) and installs
   the latest RVM repository HEAD.
 
 ## `root_path`
 
 The path prefix to RVM in a system-wide installation. The default is
-`/usr/local/rvm`.
+`"/usr/local/rvm"`.
 
 ## `installer_url`
 
@@ -152,10 +177,26 @@ A list of users that will be added to the `rvm` group. These users
 will then be able to manage RVM in a system-wide installation. The default
 is an empty list.
 
+## `rvm_gem_options`
+
+These options are passed to the *gem* command in a RVM environment.
+In the interest of speed, rdoc and ri docs will not be generated by default.
+To re-enable the documentation generation set:
+
+    node['rvm']['rvm_gem_options'] = "--rdoc --ri"
+
+The default is `"--no-rdoc --no-ri"`.
+
 ## `vagrant/system_chef_solo`
 
 If using the `vagrant` recipe, this sets the path to the package-installed
-`chef-solo` binary. The default is `/usr/bin/chef-solo`.
+*chef-solo* binary. The default is `"/usr/bin/chef-solo"`.
+
+## `gem_package/rvm_string`
+
+If using the `gem_package` recipe, this determines which ruby will be used by the
+`gem_package` resource in other cookbooks. The default is the value of the
+`default_ruby` attribute.
 
 # RESOURCES AND PROVIDERS
 
@@ -173,7 +214,7 @@ uninstall |Just remove the ruby and leave everything else. See [RVM rubies/remov
 
 Attribute   |Description |Default value
 ------------|------------|-------------
-ruby_string |**Name attribute:** a fully qualified RVM ruby string that could contain a gemset. See the section *RVM Ruby Strings* for more details. If a gemset is given (for example, `ruby-1.8.7-p330@awesome`), then it will be stripped. |`nil`
+ruby_string |**Name attribute:** a fully qualified RVM ruby string that could contain a gemset. See the section *RVM Ruby Strings* for more details. If a gemset is given (for example, `"ruby-1.8.7-p330@awesome"`), then it will be stripped. |`nil`
 
 ### Examples
 
@@ -220,7 +261,7 @@ create    |Set the default RVM ruby. See [RVM rubies/default](http://rvm.beginre
 
 Attribute   |Description |Default value
 ------------|------------|-------------
-ruby_string |**Name attribute:** a fully qualified RVM ruby string that could contain a gemset. See the section *RVM Ruby Strings* for more details. If a gemset is given (for example, `ruby-1.8.7-p330@awesome`), then it will be included. |`nil`
+ruby_string |**Name attribute:** a fully qualified RVM ruby string that could contain a gemset. See the section *RVM Ruby Strings* for more details. If a gemset is given (for example, `"ruby-1.8.7-p330@awesome"`), then it will be included. |`nil`
 
 ### Examples
 
@@ -252,7 +293,7 @@ create |Installs the specified RVM ruby and gemset. |Yes
 
 Attribute   |Description |Default value
 ------------|------------|-------------
-ruby_string |**Name attribute:** a fully qualified RVM ruby string that could contain a gemset. See the section *RVM Ruby Strings* for more details. If a gemset is given (for example, `ruby-1.8.7-p330@awesome`), then it will be used. |`nil`
+ruby_string |**Name attribute:** a fully qualified RVM ruby string that could contain a gemset. See the section *RVM Ruby Strings* for more details. If a gemset is given (for example, `"ruby-1.8.7-p330@awesome"`), then it will be used. |`nil`
 
 ### Examples
 
@@ -334,7 +375,7 @@ purge     |Purge a gem.|
 Attribute   |Description |Default value
 ------------|------------|-------------
 package_name |**Name Attribute:** the name of the gem to install.|`nil`
-ruby_string |A fully qualified RVM ruby string that could contain a gemset. See the section *RVM Ruby Strings* for more details. If a gemset is given (for example, `ruby-1.8.7-p330@awesome`), then it will be used. |`default`
+ruby_string |A fully qualified RVM ruby string that could contain a gemset. See the section *RVM Ruby Strings* for more details. If a gemset is given (for example, `"ruby-1.8.7-p330@awesome"`), then it will be used. |`"default"`
 version     |The specific version of the gem to install/upgrade. |`nil`
 options     |Add additional options to the underlying gem command. |`nil`
 source      |Provide an additional source for gem providers (such as rubygems). |`nil`
@@ -424,7 +465,7 @@ notifies it.
 Attribute   |Description |Default value
 ------------|------------|-------------
 name        |**Name Attribute:** Name of the command to execute. |name
-ruby_string |A fully qualified RVM ruby string that could contain a gemset. See the section *RVM Ruby Strings* for more details. If a gemset is given (for example, `ruby-1.8.7-p330@awesome`), then it will be used. |`default`
+ruby_string |A fully qualified RVM ruby string that could contain a gemset. See the section *RVM Ruby Strings* for more details. If a gemset is given (for example, `"ruby-1.8.7-p330@awesome"`), then it will be used. |`"default"`
 code        |Quoted script of code to execute. |`nil`
 creates     |A file this command creates - if the file exists, the command will not be run. |`nil`
 cwd         |Current working director to run the command from. |`nil`
@@ -465,7 +506,7 @@ create |Creates one or more wrapper scripts. |Yes
 Attribute   |Description |Default value
 ------------|------------|-------------
 prefix      |**Name attribute:** a prefix string for the wrapper script name. |`nil`
-ruby_string |A fully qualified RVM ruby string that could contain a gemset. See the section *RVM Ruby Strings* for more details. If a gemset is given (for example, `ruby-1.8.7-p330@awesome`), then it will be used. |`nil`
+ruby_string |A fully qualified RVM ruby string that could contain a gemset. See the section *RVM Ruby Strings* for more details. If a gemset is given (for example, `"ruby-1.8.7-p330@awesome"`), then it will be used. |`nil`
 binary      |A single binary to be wrapped. If this attribute is used do not set values for the `binaries` attribute. |`nil`
 binaries    |A list of binaries to be wrapped. If this attribute is used do not set a value for the `binary` attribute. |`nil`
 
@@ -482,7 +523,7 @@ the same time).
     end
 
 This will create a wrapper script called `sys_thor` in the `bin` directory
-under `node[:rvm][:root_path]`.
+under `node['rvm']['root_path']`.
 
 #### Wrapping A List Of Binaries
 
@@ -491,6 +532,14 @@ under `node[:rvm][:root_path]`.
       binaries      [ "rspec", "cucumber" ]
       action        :create
     end
+
+# DEVELOPMENT
+
+* Source hosted at [GitHub](https://github.com/fnichol/chef-rvm)
+* Report issues/Questions/Feature requests on [GitHub Issues](https://github.com/fnichol/chef-rvm/issues)
+
+Pull requests are very welcome! Make sure your patches are well tested.
+Ideally create a topic branch for every seperate change you make.
 
 # LICENSE and AUTHOR
 
