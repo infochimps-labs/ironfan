@@ -3,6 +3,11 @@ ClusterChef.cluster 'plato' do
   setup_role_implications
 
   role                  "infochimps_base"
+
+  cloud do
+    image_name          "infochimps-maverick-client"
+  end
+
   facet 'truth' do
     instances           1
  end
