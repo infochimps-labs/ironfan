@@ -15,7 +15,7 @@ ClusterChef.cluster 'prehensile' do
 
   facet 'apeyeye' do
     instances           1
-    cloud.flavor        "t1.micro"
+    cloud.flavor        "m1.small"
     # Roles could go here, but we're adding the info in roles.
   end
  chef_attributes({

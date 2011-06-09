@@ -6,11 +6,14 @@ ClusterChef.cluster 'microchimp' do
     backing "ebs"
     image_name "infochimps-maverick-client"
     #user_data  :get_name_from => 'broham'
-    flavor "t1.micro"
+    flavor "m1.small"
   end
 
   facet 'alpha' do
     instances 1
+    server 0 do
+      chef_node_name 'microchimp-alpha'
+    end
   end
 
   facet 'beta' do
@@ -22,20 +25,19 @@ ClusterChef.cluster 'microchimp' do
 
   facet 'gamma' do
     instances 1
-    cloud.flavor "t1.micro"
     server 0 do
       chef_node_name 'microchimp-gamma'
     end
   end
 
-  facet 'delta' do
-    instances 3
-    role "microchimp_delta"
-    cloud.flavor "t1.micro"
-    server 1 do
-      chef_node_name 'microchimp_delta_niner'
-    end
-  end
+#  facet 'delta' do
+#    instances 3
+#    role "microchimp_delta"
+#    cloud.flavor "t1.micro"
+#    server 1 do
+#      chef_node_name 'microchimp_delta_niner'
+#    end
+#  end
   chef_attributes({})
 end
 
