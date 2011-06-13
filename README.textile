@@ -1,4 +1,3 @@
-
 h1. cluster_chef
 
 Chef is a powerful tool for maintaining and describing the software and configurations that let a machine provide its services.
@@ -65,7 +64,7 @@ You can also now launch the entire cluster at once with the following
 
 <pre>
    knife cluster launch demohadoop --bootstrap
-<end>
+</pre>
 
 The cluster launch operation is (mostly) idempotent. (There is currently a short time after the completion of a cluster launch where a second cluster launch will create extra nodes that do not belong.)
 
