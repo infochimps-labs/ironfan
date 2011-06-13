@@ -1,4 +1,4 @@
-maintainer       "InfoChimps.com"
+maintainer       "InfoChimps, Inc."
 maintainer_email "temujin9@infochimps.com"
 license          "All rights reserved"
 description      "Installs/Configures statsd"
