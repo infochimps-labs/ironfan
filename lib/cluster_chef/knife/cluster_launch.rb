@@ -24,6 +24,10 @@ require 'formatador'
 class Chef
   class Knife
     class ClusterLaunch < Knife
+      
+      deps do
+        Chef::Knife::Bootstrap.load_deps 
+      end      
 
       banner "knife cluster launch CLUSTER_NAME FACET_NAME (options)"
 
@@ -226,6 +230,7 @@ class Chef
       end
 
       def bootstrap_for_node(server)
+        
         bootstrap = Chef::Knife::Bootstrap.new
         bootstrap.name_args               = [server.dns_name]
         bootstrap.config[:run_list]       = config[:run_list]
