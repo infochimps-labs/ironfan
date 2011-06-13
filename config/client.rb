@@ -40,7 +40,8 @@ signing_ca_user      "chef"
 CHEF_CONFIG_FILE      = "/etc/chef/chef-config.json"
 CLIENT_CONFIG_FILE    = "/etc/chef/client-config.json"
 user_data             = OHAI_INFO[:ec2][:userdata]
-chef_config           = JSON.parse(user_data).to_mash rescue {'attributes'=>{}}.to_mash
+#chef_config           = JSON.parse(user_data).to_mash rescue {'attributes'=>{}}.to_mash
+chef_config = {}
 chef_config_from_file = JSON.load(File.open(CHEF_CONFIG_FILE))   rescue {}
 chef_config.merge!(chef_config_from_file)
 attrs                 = chef_config['attributes']
