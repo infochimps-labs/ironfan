@@ -2,11 +2,6 @@ ClusterChef.cluster 'prehensile' do
   use :defaults
   setup_role_implications
 
-  recipe                "hadoop_cluster::system_internals"
-  role                  "attaches_ebs_volumes"
-  role                  "nfs_client"
-  role                  "infochimps_base"
-  role                  "benchmarkable"
   cloud do
     backing             "ebs"
     image_name          "infochimps-maverick-client"
@@ -18,6 +13,10 @@ ClusterChef.cluster 'prehensile' do
     cloud.flavor        "m1.small"
     # Roles could go here, but we're adding the info in roles.
   end
- chef_attributes({
- })
+  
+  facet 'networkstub' do
+    instances		1
+    cloud.flavor        "m1.small"
+  end
+
 end

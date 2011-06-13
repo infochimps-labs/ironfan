@@ -35,33 +35,35 @@ cookbook_file "#{node.statsd.src_path}/testStatsD.rb" do
   mode 0755
 end
 
-bash "setup statsd runit directories" do
-  cwd "#{node.statsd.service_path}"
-  code <<-EOH
-  mkdir -p supervise log/main log/supervise"
-  cd supervise; touch control lock ok pid stat status;"
-  cd ../log/supervise; touch control lock ok pid stat status;"
-  EOH
-  creates "#{node.statsd.service_path}/supervise/ok"
+runit_service 'statsd' do
 end
-
-cookbook_file "#{node.statsd.service_path}/run" do
-  source "runit_run"
-  mode 0755
-end
-
-cookbook_file "#{node.statsd.service_path}/log/run" do
-  source "runit_log_run"
-  mode 0755
-end
-
-execute "setup statsd sysvinit script" do
-  command "ln -nsf /usr/bin/sv /etc/init.d/statsd"
-  creates "/etc/init.d/statsd"
-end
-
-service "statsd" do
-#   start_command "cd #{node.statsd.src_path}; node stats.js baseConfig.js &"
-#   stop_command "killall node"
-  action [ :enable, :start ]
-end
+# bash "setup statsd runit directories" do
+#   cwd "#{node.statsd.service_path}"
+#   code <<-EOH
+#   mkdir -p supervise log/main log/supervise"
+#   cd supervise; touch control lock ok pid stat status;"
+#   cd ../log/supervise; touch control lock ok pid stat status;"
+#   EOH
+#   creates "#{node.statsd.service_path}/supervise/ok"
+# end
+# 
+# cookbook_file "#{node.statsd.service_path}/run" do
+#   source "runit_run"
+#   mode 0755
+# end
+# 
+# cookbook_file "#{node.statsd.service_path}/log/run" do
+#   source "runit_log_run"
+#   mode 0755
+# end
+# 
+# execute "setup statsd sysvinit script" do
+#   command "ln -nsf /usr/bin/sv /etc/init.d/statsd"
+#   creates "/etc/init.d/statsd"
+# end
+# 
+# service "statsd" do
+# #   start_command "cd #{node.statsd.src_path}; node stats.js baseConfig.js &"
+# #   stop_command "killall node"
+#   action [ :enable, :start ]
+# end
