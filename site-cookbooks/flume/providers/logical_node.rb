@@ -31,7 +31,7 @@ action :config do
   if (my_flow != flow or my_source != source or my_sink != sink)  
     execute "configure logical node" do
       escaped_command = Shellwords.escape "exec config '#{new_resource.name}' '#{new_resource.flow}' '#{new_resource.source}' '#{new_resource.sink}'"    
-      command "flume shell -c #{new_resource.flume_master} -e #{escaped_command}"
+      command "flume shell -c #{new_resource.flume_master} -e #{escaped_command} ; true"
     end
     new_resource.updated_by_last_action(true)
   end
@@ -44,7 +44,7 @@ action :spawn do
   if( physical && physical != new_resource.physical_node )
     execute "unmapping logical node #{new_resource.name}" do
       escaped_command = Shellwords.escape "exec unmap '#{physical}' '#{new_resource.name}'"    
-      command "flume shell -c #{new_resource.flume_master} -e #{escaped_command}"
+      command "flume shell -c #{new_resource.flume_master} -e #{escaped_command} ; true"
     end
     new_resource.updated_by_last_action(true)
   end
@@ -52,7 +52,7 @@ action :spawn do
   if ( physical != new_resource.physical_node )
     execute "spawn logical node" do
       escaped_command = Shellwords.escape "exec spawn '#{new_resource.physical_node}' '#{new_resource.name}'"    
-      command "flume shell -c #{new_resource.flume_master} -e #{escaped_command}"
+      command "flume shell -c #{new_resource.flume_master} -e #{escaped_command} ; true"
     end
     new_resource.updated_by_last_action(true)
   end
