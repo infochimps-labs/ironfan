@@ -25,13 +25,13 @@ git "#{node.statsd.src_path}" do
   action :sync
 end
 
-cookbook_file "#{node.statsd.src_path}/baseConfig.js" do
-  source "baseConfig.js"
+template "#{node.statsd.src_path}/baseConfig.js" do
+  source "baseConfig.js.erb"
   mode 0755
 end
 
-cookbook_file "#{node.statsd.src_path}/testStatsD.rb" do
-  source "testStatsD.rb"
+template "#{node.statsd.src_path}/testStatsD.rb" do
+  source "testStatsD.rb.erb"
   mode 0755
 end
 
