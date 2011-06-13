@@ -30,6 +30,8 @@ class Chef
         require 'chef/search/query'
         require 'chef/mixin/command'
         require 'fog'
+        
+        Chef::Knife::Bootstrap.load_deps 
       end
 
       attr_writer :password
