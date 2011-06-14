@@ -25,7 +25,6 @@ class Chef
   class Knife
     class ClusterShow < Knife
 
-
       banner "knife cluster show CLUSTER_NAME FACET_NAME INDEX (options)"
 
       attr_accessor :initial_sleep_delay
@@ -50,7 +49,7 @@ class Chef
         # TODO: this is a hack - should be moved to some kind of configuration
         #       controllable by the user, perhaps in a knife.rb file. Needs to
         #       be fixed as a part of separating cluster configuration from
-        #       ClusterChef gem.  However, it is currently required to get 
+        #       ClusterChef gem.  However, it is currently required to get
         #       ClusterChef.load_cluster to work right.
         $: << Chef::Config[:cluster_chef_path]
 
@@ -69,33 +68,24 @@ class Chef
         # Load the facet
         #
         cluster_name, facet_name, index = @name_args
-        
+
         cluster = ClusterChef.load_cluster( cluster_name )
-
-        #require Chef::Config[:cluster_chef_path]+"/clusters/#{cluster_name}"
-        # cluster = Chef::Config[:clusters][cluster_name]
-        
         facet = cluster.facet(facet_name) if facet_name
-
-        servers = [] 
+        servers = []
 
         cluster.resolve!
-        if facet          
-          if index
-            servers = facet.server_by_index[index] ? [ facet.server_by_index[index] ] : []
-          else
-            servers = facet.servers
-          end
+        case
+        when facet && index
+          servers = Array(facet.server_by_index[index])
+        when facet
+          servers = facet.servers
         else
           servers = cluster.servers
         end
-        
+
         #
         # Display server info
         #
-
-        # [ cluster, fog, chef ]
-
 
         defined_data = servers.sort{ |a,b| (a.facet_name <=> b.facet_name) *3 + (a.facet_index <=> b.facet_index) }.map do |svr|
           x = { "Node"    => svr.chef_node_name,
@@ -103,19 +93,16 @@ class Chef
                 "Index"   => svr.facet_index,
                 "Chef?"   => svr.chef_node ? "yes" : "[red]no[reset]",
           }
-
-          if svr.fog_server 
+          if svr.fog_server
             x["AWS ID"]  = svr.fog_server.id
             x["State"]   = svr.fog_server.state
             x["Address"] = svr.fog_server.public_ip_address
           else
             x["State"] = "not running"
           end
-
           x
         end
-        
-       
+
         puts "Information for cluster #{cluster_name}"
         if defined_data.empty?
           puts "Nothing to report"
@@ -135,13 +122,12 @@ class Chef
               x["Index"] = chef_node[:facet_index]
             end
 
-            
             if fog_server
               x["AWS ID"]  = fog_server.id
               x["State"]   = fog_server.state
               x["Address"] = fog_server.public_ip_address
             else
-              x["State"]  = "not running" 
+              x["State"]  = "not running"
             end
             x
           end
@@ -153,6 +139,6 @@ class Chef
           end
         end
       end
-    end    
+    end
   end
 end

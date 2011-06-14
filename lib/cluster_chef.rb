@@ -6,6 +6,7 @@ require 'chef'
 
 module ClusterChef
   Chef::Config[:clusters] ||= {}
+  Chef::Config[:cluster_path] ||= File.join(Chef::Config[:cluster_chef_path], "clusters")
 
   def self.connection
     @connection ||= Fog::Compute.new({
@@ -24,7 +25,7 @@ module ClusterChef
     cluster_group = cluster.cluster_name
 
   end
-  
+
   def self.servers_for_facet facet
     cluster_name = facet.cluster_name
     facet_name = facet.facet_name
@@ -33,9 +34,9 @@ module ClusterChef
   end
 
   def self.load_cluster cluster_name
+    raise ArgumentError, "Please supply a cluster name" if cluster_name.to_s.empty?
     begin
-      require File.expand_path(Chef::Config[:cluster_chef_path]+"/clusters/#{cluster_name}")
-      #require "clusters/#{cluster_name}"
+      require File.expand_path("#{Chef::Config[:cluster_path]}/#{cluster_name}")
       return clusters[cluster_name]
     rescue Exception => e
       $stderr.puts "Error when loading cluster #{cluster_name}"
@@ -51,13 +52,11 @@ module ClusterChef
     Chef::Config[:clusters]
   end
 
-
   def self.cluster name, &block
     cl = self.clusters[name] ||= ClusterChef::Cluster.new(name)
     cl.instance_eval(&block) if block
     cl
   end
-
 
   #
   # From chef, find each node by its cluster_name
