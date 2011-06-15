@@ -6,7 +6,7 @@ ClusterChef.cluster 'microchimp' do
     backing "ebs"
     image_name "infochimps-maverick-client"
     #user_data  :get_name_from => 'broham'
-    flavor "m1.small"
+    flavor "t1.micro"
   end
 
   facet 'alpha' do
