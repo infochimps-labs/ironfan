@@ -21,6 +21,9 @@
 # - http://www.agileweboperations.com/chef-rvm-ruby-enterprise-edition-as-default-ruby/
 # - http://github.com/denimboy/xprdev/blob/master/rvm/recipes/default.rb
 
+# For more information on the 'action :nothing' and 'run_action(:foo)' usages see
+# http://wiki.opscode.com/display/chef/Evaluate+and+Run+Resources+at+Compile+Time
+
 script_flags = ""
 if node['rvm']['version']
   script_flags += " --version #{node['rvm']['version']}"
