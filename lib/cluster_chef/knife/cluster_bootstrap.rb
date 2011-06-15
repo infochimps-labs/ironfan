@@ -23,6 +23,9 @@ require 'json'
 class Chef
   class Knife
     class ClusterBootstrap < Knife
+      deps do
+        Chef::Knife::Bootstrap.load_deps 
+      end      
 
       deps do
         require 'chef/knife/core/bootstrap_context'

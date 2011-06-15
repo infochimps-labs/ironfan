@@ -23,6 +23,10 @@ require 'formatador'
 class Chef
   class Knife
     class ClusterKill < Knife
+      deps do
+        Chef::Knife::Bootstrap.load_deps 
+      end      
+
       banner "knife cluster kill CLUSTER_NAME FACET_NAME INDEX (options)"
 
       attr_accessor :initial_sleep_delay
@@ -147,7 +151,9 @@ class Chef
         if config[:no_fog]
           fog_servers = []
         end
-         
+        
+        chef_nodes.reject! { |x| x.nil? }
+        fog_servers.reject! { |x| x.nil? }
         
         if chef_nodes.empty? && fog_servers.empty?
           puts
@@ -157,17 +163,16 @@ class Chef
           exit 1
         end
 
-
         puts "WARNING!!!!"
         puts
         unless chef_nodes.empty?
           puts "This command will delete the following chef nodes: "
-          puts chef_nodes.map {|n| n.node_name if n}.join(" ")
+          puts chef_nodes.map {|n| n.node_name }.join(" ")
           puts
         end
         unless fog_servers.empty?
           puts "This command will terminate the following servers: "
-          puts fog_servers.map {|s| s.id if s}.join(" ")
+          puts fog_servers.map {|s| s.id }.join(" ")
           puts
         end
         puts "Are you absolutely certain that you want to perform this action? (Type 'Yes' to confirm)"
@@ -206,8 +211,6 @@ class Chef
           delete_object(Chef::Node, node.node_name)  
           delete_object(Chef::ApiClient, node.node_name) if config[:client]
         end
-
-   
       end
     end    
   end

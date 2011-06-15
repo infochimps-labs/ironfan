@@ -24,6 +24,9 @@ require 'formatador'
 class Chef
   class Knife
     class ClusterShow < Knife
+      deps do
+        Chef::Knife::Bootstrap.load_deps 
+      end      
 
       banner "knife cluster show CLUSTER_NAME FACET_NAME INDEX (options)"
 
