@@ -136,7 +136,8 @@ class Chef
         #
 
         # TODO: write cluster/facet/server security groups method that returns all of the relevent security groups
-        target.cloud.security_groups.each{|name,group| group.run }
+        
+        target.security_groups.each{|name,group| group.run }
 
         #
         # Launch server

@@ -153,8 +153,16 @@ module ClusterChef
       self
     end
 
+
+    def security_groups
+      groups = cloud.security_groups
+      @facets.values.each { |f| groups.merge f.security_groups }
+      return groups
+    end
+
     def resolve!
       @facets.values.each { |f| f.resolve! }
+      
       discover!
     end
 
@@ -266,6 +274,12 @@ module ClusterChef
       cluster.name
     end
 
+    def security_groups
+      groups = cloud.security_groups
+      @servers.values.each { |s| groups.merge s.security_groups }
+      return groups
+    end
+
     #
     # Resolve:
     #
@@ -331,7 +345,7 @@ module ClusterChef
       @facet_index = index
       @facet = facet
       @cluster = facet.cluster
-   
+
       @settings[:facet_name] = @facet.facet_name
       
       @settings[:chef_node_name] = name
@@ -342,6 +356,10 @@ module ClusterChef
 
     def cluster_name
       cluster.name
+    end
+
+    def security_groups
+      groups = cloud.security_groups
     end
 
     #
