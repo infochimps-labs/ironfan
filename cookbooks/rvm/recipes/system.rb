@@ -50,29 +50,40 @@ pkgs.each do |pkg|
   p.run_action(:install)
 end
 
+# Build the rvm group ahead of time, if it is set. This allows avoiding
+#   collision with later processes which may set a guid explicitly
+if node[:rvm][:group_id] != 'default'
+  g = group 'rvm' do
+    group_name 'rvm'
+    gid        node[:rvm][:group_id]
+    action     :nothing
+  end
+  g.run_action(:create)
+end
+
 i = execute "install system-wide RVM" do
-  action :nothing
   user      "root"
   command   <<-CODE
     bash -c "bash <( curl -Ls #{node['rvm']['installer_url']} )#{script_flags}"
   CODE
   not_if    rvm_wrap_cmd(%{type rvm | head -1 | grep -q '^rvm is a function$'})
+  action :nothing
 end
 i.run_action(:run)
 
 t = template  "/etc/rvmrc" do
-  action :nothing
   source  "rvmrc.erb"
   owner   "root"
   group   "rvm"
   mode    "0644"
+  action :nothing
 end
 t.run_action(:create)
 
 u = execute "upgrade RVM to #{upgrade_strategy}" do
-  action :nothing
   user      "root"
   command   rvm_wrap_cmd(%{rvm get #{upgrade_strategy}})
   only_if   { %w{ latest head }.include? upgrade_strategy }
+  action :nothing
 end
 u.run_action(:run)
