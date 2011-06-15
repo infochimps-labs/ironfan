@@ -24,6 +24,16 @@ class Chef
   class Knife
     class ClusterBootstrap < Knife
 
+      deps do
+        require 'chef/knife/core/bootstrap_context'
+        require 'chef/json_compat'
+        require 'tempfile'
+        require 'highline'
+        require 'net/ssh'
+        require 'net/ssh/multi'
+        Chef::Knife::Ssh.load_deps
+      end rescue nil
+
       banner "knife cluster bootstrap CLUSTER_NAME FACET_NAME SERVER_FQDN (options)"
 
       attr_accessor :initial_sleep_delay
@@ -75,7 +85,7 @@ class Chef
         config[:run_list]       = facet.run_list
 
         #
-        # Bootstrap 
+        # Bootstrap
         #
         bootstrap_for_node(server_name).run
       end

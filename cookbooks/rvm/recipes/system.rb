@@ -44,26 +44,35 @@ case node[:platform]
 end
 
 pkgs.each do |pkg|
-  package pkg
+  p = package pkg do
+    action :nothing
+  end
+  p.run_action(:install)
 end
 
-execute "install system-wide RVM" do
+i = execute "install system-wide RVM" do
+  action :nothing
   user      "root"
   command   <<-CODE
     bash -c "bash <( curl -Ls #{node['rvm']['installer_url']} )#{script_flags}"
   CODE
   not_if    rvm_wrap_cmd(%{type rvm | head -1 | grep -q '^rvm is a function$'})
 end
+i.run_action(:run)
 
-template  "/etc/rvmrc" do
+t = template  "/etc/rvmrc" do
+  action :nothing
   source  "rvmrc.erb"
   owner   "root"
   group   "rvm"
   mode    "0644"
 end
+t.run_action(:create)
 
-execute "upgrade RVM to #{upgrade_strategy}" do
+u = execute "upgrade RVM to #{upgrade_strategy}" do
+  action :nothing
   user      "root"
   command   rvm_wrap_cmd(%{rvm get #{upgrade_strategy}})
   only_if   { %w{ latest head }.include? upgrade_strategy }
 end
+u.run_action(:run)

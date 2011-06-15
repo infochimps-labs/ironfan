@@ -2,6 +2,7 @@ GEM
   remote: http://rubygems.org/
   specs:
     RedCloth (4.2.7)
+    builder (3.0.0)
     bunny (0.6.0)
     chef (0.10.0)
       bunny (>= 0.6.0)
@@ -23,6 +24,16 @@ GEM
     configliere (0.4.5)
     diff-lcs (1.1.2)
     erubis (2.7.0)
+    excon (0.6.3)
+    fog (0.8.2)
+      builder
+      excon (~> 0.6.1)
+      formatador (>= 0.1.3)
+      json
+      mime-types
+      net-ssh (>= 2.1.3)
+      nokogiri (>= 1.4.4)
+      ruby-hmac
     formatador (0.1.3)
     git (1.2.5)
     highline (1.6.2)
@@ -44,6 +55,7 @@ GEM
     net-ssh-multi (1.0.1)
       net-ssh (>= 1.99.2)
       net-ssh-gateway (>= 0.99.0)
+    nokogiri (1.4.4)
     ohai (0.6.4)
       mixlib-cli
       mixlib-config
@@ -66,6 +78,7 @@ GEM
     rspec-expectations (2.5.0)
       diff-lcs (~> 1.1.2)
     rspec-mocks (2.5.0)
+    ruby-hmac (0.4.0)
     spork (0.9.0.rc7)
     systemu (2.2.0)
     treetop (1.4.9)
@@ -84,6 +97,7 @@ DEPENDENCIES
   chef (~> 0.10.0)
   choice (~> 0.1.4)
   configliere (~> 0.4.5)
+  fog (~> 0.8.2)
   formatador (~> 0.1.3)
   highline (~> 1.6.2)
   jeweler (~> 1.5.2)

@@ -23,6 +23,7 @@
 
 require 'ohai'
 require 'json'
+require 'extlib/mash'
 
 OHAI_INFO = Ohai::System.new
 OHAI_INFO.all_plugins

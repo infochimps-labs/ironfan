@@ -9,7 +9,7 @@ ClusterChef.cluster 'prehensile' do
   end
 
   facet 'apeyeye' do
-    instances           1
+    instances           2
     cloud.flavor        "m1.small"
     # Roles could go here, but we're adding the info in roles.
   end

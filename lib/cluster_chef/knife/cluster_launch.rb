@@ -25,6 +25,16 @@ class Chef
   class Knife
     class ClusterLaunch < Knife
 
+      deps do
+        require 'chef/knife/core/bootstrap_context'
+        require 'chef/json_compat'
+        require 'tempfile'
+        require 'highline'
+        require 'net/ssh'
+        require 'net/ssh/multi'
+        Chef::Knife::Ssh.load_deps
+      end rescue nil
+
       banner "knife cluster launch CLUSTER_NAME FACET_NAME (options)"
 
       attr_accessor :initial_sleep_delay
@@ -103,14 +113,14 @@ class Chef
 
         cluster = ClusterChef.load_cluster( cluster_name )
 
-        cluster.resolve!        
+        cluster.resolve!
         target = cluster
- 
+
         target = cluster.facet(facet_name) if facet_name
 
         unless cluster.undefined_servers.empty?
           puts
-          puts "Cluster has undefined servers."
+          puts "Cluster has servers in a transitional or undefined state."
           unless config[:force]
             puts "Launch operations may be unpredictable under these circumstances."
             puts "You should wait for the cluster to stabilize, fix the undefined server problems"
@@ -119,13 +129,13 @@ class Chef
             puts
             exit 1
           end
-          puts 
+          puts
           puts "--force specified"
           puts "Proceeding to launch anyway. This may produce undesired results."
           puts
         end
-          
-        # 
+
+        #
         # Make access key ?
         #
 
@@ -142,7 +152,7 @@ class Chef
         #
         # Launch server
         #
-        
+
         created_servers = target.servers.map { |s| s.create_server }.compact
 
 
@@ -169,9 +179,9 @@ class Chef
           }
         end
         Formatador.display_compact_table( table_rows, ["Instance", "Flavor", "Image", "Availability Zone", "SSH Key", "Public IP", "Private IP"] )
-        
+
         print "\n#{h.color("Waiting for servers", :magenta)}"
-        watcher_threads = created_servers.map do |s| 
+        watcher_threads = created_servers.map do |s|
           Thread.new(s) do  |server|
             server.wait_for { print "."; ready? }
             #table_row = { "Instance"          => (s.id && s.id.length > 0) ? s.id : "???", # We should really have an id by this time
@@ -182,7 +192,7 @@ class Chef
             #  "Public IP"         => s.public_ip_address,
             #  "Private IP"        => s.private_ip_address,
             #}
-            #Formatador.display_table( [table_row], ["Instance", "Flavor", "Image", "Availability Zone", "SSH Key", "Public IP", "Private IP"] )             
+            #Formatador.display_table( [table_row], ["Instance", "Flavor", "Image", "Availability Zone", "SSH Key", "Public IP", "Private IP"] )
             print(".") until tcp_test_ssh(server.dns_name) { sleep @initial_sleep_delay ||= 10; print("!") }
             if config[:bootstrap]
               begin
@@ -196,7 +206,7 @@ class Chef
         end
 
         watcher_threads.each {|thr| thr.join; puts }
-        
+
         table_rows = created_servers.map do |s|
           { "Instance"          => (s.id && s.id.length > 0) ? s.id : "???", # We should really have an id by this time
             "Flavor"            => s.flavor_id,
