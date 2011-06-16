@@ -5,7 +5,10 @@
 # Copyright 2011, InfoChimps, Inc.
 #
 
-include_recipe "graphite"
+# Graphite does not need to be runing on the same server for statsd
+# to work
+#include_recipe "graphite"
+
 include_recipe "nodejs"
 include_recipe "runit"
 
@@ -20,6 +23,7 @@ end
 template "#{node.statsd.src_path}/baseConfig.js" do
   source "baseConfig.js.erb"
   mode 0755
+  notifies "statsd", :restart
 end
 
 runit_service 'statsd' do

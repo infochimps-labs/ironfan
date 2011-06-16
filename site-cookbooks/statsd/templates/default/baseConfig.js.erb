@@ -1,6 +1,6 @@
 {
-  graphitePort: 2003
-, graphiteHost: "localhost"
-, port: 8125
+  graphitePort: <%= node[:statsd][:graphite][:port] %>
+, graphiteHost: "<%= node[:statsd][:graphite][:host] %>"
+, port: <% node[:statsd][:port] %>
 }
 
