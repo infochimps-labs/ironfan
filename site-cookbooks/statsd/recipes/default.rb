@@ -23,8 +23,11 @@ end
 template "#{node.statsd.src_path}/baseConfig.js" do
   source "baseConfig.js.erb"
   mode 0755
-  notifies "statsd", :restart
+  notifies :restart, "service[statsd]"
 end
 
 runit_service 'statsd' do
 end
+
+provide_service ("#{node[:statsd][:cluster_name]}-statsd")
+
