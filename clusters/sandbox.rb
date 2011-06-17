@@ -11,7 +11,7 @@ ClusterChef.cluster 'sandbox' do
     instances 1
     server 0 do
       chef_node_name 'sandbox-hohyon'
-      cloud.flavor "m1.small"
+      #cloud.flavor "m1.small"
     end
   end
 
