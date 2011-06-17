@@ -5,7 +5,7 @@ ClusterChef.cluster 'chimpmark' do
   cloud do
     backing             "instance"
     image_name          "infochimps-maverick-client"
-    region              "us-east"
+    region              "us-east-1d"
   end
 
   facet 'master' do
