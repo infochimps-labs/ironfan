@@ -2,10 +2,20 @@ ClusterChef.cluster 'chimpmark' do
   use :defaults
   setup_role_implications
 
+  recipe                "hadoop_cluster::system_internals"
+  role                  "nfs_client"
+  role                  "infochimps_base"
+  role                  "big_package"
+  role                  "hadoop"
+  role                  "hadoop_worker"
+
+  recipe                "hadoop_cluster::std_hdfs_dirs"
+
+
   cloud do
     backing             "instance"
     image_name          "infochimps-maverick-client"
-    region              "us-east-1d"
+    region              "us-east-1"
   end
 
   facet 'master' do
