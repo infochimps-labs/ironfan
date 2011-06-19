@@ -12,7 +12,7 @@
 
 
 early = execute "add cloudera key" do
-  command "curl -s http://archive.cloudera.com/debian/archive.key | sudo apt-k#ey add -"
+  command "curl -s http://archive.cloudera.com/debian/archive.key | sudo apt-k#ey add - ; true"
   action :nothing
 end
 
