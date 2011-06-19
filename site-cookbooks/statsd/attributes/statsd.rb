@@ -8,3 +8,5 @@ default[:statsd][:graphite][:port] = 2003
 default[:statsd][:graphite][:host] = "localhost"
 
 default[:statsd][:port] = 8125
+
+default[:statsd][:flushInterval] = 10000 #milliseconds between flushes
