@@ -24,6 +24,14 @@
 #  components ["contrib"]
 #  action :add
 #end
+
+apt_repository "cloudera" do
+  uri " http://archive.cloudera.com/debian"
+  distribution "#{node['lsb']['codename']}-cdh3" # or "lucid" if lsb isn't installed :)
+  components ["contrib"]
+  key "http://archive.cloudera.com/debian/archive.key"
+  action :add
+end
  
 package "flume"
 
