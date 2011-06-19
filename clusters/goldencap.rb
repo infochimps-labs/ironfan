@@ -14,7 +14,7 @@ ClusterChef.cluster 'goldencap' do
     backing             "ebs"
     image_name          "infochimps-maverick-client"
     user_data           :get_name_from => 'broham'
-    region "us-east"
+    region "us-east-1"
   end
 
   facet 'twstream' do
@@ -23,8 +23,8 @@ ClusterChef.cluster 'goldencap' do
   end
 
   facet 'twscraper' do
-    instances           2
-    cloud.flavor        "m1.small"
+    instances           8
+    cloud.flavor        "t1.micro"
   end
 
   facet 'nikko' do
