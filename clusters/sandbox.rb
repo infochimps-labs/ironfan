@@ -15,6 +15,13 @@ ClusterChef.cluster 'sandbox' do
     end
   end
 
+  facet 'howech' do
+    instances 1
+    server 0 do
+      chef_node_name 'sandbox-howech'
+    end
+  end
+
   chef_attributes({})
 end
 
