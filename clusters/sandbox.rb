@@ -22,6 +22,13 @@ ClusterChef.cluster 'sandbox' do
     end
   end
 
+  facet 'temujin9' do
+    instances 1
+    server 0 do
+      chef_node_name 'sandbox-temujin9'
+    end
+  end
+
   chef_attributes({})
 end
 
