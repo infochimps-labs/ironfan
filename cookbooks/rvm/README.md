@@ -44,6 +44,12 @@ to use the `Chef::Provider::Package::RVMRubygems` provider. An attribute
 install/remove/upgrade/purge actions. This may help when using a third
 party or upstream cookbook that assumes a non-RVM managed system ruby.
 
+**Note:** When this recipe is included it will force RVM to be
+installed in the
+[compilation phase](http://wiki.opscode.com/display/chef/Evaluate+and+Run+Resources+at+Compile+Time).
+This will ensure that all rubies can be available if any `gem_package`
+resource calls are issued from other cookbooks during the compilation phase.
+
 **Warning:** Here be dragons! This is either brilliant or the dumbest idea
 ever, so feedback is appreciated.
 
@@ -166,6 +172,14 @@ currently 3 valid values:
 The path prefix to RVM in a system-wide installation. The default is
 `"/usr/local/rvm"`.
 
+## `group_id`
+
+The Unix *GID* to be used for the `rvm` group. If this attribute is set,
+the group will be created in the compilation phase to avoid any collisions
+with expected *GID*s in other cookbooks. If left at the default value,
+the RVM installer will create this group as normal. The default is
+`default`.
+
 ## `installer_url`
 
 The URL that provides the RVM installer. The default is
@@ -190,13 +204,17 @@ The default is `"--no-rdoc --no-ri"`.
 ## `vagrant/system_chef_solo`
 
 If using the `vagrant` recipe, this sets the path to the package-installed
-*chef-solo* binary. The default is `"/usr/bin/chef-solo"`.
+*chef-solo* binary. The default is `"/opt/ruby/bin/chef-solo"`.
 
 ## `gem_package/rvm_string`
 
-If using the `gem_package` recipe, this determines which ruby will be used by the
-`gem_package` resource in other cookbooks. The default is the value of the
-`default_ruby` attribute.
+If using the `gem_package` recipe, this determines which ruby or rubies will
+be used by the `gem_package` resource in other cookbooks. The value can be
+either a *String* (for example `ruby-1.8.7-p334`) or an *Array* of RVM ruby
+strings (for example `['ruby-1.8.7-p334', 'system']`). To target an underlying
+unmanaged system ruby you can use `system`.
+
+The default is the value of the `default_ruby` attribute.
 
 # RESOURCES AND PROVIDERS
 
