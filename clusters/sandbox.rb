@@ -19,6 +19,7 @@ ClusterChef.cluster 'sandbox' do
     instances 1
     server 0 do
       chef_node_name 'sandbox-howech'
+      volume :id => "vol-836e28e8", :device => "/dev/sdk" 
     end
   end
 
