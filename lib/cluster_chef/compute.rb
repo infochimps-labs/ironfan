@@ -199,6 +199,7 @@ module ClusterChef
       # The only way to link up to an actual instance is throug
       # what Ohai discovered about the node in chef, so we need
       # to build an instance_id to node_name map
+
       aws_instance_hash = {}
       chef_nodes.each do |n|
         node_name_hash[ n.node_name ][1] = n
@@ -206,14 +207,26 @@ module ClusterChef
       end
     
       fog_servers.each do |s|
-        nn = aws_instance_hash[ s.id ] || s.id
+        # If the fog server is tagged with cluster/facet/index, then try
+        # to locate the corresponding machine in the cluster def and get
+        # its chef_node_name
+        if s.tags["cluster"] && s.tags["facet"] && s.tags["index"] 
+          begin
+            nn = facet(s.tags["facet"]).server(s.tags["index"]).chef_node_name
+          rescue
+          end
+        end
+
+        # Otherwise, try to get to it through mapping the aws instance id
+        # to the chef node name found in the chef node
+        nn ||= aws_instance_hash[ s.id ] || s.id
+        
         node_name_hash[ nn ][2] = s
       end
        
       @undefined_servers = []
       node_name_hash.values.each do |svr,chef_node,fog_svr|
         if svr
-
           # Note that it is possible that either one of these could be
           # nil. If fog_svr is nil and chef_node is defined, it means
           # that the actual instance has been terminated, but that it
@@ -352,6 +365,13 @@ module ClusterChef
       chef_attributes :node_name => name
       chef_attributes :cluster_role_index => index
       chef_attributes :facet_index => index
+
+      @tags = { "cluster" => cluster_name,
+                "facet"   => facet_name,
+                "index"   => facet_index }
+
+      @volumes = []
+
     end
 
     def cluster_name
@@ -362,6 +382,18 @@ module ClusterChef
       groups = cloud.security_groups
     end
 
+    def tag key,value=nil
+      return @tags[key] unless value
+      @tags[key] = value
+    end
+
+    def volume specs
+      # specs should be a hash of the following form
+      # { :id          =>  "vol-xxxxxxxx",   # the id of the volume to attach
+      #   :device      => "/dev/sdq",        # the device to attach to
+      # }
+      @volumes.push specs
+    end
     #
     # Resolve:
     #
@@ -397,19 +429,46 @@ module ClusterChef
       # only create a server if it does not already exist
       return nil if fog_server
 
-      fog_server = ClusterChef.connection.servers.create(
+      @fog_server = ClusterChef.connection.servers.create(
         :image_id          => cloud.image_id,
         :flavor_id         => cloud.flavor,
         #
         :groups            => cloud.security_groups.keys,
         :key_name          => cloud.keypair,
-        :tags              => cloud.security_groups.keys,
+        # Fog does not actually create tags when it creates a server.                                                          
+        :tags              => 
+          { :cluster => cluster_name,
+            :facet =>   facet_name,
+            :index =>   facet_index,
+          },
         :user_data         => JSON.pretty_generate(cloud.user_data.merge(:attributes => chef_attributes)),
         # :block_device_mapping => [],
         # :disable_api_termination => disable_api_termination,
         # :instance_initiated_shutdown_behavior => instance_initiated_shutdown_behavior,
         :availability_zone => cloud.availability_zones.first
         )
+    end
+
+    def create_tags
+      tags = { "cluster" => cluster_name,
+        "facet"   => facet_name,
+        "index"   => facet_index, }
+      tags.each_pair do |key,value|
+        ClusterChef.connection.tags.create(:key => key, 
+                                           :value => value,
+                                           :resource_id => fog_server.id)
+      end
+    end
+
+    def attach_volumes
+      @volumes.each do |vol_spec|
+        id = vol_spec[:id]
+        next unless id
+        volume = ClusterChef.connection.volumes.select{|v| v.id == id }[0]
+        next unless volume
+        volume.device = vol_spec[:device]
+        volume.server = fog_server
+      end
     end
 
     def to_hash_with_cloud

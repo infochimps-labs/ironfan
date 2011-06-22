@@ -147,18 +147,13 @@ class Chef
 
         #
         # Make security groups
-        #
-
-        # TODO: write cluster/facet/server security groups method that returns all of the relevent security groups
-        
+        #        
         target.security_groups.each{|name,group| group.run }
 
         #
-        # Launch server
+        # Launch servers
         #
-
-        created_servers = target.servers.map { |s| s.create_server }.compact
-
+        created_servers = target.servers.select { |s| s.create_server }
 
         if created_servers.empty?
           puts
@@ -172,7 +167,8 @@ class Chef
         config[:distro]         = target.cloud.bootstrap_distro
         config[:run_list]       = target.run_list
 
-        table_rows = created_servers.map do |s|
+        table_rows = created_servers.map do |cc|
+          s = cc.fog_server
           { "Instance"          => (s.id && s.id.length > 0) ? s.id : "???", # We should really have an id by this time
             "Flavor"            => s.flavor_id,
             "Image"             => s.image_id,
@@ -186,17 +182,11 @@ class Chef
 
         print "\n#{h.color("Waiting for servers", :magenta)}"
         watcher_threads = created_servers.map do |s|
-          Thread.new(s) do  |server|
+          Thread.new(s) do  |cc_server|
+            server = cc_server.fog_server
+            cc_server.create_tags
             server.wait_for { print "."; ready? }
-            #table_row = { "Instance"          => (s.id && s.id.length > 0) ? s.id : "???", # We should really have an id by this time
-            #  "Flavor"            => s.flavor_id,
-            #  "Image"             => s.image_id,
-            #  "Availability Zone" => s.availability_zone,
-            #  "SSH Key"           => s.key_name,
-            #  "Public IP"         => s.public_ip_address,
-            #  "Private IP"        => s.private_ip_address,
-            #}
-            #Formatador.display_table( [table_row], ["Instance", "Flavor", "Image", "Availability Zone", "SSH Key", "Public IP", "Private IP"] )
+            cc_server.attach_volumes
             print(".") until tcp_test_ssh(server.dns_name) { sleep @initial_sleep_delay ||= 10; print("!") }
             if config[:bootstrap]
               begin
@@ -208,10 +198,11 @@ class Chef
             end
           end
         end
-
+        
         watcher_threads.each {|thr| thr.join; puts }
-
-        table_rows = created_servers.map do |s|
+        
+        table_rows = created_servers.map do |cc|
+          s = cc.fog_server
           { "Instance"          => (s.id && s.id.length > 0) ? s.id : "???", # We should really have an id by this time
             "Flavor"            => s.flavor_id,
             "Image"             => s.image_id,
