@@ -23,9 +23,6 @@ ClusterChef.cluster 'bonobo' do
   facet 'master' do
     instances           1
     role                "hadoop_master"
-    role                "super_herder_server"
-    role                  "super_herder_worker"
-    role                  "herder_worker"
   end
 
   facet 'worker' do
