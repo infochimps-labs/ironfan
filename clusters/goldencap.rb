@@ -23,8 +23,8 @@ ClusterChef.cluster 'goldencap' do
   end
 
   facet 'twscraper' do
-    instances           8
-    cloud.flavor        "t1.micro"
+    instances           2
+    cloud.flavor        "m1.small"
   end
 
   facet 'nikko' do
