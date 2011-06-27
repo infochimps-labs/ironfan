@@ -23,7 +23,7 @@ ClusterChef.cluster 'goldencap' do
   end
 
   facet 'twscraper' do
-    instances           2
+    instances           4
     cloud.flavor        "m1.small"
   end
 
