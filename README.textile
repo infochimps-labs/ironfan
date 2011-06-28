@@ -154,6 +154,7 @@ Cluster chef is not currently set up to work as a pluggable gem for chef 0.10.0,
 
 <pre>
     ln -s $CLUSTER_CHEF_PATH/lib/cluster_chef/knife  ~/.chef/plugins/knife
+    ln -s $CLUSTER_CHEF_PATH/lib/cluster_chef/knife/bootstrap  ~/.chef/bootstrap
 </pre> 
 
 h3. Cluster chef knife commands
