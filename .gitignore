@@ -44,3 +44,4 @@ metadata.json
 
 .chef
 *.pem
+.rvmrc
