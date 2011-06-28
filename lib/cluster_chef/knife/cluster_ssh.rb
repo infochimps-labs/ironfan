@@ -48,8 +48,7 @@ class Chef
       option :attribute,
         :short => "-a ATTR",
         :long => "--attribute ATTR",
-        :description => "The attribute to use for opening the connection - default is fqdn",
-        :default => "fqdn"
+        :description => "The attribute to use for opening the connection - default is fqdn"
 
       option :ssh_user,
         :short => "-x USERNAME",
@@ -85,6 +84,9 @@ class Chef
         cluster = ClusterChef.load_cluster( cluster_name )
         cluster.resolve!
         
+        config[:attribute] ||= Chef::Config[:knife][:ssh_address_attribute]
+        config[:ssh_user] ||= Chef::Config[:knife][:ssh_user]
+
         nodes = []
         if facet_name
           facet = cluster.facets[facet_name]
