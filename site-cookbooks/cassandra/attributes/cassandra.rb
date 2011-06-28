@@ -89,7 +89,7 @@ default[:cassandra][:throttle_limit]                = 80           # 2x (concurr
 default[:cassandra][:request_scheduler_id]          = 'keyspace'
 
 # For install_from_release recipe
-cassversion = "0.7.5"
+cassversion = "0.7.6-2"
 default[:cassandra][:install_url] = "http://www.eng.lsu.edu/mirrors/apache/cassandra/#{cassversion}/apache-cassandra-#{cassversion}-bin.tar.gz"
 # For install_from_git
 default[:cassandra][:git_repo]                      = 'git://git.apache.org/cassandra.git'
