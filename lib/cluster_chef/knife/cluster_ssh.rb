@@ -85,6 +85,7 @@ class Chef
         cluster.resolve!
         
         config[:attribute] ||= Chef::Config[:knife][:ssh_address_attribute]
+        config[:attribute] ||= "fqdn"
         config[:ssh_user] ||= Chef::Config[:knife][:ssh_user]
 
         nodes = []
