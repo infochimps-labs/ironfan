@@ -33,6 +33,14 @@ module ClusterChef
     servers.select {|s| s.groups.index( facet_group ) }
   end
 
+  def self.get_cluster_slice *args
+    cluster_name = args.shift
+    raise ArgumentError, "Please supply a cluster name" if cluster_name.to_s.empty?
+
+    cluster = load_cluster(cluster_name)
+    return cluster.slice *args
+  end
+
   def self.load_cluster cluster_name
     raise ArgumentError, "Please supply a cluster name" if cluster_name.to_s.empty?
     begin
