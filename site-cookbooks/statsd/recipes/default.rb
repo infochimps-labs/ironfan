@@ -12,8 +12,6 @@
 include_recipe "nodejs"
 include_recipe "runit"
 
-package "git"
-
 git "#{node.statsd.src_path}" do
   repository "#{node.statsd.git_uri}"
   reference "master"
