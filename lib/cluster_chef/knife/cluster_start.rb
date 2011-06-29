@@ -64,15 +64,11 @@ class Chef
         #
         # Load the facet
         #
-        cluster_name, facet_name = @name_args
-        raise "Start the cluster as: knife cluster start CLUSTER_NAME FACET_NAME (options)" if cluster_name.nil? #blank?
+        cluster_name = @name_args
+        raise "Launch the cluster as: knife cluster start CLUSTER_NAME FACET_NAME (options)" if cluster_name.nil? #blank?
 
-        cluster = ClusterChef.load_cluster( cluster_name )
-
-        cluster.resolve!
-        target = cluster
-
-        target = cluster.facet(facet_name) if facet_name
+        target = ClusterChef.get_cluster_slice *@name_args
+        target.cluster.resolve!
 
         target.servers.each do |server|
           server.fog_server.start if server.fog_server

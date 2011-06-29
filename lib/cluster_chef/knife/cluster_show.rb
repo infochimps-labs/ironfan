@@ -68,23 +68,14 @@ class Chef
         end
 
         #
-        # Load the facet
+        # Load the cluster/facet/slice/whatever
         #
-        cluster_name, facet_name, index = @name_args
-
-        cluster = ClusterChef.load_cluster( cluster_name )
-        facet = cluster.facet(facet_name) if facet_name
-        servers = []
+        target = ClusterChef.get_cluster_slice *@name_args
+        cluster = target.cluster
+        cluster_name = cluster.cluster_name
 
         cluster.resolve!
-        case
-        when facet && index
-          servers = Array(facet.server_by_index[index])
-        when facet
-          servers = facet.servers
-        else
-          servers = cluster.servers
-        end
+        servers = target.servers
 
         #
         # Display server info
@@ -113,6 +104,7 @@ class Chef
           Formatador.display_compact_table(defined_data,["Node","Facet","Index","Chef?","AWS ID","State","Address"])
         end
 
+        facet = nil
         if facet.nil?
           undefined_data = cluster.undefined_servers.map do |hash|
             chef_node = hash[:chef_node]

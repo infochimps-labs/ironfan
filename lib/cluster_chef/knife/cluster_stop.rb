@@ -70,15 +70,12 @@ class Chef
         #
         # Load the facet
         #
-        cluster_name, facet_name = @name_args
+        
+        cluster_name = @name_args
         raise "Launch the cluster as: knife cluster stop CLUSTER_NAME FACET_NAME (options)" if cluster_name.nil? #blank?
 
-        cluster = ClusterChef.load_cluster( cluster_name )
-
-        cluster.resolve!
-        target = cluster
-
-        target = cluster.facet(facet_name) if facet_name
+        target = ClusterChef.get_cluster_slice *@name_args
+        target.cluster.resolve!
 
         unless config[:yes]
           puts "Are you absolutely certain that you want to perform this action? (Type 'Yes' to confirm)"

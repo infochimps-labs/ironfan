@@ -80,31 +80,15 @@ class Chef
 
 
       def configure_session
-        cluster_name,facet_name,facet_index = @name_args[0].split(" ")
-        cluster = ClusterChef.load_cluster( cluster_name )
+        target = ClusterChef.get_cluster_slice *@name_args[0].split(" ")
+        cluster = target.cluster
         cluster.resolve!
         
         config[:attribute] ||= Chef::Config[:knife][:ssh_address_attribute]
         config[:attribute] ||= "fqdn"
         config[:ssh_user] ||= Chef::Config[:knife][:ssh_user]
 
-        nodes = []
-        if facet_name
-          facet = cluster.facets[facet_name]
-          if facet_index
-            server = facet.server_by_index facet_index 
-            nodes.push server.chef_node  if server.chef_node
-          else
-            facet.servers.each do |server|
-              nodes.push server.chef_node if server.chef_node
-            end
-          end
-        else
-          cluster.servers.each do |server|
-            nodes.push server.chef_node if server.chef_node
-          end
-        end
-  
+        nodes = target.servers.map {|s| s.chef_node if s.chef_node}.select {|r| r}  
         list = []
         nodes.each do |n|
           i = format_for_display(n)[config[:attribute]]
