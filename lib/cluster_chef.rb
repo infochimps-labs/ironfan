@@ -6,7 +6,7 @@ require 'chef'
 
 module ClusterChef
   Chef::Config[:clusters] ||= {}
-  Chef::Config[:cluster_path] ||= File.join(Chef::Config[:cluster_chef_path], "clusters")
+  Chef::Config[:cluster_path] ||=  [ File.join(Chef::Config[:cluster_chef_path], "clusters") ]
 
   def self.connection
     @connection ||= Fog::Compute.new({
@@ -36,13 +36,25 @@ module ClusterChef
   def self.load_cluster cluster_name
     raise ArgumentError, "Please supply a cluster name" if cluster_name.to_s.empty?
     begin
-      require File.expand_path("#{Chef::Config[:cluster_path]}/#{cluster_name}")
-      return clusters[cluster_name]
+      Chef::Config[:cluster_path].each do |path|
+        cluster_path = File.join( path, "#{cluster_name}.rb" )
+        next unless File.exists?(cluster_path)
+        require cluster_path
+        break
+      end
     rescue Exception => e
       $stderr.puts "Error when loading cluster #{cluster_name}"
       $stderr.puts e
       exit -1
     end
+    
+    return clusters[cluster_name] if clusters[cluster_name]
+    
+    $stderr.puts "Unable to locate the cluster definition for #{cluster_name}."
+    $stderr.puts "Cluster_path: [ #{ Chef::Config[:cluster_path].join(", ")} ]"
+  
+    exit -1
+
   end
 
   def self.running_servers
