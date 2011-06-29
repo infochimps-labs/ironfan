@@ -12,13 +12,13 @@ ClusterChef.cluster 'prehensile' do
     instances           3
     cloud.flavor        "m1.small"
     server 0 do
-      availability_zones  ['us-east-1d'] # default
+      cloud.availability_zones  ['us-east-1d'] # default
     end
     server 1 do
-      availability_zones  ['us-east-1b']
+      cloud.availability_zones  ['us-east-1b']
     end
     server 2 do
-      availability_zones  ['us-east-1c']
+      cloud.availability_zones  ['us-east-1c']
     end
   end
 
