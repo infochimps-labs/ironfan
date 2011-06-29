@@ -36,6 +36,10 @@ class Chef
       banner "knife cluster stop CLUSTER_NAME FACET_NAME (options)"
       
       attr_accessor :initial_sleep_delay
+
+      option :yes,
+        :long => "--yes",
+        :description => "Skip confirmation that you want to stop the cluster."
       
       option :dry_run,
       :long => "--dry-run",
@@ -76,9 +80,19 @@ class Chef
 
         target = cluster.facet(facet_name) if facet_name
 
+        unless config[:yes]
+          puts "Are you absolutely certain that you want to perform this action? (Type 'Yes' to confirm)"
+          confirm = STDIN.readline
+          if confirm.chomp != "Yes"
+            puts "Aborting!"
+            exit 1
+          end
+        end
+
         target.servers.each do |server|
           server.fog_server.stop if server.fog_server
         end
+
       end
     end
   end
