@@ -29,7 +29,7 @@ ClusterChef.cluster 'monkeyballs' do
   end
 
   facet 'worker' do
-    instances           2
+    instances           3
     role                "hadoop_worker"
     cloud.flavor        "m2.xlarge"
   end
