@@ -9,10 +9,20 @@ ClusterChef.cluster 'prehensile' do
   end
 
   facet 'apeyeye' do
-    instances           4
+    instances           3
     cloud.flavor        "m1.small"
+    server 0 do
+      cloud.availability_zones  ['us-east-1d'] # default
+    end
+    server 1 do
+      cloud.availability_zones  ['us-east-1b']
+    end
+    server 2 do
+      cloud.availability_zones  ['us-east-1c']
+    end
   end
-#   
+
+#   # Testing stub for network-based operations
 #   facet 'networkstub' do
 #     instances		1
 #     cloud.flavor        "m1.small"

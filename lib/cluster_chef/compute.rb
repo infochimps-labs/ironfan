@@ -130,6 +130,20 @@ module ClusterChef
       @facets[facet_name]
     end
 
+    def slice *args
+      return self if args.length == 0
+      facet_name = args.shift      
+      unless @facets[facet_name] 
+        $stderr.puts "Facet '#{facet_name}' is not defined in cluster '#{cluster_name}'"
+        exit -1
+      end
+      return @facets[facet_name].slice *args
+    end
+
+    def cluster
+      self
+    end
+
     def cluster_name
       self.name
     end
@@ -252,8 +266,6 @@ module ClusterChef
         end
       end
     end
-
-
   end
 
   class Facet < ClusterChef::ComputeBuilder
@@ -271,12 +283,19 @@ module ClusterChef
       facet_role      "#{@cluster.name}_#{facet_name}"
     end
 
+    def slice *args
+      return self if args.length == 0
+      slice = FacetSlice.new self, *args
+      
+      return slice
+    end
+
     def servers
       @servers.values
     end
 
     def server_by_index index
-      @servers[index]
+      @servers[index.to_s]
     end
 
     def get_node_name index
@@ -343,6 +362,84 @@ module ClusterChef
 
     def cluster_group
       return "#{cluster_name}-#{facet_name}"
+    end
+
+  end
+
+  
+  class FacetSlice < ClusterChef::ComputeBuilder
+    attr_reader :cluster, :facet
+    has_keys  :instances, 
+
+    def initialize facet, instance_indexes
+      @facet = facet
+      @cluster = facet.cluster
+      @instance_indexes = instance_indexes
+    end
+
+    def parse_indexes
+      indexes = []
+
+      @instance_indexes.split(",").each do |term|
+        if term =~ /(\d+)-(\d+)/
+          $1.to_i.upto($2.to_i) do |i|
+            indexes.push i.to_s
+          end
+        else
+          indexes.push term
+        end
+      end
+      indexes.sort!.uniq!
+      
+
+      @servers = {}
+      indexes.each do |idx|
+        @servers[idx] = facet.server_by_index idx
+      end
+
+    end
+
+    def servers
+      parse_indexes unless @servers
+      @servers.values
+    end
+
+    def server_by_index index
+      parse_indexes unless @servers
+      @servers[index.to_s]
+    end
+
+    def get_node_name index
+      "#{cluster_name}-#{facet_name}-#{index}"
+    end
+    
+    def cluster_name
+      cluster.name
+    end
+
+    def security_groups
+      parse_indexes unless @servers
+
+      groups = facet.security_groups
+      @servers.values.each { |s| groups.merge s.security_groups }
+    end
+
+
+    def to_hash_with_cloud
+      to_hash.merge({ :cloud => cloud.to_hash, })
+    end
+
+    def resolve_servers!
+      facet.resolve_servers!
+    end
+
+    def server index, &block
+      parse_indexes unless @servers
+
+      facet_index = index.to_s
+      @servers[facet_index] ||= ClusterChef::Server.new(self, facet_index)
+      @servers[facet_index].instance_eval(&block) if block
+      @servers[facet_index]
     end
 
   end
