@@ -2,7 +2,7 @@ ClusterChef.cluster 'yellowhat' do
   use :defaults
   setup_role_implications
 
-  recipe                "hadoop_cluster::system_internals"
+  recipe                "cluster_chef::dedicated_server_tuning"
   role                  "attaches_ebs_volumes"
   role                  "nfs_client"
   role                  "infochimps_base"
@@ -19,7 +19,7 @@ ClusterChef.cluster 'yellowhat' do
     # instance named yellowhat-esnode-1. The following two lines make that
     # "as defined" by this cluster def.
     instances           0
-    server 1 
+    server 1
 
     cloud.flavor        "m1.small"
     role                "redis_server"

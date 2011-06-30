@@ -48,5 +48,3 @@ service "hadoop-zookeeper-server" do
   running true
   supports :status => true, :restart => true
 end
-
-include_recipe "zookeeper::client"
