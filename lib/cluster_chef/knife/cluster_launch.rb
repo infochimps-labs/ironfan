@@ -112,15 +112,11 @@ class Chef
         #
         # Load the facet
         #
-        cluster_name, facet_name = @name_args
-        raise "Launch the cluster as: knife cluster launch CLUSTER_NAME FACET_NAME (options)" if cluster_name.nil? #blank?
-
-        cluster = ClusterChef.load_cluster( cluster_name )
+        target = ClusterChef.get_cluster_slice *@name_args
+        cluster = target.cluster
+        cluster_name = cluster.cluster_name
 
         cluster.resolve!
-        target = cluster
-
-        target = cluster.facet(facet_name) if facet_name
 
         unless cluster.undefined_servers.empty?
           puts
@@ -153,22 +149,20 @@ class Chef
         #
         # Launch servers
         #
-        created_servers = target.servers.select { |s| s.create_server }
+        uncreated_servers = target.uncreated_servers
 
-        if created_servers.empty?
+        if uncreated_servers.servers.empty?
           puts
           puts "#{h.color("No servers created!!",:red)}"
           puts
           exit 1
         end
 
-        config[:ssh_user]       = target.cloud.ssh_user
-        config[:identity_file]  = target.cloud.ssh_identity_file
-        config[:distro]         = target.cloud.bootstrap_distro
-        config[:run_list]       = target.run_list
+        uncreated_servers.create_servers
 
-        table_rows = created_servers.map do |cc|
-          s = cc.fog_server
+        
+        uncreated_servers.display(["Instance", "Flavor", "Image", "Availability Zone", "SSH Key", "Public IP", "Private IP"] ) do |svr|
+          s = svr.fog_server
           { "Instance"          => (s.id && s.id.length > 0) ? s.id : "???", # We should really have an id by this time
             "Flavor"            => s.flavor_id,
             "Image"             => s.image_id,
@@ -178,16 +172,16 @@ class Chef
             "Private IP"        => s.private_ip_address,
           }
         end
-        Formatador.display_compact_table( table_rows, ["Instance", "Flavor", "Image", "Availability Zone", "SSH Key", "Public IP", "Private IP"] )
+        
 
         print "\n#{h.color("Waiting for servers", :magenta)}"
-        watcher_threads = created_servers.map do |s|
+        watcher_threads = uncreated_servers.servers.map do |s|
           Thread.new(s) do  |cc_server|
             server = cc_server.fog_server
             cc_server.create_tags
-            server.wait_for { print "."; ready? }
+            server.wait_for { ready? }
             cc_server.attach_volumes
-            print(".") until tcp_test_ssh(server.dns_name) { sleep @initial_sleep_delay ||= 10; print("!") }
+            nil until tcp_test_ssh(server.dns_name) { sleep @initial_sleep_delay ||= 10  }
             if config[:bootstrap]
               begin
                 bootstrap_for_node(server).run
@@ -199,10 +193,17 @@ class Chef
           end
         end
         
-        watcher_threads.each {|thr| thr.join; puts }
-        
-        table_rows = created_servers.map do |cc|
-          s = cc.fog_server
+        count = 0
+        total = watcher_threads.length
+        Formatador.redisplay_progressbar(count,total)
+        watcher_threads.each do |thr|
+          thr.join
+          count += 1
+          Formatador.redisplay_progressbar(count,total)
+        end
+        puts
+        uncreated_servers.display(["Instance", "Flavor", "Image", "Availability Zone", "SSH Key", "Public IP", "Private IP"] ) do |svr|
+          s = svr.fog_server
           { "Instance"          => (s.id && s.id.length > 0) ? s.id : "???", # We should really have an id by this time
             "Flavor"            => s.flavor_id,
             "Image"             => s.image_id,
@@ -212,25 +213,8 @@ class Chef
             "Private IP"        => s.private_ip_address,
           }
         end
-        Formatador.display_compact_table( table_rows, ["Instance", "Flavor", "Image", "Availability Zone", "SSH Key", "Public IP", "Private IP"] )
-
-
-#        created_servers.each do |server|
-#          puts "\n"
-#          puts "#{h.color("Instance ID        ", :cyan)}: #{server.id}"
-#          puts "#{h.color("Flavor             ", :cyan)}: #{server.flavor_id}"
-#          puts "#{h.color("Image              ", :cyan)}: #{server.image_id}"
-#          puts "#{h.color("Availability Zone  ", :cyan)}: #{server.availability_zone}"
-#          puts "#{h.color("Security Groups    ", :cyan)}: #{server.groups.join(", ")}"
-#          puts "#{h.color("SSH Key            ", :cyan)}: #{server.key_name}"
-#          puts "#{h.color("Public DNS Name    ", :cyan)}: #{server.dns_name}"
-#          puts "#{h.color("Public IP Address  ", :cyan)}: #{server.public_ip_address}"
-#          puts "#{h.color("Private DNS Name   ", :cyan)}: #{server.private_dns_name}"
-#          puts "#{h.color("Private IP Address ", :cyan)}: #{server.private_ip_address}"
-#          puts "#{h.color("Run List           ", :cyan)}: #{facet.run_list.join(', ')}"
-#        end
       end
-
+      
       def bootstrap_for_node(server)
         
         bootstrap = Chef::Knife::Bootstrap.new
