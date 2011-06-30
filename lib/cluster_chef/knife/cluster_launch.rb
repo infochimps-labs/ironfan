@@ -20,6 +20,7 @@ require 'socket'
 require 'chef/knife'
 require 'json'
 require 'formatador'
+require 'time'
 
 class Chef
   class Knife
@@ -161,12 +162,12 @@ class Chef
         uncreated_servers.create_servers
 
         
-        uncreated_servers.display(["Instance", "Flavor", "Image", "Availability Zone", "SSH Key", "Public IP", "Private IP"] ) do |svr|
+        uncreated_servers.display(["Instance", "Flavor", "Image", "A. Zone", "SSH Key", "Public IP", "Private IP"] ) do |svr|
           s = svr.fog_server
           { "Instance"          => (s.id && s.id.length > 0) ? s.id : "???", # We should really have an id by this time
             "Flavor"            => s.flavor_id,
             "Image"             => s.image_id,
-            "Availability Zone" => s.availability_zone,
+            "A. Zone" => s.availability_zone,
             "SSH Key"           => s.key_name,
             "Public IP"         => s.public_ip_address,
             "Private IP"        => s.private_ip_address,
@@ -174,7 +175,8 @@ class Chef
         end
         
 
-        print "\n#{h.color("Waiting for servers", :magenta)}"
+        puts "Waiting for servers:"
+
         watcher_threads = uncreated_servers.servers.map do |s|
           Thread.new(s) do  |cc_server|
             server = cc_server.fog_server
@@ -192,22 +194,33 @@ class Chef
             end
           end
         end
-        
+
+
+        # Show a pretty progress bar
         count = 0
         total = watcher_threads.length
-        Formatador.redisplay_progressbar(count,total)
+        remaining = watcher_threads.select {|s| s.alive?}
+        count = remaining.length
+        start_time = Time.now
+        while count > 0 
+          remaining.reject! {|s| not s.alive?}
+          count = remaining.length
+          Formatador.redisplay_progressbar(total - count,total, {:started_at => start_time })
+          sleep 1
+        end
+
+        # Collapse the threads
         watcher_threads.each do |thr|
           thr.join
-          count += 1
-          Formatador.redisplay_progressbar(count,total)
         end
+
         puts
-        uncreated_servers.display(["Instance", "Flavor", "Image", "Availability Zone", "SSH Key", "Public IP", "Private IP"] ) do |svr|
+        uncreated_servers.display(["Instance", "Flavor", "Image", "A. Zone", "SSH Key", "Public IP", "Private IP"] ) do |svr|
           s = svr.fog_server
           { "Instance"          => (s.id && s.id.length > 0) ? s.id : "???", # We should really have an id by this time
             "Flavor"            => s.flavor_id,
             "Image"             => s.image_id,
-            "Availability Zone" => s.availability_zone,
+            "A. Zone" => s.availability_zone,
             "SSH Key"           => s.key_name,
             "Public IP"         => s.public_ip_address,
             "Private IP"        => s.private_ip_address,

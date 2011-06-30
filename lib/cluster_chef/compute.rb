@@ -1,3 +1,6 @@
+require 'chef/node'
+require 'chef/api_client'
+
 module ClusterChef
   #
   # Base class allowing us to layer settings for facet over cluster
@@ -140,6 +143,24 @@ module ClusterChef
     def stop
       delegate_to_fog_servers( :stop )
       delegate_to_fog_servers( :reload  )
+    end
+
+    def destroy
+      delegate_to_fog_servers( :destroy )
+      delegate_to_fog_servers( :reload  )
+    end
+
+    def reload
+      delegate_to_fog_servers( :reload  )
+    end
+
+    def delete_chef( delete_clients = true, delete_nodes = true)
+      servers.each do |svr|
+        next unless svr.chef_node
+        node = svr.chef_node
+        node.destroy
+        svr.chef_node = nil
+      end
     end
  
     def create_servers
@@ -511,7 +532,8 @@ module ClusterChef
 
       @servers = {}
       indexes.each do |idx|
-        @servers[idx] = facet.server_by_index idx
+        svr = facet.server_by_index idx
+        @servers[idx] = svr if svr
       end
 
     end
