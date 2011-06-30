@@ -55,6 +55,4 @@ execute 'create user dirs on HDFS' do
       hadoop fs -chown ${user#/user/} $user;
     done ;
   }
-  notifies :start, resources(:service => "#{node[:hadoop][:hadoop_handle]}-jobtracker")
-  notifies :start, resources(:service => "#{node[:hadoop][:hadoop_handle]}-tasktracker")
 end
