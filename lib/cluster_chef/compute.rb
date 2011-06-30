@@ -140,6 +140,10 @@ module ClusterChef
       return @facets[facet_name].slice *args
     end
 
+    def cluster
+      self
+    end
+
     def cluster_name
       self.name
     end
