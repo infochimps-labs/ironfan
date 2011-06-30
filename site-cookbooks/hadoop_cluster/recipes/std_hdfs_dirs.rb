@@ -47,8 +47,9 @@ execute 'create user dirs on HDFS' do
     hadoop_users="/user/ubuntu $hadoop_users"
     hadoop fs -mkdir    /tmp /user /user/hive/warehouse $hadoop_users;
     hadoop fs -chmod a+w /tmp /user /user/hive/warehouse;
-    hadoop fs -mkdir           /hadoop/system
+    hadoop fs -mkdir           /hadoop/system/mapred
     hadoop fs -chown -R mapred /hadoop/system
+    hadoop fs -chmod 600       /hadoop/system/mapred
     hadoop fs -mkdir           /hadoop/hbase
     hadoop fs -chown -R hbase  /hadoop/hbase
     for user in $hadoop_users ; do

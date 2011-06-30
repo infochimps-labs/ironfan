@@ -1,4 +1,3 @@
-
 overcommit_memory  =     1
 overcommit_ratio   =   100
 ulimit_hard_nofile = 32768
