@@ -78,6 +78,9 @@ class Chef
         target.cluster.resolve!
 
         unless config[:yes]
+          puts "This action will stop the following nodes:"
+          target.display
+          puts "Unless these nodes are backed by EBS volumes, this will result in loss of all data not saved elsewhere. Even if they are EBS backed, there may still be some data loss."
           puts "Are you absolutely certain that you want to perform this action? (Type 'Yes' to confirm)"
           confirm = STDIN.readline
           if confirm.chomp != "Yes"
@@ -86,9 +89,9 @@ class Chef
           end
         end
 
-        target.servers.each do |server|
-          server.fog_server.stop if server.fog_server
-        end
+        puts
+        target.stop
+        target.display
 
       end
     end

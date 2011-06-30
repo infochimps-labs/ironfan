@@ -70,9 +70,9 @@ class Chef
         target = ClusterChef.get_cluster_slice *@name_args
         target.cluster.resolve!
 
-        target.servers.each do |server|
-          server.fog_server.start if server.fog_server
-        end
+        target.start
+        target.display
+
       end
     end
   end
