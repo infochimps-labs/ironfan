@@ -10,8 +10,8 @@ run_list *%w[
 default_attributes({
                      :firewall => {
                        :port_scan_ssh => {
-                         :window => 5,
-                         :max_conns => 20,
+                         :window => 20,
+                         :max_conns => 15,
                          :port => 22
                        }
                      }

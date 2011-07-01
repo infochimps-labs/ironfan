@@ -49,13 +49,6 @@ class Chef
         # TODO: this is a hack - remove when ClusterChef is deployed as a gem
         $: << Chef::Config[:cluster_chef_path]+'/lib'
 
-        # TODO: this is a hack - should be moved to some kind of configuration
-        #       controllable by the user, perhaps in a knife.rb file. Needs to
-        #       be fixed as a part of separating cluster configuration from
-        #       ClusterChef gem.  However, it is currently required to get
-        #       ClusterChef.load_cluster to work right.
-        $: << Chef::Config[:cluster_chef_path]
-
         require 'cluster_chef'
         $stdout.sync = true
 
@@ -68,78 +61,51 @@ class Chef
         end
 
         #
-        # Load the facet
+        # Load the cluster/facet/slice/whatever
         #
-        cluster_name, facet_name, index = @name_args
-
-        cluster = ClusterChef.load_cluster( cluster_name )
-        facet = cluster.facet(facet_name) if facet_name
-        servers = []
+        target = ClusterChef.get_cluster_slice *@name_args
+        cluster = target.cluster
+        cluster_name = cluster.cluster_name
 
         cluster.resolve!
-        case
-        when facet && index
-          servers = Array(facet.server_by_index[index])
-        when facet
-          servers = facet.servers
-        else
-          servers = cluster.servers
-        end
+        servers = target.servers
 
         #
         # Display server info
         #
+        
+        # Create a slice of servers that are actually in defined facets
+        servers = target.servers.select { |svr| cluster.has_facet? svr.facet_name }
+        ClusterChef::ClusterSlice.new( cluster, servers ).display
 
-        defined_data = servers.sort{ |a,b| (a.facet_name <=> b.facet_name) *3 + (a.facet_index <=> b.facet_index) }.map do |svr|
-          x = { "Node"    => svr.chef_node_name,
-                "Facet"   => svr.facet_name,
-                "Index"   => svr.facet_index,
-                "Chef?"   => svr.chef_node ? "yes" : "[red]no[reset]",
-          }
-          if svr.fog_server
-            x["AWS ID"]  = svr.fog_server.id
-            x["State"]   = svr.fog_server.state
-            x["Address"] = svr.fog_server.public_ip_address
+        # If the cluster discovery failed to put everything into its correct
+        # place, we have some servers that do not fit into the regular boxes.
+        undefined_data = target.cluster.undefined_servers.map do |hash|
+          chef_node = hash[:chef_node]
+          fog_server = hash[:fog_server]
+          x = {}
+          
+          if chef_node
+            x["Node"]  = chef_node[:node_name]
+            x["Facet"] = chef_node[:facet_name]
+            x["Index"] = chef_node[:facet_index]
+          end
+          
+          if fog_server
+            x["AWS ID"]  = fog_server.id
+            x["State"]   = fog_server.state
+            x["Address"] = fog_server.public_ip_address
           else
-            x["State"] = "not running"
+            x["State"]  = "not running"
           end
           x
         end
-
-        puts "Information for cluster #{cluster_name}"
-        if defined_data.empty?
-          puts "Nothing to report"
-        else
-          Formatador.display_compact_table(defined_data,["Node","Facet","Index","Chef?","AWS ID","State","Address"])
-        end
-
-        if facet.nil?
-          undefined_data = cluster.undefined_servers.map do |hash|
-            chef_node = hash[:chef_node]
-            fog_server = hash[:fog_server]
-            x = {}
-
-            if chef_node
-              x["Node"]  = chef_node[:node_name]
-              x["Facet"] = chef_node[:facet_name]
-              x["Index"] = chef_node[:facet_index]
-            end
-
-            if fog_server
-              x["AWS ID"]  = fog_server.id
-              x["State"]   = fog_server.state
-              x["Address"] = fog_server.public_ip_address
-            else
-              x["State"]  = "not running"
-            end
-            x
-          end
-
-          unless undefined_data.empty?
-            puts
-            Formatador.display_line "[red]Cluster contains undefined servers[reset]"
-            Formatador.display_compact_table(  undefined_data.sort_by {|x| "#{x["Facet"]}-#{x["Index"]}"},                                              ["Node", "Facet", "Index", "AWS ID", "State", "Address"])
-          end
+        
+        unless undefined_data.empty?
+          puts
+          Formatador.display_line "[red]Cluster contains undefined servers[reset]"
+          Formatador.display_compact_table(  undefined_data.sort_by {|x| "#{x["Facet"]}-#{x["Index"]}"},
+                                             ["Node","Facet","Index","Chef?","AWS ID","State","Address"] )
         end
       end
     end

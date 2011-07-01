@@ -63,9 +63,14 @@ class Chef
         :long => "--no",
         :description => "No matter what, do not delete anything."
 
-      option :client,
+      option :delete_client,
         :long => "--client",
         :description => "Delete the chef client along with the chef node."
+
+      option :delete_node,
+        :long => "--node",
+        :description => "Delete the chef client along with the chef node.",
+        :default => true
 
       def h
         @highline ||= HighLine.new
@@ -103,59 +108,67 @@ class Chef
         #
         # Load the facet
         #
-        cluster_name, facet_name, index = @name_args
-        
-        cluster = ClusterChef.load_cluster( cluster_name )        
-        facet = cluster.facet(facet_name) if facet_name
+        #
+        # Load the cluster/facet/slice/whatever
+        #
+        target = ClusterChef.get_cluster_slice *@name_args
+        cluster = target.cluster
+        cluster_name = cluster.cluster_name
 
-        servers = [] 
+        cluster.resolve!
+        servers = target.servers
 
         cluster.resolve!
         
         chef_nodes = []
         fog_servers = []
 
-        unless config[:no_defined]
-          if facet          
-            if index
-              chef_nodes  = facet.server_by_index[index] ? [ facet.server[index].chef_node ] : []
-              fog_servers = facet.server_by_index[index] ? [ facet.server[index].fog_server ] : []
-            else
-              facet.servers.each do |server|
-                chef_nodes.push server.chef_node
-                fog_servers.push server.fog_server
-              end
-            end
-          else
-            cluster.servers.each do |server|
-              chef_nodes.push server.chef_node
-              fog_servers.push server.fog_server
-            end
-          end
-        end
+#        unless config[:no_defined]
+#          if facet          
+#            if index
+#              chef_nodes  = facet.server_by_index[index] ? [ facet.server[ind#ex].chef_node ] : []
+#              fog_servers = facet.server_by_index[index] ? [ facet.server[ind#ex].fog_server ] : []
+#            else
+#              facet.servers.each do |server|
+#                chef_nodes.push server.chef_node
+#                fog_servers.push server.fog_server
+#              end
+#            end
+#          else
+#            cluster.servers.each do |server|
+#              chef_nodes.push server.chef_node
+#              fog_servers.push server.fog_server
+#            end
+#          end
+#        end
 
-        if config[:undefined]
-          cluster.undefined_servers.each do |hash|
-            chef_nodes.push hash[:chef_node]
-            fog_servers.push hash[:fog_server]
-          end
+# Find another way to deal with the undefined servers...
+#
+#        if config[:undefined]
+#          cluster.undefined_servers.each do |hash|
+#            chef_nodes.push hash[:chef_node]
+#            fog_servers.push hash[:fog_server]
+#          end
+#        end
+
+        # Count to see how much work we have to do
+        chef_node_count = 0
+        fog_server_count = 0
+
+        servers.each do |svr|
+          chef_node_count += 1 if svr.chef_node
+          fog_server_count +=1 if svr.fog_server
         end
-        
-        chef_nodes.uniq!
-        fog_servers.uniq!
         
         if config[:no_chef]
-          chef_nodes = []
+          chef_node_count = 0
         end
 
         if config[:no_fog]
-          fog_servers = []
+          fog_server_count = 0
         end
-        
-        chef_nodes.reject! { |x| x.nil? }
-        fog_servers.reject! { |x| x.nil? }
-        
-        if chef_nodes.empty? && fog_servers.empty?
+                
+        if chef_node_count == 0 && fog_server_count == 0
           puts
           puts "Nothing to delete."
           puts "Exiting."
@@ -165,16 +178,12 @@ class Chef
 
         puts "WARNING!!!!"
         puts
-        unless chef_nodes.empty?
-          puts "This command will delete the following chef nodes: "
-          puts chef_nodes.map {|n| n.node_name }.join(" ")
-          puts
-        end
-        unless fog_servers.empty?
-          puts "This command will terminate the following servers: "
-          puts fog_servers.map {|s| s.id }.join(" ")
-          puts
-        end
+        target.display
+        delete_strings = []
+        delete_strings.push "fog servers" if fog_server_count > 0
+        delete_strings.push "chef nodes" if chef_node_count > 0
+        delete_message = delete_strings.join(" and ")
+        puts "This command will delete the above #{delete_message}"
         puts "Are you absolutely certain that you want to perform this action? (Type 'Yes' to confirm)"
  
         unless config[:yes]
@@ -205,12 +214,12 @@ class Chef
         exit 1 if config[:no]
 
 
-        fog_servers.each {|fog_server| next unless fog_server; fog_server.destroy; puts "terminating #{fog_server.id}" }
-        chef_nodes.each do |node| 
-          next unless node
-          delete_object(Chef::Node, node.node_name)  
-          delete_object(Chef::ApiClient, node.node_name) if config[:client]
-        end
+        target.destroy unless config[:no_fog]
+        target.delete_chef(config[:delete_client], config[:delete_node]) unless config[:no_chef]
+
+        # Print out resulting status
+        target.display
+
       end
     end    
   end

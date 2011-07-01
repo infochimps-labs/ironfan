@@ -2,7 +2,7 @@ ClusterChef.cluster 'goldencap' do
   use :defaults
   setup_role_implications
 
-  recipe                "hadoop_cluster::system_internals"
+  recipe                "cluster_chef::dedicated_server_tuning"
   role                  "attaches_ebs_volumes"
   role                  "nfs_client"
   role                  "infochimps_base"
@@ -23,8 +23,8 @@ ClusterChef.cluster 'goldencap' do
   end
 
   facet 'twscraper' do
-    instances           8
-    cloud.flavor        "t1.micro"
+    instances           4
+    cloud.flavor        "m1.small"
   end
 
   facet 'nikko' do

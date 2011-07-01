@@ -1,3 +1,6 @@
+require 'chef/node'
+require 'chef/api_client'
+
 module ClusterChef
   #
   # Base class allowing us to layer settings for facet over cluster
@@ -107,6 +110,109 @@ module ClusterChef
         end
       end
     end
+
+
+    # These are some helper methods for iterating through the servers
+    # to do things
+
+    def delegate_to_servers method, threaded = false
+      # If we are not threading, sequentially call the method for each server
+      # and return the results in an array
+      return servers.map {|svr| svr.send(method) } unless threaded
+      
+      # Create threads to send a message to the servers in parallel
+      threads = servers.map {|svr| Thread.new(svr) { |s| s.send(method) } }
+      
+      # Wait for the threads to finish and return the array of results
+      return threads.map {|t| t.join.value }
+    end
+
+    def delegate_to_fog_servers method
+      servers.map do |svr|
+        svr.fog_server.send(method) if svr.fog_server
+      end
+    end
+
+    # Here are a few
+
+    def start
+      delegate_to_fog_servers( :start  )
+      delegate_to_fog_servers( :reload  )
+    end
+    
+    def stop
+      delegate_to_fog_servers( :stop )
+      delegate_to_fog_servers( :reload  )
+    end
+
+    def destroy
+      delegate_to_fog_servers( :destroy )
+      delegate_to_fog_servers( :reload  )
+    end
+
+    def reload
+      delegate_to_fog_servers( :reload  )
+    end
+
+    def delete_chef( delete_clients = true, delete_nodes = true)
+      servers.each do |svr|
+        next unless svr.chef_node
+        node = svr.chef_node
+        node.destroy
+        svr.chef_node = nil
+      end
+    end
+ 
+    def create_servers
+      delegate_to_servers( :create_server )
+    end
+
+    def uncreated_servers
+      # Return the collection of servers that are not yet 'created'
+      return ClusterSlice.new cluster, servers.reject { |svr| svr.fog_server }
+    end
+
+
+    # This is a generic display routine for cluster-like sets of nodes. If you call
+    # it with no args, you get the basic table that knife cluster show draws. 
+    # If you give it an array of strings, you can override the order and headings
+    # displayed. If you also give it a block you can supply your own logic for 
+    # generating content. The block is given a ClusterChef::Server instance for each
+    # item in the collection and should return a hash of Name,Value pairs to display
+    # in the table.
+    #
+    # There is an example of how to call this functon with a block in knife/cluster_launch.rb
+
+    def display headings = ["Node","Facet","Index","Chef?","AWS ID","State","Address"]
+      sorted_servers = servers.sort{ |a,b| (a.facet_name <=> b.facet_name) *9 + (a.facet_index.to_i <=> b.facet_index.to_i)*3 + (a.facet_index <=> b.facet_index) }
+      if block_given?
+        defined_data = sorted_servers.map {|svr| yield svr }
+      else
+        defined_data = sorted_servers.map do |svr|
+          x = { "Node"    => svr.chef_node_name,
+            "Facet"   => svr.facet_name,
+            "Index"   => svr.facet_index,
+            "Chef?"   => svr.chef_node ? "yes" : "[red]no[reset]",
+          }
+          if svr.fog_server
+            x["AWS ID"]  = svr.fog_server.id
+            x["State"]   = svr.fog_server.state
+            x["Address"] = svr.fog_server.public_ip_address
+          else
+            x["State"] = "not running"
+          end
+          x
+        end
+      end
+
+      if defined_data.empty?
+        puts "Nothing to report"
+      else
+        Formatador.display_compact_table(defined_data,headings)
+      end
+
+    end
+
   end
 
   #
@@ -128,6 +234,24 @@ module ClusterChef
       @facets[facet_name] ||= ClusterChef::Facet.new(self, facet_name)
       @facets[facet_name].instance_eval(&block) if block
       @facets[facet_name]
+    end
+    
+    def has_facet? facet_name
+      return @facets.member?(facet_name)
+    end
+
+    def slice *args
+      return self if args.length == 0
+      facet_name = args.shift      
+      unless @facets[facet_name] 
+        $stderr.puts "Facet '#{facet_name}' is not defined in cluster '#{cluster_name}'"
+        exit -1
+      end
+      return @facets[facet_name].slice *args
+    end
+
+    def cluster
+      self
     end
 
     def cluster_name
@@ -211,9 +335,11 @@ module ClusterChef
         # to locate the corresponding machine in the cluster def and get
         # its chef_node_name
         if s.tags["cluster"] && s.tags["facet"] && s.tags["index"] 
-          begin
-            nn = facet(s.tags["facet"]).server(s.tags["index"]).chef_node_name
-          rescue
+          if has_facet?( s.tags["facet"]) 
+            f = facet(s.tags["facet"])
+            if f.has_server?( s.tags["index"] ) 
+              nn = f.server(s.tags["index"]).chef_node_name
+            end
           end
         end
 
@@ -252,9 +378,29 @@ module ClusterChef
         end
       end
     end
+  end
 
+
+  # This class represents a loose collection of servers within a cluster, but not necessarily
+  # all in the same facet.  They can be started, stopped, launched, killed, etcetera as a group.
+  class ClusterSlice < ClusterChef::ComputeBuilder
+    attr_reader :cluster    
+
+    def initialize cluster, servers
+      @cluster = cluster
+      @servers = servers
+    end
+
+    def servers
+      @servers
+    end
+    
+    def cluster_name
+      cluster.name
+    end
 
   end
+
 
   class Facet < ClusterChef::ComputeBuilder
     attr_reader :cluster, :facet_name
@@ -271,12 +417,19 @@ module ClusterChef
       facet_role      "#{@cluster.name}_#{facet_name}"
     end
 
+    def slice *args
+      return self if args.length == 0
+      slice = FacetSlice.new self, *args
+      
+      return slice
+    end
+
     def servers
       @servers.values
     end
 
     def server_by_index index
-      @servers[index]
+      @servers[index.to_s]
     end
 
     def get_node_name index
@@ -341,8 +494,88 @@ module ClusterChef
       @servers[facet_index]
     end
 
+    def has_server? index
+      return @servers.member? index.to_s
+    end
+
     def cluster_group
       return "#{cluster_name}-#{facet_name}"
+    end
+
+  end
+
+  
+  class FacetSlice < ClusterChef::ComputeBuilder
+    attr_reader :cluster, :facet
+    has_keys  :instances, 
+
+    def initialize facet, instance_indexes
+      @facet = facet
+      @cluster = facet.cluster
+      @instance_indexes = instance_indexes
+    end
+
+    def parse_indexes
+      indexes = []
+
+      @instance_indexes.split(",").each do |term|
+        if term =~ /(\d+)-(\d+)/
+          $1.to_i.upto($2.to_i) do |i|
+            indexes.push i.to_s
+          end
+        else
+          indexes.push term
+        end
+      end
+      indexes.sort!.uniq!
+      
+
+      @servers = {}
+      indexes.each do |idx|
+        svr = facet.server_by_index idx
+        @servers[idx] = svr if svr
+      end
+
+    end
+
+    def servers
+      parse_indexes unless @servers
+      @servers.values
+    end
+
+    def server_by_index index
+      parse_indexes unless @servers
+      @servers[index.to_s]
+    end
+
+    def get_node_name index
+      "#{cluster_name}-#{facet_name}-#{index}"
+    end
+    
+    def cluster_name
+      cluster.name
+    end
+
+    def security_groups
+      cluster.security_groups
+    end
+
+
+    def to_hash_with_cloud
+      to_hash.merge({ :cloud => cloud.to_hash, })
+    end
+
+    def resolve_servers!
+      facet.resolve_servers!
+    end
+
+    def server index, &block
+      parse_indexes unless @servers
+
+      facet_index = index.to_s
+      @servers[facet_index] ||= ClusterChef::Server.new(self, facet_index)
+      @servers[facet_index].instance_eval(&block) if block
+      @servers[facet_index]
     end
 
   end
@@ -385,6 +618,10 @@ module ClusterChef
     def tag key,value=nil
       return @tags[key] unless value
       @tags[key] = value
+    end
+    
+    def servers
+      return [self]
     end
 
     def volume specs
@@ -474,7 +711,6 @@ module ClusterChef
     def to_hash_with_cloud
       to_hash.merge({ :cloud => cloud.to_hash, })
     end
-
 
   end
 end

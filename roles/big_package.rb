@@ -1,8 +1,10 @@
 name        'big_package'
-description "A bunch of useful packages to include."
+description 'Many convenience packages in one big blump'
 
-# Recipes to run
 run_list *%w[
   big_package
+  big_package::python
   big_package::ruby
- ]
+  big_package::emacs_modes
+  big_package::other
+]
