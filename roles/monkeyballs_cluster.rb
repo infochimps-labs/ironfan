@@ -3,6 +3,7 @@ description 'Holds cluster-wider overrides and recipes for the monkeyballs clust
 
 # Force these attributes overriding all else
 override_attributes({
+    :extra_users => [ "allie" ] ,
     :cluster_size => 3,
 
     :hadoop => {
