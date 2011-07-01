@@ -26,7 +26,7 @@ ClusterChef.cluster 'bonobo' do
   end
 
   facet 'worker' do
-    instances           10
+    instances           30
   end
 
   chef_attributes({
