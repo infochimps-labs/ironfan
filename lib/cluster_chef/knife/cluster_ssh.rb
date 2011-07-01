@@ -30,8 +30,8 @@ class Chef
         require 'chef/search/query'
         require 'chef/mixin/command'
         require 'fog'
-        
-        Chef::Knife::Bootstrap.load_deps 
+
+        Chef::Knife::Bootstrap.load_deps
       end
 
       attr_writer :password
@@ -48,7 +48,7 @@ class Chef
       option :attribute,
         :short => "-a ATTR",
         :long => "--attribute ATTR",
-        :description => "The attribute to use for opening the connection - default is fqdn"
+        :description => "The attribute to use for opening the connection - default is fqdn (ec2 users may prefer cloud.public_hostname)"
 
       option :ssh_user,
         :short => "-x USERNAME",
@@ -78,22 +78,16 @@ class Chef
         :boolean => true,
         :default => false
 
-
       def configure_session
         target = ClusterChef.get_cluster_slice *@name_args[0].split(" ")
         cluster = target.cluster
         cluster.resolve!
-        
-        config[:attribute] ||= Chef::Config[:knife][:ssh_address_attribute]
-        config[:attribute] ||= "fqdn"
+
+        config[:attribute] ||= Chef::Config[:knife][:ssh_address_attribute] || "fqdn"
         config[:ssh_user] ||= Chef::Config[:knife][:ssh_user]
 
-        nodes = target.servers.map {|s| s.chef_node if s.chef_node}.select {|r| r}  
-        list = []
-        nodes.each do |n|
-          i = format_for_display(n)[config[:attribute]]
-          list.push(i) unless i.nil?
-        end
+        @action_nodes = target.servers.map{|s| s.chef_node if s.chef_node }.compact
+        list = @action_nodes.map{|n| format_for_display(n)[config[:attribute]] }.compact
 
         (ui.fatal("No nodes returned from search!"); exit 10) if list.length == 0
         session_from_list(list)
@@ -111,7 +105,7 @@ class Chef
         # TODO: this is a hack - should be moved to some kind of configuration
         #       controllable by the user, perhaps in a knife.rb file. Needs to
         #       be fixed as a part of separating cluster configuration from
-        #       ClusterChef gem.  However, it is currently required to get 
+        #       ClusterChef gem.  However, it is currently required to get
         #       ClusterChef.load_cluster to work right.
         $: << Chef::Config[:cluster_chef_path]
 
