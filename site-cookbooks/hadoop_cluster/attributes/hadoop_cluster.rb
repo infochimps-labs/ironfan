@@ -25,7 +25,7 @@ default[:hadoop][:mapred_jobtracker_completeuserjobs_maximum ] = 100
 default[:hadoop][:extra_classpaths]  = { }
 
 # uses /etc/default/hadoop-0.20 to set the hadoop daemon's heapsize
-default[:hadoop][:hadoop_daemon_heapsize]       = 1500
+default[:hadoop][:hadoop_daemon_heapsize]            = 1000
 
 #
 # fs.inmemory.size.mb  # default XX

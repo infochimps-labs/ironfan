@@ -7,8 +7,14 @@ override_attributes({
     :cluster_size => 3,
 
     :hadoop => {
-      :max_map_tasks    => 6,
+      :max_map_tasks    => 16,
       :max_reduce_tasks => 2,
       :cdh_version =>  "cdh3",
+
+      :hadoop_daemon_heapsize            => 1000,
+      :hadoop_namenode_heapsize          => 4000,
+      :hadoop_secondarynamenode_heapsize => 4000,
+      :hadoop_jobtracker_heapsize        => 4000,
+
     },
   })
