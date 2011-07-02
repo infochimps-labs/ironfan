@@ -3,10 +3,10 @@ ClusterChef.cluster 'yellowhat' do
   setup_role_implications
 
   recipe                "cluster_chef::dedicated_server_tuning"
-  role                  "attaches_ebs_volumes"
+  role                  "ebs_volumes_attach"
   role                  "nfs_client"
   role                  "infochimps_base"
-  role                  "mounts_ebs_volumes"
+  role                  "ebs_volumes_mount"
   role                  "benchmarkable"
   cloud do
     backing             "ebs"
