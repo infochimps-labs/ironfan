@@ -22,7 +22,7 @@ package "ruby" do
 end
 
 extra_packages = case node[:platform]
-  when "ubuntu","debian"          then %w[ ruby1.8 ruby1.8-dev ri ] #
+  when "ubuntu","debian"          then %w[ ruby#{node[:ruby][:version]} ruby#{node[:ruby][:version]}-dev ri ] #
   when "centos","redhat","fedora" then %w[ ruby-libs ruby-devel ruby-docs ruby-ri ruby-irb ruby-rdoc ruby-mode ]
   end
 extra_packages.each do |pkg|
@@ -32,7 +32,7 @@ extra_packages.each do |pkg|
 end
 
 %w[
-   extlib oniguruma fastercsv json yajl-ruby libxml-ruby htmlentities addressable
+   extlib fastercsv json yajl-ruby libxml-ruby htmlentities addressable
    uuidtools configliere right_aws whenever
    rest-client oauth json crack cheat
    echoe jeweler yard net-proto net-scp net-sftp net-ssh net-ssh-multi idn
@@ -46,6 +46,8 @@ end
     action :install
   end
 end
+
+if node[:ruby][:version] == '1.8' then gem_package('oniguruma'){ action :install } ; end
 
 gem_package("nokogiri"){action :install ; version "1.4.2" }
 gem_package("hpricot"){ action :install ; version "0.8.2" }

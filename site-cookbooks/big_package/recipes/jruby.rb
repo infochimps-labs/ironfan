@@ -3,7 +3,7 @@ package "jruby" do
 end
 
 %w[
-   extlib oniguruma fastercsv json yajl-ruby libxml-ruby htmlentities addressable
+   extlib fastercsv json yajl-ruby libxml-ruby htmlentities addressable
    uuidtools configliere right_aws whenever
    rest-client oauth json crack cheat
    echoe jeweler yard net-proto net-scp net-sftp net-ssh idn
@@ -14,6 +14,7 @@ end
 ].each do |pkg|
   gem_package pkg do
     action :install
+    gem_binary '/usr/bin/jruby'
   end
 end
 
