@@ -5,23 +5,31 @@ export DEBIAN_FRONTEND=noninteractive
 
 apt-get update
 
-echo "`date` Installing base packages"
-apt-get install -y ruby ruby1.8-dev build-essential wget libruby-extras libruby1.8-extras runit runit-services
-echo "`date` Unchaining rubygems from the tyrrany of ubuntu"  
+echo -e "`date` \n\n**** \n**** Installing base packages:\n****\n"
 
-export REALLY_GEM_UPDATE_SYSTEM=true
-#gem install --no-rdoc --no-ri rubygems-update --version=1.3.7; /var/lib/gems/1.8/bin/update_rubygems ; gem update --no-rdoc --no-ri --system ; gem --version
+apt-get install -y build-essential wget runit runit-services
 
-gem install --no-rdoc --no-ri rubygems-update; /var/lib/gems/1.8/bin/update_rubygems ; gem update --no-rdoc --no-ri; gem --version
+RUBY_VERSION=1.9.1 # this actually installs 1.9.2, it just says 1.9.1
 
-echo "`date` Installing support gems"  
+echo -e "`date` \n\n**** \n**** Installing ruby version ${RUBY_VERSION}:\n****\n"
+apt-get install -y ruby ruby-dev libruby ruby1.8 ruby1.8-dev libruby1.8 libshadow-ruby1.8
+apt-get install -y ruby${RUBY_VERSION}-full rubygems${RUBY_VERSION} 
+sudo update-alternatives --install /usr/bin/ruby ruby /usr/bin/ruby${RUBY_VERSION} 100 --slave /usr/bin/ri ri /usr/bin/ri${RUBY_VERSION} --slave /usr/bin/irb irb /usr/bin/irb${RUBY_VERSION} --slave /usr/bin/erb erb /usr/bin/erb${RUBY_VERSION} --slave /usr/bin/gem gem /usr/bin/gem${RUBY_VERSION} --slave /usr/share/man/man1/ruby.1.gz ruby.1.gz /usr/share/man/man1/ruby${RUBY_VERSION}.1.gz
+
+if ruby -e "exit(%x{gem --version} < \"1.8.5\" ? 0 : -1 )" ; then
+  echo -e "`date` \n\n**** \n**** Unchaining rubygems from the tyrrany of ubuntu:\n****\n"
+  export REALLY_GEM_UPDATE_SYSTEM=true
+  gem install --no-rdoc --no-ri rubygems-update; /var/lib/gems/${RUBY_VERSION}/bin/update_rubygems ; gem update --no-rdoc --no-ri; gem --version
+fi
+
+echo -e "`date` \n\n**** \n**** Installing support gems:\n****\n"
 gem install --no-rdoc --no-ri broham uuidtools configliere right_aws extlib json
 
-echo "`date` Installing chef"
+echo -e "`date` \n\n**** \n**** Installing chef:\n****\n"
 
 gem install chef --no-rdoc --no-ri --verbose --version="<%= Chef::Config[:bootstrap_chef_version] || "~> 0.9.0" %>"
 
-echo "`date` Knifing in the chef client config files"
+echo -e "`date` \n\n**** \n**** Knifing in the chef client config files:\n****\n"
 mkdir -p /etc/chef
 
 (
@@ -32,10 +40,10 @@ EOP
 awk NF /tmp/validation.pem > /etc/chef/validation.pem
 rm /tmp/validation.pem
 
-echo "`date` Pulling in chef client script"  
-wget --no-check-certificate -nv ${REMOTE_FILE_URL_BASE}/client.rb -O /etc/chef/client.rb 
+echo -e "`date` \n\n**** \n**** Pulling in chef client script:\n****\n"
+wget --no-check-certificate -nv ${REMOTE_FILE_URL_BASE}/client.rb -O /etc/chef/client.rb
 
-echo "`date` Adding chef client runit scripts"
+echo -e "`date` \n\n**** \n**** Adding chef client runit scripts:\n****\n"
 service chef-client stop ; sleep 1 ; killall chef-client
 mkdir -p /var/log/chef /var/chef /etc/sv/chef-client/log/main
 cat > /etc/sv/chef-client/log/run <<EOF
@@ -52,21 +60,23 @@ ln -nfs /usr/bin/sv /etc/init.d/chef-client
 
 (
 cat <<'EOP'
-<%= { "run_list" => @run_list }.to_json %>
+<%= JSON.pretty_generate({ "run_list" => @run_list }) %>
 EOP
 ) > /etc/chef/first-boot.json
 
-#echo "`date` First run of chef"
-#/usr/bin/chef-client -j /etc/chef/first-boot.json
+<%- if (@config[:bootstrap_runs_chef_client].to_s == 'true') || (@chef_config.knife[:bootstrap_runs_chef_client].to_s == 'true') %>
+echo -e "`date` \n\n**** \n**** First run of chef:\n****\n"
+/usr/bin/chef-client -j /etc/chef/first-boot.json
+<%- end %>
 
-echo "`date` Cleanup"  
+echo -e "`date` \n\n**** \n**** Cleanup:\n****\n"
 updatedb
 
-echo "`date` Enabling chef client service" 
+echo -e "`date` \n\n**** \n**** Enabling chef client service:\n****\n"
 ln -nfs /etc/sv/chef-client /etc/service/chef-client
 
-echo "`date` Starting chef-client"
+echo -e "`date` \n\n**** \n**** Starting chef-client:\n****\n"
 service chef-client start
 
-echo "`date` Cluster Chef client bootstrap complete."  
+echo -e "`date` \n\n**** \n**** Cluster Chef client bootstrap complete:\n****\n"
 '

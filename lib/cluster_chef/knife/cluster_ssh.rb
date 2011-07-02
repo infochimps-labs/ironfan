@@ -84,7 +84,7 @@ class Chef
         cluster.resolve!
 
         config[:attribute] ||= Chef::Config[:knife][:ssh_address_attribute] || "fqdn"
-        config[:ssh_user] ||= Chef::Config[:knife][:ssh_user]
+        config[:ssh_user]  ||= Chef::Config[:knife][:ssh_user]
 
         @action_nodes = target.servers.map{|s| s.chef_node if s.chef_node }.compact
         list = @action_nodes.map{|n| format_for_display(n)[config[:attribute]] }.compact

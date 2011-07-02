@@ -17,37 +17,42 @@
 # limitations under the License.
 #
 
-package "ruby" do
-  action :install
-end
-
-extra_packages = case node[:platform]
-  when "ubuntu","debian"          then %w[ ruby#{node[:ruby][:version]} ruby#{node[:ruby][:version]}-dev ri ] #
-  when "centos","redhat","fedora" then %w[ ruby-libs ruby-devel ruby-docs ruby-ri ruby-irb ruby-rdoc ruby-mode ]
+pkgs = case node[:platform]
+  when "ubuntu","debian"          then [ "ruby#{node[:ruby][:version]}", "ruby#{node[:ruby][:version]}-dev", "ri#{node[:ruby][:version]}" ]
+  when "centos","redhat","fedora" then %w[ ruby ruby-libs ruby-devel ruby-docs ruby-ri ruby-irb ruby-rdoc ruby-mode ]
   end
-extra_packages.each do |pkg|
-  package pkg do
-    action :install
-  end
-end
 
-%w[
+Chef::Log.debug [ node[:ruby] ].inspect + "\n\n!!!\n\n"
+
+gem_pkgs = %w[
    extlib fastercsv json yajl-ruby libxml-ruby htmlentities addressable
-   uuidtools configliere right_aws whenever
+   configliere right_aws whenever
    rest-client oauth json crack cheat
-   echoe jeweler yard net-proto net-scp net-sftp net-ssh net-ssh-multi idn
+   echoe jeweler yard net-proto net-scp net-sftp net-ssh net-ssh-multi
    rails wirble
    wukong cassandra redis
    dependencies
    imw chimps
    fog
-].each do |pkg|
-  gem_package pkg do
-    action :install
+]
+
+if node[:ruby][:version] == '1.8'
+  pkgs     += %w[libonig2 libonig-dev]
+  gem_pkgs += %w[oniguruma uuidtools idn ]
+  if node[:lsb][:release].to_f < 10.10
+    gem_pkgs += %w[ rdoc libopenssl-ruby  ]
+  else
+    gem_pkgs += %w[ libruby-extras ]
   end
 end
 
-if node[:ruby][:version] == '1.8' then gem_package('oniguruma'){ action :install } ; end
+pkgs.each do |pkg|
+  package(pkg){ action :install }
+end
+
+gem_pkgs.each do |pkg|
+  gem_package(pkg){ action :install }
+end
 
 gem_package("nokogiri"){action :install ; version "1.4.2" }
 gem_package("hpricot"){ action :install ; version "0.8.2" }

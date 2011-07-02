@@ -24,8 +24,8 @@ class Chef
   class Knife
     class ClusterBootstrap < Knife
       deps do
-        Chef::Knife::Bootstrap.load_deps 
-      end      
+        Chef::Knife::Bootstrap.load_deps
+      end
 
       deps do
         require 'chef/knife/core/bootstrap_context'
@@ -45,10 +45,37 @@ class Chef
         :long => "--bootstrap",
         :description => "Also bootstrap the launched node"
 
+      option :bootstrap_runs_chef_client,
+        :long => "--bootstrap-runs-chef-client",
+        :description => "If bootstrap is invoked, will do the initial run of chef-client in the bootstrap script"
+
+      option :ssh_user,
+        :short => "-x USERNAME",
+        :long => "--ssh-user USERNAME",
+        :description => "The ssh username"
+
       option :ssh_password,
         :short => "-P PASSWORD",
         :long => "--ssh-password PASSWORD",
         :description => "The ssh password"
+
+      option :ssh_port,
+        :short => "-p PORT",
+        :long => "--ssh-port PORT",
+        :description => "The ssh port",
+        :default => "22",
+        :proc => Proc.new { |key| Chef::Config[:knife][:ssh_port] = key }
+
+      option :identity_file,
+        :short => "-i IDENTITY_FILE",
+        :long => "--identity-file IDENTITY_FILE",
+        :description => "The SSH identity file used for authentication"
+
+      option :no_host_key_verify,
+        :long => "--no-host-key-verify",
+        :description => "Disable host key verification",
+        :boolean => true,
+        :default => false
 
       option :prerelease,
         :long => "--prerelease",
@@ -82,28 +109,25 @@ class Chef
         facet = Chef::Config[:clusters][cluster_name].facet(facet_name)
         facet.resolve!
 
-        config[:ssh_user]       = facet.cloud.ssh_user
-        config[:identity_file]  = facet.cloud.ssh_identity_file
-        config[:distro]         = facet.cloud.bootstrap_distro
-        config[:run_list]       = facet.run_list
-
         #
         # Bootstrap
         #
-        bootstrap_for_node(server_name).run
+        bootstrap_for_node(facet, server_name).run
       end
 
-      def bootstrap_for_node(server_name)
+      def bootstrap_for_node(node, server_name)
         bootstrap = Chef::Knife::Bootstrap.new
         bootstrap.name_args               = [server_name]
-        bootstrap.config[:run_list]       = config[:run_list]
-        bootstrap.config[:ssh_user]       = config[:ssh_user]
-        bootstrap.config[:identity_file]  = config[:identity_file]
+        bootstrap.config[:run_list]       = config[:run_list]       || node.run_list
+        bootstrap.config[:ssh_user]       = config[:ssh_user]       || node.cloud.ssh_user
+        bootstrap.config[:identity_file]  = config[:identity_file]  || node.cloud.ssh_identity_file
+        bootstrap.config[:distro]         = config[:distro]         || node.cloud.bootstrap_distro
         bootstrap.config[:chef_node_name] = config[:chef_node_name]
         bootstrap.config[:prerelease]     = config[:prerelease]
-        bootstrap.config[:distro]         = config[:distro]
         bootstrap.config[:use_sudo]       = true
         bootstrap.config[:template_file]  = config[:template_file]
+        bootstrap.config[:bootstrap_runs_chef_client] = config[:bootstrap_runs_chef_client]
+        Chef::Log.debug bootstrap.config.inspect
         bootstrap
       end
 

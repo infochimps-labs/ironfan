@@ -52,6 +52,10 @@ class Chef
         :long => "--bootstrap",
         :description => "Also bootstrap the launched node"
 
+      option :bootstrap_runs_chef_client,
+        :long => "--bootstrap-runs-chef-client",
+        :description => "If bootstrap is invoked, will do the initial run of chef-client in the bootstrap script"
+
       option :ssh_password,
         :short => "-P PASSWORD",
         :long => "--ssh-password PASSWORD",
@@ -243,6 +247,7 @@ class Chef
         bootstrap.config[:prerelease]     = config[:prerelease]
         bootstrap.config[:use_sudo]       = true
         bootstrap.config[:template_file]  = config[:template_file]
+        bootstrap.config[:bootstrap_runs_chef_client] = config[:bootstrap_runs_chef_client]
         Chef::Log.debug bootstrap.config.inspect
         bootstrap
       end

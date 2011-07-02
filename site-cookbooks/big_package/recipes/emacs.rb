@@ -3,8 +3,8 @@ package "emacs23-nox" do
 end
 
 # erlang-mode php-mode mmm-mode css-mode html-helper-mode lua-mode
-%w[
-  python-mode ruby-elisp org-mode
+[
+  "python-mode", "ruby#{node[:ruby][:version]}-elisp", "org-mode",
 ].each do |pkg|
   package pkg do
     action :upgrade
