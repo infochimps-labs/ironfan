@@ -18,20 +18,20 @@ ClusterChef.cluster 'monkeyballs' do
     role                "hadoop_namenode"
     recipe              'hadoop_cluster::bootstrap_format_namenode'
     role                "hadoop_initial_bootstrap"
-    cloud.flavor        "m2.xlarge"
+    cloud.flavor        "m1.xlarge"
   end
 
   facet 'jobtracker' do
     instances           1
     role                "hadoop_jobtracker"
     role                "hadoop_secondarynamenode"
-    cloud.flavor        "m2.xlarge"
+    cloud.flavor        "m1.xlarge"
   end
 
   facet 'worker' do
-    instances           3
+    instances           1
     role                "hadoop_worker"
-    cloud.flavor        "m2.xlarge"
+    cloud.flavor        "c1.xlarge"
   end
 
   role                  "big_package"

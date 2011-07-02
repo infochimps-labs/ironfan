@@ -25,10 +25,10 @@ require 'time'
 class Chef
   class Knife
     class ClusterLaunch < Knife
-      
+
       deps do
-        Chef::Knife::Bootstrap.load_deps 
-      end      
+        Chef::Knife::Bootstrap.load_deps
+      end
 
       deps do
         require 'chef/knife/core/bootstrap_context'
@@ -144,7 +144,7 @@ class Chef
 
         #
         # Make security groups
-        #        
+        #
         target.security_groups.each{|name,group| group.run }
 
         #
@@ -159,21 +159,23 @@ class Chef
           exit 1
         end
 
+        # need to dummy up a key_pair in simulation mode
+        if config[:dry_run] then ClusterChef.connection.key_pairs.create(:name => cluster_name) ; end
+
         uncreated_servers.create_servers
 
-        
         uncreated_servers.display(["Instance", "Flavor", "Image", "A. Zone", "SSH Key", "Public IP", "Private IP"] ) do |svr|
           s = svr.fog_server
           { "Instance"          => (s.id && s.id.length > 0) ? s.id : "???", # We should really have an id by this time
             "Flavor"            => s.flavor_id,
             "Image"             => s.image_id,
-            "A. Zone" => s.availability_zone,
+            "A. Zone"           => s.availability_zone,
             "SSH Key"           => s.key_name,
             "Public IP"         => s.public_ip_address,
             "Private IP"        => s.private_ip_address,
           }
         end
-        
+
 
         puts "Waiting for servers:"
 
@@ -183,10 +185,12 @@ class Chef
             cc_server.create_tags
             server.wait_for { ready? }
             cc_server.attach_volumes
-            nil until tcp_test_ssh(server.dns_name) { sleep @initial_sleep_delay ||= 10  }
+            unless config[:dry_run]
+              nil until tcp_test_ssh(server.dns_name){ sleep @initial_sleep_delay ||= 10  }
+            end
             if config[:bootstrap]
               begin
-                bootstrap_for_node(server).run
+                bootstrap_for_node(cc_server).run
               rescue StandardError => e
                 warn e
                 warn e.backtrace
@@ -202,7 +206,7 @@ class Chef
         remaining = watcher_threads.select {|s| s.alive?}
         count = remaining.length
         start_time = Time.now
-        while count > 0 
+        while count > 0
           remaining.reject! {|s| not s.alive?}
           count = remaining.length
           Formatador.redisplay_progressbar(total - count,total, {:started_at => start_time })
@@ -220,26 +224,26 @@ class Chef
           { "Instance"          => (s.id && s.id.length > 0) ? s.id : "???", # We should really have an id by this time
             "Flavor"            => s.flavor_id,
             "Image"             => s.image_id,
-            "A. Zone" => s.availability_zone,
+            "A. Zone"           => s.availability_zone,
             "SSH Key"           => s.key_name,
             "Public IP"         => s.public_ip_address,
             "Private IP"        => s.private_ip_address,
           }
         end
       end
-      
-      def bootstrap_for_node(server)
-        
+
+      def bootstrap_for_node(node)
         bootstrap = Chef::Knife::Bootstrap.new
-        bootstrap.name_args               = [server.dns_name]
-        bootstrap.config[:run_list]       = config[:run_list]
-        bootstrap.config[:ssh_user]       = config[:ssh_user]
-        bootstrap.config[:identity_file]  = config[:identity_file]
-        bootstrap.config[:chef_node_name] = config[:chef_node_name] || server.id
+        bootstrap.name_args               = [node.fog_server.dns_name]
+        bootstrap.config[:run_list]       = config[:run_list]       || node.facet.run_list
+        bootstrap.config[:ssh_user]       = config[:ssh_user]       || node.cloud.ssh_user
+        bootstrap.config[:identity_file]  = config[:identity_file]  || node.cloud.ssh_identity_file
+        bootstrap.config[:chef_node_name] = config[:chef_node_name] || node.fog_server.id
+        bootstrap.config[:distro]         = config[:distro]         || node.cloud.bootstrap_distro
         bootstrap.config[:prerelease]     = config[:prerelease]
-        bootstrap.config[:distro]         = config[:distro]
         bootstrap.config[:use_sudo]       = true
         bootstrap.config[:template_file]  = config[:template_file]
+        Chef::Log.debug bootstrap.config.inspect
         bootstrap
       end
 
