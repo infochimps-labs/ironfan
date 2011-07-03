@@ -668,7 +668,7 @@ module ClusterChef
       # only create a server if it does not already exist
       return nil if fog_server
 
-      @fog_server = ClusterChef.connection.servers.create(
+      fog_description = {
         :image_id          => cloud.image_id,
         :flavor_id         => cloud.flavor,
         #
@@ -681,11 +681,12 @@ module ClusterChef
             :index =>   facet_index,
           },
         :user_data         => JSON.pretty_generate(cloud.user_data.merge(:attributes => chef_attributes)),
-        # :block_device_mapping => [],
-        # :disable_api_termination => disable_api_termination,
+        :block_device_mapping    => cloud.block_device_mapping_array,
+        # :disable_api_termination => cloud.disable_api_termination,
         # :instance_initiated_shutdown_behavior => instance_initiated_shutdown_behavior,
         :availability_zone => cloud.availability_zones.first
-        )
+      }
+      @fog_server = ClusterChef.connection.servers.create(fog_description)
     end
 
     def create_tags

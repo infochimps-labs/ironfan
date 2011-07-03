@@ -8,6 +8,7 @@ h2. Burn an AMI
 #  /etc/fstab
 
 # Nuke files that would be inconvenient to persist: chef config and startup files; log files; and files that contain keys of some sort.
+sudo true
 away_dir=/mnt/tmp/away-`date "+%Y%m%d%H"`
 sudo mkdir -p $away_dir
 

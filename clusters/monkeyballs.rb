@@ -35,7 +35,7 @@ ClusterChef.cluster 'monkeyballs' do
   end
 
   facet 'worker' do
-    instances           2
+    instances           3
     role                "hadoop_worker"
     cloud.flavor        "c1.xlarge"
   end
@@ -46,7 +46,8 @@ ClusterChef.cluster 'monkeyballs' do
     recipe              "rvm::gem_package"
     role                "big_package"
     recipe              'thrift'
-    cloud.flavor        "m1.large"
+    # cloud.flavor        "c1.xlarge"
+    cloud.flavor        "t1.micro"
     # cloud.image_name    'maverick'
   end
 
