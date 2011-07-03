@@ -49,7 +49,7 @@ module ClusterChef
       has_keys(
         :region, :availability_zones, :backing, :permanent, :elastic_ip,
         :spot_price, :spot_price_fraction, :user_data, :security_groups,
-        :block_device_mapping
+        :block_device_mapping, :monitoring
         )
 
       def initialize *args

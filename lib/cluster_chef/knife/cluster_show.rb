@@ -75,7 +75,7 @@ class Chef
         #
 
         # Create a slice of servers that are actually in defined facets
-        servers = target.servers.select { |svr| cluster.has_facet? svr.facet_name }
+        servers = target.servers.select{|svr| cluster.has_facet?(svr.facet_name) }
         ClusterChef::ClusterSlice.new( cluster, servers ).display
 
         # If the cluster discovery failed to put everything into its correct

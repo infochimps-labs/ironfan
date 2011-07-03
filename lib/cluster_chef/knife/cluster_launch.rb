@@ -92,7 +92,7 @@ class Chef
         cluster      = target.cluster
         cluster_name = cluster.cluster_name
         cluster.resolve!
-        warn_or_die_on_undefined_servers(target) unless cluster.undefined_servers.empty?
+        warn_or_die_on_undefined_servers(target, cluster.undefined_servers) unless cluster.undefined_servers.empty?
 
         # TODO: Should we make a key pair when the security key has not yet been created ?!?!?!?
         # We need to dummy up a key_pair in simulation mode, not doing it fr'eals
@@ -205,11 +205,16 @@ class Chef
         tcp_socket && tcp_socket.close
       end
 
-      def warn_or_die_on_undefined_servers(target)
+      def warn_or_die_on_undefined_servers(target_servers, bad_servers)
+        # FIXME: refactor all the banners running around all over the place
         puts
-        puts "Cluster has servers in a transitional or undefined state."
+        puts "Cluster has servers in a transitional or undefined state. These guys are cool:"
         puts
-        show_cluster_launch_banner target
+        show_cluster_launch_banner target_servers
+        puts
+        puts "These guys are lame:"
+        puts
+        bad_servers.each{|svr| puts svr.inspect }
         puts
         unless config[:force]
           puts "Launch operations may be unpredictable under these circumstances."

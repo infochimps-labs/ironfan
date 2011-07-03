@@ -1,7 +1,10 @@
 require 'cluster_chef/dsl_object'
 require 'cluster_chef/cloud'
 require 'cluster_chef/security_group'
-require 'cluster_chef/compute'
+require 'cluster_chef/compute'        # base class for machine attributes
+require 'cluster_chef/facet'          # similar machines within a cluster
+require 'cluster_chef/cluster'        # group of machines with a common mission
+require 'cluster_chef/server'         # realization of a specific facet
 require 'chef'
 
 module ClusterChef
@@ -55,12 +58,12 @@ module ClusterChef
       $stderr.puts e
       exit -1
     end
-    
+
     return clusters[cluster_name] if clusters[cluster_name]
-    
+
     $stderr.puts "Unable to locate the cluster definition for #{cluster_name}."
     $stderr.puts "Cluster_path: [ #{ Chef::Config[:cluster_path].join(", ")} ]"
-  
+
     exit -1
 
   end
