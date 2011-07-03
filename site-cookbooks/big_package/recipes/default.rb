@@ -21,9 +21,8 @@ packages_list.each do |pkg|
 end
 
 %w[
-   extlib fastercsv json yajl-ruby crack htmlentities addressable
-   uuidtools configliere fog right_aws whenever rest-client cheat
-   rails wirble wukong
+   extlib rails fastercsv json yajl-ruby
+   addressable fog cheat configliere wukong gorillib
 ].each do |pkg|
   gem_package pkg do
     action :install

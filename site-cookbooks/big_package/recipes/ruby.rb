@@ -25,15 +25,11 @@ pkgs = case node[:platform]
 Chef::Log.debug [ node[:ruby] ].inspect + "\n\n!!!\n\n"
 
 gem_pkgs = %w[
-   extlib fastercsv json yajl-ruby libxml-ruby htmlentities addressable
-   configliere right_aws whenever
-   rest-client oauth json crack cheat
+   rest-client oauth crack
+   htmlentities right_aws libxml-ruby whenever
+   wirble awesome_print looksee
    echoe jeweler yard net-proto net-scp net-sftp net-ssh net-ssh-multi
-   rails wirble
-   wukong cassandra redis
-   dependencies
-   imw chimps
-   fog
+   imw chimps icss
 ]
 
 if node[:ruby][:version] == '1.8'
@@ -42,8 +38,13 @@ if node[:ruby][:version] == '1.8'
   if node[:lsb][:release].to_f < 10.10
     gem_pkgs += %w[ rdoc libopenssl-ruby  ]
   else
-    gem_pkgs += %w[ libruby-extras ]
+    pkgs   += %w[ libruby-extras ]
   end
+end
+
+bash 'update rubygems to >= 1.8.4' do
+  code %Q{ gem update --system }
+  not_if{ `gem update --system`.chomp >= "1.8.4" }
 end
 
 pkgs.each do |pkg|
