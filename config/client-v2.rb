@@ -29,31 +29,50 @@ CHEF_CONFIG_FILE      = "/etc/chef/chef-config.json"
 NODE_ATTRIBUTES_FILE  = "/etc/chef/node-attrs.json"
 FIRST_BOOT_FILE       = "/etc/chef/first-boot.json"
 
-# Start with a set of defaults                                                                                                                                                                                                                                                
+def populate_if_empty(filename, str)
+  unless File.exists?(filename)
+    puts "Populating #{filename}" ;
+    File.open(filename, "w", 0600){|f| f.puts(str) }
+  end
+end
+
+def merge_if_present hsh
+  hsh.merge!( yield ) rescue {}
+end
+
+#
+# Load configuration
+#
+
+# Assume it's the first run if we've ever generated the attributes file
+IS_FIRST_BOOT = ! File.exists?(NODE_ATTRIBUTES_FILE)
+
+# Start with a set of defaults
 chef_config = {
   :chef_server            => 'http://localhost:4000',
   :validation_client_name => 'chef-validator',
   :attributes => {},
 }.to_mash
 
-# Extract client configuration from an override file (if present), from EC2 user-data otherwise                                                                                                                                                                               
+# Extract client configuration from an override file (if present), from EC2 user-data otherwise
 if File.exists?(CHEF_CONFIG_FILE)
-  config_from_file = JSON.load(File.open(CHEF_CONFIG_FILE)) rescue {}
-  chef_config.merge!(config_from_file)
+  merge_if_present(chef_config){ JSON.load(File.open(CHEF_CONFIG_FILE)) }
 else
   OHAI_INFO = Ohai::System.new
   OHAI_INFO.all_plugins
-  config_from_userdata = JSON.parse(OHAI_INFO[:ec2][:userdata]) rescue {}
-  chef_config.merge!(config_from_userdata)
+  merge_if_present(chef_config){ JSON.parse(OHAI_INFO[:ec2][:userdata]) }
 end
-
 # Merge in the saved node attributes, if present
 if File.exists?(NODE_ATTRIBUTES_FILE)
-  config_from_file = JSON.load(File.open(NODE_ATTRIBUTES_FILE)) rescue {}
-  chef_config[:attributes].merge!(config_from_file)
+  merge_if_present(chef_config){ {:attributes => JSON.load(File.open(NODE_ATTRIBUTES_FILE))} }
 end
 
-# Configure chef run                                                                                                                                                                                                                                                          
+puts JSON.pretty_generate(chef_config.except(:validation_key))
+
+#
+# Configure chef run
+#
+
 log_level              :info
 log_location           STDOUT
 node_name              chef_config[:attributes][:node_name]
@@ -63,29 +82,21 @@ validation_key         "/etc/chef/validation.pem"
 client_key             "/etc/chef/client.pem"
 Deprecate.skip = true # hey rubygems please don't deprecate all over my screen
 
-# If the client file is missing, write the validation key out so chef-client can register                                                                                                                                                                                     
-if (not chef_config[:validation_key].blank?) && (not File.exists?("/etc/chef/client.pem")) && (not File.exists?(validation_key))
-  File.open(validation_key, "w", 0600) do |f|
-    f.print(chef_config[:validation_key])
-  end
-end
-
-# If the node_attributes_file is missing, this is our initial run.
-unless File.exists?(NODE_ATTRIBUTES_FILE)
-  # save the node attributes to an override file,                                                                                                                                                                                                                                       
-  puts "First run! Saving attributes to #{NODE_ATTRIBUTES_FILE}"
-  File.open(NODE_ATTRIBUTES_FILE, "w", 0600) do |f|
-    f.print(JSON.pretty_generate(chef_config[:attributes]))
-  end
-  # and load first boot if any                                                                                                                                                                                                                                                
-  if File.exists?(FIRST_BOOT_FILE)
-    puts "Loading initial attributes from #{FIRST_BOOT_FILE}"
-    json_attribs FIRST_BOOT_FILE
-  end
+# If the client file is missing, write the validation key out so chef-client can register
+unless File.exists?("/etc/chef/client.pem") || chef_config[:validation_key].blank?
+  populate_if_empty(validation_key, chef_config[:validation_key])
 end
 
 # Load the node_attributes_file
+populate_if_empty(NODE_ATTRIBUTES_FILE, JSON.pretty_generate(chef_config[:attributes].except(:validation_key, :run_list)))
 json_attribs NODE_ATTRIBUTES_FILE if File.exists?(NODE_ATTRIBUTES_FILE)
 
-# puts JSON.pretty_generate(chef_config)
+# If it's the first run, load the node_attributes_file
+if IS_FIRST_BOOT
+  puts "First run! Loading initial attributes from #{FIRST_BOOT_FILE}"
+  populate_if_empty(FIRST_BOOT_FILE, JSON.pretty_generate(chef_config[:attributes].except(:validation_key)))
+  json_attribs FIRST_BOOT_FILE
+end
+
+puts JSON.pretty_generate(chef_config.except(:validation_key))
 puts "=> chef client #{node_name} on #{chef_server_url} in cluster '#{chef_config[:attributes][:cluster_name]}'"
