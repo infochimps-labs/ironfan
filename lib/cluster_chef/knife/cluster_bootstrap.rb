@@ -34,6 +34,8 @@ class Chef
         require 'highline'
         require 'net/ssh'
         require 'net/ssh/multi'
+        require 'fog'
+        require 'readline'
         Chef::Knife::Ssh.load_deps
       end rescue nil
 
@@ -91,10 +93,6 @@ class Chef
       end
 
       def run
-        require 'fog'
-        require 'highline'
-        require 'net/ssh/multi'
-        require 'readline'
         $: << Chef::Config[:cluster_chef_path]+'/lib'
         require 'cluster_chef'
         $stdout.sync = true

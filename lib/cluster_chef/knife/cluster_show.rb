@@ -25,8 +25,8 @@ class Chef
   class Knife
     class ClusterShow < Knife
       deps do
-        Chef::Knife::Bootstrap.load_deps 
-      end      
+        Chef::Knife::Bootstrap.load_deps
+      end
 
       banner "knife cluster show CLUSTER_NAME FACET_NAME INDEX (options)"
 
@@ -73,7 +73,7 @@ class Chef
         #
         # Display server info
         #
-        
+
         # Create a slice of servers that are actually in defined facets
         servers = target.servers.select { |svr| cluster.has_facet? svr.facet_name }
         ClusterChef::ClusterSlice.new( cluster, servers ).display
@@ -81,31 +81,32 @@ class Chef
         # If the cluster discovery failed to put everything into its correct
         # place, we have some servers that do not fit into the regular boxes.
         undefined_data = target.cluster.undefined_servers.map do |hash|
-          chef_node = hash[:chef_node]
+          chef_node  = hash[:chef_node]
           fog_server = hash[:fog_server]
           x = {}
-          
+
           if chef_node
             x["Node"]  = chef_node[:node_name]
             x["Facet"] = chef_node[:facet_name]
             x["Index"] = chef_node[:facet_index]
           end
-          
+
           if fog_server
-            x["AWS ID"]  = fog_server.id
+            x["InstanceID"]  = fog_server.id
             x["State"]   = fog_server.state
-            x["Address"] = fog_server.public_ip_address
+            x["Public IP"] = fog_server.public_ip_address
+            x["Private IP"] = fog_server.private_ip_address
           else
             x["State"]  = "not running"
           end
           x
         end
-        
+
         unless undefined_data.empty?
           puts
           Formatador.display_line "[red]Cluster contains undefined servers[reset]"
           Formatador.display_compact_table(  undefined_data.sort_by {|x| "#{x["Facet"]}-#{x["Index"]}"},
-                                             ["Node","Facet","Index","Chef?","AWS ID","State","Address"] )
+                                             ["Node","Facet","Index","Chef?","InstanceID","State","Public IP", "Private IP"] )
         end
       end
     end
