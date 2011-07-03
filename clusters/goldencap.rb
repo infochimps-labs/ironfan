@@ -32,6 +32,4 @@ ClusterChef.cluster 'goldencap' do
     cloud.flavor        "m2.xlarge"
   end
 
-  chef_attributes({
-    })
 end

@@ -6,7 +6,7 @@ ClusterChef.cluster 'sandbox' do
     image_name "infochimps-maverick-client"
     flavor "t1.micro"
   end
-  
+
   facet 'hohyon' do
     instances 1
     server 0 do
@@ -19,7 +19,7 @@ ClusterChef.cluster 'sandbox' do
     instances 1
     server 0 do
       chef_node_name 'sandbox-howech'
-      volume :id => "vol-836e28e8", :device => "/dev/sdk" 
+      volume :id => "vol-836e28e8", :device => "/dev/sdk"
     end
   end
 
@@ -29,8 +29,6 @@ ClusterChef.cluster 'sandbox' do
       chef_node_name 'sandbox-temujin9'
     end
   end
-
-  chef_attributes({})
 end
 
 

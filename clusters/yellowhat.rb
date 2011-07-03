@@ -71,6 +71,4 @@ ClusterChef.cluster 'yellowhat' do
     end
   end
 
-  chef_attributes({
-    })
 end
