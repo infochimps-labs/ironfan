@@ -1,37 +1,34 @@
 bash -c '
+
+RUBY_VERSION=1.9.1 # this actually installs 1.9.2, it just says 1.9.1
 REMOTE_FILE_URL_BASE="http://github.com/infochimps/cluster_chef/raw/master/config"
 eval `cat /etc/lsb-release `
 export DEBIAN_FRONTEND=noninteractive
 
-apt-get update
+echo -e "`date` \n\n**** \n**** apt update:\n****\n"
+apt-get    update
+apt-get -y upgrade
 
 echo -e "`date` \n\n**** \n**** Installing base packages:\n****\n"
-
 apt-get install -y build-essential wget runit runit-services
 
-RUBY_VERSION=1.9.1 # this actually installs 1.9.2, it just says 1.9.1
-
 echo -e "`date` \n\n**** \n**** Installing ruby version ${RUBY_VERSION}:\n****\n"
-apt-get install -y ruby ruby-dev libruby ruby1.8 ruby1.8-dev libruby1.8 libshadow-ruby1.8
+# apt-get install -y ruby ruby-dev libruby ri ruby1.8 ruby1.8-dev libruby1.8 ri1.8 
 apt-get install -y ruby${RUBY_VERSION}-full rubygems${RUBY_VERSION} 
 sudo update-alternatives --install /usr/bin/ruby ruby /usr/bin/ruby${RUBY_VERSION} 100 --slave /usr/bin/ri ri /usr/bin/ri${RUBY_VERSION} --slave /usr/bin/irb irb /usr/bin/irb${RUBY_VERSION} --slave /usr/bin/erb erb /usr/bin/erb${RUBY_VERSION} --slave /usr/bin/gem gem /usr/bin/gem${RUBY_VERSION} --slave /usr/share/man/man1/ruby.1.gz ruby.1.gz /usr/share/man/man1/ruby${RUBY_VERSION}.1.gz
 
 if ruby -e "exit(%x{gem --version} < \"1.8.5\" ? 0 : -1 )" ; then
   echo -e "`date` \n\n**** \n**** Unchaining rubygems from the tyrrany of ubuntu:\n****\n"
   export REALLY_GEM_UPDATE_SYSTEM=true
-  gem install --no-rdoc --no-ri rubygems-update; /var/lib/gems/${RUBY_VERSION}/bin/update_rubygems ; gem update --no-rdoc --no-ri; gem --version
+  gem install --no-rdoc --no-ri rubygems-update; /var/lib/gems/${RUBY_VERSION}/bin/update_rubygems ; gem update --system ; gem --version
 fi
 
-echo -e "`date` \n\n**** \n**** Installing support gems:\n****\n"
-gem install --no-rdoc --no-ri broham uuidtools configliere right_aws extlib json
-
 echo -e "`date` \n\n**** \n**** Installing chef:\n****\n"
-
-gem install chef --no-rdoc --no-ri --verbose --version="<%= Chef::Config[:bootstrap_chef_version] || "~> 0.9.0" %>"
+gem install --no-rdoc --no-ri extlib json ruby-shadow right_aws
+gem install --no-rdoc --no-ri chef --verbose --version="<%= Chef::Config[:bootstrap_chef_version] || "~> 0.9.0" %>"
 
 echo -e "`date` \n\n**** \n**** Knifing in the chef client config files:\n****\n"
 mkdir -p /etc/chef
-
 (
 cat <<'EOP'
 <%= IO.read(Chef::Config[:validation_key]) %>
@@ -41,7 +38,7 @@ awk NF /tmp/validation.pem > /etc/chef/validation.pem
 rm /tmp/validation.pem
 
 echo -e "`date` \n\n**** \n**** Pulling in chef client script:\n****\n"
-wget --no-check-certificate -nv ${REMOTE_FILE_URL_BASE}/client.rb -O /etc/chef/client.rb
+wget --no-check-certificate -nv ${REMOTE_FILE_URL_BASE}/client-v2.rb -O /etc/chef/client.rb
 
 echo -e "`date` \n\n**** \n**** Adding chef client runit scripts:\n****\n"
 service chef-client stop ; sleep 1 ; killall chef-client
@@ -74,9 +71,7 @@ updatedb
 
 echo -e "`date` \n\n**** \n**** Enabling chef client service:\n****\n"
 ln -nfs /etc/sv/chef-client /etc/service/chef-client
-
-echo -e "`date` \n\n**** \n**** Starting chef-client:\n****\n"
 service chef-client start
 
-echo -e "`date` \n\n**** \n**** Cluster Chef client bootstrap complete:\n****\n"
+echo -e "`date` \n\n**** \n**** Cluster Chef client bootstrap complete\n****\n"
 '

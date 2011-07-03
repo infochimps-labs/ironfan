@@ -458,8 +458,11 @@ module ClusterChef
 
       @settings[:run_list]        = @cluster.run_list + self.run_list
       @settings[:chef_attributes] = @cluster.chef_attributes.merge(self.chef_attributes)
-      chef_attributes :run_list => run_list
-      chef_attributes :aws => { :access_key => Chef::Config[:knife][:aws_access_key_id], :secret_access_key => Chef::Config[:knife][:aws_secret_access_key],}
+
+      # # commented out to see if we can send less DNA
+      # chef_attributes :run_list => run_list
+      # chef_attributes :aws => { :access_key => Chef::Config[:knife][:aws_access_key_id], :secret_access_key => Chef::Config[:knife][:aws_secret_access_key],}
+
       # Generate server definitions if they have not already been created
       resolve_servers!
       self
@@ -645,7 +648,10 @@ module ClusterChef
       @settings[:chef_attributes] = @facet.chef_attributes.merge(self.chef_attributes)
 
       chef_attributes :run_list => run_list
-      chef_attributes :aws => { :access_key => Chef::Config[:knife][:aws_access_key_id], :secret_access_key => Chef::Config[:knife][:aws_secret_access_key],}
+      # chef_attributes :aws => {
+      #   :access_key => Chef::Config[:knife][:aws_access_key_id],
+      #   :secret_access_key => Chef::Config[:knife][:aws_secret_access_key],
+      # }
       chef_attributes :cluster_chef => {
         :cluster => cluster_name,
         :facet => facet_name,
@@ -710,3 +716,4 @@ module ClusterChef
 
   end
 end
+

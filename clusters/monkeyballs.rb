@@ -4,7 +4,7 @@ ClusterChef.cluster 'monkeyballs' do
 
   cloud do
     backing             "ebs"
-    image_name          "maverick"
+    image_name          'infochimps-maverick-client'
     region              "us-east-1"
   end
 
@@ -35,16 +35,19 @@ ClusterChef.cluster 'monkeyballs' do
   end
 
   facet 'worker' do
-    instances           1
+    instances           2
     role                "hadoop_worker"
     cloud.flavor        "c1.xlarge"
   end
 
   facet 'bootstrap' do
-    instances           2
-    # recipe 'thrift'
-    # recipe 'whenever'
+    instances           1
+    recipe              "rvm"
+    recipe              "rvm::gem_package"
+    role                "big_package"
+    recipe              'thrift'
     cloud.flavor        "m1.large"
+    # cloud.image_name    'maverick'
   end
 
 end
