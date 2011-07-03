@@ -23,7 +23,7 @@
 
 require 'ohai'
 require 'json'
-require 'extlib/mash'
+require 'extlib'
 
 CHEF_CONFIG_FILE      = "/etc/chef/chef-config.json"
 NODE_ATTRIBUTES_FILE  = "/etc/chef/node-attrs.json"
