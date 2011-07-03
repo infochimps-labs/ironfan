@@ -9,14 +9,16 @@ ClusterChef.cluster 'monkeyballs' do
   end
 
   role                  "ebs_volumes_attach"
-  # role                  "nfs_client"
-  # role                  "hadoop"
-  # role                  "hadoop_s3_keys"
-  # role                  "infochimps_base"
-  role                  "ebs_volumes_mount"
+  role                  "nfs_client"
+  recipe                "rvm"
+  recipe                "rvm::gem_package"
+  role                  "hadoop"
+  role                  "hadoop_s3_keys"
+  role                  "infochimps_base"
   role                  "big_package"
+  role                  "ebs_volumes_mount"
   recipe                "cluster_chef::dedicated_server_tuning"
-  
+
   facet 'namenode' do
     instances           1
     role                "hadoop_namenode"
@@ -39,12 +41,10 @@ ClusterChef.cluster 'monkeyballs' do
   end
 
   facet 'bootstrap' do
-    instances           1
-    # %w[ rvm thrift whenever].each{|r| recipe r }
+    instances           2
+    # recipe 'thrift'
+    # recipe 'whenever'
     cloud.flavor        "m1.large"
   end
 
-  chef_attributes({
-      :cluster_size => facet('worker').instances,
-    })
 end
