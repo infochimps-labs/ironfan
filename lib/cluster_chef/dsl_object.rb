@@ -1,5 +1,3 @@
-require 'cluster_chef/core_ext/class'
-
 module ClusterChef
   #
   # Provides magic methods, defined with has_keys
@@ -53,7 +51,7 @@ module ClusterChef
     end
 
     def to_s
-      to_hash.to_s
+      "<#{self.class} #{to_hash.inspect}>"
     end
 
     def merge! hsh
@@ -64,8 +62,9 @@ module ClusterChef
       @settings.reverse_merge!(hsh.to_hash)
     end
 
-    def configure &block
-      instance_eval(&block)
+    def configure hsh={}, &block
+      merge!(hsh)
+      instance_eval(&block) if block
       self
     end
 

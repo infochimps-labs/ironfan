@@ -1,6 +1,3 @@
-require 'chef/node'
-require 'chef/api_client'
-
 module ClusterChef
   #
   # Base class allowing us to layer settings for facet over cluster
@@ -8,13 +5,14 @@ module ClusterChef
   class ComputeBuilder < ClusterChef::DslObject
     attr_reader :cloud, :volumes
     has_keys :name, :chef_attributes, :roles, :run_list, :cloud
-    @@role_implications ||= {}
+    @@role_implications ||= Mash.new
 
     def initialize builder_name, attrs={}
       super(attrs)
-      name         builder_name
-      run_list     []
-      @settings[:chef_attributes] = {}
+      set :name, builder_name
+      @settings[:run_list]        ||= []
+      @settings[:chef_attributes] ||= {}
+      @volumes = Mash.new
     end
 
     # Magic method to produce cloud instance:
@@ -31,13 +29,12 @@ module ClusterChef
     #   # same effect
     #   cloud.security_group :foo
     #
-    def cloud cloud_provider=nil, &block
+    def cloud cloud_provider=nil, hsh={}, &block
       raise "Only have ec2 so far" if cloud_provider && (cloud_provider != :ec2)
       @cloud ||= ClusterChef::Cloud::Ec2.new
-      @cloud.instance_eval(&block) if block
+      @cloud.configure(hsh, &block) if block
       @cloud
     end
-
 
     # Magic method to describe a volume
     # * returns the named volume, creating it if necessary.
@@ -56,17 +53,15 @@ module ClusterChef
     # @param hsh [Hash] a hash of attributes to pass down.
     #
     def volume volume_name, hsh={}, &block
-      vol = (volumes[volume_name] ||= ClusterChef::Volume.new)
-      vol.merge!(hsh)
-      vol.configure(&block) if block
+      vol = (volumes[volume_name] ||= ClusterChef::Volume.new(:parent => self))
+      vol.configure(hsh, &block)
       vol
     end
 
     # Merges the given hash into
     # FIXME: needs to be a deep_merge
     def chef_attributes hsh={}
-      # The DSL attribute for 'chef_attributes' merges not overwrites
-      @settings[:chef_attributes].merge! hsh unless hsh.empty? #.blank?
+      @settings[:chef_attributes].merge! hsh unless hsh.empty?
       @settings[:chef_attributes]
     end
 
@@ -78,6 +73,7 @@ module ClusterChef
       run_list << "role[#{role_name}]"
       self.instance_eval(&@@role_implications[role_name]) if @@role_implications[role_name]
     end
+
     # Add the given recipe to the run list
     def recipe name
       run_list << name
@@ -96,10 +92,10 @@ module ClusterChef
     def resolve_volumes!
       if backing == 'ebs'
         # Bring the ephemeral storage (local scratch disks) online
-        volumes['/dev/sdc'] = Volume.new(:parent => self, :volume_id => 'ephemeral0')
-        volumes['/dev/sdd'] = Volume.new(:parent => self, :volume_id => 'ephemeral1')
-        volumes['/dev/sde'] = Volume.new(:parent => self, :volume_id => 'ephemeral2')
-        volumes['/dev/sdf'] = Volume.new(:parent => self, :volume_id => 'ephemeral3')
+        volume(:ephemeral0, :device => '/dev/sdc', :volume_id => 'ephemeral0')
+        volume(:ephemeral1, :device => '/dev/sdd', :volume_id => 'ephemeral1')
+        volume(:ephemeral2, :device => '/dev/sde', :volume_id => 'ephemeral2')
+        volume(:ephemeral3, :device => '/dev/sdf', :volume_id => 'ephemeral3')
       end
     end
 
@@ -138,13 +134,12 @@ module ClusterChef
       end
 
       role_implication("george") do
-        self.cloud.security_group(cluster_name+"-george") do
+        self.cloud.security_group("#{cluster_name}-george") do
           authorize_port_range  80..80
           authorize_port_range 443..443
         end
       end
     end
-
 
     # These are some helper methods for iterating through the servers
     # to do things
@@ -216,25 +211,34 @@ module ClusterChef
     #
     # There is an example of how to call this functon with a block in knife/cluster_launch.rb
 
-    def display headings = ["Node","Facet","Index","Chef?","AWS ID","State","Address"]
+    def display headings = ["Name", "Chef?", "InstanceID", "State", "Public IP", "Created At"]
       sorted_servers = servers.sort{ |a,b| (a.facet_name <=> b.facet_name) *9 + (a.facet_index.to_i <=> b.facet_index.to_i)*3 + (a.facet_index <=> b.facet_index) }
       if block_given?
-        defined_data = sorted_servers.map {|svr| yield svr }
+        defined_data = sorted_servers.map{|svr| yield svr }
       else
         defined_data = sorted_servers.map do |svr|
-          x = { "Node"    => svr.chef_node_name,
+          hsh = {
+            "Name"    => svr.chef_node_name,
             "Facet"   => svr.facet_name,
             "Index"   => svr.facet_index,
             "Chef?"   => svr.chef_node ? "yes" : "[red]no[reset]",
           }
-          if svr.fog_server
-            x["AWS ID"]  = svr.fog_server.id
-            x["State"]   = svr.fog_server.state
-            x["Address"] = svr.fog_server.public_ip_address
+          if (s = svr.fog_server)
+            hsh.merge!({
+                "InstanceID"        => (s.id && s.id.length > 0) ? s.id : "???",
+                "Flavor"            => s.flavor_id,
+                "Image"             => s.image_id,
+                "AZ"                => s.availability_zone,
+                "SSH Key"           => s.key_name,
+                "State"             => s.state,
+                "Public IP"         => s.public_ip_address,
+                "Private IP"        => s.private_ip_address,
+                "Created At"        => s.created_at.strftime("%Y%m%d-%H%M%S"),
+              })
           else
-            x["State"] = "not running"
+            hsh["State"] = "[red]not running[reset]"
           end
-          x
+          hsh
         end
       end
 

@@ -1,21 +1,22 @@
 module ClusterChef
   class Facet < ClusterChef::ComputeBuilder
-    attr_reader :cluster, :facet_name
+    attr_reader :cluster
     has_keys  :instances, :facet_role
 
-    def initialize cluster, fct_name, hsh={}
-      super(facet_name, hsh)
+    def initialize cluster, facet_name, hsh={}
+      super(facet_name.to_sym, hsh)
       @cluster    = cluster
-      @facet_name = fct_name
       @servers    = {}
-      chef_attributes :cluster_role => facet_name # backwards compatibility
-      chef_attributes :facet_name   => facet_name
-      facet_role      "#{@cluster.name}_#{facet_name}"
+      facet_role  "#{cluster_name}_#{name}"
     end
 
-    def slice *args
-      return self if args.length == 0
-      FacetSlice.new(self, *args)
+    def cluster_name
+      cluster.name
+    end
+
+    def slice indexes=nil
+      return self if indexes.nil?
+      FacetSlice.new(self, indexes)
     end
 
     def servers
@@ -27,16 +28,12 @@ module ClusterChef
     end
 
     def get_node_name index
-      "#{cluster_name}-#{facet_name}-#{index}"
-    end
-
-    def cluster_name
-      cluster.name
+      "#{cluster_name}-#{name}-#{index}"
     end
 
     def security_groups
       groups = cloud.security_groups
-      @servers.values.each { |s| groups.merge s.security_groups }
+      @servers.values.each{|s| groups.merge s.security_groups }
       return groups
     end
 
@@ -44,22 +41,23 @@ module ClusterChef
     # Resolve:
     #
     def resolve!
-      clname = @cluster.name
-      @settings    = @cluster.to_hash.merge @settings
-      cloud.resolve!          @cluster.cloud
-      cloud.keypair           clname if cloud.keypair.nil? #.blank?
-      cloud.security_group    clname do authorize_group clname end
-      cloud.security_group    "#{clname}-#{facet_name}"
+      @settings    = cluster.to_hash.merge @settings
+      cluster_name = self.cluster_name
+      cloud.resolve! cluster.cloud
+      cloud.keypair  cluster_name if cloud.keypair.nil?
+      cloud.security_group(cluster_name){ authorize_group(cluster_name) }
+      cloud.security_group "#{cluster_name}-#{name}"
 
       role cluster.cluster_role if cluster.cluster_role
-      role self.facet_role if self.facet_role
+      role self.facet_role      if self.facet_role
 
-      @settings[:run_list]        = @cluster.run_list + self.run_list
-      @settings[:chef_attributes] = @cluster.chef_attributes.merge(self.chef_attributes)
+      @settings[:run_list]        = cluster.run_list + self.run_list
+      @settings[:chef_attributes] = cluster.chef_attributes.merge(self.chef_attributes)
       chef_attributes :run_list => run_list
 
       resolve_volumes!
       resolve_servers!
+
       self
     end
 
@@ -68,9 +66,9 @@ module ClusterChef
     end
 
     def resolve_volumes!
-      # cluster.volumes.each do |name, vol|
-      #   self.volume(name).reverse_merge!(vol)
-      # end
+      cluster.volumes.each do |name, vol|
+        self.volume(name).reverse_merge!(vol)
+      end
     end
 
     def resolve_servers!
@@ -96,10 +94,6 @@ module ClusterChef
     def has_server? index
       return @servers.member? index.to_s
     end
-
-    def cluster_group
-      return "#{cluster_name}-#{facet_name}"
-    end
   end
 
   class FacetSlice < ClusterChef::ComputeBuilder
@@ -109,7 +103,7 @@ module ClusterChef
     def initialize facet, instance_indexes
       @facet = facet
       @cluster = facet.cluster
-      @instance_indexes = instance_indexes
+      @instance_indexes = instance_indexes.to_s
     end
 
     def parse_indexes
@@ -126,13 +120,11 @@ module ClusterChef
       end
       indexes.sort!.uniq!
 
-
       @servers = {}
       indexes.each do |idx|
         svr = facet.server_by_index idx
         @servers[idx] = svr if svr
       end
-
     end
 
     def servers
@@ -146,11 +138,7 @@ module ClusterChef
     end
 
     def get_node_name index
-      "#{cluster_name}-#{facet_name}-#{index}"
-    end
-
-    def cluster_name
-      cluster.name
+      "#{cluster_name}-#{facet.name}-#{index}"
     end
 
     def security_groups

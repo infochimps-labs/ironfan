@@ -60,11 +60,10 @@ describe "cluster_chef" do
         gg = @cluster.facet(:worker).security_groups
         gg.length.should == 1
         gg[:nfs_client].to_hash.should == {
-          :name        => :nfs_client,
+          :name        => "nfs_client",
           :description => "cluster_chef generated group nfs_client"
         }
       end
     end
   end
 end
-

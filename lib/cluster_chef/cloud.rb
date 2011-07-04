@@ -50,9 +50,9 @@ module ClusterChef
 
       def initialize *args
         super *args
-        @settings[:security_groups]      = {}
-        @settings[:user_data]            = {}
-        @settings[:availability_zones]   = []
+        @settings[:security_groups]      ||= Mash.new
+        @settings[:user_data]            ||= Mash.new
+        @settings[:availability_zones]   ||= []
       end
 
       # An alias for disable_api_termination. Prevents the instance from being
@@ -73,9 +73,10 @@ module ClusterChef
       end
 
       # adds a security group to the cloud instance
-      def security_group sg_name, &block
+      def security_group sg_name, hsh={}, &block
+        sg_name = sg_name.to_s
         security_groups[sg_name] ||= ClusterChef::Cloud::SecurityGroup.new(self, sg_name)
-        security_groups[sg_name].instance_eval(&block) if block
+        security_groups[sg_name].configure(hsh, &block)
         security_groups[sg_name]
       end
 
@@ -98,7 +99,6 @@ module ClusterChef
       #
       # FIXME: use a deep merge
       def user_data hsh={}
-        @settings[:user_data] ||= {}
         if hsh.empty? #blank?
           @settings[:user_data].merge({
               :chef_server            => Chef::Config.chef_server_url,
@@ -113,8 +113,9 @@ module ClusterChef
 
       def merge! cloud
         @settings = cloud.to_hash.merge @settings
-        @settings[:security_groups] = cloud.security_groups.merge(self.security_groups)
-        @settings[:user_data]       = cloud.to_hash[:user_data].merge(@settings[:user_data])
+        return self unless cloud.respond_to?(:security_groups)
+        @settings[:security_groups].reverse_merge!(cloud.security_groups)
+        @settings[:user_data].reverse_merge!(cloud.to_hash[:user_data])
       end
 
       def resolve! cloud

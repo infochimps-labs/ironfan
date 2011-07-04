@@ -8,7 +8,7 @@ ClusterChef.cluster 'demohadoop' do
     region              "us-east-1"
   end
 
-  facet 'master' do
+  facet :master do
     instances           1
     role                "nfs_server"
     role                "hadoop"
@@ -19,7 +19,7 @@ ClusterChef.cluster 'demohadoop' do
     cloud.flavor        "m2.xlarge"
   end
 
-  facet 'worker' do
+  facet :worker do
     instances           2
     role                "nfs_client"
     role                "hadoop"

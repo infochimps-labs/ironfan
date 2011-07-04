@@ -7,31 +7,10 @@ module ClusterChef
     attr_reader :facets, :undefined_servers
     has_keys :cluster_role
 
-    def initialize clname
-      super(clname)
-      @facets = {}
-      chef_attributes  :cluster_name => clname
+    def initialize clname, hsh={}
+      super(clname.to_sym, hsh)
+      @facets = Mash.new
       cluster_role "#{clname}_cluster"
-    end
-
-    def facet facet_name, &block
-      @facets[facet_name] ||= ClusterChef::Facet.new(self, facet_name)
-      @facets[facet_name].instance_eval(&block) if block
-      @facets[facet_name]
-    end
-
-    def has_facet? facet_name
-      return @facets.member?(facet_name)
-    end
-
-    def slice *args
-      return self if args.length == 0
-      facet_name = args.shift
-      unless @facets[facet_name]
-        $stderr.puts "Facet '#{facet_name}' is not defined in cluster '#{cluster_name}'"
-        exit -1
-      end
-      return @facets[facet_name].slice *args
     end
 
     def cluster
@@ -39,11 +18,28 @@ module ClusterChef
     end
 
     def cluster_name
-      self.name
+      name
     end
 
-    def cluster_group
-      cluster_name
+    def facet facet_name, hsh={}, &block
+      facet_name = facet_name.to_sym
+      @facets[facet_name] ||= ClusterChef::Facet.new(self, facet_name)
+      @facets[facet_name].configure(hsh, &block)
+      @facets[facet_name]
+    end
+
+    def has_facet? facet_name
+      return @facets.include?(facet_name)
+    end
+
+    def find_facet! facet_name
+      facet(facet_name) or die("Facet '#{facet_name}' is not defined in cluster '#{cluster_name}'")
+    end
+
+    def slice *args
+      return self if args.empty?
+      facet_name = args.shift
+      find_facet!(facet_name).slice(*args)
     end
 
     def security_groups
@@ -57,16 +53,20 @@ module ClusterChef
     end
 
     def fog_servers
-      @fog_servers ||= ClusterChef.servers.select{|s| s.groups.index( cluster_group ) && (s.state != "terminated") }
+      @fog_servers ||= ClusterChef.servers.select{|s| s.groups.index(cluster_name.to_s) && (s.state != "terminated") }
     end
 
     def chef_nodes
       return @chef_nodes if @chef_nodes
       @chef_nodes = []
       Chef::Search::Query.new.search(:node,"cluster_name:#{cluster_name}") do |n|
-        @chef_nodes.push(n) unless n.nil? || (n.cluster_name != cluster_name)
+        @chef_nodes.push(n) unless n.nil? || (n.cluster_name != cluster_name.to_s)
       end
       @chef_nodes
+    end
+
+    def to_s
+      "#{super[0..-3]} @facets=>#{@facets.keys.inspect}}>"
     end
 
     #
@@ -86,6 +86,7 @@ module ClusterChef
     def merge! other_cluster
       if(other_cluster.is_a?(String)) then other_cluster = ClusterChef.cluster(other_cluster) end
       @settings = other_cluster.to_hash.merge @settings
+      return self unless other_cluster.respond_to?(:run_list)
       @settings[:run_list]        = other_cluster.run_list + self.run_list
       @settings[:chef_attributes] = other_cluster.chef_attributes.merge(self.chef_attributes)
       cloud.merge! other_cluster.cloud
@@ -100,12 +101,12 @@ module ClusterChef
     def discover!
       # Build a crossover table between what should be, what is in fog
       # and what is in chef.
-      node_name_hash = Hash.new { |hash,key| hash[key] = [nil,nil,nil] }
-      servers.each { |s|
-        node_name_hash[ s.chef_node_name ][0] = s
+      node_name_hash = Hash.new{|hash,key| hash[key] = [nil,nil,nil] }
+      servers.each{|s|
+        node_name_hash[s.chef_node_name][0] = s
       }
 
-      # The only way to link up to an actual instance is throug
+      # The only way to link up to an actual instance is through
       # what Ohai discovered about the node in chef, so we need
       # to build an instance_id to node_name map
 
@@ -120,7 +121,7 @@ module ClusterChef
         # to locate the corresponding machine in the cluster def and get
         # its chef_node_name
         if s.tags["cluster"] && s.tags["facet"] && s.tags["index"]
-          if has_facet?( s.tags["facet"])
+          if has_facet?( s.tags["facet"] )
             f = facet(s.tags["facet"])
             if f.has_server?( s.tags["index"] )
               nn = f.server(s.tags["index"]).chef_node_name
@@ -175,10 +176,6 @@ module ClusterChef
     def initialize cluster, servers
       @cluster = cluster
       @servers = servers
-    end
-
-    def cluster_name
-      cluster.name
     end
   end
 
