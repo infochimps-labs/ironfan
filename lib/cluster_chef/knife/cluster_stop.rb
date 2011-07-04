@@ -34,6 +34,9 @@ class Chef
       option :yes,
         :long => "--yes",
         :description => "Skip confirmation that you want to stop the cluster."
+      option :detailed,
+        :long => "--detailed",
+        :description => "Show detailed info on servers"
 
       def run
         load_cluster_chef
@@ -48,7 +51,7 @@ class Chef
           puts "Unless these nodes are backed by EBS volumes, this will result in loss of all"
           puts "data not saved elsewhere. Even if they are EBS backed, there may still be some data loss."
           puts "Are you absolutely certain that you want to perform this action? (Type 'Yes' to confirm)"
-          confirm('Yes')
+          confirm_or_exit('Yes')
         end
 
         target.stop

@@ -9,7 +9,6 @@ module ClusterChef
       @servers    = Mash.new
       facet_role  "#{cluster_name}_#{name}"
       @settings[:instances] ||= 1
-      p [self, cluster, facet_name]
     end
 
     def cluster_name
@@ -23,59 +22,50 @@ module ClusterChef
       @servers[idx]
     end
 
-    def servers
-      ClusterChef::ServerSlice.new(cluster, slice(indexes) )
-    end
-
-    def all_servers
-      ClusterChef::ServerSlice.new(cluster, slice(all_indexes) )
-    end
-
-    # all valid server indexes
-    def indexes
-      (0 ... instances).to_a # note the '...'
-    end
-
-    # indexes in the 0...instances range plus bogus ones that showed up
-    # (probably from chef or fog)
-    def all_indexes
-      [@servers.keys, indexes].flatten.compact.uniq.sort
-    end
-
     # if the server has been added to this facet or is in range
     def has_server? idx
       (idx.to_i < instances) || @servers.include?(idx.to_i)
     end
 
-    # servers from this facet, in index order
-    def slice( slice_indexes )
-      slice_indexes
-        .map(&:to_i).sort!
-        .map{|idx| server(idx) }
+    #
+    # Slicing
+    #
+
+    def servers
+      ClusterChef::ServerSlice.new(cluster, slice(indexes) )
     end
 
-    def slice_by_intervals intervals
-      idxs = intervals.split(",").map do |term|
+    # servers from this facet, in index order
+    def slice(slice_indexes=nil)
+      return servers if (slice_indexes.nil?) || (slice_indexes == '')
+      slice_indexes = indexes_from_intervals(slice_indexes) if slice_indexes.is_a?(String)
+      svrs = Array(slice_indexes)
+        .map(&:to_i).sort!
+        .select{|idx| has_server?(idx) }
+        .map{|idx| server(idx) }
+      ClusterChef::ServerSlice.new(self.cluster, svrs)
+    end
+
+    # all valid server indexes
+    def valid_indexes
+      (0 ... instances).to_a # note the '...'
+    end
+
+    # indexes in the 0...instances range plus bogus ones that showed up
+    # (probably from chef or fog)
+    def indexes
+      [@servers.keys, valid_indexes].flatten.compact.uniq.sort
+    end
+
+    def indexes_from_intervals intervals
+      intervals.split(",").map do |term|
         if    term =~ /^(\d+)-(\d+)$/ then ($1.to_i .. $2.to_i).to_a
         elsif term =~ /^(\d+)$/       then  $1.to_i
         else  warn("Bad interval: #{term}") ; nil
         end
-      end.flatten.compact.uniq!
-      slice idxs
+      end.flatten.compact.uniq
     end
 
-    # def servers
-    #   @servers.values
-    # end
-    #
-    # def server_by_index index
-    #   @servers[index.to_s]
-    # end
-    #
-    # def get_node_name index
-    #   "#{cluster_name}-#{name}-#{index}"
-    # end
-    #
     # def security_groups
     #   groups = cloud.security_groups
     #   @servers.values.each{|s| groups.merge s.security_groups }
@@ -131,51 +121,4 @@ module ClusterChef
     #
 
   end
-
-  # class FacetSlice < ClusterChef::ComputeBuilder
-  #   attr_reader :cluster, :facet
-  #   has_keys  :instances
-  #
-  #   def initialize facet, instance_indexes
-  #     @facet = facet
-  #     @cluster = facet.cluster
-  #     @instance_indexes = instance_indexes.to_s
-  #   end
-  #
-  #
-  #   def servers
-  #     parse_indexes unless @servers
-  #     @servers.values
-  #   end
-  #
-  #   def server_by_index index
-  #     parse_indexes unless @servers
-  #     @servers[index.to_s]
-  #   end
-  #
-  #   def get_node_name index
-  #     "#{cluster_name}-#{facet.name}-#{index}"
-  #   end
-  #
-  #   def security_groups
-  #     cluster.security_groups
-  #   end
-  #
-  #   def to_hash_with_cloud
-  #     to_hash.merge({ :cloud => cloud.to_hash, })
-  #   end
-  #
-  #   def resolve_servers!
-  #     facet.resolve_servers!
-  #   end
-  #
-  #   def server index, &block
-  #     parse_indexes unless @servers
-  #
-  #     facet_index = index.to_s
-  #     @servers[facet_index] ||= ClusterChef::Server.new(self, facet_index)
-  #     @servers[facet_index].instance_eval(&block) if block
-  #     @servers[facet_index]
-  #   end
-  # end
 end

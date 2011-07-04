@@ -21,40 +21,47 @@ module ClusterChef
     def length
       @servers.length
     end
+    def empty?
+      length == 0
+    end
 
     def to_s
       str = super
       str[0..-2] + " #{@servers.map(&:fullname)}>"
     end
     
-    # def uncreated_servers
-    #   # Return the collection of servers that are not yet 'created'
-    #   ServerSlice.new cluster, servers.select{|svr| svr.fog_server.nil? }
-    # end
-
-    # These are some helper methods for iterating through the servers
-    # to do things
-
-    def delegate_to_servers method, threaded = false
-      if threaded
-        # Execute across all servers in parallel
-        threads = servers.map{|svr| Thread.new(svr) { |s| s.send(method) } }
-        # Wait for the threads to finish and return the array of results
-        threads.map{|t| t.join.value }
-      else
-        # Call the method for each server sequentially
-        # and return the results in an array
-        servers.map{|svr| svr.send(method) }
-      end
+    # Return the collection of servers that are not yet 'created'
+    def uncreated_servers
+      ServerSlice.new cluster, servers.select{|svr| not svr.created? }
     end
 
-    def delegate_to_fog_servers method
-      servers.map do |svr|
-        svr.fog_server.send(method) if svr.fog_server
-      end
+    def bogus_servers
+      ServerSlice.new cluster, servers.select(&:bogus?)
     end
 
-    # Here are a few
+    def sshable_servers
+      ServerSlice.new cluster, servers.select(&:chef_node)
+    end
+
+    #
+    # Info!
+    #
+
+    def chef_nodes
+      servers.map(&:chef_node).compact
+    end
+
+    def fog_servers
+      servers.map(&:fog_server).compact
+    end
+
+    def security_groups
+      servers.map(&:security_groups).flatten.compact
+    end
+
+    #
+    # Actions!
+    #
 
     def start
       delegate_to_fog_servers( :start  )
@@ -88,45 +95,56 @@ module ClusterChef
       end
     end
 
-    # This is a generic display routine for cluster-like sets of nodes. If you call
-    # it with no args, you get the basic table that knife cluster show draws.
-    # If you give it an array of strings, you can override the order and headings
-    # displayed. If you also give it a block you can supply your own logic for
-    # generating content. The block is given a ClusterChef::Server instance for each
-    # item in the collection and should return a hash of Name,Value pairs to display
-    # in the table.
     #
-    # There is an example of how to call this functon with a block in
-    # knife/cluster_launch.rb
+    # Display!
     #
-    def display headings = ["Name", "Chef?", "InstanceID", "State", "Public IP", "Created At"]
-      # sorted_servers = servers.sort{ |a,b| (a.facet_name <=> b.facet_name) *9 + (a.facet_index.to_i <=> b.facet_index.to_i)*3 + (a.facet_index <=> b.facet_index) }
+
+    DEFAULT_HEADINGS = ["Name", "Chef?", "InstanceID", "State", "Public IP", "Private IP", "Created At"].freeze
+
+    #
+    # This is a generic display routine for cluster-like sets of nodes. If you
+    # call it with no args, you get the basic table that knife cluster show
+    # draws.  If you give it an array of strings, you can override the order and
+    # headings displayed. If you also give it a block you can add your own logic
+    # for generating content. The block is given a ClusterChef::Server instance
+    # for each item in the collection and should return a hash of Name,Value
+    # pairs to merge into the default fields.
+    #
+    def display hh = :default
+      headings =
+        case hh
+        when :default  then DEFAULT_HEADINGS
+        when :detailed then DEFAULT_HEADINGS + ['Flavor', 'Image', 'AZ', 'SSH Key']
+        else hh end
+      headings += ["Bogus"] if servers.any?(&:bogus?)
+      # probably not necessary any more
+      # servers = servers.sort{ |a,b| (a.facet_name <=> b.facet_name) *9 + (a.facet_index.to_i <=> b.facet_index.to_i)*3 + (a.facet_index <=> b.facet_index) }
       defined_data = servers.map do |svr|
         hsh = {
-          "Name"    => svr.fullname,
-          "Facet"   => svr.facet.name,
-          "Index"   => svr.facet_index,
-          "Chef?"   => svr.chef_node ? "yes" : "[red]no[reset]",
+          "Name"   => svr.fullname,
+          "Facet"  => svr.facet_name,
+          "Index"  => svr.facet_index,
+          "Chef?"  => (svr.chef_node ? "yes" : "[red]no[reset]"),
+          "Bogus"  => (svr.bogus? ? "[red]way[reset]" : '')
         }
-        if (s = svr.fog_server)
-          hsh.merge!({
-              "InstanceID"        => (s.id && s.id.length > 0) ? s.id : "???",
-              "Flavor"            => s.flavor_id,
-              "Image"             => s.image_id,
-              "AZ"                => s.availability_zone,
-              "SSH Key"           => s.key_name,
-              "State"             => s.state,
-              "Public IP"         => s.public_ip_address,
-              "Private IP"        => s.private_ip_address,
-              "Created At"        => s.created_at.strftime("%Y%m%d-%H%M%S"),
-            })
+        if (fs = svr.fog_server)
+          hsh.merge!(
+              "InstanceID" => (fs.id && fs.id.length > 0) ? fs.id : "???",
+              "Flavor"     => fs.flavor_id,
+              "Image"      => fs.image_id,
+              "AZ"         => fs.availability_zone,
+              "SSH Key"    => fs.key_name,
+              "State"      => "[#{fs.state == 'running' ? 'green' : 'blue'}]#{fs.state}[reset]",
+              "Public IP"  => fs.public_ip_address,
+              "Private IP" => fs.private_ip_address,
+              "Created At" => fs.created_at.strftime("%Y%m%d-%H%M%S")
+            )
         else
-          hsh["State"] = "[red]not running[reset]"
+          hsh["State"] = "not running"
         end
         hsh.merge!(yield(svr)) if block_given?
         hsh
       end
-
       if defined_data.empty?
         puts "Nothing to report"
       else
@@ -134,5 +152,28 @@ module ClusterChef
       end
     end
 
+  protected
+
+    # Helper methods for iterating through the servers to do things
+
+    def delegate_to_servers method, threaded = false
+      if threaded
+        # Execute across all servers in parallel
+        threads = servers.map{|svr| Thread.new(svr) { |s| s.send(method) } }
+        # Wait for the threads to finish and return the array of results
+        threads.map{|t| t.join.value }
+      else
+        # Call the method for each server sequentially
+        # and return the results in an array
+        servers.map{|svr| svr.send(method) }
+      end
+    end
+
+    def delegate_to_fog_servers method
+      fog_servers.map do |fs|
+        fs.send(method)
+      end
+    end
+    
   end
 end

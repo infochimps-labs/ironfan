@@ -24,9 +24,6 @@ class Chef
       include ClusterChef::KnifeCommon
 
       deps do
-        require 'chef/node'
-        require 'chef/api_client'
-        require 'fog'
         ClusterChef::KnifeCommon.load_deps
       end
 
@@ -34,38 +31,23 @@ class Chef
       option :dry_run,
         :long => "--dry-run",
         :description => "Don't really run, just use mock calls"
+      option :detailed,
+        :long => "--detailed",
+        :description => "Show detailed info on servers"
 
       def run
-        ELAPSED_TIME(self.class, "run")
-
         load_cluster_chef
         die(banner) if @name_args.empty?
         enable_dry_run if config[:dry_run]
 
         # Load the cluster/facet/slice/whatever
-        target = slice_from_args(* @name_args)
+        target = ClusterChef.slice(* @name_args)
 
-        # servers = target.servers
-        # servers = target.servers.select{|svr| target.cluster.has_facet?(svr.facet_name) }
+        # Display same
+        target.display(display_style)
 
-        # Create a slice of servers that are actually in defined facets
-        headings = ["Name", "Chef?", "InstanceID", "State", "Public IP", "Created At"]
-        headings << "Bogus" # if target.has_bogus_servers
-        target.display(headings)
-
-        ClusterChef::ServerSlice.new(target.cluster, ClusterChef::Server.all.values).display
-
-        ap target.cluster.cluster_name
-
-        ap target.cluster.facets
-
-        target.cluster.facets.each do |nm, facet|
-          ap facet.servers
-          ap facet.all_servers
-        end
-
-        ap target
-
+        # Also display the full dictionary while we're testing everything
+        ClusterChef::ServerSlice.new(target.cluster, ClusterChef::Server.all.values).display(:detailed)
       end
     end
   end

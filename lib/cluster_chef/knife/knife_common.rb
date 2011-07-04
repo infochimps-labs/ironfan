@@ -28,6 +28,11 @@ module ClusterChef
       ClusterChef.die(*args)
     end
 
+    # What headings to show in server slice tables by default
+    def display_style
+      config[:detailed] ? :detailed : :default
+    end
+
     #
     # Put Fog into mock mode if --dry_run
     #
@@ -41,20 +46,16 @@ module ClusterChef
     end
 
     def slice_from_args( *predicate )
-      ap predicate
-      target = ClusterChef.slice(* predicate)
-      target.cluster.discover!
-      target
+      ClusterChef.slice(* predicate)
     end
 
-    def confirm str
+    def confirm_or_exit str
       response = STDIN.readline
       unless response.chomp == str
         die "I didn't think so.", "Aborting!", 1
       end
       puts
     end
-
 
     # Show a pretty progress bar while we wait for a set of threads to finish.
     def progressbar_for_threads threads

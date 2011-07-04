@@ -31,6 +31,9 @@ class Chef
       option :dry_run,
         :long => "--dry-run",
         :description => "Don't really run, just use mock calls"
+      option :detailed,
+        :long => "--detailed",
+        :description => "Show detailed info on servers"
 
       def run
         load_cluster_chef

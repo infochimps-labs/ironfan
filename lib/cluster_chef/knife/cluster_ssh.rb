@@ -23,6 +23,11 @@ class Chef
     class ClusterSsh < Chef::Knife::Ssh
       include ClusterChef::KnifeCommon
 
+      deps do
+        Chef::Knife::Ssh.load_deps
+        ClusterChef::KnifeCommon.load_deps
+      end
+
       banner 'knife cluster ssh "CLUSTER [FACET [INDEX]]" COMMAND (options)'
       Chef::Knife::Ssh.options.each do |name, hsh|
         next if name == :attribute
@@ -32,18 +37,19 @@ class Chef
         :short => "-a ATTR",
         :long => "--attribute ATTR",
         :description => "The attribute to use for opening the connection - default is fqdn (ec2 users may prefer cloud.public_hostname)"
-      deps do
-        Chef::Knife::Ssh.load_deps
-        ClusterChef::KnifeCommon.load_deps
-      end
+      option :detailed,
+        :long => "--detailed",
+        :description => "Show detailed info on servers"
 
       def configure_session
-        target = server_group(* @name_args[0].split(/\s+/) )
-
         config[:attribute] ||= Chef::Config[:knife][:ssh_address_attribute] || "fqdn"
         config[:ssh_user]  ||= Chef::Config[:knife][:ssh_user]
 
-        @action_nodes = target.servers.map{|s| s.chef_node if s.chef_node }.compact
+        target = ClusterChef.slice(* @name_args[0].split(/\s+/) ).sshable_servers
+
+        target.display(display_style)
+
+        @action_nodes = target.chef_nodes
         list = @action_nodes.map{|n| format_for_display(n)[config[:attribute]] }.compact
 
         (ui.fatal("No nodes returned from search!"); exit 10) if list.length == 0

@@ -41,7 +41,8 @@ module ClusterChef
     end
 
     def servers
-      ClusterChef::ServerSlice.new(self, @facets.map{|name, facet| facet.all_servers.to_a }.flatten)
+      svrs = @facets.sort.map{|name, facet| facet.servers.to_a }
+      ClusterChef::ServerSlice.new(self, svrs.flatten)
     end
 
     def slice *args

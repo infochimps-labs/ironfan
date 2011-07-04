@@ -22,7 +22,7 @@ module ClusterChef
     end
 
     def fullname
-      [cluster_name, facet.name, facet_index].join('-')
+      [cluster_name, facet_name, facet_index].join('-')
     end
 
     def self.get(fullname)
@@ -42,6 +42,10 @@ module ClusterChef
       cluster.name
     end
 
+    def facet_name
+      facet.name
+    end
+
     def security_groups
       cloud.security_groups
     end
@@ -57,6 +61,10 @@ module ClusterChef
 
     def bogus?
       facet.bogus? || (self.facet_index.to_i >= facet.instances)
+    end
+
+    def created?
+      fog_server
     end
 
     def to_s

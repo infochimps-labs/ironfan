@@ -49,10 +49,14 @@ class Chef
         :long => "--sudo",
         :description => "Execute the bootstrap via sudo",
         :boolean => true
+      option :detailed,
+        :long => "--detailed",
+        :description => "Show detailed info on servers"
 
       def run
         load_cluster_chef
         die(banner) if @name_args.empty?
+        display_style = config[:detailed] ? :detailed : :default
 
         cluster_name, facet_name, hostname = @name_args
 

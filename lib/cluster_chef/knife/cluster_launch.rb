@@ -48,6 +48,9 @@ class Chef
       option :force,
         :long => "--force",
         :description => "Perform launch operations even if it may not be safe to do so."
+      option :detailed,
+        :long => "--detailed",
+        :description => "Show detailed info on servers"
 
       def run
         load_cluster_chef
@@ -57,13 +60,13 @@ class Chef
         #
         # Load the facet
         #
-        target       = server_group(* @name_args)
+        target      = ClusterChef.slice(* @name_args)
         cluster      = target.cluster
-        warn_or_die_on_undefined_servers(target, cluster.undefined_servers) unless cluster.undefined_servers.empty?
+        warn_or_die_on_bogus_servers(target) unless target.bogus_servers.empty?
 
         uncreated_servers = target.uncreated_servers
-        if uncreated_servers.servers.empty? then
-          show_cluster_launch_banner(target)
+        if uncreated_servers.empty? then
+          target.display(display_style)
           die "", "#{h.color("All servers are running -- not launching any.",:blue)}", ""
         end
 
@@ -71,15 +74,16 @@ class Chef
         # We need to dummy up a key_pair in simulation mode, not doing it fr'eals
         if config[:dry_run] then ClusterChef.connection.key_pairs.create(:name => cluster.name) ; end
 
-        # Make security groups
-        target.security_groups.each{|name,group| group.run }
+
+        # # Make security groups
+        # target.security_groups.each{|name,group| group.run }
 
         # Launch servers
         uncreated_servers.create_servers
-        show_cluster_launch_banner(uncreated_servers)
+        uncreated_servers.display(display_style)
 
         # As each server finishes, configure it
-        watcher_threads = uncreated_servers.servers.map do |s|
+        watcher_threads = uncreated_servers.map do |s|
           Thread.new(s) do |cc_server|
 
             # Hook up external assets
@@ -101,11 +105,11 @@ class Chef
 
         progressbar_for_threads(watcher_threads)
 
-        show_cluster_launch_banner(uncreated_servers)
+        uncreated_servers.display(display_style)
       end
 
-      def show_cluster_launch_banner servers
-        servers.display(["Name", "InstanceID", "Flavor", "Image", "AZ", "Public IP", "Private IP", "Created At"] )
+      def display_style
+        ["Name", "InstanceID", "Flavor", "Image", "AZ", "Public IP", "Private IP", "Created At"]
       end
 
       def tcp_test_ssh(hostname)
@@ -127,16 +131,12 @@ class Chef
         tcp_socket && tcp_socket.close
       end
 
-      def warn_or_die_on_undefined_servers(target_servers, bad_servers)
+      def warn_or_die_on_bogus_servers(target)
         # FIXME: refactor all the banners running around all over the place
         puts
-        puts "Cluster has servers in a transitional or undefined state. These guys are cool:"
+        puts "Cluster has servers in a transitional or undefined state (shown as 'bogus'):"
         puts
-        show_cluster_launch_banner target_servers
-        puts
-        puts "These guys are lame:"
-        puts
-        bad_servers.each{|svr| puts svr.inspect }
+        target.display(display_style)
         puts
         unless config[:force]
           die(

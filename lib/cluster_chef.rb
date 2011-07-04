@@ -33,8 +33,8 @@ module ClusterChef
   end
 
   def self.load_cluster cluster_name
-    return clusters[cluster_name] if clusters[cluster_name]
     raise ArgumentError, "Please supply a cluster name" if cluster_name.to_s.empty?
+    return clusters[cluster_name] if clusters[cluster_name]
     cluster_file = cluster_path
       .map{|path| File.join( path, "#{cluster_name}.rb" ) }
       .find{|filename| File.exists?(filename) }
@@ -45,9 +45,8 @@ module ClusterChef
   end
 
   def self.slice cluster_name, *args
-    raise ArgumentError, "Please supply a cluster name" if cluster_name.to_s.empty?
-
     cluster = load_cluster(cluster_name)
+    cluster.discover!
     return cluster.slice(*args)
   end
 
