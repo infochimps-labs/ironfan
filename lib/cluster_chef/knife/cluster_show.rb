@@ -16,67 +16,39 @@
 # limitations under the License.
 #
 
-require 'socket'
-require 'chef/knife'
-require 'json'
-require 'formatador'
+require File.expand_path(File.dirname(__FILE__)+"/knife_common.rb")
 
 class Chef
   class Knife
     class ClusterShow < Knife
+      include ClusterChef::KnifeCommon
+
       deps do
-        Chef::Knife::Bootstrap.load_deps
+        require 'chef/node'
+        require 'chef/api_client'
+        require 'fog'
+        ClusterChef::KnifeCommon.load_deps
       end
 
       banner "knife cluster show CLUSTER_NAME FACET_NAME INDEX (options)"
-
-      attr_accessor :initial_sleep_delay
-
       option :dry_run,
         :long => "--dry-run",
         :description => "Don't really run, just use mock calls"
 
-      def h
-        @highline ||= HighLine.new
-      end
-
       def run
-        require 'fog'
-        require 'highline'
-        require 'net/ssh/multi'
-        require 'readline'
+        ELAPSED_TIME(self.class, "run")
 
-        # TODO: this is a hack - remove when ClusterChef is deployed as a gem
-        $: << Chef::Config[:cluster_chef_path]+'/lib'
+        load_cluster_chef
+        die(banner) if @name_args.empty?
+        enable_dry_run if config[:dry_run]
 
-        require 'cluster_chef'
-        $stdout.sync = true
-
-        #
-        # Put Fog into mock mode if --dry_run
-        #
-        if config[:dry_run]
-          Fog.mock!
-          Fog::Mock.delay = 0
-        end
-
-        #
         # Load the cluster/facet/slice/whatever
-        #
-        target = ClusterChef.get_cluster_slice *@name_args
-        cluster = target.cluster
-        cluster_name = cluster.cluster_name
-
-        cluster.resolve!
+        target = server_group(* @name_args)
         servers = target.servers
 
-        #
-        # Display server info
-        #
-
         # Create a slice of servers that are actually in defined facets
-        servers = target.servers.select{|svr| cluster.has_facet?(svr.facet_name) }
-        ClusterChef::ClusterSlice.new( cluster, servers ).display
+        servers = target.servers.select{|svr| target.cluster.has_facet?(svr.facet_name) }
+        ClusterChef::ClusterSlice.new( target.cluster, servers ).display
 
         # If the cluster discovery failed to put everything into its correct
         # place, we have some servers that do not fit into the regular boxes.
@@ -89,6 +61,7 @@ class Chef
             x["Node"]  = chef_node[:node_name]
             x["Facet"] = chef_node[:facet_name]
             x["Index"] = chef_node[:facet_index]
+            x["Chef?"] = (chef_node ? "yes" : "[red]no[reset]")
           end
 
           if fog_server
@@ -104,9 +77,9 @@ class Chef
 
         unless undefined_data.empty?
           puts
-          Formatador.display_line "[red]Cluster contains undefined servers[reset]"
+          Formatador.display_line "[red]Cluster contains undefined servers:[reset]"
           Formatador.display_compact_table(  undefined_data.sort_by {|x| "#{x["Facet"]}-#{x["Index"]}"},
-                                             ["Node","Facet","Index","Chef?","InstanceID","State","Public IP", "Private IP"] )
+                                             ["Node", "Facet", "Index", "Chef?", "InstanceID", "State", "Public IP", "Private IP"] )
         end
       end
     end

@@ -16,63 +16,30 @@
 # limitations under the License.
 #
 
-require 'socket'
-require 'chef/knife'
-require 'json'
-require 'formatador'
+require File.expand_path(File.dirname(__FILE__)+"/knife_common.rb")
 
 class Chef
   class Knife
     class ClusterStart < Knife
+      include ClusterChef::KnifeCommon
+
       deps do
-        require 'chef/json_compat'
-        require 'tempfile'
-        require 'highline'
-        require 'net/ssh'
-        require 'net/ssh/multi'
-        Chef::Knife::Ssh.load_deps
-      end rescue nil
+        ClusterChef::KnifeCommon.load_deps
+      end
 
       banner "knife cluster start CLUSTER_NAME FACET_NAME (options)"
-
       option :dry_run,
         :long => "--dry-run",
         :description => "Don't really run, just use mock calls"
 
-      def h
-        @highline ||= HighLine.new
-      end
-
-
       def run
-        require 'fog'
-        require 'highline'
-        require 'net/ssh/multi'
-        require 'readline'
-        $: << Chef::Config[:cluster_chef_path]+'/lib'
-        require 'cluster_chef'
-        $stdout.sync = true
+        load_cluster_chef
+        die(banner) if @name_args.empty?
+        enable_dry_run if config[:dry_run]
 
-        #
-        # Put Fog into mock mode if --dry_run
-        #
-        if config[:dry_run]
-          Fog.mock!
-          Fog::Mock.delay = 0
-        end
-
-        #
-        # Load the facet
-        #
-        cluster_name = @name_args
-        raise "Launch the cluster as: knife cluster start CLUSTER_NAME FACET_NAME (options)" if cluster_name.nil? #blank?
-
-        target = ClusterChef.get_cluster_slice *@name_args
-        target.cluster.resolve!
-
+        target = server_group(* @name_args)
         target.start
         target.display
-
       end
     end
   end
