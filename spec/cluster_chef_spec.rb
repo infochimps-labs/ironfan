@@ -1,10 +1,5 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
-require 'extlib/mash'
-module Chef
-  Chef::Config = Mash.new( :knife => Mash.new )
-end
-
 require CLUSTER_CHEF_DIR("lib/cluster_chef")
 
 describe "cluster_chef" do
@@ -56,14 +51,26 @@ describe "cluster_chef" do
         }
       end
 
-      it 'security groups are right' do
-        gg = @cluster.facet(:worker).security_groups
-        gg.length.should == 1
-        gg[:nfs_client].to_hash.should == {
-          :name        => "nfs_client",
-          :description => "cluster_chef generated group nfs_client"
-        }
+      # it 'security groups are right' do
+      #   gg = @cluster.facet(:worker).security_groups
+      #   gg.length.should == 1
+      #   gg[:nfs_client].to_hash.should == {
+      #     :name        => "nfs_client",
+      #     :description => "cluster_chef generated group nfs_client"
+      #   }
+      # end
+
+      it 'has servers' do
+        @cluster.servers.map(&:fullname).should == ["demohadoop-master-0", "demohadoop-worker-0", "demohadoop-worker-1"]
       end
+    end
+
+    describe 'slicing' do
+
+      # it 'delegates' do
+      #   ClusterChef.slice(:demohadoop).should == []
+      # end
+
     end
   end
 end

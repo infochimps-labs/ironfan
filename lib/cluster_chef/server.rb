@@ -9,27 +9,33 @@ module ClusterChef
   class Server < ClusterChef::ComputeBuilder
     attr_reader   :cluster, :facet, :facet_index
     attr_accessor :chef_node, :fog_server
-    has_keys      :chef_node_name, :instances, :facet_name
 
-    def initialize facet, index
-      super facet.get_node_name(index)
-      @facet_index = index
-      @facet = facet
-      @cluster = facet.cluster
+    @@all ||= Mash.new
 
-      @settings[:facet_name] = @facet.name
+    def initialize facet, idx
+      @cluster     = facet.cluster
+      @facet       = facet
+      @facet_index = idx
+      super(fullname)
+      warn("Duplicate server #{[self, facet.name, idx]} vs #{@@all[fullname]}") if @@all[fullname]
+      @@all[fullname] = self
+    end
 
-      @settings[:chef_node_name] = name
-      chef_attributes :node_name => name
-      chef_attributes :cluster_role_index => index
-      chef_attributes :facet_index => index
-      chef_attributes :cluster_name => cluster_name
-      chef_attributes :cluster_role => facet_name # backwards compatibility
-      chef_attributes :facet_name   => facet_name
+    def fullname
+      [cluster_name, facet.name, facet_index].join('-')
+    end
 
-      @tags = { "cluster" => cluster_name,
-                "facet"   => facet_name,
-                "index"   => facet_index }
+    def self.get(fullname)
+      cluster_name, facet_name, facet_index = fullname.split('-')
+      cluster = Cluster.get(cluster_name)
+      had_facet = cluster.has_facet?(facet_name)
+      facet = cluster.facet(facet_name)
+      facet.bogosity true if (! had_facet)
+      facet.server(facet_index)
+    end
+
+    def self.all
+      @@all
     end
 
     def cluster_name
@@ -37,7 +43,7 @@ module ClusterChef
     end
 
     def security_groups
-      groups = cloud.security_groups
+      cloud.security_groups
     end
 
     def tag key, value=nil
@@ -46,7 +52,15 @@ module ClusterChef
     end
 
     def servers
-      [self]
+      ClusterChef::ServerGroup.new(cluster, [self])
+    end
+
+    def bogus?
+      facet.bogus? || (self.facet_index.to_i >= facet.instances)
+    end
+
+    def to_s
+      super[0..-3] + " chef: #{chef_node && chef_node.node_name} fog: #{fog_server && fog_server.id}}>"
     end
 
     #
@@ -55,6 +69,18 @@ module ClusterChef
     def resolve!
       @settings = @facet.to_hash.merge @settings
       cloud.resolve! @facet.cloud
+
+      chef_attributes :node_name => name
+      chef_attributes :cluster_role_index => facet_index
+      chef_attributes :facet_index => facet_index
+      chef_attributes :cluster_name => cluster_name
+      chef_attributes :cluster_role => facet_name # backwards compatibility
+      chef_attributes :facet_name   => facet_name
+
+      @tags = { "cluster" => cluster_name,
+                "facet"   => facet_name,
+                "index"   => facet_index }
+
 
       @settings[:run_list]        = @facet.run_list + self.run_list
       @settings[:chef_attributes] = @facet.chef_attributes.merge(self.chef_attributes)
@@ -122,6 +148,5 @@ module ClusterChef
     def to_hash_with_cloud
       to_hash.merge({ :cloud => cloud.to_hash, })
     end
-
   end
 end

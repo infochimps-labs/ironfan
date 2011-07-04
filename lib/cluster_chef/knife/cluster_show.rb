@@ -43,44 +43,29 @@ class Chef
         enable_dry_run if config[:dry_run]
 
         # Load the cluster/facet/slice/whatever
-        target = server_group(* @name_args)
-        servers = target.servers
+        target = slice_from_args(* @name_args)
+
+        # servers = target.servers
+        # servers = target.servers.select{|svr| target.cluster.has_facet?(svr.facet_name) }
 
         # Create a slice of servers that are actually in defined facets
-        servers = target.servers.select{|svr| target.cluster.has_facet?(svr.facet_name) }
-        ClusterChef::ClusterSlice.new( target.cluster, servers ).display
+        headings = ["Name", "Chef?", "InstanceID", "State", "Public IP", "Created At"]
+        headings << "Bogus" # if target.has_bogus_servers
+        target.display(headings)
 
-        # If the cluster discovery failed to put everything into its correct
-        # place, we have some servers that do not fit into the regular boxes.
-        undefined_data = target.cluster.undefined_servers.map do |hash|
-          chef_node  = hash[:chef_node]
-          fog_server = hash[:fog_server]
-          x = {}
+        ClusterChef::ServerSlice.new(target.cluster, ClusterChef::Server.all.values).display
 
-          if chef_node
-            x["Node"]  = chef_node[:node_name]
-            x["Facet"] = chef_node[:facet_name]
-            x["Index"] = chef_node[:facet_index]
-            x["Chef?"] = (chef_node ? "yes" : "[red]no[reset]")
-          end
+        ap target.cluster.cluster_name
 
-          if fog_server
-            x["InstanceID"]  = fog_server.id
-            x["State"]   = fog_server.state
-            x["Public IP"] = fog_server.public_ip_address
-            x["Private IP"] = fog_server.private_ip_address
-          else
-            x["State"]  = "not running"
-          end
-          x
+        ap target.cluster.facets
+
+        target.cluster.facets.each do |nm, facet|
+          ap facet.servers
+          ap facet.all_servers
         end
 
-        unless undefined_data.empty?
-          puts
-          Formatador.display_line "[red]Cluster contains undefined servers:[reset]"
-          Formatador.display_compact_table(  undefined_data.sort_by {|x| "#{x["Facet"]}-#{x["Index"]}"},
-                                             ["Node", "Facet", "Index", "Chef?", "InstanceID", "State", "Public IP", "Private IP"] )
-        end
+        ap target
+
       end
     end
   end

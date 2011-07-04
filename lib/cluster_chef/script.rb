@@ -9,4 +9,8 @@ module ClusterChef
         #  :region                => region
       })
   end
+
+  def self.fog_servers
+    @fog_servers ||= ClusterChef.connection.servers.all
+  end
 end

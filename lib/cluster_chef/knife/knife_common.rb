@@ -1,8 +1,10 @@
 require 'chef/knife'
 
+require 'awesome_print'
+
 module ClusterChef
   module KnifeCommon
- 
+
     def self.load_deps
       require 'highline'
       require 'readline'
@@ -38,9 +40,10 @@ module ClusterChef
       self.class.to_s.gsub(/^.*::/, '').gsub!(/^Cluster/, '').downcase
     end
 
-    def server_group( *predicate )
-      target = ClusterChef.get_cluster_slice(* predicate)
-      target.cluster.resolve!
+    def slice_from_args( *predicate )
+      ap predicate
+      target = ClusterChef.slice(* predicate)
+      target.cluster.discover!
       target
     end
 
@@ -74,7 +77,7 @@ module ClusterChef
       bootstrap.config.merge!(config)
 
       Chef::Log.debug self.class.options
-      
+
       bootstrap.name_args               = [ hostname ]
       bootstrap.config[:run_list]       = node.run_list
       bootstrap.config[:ssh_user]       = config[:ssh_user]       || node.cloud.ssh_user
@@ -98,6 +101,6 @@ module ClusterChef
       end
     end
 
-    
+
   end
 end

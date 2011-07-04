@@ -4,7 +4,7 @@ module ClusterChef
   #
   class ComputeBuilder < ClusterChef::DslObject
     attr_reader :cloud, :volumes
-    has_keys :name, :chef_attributes, :roles, :run_list, :cloud
+    has_keys :name, :chef_attributes, :roles, :run_list, :cloud, :bogosity
     @@role_implications ||= Mash.new
 
     def initialize builder_name, attrs={}
@@ -13,6 +13,10 @@ module ClusterChef
       @settings[:run_list]        ||= []
       @settings[:chef_attributes] ||= {}
       @volumes = Mash.new
+    end
+
+    def bogus?
+      !! self.bogosity
     end
 
     # Magic method to produce cloud instance:
@@ -141,113 +145,6 @@ module ClusterChef
       end
     end
 
-    # These are some helper methods for iterating through the servers
-    # to do things
-
-    def delegate_to_servers method, threaded = false
-      # If we are not threading, sequentially call the method for each server
-      # and return the results in an array
-      return servers.map {|svr| svr.send(method) } unless threaded
-
-      # Create threads to send a message to the servers in parallel
-      threads = servers.map {|svr| Thread.new(svr) { |s| s.send(method) } }
-
-      # Wait for the threads to finish and return the array of results
-      return threads.map {|t| t.join.value }
-    end
-
-    def delegate_to_fog_servers method
-      servers.map do |svr|
-        svr.fog_server.send(method) if svr.fog_server
-      end
-    end
-
-    # Here are a few
-
-    def start
-      delegate_to_fog_servers( :start  )
-      delegate_to_fog_servers( :reload  )
-    end
-
-    def stop
-      delegate_to_fog_servers( :stop )
-      delegate_to_fog_servers( :reload  )
-    end
-
-    def destroy
-      delegate_to_fog_servers( :destroy )
-      delegate_to_fog_servers( :reload  )
-    end
-
-    def reload
-      delegate_to_fog_servers( :reload  )
-    end
-
-    def delete_chef( delete_clients = true, delete_nodes = true)
-      servers.each do |svr|
-        next unless svr.chef_node
-        node = svr.chef_node
-        node.destroy
-        svr.chef_node = nil
-      end
-    end
-
-    def create_servers
-      delegate_to_servers( :create_server )
-    end
-
-    def uncreated_servers
-      # Return the collection of servers that are not yet 'created'
-      return ClusterSlice.new cluster, servers.reject{|svr| svr.fog_server }
-    end
-
-    # This is a generic display routine for cluster-like sets of nodes. If you call
-    # it with no args, you get the basic table that knife cluster show draws.
-    # If you give it an array of strings, you can override the order and headings
-    # displayed. If you also give it a block you can supply your own logic for
-    # generating content. The block is given a ClusterChef::Server instance for each
-    # item in the collection and should return a hash of Name,Value pairs to display
-    # in the table.
-    #
-    # There is an example of how to call this functon with a block in knife/cluster_launch.rb
-
-    def display headings = ["Name", "Chef?", "InstanceID", "State", "Public IP", "Created At"]
-      sorted_servers = servers.sort{ |a,b| (a.facet_name <=> b.facet_name) *9 + (a.facet_index.to_i <=> b.facet_index.to_i)*3 + (a.facet_index <=> b.facet_index) }
-      if block_given?
-        defined_data = sorted_servers.map{|svr| yield svr }
-      else
-        defined_data = sorted_servers.map do |svr|
-          hsh = {
-            "Name"    => svr.chef_node_name,
-            "Facet"   => svr.facet_name,
-            "Index"   => svr.facet_index,
-            "Chef?"   => svr.chef_node ? "yes" : "[red]no[reset]",
-          }
-          if (s = svr.fog_server)
-            hsh.merge!({
-                "InstanceID"        => (s.id && s.id.length > 0) ? s.id : "???",
-                "Flavor"            => s.flavor_id,
-                "Image"             => s.image_id,
-                "AZ"                => s.availability_zone,
-                "SSH Key"           => s.key_name,
-                "State"             => s.state,
-                "Public IP"         => s.public_ip_address,
-                "Private IP"        => s.private_ip_address,
-                "Created At"        => s.created_at.strftime("%Y%m%d-%H%M%S"),
-              })
-          else
-            hsh["State"] = "[red]not running[reset]"
-          end
-          hsh
-        end
-      end
-
-      if defined_data.empty?
-        puts "Nothing to report"
-      else
-        Formatador.display_compact_table(defined_data,headings)
-      end
-    end
   end
 end
 

@@ -9,6 +9,8 @@ require 'cluster_chef/compute'        # base class for machine attributes
 require 'cluster_chef/facet'          # similar machines within a cluster
 require 'cluster_chef/cluster'        # group of machines with a common mission
 require 'cluster_chef/server'         # realization of a specific facet
+require 'cluster_chef/discovery'      # pair servers with Fog and Chef objects
+require 'cluster_chef/server_slice'   # collection of server objects
 
 Chef::Config[:clusters]          ||= Mash.new
 Chef::Config[:cluster_chef_path] ||= File.expand_path(File.dirname(__FILE__)+'../..')
@@ -19,53 +21,50 @@ module ClusterChef
     Chef::Config[:cluster_path]
   end
 
-  def self.servers
-    @servers ||= ClusterChef.connection.servers.all
+  def self.clusters
+    Chef::Config[:clusters]
   end
 
-  def self.servers_for_cluster cluster
-    cluster_group = cluster.cluster_name
-  end
-
-  def self.servers_for_facet facet
-    cluster_name = facet.cluster_name
-    facet_name = facet.facet_name
-    facet_group = "#{cluster_name}-#{facet_name}"
-    servers.select {|s| s.groups.index( facet_group ) }
-  end
-
-  def self.get_cluster_slice *args
-    cluster_name = args.shift
-    raise ArgumentError, "Please supply a cluster name" if cluster_name.to_s.empty?
-
-    cluster = load_cluster(cluster_name)
-    return cluster.slice(*args)
+  def self.cluster name, hsh={}, &block
+    name = name.to_sym
+    cl = ( self.clusters[name] ||= ClusterChef::Cluster.new(name) )
+    cl.configure(hsh, &block) if block
+    cl
   end
 
   def self.load_cluster cluster_name
+    return clusters[cluster_name] if clusters[cluster_name]
     raise ArgumentError, "Please supply a cluster name" if cluster_name.to_s.empty?
-    cluster_file = cluster_path.
-      map{|path| File.join( path, "#{cluster_name}.rb" ) }.
-      find{|filename| File.exists?(filename) }
+    cluster_file = cluster_path
+      .map{|path| File.join( path, "#{cluster_name}.rb" ) }
+      .find{|filename| File.exists?(filename) }
     unless cluster_file then die("Couldn't find a definition for #{cluster_name} in cluster_path: #{cluster_path.inspect}") ; end
     require cluster_file
     unless clusters[cluster_name] then  die("#{cluster_file} was supposed to have the definition for the #{cluster_name} cluster, but didn't") end
     clusters[cluster_name]
   end
 
-  def self.running_servers
+  def self.slice cluster_name, *args
+    raise ArgumentError, "Please supply a cluster name" if cluster_name.to_s.empty?
+
+    cluster = load_cluster(cluster_name)
+    return cluster.slice(*args)
   end
 
-  def self.clusters
-    Chef::Config[:clusters]
-  end
-
-  def self.cluster name, &block
-    name = name.to_sym
-    cl = ( self.clusters[name] ||= ClusterChef::Cluster.new(name) )
-    cl.configure(&block) if block
-    cl
-  end
+  #
+  # def self.servers_for_cluster cluster
+  #   cluster_group = cluster.cluster_name
+  # end
+  #
+  # def self.servers_for_facet facet
+  #   cluster_name = facet.cluster_name
+  #   facet_name = facet.facet_name
+  #   facet_group = "#{cluster_name}-#{facet_name}"
+  #   servers.select {|s| s.groups.index( facet_group ) }
+  # end
+  #
+  # def self.running_servers
+  # end
 
   def self.die *strings
     exit_code = strings.last.is_a?(Integer) ? strings.pop : -1

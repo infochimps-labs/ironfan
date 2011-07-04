@@ -27,12 +27,12 @@ ClusterChef.cluster 'monkeyballs' do
     cloud.flavor        "m1.xlarge"
   end
 
-  facet 'jobtracker' do
-    instances           1
-    role                "hadoop_jobtracker"
-    role                "hadoop_secondarynamenode"
-    cloud.flavor        "m1.xlarge"
-  end
+  # facet 'jobtracker' do
+  #   instances           1
+  #   role                "hadoop_jobtracker"
+  #   role                "hadoop_secondarynamenode"
+  #   cloud.flavor        "m1.xlarge"
+  # end
 
   facet 'worker' do
     instances           5
