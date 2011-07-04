@@ -65,7 +65,7 @@ ClusterChef.cluster 'yellowhat' do
     cloud.flavor         "t1.micro"
     cloud.permanent      true
     cloud.elastic_ip     "184.72.222.35"
-    cloud.security_group(cluster_name+"-spof") do
+    cloud.security_group("#{cluster_name}-spof") do
       authorize_port_range  80..80
       authorize_port_range 443..443
     end

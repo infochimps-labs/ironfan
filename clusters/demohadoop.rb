@@ -2,9 +2,11 @@ ClusterChef.cluster 'demohadoop' do
   use :defaults
   setup_role_implications
 
+  role                  "big_package"
+
   cloud do
     backing             "instance"
-    image_name          "infochimps-maverick-client"
+    image_name          "maverick"
     region              "us-east-1"
   end
 
@@ -25,10 +27,9 @@ ClusterChef.cluster 'demohadoop' do
     role                "hadoop"
     role                "hadoop_s3_keys"
     role                "hadoop_worker"
-    cloud.flavor        "m2.xlarge"
+    cloud.flavor        "c1.xlarge"
   end
 
-  role                  "big_package"
   chef_attributes({
       :cluster_size => facet('worker').instances,
     })

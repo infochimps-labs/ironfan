@@ -1,0 +1,84 @@
+ClusterChef.cluster 'demoweb' do
+  use :defaults
+
+  #
+  # Define some security group triggered on having certain roles
+  #
+  setup_role_implications
+  # if you're a redis server, open the port and authorize redis clients in your group to talk to you
+  role_implication("redis_server") do
+    cluster_name = self.cluster_name # now cluster_name is in scope
+    self.cloud.security_group("#{cluster_name}-redis_server") do
+      authorize_group("#{cluster_name}-redis_client")
+    end
+  end
+  role_implication("redis_client") do
+    self.cloud.security_group("#{cluster_name}-redis_client")
+  end
+  # web server? add the group "demoweb-awesome_website" and open the web holes
+  role_implication("awesome_website") do
+    self.cloud.security_group("#{cluster_name}-awesome_website") do
+      authorize_port_range 80..80
+      authorize_port_range 443..443
+    end
+  end
+
+  cloud do
+    backing             "instance"
+    image_name          "maverick"
+    flavor              "t1.micro"
+    availability_zones  ['us-east-1a']
+  end
+  
+  role                  "nfs_client"
+  role                  "big_package"
+
+  facet :webnode do
+    instances           6
+    role                "nginx"
+    role                "redis_client"
+    role                "mysql_client"
+    role                "elasticsearch_client"
+    role                "awesome_website"
+    #
+    cloud.backing       "ebs"
+    azs = ['us-east-1a', 'us-east-1b', 'us-east-1c']
+    (0...instances).each do |idx|
+      server(idx).cloud.availability_zones [azs[ idx % azs.length ]]
+    end
+
+    chef_attributes({
+        :split_testing => { :group => 'A' }
+      })
+    
+    server(5) do
+      chef_attributes({
+          :split_testing => { :group => 'B' }
+        })
+    end
+  end
+
+  facet :dbnode do
+    instances           1
+    role                "mysql_server"
+    role                "redis_client"
+    #
+    cloud.flavor        "m1.large"
+  end
+
+  facet :esnode do
+    instances           1
+    role                "nginx"
+    role                "redis_server"
+    role                "elasticsearch_data_esnode"
+    role                "elasticsearch_http_esnode"
+    #
+    cloud.flavor        "m1.large"
+  end
+
+
+  chef_attributes({
+      :webnode_count => facet(:webnode).instances,
+    })
+  
+end

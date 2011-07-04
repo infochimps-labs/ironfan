@@ -3,6 +3,10 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 require CLUSTER_CHEF_DIR("lib/cluster_chef")
 
 describe "cluster_chef" do
+  # before do
+  #   Chef::Config[:validation_key] = StringIO.new('I_AM_VALID')
+  # end
+
   def load_example(name)
     require(CLUSTER_CHEF_DIR('clusters', "#{name}.rb"))
   end
@@ -12,65 +16,185 @@ describe "cluster_chef" do
     ClusterChef.cluster(name)
   end
 
-  describe 'successfuly runs examples' do
+  describe 'successfuly runs example' do
 
-    describe 'demohadoop cluster' do
+    describe 'demoweb:' do
       before :all do
-        @cluster = get_cluster(:demohadoop)
+        @cluster = get_cluster(:demoweb)
       end
 
       it 'loads successfuly' do
         @cluster.should be_a(ClusterChef::Cluster)
-        @cluster.name.should == :demohadoop
+        @cluster.name.should == :demoweb
       end
 
       it 'cluster is right' do
         @cluster.to_hash.should == {
-          :name            => :demohadoop,
-          :run_list        => ["role[base_role]", "role[chef_client]", "role[ssh]", "role[big_package]"],
-          :chef_attributes => { :cluster_size =>2 },
-          :cluster_role    => "demohadoop_cluster",
+          :name            => :demoweb,
+          :run_list        => ["role[base_role]", "role[chef_client]", "role[ssh]", "role[nfs_client]", "role[big_package]"],
+          :chef_attributes => { :webnode_count => 6 },
+          :cluster_role    => "demoweb_cluster",
         }
       end
 
-      it 'facets are right' do
-        @cluster.facets.length.should == 2
-        @cluster.facet(:master).to_hash.should == {
-          :name            => :master,
-          :run_list        => ["role[nfs_server]", "role[hadoop]", "role[hadoop_s3_keys]", "role[hadoop_master]", "hadoop_cluster::bootstrap_format_namenode", "role[hadoop_initial_bootstrap]"],
+      it 'defaults cluster' do
+        defaults_cluster = ClusterChef.cluster(:defaults)
+        cloud_hash = defaults_cluster.cloud.to_hash
+        [:security_groups, :user_data].each{|k| cloud_hash.delete k }
+        cloud_hash.should == {
+          :availability_zones => ['us-east-1d'],
+          :region             => "us-east-1",
+          :flavor             => "m1.small",
+          :image_name         => "lucid",
+          :backing            => "ebs",
+          :disable_api_termination => false,
+          :elastic_ip         => false,
+          :bootstrap_distro   => "ubuntu10.04-cluster_chef",
+        }
+      end
+
+      it 'cluster cloud is right' do
+        cloud_hash = @cluster.cloud.to_hash
+        [:security_groups, :user_data].each{|k| cloud_hash.delete k }
+        cloud_hash.should == {
+          :availability_zones => ['us-east-1a'],
+          :region             => "us-east-1",
+          :flavor             => "t1.micro",
+          :image_name         => "maverick",
+          :backing            => "instance",
+          :disable_api_termination => false,
+          :elastic_ip         => false,
+          :bootstrap_distro   => "ubuntu10.04-cluster_chef",
+        }
+      end
+
+      it 'facet cloud is right' do
+        cloud_hash = @cluster.facet(:webnode).cloud.to_hash
+        [:security_groups, :user_data].each{|k| cloud_hash.delete k }
+        cloud_hash.should == {
+          :availability_zones => [],
+          :backing            => "ebs",
+        }
+        @cluster.facet(:dbnode).cloud.flavor.should == 'm1.large'
+      end
+
+      it 'webnode facets are right' do
+        @cluster.facets.length.should == 3
+        @cluster.facet(:webnode).to_hash.should == {
+          :name            => :webnode,
+          :run_list        => ["role[nginx]", "role[redis_client]", "role[mysql_client]", "role[elasticsearch_client]", "role[awesome_website]"],
+          :chef_attributes => {:split_testing=>{:group=>"A"}},
+          :facet_role      => "demoweb_webnode",
+          :instances       => 6,
+        }
+      end
+
+      it 'dbnode facets are right' do
+        @cluster.facet(:dbnode).to_hash.should == {
+          :name            => :dbnode,
+          :run_list        => ["role[mysql_server]", "role[redis_client]" ],
           :chef_attributes => {},
-          :facet_role      => "demohadoop_master",
+          :facet_role      => "demoweb_dbnode",
           :instances       => 1,
         }
-        @cluster.facet(:worker).to_hash.should == {
-          :name            => :worker,
-          :run_list        => ["role[nfs_client]", "role[hadoop]", "role[hadoop_s3_keys]", "role[hadoop_worker]" ],
+      end
+
+      it 'esnode facets are right' do
+        @cluster.facet(:esnode).to_hash.should == {
+          :name            => :esnode,
+          :run_list        => ["role[nginx]", "role[redis_server]", "role[elasticsearch_data_esnode]", "role[elasticsearch_http_esnode]"],
           :chef_attributes => {},
-          :facet_role      => "demohadoop_worker",
-          :instances       => 2,
+          :facet_role      => "demoweb_esnode",
+          :instances       => 1,
         }
       end
 
-      # it 'security groups are right' do
-      #   gg = @cluster.facet(:worker).security_groups
-      #   gg.length.should == 1
-      #   gg[:nfs_client].to_hash.should == {
-      #     :name        => "nfs_client",
-      #     :description => "cluster_chef generated group nfs_client"
-      #   }
-      # end
+      it 'cluster security groups are right' do
+        gg = @cluster.security_groups
+        gg.keys.should == ['default', 'ssh', 'nfs_client']
+      end
+
+      it 'facet webnode security groups are right' do
+        gg = @cluster.facet(:webnode).security_groups
+        gg.keys.should == ['demoweb-redis_client', 'demoweb-awesome_website', 'default', 'ssh', 'nfs_client']
+        gg['demoweb-awesome_website'].range_authorizations.should == [[80..80, "0.0.0.0/0", "tcp"], [443..443, "0.0.0.0/0", "tcp"]]
+      end
+
+      it 'facet dbnode security groups are right' do
+        gg = @cluster.facet(:dbnode).security_groups
+        gg.keys.should == ['demoweb-redis_client', 'default', 'ssh', 'nfs_client']
+      end
+
+      it 'facet esnode security groups are right' do
+        gg = @cluster.facet(:esnode).security_groups
+        gg.keys.should == ['demoweb-redis_server', 'default', 'ssh', 'nfs_client']
+        gg['demoweb-redis_server'][:name].should == "demoweb-redis_server"
+        gg['demoweb-redis_server'][:description].should == "cluster_chef generated group demoweb-redis_server"
+        gg['demoweb-redis_server'].group_authorizations.should == [['demoweb-redis_client', nil]]
+      end
 
       it 'has servers' do
-        @cluster.servers.map(&:fullname).should == ["demohadoop-master-0", "demohadoop-worker-0", "demohadoop-worker-1"]
+        @cluster.servers.map(&:fullname).should == [
+          "demoweb-dbnode-0",
+          "demoweb-esnode-0",
+          "demoweb-webnode-0", "demoweb-webnode-1", "demoweb-webnode-2", "demoweb-webnode-3", "demoweb-webnode-4", "demoweb-webnode-5"
+        ]
       end
-    end
 
-    describe 'slicing' do
+      describe 'resolving servers gets right' do
+        before do
+          @server = @cluster.slice(:webnode, 5).first
+          @server.cloud.stub!(:validation_key).and_return("I_AM_VALID")
+          @server.resolve!
+        end
 
-      # it 'delegates' do
-      #   ClusterChef.slice(:demohadoop).should == []
-      # end
+        it 'attributes' do
+          @server.to_hash.should == {
+            :name            => 'demoweb-webnode-5',
+            :run_list        => ["role[base_role]", "role[chef_client]", "role[ssh]", "role[nfs_client]", "role[big_package]", "role[nginx]", "role[redis_client]", "role[mysql_client]", "role[elasticsearch_client]", "role[awesome_website]"],
+            :cluster_role => "demoweb_cluster", :facet_role => "demoweb_webnode", :instances => 6,
+            :chef_attributes => {
+              :split_testing  => {:group=>"B"},
+              :webnode_count  => 6,
+              :run_list       => ["role[base_role]", "role[chef_client]", "role[ssh]", "role[nfs_client]", "role[big_package]", "role[nginx]", "role[redis_client]", "role[mysql_client]", "role[elasticsearch_client]", "role[awesome_website]"],
+              :node_name      => "demoweb-webnode-5", :cluster_name => :demoweb, :cluster_role => :webnode, :facet_name => :webnode, :cluster_role_index => 5, :facet_index => 5,
+              :cluster_chef   => { :cluster => :demoweb, :facet => :webnode, :index => 5 },
+            },
+          }
+        end
 
+        it 'security groups' do
+          @server.security_groups.keys.sort.should == ['default', 'demoweb-awesome_website', 'demoweb-redis_client', 'nfs_client', 'ssh']
+        end
+        it 'run list' do
+          @server.run_list.should == ["role[base_role]", "role[chef_client]", "role[ssh]", "role[nfs_client]", "role[big_package]", "role[nginx]", "role[redis_client]", "role[mysql_client]", "role[elasticsearch_client]", "role[awesome_website]"]
+        end
+
+        it 'user_data' do
+          @server.cloud.user_data.should == {
+            "chef_server"            => "https://api.opscode.com/organizations/infochimps",
+            "validation_client_name" => "chef-validator",
+            "validation_key"         => "I_AM_VALID",
+          }
+        end
+
+        it 'cloud settings' do
+          hsh = @server.cloud.to_hash
+          hsh.delete(:security_groups)
+          hsh.delete(:user_data)
+          hsh.should == {
+            :availability_zones => ["us-east-1c"],
+            :flavor             => "t1.micro",
+            :region             => "us-east-1",
+            :image_name         => "maverick",
+            :backing            => "instance",
+            :elastic_ip         => false,
+            :bootstrap_distro   => "ubuntu10.04-cluster_chef",
+            :disable_api_termination => false,
+          }
+        end
+
+      end
     end
   end
 end
