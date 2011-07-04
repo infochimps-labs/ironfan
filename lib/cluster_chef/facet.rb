@@ -3,22 +3,19 @@ module ClusterChef
     attr_reader :cluster, :facet_name
     has_keys  :instances, :facet_role
 
-    def initialize cluster, fct_name
-      super(facet_name)
-      @cluster = cluster
+    def initialize cluster, fct_name, hsh={}
+      super(facet_name, hsh)
+      @cluster    = cluster
       @facet_name = fct_name
-      @servers = {}
-      chef_attributes :cluster_role       => facet_name # backwards compatibility
-      chef_attributes :facet_name         => facet_name
-
+      @servers    = {}
+      chef_attributes :cluster_role => facet_name # backwards compatibility
+      chef_attributes :facet_name   => facet_name
       facet_role      "#{@cluster.name}_#{facet_name}"
     end
 
     def slice *args
       return self if args.length == 0
-      slice = FacetSlice.new self, *args
-
-      return slice
+      FacetSlice.new(self, *args)
     end
 
     def servers
@@ -59,19 +56,21 @@ module ClusterChef
 
       @settings[:run_list]        = @cluster.run_list + self.run_list
       @settings[:chef_attributes] = @cluster.chef_attributes.merge(self.chef_attributes)
+      chef_attributes :run_list => run_list
 
-      # # commented out to see if we can send less DNA
-      # chef_attributes :run_list => run_list
-      # chef_attributes :aws => { :access_key => Chef::Config[:knife][:aws_access_key_id], :secret_access_key => Chef::Config[:knife][:aws_secret_access_key],}
-
-      # Generate server definitions if they have not already been created
+      resolve_volumes!
       resolve_servers!
       self
-
     end
 
     def to_hash_with_cloud
       to_hash.merge({ :cloud => cloud.to_hash, })
+    end
+
+    def resolve_volumes!
+      # cluster.volumes.each do |name, vol|
+      #   self.volume(name).reverse_merge!(vol)
+      # end
     end
 
     def resolve_servers!
@@ -105,7 +104,7 @@ module ClusterChef
 
   class FacetSlice < ClusterChef::ComputeBuilder
     attr_reader :cluster, :facet
-    has_keys  :instances,
+    has_keys  :instances
 
     def initialize facet, instance_indexes
       @facet = facet

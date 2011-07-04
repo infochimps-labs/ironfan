@@ -6,12 +6,12 @@ module ClusterChef
   # Base class allowing us to layer settings for facet over cluster
   #
   class ComputeBuilder < ClusterChef::DslObject
-    attr_reader :cloud
+    attr_reader :cloud, :volumes
     has_keys :name, :chef_attributes, :roles, :run_list, :cloud
     @@role_implications ||= {}
 
-    def initialize builder_name
-      super()
+    def initialize builder_name, attrs={}
+      super(attrs)
       name         builder_name
       run_list     []
       @settings[:chef_attributes] = {}
@@ -36,6 +36,30 @@ module ClusterChef
       @cloud ||= ClusterChef::Cloud::Ec2.new
       @cloud.instance_eval(&block) if block
       @cloud
+    end
+
+
+    # Magic method to describe a volume
+    # * returns the named volume, creating it if necessary.
+    # * executes the block (if any) in the volume's context
+    #
+    # @example
+    #   # a 1 GB volume at '/data' from the given snapshot
+    #   volume(:data) do
+    #     size        1
+    #     mount_point '/data'
+    #     snapshot_id 'snap-12345'
+    #   end
+    #
+    # @param volume_name [String] an arbitrary handle -- you can use the device
+    #   name, or a descriptive symbol.
+    # @param hsh [Hash] a hash of attributes to pass down.
+    #
+    def volume volume_name, hsh={}, &block
+      vol = (volumes[volume_name] ||= ClusterChef::Volume.new)
+      vol.merge!(hsh)
+      vol.configure(&block) if block
+      vol
     end
 
     # Merges the given hash into
@@ -69,9 +93,19 @@ module ClusterChef
       @@role_implications[name] = block
     end
 
+    def resolve_volumes!
+      if backing == 'ebs'
+        # Bring the ephemeral storage (local scratch disks) online
+        volumes['/dev/sdc'] = Volume.new(:parent => self, :volume_id => 'ephemeral0')
+        volumes['/dev/sdd'] = Volume.new(:parent => self, :volume_id => 'ephemeral1')
+        volumes['/dev/sde'] = Volume.new(:parent => self, :volume_id => 'ephemeral2')
+        volumes['/dev/sdf'] = Volume.new(:parent => self, :volume_id => 'ephemeral3')
+      end
+    end
+
     #
     # This is an outright kludge, awaiting a refactoring of the
-    # securit group bullshit
+    # security group bullshit
     #
     def setup_role_implications
       role_implication "hadoop_master" do
@@ -171,7 +205,6 @@ module ClusterChef
       # Return the collection of servers that are not yet 'created'
       return ClusterSlice.new cluster, servers.reject{|svr| svr.fog_server }
     end
-
 
     # This is a generic display routine for cluster-like sets of nodes. If you call
     # it with no args, you get the basic table that knife cluster show draws.

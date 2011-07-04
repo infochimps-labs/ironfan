@@ -42,6 +42,37 @@ module ClusterChef
       self.name
     end
 
+    def cluster_group
+      cluster_name
+    end
+
+    def security_groups
+      groups = cloud.security_groups
+      @facets.values.each{|f| groups.merge(f.security_groups) }
+      groups
+    end
+
+    def servers
+      @facets.values.map(&:servers).flatten
+    end
+
+    def fog_servers
+      @fog_servers ||= ClusterChef.servers.select{|s| s.groups.index( cluster_group ) && (s.state != "terminated") }
+    end
+
+    def chef_nodes
+      return @chef_nodes if @chef_nodes
+      @chef_nodes = []
+      Chef::Search::Query.new.search(:node,"cluster_name:#{cluster_name}") do |n|
+        @chef_nodes.push(n) unless n.nil? || (n.cluster_name != cluster_name)
+      end
+      @chef_nodes
+    end
+
+    #
+    #
+    #
+
     def use *clusters
       clusters.each do |c|
         cluster = c.to_s
@@ -51,6 +82,7 @@ module ClusterChef
       self
     end
 
+    # FIXME: this is doing a reverse merge!!
     def merge! other_cluster
       if(other_cluster.is_a?(String)) then other_cluster = ClusterChef.cluster(other_cluster) end
       @settings = other_cluster.to_hash.merge @settings
@@ -60,38 +92,9 @@ module ClusterChef
       self
     end
 
-
-    def security_groups
-      groups = cloud.security_groups
-      @facets.values.each { |f| groups.merge f.security_groups }
-      return groups
-    end
-
     def resolve!
-      @facets.values.each { |f| f.resolve! }
+      @facets.values.each(&:resolve!)
       discover!
-    end
-
-    def servers
-      @facets.values.map {|facet| facet.servers }.flatten
-    end
-
-    def cluster_group
-      return cluster_name
-    end
-
-    def fog_servers
-      @fog_servers ||= ClusterChef.servers.select {|s| s.groups.index( cluster_group ) && s.state != "terminated" }
-    end
-
-    def chef_nodes
-      return @chef_nodes if @chef_nodes
-      @chef_nodes = []
-      Chef::Search::Query.new.search(:node,"cluster_name:#{cluster_name}") do |n|
-        next if n.nil? or n.cluster_name != cluster_name
-        @chef_nodes.push n unless n.nil?
-      end
-      @chef_nodes
     end
 
     def discover!
@@ -132,8 +135,9 @@ module ClusterChef
         node_name_hash[ nn ][2] = s
       end
 
+      # FIXME -- make undefined_servers a slice so it works nicely with display, etc
       @undefined_servers = []
-      node_name_hash.values.each do |svr,chef_node,fog_svr|
+      node_name_hash.values.each do |svr, chef_node, fog_svr|
         if svr
           # Note that it is possible that either one of these could be
           # nil. If fog_svr is nil and chef_node is defined, it means

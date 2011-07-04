@@ -1,11 +1,7 @@
 module ClusterChef
   module Cloud
     class Base < ClusterChef::DslObject
-      has_keys :name, :flavor, :image_name, :image_id, :keypair
-
-      def initialize
-        super
-      end
+      has_keys( :name, :flavor, :image_name, :image_id, :keypair )
 
       # The username to ssh with.
       # @return the ssh_user if set explicitly; otherwise, the user implied by the image name, if any; or else 'root'
@@ -49,14 +45,14 @@ module ClusterChef
       has_keys(
         :region, :availability_zones, :backing, :permanent, :elastic_ip,
         :spot_price, :spot_price_fraction, :user_data, :security_groups,
-        :block_device_mapping, :monitoring
+        :monitoring
         )
 
       def initialize *args
         super *args
-        @settings[:security_groups] = {}
-        @settings[:user_data]       = {}
-        @settings[:block_device_mapping] = {}
+        @settings[:security_groups]      = {}
+        @settings[:user_data]            = {}
+        @settings[:availability_zones]   = []
       end
 
       # An alias for disable_api_termination. Prevents the instance from being
@@ -81,33 +77,6 @@ module ClusterChef
         security_groups[sg_name] ||= ClusterChef::Cloud::SecurityGroup.new(self, sg_name)
         security_groups[sg_name].instance_eval(&block) if block
         security_groups[sg_name]
-      end
-
-      def resolve_block_device_mapping!
-        if backing == 'ebs'
-          # FIXME: configure root device's delete_on_termination, volume_size, snapshot_id
-          # block_device_mapping['/dev/sda1'] = { }
-          # Bring the ephemeral storage (local scratch disks) online
-          block_device_mapping['/dev/sdc'] = { :virtual_name => 'ephemeral0' }
-          block_device_mapping['/dev/sdd'] = { :virtual_name => 'ephemeral1' }
-          block_device_mapping['/dev/sde'] = { :virtual_name => 'ephemeral2' }
-          block_device_mapping['/dev/sdf'] = { :virtual_name => 'ephemeral3' }
-        end
-     end
-
-
-      # We hold the block device mapping as a hash
-      #   device_name => { virtual_name, snapshot_id, volume_size, delete_on_termination }
-      # Fog wants an array of hashes -- fold the device name into each hash and return it.
-      def block_device_mapping_array
-        block_device_mapping.map do |dev, info|
-          hsh = { 'DeviceName' => dev }
-          hsh['VirtualName']    = info[:virtual_name] if info[:virtual_name]
-          hsh['Ebs.SnapshotId'] = info[:snapshot_id]  if info[:snapshot_id]
-          hsh['Ebs.VolumeSize'] = info[:volume_size]  if info[:volume_size]
-          hsh['Ebs.DeleteOnTermination'] = info[:delete_on_termination]  if info[:delete_on_termination]
-          hsh
-        end
       end
 
       # With a value, sets the spot price to the given fraction of the
@@ -151,29 +120,18 @@ module ClusterChef
       def resolve! cloud
         merge! cloud
         resolve_region!
-        resolve_block_device_mapping!
         self
       end
 
+      def default_availability_zone
+        availability_zones.first
+      end
+
       def resolve_region!
-        region availability_zones.first.gsub(/^(\w+-\w+-\d)[a-z]/, '\1') if !region && availability_zones.respond_to?(:first)
+        region default_availability_zone.gsub(/^(\w+-\w+-\d)[a-z]/, '\1') if !region && availability_zones.respond_to?(:first)
       end
 
       # Utility methods
-
-      # def to_hash
-      #   [ :provider, :keypair,
-      #     :region, :availability_zones,
-      #     :flavor, :instance_backing,
-      #     :image_name, :image_id, :bits,
-      #     :ssh_user, :bootstrap_distro, :ssh_identity_file,
-      #     :permanent, :elastic_ip,
-      #     :price, :spot_price, :spot_price_fraction,
-      #     :flavor_info,
-      #     :user_data,
-      #     :security_groups,
-      #   ].inject({}){|h,k| h[k] = send(k) ; h }
-      # end
 
       def image_info
         IMAGE_INFO[ [region, bits, backing, image_name] ] or warn "Make sure to define the machine's region, bits, backing and image_name. (Have #{[region, bits, backing, image_name].inspect})"
