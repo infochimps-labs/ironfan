@@ -46,26 +46,13 @@ module ClusterChef
 
   def self.load_cluster cluster_name
     raise ArgumentError, "Please supply a cluster name" if cluster_name.to_s.empty?
-    begin
-      Chef::Config[:cluster_path].each do |path|
-        cluster_path = File.join( path, "#{cluster_name}.rb" )
-        next unless File.exists?(cluster_path)
-        require cluster_path
-        break
-      end
-    rescue Exception => e
-      $stderr.puts "Error when loading cluster #{cluster_name}"
-      $stderr.puts e
-      exit -1
-    end
-
-    return clusters[cluster_name] if clusters[cluster_name]
-
-    $stderr.puts "Unable to locate the cluster definition for #{cluster_name}."
-    $stderr.puts "Cluster_path: [ #{ Chef::Config[:cluster_path].join(", ")} ]"
-
-    exit -1
-
+    cluster_file = Chef::Config[:cluster_path].
+      map{|path| File.join( path, "#{cluster_name}.rb" ) }.
+      find{|filename| File.exists?(filename) }
+    unless cluster_file then die("Couldn't find a definition for #{cluster_name} in cluster_path: [ #{ Chef::Config[:cluster_path].join(", ")} ]") ; end
+    require cluster_file
+    unless clusters[cluster_name] then  die("#{cluster_file} was supposed to have the definition for the #{cluster_name} cluster, but didn't") end
+    clusters[cluster_name]
   end
 
   def self.running_servers
