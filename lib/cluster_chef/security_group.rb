@@ -3,6 +3,8 @@ module ClusterChef
 
     class SecurityGroup < DslObject
       has_keys :name, :description, :owner_id
+      attr_reader :group_authorizations
+      attr_reader :range_authorizations
 
       def initialize cloud, group_name, group_description=nil, group_owner_id=nil
         super()

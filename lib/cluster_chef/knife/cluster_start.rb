@@ -27,7 +27,7 @@ class Chef
         ClusterChef::KnifeCommon.load_deps
       end
 
-      banner "knife cluster start CLUSTER_NAME FACET_NAME (options)"
+      banner "knife cluster start CLUSTER_NAME [FACET_NAME [INDEXES]] (options)"
       option :dry_run,
         :long => "--dry-run",
         :description => "Don't really run, just use mock calls"
@@ -40,9 +40,9 @@ class Chef
         die(banner) if @name_args.empty?
         enable_dry_run if config[:dry_run]
 
-        target = server_group(* @name_args)
+        target = ClusterChef.slice(* @name_args)
         target.start
-        target.display
+        target.display(display_style)
       end
     end
   end

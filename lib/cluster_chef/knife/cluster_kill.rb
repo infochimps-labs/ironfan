@@ -27,7 +27,7 @@ class Chef
         ClusterChef::KnifeCommon.load_deps
       end
 
-      banner "knife cluster kill CLUSTER_NAME FACET_NAME INDEX (options)"
+      banner "knife cluster kill CLUSTER_NAME [FACET_NAME [INDEXES]] (options)"
       option :dry_run,
         :long => "--dry-run",
         :description => "Don't really run, just use mock calls"

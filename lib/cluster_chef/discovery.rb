@@ -30,7 +30,7 @@ module ClusterChef
     #   when we discover cloud instances.
     def discover_chef_nodes!
       chef_nodes.each do |chef_node|
-        svr = ClusterChef::Server.get(chef_node.cluster_chef_name)
+        svr = ClusterChef::Server.get(chef_node.node_name)
         svr.chef_node = chef_node
         @aws_instance_hash[ chef_node.ec2.instance_id ] = svr if chef_node.ec2.instance_id
       end
@@ -47,22 +47,38 @@ module ClusterChef
       # Otherwise, try to get to it through mapping the aws instance id
       # to the chef node name found in the chef node
       fog_servers.each do |fs|
-        if fs.tags["cluster"] && fs.tags["facet"] && fs.tags["index"] && fs.tags["cluster"] == cluster_name
+        if fs.tags["cluster"] && fs.tags["facet"] && fs.tags["index"] && fs.tags["cluster"] == cluster_name.to_s
           svr = ClusterChef::Server.get([fs.tags["cluster"], fs.tags["facet"], fs.tags["index"]].join('-'))
         elsif @aws_instance_hash[fs.id]
           svr = @aws_instance_hash[fs.id]
         else
           next
         end
+        if existing_fs = svr.fog_server
+          if existing_fs.id != fs.id
+            warn [fs, existing_fs]
+            old_svr = svr
+            svr     = old_svr.facet.server(1_000 + svr.facet_index.to_i)
+            old_svr.bogosity true
+            svr.bogosity     true
+          end
+        end
         svr.fog_server = fs
       end
     end
   end
 
-end
-
-Chef::Node.class_eval do
-  def cluster_chef_name
-    node_name
+  def self.connection
+    @connection ||= Fog::Compute.new({
+        :provider              => 'AWS',
+        :aws_access_key_id     => Chef::Config[:knife][:aws_access_key_id],
+        :aws_secret_access_key => Chef::Config[:knife][:aws_secret_access_key],
+        #  :region                => region
+      })
   end
+
+  def self.fog_servers
+    @fog_servers ||= ClusterChef.connection.servers.all
+  end
+
 end

@@ -15,6 +15,10 @@ module ClusterChef
       cluster.name
     end
 
+    def facet_name
+      name
+    end
+
     def server idx, hsh={}, &block
       idx = idx.to_i
       @servers[idx] ||= ClusterChef::Server.new(self, idx)
@@ -66,59 +70,23 @@ module ClusterChef
       end.flatten.compact.uniq
     end
 
-    # def security_groups
-    #   groups = cloud.security_groups
-    #   @servers.values.each{|s| groups.merge s.security_groups }
-    #   return groups
-    # end
+    def security_groups
+      cloud.security_groups.merge(cluster.security_groups)
+    end
+
     #
-    # #
-    # # Resolve:
-    # #
-    # def resolve!
-    #   @settings    = cluster.to_hash.merge @settings
-    #   cluster_name = self.cluster_name
-    #   cloud.resolve! cluster.cloud
-    #   cloud.keypair  cluster_name if cloud.keypair.nil?
-    #   cloud.security_group(cluster_name){ authorize_group(cluster_name) }
-    #   cloud.security_group "#{cluster_name}-#{name}"
+    # Resolve:
     #
-    #   role cluster.cluster_role if cluster.cluster_role
-    #   role self.facet_role      if self.facet_role
-    #
-    #   @settings[:run_list]        = cluster.run_list + self.run_list
-    #   @settings[:chef_attributes] = cluster.chef_attributes.merge(self.chef_attributes)
-    #   chef_attributes :run_list => run_list
-    #
-    #   resolve_volumes!
-    #   resolve_servers!
-    #
-    #   self
-    # end
-    #
-    # def to_hash_with_cloud
-    #   to_hash.merge({ :cloud => cloud.to_hash, })
-    # end
-    #
-    # def resolve_volumes!
-    #   cluster.volumes.each do |name, vol|
-    #     self.volume(name).reverse_merge!(vol)
-    #   end
-    # end
-    #
-    # def resolve_servers!
-    #   # Create facets not explicitly defined
-    #   instances.times do |index|
-    #     facet_index = index.to_s
-    #
-    #     server facet_index unless @servers[facet_index]
-    #   end
-    #
-    #   servers.each do |s|
-    #     s.resolve!
-    #   end
-    # end
-    #
+    def resolve!
+      cloud.security_group "#{cluster_name}-#{facet_name}"
+      role self.facet_role      if self.facet_role
+      resolve_servers!
+      self
+    end
+
+    def resolve_servers!
+      servers.each(&:resolve!)
+    end
 
   end
 end

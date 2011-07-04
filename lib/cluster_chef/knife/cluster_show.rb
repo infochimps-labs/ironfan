@@ -27,7 +27,7 @@ class Chef
         ClusterChef::KnifeCommon.load_deps
       end
 
-      banner "knife cluster show CLUSTER_NAME FACET_NAME INDEX (options)"
+      banner "knife cluster show CLUSTER_NAME [FACET_NAME [INDEXES]] (options)"
       option :dry_run,
         :long => "--dry-run",
         :description => "Don't really run, just use mock calls"
@@ -40,14 +40,14 @@ class Chef
         die(banner) if @name_args.empty?
         enable_dry_run if config[:dry_run]
 
+        # # Here's how to display the full raw dictionary for testing
+        # ClusterChef::ServerSlice.new(target.cluster, ClusterChef::Server.all.values).display(:detailed)
+
         # Load the cluster/facet/slice/whatever
         target = ClusterChef.slice(* @name_args)
 
         # Display same
         target.display(display_style)
-
-        # Also display the full dictionary while we're testing everything
-        ClusterChef::ServerSlice.new(target.cluster, ClusterChef::Server.all.values).display(:detailed)
       end
     end
   end

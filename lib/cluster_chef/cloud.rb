@@ -96,40 +96,32 @@ module ClusterChef
       end
 
       # When given a hash, merge with the existing user data
-      #
-      # FIXME: use a deep merge
       def user_data hsh={}
-        if hsh.empty? #blank?
-          @settings[:user_data].merge({
-              :chef_server            => Chef::Config.chef_server_url,
-              :validation_client_name => Chef::Config.validation_client_name,
-              :validation_key         => validation_key,
-            })
-        else
+        unless hsh.empty?
           @settings[:user_data].merge! hsh
-          user_data
         end
+        @settings[:user_data]
       end
 
-      def merge! cloud
-        @settings = cloud.to_hash.merge @settings
+      def reverse_merge! cloud
+        @settings.reverse_merge! cloud.to_hash
         return self unless cloud.respond_to?(:security_groups)
         @settings[:security_groups].reverse_merge!(cloud.security_groups)
-        @settings[:user_data].reverse_merge!(cloud.to_hash[:user_data])
+        @settings[:user_data].reverse_merge!(cloud.user_data)
       end
 
       def resolve! cloud
-        merge! cloud
+        reverse_merge! cloud
         resolve_region!
         self
       end
 
-      def default_availability_zone
-        availability_zones.first
-      end
-
       def resolve_region!
         region default_availability_zone.gsub(/^(\w+-\w+-\d)[a-z]/, '\1') if !region && availability_zones.respond_to?(:first)
+      end
+
+      def default_availability_zone
+        availability_zones.first
       end
 
       # Utility methods

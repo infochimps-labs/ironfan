@@ -27,7 +27,7 @@ class Chef
         ClusterChef::KnifeCommon.load_deps
       end
 
-      banner "knife cluster stop CLUSTER_NAME FACET_NAME (options)"
+      banner "knife cluster stop CLUSTER_NAME [FACET_NAME [INDEXES]] (options)"
       option :dry_run,
         :long => "--dry-run",
         :description => "Don't really run, just use mock calls"
@@ -43,11 +43,11 @@ class Chef
         die(banner) if @name_args.empty?
         enable_dry_run if config[:dry_run]
 
-        target = server_group(* @name_args)
+        target = ClusterChef.slice(* @name_args)
 
         unless config[:yes]
           puts "This action will stop the following nodes:"
-          target.display
+          target.display(display_style)
           puts "Unless these nodes are backed by EBS volumes, this will result in loss of all"
           puts "data not saved elsewhere. Even if they are EBS backed, there may still be some data loss."
           puts "Are you absolutely certain that you want to perform this action? (Type 'Yes' to confirm)"
@@ -55,7 +55,7 @@ class Chef
         end
 
         target.stop
-        target.display
+        target.display(display_style)
       end
     end
   end

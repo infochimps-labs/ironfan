@@ -46,24 +46,9 @@ module ClusterChef
 
   def self.slice cluster_name, *args
     cluster = load_cluster(cluster_name)
-    cluster.discover!
+    cluster.resolve!
     return cluster.slice(*args)
   end
-
-  #
-  # def self.servers_for_cluster cluster
-  #   cluster_group = cluster.cluster_name
-  # end
-  #
-  # def self.servers_for_facet facet
-  #   cluster_name = facet.cluster_name
-  #   facet_name = facet.facet_name
-  #   facet_group = "#{cluster_name}-#{facet_name}"
-  #   servers.select {|s| s.groups.index( facet_group ) }
-  # end
-  #
-  # def self.running_servers
-  # end
 
   def self.die *strings
     exit_code = strings.last.is_a?(Integer) ? strings.pop : -1
@@ -71,3 +56,4 @@ module ClusterChef
     exit exit_code
   end
 end
+

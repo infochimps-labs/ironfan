@@ -30,7 +30,7 @@ class Chef
         Chef::Knife::Bootstrap.load_deps
       end
 
-      banner "knife cluster launch CLUSTER_NAME FACET_NAME (options)"
+      banner "knife cluster launch CLUSTER_NAME [FACET_NAME [INDEXES]] (options)"
       [ :ssh_port, :ssh_password, :identity_file, :use_sudo, :no_host_key_verify,
         :prerelease, :bootstrap_version, :template_file,
       ].each do |name|
@@ -62,6 +62,7 @@ class Chef
         #
         target      = ClusterChef.slice(* @name_args)
         cluster      = target.cluster
+        target.resolve!
         warn_or_die_on_bogus_servers(target) unless target.bogus_servers.empty?
 
         uncreated_servers = target.uncreated_servers
@@ -74,9 +75,8 @@ class Chef
         # We need to dummy up a key_pair in simulation mode, not doing it fr'eals
         if config[:dry_run] then ClusterChef.connection.key_pairs.create(:name => cluster.name) ; end
 
-
-        # # Make security groups
-        # target.security_groups.each{|name,group| group.run }
+        # Make security groups
+        target.security_groups.each{|name,group| group.run }
 
         # Launch servers
         uncreated_servers.create_servers
@@ -109,7 +109,7 @@ class Chef
       end
 
       def display_style
-        ["Name", "InstanceID", "Flavor", "Image", "AZ", "Public IP", "Private IP", "Created At"]
+        ["Name", "InstanceID", "State", "Flavor", "Image", "AZ", "Public IP", "Private IP", "Created At"]
       end
 
       def tcp_test_ssh(hostname)

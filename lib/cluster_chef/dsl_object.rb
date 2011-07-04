@@ -54,16 +54,17 @@ module ClusterChef
       "<#{self.class} #{to_hash.inspect}>"
     end
 
-    def merge! hsh
-      @settings.merge!(hsh.to_hash)
-    end
+    # def merge! hsh
+    #   @settings.merge!(hsh.to_hash)
+    # end
 
     def reverse_merge! hsh
       @settings.reverse_merge!(hsh.to_hash)
     end
 
     def configure hsh={}, &block
-      merge!(hsh)
+      # merge!(hsh)
+      @settings.merge!(hsh.to_hash)
       instance_eval(&block) if block
       self
     end

@@ -56,12 +56,18 @@ module ClusterChef
     end
 
     def security_groups
-      servers.map(&:security_groups).flatten.compact
+      sg = {}
+      servers.each{|svr| sg.merge!(svr.security_groups) }
+      sg
     end
 
     #
     # Actions!
     #
+
+    def resolve!
+      servers.each(&:resolve!)
+    end
 
     def start
       delegate_to_fog_servers( :start  )
