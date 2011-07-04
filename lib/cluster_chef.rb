@@ -79,8 +79,13 @@ module ClusterChef
   # From fog, find each node and match cluster_facets against security groups
   #
 
-
   def self.cluster_facets
     clusters.map{|cluster_name, cl| cl.facets.map{|facet_name, f| "#{cluster_name}-#{facet_name}" }}.flatten
+  end
+
+  def self.die *strings
+    exit_code = strings.last.is_a?(Integer) ? strings.pop : -1
+    strings.each{|str| warn str }
+    exit exit_code
   end
 end
