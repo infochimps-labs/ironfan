@@ -38,7 +38,4 @@ ClusterChef.cluster 'microchimp' do
 #      chef_node_name 'microchimp_delta_niner'
 #    end
 #  end
-  chef_attributes({})
 end
-
-

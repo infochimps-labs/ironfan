@@ -17,7 +17,4 @@ ClusterChef.cluster 'democassandra' do
     role                "hadoop_initial_bootstrap"
   end
 
-  chef_attributes({
-      :cluster_size => facet('datanode').instances,
-    })
 end

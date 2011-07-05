@@ -1,6 +1,8 @@
+Chef::Log.debug [ node[:ruby] ].inspect + "\n\n!!!\n\n"
+
 packages_list = %w[
   git-core cvs subversion exuberant-ctags tree zip liblzo2-dev
-  libpcre3-dev libbz2-dev libonig2 libonig-dev libidn11-dev libxml2-dev libxml2-utils libxslt1-dev libevent-dev
+  libpcre3-dev libbz2-dev libidn11-dev libxml2-dev libxml2-utils libxslt1-dev libevent-dev
   ant openssl colordiff ack htop makepasswd sysstat
   g++ python-setuptools python-dev
   s3cmd
@@ -19,9 +21,8 @@ packages_list.each do |pkg|
 end
 
 %w[
-   extlib oniguruma fastercsv json yajl-ruby crack htmlentities addressable
-   uuidtools configliere fog right_aws whenever rest-client cheat
-   rails wirble wukong
+   extlib rails fastercsv json yajl-ruby
+   addressable fog cheat configliere wukong gorillib
 ].each do |pkg|
   gem_package pkg do
     action :install

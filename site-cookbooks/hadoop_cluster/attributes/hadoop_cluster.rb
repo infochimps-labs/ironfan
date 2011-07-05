@@ -2,6 +2,7 @@
 default[:hadoop][:hadoop_handle] = 'hadoop-0.20'
 default[:hadoop][:cdh_version]   = 'cdh3b3'
 default[:hadoop][:deb_version]   = "0.20.2+737-1~lucid-cdh3b3"
+default[:hadoop][:cloudera_distro_name] = nil # in case cloudera doesn't have you distro yet
 
 # Make sure you define a cluster_size in roles/WHATEVER_cluster.rb
 default[:cluster_size] = 5
@@ -25,7 +26,7 @@ default[:hadoop][:mapred_jobtracker_completeuserjobs_maximum ] = 100
 default[:hadoop][:extra_classpaths]  = { }
 
 # uses /etc/default/hadoop-0.20 to set the hadoop daemon's heapsize
-default[:hadoop][:hadoop_daemon_heapsize]       = 1500
+default[:hadoop][:hadoop_daemon_heapsize]            = 1000
 
 #
 # fs.inmemory.size.mb  # default XX

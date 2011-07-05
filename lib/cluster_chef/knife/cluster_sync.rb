@@ -21,12 +21,48 @@ require File.expand_path(File.dirname(__FILE__)+"/generic_command.rb")
 
 class Chef
   class Knife
-    class ClusterStart < ClusterChef::Script
+    class ClusterSync < ClusterChef::Script
       import_banner_and_options(ClusterChef::Script)
 
+      option :cloud,
+        :long => "--cloud",
+        :description => "Sync to the cloud",
+        :default => true
+      option :chef,
+        :long => "--chef",
+        :description => "Sync to the chef server",
+        :default => true
+      
       def slice_criterion
-        :startable?
+        :stoppable?
       end
+
+      def perform_execution target
+        sync_to_cloud target
+        puts
+        display(target)
+        puts
+        sync_to_chef target
+      end
+
+      def sync_to_chef target
+        if config[:dry_run]
+          puts "(can't do a dry-run when syncing to chef -- skipping)"
+          return
+        end
+        puts "Syncing to Chef:"
+        target.sync_to_chef
+      end
+      
+      def sync_to_cloud target
+        puts "Syncing to cloud:"
+        target.sync_to_cloud
+      end
+
+      def display(target, *args)
+        super(target, :expanded)
+      end
+      
     end
   end
 end

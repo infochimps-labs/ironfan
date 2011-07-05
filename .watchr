@@ -7,7 +7,7 @@ def run_spec(file)
   end
 
   puts   "Running #{file}"
-  system "bundle exec rspec #{file}"
+  system "rspec #{file}"
   puts
 end
 
@@ -16,5 +16,6 @@ watch("spec/.*/*_spec\.rb") do |match|
 end
 
 watch("lib/(.*)\.rb") do |match|
-  run_spec %{spec/#{match[1]}_spec.rb}
+  file = %{spec/#{match[1]}_spec.rb}
+  run_spec file if File.exists?(file)
 end

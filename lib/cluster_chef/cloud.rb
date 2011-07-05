@@ -1,11 +1,7 @@
 module ClusterChef
   module Cloud
     class Base < ClusterChef::DslObject
-      has_keys :name, :flavor, :image_name, :image_id, :keypair
-
-      def initialize
-        super
-      end
+      has_keys( :name, :flavor, :image_name, :image_id, :keypair )
 
       # The username to ssh with.
       # @return the ssh_user if set explicitly; otherwise, the user implied by the image name, if any; or else 'root'
@@ -48,12 +44,14 @@ module ClusterChef
     class Ec2 < Base
       has_keys(
         :region, :availability_zones, :backing, :permanent, :elastic_ip,
-        :spot_price, :spot_price_fraction, :user_data, :security_groups)
+        :spot_price, :spot_price_fraction, :user_data, :security_groups,
+        :monitoring
+        )
 
       def initialize *args
         super *args
-        @settings[:security_groups] = {}
-        @settings[:user_data]       = {}
+        @settings[:security_groups]      ||= Mash.new
+        @settings[:user_data]            ||= Mash.new
       end
 
       # An alias for disable_api_termination. Prevents the instance from being
@@ -74,9 +72,10 @@ module ClusterChef
       end
 
       # adds a security group to the cloud instance
-      def security_group sg_name, &block
+      def security_group sg_name, hsh={}, &block
+        sg_name = sg_name.to_s
         security_groups[sg_name] ||= ClusterChef::Cloud::SecurityGroup.new(self, sg_name)
-        security_groups[sg_name].instance_eval(&block) if block
+        security_groups[sg_name].configure(hsh, &block)
         security_groups[sg_name]
       end
 
@@ -92,72 +91,39 @@ module ClusterChef
       end
 
       def validation_key
-        IO.read(Chef::Config[:validation_key]) rescue ''
+        IO.read(Chef::Config.validation_key) rescue ''
       end
 
       # When given a hash, merge with the existing user data
-      #
-      # FIXME: use a deep merge
       def user_data hsh={}
-        @settings[:user_data] ||= {}
-        if hsh.empty? #blank?
-          @settings[:user_data].merge({
-              :chef_server            => Chef::Config.chef_server_url,
-              :validation_client_name => Chef::Config.validation_client_name,
-              :validation_key         => validation_key,
-            })
-        else
+        unless hsh.empty?
           @settings[:user_data].merge! hsh
-          user_data
         end
+        @settings[:user_data]
       end
 
-      def merge! cloud
-        @settings = cloud.to_hash.merge @settings
-        @settings[:security_groups] = cloud.security_groups.merge(self.security_groups)
-        @settings[:user_data]       = cloud.to_hash[:user_data].merge(@settings[:user_data])
+      def reverse_merge! cloud
+        @settings.reverse_merge! cloud.to_hash.compact
+        return self unless cloud.respond_to?(:security_groups)
+        @settings[:security_groups].reverse_merge!(cloud.security_groups)
+        @settings[:user_data].reverse_merge!(cloud.user_data)
       end
 
       def resolve! cloud
-        merge! cloud
+        reverse_merge! cloud
         resolve_region!
-        resolve_block_device_mapping!
         self
       end
 
       def resolve_region!
-        region availability_zones.first.gsub(/^(\w+-\w+-\d)[a-z]/, '\1') if !region && availability_zones.respond_to?(:first)
+        region default_availability_zone.gsub(/^(\w+-\w+-\d)[a-z]/, '\1') if !region && availability_zones.respond_to?(:first)
       end
 
-      def resolve_block_device_mapping!
-        # FIXME: finish this
-        # if settings[:instance_backing] == 'ebs'
-        #   # Bring the ephemeral storage (local scratch disks) online
-        #   block_device_mapping([
-        #       { :device_name => '/dev/sda1' }.merge(settings[:boot_volume]||{}),
-        #       { :device_name => '/dev/sdc',  :virtual_name => 'ephemeral0' },
-        #     ])
-        #   instance_initiated_shutdown_behavior 'stop'
-        # else
-        #   settings.delete :boot_volume
-        # end
+      def default_availability_zone
+        availability_zones.first
       end
 
       # Utility methods
-
-      # def to_hash
-      #   [ :provider, :keypair,
-      #     :region, :availability_zones,
-      #     :flavor, :instance_backing,
-      #     :image_name, :image_id, :bits,
-      #     :ssh_user, :bootstrap_distro, :ssh_identity_file,
-      #     :permanent, :elastic_ip,
-      #     :price, :spot_price, :spot_price_fraction,
-      #     :flavor_info,
-      #     :user_data,
-      #     :security_groups,
-      #   ].inject({}){|h,k| h[k] = send(k) ; h }
-      # end
 
       def image_info
         IMAGE_INFO[ [region, bits, backing, image_name] ] or warn "Make sure to define the machine's region, bits, backing and image_name. (Have #{[region, bits, backing, image_name].inspect})"
@@ -167,16 +133,30 @@ module ClusterChef
         FLAVOR_INFO[ flavor ] || {} # or raise "Please define the machine's flavor."
       end
 
+      # code            $/hr    $/mo    $/day   CPU/$   Mem/$    mem    cpu     cores   cpcore  storage  bits   IO              type            name                    approx spot$
+      # t1.micro        $0.02     14     0.48   10.00   33.50    0.67    0.2    1        0.2       0       64   Low             Micro           Micro                   $...    ...
+      # m1.small        $0.085    61     2.04   11.76   20.00    1.7     1      1        1       160       32   Moderate        Standard        Small                   $0.03   35%
+      # c1.medium       $0.17    123     4.08   29.41   10.00    1.7     5      2        2.5     350       32   Moderate        High-CPU        Medium                  $0.061  36%
+      # m1.large        $0.34    246     8.16   11.76   22.06    7.5     4      2        2       850       64   High            Standard        Large                   $0.117  34%
+      # m2.xlarge       $0.50    363    12.00   13.00   35.40   17.7     6.5    2        3.25    420       64   Moderate        High-Memory     Extra Large             $0.178  36%
+      # c1.xlarge       $0.68    493    16.32   29.41   10.29    7      20      8        2.5    1690       64   High            High-CPU        Extra Large             $0.228  34%
+      # m1.xlarge       $0.68    493    16.32   11.76   22.06   15       8      4        2      1690       64   High            Standard        Extra Large             $0.243  36%
+      # m2.2xlarge      $1.00    726    24.00   13.00   34.20   34.2    13      4        3.25    850       64   High            High-Memory     Double Extra Large      $0.409  34%
+      # m2.4xlarge      $2.00   1452    48.00   13.00   34.20   68.4    26      8        3.25   1690       64   High            High-Memory     Quadruple Extra Large   $0.814  34%
+      # cc1.4xlarge     $1.60   1161    38.40   20.94   14.38   23      33.5    2       16.75   1690       64   Very High 10GB  Compute         Quadruple Extra Large
+
+
       FLAVOR_INFO = {
-        'm1.small'    => { :price => 0.085, :bits => '32-bit', :ram => 0, :cores => 0, :core_size => 0, },
-        'c1.medium'   => { :price => 0.17,  :bits => '32-bit', :ram => 0, :cores => 0, :core_size => 0, },
-        'm1.large'    => { :price => 0.34,  :bits => '64-bit', :ram => 0, :cores => 0, :core_size => 0, },
-        'c1.xlarge'   => { :price => 0.68,  :bits => '64-bit', :ram => 0, :cores => 0, :core_size => 0, },
-        'm1.xlarge'   => { :price => 0.68,  :bits => '64-bit', :ram => 0, :cores => 0, :core_size => 0, },
-        'm2.xlarge'   => { :price => 0.50,  :bits => '64-bit', :ram => 0, :cores => 0, :core_size => 0, },
-        'm2.2xlarge'  => { :price => 1.20,  :bits => '64-bit', :ram => 0, :cores => 0, :core_size => 0, },
-        'm2.4xlarge'  => { :price => 2.40,  :bits => '64-bit', :ram => 0, :cores => 0, :core_size => 0, },
-        't1.micro'    => { :price => 0.02,  :bits => '64-bit', :ram => 0, :cores => 0, :core_size => 0, },
+        't1.micro'    => { :price => 0.02,  :bits => '64-bit', :ram =>    686, :cores => 1, :core_size => 0.25, :inst_disks => 0, :inst_disk_size => 0,   },
+        'm1.small'    => { :price => 0.085, :bits => '32-bit', :ram =>   1740, :cores => 1, :core_size => 1,    :inst_disks => 1, :inst_disk_size => 160, },
+        'c1.medium'   => { :price => 0.17,  :bits => '32-bit', :ram =>   1740, :cores => 2, :core_size => 2.5,  :inst_disks => 1, :inst_disk_size => 350, },
+        'm1.large'    => { :price => 0.34,  :bits => '64-bit', :ram =>   7680, :cores => 2, :core_size => 2,    :inst_disks => 2, :inst_disk_size => 420, },
+        'm2.xlarge'   => { :price => 0.50,  :bits => '64-bit', :ram =>  18124, :cores => 2, :core_size => 3.25, :inst_disks => 1, :inst_disk_size => 420, },
+        'c1.xlarge'   => { :price => 0.68,  :bits => '64-bit', :ram =>   7168, :cores => 8, :core_size => 2.5,  :inst_disks => 4, :inst_disk_size => 420, },
+        'm1.xlarge'   => { :price => 0.68,  :bits => '64-bit', :ram =>  15360, :cores => 4, :core_size => 2,    :inst_disks => 4, :inst_disk_size => 420, },
+        'm2.2xlarge'  => { :price => 1.00,  :bits => '64-bit', :ram =>  35020, :cores => 4, :core_size => 3.25, :inst_disks => 2, :inst_disk_size => 420, },
+        'm2.4xlarge'  => { :price => 2.00,  :bits => '64-bit', :ram =>  70041, :cores => 8, :core_size => 3.25, :inst_disks => 4, :inst_disk_size => 420, },
+        'cc1.4xlarge' => { :price => 1.60,  :bits => '64-bit', :ram =>  23552, :cores => 2, :core_size =>16.75, :inst_disks => 4, :inst_disk_size => 420, },
       }
 
       IMAGE_INFO =  {
@@ -236,17 +216,17 @@ module ClusterChef
         # Infochimps
         #
         # sorry to stuff these in here -- the above are generic, these are infochimps internal
-        %w[us-east-1             32-bit  ebs             infochimps-scraper-client  ] => { :image_id => '', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # infochimps.chef-client.lucid.east.32bit.20100610a
-        %w[us-east-1             64-bit  ebs             infochimps-scraper-client  ] => { :image_id => 'ami-d13ed5b8', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # infochimps.chef-client.lucid.east.32bit.20100610a
-        %w[us-east-1             64-bit  ebs             infochimps-hadoop-client   ] => { :image_id => 'ami-a236c7cb', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # microchimps
-        %w[us-east-1             64-bit  instance        infochimps-hadoop-client-1 ] => { :image_id => 'ami-ad3ad1c4', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # infochimps.chef-client.lucid.east.ami-64bit-20100714
-        %w[us-east-1             64-bit  instance        infochimps-hadoop-client   ] => { :image_id => 'ami-589c6d31', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # infochimps.hadoop-client.lucid.east.ami-64bit-20101224b
+        %w[us-east-1             64-bit  ebs             infochimps-hadoop-client       ] => { :image_id => 'ami-a236c7cb', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # microchimps
         #
-        %w[us-east-1             32-bit  ebs             infochimps-maverick-client ] => { :image_id => 'ami-32a0535b', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # infochimps.chef-client.maverick.east.ami-32bit-20110211
-        %w[us-east-1             64-bit  ebs             infochimps-maverick-client ] => { :image_id => 'ami-48be4e21', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # infochimps.chef-client.maverick.east.ami-64bit-20110118
-        %w[us-east-1             64-bit  instance        infochimps-maverick-client ] => { :image_id => 'ami-50659439', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # infochimps.hadoop-client.maverick.east.ami-64bit-20110113
+        %w[us-east-1             32-bit  ebs             infochimps-maverick-client     ] => { :image_id => 'ami-32a0535b', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # infochimps.chef-client.maverick.east.ami-32bit-20110211
+        %w[us-east-1             64-bit  ebs             infochimps-maverick-client-old ] => { :image_id => 'ami-48be4e21', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # infochimps.chef-client.maverick.east.ami-64bit-20110118
+        %w[us-east-1             64-bit  instance        infochimps-maverick-client     ] => { :image_id => 'ami-50659439', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # infochimps.hadoop-client.maverick.east.ami-64bit-20110113
+        #
+        # %w[us-east-1           32-bit  ebs             infochimps-maverick-client     ] => { :image_id => '',             :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, #
+        %w[us-east-1             64-bit  ebs             infochimps-maverick-client     ] => { :image_id => 'ami-6802f901', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # infochimps.chef-client.maverick.east.ebs-64bit-20110703c
+        # %w[us-east-1           64-bit  instance        infochimps-maverick-client     ] => { :image_id => '',             :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, #
 
-        %w[us-east-1             32-bit  ebs             mrflip-maverick-client     ] => { :image_id => 'ami-f4f6069d', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.10-cluster_chef", }, # mrflip.chef-client.maverick.east.ebs-32bit-20110124
+        # %w[us-east-1             32-bit  ebs             mrflip-maverick-client     ] => { :image_id => 'ami-f4f6069d', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.10-cluster_chef", }, # mrflip.chef-client.maverick.east.ebs-32bit-20110124
       }
 
     end

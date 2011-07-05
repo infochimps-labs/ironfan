@@ -16,77 +16,42 @@
 # limitations under the License.
 #
 
-require 'chef/knife'
-require 'chef/knife/ssh'
+require File.expand_path(File.dirname(__FILE__)+"/knife_common.rb")
 
 class Chef
   class Knife
-    class ClusterSsh < Ssh
+    class ClusterSsh < Chef::Knife::Ssh
+      include ClusterChef::KnifeCommon
 
       deps do
-        require 'net/ssh'
-        require 'net/ssh/multi'
-        require 'readline'
-        require 'chef/search/query'
-        require 'chef/mixin/command'
-        require 'fog'
-
-        Chef::Knife::Bootstrap.load_deps
+        Chef::Knife::Ssh.load_deps
+        ClusterChef::KnifeCommon.load_deps
       end
 
-      attr_writer :password
-
-      banner 'knife cluster ssh "CLUSTER [FACET [INDEX]]" COMMAND (options)'
-
-      option :concurrency,
-        :short => "-C NUM",
-        :long => "--concurrency NUM",
-        :description => "The number of concurrent connections",
-        :default => nil,
-        :proc => lambda { |o| o.to_i }
-
+      banner 'knife cluster ssh "CLUSTER [FACET [INDEXES]]" COMMAND (options)'
+      Chef::Knife::Ssh.options.each do |name, hsh|
+        next if name == :attribute
+        option name, hsh
+      end
       option :attribute,
         :short => "-a ATTR",
         :long => "--attribute ATTR",
         :description => "The attribute to use for opening the connection - default is fqdn (ec2 users may prefer cloud.public_hostname)"
-
-      option :ssh_user,
-        :short => "-x USERNAME",
-        :long => "--ssh-user USERNAME",
-        :description => "The ssh username"
-
-      option :ssh_password,
-        :short => "-P PASSWORD",
-        :long => "--ssh-password PASSWORD",
-        :description => "The ssh password"
-
-      option :ssh_port,
-        :short => "-p PORT",
-        :long => "--ssh-port PORT",
-        :description => "The ssh port",
-        :default => "22",
-        :proc => Proc.new { |key| Chef::Config[:knife][:ssh_port] = key }
-
-      option :identity_file,
-        :short => "-i IDENTITY_FILE",
-        :long => "--identity-file IDENTITY_FILE",
-        :description => "The SSH identity file used for authentication"
-
-      option :no_host_key_verify,
-        :long => "--no-host-key-verify",
-        :description => "Disable host key verification",
-        :boolean => true,
-        :default => false
+      option :detailed,
+        :long => "--detailed",
+        :description => "Show detailed info on servers. (Only shows summary with --detailed or --verbose)"
 
       def configure_session
-        target = ClusterChef.get_cluster_slice *@name_args[0].split(" ")
-        cluster = target.cluster
-        cluster.resolve!
-
         config[:attribute] ||= Chef::Config[:knife][:ssh_address_attribute] || "fqdn"
-        config[:ssh_user] ||= Chef::Config[:knife][:ssh_user]
+        config[:ssh_user]  ||= Chef::Config[:knife][:ssh_user]
 
-        @action_nodes = target.servers.map{|s| s.chef_node if s.chef_node }.compact
+        predicate = @name_args[0].split(/\s+/).map(&:strip)
+
+        target = get_slice(*predicate).select(&:sshable?)
+
+        display(target) if config[:detailed] || config[:verbose]
+
+        @action_nodes = target.chef_nodes
         list = @action_nodes.map{|n| format_for_display(n)[config[:attribute]] }.compact
 
         (ui.fatal("No nodes returned from search!"); exit 10) if list.length == 0
@@ -97,20 +62,9 @@ class Chef
         exec "cssh "+session.servers_for.map {|server| server.user ? "#{server.user}@#{server.host}" : server.host}.join(" ")
       end
 
-
       def run
-        # TODO: this is a hack - remove when ClusterChef is deployed as a gem
-        $: << Chef::Config[:cluster_chef_path]+'/lib'
-
-        # TODO: this is a hack - should be moved to some kind of configuration
-        #       controllable by the user, perhaps in a knife.rb file. Needs to
-        #       be fixed as a part of separating cluster configuration from
-        #       ClusterChef gem.  However, it is currently required to get
-        #       ClusterChef.load_cluster to work right.
-        $: << Chef::Config[:cluster_chef_path]
-
-        require 'cluster_chef'
-
+        load_cluster_chef
+        die(banner) if @name_args.empty?
         extend Chef::Mixin::Command
 
         @longest = 0

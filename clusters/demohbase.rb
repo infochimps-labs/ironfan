@@ -29,7 +29,4 @@ ClusterChef.cluster 'demohbase' do
     role                "hbase_regionserver"
   end
 
-  chef_attributes({
-      :cluster_size => facet('worker').instances,
-    })
 end

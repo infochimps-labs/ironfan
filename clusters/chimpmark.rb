@@ -28,7 +28,4 @@ ClusterChef.cluster 'chimpmark' do
     cloud.flavor        "m1.xlarge"
   end
 
-  chef_attributes({
-  })
-
 end

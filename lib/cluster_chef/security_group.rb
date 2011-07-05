@@ -1,26 +1,19 @@
-
-# ip_permissions[
-#   {"groups"=>[{"userId"=>"484232731444", "groupName"=>"ham"}], "ipRanges"=>[], "ipProtocol"=>"tcp", "fromPort"=>1, "toPort"=>65535},
-#   {"groups"=>[{"userId"=>"484232731444", "groupName"=>"ham"}], "ipRanges"=>[], "ipProtocol"=>"udp", "fromPort"=>1, "toPort"=>65535},
-#   {"groups"=>[{"userId"=>"484232731444", "groupName"=>"ham"}], "ipRanges"=>[], "ipProtocol"=>"icmp", "fromPort"=>-1, "toPort"=>-1},
-#   {"groups"=>[], "ipRanges"=>[{"cidrIp"=>"0.0.0.0/0"}], "ipProtocol"=>"tcp", "fromPort"=>22, "toPort"=>22},
-#   {"groups"=>[], "ipRanges"=>[{"cidrIp"=>"0.0.0.0/0"}], "ipProtocol"=>"tcp", "fromPort"=>80, "toPort"=>80}
-# ]
-
-
 module ClusterChef
   module Cloud
+
     class SecurityGroup < DslObject
       has_keys :name, :description, :owner_id
+      attr_reader :group_authorizations
+      attr_reader :range_authorizations
+
       def initialize cloud, group_name, group_description=nil, group_owner_id=nil
         super()
-        group_name = group_name.to_s
-        name group_name
+        set :name, group_name.to_s
         description group_description || "cluster_chef generated group #{group_name}"
         @cloud         = cloud
         @group_authorizations = []
         @range_authorizations = []
-        owner_id group_owner_id || Chef::Config.knife[:aws_account_id]
+        owner_id group_owner_id || Chef::Config[:knife][:aws_account_id]
       end
 
       @@all = nil
@@ -33,7 +26,7 @@ module ClusterChef
       end
       def self.get_all
         groups_list = ClusterChef.connection.security_groups.all
-        @@all = groups_list.inject({}) do |hsh, group|
+        @@all = groups_list.inject(Mash.new) do |hsh, group|
           hsh[group.name] = group ; hsh
         end
       end
@@ -52,7 +45,7 @@ module ClusterChef
       end
 
       def authorize_group_and_owner group, owner_id=nil
-        @group_authorizations << [group, owner_id]
+        @group_authorizations << [group.to_s, owner_id]
       end
 
       # Alias for authorize_group_and_owner
@@ -65,7 +58,7 @@ module ClusterChef
       end
 
       def group_permission_already_set? group, authed_group, authed_owner
-        return false if group.ip_permissions.nil? #.blank?
+        return false if group.ip_permissions.nil?
         group.ip_permissions.any? do |existing_permission|
           existing_permission["groups"].include?({"userId"=>authed_owner, "groupName"=>authed_group}) &&
             existing_permission["fromPort"] == 1 &&

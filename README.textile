@@ -68,6 +68,21 @@ You can also now launch the entire cluster at once with the following
 
 The cluster launch operation is (mostly) idempotent. (There is currently a short time after the completion of a cluster launch where a second cluster launch will create extra nodes that do not belong.)
 
+h2. Philosophy
+
+Some general principles of how we use chef.
+
+* Chef server is *never* the repository of truth -- it only mirrors the truth.
+  - a file is tangible and immediate to access
+* Specifically, we want truth to live in the git repo, and be enforced by the chef server. There is no truth but git, and chef is its messenger.
+  - this means that everything is versioned, documented and exchangeable.
+* All major systems, services and significant modifications to the machines in a cluster should be in front of me on the page when I look at its `clusters` file.  I don't want to have to bounce around nine different files to find out which thing installed a redis:server.
+* ...you don't want to get too detailed though -- roles exist for a reason, and if cluster files start getting unruly.
+* It's nice when machines are in full control of their destiny.
+  - initial setup (elastic IP, attaching a drive) is often best enforced externally
+  - but machines should be ablt independently assert things like load balancer registration that that might change at any point in the lifetime.
+* It's even nicer, though, to have full idempotency from the command line: I can at any time push truth from the git repo to the chef server and know that it will take hold.
+
 ---------------------------------------------------------------------------
 
 h2. Getting Started
