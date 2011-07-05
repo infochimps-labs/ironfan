@@ -40,11 +40,11 @@ class Chef
         die(banner) if @name_args.empty?
         enable_dry_run if config[:dry_run]
 
-        # # Here's how to display the full raw dictionary for testing
-        # ClusterChef::ServerSlice.new(target.cluster, ClusterChef::Server.all.values).display(:detailed)
-
         # Load the cluster/facet/slice/whatever
-        target = ClusterChef.slice(* @name_args)
+        target = get_slice(* @name_args)
+
+        # Here's how to display the full raw dictionary for testing
+        # ClusterChef::ServerSlice.new(target.cluster, ClusterChef::Server.all.values).display(:detailed)
 
         # Display same
         target.display(display_style)

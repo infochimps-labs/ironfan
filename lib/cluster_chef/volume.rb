@@ -3,8 +3,9 @@ module ClusterChef
   # Internal or external storage
   #
   class Volume < ClusterChef::DslObject
+    attr_reader :parent
     has_keys(
-      :parent, :keep,
+      :keep, :name,
       :volume_id, :snapshot_id, :size,
       :device, :mount_point, :mount_options, :fs_type,
       :availability_zone
@@ -17,6 +18,7 @@ module ClusterChef
     #   :tags => {}, :keep => false )
     #
     def initialize attrs={}
+      @parent = attrs.delete(:parent)
       super(attrs)
       @settings[:tags] ||= {}
     end
@@ -31,10 +33,10 @@ module ClusterChef
       if ephemeral_device?
         hsh['VirtualName'] = volume_id
       else
-        hsh.merge({
+        hsh.merge!({
             'Ebs.SnapshotId' => snapshot_id,
             'Ebs.VolumeSize' => size,
-            'Ebs.Ebs.DeleteOnTermination' => (! keep) })
+            'Ebs.DeleteOnTermination' => (! keep).to_s })
       end
       hsh
     end

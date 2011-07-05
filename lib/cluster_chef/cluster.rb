@@ -77,9 +77,7 @@ module ClusterChef
       cloud.security_group(cluster_name){ authorize_group(cluster_name) }
       cloud.keypair cluster_name         if cloud.keypair.nil?
       role          cluster.cluster_role if cluster.cluster_role
-
       @facets.values.each(&:resolve!)
-      discover!
     end
 
     def security_groups

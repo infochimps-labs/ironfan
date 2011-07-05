@@ -3,6 +3,7 @@ require 'gorillib/metaprogramming/class_attribute'
 require 'gorillib/hash/reverse_merge'
 require 'gorillib/object/blank'
 require 'gorillib/hash/compact'
+require 'set'
 
 require 'cluster_chef/dsl_object'
 require 'cluster_chef/cloud'
@@ -13,6 +14,7 @@ require 'cluster_chef/cluster'        # group of machines with a common mission
 require 'cluster_chef/server'         # realization of a specific facet
 require 'cluster_chef/discovery'      # pair servers with Fog and Chef objects
 require 'cluster_chef/server_slice'   # collection of server objects
+require 'cluster_chef/volume'         # collection of server objects
 
 Chef::Config[:clusters]          ||= Mash.new
 Chef::Config[:cluster_chef_path] ||= File.expand_path(File.dirname(__FILE__)+'../..')
@@ -49,6 +51,7 @@ module ClusterChef
   def self.slice cluster_name, *args
     cluster = load_cluster(cluster_name)
     cluster.resolve!
+    cluster.discover!
     return cluster.slice(*args)
   end
 

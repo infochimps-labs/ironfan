@@ -49,12 +49,44 @@ module ClusterChef
       false
     end
 
+    def in_cloud?
+      !! fog_server
+    end
+
+    def in_chef?
+      !! chef_node
+    end
+
+    def has_cloud_state?(*states)
+      in_cloud? && states.flatten.include?(fog_server.state)
+    end
+
     def created?
-      fog_server
+      in_cloud? && (not ['terminated'].include?(fog_server.state))
+    end
+
+    def stoppable?
+      has_cloud_state?('running')
+    end
+
+    def startable?
+      has_cloud_state?('stopped')
+    end
+
+    def launchable?
+      not created?
+    end
+
+    def sshable?
+      in_chef?
+    end
+
+    def killable?
+      in_chef? || created?
     end
 
     def to_s
-      super[0..-3] + " chef: #{chef_node && chef_node.node_name} fog: #{fog_server && fog_server.id}}>"
+      super[0..-3] + " chef: #{in_chef? && chef_node.node_name} fog: #{in_cloud? && fog_server.id}}>"
     end
 
     #
@@ -104,10 +136,18 @@ module ClusterChef
       self
     end
 
-    def resolve_volumes!
-      cluster.volumes.each do |name, vol|
-        self.volume(name).reverse_merge!(vol)
+    def composite_volumes
+      vols = volumes.dup
+      facet.volumes.each do |name, vol|
+        vols[name] ||= ClusterChef::Volume.new(:parent => self, :name => name)
+        vols[name].reverse_merge!(vol)
       end
+      cluster.volumes.each do |name, vol|
+        vols[name] ||= ClusterChef::Volume.new(:parent => self, :name => name)
+        vols[name].reverse_merge!(vol)
+      end
+      vols.each{|name, vol| vol.availability_zone self.cloud.default_availability_zone }
+      vols
     end
 
     #
@@ -136,7 +176,13 @@ module ClusterChef
     def create_server
       return nil if created? # only create a server if it does not already exist
 
-      fog_description = {
+      fog_description = fog_description_for_launch
+      Chef::Log.debug(JSON.pretty_generate(fog_description))
+      @fog_server = ClusterChef.connection.servers.create(fog_description)
+    end
+
+    def fog_description_for_launch
+      {
         :image_id          => cloud.image_id,
         :flavor_id         => cloud.flavor,
         #
@@ -148,13 +194,12 @@ module ClusterChef
           :facet   => facet_name,
           :index   => facet_index, },
         :user_data         => JSON.pretty_generate(cloud.user_data.merge(:attributes => chef_attributes)),
-        :block_device_mapping    => volumes.map(&:block_device_mapping),
+        :block_device_mapping    => composite_volumes.values.map(&:block_device_mapping),
         # :disable_api_termination => cloud.disable_api_termination,
         # :instance_initiated_shutdown_behavior => instance_initiated_shutdown_behavior,
         :availability_zone => cloud.availability_zones.first,
         :monitoring => cloud.monitoring,
       }
-      @fog_server = ClusterChef.connection.servers.create(fog_description)
     end
 
     def create_tags
@@ -185,3 +230,4 @@ module ClusterChef
     end
   end
 end
+

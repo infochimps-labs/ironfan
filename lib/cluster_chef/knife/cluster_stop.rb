@@ -43,7 +43,9 @@ class Chef
         die(banner) if @name_args.empty?
         enable_dry_run if config[:dry_run]
 
-        target = ClusterChef.slice(* @name_args)
+        target = get_slice_where(:stoppable?, *@name_args)
+
+        die("No nodes to stop, exiting", 1) if target.empty?
 
         unless config[:yes]
           puts "This action will stop the following nodes:"
@@ -54,7 +56,10 @@ class Chef
           confirm_or_exit('Yes')
         end
 
+        puts
+        puts "Stopping!!"
         target.stop
+        puts
         target.display(display_style)
       end
     end

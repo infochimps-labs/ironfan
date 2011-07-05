@@ -39,15 +39,17 @@ class Chef
         :description => "The attribute to use for opening the connection - default is fqdn (ec2 users may prefer cloud.public_hostname)"
       option :detailed,
         :long => "--detailed",
-        :description => "Show detailed info on servers"
+        :description => "Show detailed info on servers. (Only shows summary with --detailed or --verbose)"
 
       def configure_session
         config[:attribute] ||= Chef::Config[:knife][:ssh_address_attribute] || "fqdn"
         config[:ssh_user]  ||= Chef::Config[:knife][:ssh_user]
 
-        target = ClusterChef.slice(* @name_args[0].split(/\s+/) ).sshable_servers
+        predicate = @name_args[0].split(/\s+/).map(&:strip)
 
-        target.display(display_style)
+        target = get_slice(*predicate).select(&:sshable?)
+
+        target.display(display_style) if config[:detailed] || config[:verbose]
 
         @action_nodes = target.chef_nodes
         list = @action_nodes.map{|n| format_for_display(n)[config[:attribute]] }.compact

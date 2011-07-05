@@ -7,7 +7,6 @@ module ClusterChef
   #
   class ServerSlice < ClusterChef::DslObject
     attr_reader :servers, :cluster
-    include Enumerable
 
     def initialize cluster, servers
       super()
@@ -15,6 +14,10 @@ module ClusterChef
       @servers = servers
     end
 
+    #
+    # Enumerable
+    #
+    include Enumerable
     def each &block
       @servers.each(&block)
     end
@@ -24,23 +27,19 @@ module ClusterChef
     def empty?
       length == 0
     end
-
-    def to_s
-      str = super
-      str[0..-2] + " #{@servers.map(&:fullname)}>"
+    [:select, :find_all, :reject, :detect, :find, :drop_while].each do |method|
+      define_method(method) do |*args, &block|
+        ServerSlice.new cluster, @servers.send(method, *args, &block)
+      end
     end
-    
+
     # Return the collection of servers that are not yet 'created'
     def uncreated_servers
-      ServerSlice.new cluster, servers.select{|svr| not svr.created? }
+      select{|svr| not svr.created? }
     end
 
     def bogus_servers
-      ServerSlice.new cluster, servers.select(&:bogus?)
-    end
-
-    def sshable_servers
-      ServerSlice.new cluster, servers.select(&:chef_node)
+      select(&:bogus?)
     end
 
     #
@@ -101,7 +100,7 @@ module ClusterChef
     # Display!
     #
 
-    DEFAULT_HEADINGS = ["Name", "Chef?", "InstanceID", "State", "Public IP", "Private IP", "Created At"].freeze
+    DEFAULT_HEADINGS = ["Name", "Chef?", "InstanceID", "State", "Public IP", "Private IP", "Created At"].to_set.freeze
 
     #
     # This is a generic display routine for cluster-like sets of nodes. If you
@@ -117,7 +116,7 @@ module ClusterChef
         case hh
         when :default  then DEFAULT_HEADINGS
         when :detailed then DEFAULT_HEADINGS + ['Flavor', 'Image', 'AZ', 'SSH Key']
-        else hh end
+        else hh.to_set end
       headings += ["Bogus"] if servers.any?(&:bogus?)
       # probably not necessary any more
       # servers = servers.sort{ |a,b| (a.facet_name <=> b.facet_name) *9 + (a.facet_index.to_i <=> b.facet_index.to_i)*3 + (a.facet_index <=> b.facet_index) }
@@ -144,14 +143,23 @@ module ClusterChef
         else
           hsh["State"] = "not running"
         end
-        hsh.merge!(yield(svr)) if block_given?
+        if block_given?
+          extra_info = yield(svr)
+          hsh.merge!(extra_info)
+          headings += extra_info.keys
+        end
         hsh
       end
       if defined_data.empty?
         puts "Nothing to report"
       else
-        Formatador.display_compact_table(defined_data, headings)
+        Formatador.display_compact_table(defined_data, headings.to_a)
       end
+    end
+    
+    def to_s
+      str = super
+      str[0..-2] + " #{@servers.map(&:fullname)}>"
     end
 
   protected

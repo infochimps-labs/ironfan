@@ -91,7 +91,7 @@ module ClusterChef
       end
 
       def validation_key
-        IO.read(Chef::Config[:validation_key]) rescue ''
+        IO.read(Chef::Config.validation_key) rescue ''
       end
 
       # When given a hash, merge with the existing user data

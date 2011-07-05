@@ -3,24 +3,11 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 require CLUSTER_CHEF_DIR("lib/cluster_chef")
 
 describe "cluster_chef" do
-  # before do
-  #   Chef::Config[:validation_key] = StringIO.new('I_AM_VALID')
-  # end
-
-  def load_example(name)
-    require(CLUSTER_CHEF_DIR('clusters', "#{name}.rb"))
-  end
-
-  def get_cluster name
-    load_example(name)
-    ClusterChef.cluster(name)
-  end
-
   describe 'successfuly runs example' do
 
     describe 'demoweb:' do
       before :all do
-        @cluster = get_cluster(:demoweb)
+        @cluster = get_example_cluster(:demoweb)
         @cluster.resolve!
       end
 

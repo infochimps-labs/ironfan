@@ -20,12 +20,25 @@ module ClusterChef
       $stdout.sync = true
     end
 
-    def h
-      @highline ||= HighLine.new
+    def get_slice( *predicate )
+      target = ClusterChef.slice(* predicate)
+      target.cluster.discover!
+      target
     end
 
-    def die *args
-      ClusterChef.die(*args)
+    #
+    # Get a slice of nodes matching the given filter
+    #
+    # @example
+    #    target = get_slice_where(:stoppable?, *@name_args)
+    #
+    def get_slice_where(meth, *predicate )
+      full_target = get_slice(*predicate)
+      full_target.display(display_style) do |svr|
+        result = svr.send(meth)
+        { meth.to_s => (result ? "[blue]#{result}[reset]" : '-' ) }
+      end
+      full_target.select(&meth.to_sym)
     end
 
     # What headings to show in server slice tables by default
@@ -39,22 +52,6 @@ module ClusterChef
     def enable_dry_run
       Fog.mock!
       Fog::Mock.delay = 0
-    end
-
-    def sub_command
-      self.class.to_s.gsub(/^.*::/, '').gsub!(/^Cluster/, '').downcase
-    end
-
-    def slice_from_args( *predicate )
-      ClusterChef.slice(* predicate)
-    end
-
-    def confirm_or_exit str
-      response = STDIN.readline
-      unless response.chomp == str
-        die "I didn't think so.", "Aborting!", 1
-      end
-      puts
     end
 
     # Show a pretty progress bar while we wait for a set of threads to finish.
@@ -102,6 +99,30 @@ module ClusterChef
       end
     end
 
+
+    #
+    # Utilities
+    #
+
+    def sub_command
+      self.class.to_s.gsub(/^.*::/, '').gsub!(/^Cluster/, '').downcase
+    end
+
+    def confirm_or_exit str
+      response = STDIN.readline
+      unless response.chomp == str
+        die "I didn't think so.", "Aborting!", 1
+      end
+      puts
+    end
+
+    def h
+      @highline ||= HighLine.new
+    end
+
+    def die *args
+      ClusterChef.die(*args)
+    end
 
   end
 end

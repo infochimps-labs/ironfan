@@ -56,7 +56,6 @@ class Chef
       def run
         load_cluster_chef
         die(banner) if @name_args.empty?
-        display_style = config[:detailed] ? :detailed : :default
 
         cluster_name, facet_name, hostname = @name_args
 
@@ -66,6 +65,7 @@ class Chef
         cluster = ClusterChef.load_cluster(cluster_name)
         facet = Chef::Config[:clusters][cluster_name].facet(facet_name)
         cluster.resolve!
+        cluster.discover!
 
         run_bootstrap(facet, hostname)
       end

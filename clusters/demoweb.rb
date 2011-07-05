@@ -1,5 +1,6 @@
 ClusterChef.cluster 'demoweb' do
   use :defaults
+  mounts_ephemeral_volumes 
 
   #
   # Define some security group triggered on having certain roles
@@ -64,6 +65,17 @@ ClusterChef.cluster 'demoweb' do
     server(0) do
       cloud.flavor      "m1.large"
     end
+
+    volume(:data) do
+      snapshot_id   'snap-d9c1edb1'
+      size          50
+      keep          true
+      device        '/dev/sdi'
+      mount_point   '/data/db'
+      mount_options 'defaults,nouuid,noatime'
+      fs_type       'xfs'      
+    end
+    server(0).volume(:data).volume_id 'vol-12345'
   end
 
   facet :esnode do

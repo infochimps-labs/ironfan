@@ -63,30 +63,35 @@ class Chef
         #
         # Load the facet
         #
-        target      = ClusterChef.slice(* @name_args)
-        cluster      = target.cluster
-        warn_or_die_on_bogus_servers(target) unless target.bogus_servers.empty?
-
-        uncreated_servers = target.uncreated_servers
-        if uncreated_servers.empty? then
-          target.display(display_style)
-          die "", "#{h.color("All servers are running -- not launching any.",:blue)}", ""
+        full_target = get_slice(*@name_args)
+        full_target.display(display_style) do |svr|
+          { 'launchable?' => (svr.launchable? ? "[blue]#{svr.launchable?}[reset]" : '-' ) }
         end
+        target = full_target.select(&:launchable?)
+
+        warn_or_die_on_bogus_servers(full_target) unless full_target.bogus_servers.empty?
+
+        die("", "#{h.color("All servers are running -- not launching any.",:blue)}", "", 1) if target.empty?
 
         # TODO: Should we make a key pair when the security key has not yet been created ?!?!?!?
         # We need to dummy up a key_pair in simulation mode, not doing it fr'eals
         if config[:dry_run] then ClusterChef.connection.key_pairs.create(:name => cluster.name) ; end
 
         # Make security groups
-        target.security_groups.each{|name,group| group.run }
+        puts
+        puts "Making security groups:"
+        full_target.security_groups.each{|name,group| group.run }
 
         # Launch servers
         die "Aborting! (--abort given)" if config[:abort]
-        uncreated_servers.create_servers
-        uncreated_servers.display(display_style)
+        puts
+        puts "Launching machines:"
+        target.create_servers
+        puts
+        target.display(display_style)
 
         # As each server finishes, configure it
-        watcher_threads = uncreated_servers.map do |s|
+        watcher_threads = target.map do |s|
           Thread.new(s) do |cc_server|
 
             # Hook up external assets
@@ -108,7 +113,7 @@ class Chef
 
         progressbar_for_threads(watcher_threads)
 
-        uncreated_servers.display(display_style)
+        target.display(display_style)
       end
 
       def display_style

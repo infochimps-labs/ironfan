@@ -40,8 +40,19 @@ class Chef
         die(banner) if @name_args.empty?
         enable_dry_run if config[:dry_run]
 
-        target = ClusterChef.slice(* @name_args)
+        target = get_slice_where(:startable?, *@name_args)
+
+        die("No nodes to start, exiting", 1) if target.empty?
+
+        puts
+        puts "Starting the following machines:"
+        target.display(display_style)
+        puts
+
+        puts
+        puts "Starting!!"
         target.start
+        puts
         target.display(display_style)
       end
     end

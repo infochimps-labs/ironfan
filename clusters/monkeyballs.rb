@@ -1,6 +1,7 @@
 ClusterChef.cluster 'monkeyballs' do
   use :defaults
   setup_role_implications
+  mounts_ephemeral_volumes
 
   cloud do
     backing             "ebs"
@@ -25,6 +26,14 @@ ClusterChef.cluster 'monkeyballs' do
     recipe              'hadoop_cluster::bootstrap_format_namenode'
     role                "hadoop_initial_bootstrap"
     cloud.flavor        "m1.xlarge"
+
+    volume(:data, :mount_options => 'defaults,nouuid,noatime', :fs_type => 'xfs') do
+      snapshot_id   'snap-d9c1edb1'
+      size          50
+      device        '/dev/sdh'
+      mount_point   '/data'
+      keep          true
+    end
   end
 
   # facet 'jobtracker' do
@@ -38,6 +47,14 @@ ClusterChef.cluster 'monkeyballs' do
     instances           3
     role                "hadoop_worker"
     cloud.flavor        "m1.large"
+
+    volume(:data, :mount_options => 'defaults,nouuid,noatime', :fs_type => 'xfs') do
+      snapshot_id   'snap-d9c1edb1'
+      size          50
+      device        '/dev/sdh'
+      mount_point   '/data'
+      keep          false
+    end
   end
 
   facet 'bootstrap' do

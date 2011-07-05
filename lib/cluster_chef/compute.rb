@@ -15,6 +15,7 @@ module ClusterChef
       @volumes = Mash.new
     end
 
+    # set the bogosity to a descriptive reason. Anything truthy implies bogusness
     def bogus?
       !! self.bogosity
     end
@@ -57,9 +58,21 @@ module ClusterChef
     # @param hsh [Hash] a hash of attributes to pass down.
     #
     def volume volume_name, hsh={}, &block
-      vol = (volumes[volume_name] ||= ClusterChef::Volume.new(:parent => self))
-      vol.configure(hsh, &block)
-      vol
+      volumes[volume_name] ||= ClusterChef::Volume.new(:parent => self, :name => volume_name)
+      volumes[volume_name].configure(hsh, &block)
+      volumes[volume_name]
+    end
+
+    def root_volume(hsh={}, &block)
+      volume(:root, hsh, &block)
+    end
+
+    def mounts_ephemeral_volumes
+      # Bring the ephemeral storage (local scratch disks) online
+      volume(:ephemeral0) do device '/dev/sdc'; volume_id 'ephemeral0' ; end
+      volume(:ephemeral1) do device '/dev/sdd'; volume_id 'ephemeral1' ; end
+      volume(:ephemeral2) do device '/dev/sde'; volume_id 'ephemeral2' ; end
+      volume(:ephemeral3) do device '/dev/sdf'; volume_id 'ephemeral3' ; end
     end
 
     # Merges the given hash into
@@ -93,16 +106,6 @@ module ClusterChef
     #
     def role_implication name, &block
       @@role_implications[name] = block
-    end
-
-    def resolve_volumes!
-      if backing == 'ebs'
-        # Bring the ephemeral storage (local scratch disks) online
-        volume(:ephemeral0, :device => '/dev/sdc', :volume_id => 'ephemeral0')
-        volume(:ephemeral1, :device => '/dev/sdd', :volume_id => 'ephemeral1')
-        volume(:ephemeral2, :device => '/dev/sde', :volume_id => 'ephemeral2')
-        volume(:ephemeral3, :device => '/dev/sdf', :volume_id => 'ephemeral3')
-      end
     end
 
     #

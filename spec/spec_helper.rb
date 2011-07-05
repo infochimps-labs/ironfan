@@ -1,6 +1,7 @@
 require 'spork'
 require 'rspec'
 
+
 Spork.prefork do
   # This code is run only once when the spork server is started
   CLUSTER_CHEF_DIR = File.expand_path(File.dirname(__FILE__)+'/..') unless defined?(CLUSTER_CHEF_DIR)
@@ -15,6 +16,14 @@ Spork.prefork do
 
   # Requires custom matchers & macros, etc from files in ./support/ & subdirs
   Dir[CLUSTER_CHEF_DIR("spec/support/**/*.rb")].each {|f| require f}
+
+  def load_example_cluster(name)
+    require(CLUSTER_CHEF_DIR('clusters', "#{name}.rb"))
+  end
+  def get_example_cluster name
+    load_example_cluster(name)
+    ClusterChef.cluster(name)
+  end
 
   # Configure rspec
   RSpec.configure do |config|

@@ -67,41 +67,40 @@ class Chef
         load_cluster_chef
         die(banner) if @name_args.empty?
         enable_dry_run if config[:dry_run]
-        display_style = config[:detailed] ? :detailed : :default
 
-        #
-        # Load the cluster/facet/slice/whatever
-        #
-        target      = ClusterChef.slice(* @name_args)
-        chef_nodes  = config[:no_chef] ? [] : target.chef_nodes
-        fog_servers = config[:no_fog]  ? [] : target.fog_servers
-
-        target.display(display_style)
+        target = get_slice_where(:killable?, *@name_args)
 
         puts
         Formatador.display_line("[red]Bogus servers detected[reset]: [blue]#{target.bogus_servers.map(&:fullname).inspect}[reset]") unless target.bogus_servers.empty?
 
-        die( "Nothing to delete.", "Exiting.") if chef_nodes.empty? && fog_servers.empty?
-        confirm_deletion_of_or_exit(chef_nodes, fog_servers)
+        die( "Nothing to kill.", "Exiting.") if target.empty?
+
+        confirm_deletion_of_or_exit(target)
         really_confirm_deletion_of_or_exit
         die("Quitting because --no was passed", 1) if config[:no]
 
         # Execute every last one of em
-        target.destroy unless config[:no_fog]
-        target.delete_chef(config[:delete_client], config[:delete_node]) unless config[:no_chef]
-
-        # Print out resulting status
-        target.display
+        puts
+        puts "Killing Machines!!"
+        target.select(&:in_cloud?).destroy unless config[:no_fog]
+        puts
+        puts "Killing Chef Nodes!!"
+        target.select(&:in_chef? ).delete_chef(config[:delete_client], config[:delete_node]) unless config[:no_chef]
+        puts
+        target.display(display_style)
       end
 
-      def confirm_deletion_of_or_exit chef_nodes, fog_servers
+      def confirm_deletion_of_or_exit target
         delete_message = [
-          (chef_nodes.empty?  ? nil : "#{chef_nodes.length} chef nodes"),
-          (fog_servers.empty? ? nil : "#{fog_servers.length} fog servers") ].compact
+          (target.chef_nodes.empty?  ? nil : "#{target.chef_nodes.length} chef nodes"),
+          (target.fog_servers.empty? ? nil : "#{target.fog_servers.length} fog servers") ].compact
         puts
         puts "WARNING!!!!"
         puts
-        puts "This command will delete the above #{delete_message.join(" and ")}"
+        puts "This command will delete the following #{delete_message.join(" and ")}"
+        puts
+        target.display(display_style)
+        puts
         unless config[:yes]
           puts "Are you absolutely certain that you want to perform this action? (Type 'Yes' to confirm)"
           confirm_or_exit('Yes')
