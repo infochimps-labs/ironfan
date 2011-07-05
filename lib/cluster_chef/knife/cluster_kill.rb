@@ -78,6 +78,9 @@ class Chef
 
         target.display(display_style)
 
+        puts
+        Formatador.display_line("[red]Bogus servers detected[reset]: [blue]#{target.bogus_servers.map(&:fullname).inspect}[reset]") unless target.bogus_servers.empty?
+
         die( "Nothing to delete.", "Exiting.") if chef_nodes.empty? && fog_servers.empty?
         confirm_deletion_of_or_exit(chef_nodes, fog_servers)
         really_confirm_deletion_of_or_exit

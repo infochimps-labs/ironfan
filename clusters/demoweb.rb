@@ -47,14 +47,10 @@ ClusterChef.cluster 'demoweb' do
       server(idx).cloud.availability_zones [azs[ idx % azs.length ]]
     end
 
-    chef_attributes({
-        :split_testing => { :group => 'A' }
-      })
+    chef_attributes({ :split_testing => { :group => 'A' } })
     
     server(5) do
-      chef_attributes({
-          :split_testing => { :group => 'B' }
-        })
+      chef_attributes({ :split_testing => { :group => 'B' } })
     end
   end
 
@@ -62,8 +58,12 @@ ClusterChef.cluster 'demoweb' do
     instances           1
     role                "mysql_server"
     role                "redis_client"
-    #
-    cloud.flavor        "m1.large"
+    # an m1.large is usually OK but if we have to increase the number of backend
+    # machines, make the extra machines large.
+    cloud.flavor        "c1.xlarge"
+    server(0) do
+      cloud.flavor      "m1.large"
+    end
   end
 
   facet :esnode do

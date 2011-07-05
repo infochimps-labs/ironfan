@@ -51,6 +51,9 @@ class Chef
       option :detailed,
         :long => "--detailed",
         :description => "Show detailed info on servers"
+      option :abort,
+        :long => "--abort",
+        :description => "Abort before actually launching (though this might still hit the outside world, eg sec grps)"
 
       def run
         load_cluster_chef
@@ -62,7 +65,6 @@ class Chef
         #
         target      = ClusterChef.slice(* @name_args)
         cluster      = target.cluster
-        target.resolve!
         warn_or_die_on_bogus_servers(target) unless target.bogus_servers.empty?
 
         uncreated_servers = target.uncreated_servers
@@ -79,6 +81,7 @@ class Chef
         target.security_groups.each{|name,group| group.run }
 
         # Launch servers
+        die "Aborting! (--abort given)" if config[:abort]
         uncreated_servers.create_servers
         uncreated_servers.display(display_style)
 
@@ -132,7 +135,6 @@ class Chef
       end
 
       def warn_or_die_on_bogus_servers(target)
-        # FIXME: refactor all the banners running around all over the place
         puts
         puts "Cluster has servers in a transitional or undefined state (shown as 'bogus'):"
         puts

@@ -52,7 +52,6 @@ module ClusterChef
         super *args
         @settings[:security_groups]      ||= Mash.new
         @settings[:user_data]            ||= Mash.new
-        @settings[:availability_zones]   ||= []
       end
 
       # An alias for disable_api_termination. Prevents the instance from being
@@ -104,7 +103,7 @@ module ClusterChef
       end
 
       def reverse_merge! cloud
-        @settings.reverse_merge! cloud.to_hash
+        @settings.reverse_merge! cloud.to_hash.compact
         return self unless cloud.respond_to?(:security_groups)
         @settings[:security_groups].reverse_merge!(cloud.security_groups)
         @settings[:user_data].reverse_merge!(cloud.user_data)

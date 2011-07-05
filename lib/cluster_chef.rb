@@ -1,6 +1,8 @@
 require 'extlib/mash'
 require 'gorillib/metaprogramming/class_attribute'
 require 'gorillib/hash/reverse_merge'
+require 'gorillib/object/blank'
+require 'gorillib/hash/compact'
 
 require 'cluster_chef/dsl_object'
 require 'cluster_chef/cloud'

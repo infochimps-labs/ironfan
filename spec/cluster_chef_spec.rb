@@ -21,6 +21,7 @@ describe "cluster_chef" do
     describe 'demoweb:' do
       before :all do
         @cluster = get_cluster(:demoweb)
+        @cluster.resolve!
       end
 
       it 'loads successfuly' do
@@ -31,7 +32,7 @@ describe "cluster_chef" do
       it 'cluster is right' do
         @cluster.to_hash.should == {
           :name            => :demoweb,
-          :run_list        => ["role[base_role]", "role[chef_client]", "role[ssh]", "role[nfs_client]", "role[big_package]"],
+          :run_list        => ["role[base_role]", "role[chef_client]", "role[ssh]", "role[nfs_client]", "role[big_package]", "role[demoweb_cluster]"],
           :chef_attributes => { :webnode_count => 6 },
           :cluster_role    => "demoweb_cluster",
         }
@@ -65,6 +66,7 @@ describe "cluster_chef" do
           :disable_api_termination => false,
           :elastic_ip         => false,
           :bootstrap_distro   => "ubuntu10.04-cluster_chef",
+          :keypair            => :demoweb,
         }
       end
 
@@ -72,17 +74,16 @@ describe "cluster_chef" do
         cloud_hash = @cluster.facet(:webnode).cloud.to_hash
         [:security_groups, :user_data].each{|k| cloud_hash.delete k }
         cloud_hash.should == {
-          :availability_zones => [],
           :backing            => "ebs",
         }
-        @cluster.facet(:dbnode).cloud.flavor.should == 'm1.large'
       end
 
       it 'webnode facets are right' do
         @cluster.facets.length.should == 3
-        @cluster.facet(:webnode).to_hash.should == {
+        fct = @cluster.facet(:webnode)
+        fct.to_hash.should == {
           :name            => :webnode,
-          :run_list        => ["role[nginx]", "role[redis_client]", "role[mysql_client]", "role[elasticsearch_client]", "role[awesome_website]"],
+          :run_list        => ["role[nginx]", "role[redis_client]", "role[mysql_client]", "role[elasticsearch_client]", "role[awesome_website]", "role[demoweb_webnode]"],
           :chef_attributes => {:split_testing=>{:group=>"A"}},
           :facet_role      => "demoweb_webnode",
           :instances       => 6,
@@ -90,44 +91,49 @@ describe "cluster_chef" do
       end
 
       it 'dbnode facets are right' do
-        @cluster.facet(:dbnode).to_hash.should == {
+        fct = @cluster.facet(:dbnode)
+        fct.to_hash.should == {
           :name            => :dbnode,
-          :run_list        => ["role[mysql_server]", "role[redis_client]" ],
+          :run_list        => ["role[mysql_server]", "role[redis_client]", "role[demoweb_dbnode]" ],
           :chef_attributes => {},
           :facet_role      => "demoweb_dbnode",
           :instances       => 1,
         }
+        fct.cloud.flavor.should == 'c1.xlarge'
+        fct.server(0).cloud.flavor.should == 'm1.large'
       end
 
       it 'esnode facets are right' do
-        @cluster.facet(:esnode).to_hash.should == {
+        fct = @cluster.facet(:esnode)
+        fct.to_hash.should == {
           :name            => :esnode,
-          :run_list        => ["role[nginx]", "role[redis_server]", "role[elasticsearch_data_esnode]", "role[elasticsearch_http_esnode]"],
+          :run_list        => ["role[nginx]", "role[redis_server]", "role[elasticsearch_data_esnode]", "role[elasticsearch_http_esnode]", "role[demoweb_esnode]"],
           :chef_attributes => {},
           :facet_role      => "demoweb_esnode",
           :instances       => 1,
         }
+        fct.cloud.flavor.should == 'm1.large'
       end
 
       it 'cluster security groups are right' do
         gg = @cluster.security_groups
-        gg.keys.should == ['default', 'ssh', 'nfs_client']
+        gg.keys.should == ['default', 'ssh', 'nfs_client', 'demoweb']
       end
 
       it 'facet webnode security groups are right' do
         gg = @cluster.facet(:webnode).security_groups
-        gg.keys.should == ['demoweb-redis_client', 'demoweb-awesome_website', 'default', 'ssh', 'nfs_client']
+        gg.keys.sort.should == ["default", "demoweb", "demoweb-awesome_website", "demoweb-redis_client", "demoweb-webnode", "nfs_client", "ssh"]
         gg['demoweb-awesome_website'].range_authorizations.should == [[80..80, "0.0.0.0/0", "tcp"], [443..443, "0.0.0.0/0", "tcp"]]
       end
 
       it 'facet dbnode security groups are right' do
         gg = @cluster.facet(:dbnode).security_groups
-        gg.keys.should == ['demoweb-redis_client', 'default', 'ssh', 'nfs_client']
+        gg.keys.sort.should == ["default", "demoweb", "demoweb-dbnode", "demoweb-redis_client", "nfs_client", "ssh"]
       end
 
       it 'facet esnode security groups are right' do
         gg = @cluster.facet(:esnode).security_groups
-        gg.keys.should == ['demoweb-redis_server', 'default', 'ssh', 'nfs_client']
+        gg.keys.sort.should == ["default", "demoweb", "demoweb-esnode", "demoweb-redis_server", "nfs_client", "ssh"]
         gg['demoweb-redis_server'][:name].should == "demoweb-redis_server"
         gg['demoweb-redis_server'][:description].should == "cluster_chef generated group demoweb-redis_server"
         gg['demoweb-redis_server'].group_authorizations.should == [['demoweb-redis_client', nil]]
@@ -151,12 +157,12 @@ describe "cluster_chef" do
         it 'attributes' do
           @server.to_hash.should == {
             :name            => 'demoweb-webnode-5',
-            :run_list        => ["role[base_role]", "role[chef_client]", "role[ssh]", "role[nfs_client]", "role[big_package]", "role[nginx]", "role[redis_client]", "role[mysql_client]", "role[elasticsearch_client]", "role[awesome_website]"],
+            :run_list        => ["role[base_role]", "role[chef_client]", "role[ssh]", "role[nfs_client]", "role[big_package]", "role[demoweb_cluster]", "role[nginx]", "role[redis_client]", "role[mysql_client]", "role[elasticsearch_client]", "role[awesome_website]", "role[demoweb_webnode]"],
             :cluster_role => "demoweb_cluster", :facet_role => "demoweb_webnode", :instances => 6,
             :chef_attributes => {
               :split_testing  => {:group=>"B"},
               :webnode_count  => 6,
-              :run_list       => ["role[base_role]", "role[chef_client]", "role[ssh]", "role[nfs_client]", "role[big_package]", "role[nginx]", "role[redis_client]", "role[mysql_client]", "role[elasticsearch_client]", "role[awesome_website]"],
+              :run_list       => ["role[base_role]", "role[chef_client]", "role[ssh]", "role[nfs_client]", "role[big_package]", "role[demoweb_cluster]", "role[nginx]", "role[redis_client]", "role[mysql_client]", "role[elasticsearch_client]", "role[awesome_website]", "role[demoweb_webnode]"],
               :node_name      => "demoweb-webnode-5", :cluster_name => :demoweb, :cluster_role => :webnode, :facet_name => :webnode, :cluster_role_index => 5, :facet_index => 5,
               :cluster_chef   => { :cluster => :demoweb, :facet => :webnode, :index => 5 },
             },
@@ -164,10 +170,10 @@ describe "cluster_chef" do
         end
 
         it 'security groups' do
-          @server.security_groups.keys.sort.should == ['default', 'demoweb-awesome_website', 'demoweb-redis_client', 'nfs_client', 'ssh']
+          @server.security_groups.keys.sort.should == ['default', 'demoweb', 'demoweb-awesome_website', 'demoweb-redis_client', 'demoweb-webnode', 'nfs_client', 'ssh']
         end
         it 'run list' do
-          @server.run_list.should == ["role[base_role]", "role[chef_client]", "role[ssh]", "role[nfs_client]", "role[big_package]", "role[nginx]", "role[redis_client]", "role[mysql_client]", "role[elasticsearch_client]", "role[awesome_website]"]
+          @server.run_list.should == ["role[base_role]", "role[chef_client]", "role[ssh]", "role[nfs_client]", "role[big_package]", "role[demoweb_cluster]", "role[nginx]", "role[redis_client]", "role[mysql_client]", "role[elasticsearch_client]", "role[awesome_website]", "role[demoweb_webnode]"]
         end
 
         it 'user_data' do
@@ -184,13 +190,14 @@ describe "cluster_chef" do
           hsh.delete(:user_data)
           hsh.should == {
             :availability_zones => ["us-east-1c"],
-            :flavor             => "t1.micro",
             :region             => "us-east-1",
+            :flavor             => "t1.micro",
             :image_name         => "maverick",
-            :backing            => "instance",
+            :backing            => "ebs",
+            :disable_api_termination => false,
             :elastic_ip         => false,
             :bootstrap_distro   => "ubuntu10.04-cluster_chef",
-            :disable_api_termination => false,
+            :keypair            => :demoweb,
           }
         end
 

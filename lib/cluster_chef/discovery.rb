@@ -54,13 +54,17 @@ module ClusterChef
         else
           next
         end
+
+        # If there already is a fog server there, then issue a warning and slap
+        # the just-discovered one onto a server with an arbitrary index, and
+        # mark both bogus
         if existing_fs = svr.fog_server
           if existing_fs.id != fs.id
-            warn [fs, existing_fs]
+            warn "Duplicate fog instance found for #{svr.fullname}: #{fs.id} and #{existing_fs.id}!!"
             old_svr = svr
             svr     = old_svr.facet.server(1_000 + svr.facet_index.to_i)
-            old_svr.bogosity true
-            svr.bogosity     true
+            old_svr.bogosity :duplicate
+            svr.bogosity     :duplicate
           end
         end
         svr.fog_server = fs

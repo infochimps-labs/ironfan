@@ -65,10 +65,6 @@ module ClusterChef
     # Actions!
     #
 
-    def resolve!
-      servers.each(&:resolve!)
-    end
-
     def start
       delegate_to_fog_servers( :start  )
       delegate_to_fog_servers( :reload  )
@@ -131,7 +127,7 @@ module ClusterChef
           "Facet"  => svr.facet_name,
           "Index"  => svr.facet_index,
           "Chef?"  => (svr.chef_node ? "yes" : "[red]no[reset]"),
-          "Bogus"  => (svr.bogus? ? "[red]way[reset]" : '')
+          "Bogus"  => (svr.bogus? ? "[red]#{svr.bogosity}[reset]" : '')
         }
         if (fs = svr.fog_server)
           hsh.merge!(

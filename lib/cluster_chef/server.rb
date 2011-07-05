@@ -41,8 +41,12 @@ module ClusterChef
       ClusterChef::ServerGroup.new(cluster, [self])
     end
 
-    def bogus?
-      super || facet.bogus? || (self.facet_index.to_i >= facet.instances)
+    def bogosity val=nil
+      unless val.nil? then @settings[:bogosity] = val ; val ; end
+      return @settings[:bogosity] if @settings[:bogosity]
+      return :bogus_facet  if facet.bogus?
+      return :out_of_range if (self.facet_index.to_i >= facet.instances)
+      false
     end
 
     def created?
@@ -70,10 +74,11 @@ module ClusterChef
     # Resolve:
     #
     def resolve!
-      @settings.reverse_merge! cluster.to_hash
       @settings.reverse_merge! facet.to_hash
-      cloud.resolve! cluster.cloud
+      @settings.reverse_merge! cluster.to_hash
+
       cloud.resolve! facet.cloud
+      cloud.resolve! cluster.cloud
       cloud.user_data({
           :chef_server            => Chef::Config.chef_server_url,
           :validation_client_name => Chef::Config.validation_client_name,
@@ -81,8 +86,8 @@ module ClusterChef
         })
 
       @settings[:run_list] = (@cluster.run_list + @facet.run_list + self.run_list).uniq
-      @settings[:chef_attributes].reverse_merge! @cluster.chef_attributes
       @settings[:chef_attributes].reverse_merge! @facet.chef_attributes
+      @settings[:chef_attributes].reverse_merge! @cluster.chef_attributes
       chef_attributes(
         :run_list => run_list,
         :node_name => fullname,

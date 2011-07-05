@@ -79,7 +79,7 @@ module ClusterChef
     #
     def resolve!
       cloud.security_group "#{cluster_name}-#{facet_name}"
-      role self.facet_role      if self.facet_role
+      role self.facet_role if self.facet_role
       resolve_servers!
       self
     end

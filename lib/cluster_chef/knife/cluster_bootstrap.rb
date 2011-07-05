@@ -65,7 +65,7 @@ class Chef
         #
         cluster = ClusterChef.load_cluster(cluster_name)
         facet = Chef::Config[:clusters][cluster_name].facet(facet_name)
-        facet.resolve!
+        cluster.resolve!
 
         run_bootstrap(facet, hostname)
       end

@@ -75,12 +75,14 @@ module ClusterChef
     #
     def role role_name
       run_list << "role[#{role_name}]"
+      run_list.uniq!
       self.instance_eval(&@@role_implications[role_name]) if @@role_implications[role_name]
     end
 
     # Add the given recipe to the run list
     def recipe name
       run_list << name
+      run_list.uniq!
     end
 
     # Some roles imply aspects of the machine that have to exist at creation.
