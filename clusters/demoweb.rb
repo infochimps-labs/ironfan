@@ -56,7 +56,7 @@ ClusterChef.cluster 'demoweb' do
   end
 
   facet :dbnode do
-    instances           1
+    instances           2
     role                "mysql_server"
     role                "redis_client"
     # an m1.large is usually OK but if we have to increase the number of backend
@@ -67,7 +67,6 @@ ClusterChef.cluster 'demoweb' do
     end
 
     volume(:data) do
-      snapshot_id   'snap-d9c1edb1'
       size          50
       keep          true
       device        '/dev/sdi'
@@ -75,7 +74,11 @@ ClusterChef.cluster 'demoweb' do
       mount_options 'defaults,nouuid,noatime'
       fs_type       'xfs'      
     end
-    server(0).volume(:data).volume_id 'vol-12345'
+    server(0).volume(:data).snapshot_id 'snap-d9c1edb1'
+    server(1).volume(:data) do
+      snapshot_id 'snap-d9c1edb1'
+      volume_id   'vol-12345'
+    end    
   end
 
   facet :esnode do

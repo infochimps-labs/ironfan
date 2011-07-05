@@ -24,7 +24,6 @@ describe ClusterChef::Server do
         vol.to_hash.should == {
           :name              => :data,
           :tags              => {},
-          :volume_id         => "vol-12345",
           :snapshot_id       => "snap-d9c1edb1",
           :size              => 50,
           :keep              => true,
@@ -45,6 +44,12 @@ describe ClusterChef::Server do
           "Ebs.DeleteOnTermination" => "false"
         }
       end
+
+      it 'skips block_device_mapping for non-ephemeral storage if volume id is present' do
+        vol = @facet.server(1).composite_volumes[:data]
+        vol.block_device_mapping.should be_nil
+      end
+
     end
   end
 
@@ -62,10 +67,10 @@ describe ClusterChef::Server do
           :tags                 => {:cluster=>:demoweb, :facet=>:dbnode, :index=>0},
           :block_device_mapping => [
             {"DeviceName"=>"/dev/sdi", "Ebs.SnapshotId"=>"snap-d9c1edb1", "Ebs.VolumeSize"=>50, "Ebs.DeleteOnTermination"=>"false"},
-            {"DeviceName"=>"/dev/sdc", "VirtualName"=>"ephemeral0"},
-            {"DeviceName"=>"/dev/sdd", "VirtualName"=>"ephemeral1"},
-            {"DeviceName"=>"/dev/sde", "VirtualName"=>"ephemeral2"},
-            {"DeviceName"=>"/dev/sdf", "VirtualName"=>"ephemeral3"},
+            {"DeviceName"=>"/dev/sdb", "VirtualName"=>"ephemeral0"},
+            {"DeviceName"=>"/dev/sdc", "VirtualName"=>"ephemeral1"},
+            {"DeviceName"=>"/dev/sdd", "VirtualName"=>"ephemeral2"},
+            {"DeviceName"=>"/dev/sde", "VirtualName"=>"ephemeral3"},
           ],
           :availability_zone    => "us-east-1a",
           :monitoring           => nil

@@ -84,7 +84,7 @@ describe "cluster_chef" do
           :run_list        => ["role[mysql_server]", "role[redis_client]", "role[demoweb_dbnode]" ],
           :chef_attributes => {},
           :facet_role      => "demoweb_dbnode",
-          :instances       => 1,
+          :instances       => 2,
         }
         fct.cloud.flavor.should == 'c1.xlarge'
         fct.server(0).cloud.flavor.should == 'm1.large'
@@ -128,7 +128,7 @@ describe "cluster_chef" do
 
       it 'has servers' do
         @cluster.servers.map(&:fullname).should == [
-          "demoweb-dbnode-0",
+          "demoweb-dbnode-0", "demoweb-dbnode-1",
           "demoweb-esnode-0",
           "demoweb-webnode-0", "demoweb-webnode-1", "demoweb-webnode-2", "demoweb-webnode-3", "demoweb-webnode-4", "demoweb-webnode-5"
         ]
