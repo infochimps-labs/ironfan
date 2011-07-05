@@ -38,7 +38,7 @@ class Chef
       def run
         load_cluster_chef
         die(banner) if @name_args.empty?
-        enable_dry_run if config[:dry_run]
+        configure_dry_run
 
         # Load the cluster/facet/slice/whatever
         target = get_slice(* @name_args)
@@ -47,7 +47,7 @@ class Chef
         # ClusterChef::ServerSlice.new(target.cluster, ClusterChef::Server.all.values).display(:detailed)
 
         # Display same
-        target.display(display_style)
+        display(target)
       end
     end
   end

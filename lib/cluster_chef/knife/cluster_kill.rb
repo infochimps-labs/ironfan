@@ -66,7 +66,7 @@ class Chef
       def run
         load_cluster_chef
         die(banner) if @name_args.empty?
-        enable_dry_run if config[:dry_run]
+        configure_dry_run
 
         target = get_slice_where(:killable?, *@name_args)
 
@@ -87,7 +87,7 @@ class Chef
         puts "Killing Chef Nodes!!"
         target.select(&:in_chef? ).delete_chef(config[:delete_client], config[:delete_node]) unless config[:no_chef]
         puts
-        target.display(display_style)
+        display(target)
       end
 
       def confirm_deletion_of_or_exit target
@@ -99,7 +99,7 @@ class Chef
         puts
         puts "This command will delete the following #{delete_message.join(" and ")}"
         puts
-        target.display(display_style)
+        display(target)
         puts
         unless config[:yes]
           puts "Are you absolutely certain that you want to perform this action? (Type 'Yes' to confirm)"

@@ -96,12 +96,24 @@ module ClusterChef
       end
     end
 
+    def sync_to_cloud
+      delegate_to_servers( :sync_to_cloud )
+    end
+
+    def sync_to_chef
+      delegate_to_servers( :sync_to_chef )
+    end
+
     #
     # Display!
     #
 
+    # FIXME: this is a jumble. we need to pass it in some other way.
+    
     DEFAULT_HEADINGS = ["Name", "Chef?", "InstanceID", "State", "Public IP", "Private IP", "Created At"].to_set.freeze
-
+    DETAILED_HEADINGS = (DEFAULT_HEADINGS + ['Flavor', 'Image', 'AZ', 'SSH Key']).freeze
+    EXPANDED_HEADINGS = DETAILED_HEADINGS + ['Volumes', 'Elastic IP']
+    
     #
     # This is a generic display routine for cluster-like sets of nodes. If you
     # call it with no args, you get the basic table that knife cluster show
@@ -115,7 +127,8 @@ module ClusterChef
       headings =
         case hh
         when :default  then DEFAULT_HEADINGS
-        when :detailed then DEFAULT_HEADINGS + ['Flavor', 'Image', 'AZ', 'SSH Key']
+        when :detailed then DETAILED_HEADINGS
+        when :expanded then EXPANDED_HEADINGS
         else hh.to_set end
       headings += ["Bogus"] if servers.any?(&:bogus?)
       # probably not necessary any more
@@ -143,6 +156,15 @@ module ClusterChef
         else
           hsh["State"] = "not running"
         end
+        hsh['Volumes'] = []
+        svr.composite_volumes.each do |name, vol|
+          if    vol.ephemeral_device? then next
+          elsif vol.volume_id         then hsh['Volumes'] << vol.volume_id
+          elsif vol.create_at_launch? then hsh['Volumes'] << vol.snapshot_id
+          end
+        end
+        hsh['Volumes']    = hsh['Volumes'].join(',')
+        hsh['Elastic IP'] = svr.cloud.elastic_ip if svr.cloud.elastic_ip
         if block_given?
           extra_info = yield(svr)
           hsh.merge!(extra_info)

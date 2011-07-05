@@ -16,24 +16,12 @@
 # limitations under the License.
 #
 
-require File.expand_path(File.dirname(__FILE__)+"/knife_common.rb")
+require File.expand_path(File.dirname(__FILE__)+"/generic_command.rb")
 
 class Chef
   class Knife
-    class ClusterBootstrap < Chef::Knife
-      include ClusterChef::KnifeCommon
+    class ClusterBootstrap < ClusterChef::Script
 
-      deps do
-        ClusterChef::KnifeCommon.load_deps
-        Chef::Knife::Bootstrap.load_deps
-      end
-
-      banner "knife cluster bootstrap CLUSTER_NAME FACET_NAME SERVER_FQDN (options)"
-      [ :ssh_port, :ssh_password, :identity_file, :no_host_key_verify,
-        :prerelease, :bootstrap_version, :template_file,
-      ].each do |name|
-        option name, Chef::Knife::Bootstrap.options[name]
-      end
       option :ssh_user,
         :short => "-x USERNAME",
         :long => "--ssh-user USERNAME",
@@ -52,22 +40,25 @@ class Chef
       option :detailed,
         :long => "--detailed",
         :description => "Show detailed info on servers"
+      import_banner_and_options(Chef::Knife::Bootstrap,
+        :except => [:chef_node_name, :run_list])
+      import_banner_and_options(ClusterChef::Script)
 
-      def run
-        load_cluster_chef
-        die(banner) if @name_args.empty?
+      deps do
+        Chef::Knife::Bootstrap.load_deps
+        ClusterChef::Script.load_deps
+      end
 
-        cluster_name, facet_name, hostname = @name_args
+      def perform_execution target
+        target.each do |svr|
+          run_bootstrap(svr, svr.fog_server.dns_name)
+        end
+      end
 
-        #
-        # Load the facet
-        #
-        cluster = ClusterChef.load_cluster(cluster_name)
-        facet = Chef::Config[:clusters][cluster_name].facet(facet_name)
-        cluster.resolve!
-        cluster.discover!
-
-        run_bootstrap(facet, hostname)
+      def confirm_execution target
+        puts "Bootstrapping the node redoes its initial setup -- only do this on an aborted launch."
+        puts "Are you absolutely certain that you want to perform this action? (Type 'Yes' to confirm)"
+        confirm_or_exit('Yes')
       end
 
     end

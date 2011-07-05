@@ -34,24 +34,28 @@ module ClusterChef
     #
     def get_slice_where(meth, *predicate )
       full_target = get_slice(*predicate)
-      full_target.display(display_style) do |svr|
+      display(full_target) do |svr|
         result = svr.send(meth)
         { meth.to_s => (result ? "[blue]#{result}[reset]" : '-' ) }
       end
       full_target.select(&meth.to_sym)
     end
 
-    # What headings to show in server slice tables by default
-    def display_style
-      config[:detailed] ? :detailed : :default
+    # passes target to ClusterSlice#display, will show headings in server slice
+    # tables based on the --detailed flag
+    def display target, display_style=nil, &block
+      display_style ||= (config[:detailed] ? :detailed : :default)
+      target.display(display_style, &block)
     end
 
     #
     # Put Fog into mock mode if --dry_run
     #
-    def enable_dry_run
-      Fog.mock!
-      Fog::Mock.delay = 0
+    def configure_dry_run
+      if config[:dry_run]
+        Fog.mock!
+        Fog::Mock.delay = 0
+      end
     end
 
     # Show a pretty progress bar while we wait for a set of threads to finish.
@@ -62,8 +66,14 @@ module ClusterChef
       start_time = Time.now
       until remaining.empty?
         remaining.select!(&:alive?)
-        Formatador.redisplay_progressbar(total - remaining.length, total, {:started_at => start_time })
-        sleep 1
+        if config[:verbosity]
+          puts "waiting: #{total - remaining.length} / #{total}, #{(Time.now - start_time).to_i}s"
+          sleep 3
+        else
+          ap config
+          Formatador.redisplay_progressbar(total - remaining.length, total, {:started_at => start_time })
+          sleep 1
+        end
       end
       # Collapse the threads
       threads.each(&:join)
@@ -82,14 +92,18 @@ module ClusterChef
       bootstrap.config[:identity_file]  = config[:identity_file]  || node.cloud.ssh_identity_file
       bootstrap.config[:distro]         = config[:distro]         || node.cloud.bootstrap_distro
       bootstrap.config[:use_sudo]       = true unless config[:use_sudo] == false
-      Chef::Log.debug JSON.pretty_generate(config)
       Chef::Log.debug JSON.pretty_generate(bootstrap.config)
       bootstrap
     end
 
     def run_bootstrap(node, hostname)
+      bs = bootstrapper(node, hostname)
+      if config[:skip].to_s == 'true'
+        puts "Skipping: bootstrapp #{hostname} with #{JSON.pretty_generate(bs.config)}"
+        return
+      end
       begin
-        bootstrapper(node, hostname).run
+        bs.run
       rescue StandardError => e
         warn e
         warn e.backtrace
@@ -99,13 +113,12 @@ module ClusterChef
       end
     end
 
-
     #
     # Utilities
     #
 
     def sub_command
-      self.class.to_s.gsub(/^.*::/, '').gsub!(/^Cluster/, '').downcase
+      self.class.sub_command
     end
 
     def confirm_or_exit str
@@ -124,5 +137,28 @@ module ClusterChef
       ClusterChef.die(*args)
     end
 
+    module ClassMethods
+      def sub_command
+        self.to_s.gsub(/^.*::/, '').gsub!(/^Cluster/, '').downcase
+      end
+
+      def import_banner_and_options klass, options={}
+        options[:except] ||= []
+        klass.options.each do |name, info|
+          next if options.include?(name) || options[:except].include?(name)
+          option name, info
+        end
+        banner "knife cluster #{sub_command} CLUSTER_NAME [FACET_NAME [INDEXES]] (options)"
+
+        deps do
+          klass.load_deps
+        end
+      end
+    end
+    def self.included base
+      base.class_eval do
+        extend ClassMethods
+      end
+    end
   end
 end

@@ -69,10 +69,10 @@ module ClusterChef
 
     def mounts_ephemeral_volumes
       # Bring the ephemeral storage (local scratch disks) online
-      volume(:ephemeral0) do device '/dev/sdc'; volume_id 'ephemeral0' ; end
-      volume(:ephemeral1) do device '/dev/sdd'; volume_id 'ephemeral1' ; end
-      volume(:ephemeral2) do device '/dev/sde'; volume_id 'ephemeral2' ; end
-      volume(:ephemeral3) do device '/dev/sdf'; volume_id 'ephemeral3' ; end
+      volume(:ephemeral0) do device '/dev/sdb'; volume_id 'ephemeral0' ; end
+      volume(:ephemeral1) do device '/dev/sdc'; volume_id 'ephemeral1' ; end
+      volume(:ephemeral2) do device '/dev/sdd'; volume_id 'ephemeral2' ; end
+      volume(:ephemeral3) do device '/dev/sde'; volume_id 'ephemeral3' ; end
     end
 
     # Merges the given hash into

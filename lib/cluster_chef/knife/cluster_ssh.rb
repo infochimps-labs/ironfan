@@ -49,7 +49,7 @@ class Chef
 
         target = get_slice(*predicate).select(&:sshable?)
 
-        target.display(display_style) if config[:detailed] || config[:verbose]
+        display(target) if config[:detailed] || config[:verbose]
 
         @action_nodes = target.chef_nodes
         list = @action_nodes.map{|n| format_for_display(n)[config[:attribute]] }.compact

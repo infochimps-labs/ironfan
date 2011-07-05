@@ -58,24 +58,22 @@ class Chef
       def run
         load_cluster_chef
         die(banner) if @name_args.empty?
-        enable_dry_run if config[:dry_run]
+        configure_dry_run
 
         #
         # Load the facet
         #
         full_target = get_slice(*@name_args)
-        full_target.display(display_style) do |svr|
-          { 'launchable?' => (svr.launchable? ? "[blue]#{svr.launchable?}[reset]" : '-' ) }
-        end
+        display(full_target)
         target = full_target.select(&:launchable?)
 
         warn_or_die_on_bogus_servers(full_target) unless full_target.bogus_servers.empty?
 
         die("", "#{h.color("All servers are running -- not launching any.",:blue)}", "", 1) if target.empty?
 
-        # TODO: Should we make a key pair when the security key has not yet been created ?!?!?!?
         # We need to dummy up a key_pair in simulation mode, not doing it fr'eals
-        if config[:dry_run] then ClusterChef.connection.key_pairs.create(:name => cluster.name) ; end
+        # You must to do this manually in real life -- must save the file, etc.
+        if config[:dry_run] then ClusterChef.connection.key_pairs.create(:name => target.cluster.name) ; end
 
         # Make security groups
         puts
@@ -88,36 +86,45 @@ class Chef
         puts "Launching machines:"
         target.create_servers
         puts
-        target.display(display_style)
+        display(target)
 
         # As each server finishes, configure it
         watcher_threads = target.map do |s|
           Thread.new(s) do |cc_server|
-
-            # Hook up external assets
-            cc_server.create_tags
-            cc_server.fog_server.wait_for{ ready? }
-            cc_server.attach_volumes
-
-            # Try SSH
-            unless config[:dry_run]
-              nil until tcp_test_ssh(cc_server.fog_server.dns_name){ sleep @initial_sleep_delay ||= 10  }
-            end
-
-            # Run Bootstrap
-            if config[:bootstrap]
-              run_bootstrap(cc_server, cc_server.fog_server.dns_name)
-            end
+            perform_after_launch_tasks(cc_server)
           end
         end
 
         progressbar_for_threads(watcher_threads)
 
-        target.display(display_style)
+        display(target)
       end
 
-      def display_style
-        ["Name", "InstanceID", "State", "Flavor", "Image", "AZ", "Public IP", "Private IP", "Created At"]
+      def display(target)
+        super(target, ["Name", "InstanceID", "State", "Flavor", "Image", "AZ", "Public IP", "Private IP", "Created At", 'Volumes', 'Elastic IP']) do |svr|
+          { 'launchable?' => (svr.launchable? ? "[blue]#{svr.launchable?}[reset]" : '-' ), }
+        end
+      end
+
+      def perform_after_launch_tasks(server)
+        # Hook up external assets
+        server.create_tags
+
+        # Wait for node creation on amazon side
+        server.fog_server.wait_for{ ready? }
+
+        # Attach volumes, etc
+        server.sync_to_cloud
+
+        # Try SSH
+        unless config[:dry_run]
+          nil until tcp_test_ssh(server.fog_server.dns_name){ sleep @initial_sleep_delay ||= 10  }
+        end
+
+        # Run Bootstrap
+        if config[:bootstrap]
+          run_bootstrap(server, server.fog_server.dns_name)
+        end
       end
 
       def tcp_test_ssh(hostname)
@@ -143,7 +150,7 @@ class Chef
         puts
         puts "Cluster has servers in a transitional or undefined state (shown as 'bogus'):"
         puts
-        target.display(display_style)
+        display(target)
         puts
         unless config[:force]
           die(

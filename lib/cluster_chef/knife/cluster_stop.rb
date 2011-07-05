@@ -16,51 +16,27 @@
 # limitations under the License.
 #
 
-require File.expand_path(File.dirname(__FILE__)+"/knife_common.rb")
+require File.expand_path(File.dirname(__FILE__)+"/generic_command.rb")
 
 class Chef
   class Knife
-    class ClusterStop < Knife
-      include ClusterChef::KnifeCommon
-
-      deps do
-        ClusterChef::KnifeCommon.load_deps
-      end
-
-      banner "knife cluster stop CLUSTER_NAME [FACET_NAME [INDEXES]] (options)"
-      option :dry_run,
-        :long => "--dry-run",
-        :description => "Don't really run, just use mock calls"
+    class ClusterStop < ClusterChef::Script
       option :yes,
         :long => "--yes",
-        :description => "Skip confirmation that you want to stop the cluster."
-      option :detailed,
-        :long => "--detailed",
-        :description => "Show detailed info on servers"
+        :description => "Skip confirmation that you want to delete the cluster."
+      import_banner_and_options(ClusterChef::Script)
 
-      def run
-        load_cluster_chef
-        die(banner) if @name_args.empty?
-        enable_dry_run if config[:dry_run]
+      def slice_criterion
+        :running?
+      end
 
-        target = get_slice_where(:stoppable?, *@name_args)
-
-        die("No nodes to stop, exiting", 1) if target.empty?
-
+      def confirm_execution target
         unless config[:yes]
-          puts "This action will stop the following nodes:"
-          target.display(display_style)
           puts "Unless these nodes are backed by EBS volumes, this will result in loss of all"
           puts "data not saved elsewhere. Even if they are EBS backed, there may still be some data loss."
           puts "Are you absolutely certain that you want to perform this action? (Type 'Yes' to confirm)"
           confirm_or_exit('Yes')
         end
-
-        puts
-        puts "Stopping!!"
-        target.stop
-        puts
-        target.display(display_style)
       end
     end
   end
