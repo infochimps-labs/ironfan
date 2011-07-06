@@ -25,8 +25,15 @@ module ClusterChef
       @@all[fullname] = self
     end
 
-    def fullname
-      [cluster_name, facet_name, facet_index].join('-')
+    def fullname name=nil
+      @fullname ||= name
+      @fullname || [cluster_name, facet_name, facet_index].join('-')
+    end
+
+    # <b>DEPRECATED:</b> Please use <tt>fullname</tt> instead.
+    def chef_node_name name
+      #warn "[DEPRECATION] `chef_node_name` is deprecated.  Please use `fullname` instead."      
+      fullname name
     end
 
     def cluster_name
@@ -45,7 +52,7 @@ module ClusterChef
       unless val.nil? then @settings[:bogosity] = val ; val ; end
       return @settings[:bogosity] if @settings[:bogosity]
       return :bogus_facet  if facet.bogus?
-      return :out_of_range if (self.facet_index.to_i >= facet.instances)
+      #return :out_of_range if (self.facet_index.to_i >= facet.instances)
       false
     end
 
@@ -122,6 +129,7 @@ module ClusterChef
         })
 
       @settings[:run_list] = (@cluster.run_list + @facet.run_list + self.run_list).uniq
+      
       @settings[:chef_attributes].reverse_merge! @facet.chef_attributes
       @settings[:chef_attributes].reverse_merge! @cluster.chef_attributes
       chef_attributes(
@@ -157,14 +165,15 @@ module ClusterChef
     #
     # retrieval
     #
-
-    def self.get(fullname)
-      cluster_name, facet_name, facet_index = fullname.split('-')
+    def self.get(cluster_name, facet_name, facet_index)
       cluster = Cluster.get(cluster_name)
       had_facet = cluster.has_facet?(facet_name)
       facet = cluster.facet(facet_name)
-      facet.bogosity true if (! had_facet)
-      facet.server(facet_index)
+      facet.bogosity true unless had_facet
+      had_server = facet.has_server?( facet_index )
+      server = facet.server(facet_index)
+      server.bogosity :not_defined_in_facet unless had_server
+      return server
     end
 
     def self.all
@@ -182,6 +191,14 @@ module ClusterChef
     end
 
     def sync_to_chef
+      chef_node ||= Chef::Node.find_or_create( fullname )
+      puts "setting run list to #{@run_list}"
+      chef_node.run_list = Chef::RunList.new(*@settings[:run_list])
+      chef_attributes.each_pair do |key,value|
+        next if key == :run_list
+        chef_node.normal[key] = value
+      end
+      chef_node.save
     end
 
     # FIXME: a lot of AWS logic in here. This probably lives in the facet.cloud

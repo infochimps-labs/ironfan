@@ -1,13 +1,13 @@
 module ClusterChef
   class Facet < ClusterChef::ComputeBuilder
     attr_reader :cluster
-    has_keys  :instances, :facet_role
+    has_keys  :instances
 
     def initialize cluster, facet_name, hsh={}
       super(facet_name.to_sym, hsh)
       @cluster    = cluster
       @servers    = Mash.new
-      facet_role  "#{cluster_name}_#{name}"
+      @facet_role_name = "#{cluster_name}_#{facet_name}"
       @settings[:instances] ||= 1
     end
 
@@ -17,6 +17,16 @@ module ClusterChef
 
     def facet_name
       name
+    end
+
+    def facet_role name=nil, &block 
+      @facet_role_name = name if name
+      if block_given?
+        @facet_role = Chef::Role.new
+        @facet_role.instance_eval( &block )
+        @facet_role.name @facet_role_name
+      end
+      return @facet_role
     end
 
     def server idx, hsh={}, &block
@@ -43,10 +53,7 @@ module ClusterChef
     def slice(slice_indexes=nil)
       return servers if (slice_indexes.nil?) || (slice_indexes == '')
       slice_indexes = indexes_from_intervals(slice_indexes) if slice_indexes.is_a?(String)
-      svrs = Array(slice_indexes)
-        .map(&:to_i).sort!
-        .select{|idx| has_server?(idx) }
-        .map{|idx| server(idx) }
+      svrs = Array(slice_indexes).map(&:to_i).sort!.select{|idx| has_server?(idx) }.map{|idx| server(idx) }
       ClusterChef::ServerSlice.new(self.cluster, svrs)
     end
 
@@ -79,7 +86,9 @@ module ClusterChef
     #
     def resolve!
       cloud.security_group "#{cluster_name}-#{facet_name}"
-      role self.facet_role if self.facet_role
+      # Prepend the cluster role to the run list
+      @settings[:run_list].unshift "role[#{@facet_role_name}]"
+
       resolve_servers!
       self
     end

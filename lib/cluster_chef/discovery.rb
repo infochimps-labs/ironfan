@@ -30,9 +30,21 @@ module ClusterChef
     #   when we discover cloud instances.
     def discover_chef_nodes!
       chef_nodes.each do |chef_node|
-        svr = ClusterChef::Server.get(chef_node.node_name)
+        cchef = chef_node.cluster_chef
+        if cchef 
+          cluster_name = cchef["cluster"]
+          facet_name =  cchef["facet"]
+          facet_index = cchef["index"]
+        elsif chef_node["cluster_name"] && chef_node["facet_name"] && chef_node["facet_index"] 
+          cluster_name = chef_node["cluster_name"] 
+          facet_name = chef_node["facet_name"]  
+          facet_index = chef_node["facet_index"] 
+        else
+          ( cluster_name, facet_name, facet_index ) = chef_node.node_name.split(/-/)
+        end
+        svr = ClusterChef::Server.get(cluster_name, facet_name, facet_index)
         svr.chef_node = chef_node
-        @aws_instance_hash[ chef_node.ec2.instance_id ] = svr if chef_node.ec2.instance_id
+        @aws_instance_hash[ chef_node.ec2.instance_id ] = svr if chef_node[:ec2] && chef_node.ec2.instance_id
       end
     end
 
@@ -48,7 +60,7 @@ module ClusterChef
       # to the chef node name found in the chef node
       fog_servers.each do |fs|
         if fs.tags["cluster"] && fs.tags["facet"] && fs.tags["index"] && fs.tags["cluster"] == cluster_name.to_s
-          svr = ClusterChef::Server.get([fs.tags["cluster"], fs.tags["facet"], fs.tags["index"]].join('-'))
+          svr = ClusterChef::Server.get(fs.tags["cluster"], fs.tags["facet"], fs.tags["index"])
         elsif @aws_instance_hash[fs.id]
           svr = @aws_instance_hash[fs.id]
         else

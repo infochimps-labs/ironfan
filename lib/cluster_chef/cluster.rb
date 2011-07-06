@@ -5,12 +5,11 @@ module ClusterChef
   #
   class Cluster < ClusterChef::ComputeBuilder
     attr_reader :facets, :undefined_servers
-    has_keys :cluster_role
 
     def initialize clname, hsh={}
       super(clname.to_sym, hsh)
       @facets = Mash.new
-      cluster_role "#{clname}_cluster"
+      @cluster_role_name = "#{clname}_cluster"
     end
 
     def cluster
@@ -21,6 +20,16 @@ module ClusterChef
       name
     end
 
+    def cluster_role name=nil, &block 
+      @cluster_role_name = name if name
+      if block_given?
+        @cluster_role = Chef::Role.new
+        @cluster_role.instance_eval( &block )
+        @cluster_role.name @cluster_role_name
+      end
+      return @cluster_role
+    end
+    
     def self.get name
       ClusterChef.cluster(name)
     end
@@ -36,8 +45,8 @@ module ClusterChef
       @facets.include?(facet_name)
     end
 
-    def find_facet!(facet_name)
-      facet(facet_name) or raise("Facet '#{facet_name}' is not defined in cluster '#{cluster_name}'")
+    def find_facet(facet_name)
+      @facets[facet_name] or raise("Facet '#{facet_name}' is not defined in cluster '#{cluster_name}'")
     end
 
     def servers
@@ -48,7 +57,7 @@ module ClusterChef
     def slice *args
       return ClusterChef::ServerSlice.new(self, self.servers) if args.empty?
       facet_name = args.shift
-      find_facet!(facet_name).slice(*args)
+      find_facet(facet_name).slice(*args)
     end
 
     def to_s
@@ -76,7 +85,10 @@ module ClusterChef
       cluster_name = self.cluster_name
       cloud.security_group(cluster_name){ authorize_group(cluster_name) }
       cloud.keypair cluster_name         if cloud.keypair.nil?
-      role          cluster.cluster_role if cluster.cluster_role
+
+      # Prepend the cluster role to the run list
+      @settings[:run_list].unshift "role[#{@cluster_role_name}]"
+
       @facets.values.each(&:resolve!)
     end
 
