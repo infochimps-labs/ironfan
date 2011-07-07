@@ -1,6 +1,7 @@
 ClusterChef.cluster 'prehensile' do
   use :defaults
   setup_role_implications
+  cluster_role
 
   cloud do
     backing             "ebs"
@@ -9,6 +10,7 @@ ClusterChef.cluster 'prehensile' do
   end
 
   facet 'apeyeye' do
+    facet_role
     instances           3
     cloud.flavor        "m1.small"
     server 0 do

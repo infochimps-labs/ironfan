@@ -3,6 +3,14 @@ ClusterChef.cluster 'sandbox' do
   setup_role_implications
   mounts_ephemeral_volumes
 
+  cluster_role do
+    run_list(*%w[
+       role[chef_client]
+       role[infochimps_base]
+       users::user_authorized_keys
+    ])
+  end
+
   cloud do
     backing "ebs"
     image_name "infochimps-maverick-client"
@@ -10,6 +18,7 @@ ClusterChef.cluster 'sandbox' do
   end
 
   facet 'hohyon' do
+    facet_role
     instances 1
     server 0 do
       fullname 'sandbox-hohyon'
@@ -18,7 +27,12 @@ ClusterChef.cluster 'sandbox' do
   end
 
   facet 'howech' do
-    instances 2
+    facet_role do
+      override_attributes({
+                            :chh => "Was Here!"
+                          })
+    end
+    instances 1
     server 0 do
       fullname 'sandbox-howech'
       volume :data, :volume_id => "vol-836e28e8", :device => "/dev/sdk"
@@ -39,6 +53,7 @@ ClusterChef.cluster 'sandbox' do
   end
 
   facet 'temujin9' do
+    facet_role
     instances 1
     server 0 do
       fullname 'sandbox-temujin9'

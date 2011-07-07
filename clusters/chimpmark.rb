@@ -1,6 +1,7 @@
 ClusterChef.cluster 'chimpmark' do
   use :defaults
   setup_role_implications
+  facet_role
 
   recipe                "cluster_chef::dedicated_server_tuning"
   role                  "nfs_client"
@@ -19,11 +20,13 @@ ClusterChef.cluster 'chimpmark' do
   end
 
   facet 'master' do
+    facet_role
     instances           1
     cloud.flavor        "m1.xlarge"
   end
 
   facet 'slave' do
+    facet_role
     instances           1
     cloud.flavor        "m1.xlarge"
   end

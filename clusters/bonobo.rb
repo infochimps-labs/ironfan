@@ -1,6 +1,7 @@
 ClusterChef.cluster 'bonobo' do
   use :defaults
   setup_role_implications
+  cluster_role
 
   recipe                "cluster_chef::dedicated_server_tuning"
   role                  "nfs_client"
@@ -21,12 +22,14 @@ ClusterChef.cluster 'bonobo' do
   end
 
   facet 'master' do
+    facet_role
     instances           1
     role                "hadoop_master"
   end
 
   facet 'worker' do
-    instances           30
+    facet_role
+    instances           1
   end
 
   chef_attributes({

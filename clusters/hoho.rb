@@ -3,7 +3,8 @@
 ClusterChef.cluster 'hoho' do
   use :defaults
   setup_role_implications
-  
+  cluster_role
+
   role "nfs_client"
   role "production"
   role "infochimps_base"
@@ -15,6 +16,7 @@ ClusterChef.cluster 'hoho' do
   end
 
   facet 'hoho' do
+    facet_role
     instances 1
     role "hoho"
     cloud.flavor  "m1.small"
@@ -25,6 +27,7 @@ ClusterChef.cluster 'hoho' do
   end
 
   facet 'boots' do
+    facet_role
     instances 1
     role "boots"
     cloud.flavor  "t1.micro"

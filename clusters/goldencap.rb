@@ -1,6 +1,7 @@
 ClusterChef.cluster 'goldencap' do
   use :defaults
   setup_role_implications
+  cluster_role
 
   recipe                "cluster_chef::dedicated_server_tuning"
   role                  "ebs_volumes_attach"
@@ -18,16 +19,19 @@ ClusterChef.cluster 'goldencap' do
   end
 
   facet 'twstream' do
+    facet_role
     instances           1
     cloud.flavor        "m1.small"
   end
 
   facet 'twscraper' do
+    facet_role
     instances           4
     cloud.flavor        "m1.small"
   end
 
   facet 'nikko' do
+    facet_role
     instances           1
     cloud.flavor        "m2.xlarge"
   end

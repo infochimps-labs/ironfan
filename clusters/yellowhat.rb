@@ -1,6 +1,7 @@
 ClusterChef.cluster 'yellowhat' do
   use :defaults
   setup_role_implications
+  cluster_role
 
   recipe                "cluster_chef::dedicated_server_tuning"
   role                  "ebs_volumes_attach"
@@ -18,6 +19,7 @@ ClusterChef.cluster 'yellowhat' do
     # Because of some legacy behavior, yellowhat-esnode now only has a single
     # instance named yellowhat-esnode-1. The following two lines make that
     # "as defined" by this cluster def.
+    facet_role
     instances           0
     server 1
 
@@ -33,6 +35,7 @@ ClusterChef.cluster 'yellowhat' do
     # Because of some legacy behavior, yellowhat-webnode now has four
     # instances but the indexes start at 7 instead of 0.  The
     # following five lines make that "as defined" by this cluster def.
+    facet_role
     instances           0
     server 7 do end
     server 8 do end
@@ -61,6 +64,7 @@ ClusterChef.cluster 'yellowhat' do
   # www.infochimps.com -- a CNAME that points to the load balancer.
   #
   facet 'spof' do
+    facet_role
     instances           1
     cloud.flavor         "t1.micro"
     cloud.permanent      true

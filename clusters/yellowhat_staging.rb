@@ -1,7 +1,7 @@
 ClusterChef.cluster 'yellowhat_staging' do
   use :defaults
   setup_role_implications
-
+  cluster_role 
   recipe                "cluster_chef::dedicated_server_tuning"
   role                  "ebs_volumes_attach"
   role                  "nfs_client"
@@ -15,6 +15,7 @@ ClusterChef.cluster 'yellowhat_staging' do
   end
 
   facet 'webnode' do
+    facet_role
     instances           1
     cloud.flavor        "m1.small"
     role                "redis_client"
