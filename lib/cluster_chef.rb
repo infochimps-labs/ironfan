@@ -60,5 +60,13 @@ module ClusterChef
     strings.each{|str| warn str }
     exit exit_code
   end
+
+  def self.safely
+    begin
+      yield
+    rescue StandardError => boom
+      warn boom ; warn boom.backtrace.join("\n")
+    end
+  end
 end
 

@@ -32,7 +32,7 @@ module ClusterChef
 
     # <b>DEPRECATED:</b> Please use <tt>fullname</tt> instead.
     def chef_node_name name
-      #warn "[DEPRECATION] `chef_node_name` is deprecated.  Please use `fullname` instead."      
+      #warn "[DEPRECATION] `chef_node_name` is deprecated.  Please use `fullname` instead."
       fullname name
     end
 
@@ -129,7 +129,7 @@ module ClusterChef
         })
 
       @settings[:run_list] = (@cluster.run_list + @facet.run_list + self.run_list).uniq
-      
+
       @settings[:chef_attributes].reverse_merge! @facet.chef_attributes
       @settings[:chef_attributes].reverse_merge! @cluster.chef_attributes
       chef_attributes(
@@ -203,13 +203,17 @@ module ClusterChef
       warn "chef node does not exist yet. Skipping sync"
     end
 
+    def safely *args, &block
+      ClusterChef.safely(*args, &block)
+    end
+
     # FIXME: a lot of AWS logic in here. This probably lives in the facet.cloud
     # but for the one or two things that come from the facet
     def create_server
       return nil if created? # only create a server if it does not already exist
 
       fog_description = fog_description_for_launch
-      Chef::Log.debug(JSON.generate(fog_description.dup.tap{|hsh| hsh[:user_data] = "..." }))
+      Chef::Log.debug(JSON.generate(fog_description)) # .dup.tap{|hsh| hsh[:user_data] = "..." }
       @fog_server = ClusterChef.connection.servers.create(fog_description)
     end
 
@@ -242,10 +246,12 @@ module ClusterChef
       tags.each_pair do |key,value|
         next if fog_server.tags[key] == value.to_s
         Chef::Log.debug( "Tagging #{key} = #{value} on #{self.fullname}" )
-        ClusterChef.connection.tags.create(
-          :key         => key,
-          :value       => value.to_s,
-          :resource_id => fog_server.id)
+        safely do
+          ClusterChef.connection.tags.create(
+            :key         => key,
+            :value       => value.to_s,
+            :resource_id => fog_server.id)
+        end
       end
     end
 
@@ -261,7 +267,9 @@ module ClusterChef
       desc = "elastic ip #{address} for #{self.fullname}"
       if (fog_address && fog_address.server_id) then check_server_id_pairing(fog_address, desc) ; return ; end
       Chef::Log.debug("Address: pairing #{desc}")
-      ClusterChef.connection.associate_address(self.fog_server.id, address)
+      safely do
+        ClusterChef.connection.associate_address(self.fog_server.id, address)
+      end
     end
 
     def block_device_mapping
@@ -297,8 +305,10 @@ module ClusterChef
         if (not vol.in_cloud?) then  Chef::Log.debug("Volume: not found #{desc}"); next ; end
         if (vol.has_server?)   then check_server_id_pairing(vol.fog_volume, desc)          ; next ; end
         Chef::Log.debug( "Volume: attaching #{desc} -- #{vol.inspect}" )
-        vol.fog_volume.device = vol.device
-        vol.fog_volume.server = fog_server
+        safely do
+          vol.fog_volume.device = vol.device
+          vol.fog_volume.server = fog_server
+        end
       end
     end
   end

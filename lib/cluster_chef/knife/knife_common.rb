@@ -30,7 +30,7 @@ module ClusterChef
     # Get a slice of nodes matching the given filter
     #
     # @example
-    #    target = get_slice_where(:stoppable?, *@name_args)
+    #    target = get_slice_where(:created?, *@name_args)
     #
     def get_slice_where(meth, *predicate )
       full_target = get_slice(*predicate)

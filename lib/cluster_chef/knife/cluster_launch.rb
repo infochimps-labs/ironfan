@@ -75,6 +75,9 @@ class Chef
         # You must to do this manually in real life -- must save the file, etc.
         if config[:dry_run] then ClusterChef.connection.key_pairs.create(:name => target.cluster.name) ; end
 
+        # This will create/update any roles
+        target.sync_roles
+
         # Make security groups
         puts
         puts "Making security groups:"
@@ -85,12 +88,9 @@ class Chef
         puts
         puts "Launching machines:"
         target.create_servers
-        
+
         puts
         display(target)
-
-        # This will create/update any roles
-        target.sync_roles
 
         # As each server finishes, configure it
         watcher_threads = target.map do |s|
@@ -98,7 +98,6 @@ class Chef
             perform_after_launch_tasks(cc_server)
           end
         end
-
 
         progressbar_for_threads(watcher_threads)
 

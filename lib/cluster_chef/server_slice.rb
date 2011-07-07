@@ -118,6 +118,7 @@ module ClusterChef
     end
 
     def sync_to_chef
+      sync_roles
       delegate_to_servers( :sync_to_chef )
     end
 
@@ -126,11 +127,11 @@ module ClusterChef
     #
 
     # FIXME: this is a jumble. we need to pass it in some other way.
-    
+
     DEFAULT_HEADINGS = ["Name", "Chef?", "InstanceID", "State", "Public IP", "Private IP", "Created At"].to_set.freeze
     DETAILED_HEADINGS = (DEFAULT_HEADINGS + ['Flavor', 'Image', 'AZ', 'SSH Key']).freeze
     EXPANDED_HEADINGS = DETAILED_HEADINGS + ['Volumes', 'Elastic IP']
-    
+
     #
     # This is a generic display routine for cluster-like sets of nodes. If you
     # call it with no args, you get the basic table that knife cluster show
@@ -195,7 +196,7 @@ module ClusterChef
         Formatador.display_compact_table(defined_data, headings.to_a)
       end
     end
-    
+
     def to_s
       str = super
       str[0..-2] + " #{@servers.map(&:fullname)}>"
@@ -223,6 +224,6 @@ module ClusterChef
         fs.send(method)
       end
     end
-    
+
   end
 end
