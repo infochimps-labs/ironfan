@@ -107,4 +107,8 @@ module ClusterChef
     @fog_addresses = {}.tap{|hsh| ClusterChef.connection.addresses.each{|fa| hsh[fa.public_ip] = fa } }
   end
 
+  def safely *args, &block
+    ClusterChef.safely(*args, &block)
+  end
+
 end

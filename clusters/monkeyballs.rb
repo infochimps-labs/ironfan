@@ -46,7 +46,7 @@ ClusterChef.cluster 'monkeyballs' do
   facet 'worker' do
     instances           3
     role                "hadoop_worker"
-    cloud.flavor        "t1.micro"
+    cloud.flavor        "m1.xlarge"
 
     volume(:data, :mount_options => 'defaults,nouuid,noatime', :fs_type => 'xfs') do
       snapshot_id   'snap-d9c1edb1'

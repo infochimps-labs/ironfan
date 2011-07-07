@@ -32,9 +32,9 @@ class Chef
         :long => "--chef",
         :description => "Sync to the chef server",
         :default => true
-      
+
       def slice_criterion
-        :stoppable?
+        :created?
       end
 
       def perform_execution target
@@ -53,7 +53,7 @@ class Chef
         puts "Syncing to Chef:"
         target.sync_to_chef
       end
-      
+
       def sync_to_cloud target
         puts "Syncing to cloud:"
         target.sync_to_cloud
@@ -62,7 +62,7 @@ class Chef
       def display(target, *args)
         super(target, :expanded)
       end
-      
+
     end
   end
 end

@@ -184,6 +184,10 @@ module ClusterChef
     def sync_to_chef
     end
 
+    def safely *args, &block
+      ClusterChef.safely(*args, &block)
+    end
+
     # FIXME: a lot of AWS logic in here. This probably lives in the facet.cloud
     # but for the one or two things that come from the facet
     def create_server
@@ -223,10 +227,12 @@ module ClusterChef
       tags.each_pair do |key,value|
         next if fog_server.tags[key] == value.to_s
         Chef::Log.debug( "Tagging #{key} = #{value} on #{self.fullname}" )
-        ClusterChef.connection.tags.create(
-          :key         => key,
-          :value       => value.to_s,
-          :resource_id => fog_server.id)
+        safely do
+          ClusterChef.connection.tags.create(
+            :key         => key,
+            :value       => value.to_s,
+            :resource_id => fog_server.id)
+        end
       end
     end
 
@@ -242,7 +248,9 @@ module ClusterChef
       desc = "elastic ip #{address} for #{self.fullname}"
       if (fog_address && fog_address.server_id) then check_server_id_pairing(fog_address, desc) ; return ; end
       Chef::Log.debug("Address: pairing #{desc}")
-      ClusterChef.connection.associate_address(self.fog_server.id, address)
+      safely do
+        ClusterChef.connection.associate_address(self.fog_server.id, address)
+      end
     end
 
     def block_device_mapping
@@ -278,8 +286,10 @@ module ClusterChef
         if (not vol.in_cloud?) then  Chef::Log.debug("Volume: not found #{desc}"); next ; end
         if (vol.has_server?)   then check_server_id_pairing(vol.fog_volume, desc)          ; next ; end
         Chef::Log.debug( "Volume: attaching #{desc} -- #{vol.inspect}" )
-        vol.fog_volume.device = vol.device
-        vol.fog_volume.server = fog_server
+        safely do
+          vol.fog_volume.device = vol.device
+          vol.fog_volume.server = fog_server
+        end
       end
     end
   end
