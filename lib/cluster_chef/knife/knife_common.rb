@@ -1,6 +1,6 @@
 require 'chef/knife'
 
-require 'awesome_print'
+#require 'awesome_print'
 
 module ClusterChef
   module KnifeCommon
@@ -22,7 +22,7 @@ module ClusterChef
 
     def get_slice( *predicate )
       target = ClusterChef.slice(* predicate)
-      target.cluster.discover!
+      #target.cluster.discover!
       target
     end
 
@@ -65,7 +65,7 @@ module ClusterChef
       remaining  = threads.select(&:alive?)
       start_time = Time.now
       until remaining.empty?
-        remaining.select!(&:alive?)
+        remaining = remaining.select(&:alive?)
         if config[:verbosity]
           puts "waiting: #{total - remaining.length} / #{total}, #{(Time.now - start_time).to_i}s"
           sleep 3

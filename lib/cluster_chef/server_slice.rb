@@ -60,6 +60,19 @@ module ClusterChef
       sg
     end
 
+    def facets
+      x = servers.map(&:facet)
+      puts x
+      return x
+    end
+
+    def roles
+      rols = []
+      rols.push cluster.cluster_role if cluster.cluster_role
+      facets.each {|f| rols.push f.facet_role if f.facet_role }
+      return rols
+    end
+
     #
     # Actions!
     #
@@ -94,6 +107,10 @@ module ClusterChef
         node.destroy
         svr.chef_node = nil
       end
+    end
+
+    def sync_roles
+      roles.each(&:save)
     end
 
     def sync_to_cloud

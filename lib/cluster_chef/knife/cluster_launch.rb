@@ -85,8 +85,12 @@ class Chef
         puts
         puts "Launching machines:"
         target.create_servers
+        
         puts
         display(target)
+
+        # This will create/update any roles
+        target.sync_roles
 
         # As each server finishes, configure it
         watcher_threads = target.map do |s|
@@ -94,6 +98,7 @@ class Chef
             perform_after_launch_tasks(cc_server)
           end
         end
+
 
         progressbar_for_threads(watcher_threads)
 
@@ -109,6 +114,9 @@ class Chef
       def perform_after_launch_tasks(server)
         # Hook up external assets
         server.create_tags
+
+        # Pre-populate information in chef
+        server.sync_to_chef
 
         # Wait for node creation on amazon side
         server.fog_server.wait_for{ ready? }

@@ -39,9 +39,9 @@ module ClusterChef
   def self.load_cluster cluster_name
     raise ArgumentError, "Please supply a cluster name" if cluster_name.to_s.empty?
     return clusters[cluster_name] if clusters[cluster_name]
-    cluster_file = cluster_path
-      .map{|path| File.join( path, "#{cluster_name}.rb" ) }
-      .find{|filename| File.exists?(filename) }
+    cluster_file = cluster_path.
+      map{ |path| File.join( path, "#{cluster_name}.rb" ) }.
+      find{|filename| File.exists?(filename) }
     unless cluster_file then die("Couldn't find a definition for #{cluster_name} in cluster_path: #{cluster_path.inspect}") ; end
     require cluster_file
     unless clusters[cluster_name] then  die("#{cluster_file} was supposed to have the definition for the #{cluster_name} cluster, but didn't") end

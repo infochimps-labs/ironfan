@@ -1,6 +1,7 @@
 ClusterChef.cluster 'sandbox' do
   use :defaults
   setup_role_implications
+
   cloud do
     backing "ebs"
     image_name "infochimps-maverick-client"
@@ -10,15 +11,16 @@ ClusterChef.cluster 'sandbox' do
   facet 'hohyon' do
     instances 1
     server 0 do
-      chef_node_name 'sandbox-hohyon'
+      fullname 'sandbox-hohyon'
       #cloud.flavor "m1.small"
     end
   end
 
   facet 'howech' do
-    instances 1
+    
+    instances 2
     server 0 do
-      chef_node_name 'sandbox-howech'
+      fullname 'sandbox-howech'
       volume :id => "vol-836e28e8", :device => "/dev/sdk"
     end
   end
@@ -26,7 +28,7 @@ ClusterChef.cluster 'sandbox' do
   facet 'temujin9' do
     instances 1
     server 0 do
-      chef_node_name 'sandbox-temujin9'
+      fullname 'sandbox-temujin9'
     end
   end
 end
