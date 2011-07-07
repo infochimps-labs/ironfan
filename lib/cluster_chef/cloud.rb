@@ -120,7 +120,7 @@ module ClusterChef
       end
 
       def default_availability_zone
-        availability_zones.first
+        availability_zones.first if availability_zones
       end
 
       # Utility methods
