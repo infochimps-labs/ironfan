@@ -1,6 +1,6 @@
 module ClusterChef
   class Facet < ClusterChef::ComputeBuilder
-    attr_reader :cluster
+    attr_reader :cluster,:roles
     has_keys  :instances
 
     def initialize cluster, facet_name, hsh={}
@@ -9,6 +9,7 @@ module ClusterChef
       @servers    = Mash.new
       @facet_role_name = "#{cluster_name}_#{facet_name}"
       @settings[:instances] ||= 0
+      @roles = []
     end
 
     def cluster_name
@@ -25,7 +26,10 @@ module ClusterChef
         @facet_role = Chef::Role.new
         @facet_role.instance_eval( &block )
         @facet_role.name @facet_role_name
+        @facet_role.description "ClusterChef generated facet role for #{cluster_name}-#{facet_name}" unless @facet_role.description
+        @roles << @facet_role
       end
+      @settings[:run_list] << "role[#{@facet_role_name}]"
       return @facet_role
     end
 
@@ -86,8 +90,6 @@ module ClusterChef
     #
     def resolve!
       cloud.security_group "#{cluster_name}-#{facet_name}"
-      # Prepend the cluster role to the run list
-      @settings[:run_list].unshift "role[#{@facet_role_name}]"
 
       resolve_servers!
       self

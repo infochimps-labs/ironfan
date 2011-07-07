@@ -4,12 +4,13 @@ module ClusterChef
   # at resolve time; if the facet explicitly sets any attributes they will win out.
   #
   class Cluster < ClusterChef::ComputeBuilder
-    attr_reader :facets, :undefined_servers
+    attr_reader :facets, :undefined_servers, :roles
 
     def initialize clname, hsh={}
       super(clname.to_sym, hsh)
       @facets = Mash.new
       @cluster_role_name = "#{clname}_cluster"
+      @roles = []
     end
 
     def cluster
@@ -26,7 +27,11 @@ module ClusterChef
         @cluster_role = Chef::Role.new
         @cluster_role.instance_eval( &block )
         @cluster_role.name @cluster_role_name
+        @facet_role.description "ClusterChef generated facet role for #{cluster_name}" unless @cluster_role.description
+        @roles << @cluster_role
       end
+
+      @settings[:run_list] << "role[#{@cluster_role_name}]"
       return @cluster_role
     end
     
@@ -75,7 +80,7 @@ module ClusterChef
     def reverse_merge! other_cluster
       @settings.reverse_merge! other_cluster.to_hash
       # return self unless other_cluster.respond_to?(:run_list)
-      @settings[:run_list] = other_cluster.run_list + self.run_list
+      @settings[:run_list] += other_cluster.run_list
       @settings[:chef_attributes].reverse_merge! other_cluster.chef_attributes
       cloud.reverse_merge! other_cluster.cloud
       self
@@ -85,9 +90,6 @@ module ClusterChef
       cluster_name = self.cluster_name
       cloud.security_group(cluster_name){ authorize_group(cluster_name) }
       cloud.keypair cluster_name         if cloud.keypair.nil?
-
-      # Prepend the cluster role to the run list
-      @settings[:run_list].unshift "role[#{@cluster_role_name}]"
 
       @facets.values.each(&:resolve!)
     end

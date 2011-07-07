@@ -67,10 +67,7 @@ module ClusterChef
     end
 
     def roles
-      rols = []
-      rols.push cluster.cluster_role if cluster.cluster_role
-      facets.each {|f| rols.push f.facet_role if f.facet_role }
-      return rols
+      return facets.inject( cluster.roles ) { |r,f| r + f.roles }
     end
 
     #
