@@ -32,7 +32,7 @@ module ClusterChef
 
     # <b>DEPRECATED:</b> Please use <tt>fullname</tt> instead.
     def chef_node_name name
-      #warn "[DEPRECATION] `chef_node_name` is deprecated.  Please use `fullname` instead."      
+      #warn "[DEPRECATION] `chef_node_name` is deprecated.  Please use `fullname` instead."
       fullname name
     end
 
@@ -129,7 +129,7 @@ module ClusterChef
         })
 
       @settings[:run_list] = (@cluster.run_list + @facet.run_list + self.run_list).uniq
-      
+
       @settings[:chef_attributes].reverse_merge! @facet.chef_attributes
       @settings[:chef_attributes].reverse_merge! @cluster.chef_attributes
       chef_attributes(
@@ -211,7 +211,7 @@ module ClusterChef
       return nil if created? # only create a server if it does not already exist
 
       fog_description = fog_description_for_launch
-      Chef::Log.debug(JSON.generate(fog_description.dup.tap{|hsh| hsh[:user_data] = "..." }))
+      Chef::Log.debug(JSON.generate(fog_description)) # .dup.tap{|hsh| hsh[:user_data] = "..." }
       @fog_server = ClusterChef.connection.servers.create(fog_description)
     end
 

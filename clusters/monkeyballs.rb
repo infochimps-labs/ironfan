@@ -6,7 +6,7 @@ ClusterChef.cluster 'monkeyballs' do
   cloud do
     backing             "ebs"
     image_name          'infochimps-maverick-client'
-    region              "us-east-1"
+    flavor "t1.micro"
   end
 
   role                  "ebs_volumes_attach"
@@ -78,8 +78,6 @@ ClusterChef.cluster 'monkeyballs' do
     # cloud.flavor        "c1.xlarge"
     cloud.flavor        "t1.micro"
     # cloud.image_name    'maverick'
-
-    server(0).cloud.elastic_ip '174.129.38.55'
   end
 
 end
