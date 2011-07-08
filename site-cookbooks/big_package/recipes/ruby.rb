@@ -17,10 +17,11 @@
 # limitations under the License.
 #
 
-pkgs = case node[:platform]
-  when "ubuntu","debian"          then [ "ruby#{node[:ruby][:version]}", "ruby#{node[:ruby][:version]}-dev", "ri#{node[:ruby][:version]}" ]
-  when "centos","redhat","fedora" then %w[ ruby ruby-libs ruby-devel ruby-docs ruby-ri ruby-irb ruby-rdoc ruby-mode ]
-  end
+pkgs = []
+# case node[:platform]
+#   when "ubuntu","debian"          then [ "ruby#{node[:ruby][:version]}", "ruby#{node[:ruby][:version]}-dev", "ri#{node[:ruby][:version]}" ]
+#   when "centos","redhat","fedora" then %w[ ruby ruby-libs ruby-devel ruby-docs ruby-ri ruby-irb ruby-rdoc ruby-mode ]
+#   end
 
 Chef::Log.debug [ node[:ruby] ].inspect + "\n\n!!!\n\n"
 
