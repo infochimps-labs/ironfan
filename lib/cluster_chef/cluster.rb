@@ -25,9 +25,11 @@ module ClusterChef
       @cluster_role_name = name if name
       if block_given?
         @cluster_role = Chef::Role.new
-        @cluster_role.instance_eval( &block )
-        # Set up some local variables that can be accessible to the block
+        # Do some magic to ensure that the role knows @cluster
         cluster = self
+        @cluster_role.instance_eval { @cluster = cluster }
+
+        @cluster_role.instance_eval( &block )
         @cluster_role.name @cluster_role_name
         @facet_role.description "ClusterChef generated facet role for #{cluster_name}" unless @cluster_role.description
         @roles << @cluster_role
