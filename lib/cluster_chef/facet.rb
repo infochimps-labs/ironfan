@@ -8,7 +8,7 @@ module ClusterChef
       @cluster    = cluster
       @servers    = Mash.new
       @facet_role_name = "#{cluster_name}_#{facet_name}"
-      @settings[:instances] ||= 1
+      @settings[:instances] ||= 0
     end
 
     def cluster_name

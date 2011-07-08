@@ -196,15 +196,17 @@ module ClusterChef
       associate_elastic_ip
     end
 
-    def sync_to_chef
-      chef_node ||= Chef::Node.find_or_create( fullname )
-      puts "setting run list to #{@run_list}"
+    def sync_to_chef      
+      chef_node ||= Chef::Node.load( fullname )
       chef_node.run_list = Chef::RunList.new(*@settings[:run_list])
       chef_attributes.each_pair do |key,value|
         next if key == :run_list
         chef_node.normal[key] = value
       end
       chef_node.save
+    rescue Net::HTTPServerException => e
+      raise unless e.response.code == '404'
+      warn "chef node does not exist yet. Skipping sync"
     end
 
     def safely *args, &block
