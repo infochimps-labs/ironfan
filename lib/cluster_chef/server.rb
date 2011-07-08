@@ -196,7 +196,7 @@ module ClusterChef
       associate_elastic_ip
     end
 
-    def sync_to_chef      
+    def sync_to_chef
       chef_node ||= Chef::Node.load( fullname )
       chef_node.run_list = Chef::RunList.new(*@settings[:run_list])
       chef_attributes.each_pair do |key,value|

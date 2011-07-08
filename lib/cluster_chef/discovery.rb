@@ -31,14 +31,14 @@ module ClusterChef
     def discover_chef_nodes!
       chef_nodes.each do |chef_node|
         cchef = chef_node.cluster_chef
-        if cchef 
-          cluster_name = cchef["cluster"]
+        if cchef
+          cluster_name = cchef["cluster"] || cchef["name"]
           facet_name =  cchef["facet"]
           facet_index = cchef["index"]
-        elsif chef_node["cluster_name"] && chef_node["facet_name"] && chef_node["facet_index"] 
-          cluster_name = chef_node["cluster_name"] 
-          facet_name = chef_node["facet_name"]  
-          facet_index = chef_node["facet_index"] 
+        elsif chef_node["cluster_name"] && chef_node["facet_name"] && chef_node["facet_index"]
+          cluster_name = chef_node["cluster_name"]
+          facet_name = chef_node["facet_name"]
+          facet_index = chef_node["facet_index"]
         else
           ( cluster_name, facet_name, facet_index ) = chef_node.node_name.split(/-/)
         end

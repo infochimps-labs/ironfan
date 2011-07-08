@@ -3,8 +3,8 @@
 ClusterChef.cluster 'greeneggs' do
   use :defaults
   setup_role_implications
-  
-  cloud do 
+
+  cloud do
     backing "instance"
     flavor  "m1.xlarge"
     image_name "infochimps-maverick-client"
@@ -24,7 +24,7 @@ ClusterChef.cluster 'greeneggs' do
     chef_node_name = 'greeneggs-beta'
     role "hbase_beta"
   end
-  
+
   facet 'gamma' do
     instances 3
     role "hbase_gamma"
@@ -35,4 +35,3 @@ ClusterChef.cluster 'greeneggs' do
     role "hbase_delta"
   end
 end
-
