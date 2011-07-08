@@ -158,8 +158,14 @@ module ClusterChef
         vols[name] ||= ClusterChef::Volume.new(:parent => self, :name => name)
         vols[name].reverse_merge!(vol)
       end
-      vols.each{|name, vol| vol.availability_zone self.cloud.default_availability_zone }
+      vols.each{|name, vol| vol.availability_zone self.default_availability_zone }
       vols
+    end
+
+    # FIXME -- this will break on some edge case wehre a bogus node is
+    # discovered after everything is resolve!d
+    def default_availability_zone
+      cloud.default_availability_zone
     end
 
     #
@@ -231,7 +237,7 @@ module ClusterChef
         :block_device_mapping    => block_device_mapping,
         # :disable_api_termination => cloud.disable_api_termination,
         # :instance_initiated_shutdown_behavior => instance_initiated_shutdown_behavior,
-        :availability_zone => cloud.availability_zones.first,
+        :availability_zone => self.default_availability_zone,
         :monitoring => cloud.monitoring,
       }
     end
