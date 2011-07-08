@@ -32,15 +32,15 @@ gem_pkgs = %w[
    imw chimps icss
 ]
 
-if node[:ruby][:version] == '1.8'
-  pkgs     += %w[libonig2 libonig-dev]
-  gem_pkgs += %w[oniguruma uuidtools idn ]
-  if node[:lsb][:release].to_f < 10.10
-    gem_pkgs += %w[ rdoc libopenssl-ruby  ]
-  else
-    pkgs   += %w[ libruby-extras ]
-  end
-end
+# !!!!!
+#
+# Please do not add the following gems to this file. They break on one
+# version of ruby or the other.  You should instead use an .rvmrc and Gemfile
+# (bundler) to install them specifically for your program.
+#
+# oniguruma nokogiri libruby-extras uuidtools idn hpricot nokogiri
+# goliath ruby-debug19 [anything with 19 or 18 in it]
+#
 
 bash 'update rubygems to >= 1.8.4' do
   code %Q{ gem update --system }
@@ -54,7 +54,4 @@ end
 gem_pkgs.each do |pkg|
   gem_package(pkg){ action :install }
 end
-
-gem_package("nokogiri"){action :install ; version "1.4.2" }
-gem_package("hpricot"){ action :install ; version "0.8.2" }
 
