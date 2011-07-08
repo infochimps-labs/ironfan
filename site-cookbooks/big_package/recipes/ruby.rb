@@ -27,7 +27,7 @@ Chef::Log.debug [ node[:ruby] ].inspect + "\n\n!!!\n\n"
 
 gem_pkgs = %w[
    rest-client oauth crack
-   htmlentities right_aws libxml-ruby whenever
+   htmlentities right_aws libxml-ruby 
    wirble awesome_print looksee
    echoe jeweler yard net-proto net-scp net-sftp net-ssh net-ssh-multi
    imw chimps icss
