@@ -158,8 +158,14 @@ module ClusterChef
         vols[name] ||= ClusterChef::Volume.new(:parent => self, :name => name)
         vols[name].reverse_merge!(vol)
       end
-      vols.each{|name, vol| vol.availability_zone self.cloud.default_availability_zone }
+      vols.each{|name, vol| vol.availability_zone self.default_availability_zone }
       vols
+    end
+
+    # FIXME -- this will break on some edge case wehre a bogus node is
+    # discovered after everything is resolve!d
+    def default_availability_zone
+      cloud.default_availability_zone
     end
 
     #
@@ -190,7 +196,7 @@ module ClusterChef
       associate_elastic_ip
     end
 
-    def sync_to_chef      
+    def sync_to_chef
       chef_node ||= Chef::Node.load( fullname )
       chef_node.run_list = Chef::RunList.new(*@settings[:run_list])
       chef_attributes.each_pair do |key,value|
@@ -233,7 +239,7 @@ module ClusterChef
         :block_device_mapping    => block_device_mapping,
         # :disable_api_termination => cloud.disable_api_termination,
         # :instance_initiated_shutdown_behavior => instance_initiated_shutdown_behavior,
-        :availability_zone => cloud.availability_zones.first,
+        :availability_zone => self.default_availability_zone,
         :monitoring => cloud.monitoring,
       }
     end

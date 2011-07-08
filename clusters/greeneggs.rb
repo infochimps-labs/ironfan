@@ -27,7 +27,7 @@ ClusterChef.cluster 'greeneggs' do
     chef_node_name = 'greeneggs-beta'
     role "hbase_beta"
   end
-  
+
   facet 'gamma' do
     facet_role
     instances 3
@@ -40,4 +40,3 @@ ClusterChef.cluster 'greeneggs' do
     role "hbase_delta"
   end
 end
-

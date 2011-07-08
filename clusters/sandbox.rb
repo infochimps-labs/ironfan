@@ -48,6 +48,7 @@ ClusterChef.cluster 'sandbox' do
       ])
     end
     server 0 do
+      fullname 'sandbox-mrflip'
       volume :data, :volume_id => "vol-798fd012", :device => "/dev/sdk", :mount_point => '/data'
     end
   end
