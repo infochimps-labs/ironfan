@@ -60,13 +60,21 @@ ClusterChef.cluster 'sandbox' do
       fullname 'sandbox-temujin9'
     end
     facet_role do
-#         rvm
-#         rvm::gem_package
       run_list(*%w[
         nginx
         macaque
         macaque::server
       ])
+      override_attributes({
+        :statsd => {
+          :provider                 => 'see_no_evil',
+          :name                     => 'macaque_test'
+        },
+        :mongo => {
+          :provider                 => 'sausageparty-mongodb-server',
+          :db                       => 'macaque_test'
+        }
+      })
     end
   end
 end
