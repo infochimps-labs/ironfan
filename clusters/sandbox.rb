@@ -60,10 +60,13 @@ ClusterChef.cluster 'sandbox' do
       fullname 'sandbox-temujin9'
     end
     facet_role do
-      run_list( 
-#         "role[hadoop_jobtracker]",
-        "macaque"
-      )
+#         rvm
+#         rvm::gem_package
+      run_list(*%w[
+        nginx
+        macaque
+        macaque::server
+      ])
     end
   end
 end
