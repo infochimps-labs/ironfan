@@ -59,7 +59,12 @@ ClusterChef.cluster 'sandbox' do
     server 0 do
       fullname 'sandbox-temujin9'
     end
+    facet_role do
+      run_list( 
+#         "role[hadoop_jobtracker]",
+        "macaque"
+      )
+    end
   end
 end
-
 
