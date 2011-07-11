@@ -66,13 +66,15 @@ ClusterChef.cluster 'sandbox' do
         macaque::server
       ])
       override_attributes({
-        :statsd => {
-          :provider                 => 'see_no_evil',
-          :name                     => 'macaque_test'
-        },
-        :mongo => {
-          :provider                 => 'sausageparty-mongodb-server',
-          :db                       => 'macaque_test'
+        :macaque => {
+          :statsd => {
+            :provider                 => 'see_no_evil',
+            :name                     => 'macaque_test'
+          },
+          :mongo => {
+            :provider                 => 'sausageparty-mongodb-server',
+            :db                       => 'macaque_test'
+          }
         }
       })
     end
