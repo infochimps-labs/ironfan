@@ -67,13 +67,14 @@ ClusterChef.cluster 'sandbox' do
       ])
       override_attributes({
         :macaque => {
+          :whitelist                    => ['flip69'],
           :statsd => {
-            :provider                 => 'see_no_evil',
-            :name                     => 'macaque_test'
+            :provider                   => 'see_no_evil',
+            :name                       => 'macaque_test'
           },
           :mongo => {
-            :provider                 => 'sausageparty-mongodb-server',
-            :db                       => 'macaque_test'
+            :provider                   => 'sausageparty-mongodb-server',
+            :db                         => 'macaque_test'
           }
         }
       })
