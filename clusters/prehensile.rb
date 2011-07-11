@@ -24,6 +24,12 @@ ClusterChef.cluster 'prehensile' do
     end
   end
 
+  facet 'staging' do
+    facet_role
+    instances           1
+    cloud.flavor        "m1.small"
+  end
+
 #   # Testing stub for network-based operations
 #   facet 'networkstub' do
 #     instances		1
