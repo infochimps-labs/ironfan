@@ -1,4 +1,8 @@
 ClusterChef.cluster 'sandbox' do
+  recipe "sysadmin::monkeypatch_chef_gempackage"
+  recipe "sysadmin::cloudera_apt_repo"
+  recipe "sysadmin::opscode_apt_repo"
+
   use :defaults
   setup_role_implications
   mounts_ephemeral_volumes
@@ -58,6 +62,23 @@ ClusterChef.cluster 'sandbox' do
     instances 1
     server 0 do
       fullname 'sandbox-temujin9'
+    end
+  end
+
+  facet 'sparafina' do
+    facet_role do
+      override_attributes({ :extra_users => [ "sparafina" ] ,
+                            :authorization => 
+                            { :sudo => 
+                              { :custom => 
+                                [ "sparafina  ALL=(ALL) NOPASSWD:ALL" ] 
+                              } 
+                            }
+                          })
+    end
+    instances 1
+    server 0 do
+      fullname 'sandbox-sparafina'
     end
   end
 end
