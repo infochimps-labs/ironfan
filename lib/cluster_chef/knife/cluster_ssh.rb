@@ -33,10 +33,12 @@ class Chef
         next if name == :attribute
         option name, hsh
       end
+
       option :attribute,
         :short => "-a ATTR",
         :long => "--attribute ATTR",
         :description => "The attribute to use for opening the connection - default is fqdn (ec2 users may prefer cloud.public_hostname)"
+
       option :detailed,
         :long => "--detailed",
         :description => "Show detailed info on servers. (Only shows summary with --detailed or --verbose)"
@@ -51,10 +53,19 @@ class Chef
 
         display(target) if config[:detailed] || config[:verbose]
 
-        @action_nodes = target.chef_nodes
-        list = @action_nodes.map{|n| format_for_display(n)[config[:attribute]] }.compact
+        
+        list = target.servers.map do |svr|
+          if svr.fog_server
+            svr.fog_server.public_ip_address
+          elsif svr.chef_node
+            format_for_display( svr.chef_node )[config[:attribute]]
+          else
+            nil
+          end
+        end.compact
 
-        (ui.fatal("No nodes returned from search!"); exit 10) if list.length == 0
+        (ui.fatal("No nodes returned from search!"); exit 10) if list.nil? || list.length == 0
+
         session_from_list(list)
       end
 
