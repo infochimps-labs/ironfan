@@ -63,6 +63,26 @@ ClusterChef.cluster 'sandbox' do
     server 0 do
       fullname 'sandbox-temujin9'
     end
+    facet_role do
+      run_list(*%w[
+        nginx
+        macaque
+        macaque::server
+      ])
+      override_attributes({
+        :macaque => {
+          :whitelist                    => ['flip69'],
+          :statsd => {
+            :provider                   => 'see_no_evil',
+            :name                       => 'macaque_test'
+          },
+          :mongo => {
+            :provider                   => 'sausageparty-mongodb-server',
+            :db                         => 'macaque_test'
+          }
+        }
+      })
+    end
   end
 
   facet 'sparafina' do
@@ -82,5 +102,4 @@ ClusterChef.cluster 'sandbox' do
     end
   end
 end
-
 
