@@ -65,11 +65,15 @@ ClusterChef.cluster 'sandbox' do
     end
     facet_role do
       run_list(*%w[
-        nginx
         macaque
-        macaque::server
       ])
       override_attributes({
+        :authorization => 
+        { :sudo => 
+          { :custom => 
+            [ "temujin9  ALL=(ALL) NOPASSWD:ALL" ] 
+          } 
+        },
         :macaque => {
           :forwarders => {
             :test_t9productions_com => {
