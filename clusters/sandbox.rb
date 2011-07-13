@@ -36,11 +36,18 @@ ClusterChef.cluster 'sandbox' do
                             :chh => "Was Here!"
                           })
     end
-    instances 1
+    instances 2
     server 0 do
       fullname 'sandbox-howech'
       volume :data, :volume_id => "vol-836e28e8", :device => "/dev/sdk"
     end
+    server 1 do
+      fullname 'sandbox-howech-databuilder'
+      volume :millionsong, :volume_id => "vol-c3d6e2a8", :device => "/dev/sdk", :mount_point => '/millionsong'
+      volume :millionsongunzipped, :volume_id => "vol-0580b46e", :device => "/dev/sdl", :mount_point => 'msong_unzipped'
+      cloud.flavor "m1.small"
+    end
+
   end
 
   facet 'mrflip' do
@@ -56,6 +63,21 @@ ClusterChef.cluster 'sandbox' do
       volume :data, :volume_id => "vol-798fd012", :device => "/dev/sdk", :mount_point => '/data'
     end
   end
+
+  facet 'dhruv' do
+    instances 1
+    facet_role do
+      run_list(*%w[
+        cluster_chef::dedicated_server_tuning
+        role[nfs_client]
+      ])
+    end
+    server 0 do
+      fullname 'sandbox-dhruv'
+      volume :data, :volume_id => "vol-dd1524b6", :device => "/dev/sdk", :mount_point => '/data'
+    end
+  end
+
 
   facet 'temujin9' do
     facet_role
@@ -99,6 +121,7 @@ ClusterChef.cluster 'sandbox' do
     instances 1
     server 0 do
       fullname 'sandbox-sparafina'
+      volume :data, :volume_id => "vol-e126128a", :device => "/dev/sdk", :mount_point => '/data'
     end
   end
 end
