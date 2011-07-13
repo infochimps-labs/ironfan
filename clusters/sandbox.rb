@@ -72,9 +72,10 @@ ClusterChef.cluster 'sandbox' do
       override_attributes({
         :macaque => {
           :forwarders => {
-            :test.t9productions.com => {
+            :test_t9productions_com => {
               :apikey                   => 'XXXXXXXXXXXXXXXXXXX69'
-            }
+            },
+            :temp_t9productions_com => {}
           },
           :statsd => {
             :provider                   => 'see_no_evil',
