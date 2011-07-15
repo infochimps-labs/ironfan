@@ -97,9 +97,6 @@ default[:cassandra][:git_repo]                      = 'git://git.apache.org/cass
 default[:cassandra][:git_revision]                  = 'cdd239dcf82ab52cb840e070fc01135efb512799' # 'HEAD'
 
 # JNA deb location
-<<<<<<< HEAD
-default[:cassandra][:jna_deb_amd64_url] = "http://debian.riptano.com/debian/pool/libjna-java_3.2.7-0~nmu.2_amd64.deb"
-=======
 default[:cassandra][:jna_deb_amd64_url] = "http://debian.riptano.com/maverick/pool/libjna-java_3.2.7-0~nmu.2_amd64.deb"
 
 # MX4J Location (Version 3.0.2)
@@ -107,7 +104,6 @@ default[:cassandra][:mx4j_url] = "http://downloads.sourceforge.net/project/mx4j/
 
 default[:cassandra][:mx4j_listen_addr] = "127.0.0.1"
 default[:cassandra][:mx4j_listen_port] = "8081"
->>>>>>> origin/version_2
 
 # see http://www.mail-archive.com/user@cassandra.apache.org/msg04447.html
 
