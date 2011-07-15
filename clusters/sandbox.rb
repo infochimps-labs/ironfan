@@ -76,10 +76,11 @@ ClusterChef.cluster 'sandbox' do
         },
         :macaque => {
           :forwarders => {
-            :test_t9productions_com => {
-              :apikey                   => 'XXXXXXXXXXXXXXXXXXX69'
+            :api_qwerly_com => {
+              # Temporary key for alpha testing only
+              :apikey                   => 'ed6mm22b854yyfrkhwrkgxa8'
             },
-            :temp_t9productions_com => {}
+            :money_bundle_com           => {}
           },
           :statsd => {
             :provider                   => 'see_no_evil',
