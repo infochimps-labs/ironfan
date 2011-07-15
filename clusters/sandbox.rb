@@ -87,6 +87,11 @@ ClusterChef.cluster 'sandbox' do
     end
     facet_role do
       run_list(*%w[
+        rvm
+        rvm::gem_package
+        nginx
+        buzzkill
+        buzzkill::server
         macaque
       ])
       override_attributes({
@@ -108,6 +113,32 @@ ClusterChef.cluster 'sandbox' do
             :provider                   => 'see_no_evil',
             :name                       => 'macaque_test'
           }
+        },
+        :buzzkill => {
+          :environment                  => 'staging',
+          :deploy_version               => 'passthru',
+          :forwarder => {
+            :port                       => 9400
+          },
+          :statsd => {
+            :provider                   => 'see_no_evil',
+            :name                       => 'macaque_test_buzzkill'
+          },
+          :mongo => {
+            :provider                   => 'sausageparty-mongodb-server',
+            :db                         => 'broham_staging'
+          },
+        },
+        :rvm => {
+          :group_id                     => 427,
+          :default_ruby                 => "system",
+          :rubies                       => [ "ruby-1.9.2" ],
+          :gem_package => {
+            :rvm_string                 => %w[system ruby-1.9.2]
+          }
+        },
+        :statsd => {
+          :flushInterval                => 60000
         }
       })
     end
