@@ -11,7 +11,7 @@ module ClusterChef
   protected
 
     def fog_servers
-      @fog_servers ||= ClusterChef.fog_servers.select{|fs| fs.groups.index(cluster_name.to_s) && (fs.state != "terminated") }
+      @fog_servers ||= ClusterChef.fog_servers.select{|fs| fs.tags["cluster"] = cluster_name.to_s && (fs.state != "terminated") }
     end
 
     def chef_nodes
