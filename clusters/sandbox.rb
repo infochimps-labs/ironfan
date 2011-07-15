@@ -82,6 +82,7 @@ ClusterChef.cluster 'sandbox' do
   facet 'temujin9' do
     facet_role
     instances 1
+    cloud.image_id          "ami-32a0535b"      # Set to the one that worked for buzzkill
     server 0 do
       fullname 'sandbox-temujin9'
     end
