@@ -8,7 +8,7 @@ ClusterChef.cluster 'demosimple' do
     image_name          "maverick"
     flavor              "t1.micro"
     availability_zones  ['us-east-1a']
-    bootstrap_distro    "ubuntu10.10-cluster_chef"
+    bootstrap_distro    'ubuntu10.04-cluster_chef'
   end
 
   cluster_role do

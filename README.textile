@@ -174,8 +174,8 @@ h4. Cluster chef's Knife plugins
 
 <pre>
 mkdir -p $DOT_CHEF_DIR/plugins
-ln -s $CHEF_REPO_DIR/cluster_chef/lib/cluster_chef/knife           $DOT_CHEF_DIR/plugins/knife
-ln -s $CHEF_REPO_DIR/cluster_chef/lib/cluster_chef/knife/bootstrap $DOT_CHEF_DIR/bootstrap
+ln -s $CHEF_REPO_DIR/cluster_chef/lib/cluster_chef/knife           $DOT_CHEF_DIR/plugins/
+ln -s $CHEF_REPO_DIR/cluster_chef/lib/cluster_chef/knife/bootstrap $DOT_CHEF_DIR/
 </pre>
 
 If you type @knife cluster launch@ you should see it found the new scripts:

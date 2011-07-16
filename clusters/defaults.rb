@@ -10,7 +10,6 @@ ClusterChef.cluster 'defaults' do
     permanent           false
     elastic_ip          false
     spot_price_fraction nil
-    bootstrap_distro    'ubuntu10.04-cluster_chef'
     security_group      :default
   end
 

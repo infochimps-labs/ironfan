@@ -33,6 +33,9 @@ class Chef
         :short => "-d DISTRO",
         :long => "--distro DISTRO",
         :description => "Bootstrap a distro using a template"
+      option :template_file,
+        :long => "--template-file TEMPLATE",
+        :description => "Full path to location of template to use"
       option :use_sudo,
         :long => "--sudo",
         :description => "Execute the bootstrap via sudo",
@@ -41,7 +44,7 @@ class Chef
         :long => "--detailed",
         :description => "Show detailed info on servers"
       import_banner_and_options(Chef::Knife::Bootstrap,
-        :except => [:chef_node_name, :run_list, :ssh_user])
+        :except => [:chef_node_name, :run_list, :ssh_user, :distro, :template_file])
       import_banner_and_options(ClusterChef::Script)
 
       deps do
