@@ -172,37 +172,18 @@ We need to send all the cookbooks and role to the chef server. Visit your cluste
     for foo in roles/*.rb ; do knife role from file $foo & sleep 1 ; done
 </pre>
 
-You should see all the cookbooks defined in cluster_chef/cookbooks (ant, apt, ...) and cluster_chef/site-cookbooks (azkaban, cassandra, ...) listed among 
+You should see all the cookbooks defined in cluster_chef/cookbooks (ant, apt, ...) and cluster_chef/site-cookbooks (hadoop_cluster, ...) listed among 
 
 h4. Cluster chef's Knife plugins
 
 <pre>
-mkdir -p $DOT_CHEF_DIR/plugins
+mkdir -p $DOT_CHEF_DIR/plugins $DOT_CHEF_DIR/bootstrap
 cd $DOT_CHEF_DIR/plugins
-ln -s $CHEF_REPO_DIR/cluster_chef/lib/cluster_chef/
+ln -s $CHEF_REPO_DIR/cluster_chef/lib/cluster_chef/knife/*.rb .
+ln -s $CHEF_REPO_DIR/cluster_chef/lib/cluster_chef/knife/bootstrap/* $DOT_CHEF_DIR/bootstrap/
 </pre>
-
-
-
-
-h4. Setup for Knife versions before 0.10
-
-On older versions of chef that don't have a plugin mechanism for new commands, we have to do surgery on the knife itself... we'll just symlink the new commands into chef's lib/chef/knife directory, and symlink the bootstrap templates into chef's lib/chef/knife/bootstrap directory. Set the path to your cluster_chef directory and run the following:
-
-<pre>
-    sudo ln -s $CLUSTER_CHEF_DIR/lib/cluster_chef/knife/*.rb            $(dirname `gem which chef`)/chef/knife/
-    sudo ln -s $CLUSTER_CHEF_DIR/lib/cluster_chef/knife/bootstrap/*     $(dirname `gem which chef`)/chef/knife/bootstrap/
-</pre>
-
-Cluster chef is not currently set up to work as a pluggable gem for chef 0.10.0, but will in the near future. Until that time, you can use the knife commands in your local plugins directory with the following command:
-
-<pre>
-    ln -s $CLUSTER_CHEF_DIR/lib/cluster_chef/knife  ~/.chef/plugins/knife
-    ln -s $CLUSTER_CHEF_DIR/lib/cluster_chef/knife/bootstrap  ~/.chef/bootstrap
-</pre> 
 
 h3. Cluster chef knife commands
-
 
 h4. knife cluster launch
 
@@ -226,7 +207,8 @@ It will kick off a node and then bootstrap it.  By the time it's done, you shoul
     knife cluster launch demohadoop worker --bootstrap
 </pre>
 
-h2. Getting set up with Chef and AWS
+
+h2. Extended Installation Notes
 
 h3. Set up Knife on your local machine, and a Chef Server in the cloud
 
@@ -244,6 +226,22 @@ Steps:
 * Follow the "Knife with AWS quickstart":http://wiki.opscode.com/display/chef/Launch+Cloud+Instances+with+Knife on the opscode wiki.
 
 Right now cluster chef works well with AWS.  If you're interested in modifying it to work with other cloud providers, "see here":https://github.com/infochimps/cluster_chef/issues/28 or get in touch.
+
+h3. Setup for Knife versions before 0.10
+
+On older versions of chef that don't have a plugin mechanism for new commands, we have to do surgery on the knife itself... we'll just symlink the new commands into chef's lib/chef/knife directory, and symlink the bootstrap templates into chef's lib/chef/knife/bootstrap directory. Set the path to your cluster_chef directory and run the following:
+
+<pre>
+    sudo ln -s $CLUSTER_CHEF_DIR/lib/cluster_chef/knife/*.rb            $(dirname `gem which chef`)/chef/knife/
+    sudo ln -s $CLUSTER_CHEF_DIR/lib/cluster_chef/knife/bootstrap/*     $(dirname `gem which chef`)/chef/knife/bootstrap/
+</pre>
+
+Cluster chef is not currently set up to work as a pluggable gem for chef 0.10.0, but will in the near future. Until that time, you can use the knife commands in your local plugins directory with the following command:
+
+<pre>
+    ln -s $CLUSTER_CHEF_DIR/lib/cluster_chef/knife  ~/.chef/plugins/knife
+    ln -s $CLUSTER_CHEF_DIR/lib/cluster_chef/knife/bootstrap  ~/.chef/bootstrap
+</pre> 
 
 h3. Gotchas
 
