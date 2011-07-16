@@ -155,9 +155,9 @@ h4. Push to chef server
 To send all the cookbooks and role to the chef server, visit your cluster_chef directory and run:
 
 <pre>
-    cd $CHEF_REPO_DIR
-    knife cookbook upload --all
-    for foo in roles/*.rb ; do knife role from file $foo & sleep 1 ; done
+cd $CHEF_REPO_DIR
+knife cookbook upload --all
+for foo in roles/*.rb ; do knife role from file $foo & sleep 1 ; done
 </pre>
 
 You should see all the cookbooks defined in cluster_chef/cookbooks (ant, apt, ...) listed among those it uploads.
@@ -183,13 +183,16 @@ h3. Your first cluster
 h4. Create a simple demo cluster
 
 Create a directory for your clusters; copy the demosimple cluster and its associated roles from cluster_chef:
+
 <pre>
 mkdir -p $CHEF_REPO_DIR/clusters
 cp cluster_chef/clusters/{defaults,demosimple}.rb ./clusters/
 cp cluster_chef/roles/{big_package,nfs_*,ssh}.rb  ./roles/
+for foo in roles/*.rb ; do knife role from file $foo ; done
 </pre>
 
 Symlink in the cookbooks you'll need, and upload them to your chef server:
+
 <pre>
 mkdir -p $CHEF_REPO_DIR/site-cookbooks
 cd $CHEF_REPO_DIR/site-cookbooks
