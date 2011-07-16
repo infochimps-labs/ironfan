@@ -44,10 +44,10 @@ echo -e "`date` \n\n**** \n**** Creating chef client script:\n****\n"
 cat <<'EOP'
 log_level        :info
 log_location     STDOUT
-chef_server_url        "<%= Chef::Config[:chef_server] %>"
+chef_server_url        "<%= Chef::Config[:chef_server_url] %>"
 validation_client_name "<%= Chef::Config[:validation_client_name] %>"
 node_name              "<%= @config[:node_name] %>"
-puts "=> chef client #{node_name} on #{chef_server_url}"
+puts "=> chef client #{node_name} on #{chef_server_url} for #{node_name} "
 EOP
 ) > /etc/chef/client.rb
 
