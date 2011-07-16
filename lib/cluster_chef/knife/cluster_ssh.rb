@@ -53,7 +53,6 @@ class Chef
 
         display(target) if config[:detailed] || config[:verbose]
 
-        
         list = target.servers.map do |svr|
           if svr.fog_server
             svr.fog_server.public_ip_address

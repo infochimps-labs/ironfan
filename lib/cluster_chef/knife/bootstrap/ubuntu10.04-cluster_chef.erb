@@ -17,6 +17,8 @@ echo -e "`date` \n\n**** \n**** Installing ruby version ${RUBY_VERSION}:\n****\n
 apt-get install -y ruby${RUBY_VERSION}-full rubygems${RUBY_VERSION} 
 sudo update-alternatives --install /usr/bin/ruby ruby /usr/bin/ruby${RUBY_VERSION} 100 --slave /usr/bin/ri ri /usr/bin/ri${RUBY_VERSION} --slave /usr/bin/irb irb /usr/bin/irb${RUBY_VERSION} --slave /usr/bin/erb erb /usr/bin/erb${RUBY_VERSION} --slave /usr/bin/gem gem /usr/bin/gem${RUBY_VERSION} --slave /usr/share/man/man1/ruby.1.gz ruby.1.gz /usr/share/man/man1/ruby${RUBY_VERSION}.1.gz
 
+# ruby1.9.1 (>= 1.9.2.0-1), libruby1.9.1-dbg (>= 1.9.2.0-1), ruby1.9.1-dev (>= 1.9.2.0-1), ruby1.9.1-examples (>= 1.9.2.0-1), ri1.9.1
+
 if ruby -e "exit(%x{gem --version} < \"1.8.5\" ? 0 : -1 )" ; then
   echo -e "`date` \n\n**** \n**** Unchaining rubygems from the tyrrany of ubuntu:\n****\n"
   export REALLY_GEM_UPDATE_SYSTEM=true
@@ -25,7 +27,7 @@ fi
 
 echo -e "`date` \n\n**** \n**** Installing chef:\n****\n"
 gem install --no-rdoc --no-ri extlib json ruby-shadow right_aws
-gem install --no-rdoc --no-ri chef --verbose --version="<%= Chef::Config[:bootstrap_chef_version] || "~> 0.9.0" %>"
+gem install --no-rdoc --no-ri chef --verbose --version="<%= Chef::Config[:bootstrap_chef_version] || "~> 0.10.0" %>"
 
 echo -e "`date` \n\n**** \n**** Knifing in the chef client config files:\n****\n"
 mkdir -p /etc/chef
@@ -41,7 +43,7 @@ echo -e "`date` \n\n**** \n**** Pulling in chef client script:\n****\n"
 wget --no-check-certificate -nv ${REMOTE_FILE_URL_BASE}/client-v2.rb -O /etc/chef/client.rb
 
 echo -e "`date` \n\n**** \n**** Adding chef client runit scripts:\n****\n"
-service chef-client stop ; sleep 1 ; killall chef-client
+service chef-client stop 2>/dev/null ; sleep 1 ; killall chef-client 2>/dev/null
 mkdir -p /var/log/chef /var/chef /etc/sv/chef-client/log/main
 cat > /etc/sv/chef-client/log/run <<EOF
 #!/bin/bash

@@ -89,6 +89,7 @@ module ClusterChef
       bootstrap.name_args               = [ hostname ]
       bootstrap.config[:run_list]       = node.run_list
       bootstrap.config[:ssh_user]       = config[:ssh_user]       || node.cloud.ssh_user
+      bootstrap.config[:attribute]      = config[:attribute]
       bootstrap.config[:identity_file]  = config[:identity_file]  || node.cloud.ssh_identity_file
       bootstrap.config[:distro]         = config[:distro]         || node.cloud.bootstrap_distro
       bootstrap.config[:use_sudo]       = true unless config[:use_sudo] == false

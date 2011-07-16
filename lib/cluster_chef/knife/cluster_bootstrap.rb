@@ -41,7 +41,7 @@ class Chef
         :long => "--detailed",
         :description => "Show detailed info on servers"
       import_banner_and_options(Chef::Knife::Bootstrap,
-        :except => [:chef_node_name, :run_list])
+        :except => [:chef_node_name, :run_list, :ssh_user])
       import_banner_and_options(ClusterChef::Script)
 
       deps do
