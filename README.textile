@@ -87,30 +87,80 @@ Some general principles of how we use chef.
 
 h2. Getting Started
 
-h3. Prelaunch
-
-Follow the normal knife setup. If you can use the normal knife bootstrap
-commands to launch a machine, you're ready to start.
 
 h3. Setup
 
-Install these gems,
+Ensure these gems are installed:
 
 <pre>
-    sudo gem install chef fog broham highline configliere right_aws net-ssh-multi formatador terminal-table
+sudo gem install chef fog highline configliere net-ssh-multi formatador terminal-table
 </pre>
 
-and (if you haven't already), git clone or "download":https://github.com/infochimps/cluster_chef/zipball/version_2 the repo:
+(and maybe right_aws and broham?)
+
+h4. 
+
 
 <pre>
   git clone git@github.com:infochimps/cluster_chef.git
 </pre>
+
 
 Since we'll need to refer back to it a few times in the setup that follows, please set an environment variable called CLUSTER_CHEF_PATH (modifying it to match the actual location):
 
 <pre>
   CLUSTER_CHEF_PATH=$HOME/path/to/cluster_chef
 </pre>
+
+
+h2. Full Walkthrough: Chef, AWS, ClusterChef
+
+h3. Set up Knife on your local machine, and a Chef Server in the cloud
+
+If you already have a working chef installation you can skip this section.
+
+To get started with knife and chef, follow the "Chef Quickstart,":http://wiki.opscode.com/display/chef/Quick+Start We use the hosted chef service and are very happy, but there are instructions to set up a chef server too.
+
+One modification: rather than cloning the "skeleton cookbook repo":https://github.com/opscode/chef-repo directly, consider forking and renaming it to something like "YOURNAME-cookbooks". Set it up as a private repo if possible.
+
+Summary of the quickstart steps:
+
+<pre>
+# Make sure ruby, rubygems, and git are installed on your machine.
+# ...
+
+# Sign up for an opscode account
+# (download all the keys and stuff, put them somewhere for the moment)
+
+# install necessary gems:
+sudo gem install chef fog highline configliere net-ssh-multi formatador terminal-table
+
+# Clone the git repo to your machine
+
+cd ~/WHERE_MY_CODE_LIVES/
+git clone git://github.com/YOUR_NAME/YOURNAME-cookbooks.git # the fork you just made
+
+# Create the .chef config directory
+cd YOURNAME-cookbooks
+mkdir -p .chef
+
+# Copy the keys and knife configuration you downloaded earlier into this directory:
+# Replace USERNAME with your Hosted Chef Username, and ORGANIZATION with the short-name you provided when you signed up.
+cp USERNAME.pem ~/chef-repo/.chef
+cp ORGANIZATION-validator.pem ~/chef-repo/.chef
+cp knife.rb ~/chef-repo/.chef
+</pre>
+
+h3. Cloud setup
+
+If you can use the normal knife bootstrap commands to launch a machine, you can skip this step.
+
+Right now cluster chef works well with AWS.  If you're interested in modifying it to work with other cloud providers, "see here":https://github.com/infochimps/cluster_chef/issues/28 or get in touch.
+
+Steps:
+
+* sign up for an AWS account
+* Follow the "Knife with AWS quickstart":http://wiki.opscode.com/display/chef/Launch+Cloud+Instances+with+Knife on the opscode wiki.
 
 h4. AWS credentials
 
