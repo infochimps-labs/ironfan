@@ -87,10 +87,13 @@ Some general principles of how we use chef.
 
 h2. Getting Started
 
+This assumes you have basic familiarity with chef and
+
+If you can run knife and use the web browser to see you EC2 console, you can start here. If not, e
 
 h3. Setup
 
-Ensure these gems are installed:
+Install these gems (you may have several installed already):
 
 <pre>
 sudo gem install chef fog highline configliere net-ssh-multi formatador terminal-table
@@ -119,37 +122,7 @@ h3. Set up Knife on your local machine, and a Chef Server in the cloud
 
 If you already have a working chef installation you can skip this section.
 
-To get started with knife and chef, follow the "Chef Quickstart,":http://wiki.opscode.com/display/chef/Quick+Start We use the hosted chef service and are very happy, but there are instructions to set up a chef server too.
-
-One modification: rather than cloning the "skeleton cookbook repo":https://github.com/opscode/chef-repo directly, consider forking and renaming it to something like "YOURNAME-cookbooks". Set it up as a private repo if possible.
-
-Summary of the quickstart steps:
-
-<pre>
-# Make sure ruby, rubygems, and git are installed on your machine.
-# ...
-
-# Sign up for an opscode account
-# (download all the keys and stuff, put them somewhere for the moment)
-
-# install necessary gems:
-sudo gem install chef fog highline configliere net-ssh-multi formatador terminal-table
-
-# Clone the git repo to your machine
-
-cd ~/WHERE_MY_CODE_LIVES/
-git clone git://github.com/YOUR_NAME/YOURNAME-cookbooks.git # the fork you just made
-
-# Create the .chef config directory
-cd YOURNAME-cookbooks
-mkdir -p .chef
-
-# Copy the keys and knife configuration you downloaded earlier into this directory:
-# Replace USERNAME with your Hosted Chef Username, and ORGANIZATION with the short-name you provided when you signed up.
-cp USERNAME.pem ~/chef-repo/.chef
-cp ORGANIZATION-validator.pem ~/chef-repo/.chef
-cp knife.rb ~/chef-repo/.chef
-</pre>
+To get started with knife and chef, follow the "Chef Quickstart,":http://wiki.opscode.com/display/chef/Quick+Start We use the hosted chef service and are very happy, but there are instructions on the wiki to set up a chef server too. Stop when you get to "Bootstrap the Ubuntu system" -- cluster chef is going to make that much easier.
 
 h3. Cloud setup
 
