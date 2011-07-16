@@ -94,7 +94,7 @@ h3. Setup
 Install these gems (you may have several installed already):
 
 <pre>
-sudo gem install chef fog highline configliere net-ssh-multi formatador terminal-table
+sudo gem install chef fog highline configliere net-ssh-multi formatador terminal-table gorillib extlib
 </pre>
 
 (and maybe right_aws and broham?)
@@ -184,9 +184,12 @@ h4. Copy over the simple demo cluster
 
 <pre>
 mkdir -p $CHEF_REPO_DIR/site-cookbooks $CHEF_REPO_DIR/clusters
-cp cluster_chef/clusters/demosimple ./clusters
-cd site-cookbooks
-ln -s ../cluster_chef/
+cp cluster_chef/clusters/demosimple.rb ./clusters
+
+cd $CHEF_REPO_DIR/site-cookbooks
+ln -s ../cluster_chef/site-cookbooks/{nfs,big_package,cluster_chef,cluster_service_discovery,firewall,motd} .
+
+knife cookbook upload nfs big_package cluster_chef cluster_service_discovery firewall motd
 </pre>
 
 h4. AWS credentials
