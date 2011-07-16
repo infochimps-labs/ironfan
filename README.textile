@@ -180,15 +180,20 @@ If you type @knife cluster launch@ you should see it found the new scripts:
 
 h3. Your first cluster
 
-h4. Copy over the simple demo cluster
+h4. Create a simple demo cluster
 
+Create a directory for your clusters; copy the demosimple cluster and its associated roles from cluster_chef:
 <pre>
-mkdir -p $CHEF_REPO_DIR/site-cookbooks $CHEF_REPO_DIR/clusters
-cp cluster_chef/clusters/demosimple.rb ./clusters
+mkdir -p $CHEF_REPO_DIR/clusters
+cp cluster_chef/clusters/{defaults,demosimple}.rb ./clusters/
+cp cluster_chef/roles/{big_package,nfs_*,ssh}.rb  ./roles/
+</pre>
 
+Symlink in the cookbooks you'll need, and upload them to your chef server:
+<pre>
+mkdir -p $CHEF_REPO_DIR/site-cookbooks
 cd $CHEF_REPO_DIR/site-cookbooks
 ln -s ../cluster_chef/site-cookbooks/{nfs,big_package,cluster_chef,cluster_service_discovery,firewall,motd} .
-
 knife cookbook upload nfs big_package cluster_chef cluster_service_discovery firewall motd
 </pre>
 

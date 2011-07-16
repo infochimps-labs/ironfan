@@ -12,8 +12,14 @@ ClusterChef.cluster 'demosimple' do
 
   facet :homebase do
     instances           1
-    role                "nfs_server"
-    role                "big_package"
+
+    facet_role do
+      run_list(*%w[
+       role[nfs_server]
+       role[big_package]
+      ])
+    end
+
   end
 
   chef_attributes({
