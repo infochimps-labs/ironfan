@@ -1,7 +1,6 @@
 bash -c '
 
 RUBY_VERSION=1.9.1 # this actually installs 1.9.2, it just says 1.9.1
-REMOTE_FILE_URL_BASE="http://github.com/infochimps/cluster_chef/raw/master/config"
 eval `cat /etc/lsb-release `
 export DEBIAN_FRONTEND=noninteractive
 
@@ -39,8 +38,18 @@ EOP
 awk NF /tmp/validation.pem > /etc/chef/validation.pem
 rm /tmp/validation.pem
 
-echo -e "`date` \n\n**** \n**** Pulling in chef client script:\n****\n"
-wget --no-check-certificate -nv ${REMOTE_FILE_URL_BASE}/client-v2.rb -O /etc/chef/client.rb
+echo -e "`date` \n\n**** \n**** Creating chef client script:\n****\n"
+
+(
+cat <<'EOP'
+log_level        :info
+log_location     STDOUT
+chef_server_url        "<%= Chef::Config[:chef_server] %>"
+validation_client_name "<%= Chef::Config[:validation_client_name] %>"
+node_name              "<%= @config[:node_name] %>"
+puts "=> chef client #{node_name} on #{chef_server_url}"
+EOP
+) > /etc/chef/client.rb
 
 echo -e "`date` \n\n**** \n**** Adding chef client runit scripts:\n****\n"
 service chef-client stop 2>/dev/null ; sleep 1 ; killall chef-client 2>/dev/null

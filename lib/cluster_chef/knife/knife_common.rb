@@ -93,6 +93,8 @@ module ClusterChef
       bootstrap.config[:identity_file]  = config[:identity_file]  || node.cloud.ssh_identity_file
       bootstrap.config[:distro]         = config[:distro]         || node.cloud.bootstrap_distro
       bootstrap.config[:use_sudo]       = true unless config[:use_sudo] == false
+      bootstrap.config[:node_name]      = node.fullname
+
       Chef::Log.debug JSON.pretty_generate(bootstrap.config)
       bootstrap
     end
