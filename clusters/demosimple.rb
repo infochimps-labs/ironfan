@@ -10,6 +10,12 @@ ClusterChef.cluster 'demosimple' do
     availability_zones  ['us-east-1a']
   end
 
+  cluster_role do
+    run_list(*%w[
+       role[chef_client]
+    ])
+  end
+
   facet :homebase do
     instances           1
 

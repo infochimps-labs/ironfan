@@ -145,6 +145,14 @@ cookbook_path            [
   "#{cluster_chef_path}/cookbooks",
 ]
 
+# If you primarily use AWS cloud services:
+knife[:ssh_address_attribute] = 'cloud.public_hostname'
+knife[:ssh_user] = 'ubuntu'
+
+# Configure bootstrapping
+knife[:bootstrap_runs_chef_client] = true
+bootstrap_chef_version   "~> 0.10.0"
+
 # AWS access credentials
 knife[:aws_access_key_id]      = "XXXXXXXXXXX"
 knife[:aws_secret_access_key]  = "XXXXXXXXXXXXX"
@@ -180,6 +188,8 @@ If you type @knife cluster launch@ you should see it found the new scripts:
 
 h3. Your first cluster
 
+Let's create a cluster called 'demosimple'. It's, well, a simple demo cluster.
+
 h4. Create a simple demo cluster
 
 Create a directory for your clusters; copy the demosimple cluster and its associated roles from cluster_chef:
@@ -202,7 +212,7 @@ knife cookbook upload nfs big_package cluster_chef cluster_service_discovery fir
 
 h4. AWS credentials
 
-Make a cloud keypair, a secure key for communication with Amazon AWS cloud. 
+Make a cloud keypair, a secure key for communication with Amazon AWS cloud. cluster_chef expects a keypair named after its cluster -- this is a best practice that helps keep your environments distinct.
 
 # Log in to the "AWS console":http://bit.ly/awsconsole and create a new keypair named @demosimple@. Your browser will download the private key file.
 # Move the private key file you just downloaded to your .chef dir, and make it private key unsnoopable, or ssh will complain:
