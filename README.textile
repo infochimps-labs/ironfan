@@ -141,7 +141,7 @@ cache_options( :path => "#{ENV['HOME']}/.chef/checksums" )
 
 cookbook_path            [
   "#{current_dir}/../cookbooks",
-  "#{current_dir}/../site-cookbooks"
+  "#{current_dir}/../site-cookbooks",
   "#{cluster_chef_path}/cookbooks",
 ]
 
@@ -165,43 +165,12 @@ You should see all the cookbooks defined in cluster_chef/cookbooks (ant, apt, ..
 h4. Cluster chef's Knife plugins
 
 <pre>
-mkdir -p $DOT_CHEF_DIR/plugins $DOT_CHEF_DIR/bootstrap
-cd $DOT_CHEF_DIR/plugins
-ln -s $CHEF_REPO_DIR/cluster_chef/lib/cluster_chef/knife/*.rb .
-ln -s $CHEF_REPO_DIR/cluster_chef/lib/cluster_chef/knife/bootstrap/* $DOT_CHEF_DIR/bootstrap/
+mkdir -p $DOT_CHEF_DIR/plugins
+ln -s $CHEF_REPO_DIR/cluster_chef/lib/cluster_chef/knife           $DOT_CHEF_DIR/plugins/knife
+ln -s $CHEF_REPO_DIR/cluster_chef/lib/cluster_chef/knife/bootstrap $DOT_CHEF_DIR/bootstrap
 </pre>
 
-h3. Your first cluster
-
-h4. 
-
-<pre>
-mkdir -p $CHEF_REPO_DIR/site-cookbooks $CHEF_REPO_DIR/clusters
-cd $CHEF_REPO_DIR
-cp cluster_chef/clusters/demoweb ./clusters
-cd site-cookbooks
-ln -s ../cluster_chef/
-</pre>
-
-
-
-h4. AWS credentials
-
-Make a cloud keypair, a secure key for communication with Amazon AWS cloud. 
-
-# Log in to the "AWS console":http://bit.ly/awsconsole and create a new keypair named @demoweb@. Your browser will download the private key file.
-# Move the private key file you just downloaded to your .chef dir, and make it private key unsnoopable, or ssh will complain:
-
-<pre>
-mv ~/downloads/demoweb.pem $DOT_CHEF_DIR/demoweb.pem
-chmod 600 $DOT_CHEF_DIR/*.pem
-</pre>
-
-h3. Cluster chef knife commands
-
-h4. knife cluster launch
-
-Now if you type @knife cluster launch@ you should see it found the new scripts:
+If you type @knife cluster launch@ you should see it found the new scripts:
 
 <pre>
     ** CLUSTER COMMANDS **
@@ -209,17 +178,40 @@ Now if you type @knife cluster launch@ you should see it found the new scripts:
     knife cluster show CLUSTER_NAME [FACET_NAME] (options)
 </pre>
 
-Go ahead and launch a cluster:
+h3. Your first cluster
+
+h4. Copy over the simple demo cluster
 
 <pre>
-    knife cluster launch demoweb master --bootstrap
+mkdir -p $CHEF_REPO_DIR/site-cookbooks $CHEF_REPO_DIR/clusters
+cp cluster_chef/clusters/demosimple ./clusters
+cd site-cookbooks
+ln -s ../cluster_chef/
 </pre>
 
-It will kick off a node and then bootstrap it.  By the time it's done, you should be able to see the hadoop dashboard (follow the instructions for proxy setup). Once you're convinced the cluster works, kick off the workers:
+h4. AWS credentials
+
+Make a cloud keypair, a secure key for communication with Amazon AWS cloud. 
+
+# Log in to the "AWS console":http://bit.ly/awsconsole and create a new keypair named @demosimple@. Your browser will download the private key file.
+# Move the private key file you just downloaded to your .chef dir, and make it private key unsnoopable, or ssh will complain:
 
 <pre>
-    knife cluster launch demoweb worker --bootstrap
+mv ~/downloads/demosimple.pem $DOT_CHEF_DIR/demosimple.pem
+chmod 600 $DOT_CHEF_DIR/*.pem
 </pre>
+
+h3. Cluster chef knife commands
+
+h4. knife cluster launch
+
+Hooray! You're ready to launch a cluster:
+
+<pre>
+    knife cluster launch demosimple homebase --bootstrap
+</pre>
+
+It will kick off a node and then bootstrap it. You'll see it install a whole bunch of things. Yay.
 
 h2. Extended Installation Notes
 
