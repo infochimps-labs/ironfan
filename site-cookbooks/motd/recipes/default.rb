@@ -30,7 +30,7 @@ silliness = get_silly
 motd_vars = {
       :silliness          => silliness,
 }
-motd_vars[:provides_service] = node[:provides_service].keys.map(&:to_s).join(', ') unless node[:provides_service].blank?
+motd_vars[:provides_service] = node[:provides_service].keys.map(&:to_s).join(', ') unless node[:provides_service].nil?
 
 template "/etc/motd" do
   owner  "root"

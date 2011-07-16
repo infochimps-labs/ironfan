@@ -197,7 +197,7 @@ Create a directory for your clusters; copy the demosimple cluster and its associ
 <pre>
 mkdir -p $CHEF_REPO_DIR/clusters
 cp cluster_chef/clusters/{defaults,demosimple}.rb ./clusters/
-cp cluster_chef/roles/{big_package,nfs_*,ssh}.rb  ./roles/
+cp cluster_chef/roles/{big_package,nfs_*,ssh,base_role}.rb  ./roles/
 for foo in roles/*.rb ; do knife role from file $foo ; done
 </pre>
 
