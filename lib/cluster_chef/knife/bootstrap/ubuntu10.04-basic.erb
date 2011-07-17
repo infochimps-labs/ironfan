@@ -34,4 +34,32 @@ cat <<'EOP'
 EOP
 ) > /etc/chef/first-boot.json
 
-<%= start_chef %>'
+echo -e "`date` \n\n**** \n**** Adding chef client runit scripts:\n****\n"
+service chef-client stop 2>/dev/null ; sleep 1 ; killall chef-client 2>/dev/null
+mkdir -p /var/log/chef /var/chef /etc/sv/chef-client/log/main
+cat > /etc/sv/chef-client/log/run <<EOF
+#!/bin/bash
+exec svlogd -tt ./main
+EOF
+cat > /etc/sv/chef-client/run <<EOF
+#!/bin/bash
+exec 2>&1
+exec /usr/bin/env chef-client -i 43200 -s 20 -L /var/log/chef/client.log
+EOF
+chmod +x  /etc/sv/chef-client/log/run /etc/sv/chef-client/run
+ln -nfs /usr/bin/sv /etc/init.d/chef-client
+
+<%- if (@config[:bootstrap_runs_chef_client].to_s == 'true') || (@chef_config.knife[:bootstrap_runs_chef_client].to_s == 'true') %>
+echo -e "`date` \n\n**** \n**** First run of chef:\n****\n"
+<%= start_chef %>
+<%- end %>
+
+echo -e "`date` \n\n**** \n**** Cleanup:\n****\n"
+updatedb
+
+echo -e "`date` \n\n**** \n**** Enabling chef client service:\n****\n"
+ln -nfs /etc/sv/chef-client /etc/service/chef-client
+service chef-client start
+
+echo -e "`date` \n\n**** \n**** Cluster Chef client bootstrap complete\n****\n"
+'

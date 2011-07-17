@@ -4,6 +4,8 @@ RUBY_VERSION=1.9.1 # this actually installs 1.9.2, it just says 1.9.1
 eval `cat /etc/lsb-release `
 export DEBIAN_FRONTEND=noninteractive
 
+if [ ! -f /usr/bin/chef-client ]; then
+
 echo -e "`date` \n\n**** \n**** apt update:\n****\n"
 apt-get    update
 apt-get -y upgrade
@@ -16,16 +18,23 @@ echo -e "`date` \n\n**** \n**** Installing ruby version ${RUBY_VERSION}:\n****\n
 apt-get install -y ruby${RUBY_VERSION}-full rubygems${RUBY_VERSION} 
 sudo update-alternatives --install /usr/bin/ruby ruby /usr/bin/ruby${RUBY_VERSION} 100 --slave /usr/bin/ri ri /usr/bin/ri${RUBY_VERSION} --slave /usr/bin/irb irb /usr/bin/irb${RUBY_VERSION} --slave /usr/bin/erb erb /usr/bin/erb${RUBY_VERSION} --slave /usr/bin/gem gem /usr/bin/gem${RUBY_VERSION} --slave /usr/share/man/man1/ruby.1.gz ruby.1.gz /usr/share/man/man1/ruby${RUBY_VERSION}.1.gz
 
-if ruby -e "exit(%x{gem --version} < \"1.8.5\" ? 0 : -1 )" ; then
+if ruby -e "exit(%x{gem --version} < \"1.6.2\" ? 0 : -1 )" ; then
   echo -e "`date` \n\n**** \n**** Unchaining rubygems from the tyrrany of ubuntu:\n****\n"
-  export REALLY_GEM_UPDATE_SYSTEM=true
-  gem install --no-rdoc --no-ri rubygems-update; /var/lib/gems/${RUBY_VERSION}/bin/update_rubygems ; gem update --system ; gem --version
+  # export REALLY_GEM_UPDATE_SYSTEM=true
+  # gem install --no-rdoc --no-ri rubygems-update; /var/lib/gems/${RUBY_VERSION}/bin/update_rubygems ; gem update --system ; gem --version
+  cd /tmp
+  wget http://production.cf.rubygems.org/rubygems/rubygems-1.6.2.tgz
+  tar zxf rubygems-1.6.2.tgz
+  cd rubygems-1.6.2
+  ruby setup.rb --no-format-executable
 fi
 
 echo -e "`date` \n\n**** \n**** Installing chef:\n****\n"
 gem install ohai --no-rdoc --no-ri --verbose
 gem install chef --no-rdoc --no-ri --verbose <%= bootstrap_version_string %>
 gem install --no-rdoc --no-ri extlib json ruby-shadow right_aws
+
+fi # if no chef-client
 
 echo -e "`date` \n\n**** \n**** Knifing in the chef client config files:\n****\n"
 mkdir -p /etc/chef
@@ -69,7 +78,7 @@ ln -nfs /usr/bin/sv /etc/init.d/chef-client
 
 <%- if (@config[:bootstrap_runs_chef_client].to_s == 'true') || (@chef_config.knife[:bootstrap_runs_chef_client].to_s == 'true') %>
 echo -e "`date` \n\n**** \n**** First run of chef:\n****\n"
-/usr/bin/chef-client -j /etc/chef/first-boot.json
+<%= start_chef %>
 <%- end %>
 
 echo -e "`date` \n\n**** \n**** Cleanup:\n****\n"
