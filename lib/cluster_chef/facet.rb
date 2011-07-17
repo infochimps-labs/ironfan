@@ -20,7 +20,7 @@ module ClusterChef
       name
     end
 
-    def facet_role name=nil, &block 
+    def facet_role name=nil, &block
       @facet_role_name = name if name
       if block_given?
         @facet_role = Chef::Role.new
@@ -28,7 +28,7 @@ module ClusterChef
         # Do some magic to make it so that the role definition knows @cluster and @facet
         cluster = cluster
         facet = self
-        @facet_role.instance_eval { @facet = facet; @cluster = cluster }
+        @facet_role.instance_eval{ @facet = facet; @cluster = cluster }
 
         @facet_role.instance_eval( &block )
         @facet_role.name @facet_role_name

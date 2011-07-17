@@ -34,4 +34,8 @@ sudo modprobe nfsd
 
 sudo apt-get install -y nfs-kernel-server
 
+sudo service nfs-kernel-server restart
+
+echo -e "\n\n *******\nYou must restart the server for NFS to actuate\n\n *****\n"
+
 #### END #####

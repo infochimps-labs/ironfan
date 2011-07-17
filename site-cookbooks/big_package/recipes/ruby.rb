@@ -26,11 +26,10 @@ pkgs = []
 Chef::Log.debug [ node[:ruby] ].inspect + "\n\n!!!\n\n"
 
 gem_pkgs = %w[
-   rest-client oauth crack
-   htmlentities right_aws libxml-ruby 
+   rest-client oauth crack jeweler yard
+   htmlentities right_aws libxml-ruby
    wirble awesome_print looksee
-   echoe jeweler yard net-proto net-scp net-sftp net-ssh net-ssh-multi
-   imw chimps icss
+   net-proto net-scp net-sftp net-ssh net-ssh-multi
 ]
 
 # !!!!!
@@ -39,7 +38,7 @@ gem_pkgs = %w[
 # version of ruby or the other.  You should instead use an .rvmrc and Gemfile
 # (bundler) to install them specifically for your program.
 #
-# oniguruma nokogiri libruby-extras uuidtools idn hpricot nokogiri
+# oniguruma nokogiri libruby-extras uuidtools idn hpricot nokogiri echoe
 # goliath ruby-debug19 [anything with 19 or 18 in it]
 #
 
