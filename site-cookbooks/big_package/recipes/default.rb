@@ -9,11 +9,9 @@ packages_list = %w[
   tidy
   ifstat
 ]
+
 if node[:lsb][:release].to_f > 9.0
-  packages_list += %w[ ec2-api-tools ec2-ami-tools ]
-end
-if node[:lsb][:release].to_f > 10.0
-  packages_list += %w[ diffutils ]
+  packages_list += %w[ ec2-ami-tools ]
 end
 
 packages_list.each do |pkg|

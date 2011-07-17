@@ -3,7 +3,10 @@ packages_list = %w[
   iotop
   gt5
 ]
-#  elinks
+
+if node[:lsb][:release].to_f > 9.0
+  packages_list += %w[ ec2-api-tools ]
+end
 
 if node[:lsb][:release].to_f > 9.0
   packages_list += %w[ jardiff ]
