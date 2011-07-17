@@ -25,8 +25,6 @@ rm /tmp/validation.pem
 (
 cat <<'EOP'
 <%= config_content %>
-node_name  "<%= @config[:node_name] %>"
-puts "=> chef client #{node_name} on #{chef_server_url}"
 EOP
 ) > /etc/chef/client.rb
 

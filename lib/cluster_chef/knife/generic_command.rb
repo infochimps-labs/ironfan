@@ -22,16 +22,6 @@ module ClusterChef
   class Script < Chef::Knife
     include ClusterChef::KnifeCommon
 
-    # method to nodes should be filtered on
-    def slice_criterion
-      :exists?
-    end
-    
-    # override in subclass to confirm risky actions
-    def confirm_execution *args
-      # pass
-    end
-    
     deps do
       ClusterChef::KnifeCommon.load_deps
     end
@@ -71,7 +61,7 @@ module ClusterChef
 
     def perform_execution target
       puts "Running #{sub_command}:"
-      target.send(sub_command)      
+      target.send(sub_command)
     end
   end
 end

@@ -26,6 +26,16 @@ module ClusterChef
       target
     end
 
+    # method to nodes should be filtered on
+    def slice_criterion
+      :exists?
+    end
+
+    # override in subclass to confirm risky actions
+    def confirm_execution *args
+      # pass
+    end
+
     #
     # Get a slice of nodes matching the given filter
     #
@@ -84,16 +94,15 @@ module ClusterChef
       bootstrap = Chef::Knife::Bootstrap.new
       bootstrap.config.merge!(config)
 
-      Chef::Log.debug self.class.options
-
       bootstrap.name_args               = [ hostname ]
+      bootstrap.config[:node]           = node
       bootstrap.config[:run_list]       = node.run_list
       bootstrap.config[:ssh_user]       = config[:ssh_user]       || node.cloud.ssh_user
       bootstrap.config[:attribute]      = config[:attribute]
       bootstrap.config[:identity_file]  = config[:identity_file]  || node.cloud.ssh_identity_file
       bootstrap.config[:distro]         = config[:distro]         || node.cloud.bootstrap_distro
       bootstrap.config[:use_sudo]       = true unless config[:use_sudo] == false
-      bootstrap.config[:node_name]      = node.fullname
+      bootstrap.config[:chef_node_name] = node.fullname
 
       Chef::Log.debug JSON.pretty_generate(bootstrap.config)
       bootstrap

@@ -97,7 +97,7 @@ module ClusterChef
     end
 
     def to_s
-      super[0..-3] + " chef: #{in_chef? && chef_node.node_name} fog: #{in_cloud? && fog_server.id}}>"
+      super[0..-3] + " chef: #{in_chef? && chef_node.name} fog: #{in_cloud? && fog_server.id}}>"
     end
 
     #
