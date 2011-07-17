@@ -4,9 +4,9 @@ Chef is a powerful tool for maintaining and describing the software and configur
 
 cluster_chef is
 
-* a clean, expressive way to describe how machines and roles are assembled into a working cluster
-* Our collection of Industrial-strength, cloud-ready recipes for Hadoop, Cassandra, HBase, Elasticsearch and more
-* a set of conventions and helpers that make provisioning cloud machines easier
+* a clean, expressive way to describe how machines and roles are assembled into a working cluster.
+* Our collection of Industrial-strength, cloud-ready recipes for Hadoop, Cassandra, HBase, Elasticsearch and more.
+* a set of conventions and helpers that make provisioning cloud machines easier.
 
 h2. Walkthrough
 
@@ -56,17 +56,17 @@ Lastly, we define what machines to use for this cluster. Instead of having to lo
 The following commands launch each machine, and once ready, ssh in to install chef and converge all its software.
 
 <pre>
-    knife cluster launch demohadoop master --bootstrap
-    knife cluster launch demohadoop worker --bootstrap
+knife cluster launch demohadoop master --bootstrap
+knife cluster launch demohadoop worker --bootstrap
 </pre>
 
 You can also now launch the entire cluster at once with the following
 
 <pre>
-   knife cluster launch demohadoop --bootstrap
+knife cluster launch demohadoop --bootstrap
 </pre>
 
-The cluster launch operation is (mostly) idempotent. (There is currently a short time after the completion of a cluster launch where a second cluster launch will create extra nodes that do not belong.)
+The cluster launch operation is idempotent: nodes that are running won't be started!
 
 h2. Philosophy
 
@@ -254,7 +254,17 @@ Steps:
 
 Right now cluster chef works well with AWS.  If you're interested in modifying it to work with other cloud providers, "see here":https://github.com/infochimps/cluster_chef/issues/28 or get in touch.
 
-h3. Setup for Knife versions before 0.10
+h3. Tips and Troubleshooting
+
+h5. Hadoop namenode bootstrap
+
+Once the master runs to completion with all daemons started, remove the hadoop_initial_bootstrap recipe from its run_list. (Note that you may have to edit the runlist on the machine itself depending on how you bootstrapped the node).
+
+h5. Problems starting NFS server on ubuntu maverick 
+
+For problems starting NFS server on ubuntu maverick systems, read, understand and then run /tmp/fix_nfs_on_maverick_amis.sh -- See "this thread for more":http://fossplanet.com/f10/[ec2ubuntu]-not-starting-nfs-kernel-daemon-no-support-current-kernel-90948/
+
+h5. Setup for Knife versions before 0.10
 
 On older versions of chef that don't have a plugin mechanism for new commands, we have to do surgery on the knife itself... we'll just symlink the new commands into chef's lib/chef/knife directory, and symlink the bootstrap templates into chef's lib/chef/knife/bootstrap directory. Set the path to your cluster_chef directory and run the following:
 
@@ -262,60 +272,3 @@ On older versions of chef that don't have a plugin mechanism for new commands, w
     sudo ln -s $CLUSTER_CHEF_DIR/lib/cluster_chef/knife/*.rb            $(dirname `gem which chef`)/chef/knife/
     sudo ln -s $CLUSTER_CHEF_DIR/lib/cluster_chef/knife/bootstrap/*     $(dirname `gem which chef`)/chef/knife/bootstrap/
 </pre>
-
-Cluster chef is not currently set up to work as a pluggable gem for chef 0.10.0, but will in the near future. Until that time, you can use the knife commands in your local plugins directory with the following command:
-
-<pre>
-    ln -s $CLUSTER_CHEF_DIR/lib/cluster_chef/knife  ~/.chef/plugins/knife
-    ln -s $CLUSTER_CHEF_DIR/lib/cluster_chef/knife/bootstrap  ~/.chef/bootstrap
-</pre> 
-
-h3. Gotchas
-
-* The initial startup is still finicky, but is at least down to only two passes for hadoop:
-
-<pre>
-    for foo in hadoop-0.20-{datanode,namenode,tasktracker,jobtracker,secondarynamenode} ; do sudo service $foo stop ; done
-    sudo chef-client
-</pre>
-
-* For hbase, still dialing it in but there's also this:  
-  
-<pre>
-    sudo -u hdfs hadoop fs -chown -R hbase:hbase /hadoop/hbase
-    sudo chef-client
-</pre>
-
-* Once the master runs to completion with all daemons started, remove the hadoop_initial_bootstrap recipe from its run_list. (Note that you may have to edit the runlist on the machine itself depending on how you bootstrapped the node).
-
-* For problems starting NFS server on ubuntu maverick systems, read, understand and then run /tmp/fix_nfs_on_maverick_amis.sh -- See "this thread for more":http://fossplanet.com/f10/[ec2ubuntu]-not-starting-nfs-kernel-daemon-no-support-current-kernel-90948/
-
-h3. Zero-bootstrap, fire and forget cluster launch!
-
-Note: Although you can (probably) still use broham to launch a cluster, cluster chef no longer needs it. ClusterChef is now able to assign node with node names without external assistnace.
-
-* Register for Amazon SimpleDB. (Although you do need a credit card, there's no conceivable way broham will approach the free limit.)
-* You'll have to run the following one-time command:
-
-<pre>
-    sudo gem install broham configliere right_aws
-    ruby -rubygems -e 'require "broham"; Broham.establish_connection :access_key=>"YOUR_ACCESS_KEY", :secret_access_key=>"YOUR_KEY"; Broham.create_domain'
-</pre>
-  
-* Now you should be able to use broham:<pre> broham-register `hostname` </pre>
-* To have it assign node names dynamically, se the client.rb script in cluster_chef/config as your /etc/chef/client.rb
-
-
-h2. Chef Concepts
-
-ClusterChef will help you create a scalable, efficient compute cluster in the cloud. It has recipes for Hadoop, Cassandra, NFS and more -- use as many or as few as you like. For example, you can create and:
-
-* A small 1-5 node cluster for development or just to play around with Hadoop or Cassandra
-* A spot-priced, ebs-backed cluster for unattended computing at rock-bottom prices
-* A large 30+ machine cluster with multiple EBS volumes per node running Hadoop and Cassandra, with optional NFS for
-
-In chef,
-
-* A *Recipe* gives concrete steps that make a node achieve its desired final configuration. For example, the hadoop_cluster cookbook has a recipe to install the hadoop packages, and another to configure and run the namenode. If the cookbook isn't installed,
-* A *Cookbook* holds a collections of related recipes and attributes, and the templates, libraries &c that support them. 
-* A *Role* is a collection of related recipes and default attributes that work together. For example, there is a 'hadoop_worker'  
