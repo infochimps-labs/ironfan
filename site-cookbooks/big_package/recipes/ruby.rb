@@ -17,20 +17,21 @@
 # limitations under the License.
 #
 
-pkgs = []
-# case node[:platform]
-#   when "ubuntu","debian"          then [ "ruby#{node[:ruby][:version]}", "ruby#{node[:ruby][:version]}-dev", "ri#{node[:ruby][:version]}" ]
-#   when "centos","redhat","fedora" then %w[ ruby ruby-libs ruby-devel ruby-docs ruby-ri ruby-irb ruby-rdoc ruby-mode ]
-#   end
-
 Chef::Log.debug [ node[:ruby] ].inspect + "\n\n!!!\n\n"
 
-gem_pkgs = %w[
-   rest-client oauth crack jeweler yard
-   htmlentities right_aws libxml-ruby
-   wirble awesome_print looksee
-   net-proto net-scp net-sftp net-ssh net-ssh-multi
-]
+rubygems_target_version = "1.6.2"
+bash "update rubygems to >= " do
+  code %Q{ gem update --system }
+  not_if{ `gem update --system`.chomp >= "1.6.2" }
+end
+
+cookbook_file "/tmp/fuck_you_rubygems.diff" do
+  owner   "root"
+  group   "root"
+  mode    "0644"
+  source  "fuck_you_rubygems.diff"
+  action  :create
+end
 
 # !!!!!
 #
@@ -42,16 +43,11 @@ gem_pkgs = %w[
 # goliath ruby-debug19 [anything with 19 or 18 in it]
 #
 
-bash 'update rubygems to >= 1.8.4' do
-  code %Q{ gem update --system }
-  not_if{ `gem update --system`.chomp >= "1.8.4" }
-end
-
-pkgs.each do |pkg|
-  package(pkg){ action :install }
-end
-
-gem_pkgs.each do |pkg|
+%w[
+   rest-client oauth crack jeweler yard
+   htmlentities right_aws libxml-ruby
+   wirble awesome_print looksee
+   net-proto net-scp net-sftp net-ssh net-ssh-multi
+].each do |pkg|
   gem_package(pkg){ action :install }
 end
-

@@ -6,5 +6,4 @@ run_list *%w[
   big_package::python
   big_package::ruby
   big_package::emacs
-  big_package::other
 ]

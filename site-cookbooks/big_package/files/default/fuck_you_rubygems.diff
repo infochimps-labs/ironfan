@@ -1,0 +1,11 @@
+--- /tmp/deprecate.rb	2011-07-17 20:06:35.238787965 +0000
++++ /usr/local/lib/site_ruby/1.9.1/rubygems/deprecate.rb	2011-07-17 20:06:48.908787966 +0000
+@@ -23,7 +23,7 @@
+ module Deprecate
+ 
+   def self.skip # :nodoc:
+-    @skip ||= false
++    @skip ||= true
+   end
+ 
+   def self.skip= v # :nodoc:
