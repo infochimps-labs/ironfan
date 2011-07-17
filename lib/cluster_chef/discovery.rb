@@ -11,7 +11,7 @@ module ClusterChef
   protected
 
     def fog_servers
-      @fog_servers ||= ClusterChef.fog_servers.select{|fs| fs.tags["cluster"] = cluster_name.to_s && (fs.state != "terminated") }
+      @fog_servers ||= ClusterChef.fog_servers.select{|fs| fs.tags["cluster"] == cluster_name.to_s && (fs.state != "terminated") }
     end
 
     def chef_nodes
@@ -30,8 +30,7 @@ module ClusterChef
     #   when we discover cloud instances.
     def discover_chef_nodes!
       chef_nodes.each do |chef_node|
-        cchef = chef_node.cluster_chef
-        if cchef
+        if (cchef = chef_node['cluster_chef'])
           cluster_name = cchef["cluster"] || cchef["name"]
           facet_name =  cchef["facet"]
           facet_index = cchef["index"]
@@ -39,8 +38,10 @@ module ClusterChef
           cluster_name = chef_node["cluster_name"]
           facet_name = chef_node["facet_name"]
           facet_index = chef_node["facet_index"]
+        elsif chef_node.name
+          ( cluster_name, facet_name, facet_index ) = chef_node.name.split(/-/)
         else
-          ( cluster_name, facet_name, facet_index ) = chef_node.node_name.split(/-/)
+          next
         end
         svr = ClusterChef::Server.get(cluster_name, facet_name, facet_index)
         svr.chef_node = chef_node

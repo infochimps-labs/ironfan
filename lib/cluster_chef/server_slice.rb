@@ -61,13 +61,11 @@ module ClusterChef
     end
 
     def facets
-      x = servers.map(&:facet)
-      puts x
-      return x
+      servers.map(&:facet)
     end
 
     def roles
-      return facets.inject( cluster.roles ) { |r,f| r + f.roles }
+      facets.inject( cluster.roles ){|r,f| r + f.roles }
     end
 
     # hack -- take the ssh_identity_file from the first server.
