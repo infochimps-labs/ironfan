@@ -30,38 +30,45 @@ class Chef
       banner "knife cluster kill CLUSTER_NAME [FACET_NAME [INDEXES]] (options)"
       option :dry_run,
         :long => "--dry-run",
-        :description => "Don't really run, just use mock calls"
+        :description => "Don't really run, just use mock calls",
+        :boolean => true
       option :undefined,
         :long => "--undefined",
-        :descritption => "Kill undefined servers"
+        :descritption => "Kill undefined servers",
+        :boolean => true
       option :no_chef,
         :long => "--no-chef",
-        :descrition => "Do not delete chef nodes"
+        :descrition => "Do not delete chef nodes",
+        :boolean => true
       option :no_fog,
         :long => "--no-fog",
-        :description => "Do not delete any fog servers"
-      # option :no_defined,
-      #   :long => "--no-defined",
-      #   :description => "Do not delete any defined nodes (use with --undefined to just clean up)"
+        :description => "Do not delete any fog servers",
+        :boolean => true
       option :yes,
         :long => "--yes",
-        :description => "Skip confirmation that you want to delete the cluster."
+        :description => "Skip confirmation that you want to delete the cluster.",
+        :boolean => true
       option :really,
         :long => "--really",
-        :description => "Skip the second confirmation that you REALLY want to delete the cluster."
+        :description => "Skip the second confirmation that you REALLY want to delete the cluster.",
+        :boolean => true
       option :no,
         :long => "--no",
-        :description => "No matter what, do not delete anything."
+        :description => "No matter what, do not delete anything.",
+        :boolean => true
       option :delete_client,
         :long => "--client",
-        :description => "Delete the chef client along with the chef node."
+        :description => "Delete the chef client along with the chef node.",
+        :boolean => true
       option :delete_node,
         :long => "--node",
         :description => "Delete the chef client along with the chef node.",
+        :boolean => true,
         :default => true
       option :detailed,
         :long => "--detailed",
-        :description => "Show detailed info on servers"
+        :description => "Show detailed info on servers",
+        :boolean => true
 
       def run
         load_cluster_chef
@@ -79,14 +86,21 @@ class Chef
         really_confirm_deletion_of_or_exit
         die("Quitting because --no was passed", 1) if config[:no]
 
-        # Execute every last one of em
-        puts
-        puts "Killing Machines!!"
-        target.select(&:in_cloud?).destroy unless config[:no_fog]
-        puts
-        puts "Killing Chef Nodes!!"
-        target.select(&:in_chef? ).delete_chef(config[:delete_client], config[:delete_node]) unless config[:no_chef]
-        puts
+        # Execute every last mf'ing one of em
+
+        unless config[:no_fog]
+          puts
+          puts "Killing Cloud Machines!!"
+          target.select(&:in_cloud?).destroy
+          puts
+        end
+
+        unless config[:no_chef]
+          puts "Killing Chef Nodes!!"
+          target.select(&:in_chef? ).delete_chef(config[:delete_client], config[:delete_node])
+          puts
+        end
+
         display(target)
       end
 
