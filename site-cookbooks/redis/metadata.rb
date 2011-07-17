@@ -8,6 +8,8 @@ version           "0.1"
   supports os
 end
 
+depends          "runit"
+
 attribute "redis",
   :display_name => "Redis",
   :description => "Hash of Redis attributes",
@@ -42,7 +44,7 @@ attribute "redis/dbfile",
   :display_name => "Redis database filename",
   :description => "Filename for the database storage.  The default is dump.rdb.",
   :default => "dump.rdb"
-    
+
 attribute "redis/client_timeout",
   :display_name => "Redis client timeout",
   :description => "Timeout, in seconds, for disconnection of idle clients.  The default is 300 (5 minutes).",
@@ -52,7 +54,7 @@ attribute "redis/glueoutputbuf",
   :display_name => "Redis output buffer coalescing",
   :description => "Glue small output buffers together into larger TCP packets.  The default is yes.",
   :default => "yes"
-  
+
 attribute "redis/saves",
   :display_name => "Redis disk persistence policies",
   :description => "An array of arrays of time, changed objects policies for persisting data to disk.  The default is [[900, 1], [300, 10], [60, 10000]].",
@@ -72,7 +74,7 @@ attribute "redis/master_port",
   :display_name => "Redis replication master server port",
   :description => "The master server port for this replication slave.  The default is 6379.",
   :default => "6379"
-  
+
 attribute "redis/sharedobjects",
   :display_name => "Redis shared object compression",
   :description => "Attempt to reduce memory use by sharing storage for substrings.  The default is no.",
