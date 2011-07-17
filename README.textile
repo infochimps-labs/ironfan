@@ -139,10 +139,11 @@ chef_server_url          "https://api.opscode.com/organizations/#{organization}"
 cache_type               'BasicFile'
 cache_options( :path => "#{ENV['HOME']}/.chef/checksums" )
 
+# The first things have lowest priority (so, site-cookbooks gets to win)
 cookbook_path            [
+  "#{cluster_chef_path}/cookbooks",
   "#{current_dir}/../cookbooks",
   "#{current_dir}/../site-cookbooks",
-  "#{cluster_chef_path}/cookbooks",
 ]
 
 # If you primarily use AWS cloud services:
@@ -164,6 +165,7 @@ To send all the cookbooks and role to the chef server, visit your cluster_chef d
 
 <pre>
 cd $CHEF_REPO_DIR
+mkdir -p $CHEF_REPO_DIR/site-cookbooks
 knife cookbook upload --all
 for foo in roles/*.rb ; do knife role from file $foo & sleep 1 ; done
 </pre>
@@ -204,8 +206,7 @@ for foo in roles/*.rb ; do knife role from file $foo ; done
 Symlink in the cookbooks you'll need, and upload them to your chef server:
 
 <pre>
-mkdir -p $CHEF_REPO_DIR/site-cookbooks
-cd $CHEF_REPO_DIR/site-cookbooks
+cd $CHEF_REPO_DIR/cookbooks
 ln -s ../cluster_chef/site-cookbooks/{nfs,big_package,cluster_chef,cluster_service_discovery,firewall,motd} .
 knife cookbook upload nfs big_package cluster_chef cluster_service_discovery firewall motd
 </pre>

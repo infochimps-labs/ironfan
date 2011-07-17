@@ -57,7 +57,6 @@ class Chef
         Chef::Log.debug JSON.pretty_generate(config)
 
         @action_nodes = target.chef_nodes
-        # list = @action_nodes.map{|n| format_for_display(n)[config[:attribute]] }.compact
         list = target.servers.map do |svr|
           if svr.chef_node
             format_for_display( svr.chef_node )[config[:attribute]]
