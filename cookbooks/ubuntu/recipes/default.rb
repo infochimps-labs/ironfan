@@ -19,7 +19,7 @@
 
 include_recipe "apt"
 
-%w[ partner opscode multiverse ].each do |repo|
+node[:ubuntu][:apt_sources].each do |repo|
   template "/etc/apt/sources.list.d/#{repo}.list" do
     mode 0644
     variables :code_name => node[:lsb][:codename]
