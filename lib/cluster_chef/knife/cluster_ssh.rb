@@ -44,20 +44,25 @@ class Chef
         :description => "Show detailed info on servers. (Only shows summary with --detailed or --verbose)"
 
       def configure_session
-        config[:attribute] ||= Chef::Config[:knife][:ssh_address_attribute] || "fqdn"
-        config[:ssh_user]  ||= Chef::Config[:knife][:ssh_user]
-
         predicate = @name_args[0].split(/\s+/).map(&:strip)
 
         target = get_slice(*predicate).select(&:sshable?)
 
         display(target) if config[:detailed] || config[:verbose]
 
+        config[:attribute]     ||= Chef::Config[:knife][:ssh_address_attribute] || "fqdn"
+        config[:ssh_user]      ||= Chef::Config[:knife][:ssh_user]
+        config[:identity_file] ||= target.ssh_identity_file
+
+        Chef::Log.debug JSON.pretty_generate(config)
+
+        @action_nodes = target.chef_nodes
+        # list = @action_nodes.map{|n| format_for_display(n)[config[:attribute]] }.compact
         list = target.servers.map do |svr|
-          if svr.fog_server
-            svr.fog_server.public_ip_address
-          elsif svr.chef_node
+          if svr.chef_node
             format_for_display( svr.chef_node )[config[:attribute]]
+          elsif svr.fog_server
+            svr.fog_server.public_ip_address
           else
             nil
           end

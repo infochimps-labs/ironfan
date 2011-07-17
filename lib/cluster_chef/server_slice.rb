@@ -70,6 +70,12 @@ module ClusterChef
       return facets.inject( cluster.roles ) { |r,f| r + f.roles }
     end
 
+    # hack -- take the ssh_identity_file from the first server.
+    def ssh_identity_file
+      return if servers.empty?
+      servers.first.cloud.ssh_identity_file
+    end
+
     #
     # Actions!
     #

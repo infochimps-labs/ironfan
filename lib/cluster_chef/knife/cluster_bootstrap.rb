@@ -52,6 +52,12 @@ class Chef
         ClusterChef::Script.load_deps
       end
 
+      def config_content
+        [ super(),
+          %Q{node_name              "<%= @config[:node_name] %>"}
+          ].join("\n")
+      end
+
       def perform_execution target
         target.each do |svr|
           run_bootstrap(svr, svr.fog_server.dns_name)
