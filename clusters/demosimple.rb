@@ -1,5 +1,4 @@
 ClusterChef.cluster 'demosimple' do
-  use :defaults
   mounts_ephemeral_volumes
   setup_role_implications
 
@@ -8,28 +7,24 @@ ClusterChef.cluster 'demosimple' do
     image_name          "maverick"
     flavor              "t1.micro"
     availability_zones  ['us-east-1a']
-    bootstrap_distro    'ubuntu10.04-cluster_chef'
+    bootstrap_distro    'ubuntu10.04-basic'
   end
 
+  role                  :base_role
+  role                  :chef_client
+  role                  :ssh
+
   cluster_role do
-    run_list(*%w[
-       role[chef_client]
-    ])
   end
 
   facet :homebase do
     instances           1
+    role                :nfs_server
 
     facet_role do
       run_list(*%w[
-       role[nfs_server]
        role[big_package]
       ])
     end
-
   end
-
-  chef_attributes({
-      :webnode_count => facet(:webnode).instances,
-    })
 end

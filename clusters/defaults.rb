@@ -4,7 +4,7 @@ ClusterChef.cluster 'defaults' do
   cloud :ec2 do
     region              'us-east-1'
     availability_zones  ['us-east-1d']
-    flavor              'm1.small'
+    flavor              't1.micro'
     image_name          'lucid'
     backing             'ebs'
     permanent           false
