@@ -117,7 +117,7 @@ git submodule add git@github.com:infochimps/cluster_chef.git cluster_chef
 
 h4. Knife setup
 
-In your <code>$DOT_CHEF_DIR/knife.rb</code>, modify the cookbook path (to include cluster_chef/cookbooks and cluster_chef/site-cookbooks) and to add settings for @cluster_chef_path@ and @keypair_path@. Here's mine:
+In your <code>$DOT_CHEF_DIR/knife.rb</code>, modify the cookbook path (to include cluster_chef/cookbooks and cluster_chef/site-cookbooks) and to add settings for @cluster_chef_path@, @cluster_path@ and @keypair_path@. Here's mine:
 
 <pre>
 current_dir = File.dirname(__FILE__)
@@ -126,6 +126,8 @@ username      = 'CHEF_USERNAME'
 
 # The full path to your cluster_chef installation
 cluster_chef_path File.expand_path("#{current_dir}/../cluster_chef")
+# The list of paths holding clusters
+cluster_path      [ File.expand_path("#{current_dir}/../clusters") ]
 # The directory holding your cloud keypairs
 keypair_path      File.expand_path(current_dir)
 
