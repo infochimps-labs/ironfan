@@ -50,7 +50,7 @@ EOP
 
 (
 cat <<'EOP'
-<%= JSON.pretty_generate({ "run_list" => @run_list }) %>
+<%= { "run_list" => @run_list, "cluster_name" => @config[:node].cluster_name, "facet_name" => @config[:node].facet_name, "facet_index" => @config[:node].facet_index }.to_json %>
 EOP
 ) > /etc/chef/first-boot.json
 
