@@ -5,7 +5,7 @@ packages_list = %w[
   libpcre3-dev libbz2-dev libidn11-dev libxml2-dev libxml2-utils libxslt1-dev libevent-dev
   ant openssl colordiff ack htop makepasswd sysstat
   g++ python-setuptools python-dev
-  s3cmd
+  s3cmd elinks
   tidy
   ifstat
 ]

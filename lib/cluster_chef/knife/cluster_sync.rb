@@ -34,7 +34,7 @@ class Chef
         :default => true
 
       def slice_criterion
-        :created?
+        :exists?
       end
 
       def perform_execution target

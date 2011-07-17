@@ -245,6 +245,7 @@ module ClusterChef
     end
 
     def create_tags
+      return unless created?
       tags = {
         "cluster" => cluster_name,
         "facet"   => facet_name,

@@ -106,8 +106,8 @@ class Chef
 
       def confirm_deletion_of_or_exit target
         delete_message = [
-          (target.chef_nodes.empty?  ? nil : "#{target.chef_nodes.length} chef nodes"),
-          (target.fog_servers.empty? ? nil : "#{target.fog_servers.length} fog servers") ].compact
+          ((config[:no_chef] || target.chef_nodes.empty?)  ? nil : "#{target.chef_nodes.length} chef nodes"),
+          ((config[:no_fog]  || target.fog_servers.empty?) ? nil : "#{target.fog_servers.length} fog servers") ].compact
         puts
         puts "WARNING!!!!"
         puts

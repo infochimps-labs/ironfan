@@ -7,12 +7,13 @@ run_list *%w[
 
 
 # Attributes applied if the node doesn't have it set already.
-default_attributes({
-                     :firewall => {
-                       :port_scan_ssh => {
-                         :window => 20,
-                         :max_conns => 15,
-                         :port => 22
-                       }
-                     }
-                   })
+default_attributes(
+  {
+    :firewall => {
+      :port_scan_ssh => {
+        :window => 20,
+        :max_conns => 15,
+        :port => 22
+      }
+    }
+  })

@@ -221,7 +221,7 @@ module ClusterChef
     end
 
     def delegate_to_fog_servers method
-      fog_servers.map do |fs|
+      fog_servers.compact.map do |fs|
         fs.send(method)
       end
     end
