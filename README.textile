@@ -264,6 +264,12 @@ Right now cluster chef works well with AWS.  If you're interested in modifying i
 
 h3. Tips and Troubleshooting
 
+h5. Help a git deploy recipe has gone limp
+
+Suppose you are using the @git@ resource to deploy a recipe (@george@ for sake of example). If @/var/chef/cache/revision_deploys/var/www/george@ exists then *nothing* will get deployed, even if /var/www/george/{release_sha} is empty or screwy.  If git deploy is acting up in any way, nuke that cache from orbit -- it's the only way to be sure.
+
+ $ sudo rm -rf /var/www/george/{release_sha} /var/chef/cache/revision_deploys/var/www/george
+
 h5. Hadoop namenode bootstrap
 
 Once the master runs to completion with all daemons started, remove the hadoop_initial_bootstrap recipe from its run_list. (Note that you may have to edit the runlist on the machine itself depending on how you bootstrapped the node).

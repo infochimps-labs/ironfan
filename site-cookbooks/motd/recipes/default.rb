@@ -13,24 +13,33 @@ link '/etc/motd' do
 end
 
 def get_silly
-  node_name = node[:node_name]
+  svcs = (node[:provides_service] || {}).keys
   case                                     # max length = 20
-  when node_name =~ /kong/                      then "BORK BORK BORK"
-  when node_name =~ /alphamale/                 then "SERVE SERVE SERVE"
-  when node_name =~ /dev\./                     then "STAGE STAGE STAGE"
-  when node_name =~ /(gibbon|bonobo|chimpmark)/ then "CRUNCH CRUNCH CRUNCH"
-  when node_name =~ /^s\d+\./                   then "SCRAPE SCRAPE SCRAPE"
-  when node_name =~ /(clyde|ham|magilla|ogee)/  then "DATA DATA DATA DATA DATA"
-  when node_name =~ /(hoolock|bobo|yellowhat)/  then "FIND FIND FIND"
-  else                                               "OOK OOK OOK"
+  when (! svcs.grep(/chef_server/).empty?)           then "BORK BORK BORK"
+  when (! svcs.grep(/hadoop/).empty?)                then "CRUNCH CRUNCH CRUNCH"
+  when (! svcs.grep(/scrape/).empty?)                then "SCRAPE SCRAPE SCRAPE"
+  when (! svcs.grep(/hbase|redis|cassandra/).empty?) then "DATA DATA DATA DATA DATA"
+  when (! svcs.grep(/search/).empty?)                then "FIND FIND FIND"
+  when (! svcs.grep(/resque|queue|jenkins/).empty?)  then "ZUG ZUG ZUG"
+  when (! svcs.grep(/staging/).empty?)               then "STAGE STAGE STAGE"
+  when (! svcs.grep(/flume/).empty?)                 then "ROW ROW ROW"
+  when (! svcs.grep(/apache|nginx|web/).empty?)      then "SERVE SERVE SERVE"
+  else                                                    "OOK OOK OOK"
   end
 end
-silliness = get_silly
 
-motd_vars = {
-      :silliness          => silliness,
-}
-motd_vars[:provides_service] = node[:provides_service].keys.map(&:to_s).join(', ') unless node[:provides_service].nil?
+motd_vars = {}
+motd_vars[:roles]            = node[:roles] || []
+motd_vars[:silliness]        = get_silly
+motd_vars[:provides_service] = (node[:provides_service] || {}).map do |svc,info|
+  vals = [svc] + info.map{|k,v| (k == 'timestamp') ? nil : v }.compact
+  vals.join('-')
+end
+
+[ :instance_id, :instance_type, :public_hostname, ].each{|v| motd_vars[v] = (node[:ec2]   || {})[v] || '' }
+[ :security_groups,                               ].each{|v| motd_vars[v] = (node[:ec2]   || {})[v] || [] }
+[ :private_ips, :public_ips                       ].each{|v| motd_vars[v] = (node[:cloud] || {})[v] || [] }
+[ :description                                    ].each{|v| motd_vars[v] = (node[:lsb]   || {})[v] || '' }
 
 template "/etc/motd" do
   owner  "root"

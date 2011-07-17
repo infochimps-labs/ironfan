@@ -1,10 +1,10 @@
 bash -c '
 
 # This is the ubuntu-10.04-gems script from opscode, but it
-# * installs the chef-client service and kicks off the first run of chef
 # * installs ruby 1.9.2, not 1.8.7
-# * pushes the node's identity into the first-boot.json
-# * 
+# * upgrades rubygems rather than installing from source
+# * pushes the node identity into the first-boot.json
+# * installs the chef-client service and kicks off the first run of chef
 
 set -v
 

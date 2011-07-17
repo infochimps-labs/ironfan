@@ -2,6 +2,7 @@ packages_list = %w[
   ifstat
   iotop
   gt5
+  elinks
 ]
 
 if node[:lsb][:release].to_f > 9.0

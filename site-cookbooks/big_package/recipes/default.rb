@@ -5,7 +5,7 @@ Chef::Log.debug [ node[:ruby] ].inspect + "\n\n!!!\n\n"
   libpcre3-dev libbz2-dev libidn11-dev libxml2-dev libxml2-utils libxslt1-dev libevent-dev
   ant openssl colordiff ack htop makepasswd sysstat
   g++ python-setuptools python-dev
-  s3cmd elinks
+  s3cmd
   tidy
   ifstat
 ].each do |pkg|
