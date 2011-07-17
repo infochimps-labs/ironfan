@@ -159,6 +159,7 @@ bootstrap_chef_version   "~> 0.10.0"
 # AWS access credentials
 knife[:aws_access_key_id]      = "XXXXXXXXXXX"
 knife[:aws_secret_access_key]  = "XXXXXXXXXXXXX"
+
 </pre>
 
 h4. Push to chef server
