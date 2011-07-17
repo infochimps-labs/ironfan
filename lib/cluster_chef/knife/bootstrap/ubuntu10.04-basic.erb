@@ -1,4 +1,9 @@
 bash -c '
+
+# This is the ubuntu-10.04-gems script from opscode, but it installs the chef-client service and kicks off the first run of chef
+
+set -v
+
 if [ ! -f /usr/bin/chef-client ]; then
   apt-get update
   apt-get install -y ruby ruby1.8-dev build-essential wget libruby-extras libruby1.8-extras

@@ -1,5 +1,13 @@
 bash -c '
 
+# This is the ubuntu-10.04-gems script from opscode, but it
+# * installs the chef-client service and kicks off the first run of chef
+# * installs ruby 1.9.2, not 1.8.7
+# * pushes the node's identity into the first-boot.json
+# * 
+
+set -v
+
 RUBY_VERSION=1.9.1 # this actually installs 1.9.2, it just says 1.9.1
 eval `cat /etc/lsb-release `
 export DEBIAN_FRONTEND=noninteractive
