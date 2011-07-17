@@ -26,11 +26,12 @@ node.run_state[:java_pkgs] = value_for_platform(
 case node.platform
 when "debian","ubuntu"
   include_recipe "apt"
- 
+
   template "/etc/apt/sources.list.d/canonical.com.list" do
     mode "0644"
     source "canonical.com.list.erb"
     notifies :run, resources(:execute => "apt-get update"), :immediately
+    action :create
   end
 else
   Chef::Log.error("Installation of Sun Java packages are only supported on Debian/Ubuntu at this time.")
