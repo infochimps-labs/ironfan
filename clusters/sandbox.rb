@@ -106,7 +106,7 @@ ClusterChef.cluster 'sandbox' do
           :forwarders => {
             :api_qwerly_com => {
               # Temporary key for alpha testing only
-              :apikey                   => 'ed6mm22b854yyfrkhwrkgxa8'
+              :api_key                   => 'ed6mm22b854yyfrkhwrkgxa8'
             },
             :money_bundle_com           => {}
           },
