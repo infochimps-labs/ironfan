@@ -26,14 +26,17 @@ ClusterChef.cluster 'demojenkins' do
             :host => '0.0.0.0',
             :port => jenkins_server_port,
             :plugins => %w[ github git github-oauth emotional-hudson greenballs dashboard-view ]
-          }
+          },
+          :node => {
+            :home => "/data/jenkins/jenkins-node",
+          },
         },
         :ruby => { :version => '1.9.1' }, # yes 1.9.1 means 1.9.2
       })
   end
 
   facet :master do
-    instances           2
+    instances           1
     cloud.security_group "jenkins_server" do
       authorize_port_range jenkins_server_port  # web console
     end

@@ -21,7 +21,6 @@
 # limitations under the License.
 #
 
-
 # ===========================================================================
 #
 # !!! NOTE !!!!
@@ -30,6 +29,8 @@
 # Any interested party should consider using the jenkins gem instead:
 #   http://rubydoc.info/gems/jenkins/0.6.1/file/README.md
 
+
+include_recipe "jenkins::default"
 
 unless node[:jenkins][:server][:pubkey]
   host = node[:jenkins][:server][:host]
@@ -47,18 +48,19 @@ user node[:jenkins][:node][:user] do
   group     node[:jenkins][:node][:user]
   uid       361
   shell     "/bin/sh"
-  action    :manage
+  action    [:manage, :create]
 end
 
 directory node[:jenkins][:node][:home] do
-  action :create
-  owner node[:jenkins][:node][:user]
-  group node[:jenkins][:node][:user]
+  action    :create
+  recursive true
+  owner     node[:jenkins][:node][:user]
+  group     node[:jenkins][:node][:user]
 end
 
 directory "#{node[:jenkins][:node][:home]}/.ssh" do
-  action :create
-  mode 0700
+  action   :create
+  mode     "0700"
   owner node[:jenkins][:node][:user]
   group node[:jenkins][:node][:user]
 end
@@ -71,21 +73,21 @@ file "#{node[:jenkins][:node][:home]}/.ssh/authorized_keys" do
   content node[:jenkins][:server][:pubkey]
 end
 
-jenkins_node node[:jenkins][:node][:name] do
-  description  node[:jenkins][:node][:description]
-  executors    node[:jenkins][:node][:executors]
-  remote_fs    node[:jenkins][:node][:home]
-  labels       node[:jenkins][:node][:labels]
-  mode         node[:jenkins][:node][:mode]
-  launcher     "ssh"
-  mode         node[:jenkins][:node][:mode]
-  availability node[:jenkins][:node][:availability]
-  env          node[:jenkins][:node][:env]
-  #ssh options
-  host         node[:jenkins][:node][:ssh_host]
-  port         node[:jenkins][:node][:ssh_port]
-  username     node[:jenkins][:node][:ssh_user]
-  password     node[:jenkins][:node][:ssh_pass]
-  private_key  node[:jenkins][:node][:ssh_private_key]
-  jvm_options  node[:jenkins][:node][:jvm_options]
-end
+# jenkins_node node[:jenkins][:node][:name] do
+#   description  node[:jenkins][:node][:description]
+#   executors    node[:jenkins][:node][:executors]
+#   remote_fs    node[:jenkins][:node][:home]
+#   labels       node[:jenkins][:node][:labels]
+#   mode         node[:jenkins][:node][:mode]
+#   launcher     "ssh"
+#   mode         node[:jenkins][:node][:mode]
+#   availability node[:jenkins][:node][:availability]
+#   env          node[:jenkins][:node][:env]
+#   #ssh options
+#   host         node[:jenkins][:node][:ssh_host]
+#   port         node[:jenkins][:node][:ssh_port]
+#   username     node[:jenkins][:node][:ssh_user]
+#   password     node[:jenkins][:node][:ssh_pass]
+#   private_key  node[:jenkins][:node][:ssh_private_key]
+#   jvm_options  node[:jenkins][:node][:jvm_options]
+# end
