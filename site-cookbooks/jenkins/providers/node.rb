@@ -35,9 +35,10 @@ def action_create
 
   cookbook_file "#{node[:jenkins][:node][:home]}/node_info.groovy" do
     source "node_info.groovy"
+    action :create
   end
 
-  jenkins_cli "groovy node_info.groovy #{new_resource.name}" do
+  jenkins_cli "groovy #{node[:jenkins][:node][:home]}/node_info.groovy #{new_resource.name}" do
     block do |stdout|
       current_node = JSON.parse(stdout)
       node_exists = current_node.keys.size > 0
@@ -46,7 +47,7 @@ def action_create
       end
       new_node = new_resource.to_hash
       if !node_exists || jenkins_node_compare(current_node, new_node)
-        ::File.open(gscript, "w") {|f| f.write jenkins_node_manage(new_node) }
+        ::File.open(gscript, "w"){|f| f.write jenkins_node_manage(new_node) }
       end
     end
   end

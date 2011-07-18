@@ -1,12 +1,11 @@
 #
 # Cookbook Name:: jenkins
 # Based on hudson
-# Recipe:: default
+# Recipe:: build_from_github
 #
-# Author:: Doug MacEachern <dougm@vmware.com>
-# Author:: Fletcher Nichol <fnichol@nichol.ca>
+# Author:: Philip (flip) Kromer <flip@infochimps.com>
 #
-# Copyright 2010, VMware, Inc.
+# Copyright 2010, Infochimps, Inc
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,15 +20,11 @@
 # limitations under the License.
 #
 
-Chef::Log.info ['starting jenkins recipe', __FILE__]
+package 'git'
 
-include_recipe "java"
-include_recipe 'jenkins::user_key'
-
-package 'groovy'
-
-if (jenkins_server = provider_for_service(:jenkins_server))
-  node[:jenkins][:server][:url]  = "http://#{jenkins_server[:fqdn]}:#{jenkins_server[:jenkins][:server][:port]}"
-  node[:jenkins][:server][:port] = jenkins_server[:jenkins][:server][:port]
+jenkins_plugins = %w[ git github ]
+unless jenkins_plugins.all?{|jplg| node[:jenkins][:server][:plugins].include?(jplg) }
+  node[:jenkins][:server][:plugins] = (node[:jenkins][:server][:plugins] + jenkins_plugins).uniq
   node.save
 end
+

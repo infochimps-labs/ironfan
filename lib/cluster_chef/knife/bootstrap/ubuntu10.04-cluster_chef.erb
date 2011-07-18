@@ -22,8 +22,7 @@ echo -e "`date` \n\n**** \n**** Installing base packages:\n****\n"
 apt-get install -y build-essential wget runit runit-services
 
 echo -e "`date` \n\n**** \n**** Installing ruby version ${RUBY_VERSION}:\n****\n"
-# apt-get install -y ruby ruby-dev libruby ri ruby1.8 ruby1.8-dev libruby1.8 ri1.8 
-apt-get install -y ruby${RUBY_VERSION}-full rubygems${RUBY_VERSION} 
+apt-get   install -y ruby${RUBY_VERSION} ruby${RUBY_VERSION}-dev libruby${RUBY_VERSION} libruby${RUBY_VERSION}-dbg ri${RUBY_VERSION} rubygems${RUBY_VERSION}
 sudo update-alternatives --install /usr/bin/ruby ruby /usr/bin/ruby${RUBY_VERSION} 100 --slave /usr/bin/ri ri /usr/bin/ri${RUBY_VERSION} --slave /usr/bin/irb irb /usr/bin/irb${RUBY_VERSION} --slave /usr/bin/erb erb /usr/bin/erb${RUBY_VERSION} --slave /usr/bin/gem gem /usr/bin/gem${RUBY_VERSION} --slave /usr/share/man/man1/ruby.1.gz ruby.1.gz /usr/share/man/man1/ruby${RUBY_VERSION}.1.gz
 
 if ruby -e "exit(%x{gem --version} < \"1.6.2\" ? 0 : -1 )" ; then

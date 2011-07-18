@@ -11,9 +11,9 @@
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,23 +21,33 @@
 # limitations under the License.
 #
 
+
+# ===========================================================================
+#
+# !!! NOTE !!!!
+#
+# This recipe doesn't seem to work.
+# Any interested party should consider using the jenkins gem instead:
+#   http://rubydoc.info/gems/jenkins/0.6.1/file/README.md
+
+
 unless node[:jenkins][:server][:pubkey]
   host = node[:jenkins][:server][:host]
   if host == node[:fqdn]
     host = URI.parse(node[:jenkins][:server][:url]).host
   end
-  jenkins_node = search(:node, "fqdn:#{host}").first
-  node.set[:jenkins][:server][:pubkey] = jenkins_node[:jenkins][:server][:pubkey]
+  jenkins_server = provider_for_service(:jenkins_server)
+  node.set[:jenkins][:server][:pubkey] = jenkins_server[:jenkins][:server][:pubkey]
 end
 
-group node[:jenkins][:node][:user] do
-end
-
+group(node[:jenkins][:node][:user]){ gid 361 }
 user node[:jenkins][:node][:user] do
   comment "Jenkins CI node (ssh)"
-  gid node[:jenkins][:node][:user]
-  home node[:jenkins][:node][:home]
-  shell "/bin/sh"
+  home      node[:jenkins][:node][:home]
+  group     node[:jenkins][:node][:user]
+  uid       361
+  shell     "/bin/sh"
+  action    :manage
 end
 
 directory node[:jenkins][:node][:home] do

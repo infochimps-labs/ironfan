@@ -18,8 +18,14 @@
 # limitations under the License.
 #
 
+group(node[:jenkins][:server][:user]){ gid 360 }
 user node[:jenkins][:server][:user] do
+  comment "Jenkins CI node (ssh)"
   home      node[:jenkins][:server][:home]
+  group     node[:jenkins][:server][:user]
+  uid       360
+  shell     "/bin/sh"
+  action    :manage
 end
 
 directory node[:jenkins][:server][:home] do
@@ -35,11 +41,14 @@ directory "#{node[:jenkins][:server][:home]}/plugins" do
 end
 
 node[:jenkins][:server][:plugins].each do |name|
-  remote_file "#{node[:jenkins][:server][:home]}/plugins/#{name}.hpi" do
+  plugin_file = "#{node[:jenkins][:server][:home]}/plugins/#{name}.hpi"
+  remote_file plugin_file do
+    Chef::Log.info "plugin: #{name}"
     source  "#{node[:jenkins][:plugins_mirror]}/latest/#{name}.hpi"
     backup  false
     owner   node[:jenkins][:server][:user]
     group   node[:jenkins][:server][:group]
+    not_if{ File.exists?(plugin_file) }
   end
 end
 
@@ -71,8 +80,8 @@ end
 
 service "jenkins" do
   supports [ :stop, :start, :restart, :status ]
-  # # "jenkins status" will exit(0) even when the process is not running
-  # status_command "test -f #{pid_file} && kill -0 `cat #{pid_file}`"
+  # "jenkins status" will exit(0) even when the process is not running
+  status_command "test -f #{pid_file} && kill -0 `cat #{pid_file}`"
   action :nothing
 end
 provide_service('jenkins_server', :port => node[:jenkins][:server][:port])
@@ -91,6 +100,7 @@ package "jenkins"
 # restart if this run only added new plugins
 log "plugins updated, restarting jenkins" do
   # ugh :restart does not work, need to sleep after stop.
+  notifies :stop,  "service[jenkins]",  :immediately
   notifies :restart,  "service[jenkins]"
   only_if do
     if File.exists?(pid_file)

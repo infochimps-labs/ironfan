@@ -37,16 +37,10 @@ else
   default[:jenkins][:server][:group] = node[:jenkins][:server][:user]
 end
 
-# We'd rather do something like this
-# case node[:jenkins][:server][:host_from].to_s
-# when 'public_ip'  then node[:cloud][:public_ips].first
-# when 'private_ip' then node[:cloud][:private_ips].first
-# else node[:jenkins][:server][:address]
-# end
-
 default[:jenkins][:server][:port]    = 8080
 default[:jenkins][:server][:host]    = node[:fqdn]
-default[:jenkins][:server][:url]     = "http://#{node[:fqdn]}:#{node[:jenkins][:server][:port]}"
+
+default[:jenkins][:server][:jvm_heap] = 384
 
 default[:jenkins][:iptables_allow] = "enable"
 
@@ -62,7 +56,7 @@ default[:jenkins][:server][:use_head] = false
 #See Jenkins >> Nodes >> $name >> Configure
 
 #"Name"
-default[:jenkins][:node][:name]    = node.name
+default[:jenkins][:node][:name]    = node[:fqdn]
 
 #"Description"
 default[:jenkins][:node][:description] =
@@ -79,7 +73,7 @@ if node[:os] == "windows"
 elsif node[:os] == "darwin"
   default[:jenkins][:node][:home] = "/Users/jenkins"
 else
-  default[:jenkins][:node][:home] = "/home/jenkins"
+  default[:jenkins][:node][:home] = "/var/lib/jenkins-node"
 end
 
 #"Labels"
