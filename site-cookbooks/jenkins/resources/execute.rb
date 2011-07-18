@@ -1,7 +1,10 @@
 #
-# Author:: Doug MacEachern <dougm@vmware.com>
 # Cookbook Name:: jenkins
+# Based on hudson
 # Resource:: execute
+#
+# Author:: Doug MacEachern <dougm@vmware.com>
+# Author:: Fletcher Nichol <fnichol@nichol.ca>
 #
 # Copyright:: 2010, VMware, Inc.
 #

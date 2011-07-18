@@ -1,7 +1,10 @@
 #
-# Author:: Doug MacEachern <dougm@vmware.com>
 # Cookbook Name:: jenkins
+# Based on hudson
 # Provider:: cli
+#
+# Author:: Doug MacEachern <dougm@vmware.com>
+# Author:: Fletcher Nichol <fnichol@nichol.ca>
 #
 # Copyright:: 2010, VMware, Inc.
 #
@@ -22,31 +25,16 @@ def action_run
   url = @new_resource.url || node[:jenkins][:server][:url]
   home = @new_resource.home || node[:jenkins][:node][:home]
 
-  jnlp_jar = node[:jenkins][:node][:cli_jar]
-  cli_jar = ::File.join(home, ::File.basename(jnlp_jar))
-  remote_cli_jar = "#{url}/#{jnlp_jar}"
-
   #recipes will chown to jenkins later if this doesn't already exist
-  directory "home for #{::File.basename(jnlp_jar)}" do
+  directory "home for jenkins-cli.jar" do
     action :create
     path node[:jenkins][:node][:home]
   end
 
+  cli_jar = ::File.join(home, "jenkins-cli.jar")
   remote_file cli_jar do
-    source remote_cli_jar
-    mode "0644"
-    backup false
-    action :nothing
-  end
-
-  http_request "HEAD /#{jnlp_jar}" do
-    message ""
-    url remote_cli_jar
-    action :head
-    if ::File.exists?(cli_jar)
-      headers "If-Modified-Since" => ::File.mtime(cli_jar).httpdate
-    end
-    notifies :create, resources(:remote_file => cli_jar), :immediately
+    source "#{url}/jnlpJars/jenkins-cli.jar"
+    not_if { ::File.exists?(cli_jar) }
   end
 
   java_home = node[:jenkins][:java_home] || (node.has_key?(:java) ? node[:java][:jdk_dir] : nil)

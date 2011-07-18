@@ -1,7 +1,10 @@
 #
-# Author:: Doug MacEachern <dougm@vmware.com>
 # Cookbook Name:: jenkins
+# Based on hudson
 # Attributes:: default
+#
+# Author:: Doug MacEachern <dougm@vmware.com>
+# Author:: Fletcher Nichol <fnichol@nichol.ca>
 #
 # Copyright 2010, VMware, Inc.
 #
@@ -19,6 +22,7 @@
 #
 
 
+# default[:jenkins][:mirror]       = "http://updates.jenkins-ci.org"
 default[:jenkins][:apt_mirror]     = "http://pkg.jenkins-ci.org/debian"
 default[:jenkins][:plugins_mirror] = "http://updates.jenkins-ci.org"
 default[:jenkins][:java_home] = ENV['JAVA_HOME']
@@ -44,15 +48,21 @@ default[:jenkins][:server][:port]    = 8080
 default[:jenkins][:server][:host]    = node[:fqdn]
 default[:jenkins][:server][:url]     = "http://#{node[:fqdn]}:#{node[:jenkins][:server][:port]}"
 
+default[:jenkins][:iptables_allow] = "enable"
+
 #download the latest version of plugins, bypassing update center
 #example: ["git", "URLSCM", ...]
 default[:jenkins][:server][:plugins] = []
+
+#working around: http://tickets.opscode.com/browse/CHEF-1848
+#set to true if you have the CHEF-1848 patch applied
+default[:jenkins][:server][:use_head] = false
+
 
 #See Jenkins >> Nodes >> $name >> Configure
 
 #"Name"
 default[:jenkins][:node][:name]    = node.name
-default[:jenkins][:node][:cli_jar] = "jnlpJars/jenkins-cli.jar"
 
 #"Description"
 default[:jenkins][:node][:description] =
@@ -104,7 +114,7 @@ default[:jenkins][:node][:idle_delay] = 1
 #[x] "Environment Variables"
 default[:jenkins][:node][:env] = nil
 
-default[:jenkins][:node][:user] = "jenkins"
+default[:jenkins][:node][:user] = "jenkins-node"
 
 #SSH options
 default[:jenkins][:node][:ssh_host] = node[:fqdn]
@@ -114,3 +124,10 @@ default[:jenkins][:node][:ssh_pass] = nil
 default[:jenkins][:node][:jvm_options] = nil
 #jenkins master defaults to: "#{ENV['HOME']}/.ssh/id_rsa"
 default[:jenkins][:node][:ssh_private_key] = nil
+
+default[:jenkins][:http_proxy][:variant]              = nil
+default[:jenkins][:http_proxy][:www_redirect]         = "disable"
+default[:jenkins][:http_proxy][:listen_ports]         = [ 80 ]
+default[:jenkins][:http_proxy][:host_name]            = nil
+default[:jenkins][:http_proxy][:host_aliases]         = []
+default[:jenkins][:http_proxy][:client_max_body_size] = "1024m"

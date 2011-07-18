@@ -1,12 +1,10 @@
 #
 # Cookbook Name:: jenkins
-# Based on hudson
-# Resource:: cli
+# Recipe:: iptables
 #
-# Author:: Doug MacEachern <dougm@vmware.com>
 # Author:: Fletcher Nichol <fnichol@nichol.ca>
 #
-# Copyright:: 2010, VMware, Inc.
+# Copyright 2011, Fletcher Nichol.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,24 +19,13 @@
 # limitations under the License.
 #
 
-actions :run
-
-attribute :url, :kind_of => String
-attribute :home, :kind_of => String
-attribute :command, :kind_of => String
-attribute :timeout, :kind_of => Integer
-attribute :block, :kind_of => Proc
-
-def initialize(name, run_context=nil)
-  super
-  @action = :run
-  @command = name
-end
-
-def block(&block)
-  if block_given? and block
-    @block = block
-  else
-    @block
+if platform?("redhat","centos","debian","ubuntu")
+  include_recipe "iptables"
+  iptables_rule "port_jenkins" do
+    if node[:jenkins][:iptables_allow] == "enable"
+      enable true
+    else
+      enable false
+    end
   end
 end

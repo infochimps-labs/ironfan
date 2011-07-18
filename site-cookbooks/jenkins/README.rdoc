@@ -10,7 +10,7 @@ Installs and configures Jenkins CI server & node slaves.  Resource providers to 
 
 == Platform:
 
-* 'default' - Server installation - currently supports Red Hat/CentOS 5.x and Ubuntu 9.x/10.4
+* 'default' - Server installation - currently supports Red Hat/CentOS 5.x and Ubuntu 8.x/9.x/10.x
 
 * 'node_ssh' - Any platform that is running sshd.
 
@@ -48,7 +48,6 @@ Where the jenkins_login recipe is simply:
 * jenkins[:node][:description] - Jenkins node description
 * jenkins[:node][:executors] - Number of node executors
 * jenkins[:node][:home] - Home directory ("Remote FS root") of the node
-* jenkins][:node][:cli_jar] - Use "jnlpJars/jenkins-cli.jar" so existing jenkins slaves can talk to jenkins
 * jenkins[:node][:labels] - Node labels
 * jenkins[:node][:mode] - Node usage mode, "normal" or "exclusive" (tied jobs only)
 * jenkins[:node][:launcher] - Node launch method, "jnlp", "ssh" or "command"
@@ -63,6 +62,13 @@ Where the jenkins_login recipe is simply:
 * jenkins[:node][:ssh_pass] - SSH slave password (not required when server is installed via default recipe)
 * jenkins[:node][:ssh_private_key] - jenkins master defaults to: `~/.ssh/id_rsa` (created by the default recipe)
 * jenkins[:node][:jvm_options] - SSH slave JVM options
+* jenkins[:iptables_allow] - if iptables is enabled, add a rule passing 'jenkins[:server][:port]'
+* jenkins[:http_proxy][:variant] - use `nginx` or `apache2` to proxy traffic to jenkins backend (`nil` by default)
+* jenkins[:http_proxy][:www_redirect] - add a redirect rule for 'www.*' URL requests ("disable" by default)
+* jenkins[:http_proxy][:listen_ports] - list of HTTP ports for the HTTP proxy to listen on ([80] by default)
+* jenkins[:http_proxy][:host_name] - primary vhost name for the HTTP proxy to respond to (`node[:fqdn]` by default)
+* jenkins[:http_proxy][:host_aliases] - optional list of other host aliases to respond to (empty by default)
+* jenkins[:http_proxy][:client_max_body_size] - max client upload size ("1024m" by default, nginx only)
 
 = USAGE:
 
@@ -89,6 +95,14 @@ Creates the home directory for the node slave and sets 'JENKINS_HOME' and 'JENKI
 [1] http://weblogs.java.net/blog/2008/09/29/winsw-windows-service-wrapper-less-restrictive-license
 [2] http://wiki.jenkins-ci.org/display/JENKINS/Distributed+builds
 [3] http://wiki.jenkins-ci.org/display/JENKINS/Installing+Jenkins+as+a+Windows+service
+
+== 'proxy_nginx' recipe
+
+Uses the nginx::source recipe from the nginx cookbook to install an HTTP frontend proxy. To automatically activate this recipe set the `node[:jenkins][:http_proxy][:variant]` to `nginx`.
+
+== 'proxy_apache2' recipe
+
+Uses the apache2 recipe from the apache2 cookbook to install an HTTP frontend proxy. To automatically activate this recipe set the `node[:jenkins][:http_proxy][:variant]` to `apache2`.
 
 == 'jenkins_cli' resource provider
 
@@ -151,7 +165,14 @@ The script to generate groovy that manages a node can be used standalone.  For e
 
 = LICENSE & AUTHOR:
 
+This is a downstream fork of Doug MacEachern's Hudson cookbook (https://github.com/dougm/site-cookbooks) and therefore deserves all the glory.
+
 Author:: Doug MacEachern (<dougm@vmware.com>)
+
+Contributor:: Fletcher Nichol <fnichol@nichol.ca>
+Contributor:: Roman Kamyk <rkj@go2.pl>
+Contributor:: Darko Fabijan <darko@renderedtext.com>
+
 Copyright:: 2010, VMware, Inc
 
 Licensed under the Apache License, Version 2.0 (the "License");
