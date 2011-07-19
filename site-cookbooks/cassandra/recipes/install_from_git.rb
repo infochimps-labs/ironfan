@@ -26,7 +26,7 @@ bash 'install from source' do
   chmod a+x bin/*
   true
 EOF
-  only_if{ Dir["#{cassandra_install_dir}/build/apache-cassandra-*.jar"].blank? }
+  only_if{ Dir["#{cassandra_install_dir}/build/apache-cassandra-*.jar"].nil? }
 end
 
 link cassandra_home do
@@ -53,5 +53,5 @@ cp /usr/local/share/cassandra/lib/jackson-* /usr/lib/hadoop/lib/
 true
 EOF
   only_if{ File.exists?('/usr/lib/hadoop/lib') }
-  only_if{ Dir['/usr/lib/hadoop/lib/jackson*1.[456789]*'].blank? }
+  only_if{ Dir['/usr/lib/hadoop/lib/jackson*1.[456789]*'].nil? }
 end

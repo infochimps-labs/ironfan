@@ -19,7 +19,7 @@
 #
 # ensure ephemeral drives are mounted
 #
-if node[:ec2] && node[:elasticsearch][:local_disks].blank?
+if node[:ec2] && node[:elasticsearch][:local_disks].nil?
   node[:elasticsearch][:local_disks] = []
   [ [ '/mnt',  'block_device_mapping_ephemeral0'],
     [ '/mnt2', 'block_device_mapping_ephemeral1'],

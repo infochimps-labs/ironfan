@@ -65,7 +65,7 @@ module HadoopCluster
   end
 
   def persistent_hadoop_dirs
-    if node[:hadoop][:ignore_ebs_volumes] or cluster_ebs_volumes.blank?
+    if node[:hadoop][:ignore_ebs_volumes] or cluster_ebs_volumes.nil?
       (['/mnt/hadoop'] + local_hadoop_dirs).uniq
     else
       dirs = cluster_ebs_volumes.map{|vol_info| vol_info['mount_point']+'/hadoop' }
@@ -75,7 +75,7 @@ module HadoopCluster
   end
 
   def cluster_ebs_volumes_are_mounted?
-    return true if cluster_ebs_volumes.blank?
+    return true if cluster_ebs_volumes.nil?
     cluster_ebs_volumes.all?{|vol_info| File.exists?(vol_info['device']) }
   end
 
@@ -86,7 +86,7 @@ module HadoopCluster
   # The HDFS metadata. Keep this on two different volumes, at least one persistent
   def dfs_name_dirs
     dirs = persistent_hadoop_dirs.map{|dir| File.join(dir, 'hdfs/name')}
-    unless node[:hadoop][:extra_nn_metadata_path].blank?
+    unless node[:hadoop][:extra_nn_metadata_path].nil?
       dirs << File.join(node[:hadoop][:extra_nn_metadata_path].to_s, node[:cluster_name], 'hdfs/name')
     end
     dirs
@@ -94,7 +94,7 @@ module HadoopCluster
   # HDFS metadata checkpoint dir. Keep this on two different volumes, at least one persistent.
   def fs_checkpoint_dirs
     dirs = persistent_hadoop_dirs.map{|dir| File.join(dir, 'hdfs/secondary')}
-    unless node[:hadoop][:extra_nn_metadata_path].blank?
+    unless node[:hadoop][:extra_nn_metadata_path].nil?
       dirs << File.join(node[:hadoop][:extra_nn_metadata_path].to_s, node[:cluster_name], 'hdfs/secondary')
     end
     dirs
