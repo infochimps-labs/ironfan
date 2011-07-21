@@ -28,7 +28,7 @@ exec chpst -u${CASSANDRA_USER} -e /etc/sv/cassandra/env -o 65535 \
       -XX:+CMSParallelRemarkEnabled                             \
       -XX:+HeapDumpOnOutOfMemoryError                           \
 <%- [["ms", :java_min_heap], ["mx", :java_max_heap], ["mn", :java_eden_heap]].each do |opt| %>
-<%-   unless node[:cassandra][opt[1]].blank? %>
+<%-   unless node[:cassandra][opt[1]].nil? %>
       -X<%= opt[0] %><%= node[:cassandra][opt[1]] %>            \
 <%-   end %>
 <%- end %>

@@ -204,7 +204,7 @@ discovery:
   type:                         zen
   zen:
     ping:
-      <%- if @elasticsearch_seeds.blank? %>
+      <%- if @elasticsearch_seeds.nil? %>
       multicast:
         enabled:                true
       <%- else %>

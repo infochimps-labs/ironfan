@@ -25,6 +25,7 @@ GEM
     diff-lcs (1.1.2)
     erubis (2.7.0)
     excon (0.6.3)
+    extlib (0.9.15)
     fog (0.8.2)
       builder
       excon (~> 0.6.1)
@@ -98,6 +99,7 @@ DEPENDENCIES
   chef (~> 0.10.0)
   choice (~> 0.1.4)
   configliere (~> 0.4.5)
+  extlib (~> 0.9.15)
   fog (~> 0.8.2)
   formatador (~> 0.1.4)
   gorillib (~> 0.1.3)
