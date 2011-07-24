@@ -8,7 +8,7 @@ if cluster_ebs_volumes
     mount conf['mount_point'] do
       only_if{ File.exists?(conf['device']) }
       device    conf['device']
-      fstype    conf['type'].blank? ? fstype_from_file_magic(conf['device']) : conf['type']
+      fstype    conf['type'] || fstype_from_file_magic(conf['device'])
       options   conf['options'] || 'defaults'
       # To simply mount the volume: action[:mount]
       # To mount the volume and add it to fstab: action[:mount,:enable]. This

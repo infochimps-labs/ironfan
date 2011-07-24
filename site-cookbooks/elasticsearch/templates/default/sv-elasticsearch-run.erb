@@ -16,7 +16,7 @@ export ES_WORK_DIR=$ES_DATA_ROOT/work
 
 # bump the # of open files way way up
 ulimit -n 65536
-<%- unless @node[:elasticsearch][:ulimit_mlock].blank? %>
+<%- unless @node[:elasticsearch][:ulimit_mlock].nil? %>
 # allow elasticsearch to lock itself into memory if JNA is installed
 ulimit -l <%= @node[:elasticsearch][:ulimit_mlock] %>
 <%- end %>

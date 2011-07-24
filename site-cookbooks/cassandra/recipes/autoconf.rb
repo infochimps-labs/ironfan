@@ -50,7 +50,7 @@
 # they belong (nodes are in exactly 1 cluster in this version of the cookbook), and may optionally be
 # tagged with [:cassandra][:seed] set to true if a node is to act as a seed.
 clusters = data_bag_item('cassandra', 'clusters') rescue nil
-unless clusters.blank? || clusters[node[:cassandra][:cluster_name]].blank?
+unless clusters.nil? || clusters[node[:cassandra][:cluster_name]].nil?
   clusters[node[:cassandra][:cluster_name]].each_pair do |k, v|
     node[:cassandra][k] = v
   end
@@ -69,7 +69,7 @@ all_seeds  = [private_ip_of(node), all_seeds] if (all_seeds.length < 2)
 node[:cassandra][:seeds] = all_seeds.flatten.compact.uniq.sort
 
 # Pull the initial token from the cassandra data bag if one is given
-if node[:cassandra][:initial_tokens] && (not node[:cluster_role_index].blank?)
+if node[:cassandra][:initial_tokens] && (not node[:cluster_role_index].nil?)
   node[:cassandra][:initial_token] = node[:cassandra][:initial_tokens][node[:cluster_role_index].to_i]
 end
 # If there is an initial token, force auto_bootstrap to false.
