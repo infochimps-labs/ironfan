@@ -42,7 +42,8 @@ ClusterChef.cluster 'wherelock' do
           :recovery_after_nodes => 0,
           :expected_nodes       => 1,
           :refresh_interval     => 900,
-          :snapshot_interval    => -1,
+          :snapshot_interval    => '10m',
+          :snapshot_on_close    => true,
 
           :local_disks          => [ ['/mnt','/dev/md0'] ],
 
