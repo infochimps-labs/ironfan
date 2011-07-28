@@ -147,16 +147,19 @@ ClusterChef.cluster 'sandbox' do
 
   facet 'sparafina' do
     facet_role do
-      override_attributes({ :extra_users => [ "sparafina" ] ,
-                            :authorization => 
-                            { :sudo => 
-                              { :custom => 
-                                [ "sparafina  ALL=(ALL) NOPASSWD:ALL" ] 
-                              } 
-                            }
-                          })
+      override_attributes({ 
+        :extra_users => [ "sparafina" ] ,
+        :authorization => 
+        { :sudo => 
+          { :custom => 
+            [ "sparafina  ALL=(ALL) NOPASSWD:ALL" ] 
+          } 
+        }
+      })
     end
     instances 1
+    cloud.image_id      "ami-f6e11d9f"
+    cloud.flavor        "m1.large"
     server 0 do
       fullname 'sandbox-sparafina'
       volume :data, :volume_id => "vol-e126128a", :device => "/dev/sdk", :mount_point => '/data'
