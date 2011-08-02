@@ -8,9 +8,10 @@ mount "/mnt" do
 end
 
 mdadm "/dev/md0" do
-    devices [ "/dev/sdb", "/dev/sdc", "/dev/sdd", "/dev/sde" ]
-    level 0
-    action [:create, :assemble]
+  # Dynamically build a list of devices that actually exist.
+  devices "bcdefghijk".map {|a| "/dev/sd#{a}"}.select {|f| File.exists?(f)}
+  level 0
+  action [:create, :assemble]
 end
 
 script "format_md0_xfs" do
