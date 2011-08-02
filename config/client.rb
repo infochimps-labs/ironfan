@@ -59,7 +59,7 @@ client_key             "/etc/chef/client.pem"
 # and use it to set the node_name
 #
 if chef_config['get_name_from'] == 'broham'
-  puts "Getting name from broham within [#{attrs['cluster_name']}-#{attrs['cluster_role']}]" if attrs['node_name'].blank?
+  puts "Getting name from broham within [#{attrs['cluster_name']}-#{attrs['cluster_role']}]" if attrs['node_name'].nil?
   begin
     require 'broham'
     BrohamNode.set_cluster_info!(attrs)
@@ -67,11 +67,11 @@ if chef_config['get_name_from'] == 'broham'
   rescue Exception => e ; warn "Error getting cluster role from broham: #{e.message}\n#{e.backtrace}" ; end
 end
 attrs["facet_index"] ||= OHAI_INFO[:ec2][:instance_id]
-attrs["node_name"]   ||= [ attrs["cluster_name"], attrs["cluster_role"], attrs["facet_index"] ].reject(&:blank?).join('-')
+attrs["node_name"]   ||= [ attrs["cluster_name"], attrs["cluster_role"], attrs["facet_index"] ].reject(&:nil?).join('-')
 node_name attrs["node_name"]
 
 # If the client file is missing, write the validation key out so chef-client can register
-if (not File.exists?("/etc/chef/client.pem")) && (not File.exists?(validation_key)) && (not chef_config["validation_key"].blank?)
+if (not File.exists?("/etc/chef/client.pem")) && (not File.exists?(validation_key)) && (not chef_config["validation_key"].nil?)
   File.open(validation_key, "w", 0600) do |f|
     f.print(chef_config["validation_key"])
   end

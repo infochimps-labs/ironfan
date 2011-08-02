@@ -36,7 +36,7 @@ module ClusterChef
       def from_setting_or_image_info key, val=nil, default=nil
         @settings[key] = val unless val.nil?
         return @settings[key]  if @settings.include?(key)
-        return image_info[key] unless image_info.nil? #.blank?
+        return image_info[key] unless image_info.nil?
         return default       # otherwise
       end
     end
