@@ -117,7 +117,7 @@ ClusterChef.cluster 'sandbox' do
         },
         :buzzkill => {
           :environment                  => 'staging',
-          :deploy_version               => 'passthru',
+          :deploy_version               => '4026d472be9a539451637f3191374676b99f6952',
           :forwarder => {
             :port                       => 9400
           },
