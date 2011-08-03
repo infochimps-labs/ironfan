@@ -38,7 +38,7 @@ module ClusterChef
       def self.get_or_create group_name, description
         group = all[group_name] || ClusterChef.connection.security_groups.get(group_name)
         if ! group
-          group = all[group_name] = Fog::AWS::Compute::SecurityGroup.new(:name => group_name, :description => description, :connection => ClusterChef.connection)
+          group = all[group_name] = ClusterChef.connection.security_groups.new(:name => group_name, :description => description, :connection => ClusterChef.connection)
           group.save
         end
         group
