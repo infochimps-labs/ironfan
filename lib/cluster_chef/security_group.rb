@@ -68,7 +68,7 @@ module ClusterChef
       end
 
       def range_permission_already_set? group, range, cidr_ip, ip_protocol
-        return false if group.ip_permissions.nil? #.blank?
+        return false if group.ip_permissions.nil?
         group.ip_permissions.include?({"groups"=>[], "ipRanges"=>[{"cidrIp"=>cidr_ip}], "ipProtocol"=>ip_protocol, "fromPort"=>range.first, "toPort"=>range.last})
       end
 

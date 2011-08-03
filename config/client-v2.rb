@@ -83,7 +83,7 @@ client_key             "/etc/chef/client.pem"
 Deprecate.skip = true # hey rubygems please don't deprecate all over my screen
 
 # If the client file is missing, write the validation key out so chef-client can register
-unless File.exists?("/etc/chef/client.pem") || chef_config[:validation_key].blank?
+unless File.exists?("/etc/chef/client.pem") || chef_config[:validation_key].nil? || chef_config[:validation_key].to_s.empty?
   populate_if_empty(validation_key, chef_config[:validation_key])
 end
 

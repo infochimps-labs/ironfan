@@ -32,7 +32,7 @@ ClusterChef.cluster 'prehensile' do
 
 #   # Testing stub for network-based operations
 #   facet 'networkstub' do
-#     instances		1
+#     instances         1
 #     cloud.flavor        "m1.small"
 #   end
 
