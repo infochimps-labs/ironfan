@@ -117,7 +117,8 @@ ClusterChef.cluster 'sandbox' do
         },
         :buzzkill => {
           :environment                  => 'staging',
-          :deploy_version               => '4026d472be9a539451637f3191374676b99f6952',
+          :auth_mode                    => 'greedy',
+          :deploy_version               => '50020eb09f30045b263e7321ac3f9481acf32b88',
           :forwarder => {
             :port                       => 9400
           },
