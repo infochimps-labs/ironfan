@@ -41,3 +41,5 @@ default[:elasticsearch][:log_level][:default]         = 'DEBUG'
 default[:elasticsearch][:log_level][:index_store]     = 'INFO'  # lots of output but might be useful
 default[:elasticsearch][:log_level][:action_shard]    = 'INFO'  # lots of output but might be useful
 default[:elasticsearch][:log_level][:cluster_service] = 'INFO'  # lots of output but might be useful
+
+default[:elasticsearch][:raid][:devices] = [ '/dev/sdb', '/dev/sdc', '/dev/sdd', '/dev/sde' ]

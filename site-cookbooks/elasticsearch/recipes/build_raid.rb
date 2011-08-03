@@ -8,8 +8,7 @@ mount "/mnt" do
 end
 
 mdadm "/dev/md0" do
-  # Dynamically build a list of devices that actually exist.
-  devices "bcdefghijk".map {|a| "/dev/sd#{a}"}.select {|f| File.exists?(f)}
+  devices node[:elasticsearch][:raid][:devices]
   level 0
   action [:create, :assemble]
 end
