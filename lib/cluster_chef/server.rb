@@ -73,7 +73,7 @@ module ClusterChef
     end
 
     def created?
-      in_cloud? && (not ['terminated'].include?(fog_server.state))
+      in_cloud? && (not ['terminated', 'shutting-down'].include?(fog_server.state))
     end
 
     def running?
