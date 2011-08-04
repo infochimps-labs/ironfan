@@ -56,7 +56,19 @@ ClusterChef.cluster 'sandbox' do
       run_list(*%w[
         cluster_chef::dedicated_server_tuning
         role[nfs_client]
+        rvm
+        rvm::gem_package
+        cornelius
       ])
+      override_attributes({
+        :rvm => {
+          :default_ruby                 => "system",
+          :rubies                       => [ "ruby-1.9.2" ],
+          :gem_package => {
+            :rvm_string                 => %w[system ruby-1.9.2]
+          }
+        }
+      })
     end
     server 0 do
       fullname 'sandbox-mrflip'
@@ -117,7 +129,8 @@ ClusterChef.cluster 'sandbox' do
         },
         :buzzkill => {
           :environment                  => 'staging',
-          :deploy_version               => '4026d472be9a539451637f3191374676b99f6952',
+          :auth_mode                    => 'greedy',
+          :deploy_version               => '50020eb09f30045b263e7321ac3f9481acf32b88',
           :forwarder => {
             :port                       => 9400
           },
