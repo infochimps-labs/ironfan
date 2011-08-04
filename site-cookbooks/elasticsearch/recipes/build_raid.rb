@@ -2,18 +2,20 @@
 
 package 'mdadm'
 
-mount "/mnt" do
+if node[:elasticsearch][:raid][:use_raid]
+
+  mount "/mnt" do
     device "/dev/sdb"
     action [:umount, :disable]
-end
-
-mdadm "/dev/md0" do
-  devices node[:elasticsearch][:raid][:devices]
-  level 0
-  action [:create, :assemble]
-end
-
-script "format_md0_xfs" do
+  end
+  
+  mdadm "/dev/md0" do
+    devices node[:elasticsearch][:raid][:devices]
+    level 0
+    action [:create, :assemble]
+  end
+  
+  script "format_md0_xfs" do
     interpreter "bash"
     user "root"
     code <<-EOH
@@ -23,11 +25,13 @@ script "format_md0_xfs" do
     # Returns success iff the drive is formatted XFS
     file -s /dev/md0 | grep XFS
     EOH
-end
-
-mount "/mnt" do
+  end
+  
+  mount "/mnt" do
     device "/dev/md0"
     fstype "xfs"
     options "nobootwait,comment=cloudconfig"
     action [:mount, :enable]
+  end
+
 end

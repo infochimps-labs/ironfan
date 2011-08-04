@@ -43,3 +43,4 @@ default[:elasticsearch][:log_level][:action_shard]    = 'INFO'  # lots of output
 default[:elasticsearch][:log_level][:cluster_service] = 'INFO'  # lots of output but might be useful
 
 default[:elasticsearch][:raid][:devices] = [ '/dev/sdb', '/dev/sdc', '/dev/sdd', '/dev/sde' ]
+default[:elasticsearch][:raid][:use_raid] = true
