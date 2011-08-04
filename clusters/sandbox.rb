@@ -33,8 +33,8 @@ ClusterChef.cluster 'sandbox' do
   facet 'howech' do
     facet_role do
       override_attributes({
-                            :chh => "Was Here!"
-                          })
+          :chh => "Was Here!"
+        })
     end
     instances 2
     server 0 do
@@ -52,27 +52,60 @@ ClusterChef.cluster 'sandbox' do
 
   facet 'mrflip' do
     instances 1
+    cloud.elastic_ip '75.101.133.139'
     facet_role do
       run_list(*%w[
         cluster_chef::dedicated_server_tuning
         role[nfs_client]
-        rvm
-        rvm::gem_package
-        cornelius
       ])
+      # rvm
+      # rvm::gem_package
+      # cornelius
       override_attributes({
-        :rvm => {
-          :default_ruby                 => "system",
-          :rubies                       => [ "ruby-1.9.2" ],
-          :gem_package => {
-            :rvm_string                 => %w[system ruby-1.9.2]
+          :rvm => {
+            :default_ruby                 => "ruby-1.9.2",
+            :rubies                       => [ "ruby-1.9.2" ],
+            :gem_package => {
+              :rvm_string                 => %w[ruby-1.9.2]
+            }
           }
-        }
-      })
+        })
     end
     server 0 do
       fullname 'sandbox-mrflip'
       volume :data, :volume_id => "vol-798fd012", :device => "/dev/sdk", :mount_point => '/data'
+    end
+  end
+
+  facet 'cornelius' do
+    facet_role
+    instances 1
+    cloud.image_id          "ami-32a0535b"
+    server 0 do
+      fullname 'sandbox-cornelius'
+    end
+    facet_role do
+      run_list(*%w[
+        rvm
+        rvm::gem_package
+        nginx
+      ])
+      # cornelius
+      override_attributes({
+          :cornelius => {
+          },
+          :rvm => {
+            :group_id                     => 427,
+            :default_ruby                 => "system",
+            :rubies                       => [ "ruby-1.9.2" ],
+            :gem_package => {
+              :rvm_string                 => %w[system ruby-1.9.2]
+            }
+          },
+          :statsd => {
+            :flushInterval                => 60000
+          }
+        })
     end
   end
 
@@ -108,67 +141,67 @@ ClusterChef.cluster 'sandbox' do
         macaque
       ])
       override_attributes({
-        :authorization => 
-        { :sudo => 
-          { :custom => 
-            [ "temujin9  ALL=(ALL) NOPASSWD:ALL" ] 
-          } 
-        },
-        :macaque => {
-          :forwarders => {
-            :api_qwerly_com => {
-              # Temporary key for alpha testing only
-              :api_key                   => 'ed6mm22b854yyfrkhwrkgxa8'
+          :authorization =>
+          { :sudo =>
+            { :custom =>
+              [ "temujin9  ALL=(ALL) NOPASSWD:ALL" ]
+            }
+          },
+          :macaque => {
+            :forwarders => {
+              :api_qwerly_com => {
+                # Temporary key for alpha testing only
+                :api_key                   => 'ed6mm22b854yyfrkhwrkgxa8'
+              },
+              :money_bundle_com           => {}
             },
-            :money_bundle_com           => {}
+            :statsd => {
+              :provider                   => 'see_no_evil',
+              :name                       => 'macaque_test'
+            }
+          },
+          :buzzkill => {
+            :environment                  => 'staging',
+            :auth_mode                    => 'greedy',
+            :deploy_version               => '50020eb09f30045b263e7321ac3f9481acf32b88',
+            :forwarder => {
+              :port                       => 9400
+            },
+            :statsd => {
+              :provider                   => 'see_no_evil',
+              :name                       => 'macaque_test_buzzkill'
+            },
+            :mongo => {
+              :provider                   => 'sausageparty-mongodb-server',
+              :db                         => 'broham_staging'
+            },
+          },
+          :rvm => {
+            :group_id                     => 427,
+            :default_ruby                 => "system",
+            :rubies                       => [ "ruby-1.9.2" ],
+            :gem_package => {
+              :rvm_string                 => %w[system ruby-1.9.2]
+            }
           },
           :statsd => {
-            :provider                   => 'see_no_evil',
-            :name                       => 'macaque_test'
+            :flushInterval                => 60000
           }
-        },
-        :buzzkill => {
-          :environment                  => 'staging',
-          :auth_mode                    => 'greedy',
-          :deploy_version               => '50020eb09f30045b263e7321ac3f9481acf32b88',
-          :forwarder => {
-            :port                       => 9400
-          },
-          :statsd => {
-            :provider                   => 'see_no_evil',
-            :name                       => 'macaque_test_buzzkill'
-          },
-          :mongo => {
-            :provider                   => 'sausageparty-mongodb-server',
-            :db                         => 'broham_staging'
-          },
-        },
-        :rvm => {
-          :group_id                     => 427,
-          :default_ruby                 => "system",
-          :rubies                       => [ "ruby-1.9.2" ],
-          :gem_package => {
-            :rvm_string                 => %w[system ruby-1.9.2]
-          }
-        },
-        :statsd => {
-          :flushInterval                => 60000
-        }
-      })
+        })
     end
   end
 
   facet 'sparafina' do
     facet_role do
-      override_attributes({ 
-        :extra_users => [ "sparafina" ] ,
-        :authorization => 
-        { :sudo => 
-          { :custom => 
-            [ "sparafina  ALL=(ALL) NOPASSWD:ALL" ] 
-          } 
-        }
-      })
+      override_attributes({
+          :extra_users => [ "sparafina" ] ,
+          :authorization =>
+          { :sudo =>
+            { :custom =>
+              [ "sparafina  ALL=(ALL) NOPASSWD:ALL" ]
+            }
+          }
+        })
     end
     instances 1
     cloud.flavor        "m1.large"
