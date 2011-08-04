@@ -67,14 +67,13 @@ ClusterChef.cluster 'sandbox' do
           :gem_package => {
             :rvm_string                 => %w[system ruby-1.9.2]
           }
-        },
-      ])
+        }
+      })
     end
     server 0 do
       fullname 'sandbox-mrflip'
       volume :data, :volume_id => "vol-798fd012", :device => "/dev/sdk", :mount_point => '/data'
     end
-    server 0 do
   end
 
   facet 'dhruv' do
