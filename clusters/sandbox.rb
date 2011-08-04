@@ -56,12 +56,25 @@ ClusterChef.cluster 'sandbox' do
       run_list(*%w[
         cluster_chef::dedicated_server_tuning
         role[nfs_client]
+        rvm
+        rvm::gem_package
+        cornelius
+      ])
+      override_attributes({
+        :rvm => {
+          :default_ruby                 => "system",
+          :rubies                       => [ "ruby-1.9.2" ],
+          :gem_package => {
+            :rvm_string                 => %w[system ruby-1.9.2]
+          }
+        },
       ])
     end
     server 0 do
       fullname 'sandbox-mrflip'
       volume :data, :volume_id => "vol-798fd012", :device => "/dev/sdk", :mount_point => '/data'
     end
+    server 0 do
   end
 
   facet 'dhruv' do
