@@ -44,7 +44,7 @@
   <name>io.compression.codecs</name>
   <value>org.apache.hadoop.io.compress.DefaultCodec,org.apache.hadoop.io.compress.GzipCodec,org.apache.hadoop.io.compress.BZip2Codec</value>
 </property>
-<%- unless node[:aws].blank? %>
+<%- unless node[:aws].nil? %>
 <property>
   <name>fs.s3.awsAccessKeyId</name>
   <value><%= node[:aws][:aws_access_key_id] %></value>

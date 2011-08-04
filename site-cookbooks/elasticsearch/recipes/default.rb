@@ -21,7 +21,7 @@ include_recipe "java"
 
 # Tell ElasticSearch where to find its other nodes
 provide_service "#{node[:cluster_name]}-elasticsearch"
-unless node[:elasticsearch][:seeds]
+if node[:elasticsearch][:seeds].nil?
     node[:elasticsearch][:seeds] = all_provider_private_ips("#{node[:cluster_name]}-elasticsearch").sort().map { |ip| ip+':9300' }
 end
 
@@ -66,7 +66,7 @@ template "/etc/elasticsearch/elasticsearch.yml" do
   group         "elasticsearch"
   mode          0644
   variables(
-            :elasticsearch_seeds => elasticsearch_seeds.flatten.reject{|seed| seed.nil? || seed == "" }.uniq
+    :elasticsearch_seeds => elasticsearch_seeds.flatten.reject(&:nil?).uniq
     )
 end
 

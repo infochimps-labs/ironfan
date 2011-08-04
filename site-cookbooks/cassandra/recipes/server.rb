@@ -41,7 +41,8 @@ end
 
 # have some fraction of the nodes register as a seed with
 # cluster_service_discovery
-if (node[:cluster_role_index].blank?) || (node[:cluster_role_index].to_i % 3 == 0) ||
+if node[:cluster_role_index].nil? ||
+    (node[:cluster_role_index].to_i % 3 == 0) ||
     node[:cassandra][:seed_node]
   provide_service(node[:cassandra][:cluster_name] + '-cassandra-seed')
 end

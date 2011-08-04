@@ -45,7 +45,6 @@ metadata.json
 .chef
 *.pem
 .rvmrc
-
 .vendor
 .bundle
 Gemfile.lock

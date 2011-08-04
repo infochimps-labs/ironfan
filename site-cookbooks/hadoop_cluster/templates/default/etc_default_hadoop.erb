@@ -17,7 +17,7 @@ export HADOOP_NAMENODE_OPTS="$HADOOP_NAMENODE_OPTS -XX:+UseParallelGC -Xmx<%= no
 export HADOOP_SECONDARYNAMENODE_OPTS="$HADOOP_SECONDARYNAMENODE_OPTS -XX:+UseParallelGC -Xmx<%= node[:hadoop][:hadoop_secondarynamenode_heapsize] || node[:hadoop][:hadoop_daemon_heapsize] %>m"
 export HADOOP_JOBTRACKER_OPTS="$HADOOP_JOBTRACKER_OPTS -XX:+UseParallelGC -Xmx<%= node[:hadoop][:hadoop_jobtracker_heapsize]                      || node[:hadoop][:hadoop_daemon_heapsize] %>m"
 
-<%- unless node[:hadoop][:extra_classpaths].blank? %>
+<%- unless node[:hadoop][:extra_classpaths].nil? %>
 # Extra classpaths for hadoop
 export HADOOP_CLASSPATH="<%= node[:hadoop][:extra_classpaths].values.join(":") %>:$HADOOP_CLASSPATH"
 <%- end %>
