@@ -27,8 +27,9 @@ ClusterChef.cluster 'chimpmark' do
 
   facet 'slave' do
     facet_role
-    instances           15
+    instances           5
     cloud.flavor        "m1.xlarge"
+    cloud.backing       "ebs"
   end
 
 end

@@ -158,7 +158,6 @@ ClusterChef.cluster 'sandbox' do
       })
     end
     instances 1
-    cloud.image_id      "ami-f6e11d9f"
     cloud.flavor        "m1.large"
     server 0 do
       fullname 'sandbox-sparafina'
