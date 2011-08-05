@@ -86,11 +86,13 @@ ClusterChef.cluster 'sandbox' do
     end
     facet_role do
       run_list(*%w[
+        role[nfs_client]
         rvm
         rvm::gem_package
         nginx
+        cornelius
+        cornelius::server
       ])
-      # cornelius
       override_attributes({
           :cornelius => {
           },
