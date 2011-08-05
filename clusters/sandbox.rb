@@ -82,7 +82,7 @@ ClusterChef.cluster 'sandbox' do
     cloud.image_id          "ami-32a0535b"
     server 0 do
       fullname 'sandbox-cornelius'
-      cloud.flavor m1.large
+      cloud.flavor "m1.large"
     end
     facet_role do
       run_list(*%w[
