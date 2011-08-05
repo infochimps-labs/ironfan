@@ -24,6 +24,22 @@ ClusterChef.cluster 'prehensile' do
     end
   end
 
+  facet 'passthru' do
+    facet_role
+#     instances           3
+    instances           1
+    cloud.flavor        "m1.small"
+    server 0 do
+      cloud.availability_zones  ['us-east-1d'] # default
+    end
+#     server 1 do
+#       cloud.availability_zones  ['us-east-1b']
+#     end
+#     server 2 do
+#       cloud.availability_zones  ['us-east-1c']
+#     end
+  end
+
   facet 'staging' do
     facet_role
     instances           1
