@@ -22,4 +22,4 @@ server.<%= idx %>=<%= ip_address %>:2888:3888
 
 <%- end %>
 
-maxClientCnxns=<%= @zookeeper_max_client_connections || 30 %>
+maxClientCnxns=<%= @zookeeper_max_client_connections || 1000 %>
