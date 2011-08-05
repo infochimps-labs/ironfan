@@ -78,19 +78,21 @@ ClusterChef.cluster 'sandbox' do
   end
 
   facet 'cornelius' do
-    facet_role
     instances 1
     cloud.image_id          "ami-32a0535b"
     server 0 do
       fullname 'sandbox-cornelius'
+      cloud.flavor "c1.medium"
     end
     facet_role do
       run_list(*%w[
+        role[nfs_client]
         rvm
         rvm::gem_package
         nginx
+        cornelius
+        cornelius::server
       ])
-      # cornelius
       override_attributes({
           :cornelius => {
             :elastic_search => {
@@ -207,12 +209,14 @@ ClusterChef.cluster 'sandbox' do
           }
         })
     end
-    instances 1
+    instances 2
     cloud.flavor        "m1.large"
     server 0 do
+      cloud.image_id      "ami-f6e11d9f"
       fullname 'sandbox-sparafina'
       volume :data, :volume_id => "vol-e126128a", :device => "/dev/sdk", :mount_point => '/data'
     end
+
   end
 end
 
