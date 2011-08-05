@@ -78,8 +78,7 @@ ClusterChef.cluster 'sandbox' do
   end
 
   facet 'cornelius' do
-    facet_role
-    instances 1
+    instances 2
     cloud.image_id          "ami-32a0535b"
     server 0 do
       fullname 'sandbox-cornelius'
@@ -205,12 +204,14 @@ ClusterChef.cluster 'sandbox' do
           }
         })
     end
-    instances 1
+    instances 2
     cloud.flavor        "m1.large"
     server 0 do
+      cloud.image_id      "ami-f6e11d9f"
       fullname 'sandbox-sparafina'
       volume :data, :volume_id => "vol-e126128a", :device => "/dev/sdk", :mount_point => '/data'
     end
+
   end
 end
 
