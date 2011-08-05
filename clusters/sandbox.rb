@@ -93,6 +93,10 @@ ClusterChef.cluster 'sandbox' do
       # cornelius
       override_attributes({
           :cornelius => {
+            :elastic_search => {
+              :host => "10.80.91.47",
+              :port => "9200",
+            }
           },
           :rvm => {
             :group_id                     => 427,
