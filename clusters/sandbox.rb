@@ -52,7 +52,8 @@ ClusterChef.cluster 'sandbox' do
 
   facet 'mrflip' do
     instances 1
-    cloud.elastic_ip '75.101.133.139'
+    #cloud.elastic_ip '75.101.133.139'
+    cloud.flavor "c1.xlarge"
     facet_role do
       run_list(*%w[
         cluster_chef::dedicated_server_tuning
