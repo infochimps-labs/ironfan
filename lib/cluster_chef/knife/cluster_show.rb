@@ -16,59 +16,39 @@
 # limitations under the License.
 #
 
-require 'socket'
-require 'chef/knife'
-require 'json'
+require File.expand_path(File.dirname(__FILE__)+"/knife_common.rb")
 
 class Chef
   class Knife
     class ClusterShow < Knife
+      include ClusterChef::KnifeCommon
 
-      banner "knife cluster show CLUSTER_NAME FACET_NAME (options)"
-
-      attr_accessor :initial_sleep_delay
-
-      option :dry_run,
-        :long => "--dry_run",
-        :description => "Don't really run, just use mock calls"
-
-      def h
-        @highline ||= HighLine.new
+      deps do
+        ClusterChef::KnifeCommon.load_deps
       end
+
+      banner "knife cluster show CLUSTER_NAME [FACET_NAME [INDEXES]] (options)"
+      option :dry_run,
+        :long => "--dry-run",
+        :description => "Don't really run, just use mock calls"
+      option :detailed,
+        :long => "--detailed",
+        :description => "Show detailed info on servers"
 
       def run
-        require 'fog'
-        require 'highline'
-        require 'net/ssh/multi'
-        require 'readline'
-        $: << Chef::Config[:cluster_chef_path]+'/lib'
-        require 'cluster_chef'
-        $stdout.sync = true
+        load_cluster_chef
+        die(banner) if @name_args.empty?
+        configure_dry_run
 
-        #
-        # Put Fog into mock mode if --dry_run
-        #
-        if config[:dry_run]
-          Fog.mock!
-          Fog::Mock.delay = 0
-        end
+        # Load the cluster/facet/slice/whatever
+        target = get_slice(* @name_args)
 
-        #
-        # Load the facet
-        #
-        cluster_name, facet_name = @name_args
-        require Chef::Config[:cluster_chef_path]+"/clusters/#{cluster_name}"
-        facet = Chef::Config[:clusters][cluster_name].facet(facet_name)
-        facet.resolve!
+        # Here's how to display the full raw dictionary for testing
+        # ClusterChef::ServerSlice.new(target.cluster, ClusterChef::Server.all.values).display(:detailed)
 
-        #
-        # Launch server
-        #
-        servers = facet.list_servers.select{|s| s.state == "running" }
-        p ClusterChef.cluster_facets
-        
+        # Display same
+        display(target)
       end
-
     end
   end
 end

@@ -11,19 +11,27 @@
 #include_recipe "apt"
 
 
-#early = execute "add cloudera key" do
-#  command "curl -s http://archive.cloudera.com/debian/archive.key | sudo apt-k#ey add -"
-#  action :nothing
-#end
-#
-#early.run_action(:run)
-#
+early = execute "add cloudera key" do
+  command "curl -s http://archive.cloudera.com/debian/archive.key | sudo apt-key add - ; true"
+  action :nothing
+end
+
+early.run_action(:run)
+
 #apt_repository "cloudera" do
 #  uri "http://archive.cloudera.com/debian"
 #  distribution "maverick-cdh3" 
 #  components ["contrib"]
 #  action :add
 #end
+
+apt_repository "cloudera" do
+  uri " http://archive.cloudera.com/debian"
+  distribution "#{node['lsb']['codename']}-cdh3" # or "lucid" if lsb isn't installed :)
+  components ["contrib"]
+  key "http://archive.cloudera.com/debian/archive.key"
+  action :add
+end
  
 package "flume"
 

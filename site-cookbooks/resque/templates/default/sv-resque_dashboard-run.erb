@@ -1,0 +1,10 @@
+#!/bin/bash
+
+export HOME=<%= node[:resque][:log_dir] %>
+exec 2>&1
+exec chpst -u <%= node[:resque][:user] %> /usr/bin/resque-web --foreground --no-launch \
+  --server      thin                                                                   \
+  --port        <%= node[:resque][:dashboard_port] %>                                  \
+  --app-dir     <%= node[:resque][:log_dir] %>                                         \
+  --env         DEVELOPMENT                                                            \
+  <%= node[:resque][:conf_dir] %>/resque_conf.rb

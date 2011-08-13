@@ -1,13 +1,26 @@
-chef_server_url          'http://chef.yourdomain.com:4000'
+current_dir   = File.dirname(__FILE__)
+
+organization  = infochimps
+username      = your_opscode_username
+
 log_level                :info
-log_location             STDERR
-node_name                'knife_user'
-validation_client_name   'chef-validator'
-client_key               ENV['HOME']+'/.chef/keypairs/knife_user.pem'
-validation_key           ENV['HOME']+'/.chef/keypairs/chef-validator.pem'
+log_location             STDOUT
+node_name                username
+client_key               "#{current_dir}/#{username}.pem"
+validation_client_name   "#{organization}-validator"
+validation_key           "#{current_dir}/#{organization}-validator.pem"
+chef_server_url          "https://api.opscode.com/organizations/#{organization}"
 cache_type               'BasicFile'
-CHEF_COOKBOOKS_ROOT = File.expand_path(ENV['CHEF_COOKBOOKS_ROOT'] || '~/ics/sysadmin')
-cookbook_path            [ 'cluster_chef/cookbooks',
-  ].map{|path| File.join(CHEF_COOKBOOKS_ROOT, path) }
-cache_options( :path => File.expand_path('~/.chef/chef_checksums') )
+cache_options( :path => "#{ENV['HOME']}/.chef/checksums" )
+
+# Type in the full path to your cluster_chef installation
+cluster_chef_path File.expand_path('~/ics/sysadmin/cluster_chef')
+keypair_path      File.expand_path(current_dir+"/keypairs")
+
+# Make sure knife can find all your junk
+cookbook_path            ["#{cluster_chef_path}/cookbooks", "#{cluster_chef_path}/site-cookbooks",]
+
+# Set your AWS access credentials
+knife[:aws_access_key_id]      = "AWS_KEY"
+knife[:aws_secret_access_key]  = "AWS_SECRET_ACCESS_KEY"
 

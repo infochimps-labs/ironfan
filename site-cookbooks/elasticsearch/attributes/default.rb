@@ -16,11 +16,12 @@ default[:elasticsearch][:default_replicas]        =  1   # replicas are in addit
 default[:elasticsearch][:default_shards]          =  6   # 6 shards per index * 2 replicas distributes evenly across 3, 4, 6 or 12 nodes
 default[:elasticsearch][:flush_threshold]         = 5000
 default[:elasticsearch][:index_buffer_size]       = "10%"  # can be a percent ("10%") or a number ("128m")
-default[:elasticsearch][:merge_factor]            = 3
+default[:elasticsearch][:merge_factor]            = 10
 default[:elasticsearch][:max_thread_count]        = 4    # Twice the recommended value, max allowed by max_merge_count = 4
 default[:elasticsearch][:term_index_interval]     = 128
 default[:elasticsearch][:refresh_interval]        = "1s"
 default[:elasticsearch][:snapshot_interval]       = '-1'
+default[:elasticsearch][:snapshot_on_close]       = 'false'
 
 default[:elasticsearch][:seeds]                   = nil
 
@@ -40,3 +41,6 @@ default[:elasticsearch][:log_level][:default]         = 'DEBUG'
 default[:elasticsearch][:log_level][:index_store]     = 'INFO'  # lots of output but might be useful
 default[:elasticsearch][:log_level][:action_shard]    = 'INFO'  # lots of output but might be useful
 default[:elasticsearch][:log_level][:cluster_service] = 'INFO'  # lots of output but might be useful
+
+default[:elasticsearch][:raid][:devices] = [ '/dev/sdb', '/dev/sdc', '/dev/sdd', '/dev/sde' ]
+default[:elasticsearch][:raid][:use_raid] = true

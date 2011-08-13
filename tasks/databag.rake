@@ -19,7 +19,7 @@
 #
 
 require 'chef/knife'
-require 'ruby-debug'
+require 'ruby-debug' if (RUBY_VERSION.to_f < 1.9)
 
 def knife_client
   return @knife_client if @knife_client
@@ -36,14 +36,14 @@ def rest; knife_client.rest end
 desc "Dump out data bags"
 task :dump_data_bags do
   # TODO: replace with direct REST access
-  bags_dir = File.join(TOPDIR, "databags")
+  bags_dir = File.join(TOPDIR, "data_bags")
   Dir.mkdir bags_dir unless File.directory? bags_dir
 
-  bag_ids = JSON.parse %x(knife data bag list)
+  bag_ids = JSON.parse %x(knife data bag list --format=json)
   bag_ids.sort.each do |bag_id|
-    item_ids = JSON.parse %x(knife data bag show #{bag_id})
+    item_ids = JSON.parse %x(knife data bag show #{bag_id} --format=json)
     items_j = item_ids.map do |item_id|
-      %x( knife data bag show #{bag_id} #{item_id})
+      %x( knife data bag show #{bag_id} #{item_id} --format=json)
     end
     items = items_j.map {|j| JSON.parse j }
     # TODO: limit number of backups
@@ -61,9 +61,9 @@ end
 # TODO: use DataBag interface
 desc "Load data bags"
 task :load_data_bags do
-  bags_dir = File.join(TOPDIR, "databags")
+  bags_dir = File.join(TOPDIR, "data_bags")
 
-  bag_ids = JSON.parse %x(knife data bag list)
+  bag_ids = JSON.parse %x(knife data bag list --format=json)
   files = Dir[ File.join(bags_dir, '*.json') ].map {|f|
     File.basename(f, '.json')
   }
@@ -73,7 +73,7 @@ task :load_data_bags do
   bag_ids_to_update = files & bag_ids
 
   new_bags.each do |new_bag_id|
-    system "knife data bag create #{new_bag_id}"
+    system "knife data bag create #{new_bag_id} --format=json"
   end
 
   if ! missing_files.empty? then
@@ -96,7 +96,7 @@ task :load_data_bags do
 
     # file_item_ids = content.map{|item| item['id']}
     file_item_ids = item_hash.keys.sort
-    item_ids = JSON.parse %x(knife data bag show #{bag_id})
+    item_ids = JSON.parse %x(knife data bag show #{bag_id} --format=json)
 
     item_ids_with_bad_ids = file_item_ids.select {|item_id| item_id !~ /^\w(\w|[-_])+$/ }
     unless item_ids_with_bad_ids.empty?

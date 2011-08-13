@@ -1,34 +1,75 @@
 bash -c '
-REMOTE_FILE_URL_BASE="http://github.com/infochimps/cluster_chef/raw/version_2/config"
+
+# This is the ubuntu-10.04-gems script from opscode, but it
+# * installs ruby 1.9.2, not 1.8.7
+# * upgrades rubygems rather than installing from source
+# * pushes the node identity into the first-boot.json
+# * installs the chef-client service and kicks off the first run of chef
+
+set -v
+
+RUBY_VERSION=1.9.1 # this actually installs 1.9.2, it just says 1.9.1
+eval `cat /etc/lsb-release `
 export DEBIAN_FRONTEND=noninteractive
-apt-get update
 
-echo "`date` Installing base packages"
-apt-get install -y ruby ruby1.8-dev build-essential wget libruby-extras libruby1.8-extras runit runit-services
-echo "`date` Unchaining rubygems from the tyrrany of ubuntu"  
-gem install --no-rdoc --no-ri rubygems-update --version=1.3.7; /var/lib/gems/1.8/bin/update_rubygems ; gem update --no-rdoc --no-ri --system ; gem --version
-echo "`date` Installing support gems"  
-gem install --no-rdoc --no-ri broham uuidtools configliere right_aws
+if [ ! -f /usr/bin/chef-client ]; then
 
-echo "`date` Installing chef"
-gem install ohai chef --no-rdoc --no-ri --verbose <%= '--prerelease' if @config[:prerelease] %>
+echo -e "`date` \n\n**** \n**** apt update:\n****\n"
+apt-get    update
+apt-get -y upgrade
 
-echo "`date` Knifing in the chef client config files"
+echo -e "`date` \n\n**** \n**** Installing base packages:\n****\n"
+apt-get install -y build-essential wget runit runit-services
+
+echo -e "`date` \n\n**** \n**** Installing ruby version ${RUBY_VERSION}:\n****\n"
+apt-get   install -y ruby${RUBY_VERSION} ruby${RUBY_VERSION}-dev libruby${RUBY_VERSION} libruby${RUBY_VERSION}-dbg ri${RUBY_VERSION} rubygems${RUBY_VERSION}
+sudo update-alternatives --install /usr/bin/ruby ruby /usr/bin/ruby${RUBY_VERSION} 100 --slave /usr/bin/ri ri /usr/bin/ri${RUBY_VERSION} --slave /usr/bin/irb irb /usr/bin/irb${RUBY_VERSION} --slave /usr/bin/erb erb /usr/bin/erb${RUBY_VERSION} --slave /usr/bin/gem gem /usr/bin/gem${RUBY_VERSION} --slave /usr/share/man/man1/ruby.1.gz ruby.1.gz /usr/share/man/man1/ruby${RUBY_VERSION}.1.gz
+
+if ruby -e "exit(%x{gem --version} < \"1.6.2\" ? 0 : -1 )" ; then
+  echo -e "`date` \n\n**** \n**** Unchaining rubygems from the tyrrany of ubuntu:\n****\n"
+  # export REALLY_GEM_UPDATE_SYSTEM=true
+  # gem install --no-rdoc --no-ri rubygems-update; /var/lib/gems/${RUBY_VERSION}/bin/update_rubygems ; gem update --system ; gem --version
+  cd /tmp
+  wget http://production.cf.rubygems.org/rubygems/rubygems-1.6.2.tgz
+  tar zxf rubygems-1.6.2.tgz
+  cd rubygems-1.6.2
+  ruby setup.rb --no-format-executable
+fi
+
+echo -e "`date` \n\n**** \n**** Installing chef:\n****\n"
+gem install ohai --no-rdoc --no-ri --verbose
+gem install chef --no-rdoc --no-ri --verbose <%= bootstrap_version_string %>
+gem install --no-rdoc --no-ri extlib json ruby-shadow right_aws
+
+fi # if no chef-client
+
+echo -e "`date` \n\n**** \n**** Knifing in the chef client config files:\n****\n"
 mkdir -p /etc/chef
 
 (
 cat <<'EOP'
-<%= IO.read(Chef::Config[:validation_key]) %>
+<%= validation_key %>
 EOP
 ) > /tmp/validation.pem
 awk NF /tmp/validation.pem > /etc/chef/validation.pem
 rm /tmp/validation.pem
 
-echo "`date` Pulling in chef client script"  
-wget --no-check-certificate -nv ${REMOTE_FILE_URL_BASE}/client.rb -O /etc/chef/client.rb 
+echo -e "`date` \n\n**** \n**** Creating chef client script:\n****\n"
 
-echo "`date` Adding chef client runit scripts"
-service chef-client stop ; sleep 1 ; killall chef-client
+(
+cat <<'EOP'
+<%= config_content %>
+EOP
+) > /etc/chef/client.rb
+
+(
+cat <<'EOP'
+<%= { "run_list" => @run_list, "cluster_name" => @config[:node].cluster_name, "facet_name" => @config[:node].facet_name, "facet_index" => @config[:node].facet_index }.to_json %>
+EOP
+) > /etc/chef/first-boot.json
+
+echo -e "`date` \n\n**** \n**** Adding chef client runit scripts:\n****\n"
+service chef-client stop 2>/dev/null ; sleep 1 ; killall chef-client 2>/dev/null
 mkdir -p /var/log/chef /var/chef /etc/sv/chef-client/log/main
 cat > /etc/sv/chef-client/log/run <<EOF
 #!/bin/bash
@@ -37,25 +78,22 @@ EOF
 cat > /etc/sv/chef-client/run <<EOF
 #!/bin/bash
 exec 2>&1
-exec /usr/bin/env chef-client -i 1800 -s 20 -L /var/log/chef/client.log
+exec /usr/bin/env chef-client -i 43200 -s 20 -L /var/log/chef/client.log
 EOF
 chmod +x  /etc/sv/chef-client/log/run /etc/sv/chef-client/run
 ln -nfs /usr/bin/sv /etc/init.d/chef-client
 
-(
-cat <<'EOP'
-<%= { "run_list" => @run_list }.to_json %>
-EOP
-) > /etc/chef/first-boot.json
+<%- if (@config[:bootstrap_runs_chef_client].to_s == 'true') || (@chef_config.knife[:bootstrap_runs_chef_client].to_s == 'true') %>
+echo -e "`date` \n\n**** \n**** First run of chef:\n****\n"
+<%= start_chef %>
+<%- end %>
 
-echo "`date` First run of chef"
-/usr/bin/chef-client -j /etc/chef/first-boot.json
-
-echo "`date` Cleanup"  
+echo -e "`date` \n\n**** \n**** Cleanup:\n****\n"
 updatedb
 
-echo "`date` Enabling chef client service" 
-ln -s   /etc/sv/chef-client /etc/service/chef-client
+echo -e "`date` \n\n**** \n**** Enabling chef client service:\n****\n"
+ln -nfs /etc/sv/chef-client /etc/service/chef-client
+service chef-client start
 
-echo "`date` Cluster Chef client bootstrap complete."  
+echo -e "`date` \n\n**** \n**** Cluster Chef client bootstrap complete\n****\n"
 '

@@ -1,7 +1,0 @@
-h2. Open the hadoop master node 
-
-
-h2. Play around with single-machine server
-
-If you're using HDFS on the ephemeral drives, put the hadoop_cluster::format_namenode_once and hadoop_cluster::std_hdfs_dirs recipe in below hadoop and before hadoop_master. You can also just run those scripts' commands manually -- recommended, as the format_namenode_once is dangerous if it misfires.  You'll probably need to run @sudo chef-client@, format the namenode (@hadoop namenode -format@), then restart the namenode (@sudo service hadoop-0.20-namenode restart@)
-

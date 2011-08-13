@@ -1,0 +1,32 @@
+<% if @www_redirect -%>
+<VirtualHost *:80>
+  ServerName        www.<%= @host_name %>
+<% @host_aliases.each do |a| -%>
+  ServerAlias       www.<%= a %>
+<% end -%>
+
+  RewriteEngine     On
+  RewriteCond       %{HTTP_HOST} ^www.<%= @host_name %>$ [NC]
+  RewriteRule       ^/(.*)$ http://<%= @host_name %>/$1 [R=301,L]
+</VirtualHost>
+
+<% end -%>
+<VirtualHost *:80>
+  ServerName        <%= @host_name %>
+  ProxyRequests     Off
+<% @host_aliases.each do |a| -%>
+  ServerAlias       <%= a %>
+<% end -%>
+
+  # Local reverse proxy authorization override
+  # Most unix distribution deny proxy by default
+  # (ie /etc/apache2/mods-enabled/proxy.conf in Ubuntu)
+  <Proxy http://localhost:<%= node[:jenkins][:server][:port] %>/*>
+    Order deny,allow
+    Allow from all
+  </Proxy>
+
+  ProxyPreserveHost on
+  ProxyPass         /  http://localhost:<%= node[:jenkins][:server][:port] %>/
+  ProxyPassReverse  /  http://localhost:<%= node[:jenkins][:server][:port] %>/
+</VirtualHost>

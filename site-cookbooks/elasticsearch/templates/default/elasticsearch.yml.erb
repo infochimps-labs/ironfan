@@ -153,7 +153,7 @@ index:
     # When a primary shard is shut down explicitly (not relocated), the
     # index.gateway.snapshot_on_close flag can control if while shutting down, a
     # gateway snapshot should be performed. It defaults to true.
-    snapshot_on_close:          false
+    snapshot_on_close:          <%= @node[:elasticsearch][:snapshot_on_close] %>
 
 # http://www.elasticsearch.com/docs/elasticsearch/modules/node/network/      
 network:
@@ -204,14 +204,14 @@ discovery:
   type:                         zen
   zen:
     ping:
-      <%- if @node[:elasticsearch][:seeds].blank? %>
+      <%- if @elasticsearch_seeds.nil? %>
       multicast:
         enabled:                true
       <%- else %>
       multicast:
         enabled:                false
       unicast:
-        hosts:                  <%= [@node[:elasticsearch][:seeds]].flatten.compact.map(&:to_s).map(&:strip).reject(&:empty?).join(",") %>
+        hosts:                  <%= @elasticsearch_seeds.join(",") %>
       <%- end %>
     # There are two fault detection processes running. The first is by the
     # master, to ping all the other nodes in the cluster and verify that they

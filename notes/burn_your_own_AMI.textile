@@ -2,13 +2,43 @@ h2. Burn an AMI
 
 <pre><code>
 
-for foo in flip jacob dhruv doncarlo jesse dsnyder howech ryan nickster robochimp joe deploy instiki integrity webservers ; do sudo userdel $foo ; sudo groupdel $foo ; done
+# Fix:
+#  /etc/hosts
+#  /etc/hostname
+#  /etc/fstab
+
+# Nuke files that would be inconvenient to persist: chef config and startup files; log files; and files that contain keys of some sort.
+sudo true
+away_dir=/mnt/tmp/away-`date "+%Y%m%d%H"`
+sudo mkdir -p $away_dir
+
+sudo service chef-client stop
+ps auxf
+df -BG
+
+# Give apt some last-minute lovin'
+sudo apt-get -y update  ;
+sudo apt-get -y upgrade ;
+sudo apt-get -f install ;
+sudo apt-get clean ;
+sudo updatedb ;
+
+sudo mv /var/chef /etc/hostname /etc/node*name /etc/chef/{client-config.json,first-boot.json,node-attrs.json,chef-config.json,*.pem,*~} /var/www/index.html $away_dir
+sudo rm -rf /var/cache/chef/*
+# flush files that might have history or credentials
+sudo rm -rf /root/{.cache,.chef,emacs.d,.bash_history,.gem} ~ubuntu/{.cache,.chef,emacs.d,.bash_history,.gem} /var/backups/*
+# Zero out log files
+sudo rm -rf /var/lib/cloud/data/* /var/log/{chef,hadoop,rabbitmq,cassandra,nginx,elasticsearch}/* /etc/sv/*/log/main/* /var/log/*.gz
+sudo bash -c 'for foo in /var/log/{dmesg,syslog,messages,debug,udev,lastlog,faillog,dmesg.0,*.log} ; do echo -n > $foo ; done'
+# If you want to record the AMI version, something like
+sudo rm /etc/motd ;
+sudo bash -c 'echo "CHIMP CHIMP CHIMP CRUNCH CRUNCH CRUNCH (image burned at `date`)" > /etc/motd ' ;
 
 # Shutdown services  and make the following ones not restart on bootup
-for foo in hadoop-0.20-{namenode,jobtracker,tasktracker,datanode,secondarynamenode} hadoop-{zookeeper-server,hbase-master,hbase-regionserver} cassandra couchdb thttpd chef-client nfs-kernel-server god apeyeye nginx  rabbitmq-server chef-{solr,solr-indexer,client,server,server-webui} elasticsearch ; do sudo service $foo stop ; done
+for foo in hadoop-0.20-{namenode,jobtracker,tasktracker,datanode,secondarynamenode} hadoop-{zookeeper-server,hbase-master,hbase-regionserver} cassandra couchdb thttpd nfs-kernel-server god apeyeye nginx  rabbitmq-server chef-{solr,solr-indexer,client,server,server-webui} elasticsearch ; do sudo service $foo stop ; done
 killall redis-server tail nginx console-kil-daemon
 for foo in thttpd hadoop-0.20-{tasktracker,datanode,namenode,jobtracker,secondarynamenode} hadoop-{zookeeper-server,hbase-master,hbase-regionserver} cassandra elasticsearch ; do sudo update-rc.d -f $foo remove ; done
-# Give the process list a how's your father -- nothing interesting should be running.
+# Give the process list a hows-your-father -- nothing interesting should be running.
 ps auxf
 # Unmount anything that's mounted,
 sudo umount /home
@@ -19,50 +49,21 @@ ec2-detach-volume    -K pk.pem -C cert.pem vol-123545
 # and check that it all worked.
 mount
 ec2-describe-volumes -K pk.pem -C cert.pem | grep 3045e85a
-
-# Fix:
-#  /etc/hosts
-#  /etc/hostname
-#  /etc/fstab
-
-# Give apt some last-minute lovin'
-sudo apt-get -y update  ;
-sudo apt-get -y upgrade ;
-sudo apt-get -f install ;
-sudo apt-get clean ;
-sudo updatedb ;
-
+# nuke user accts
+for foo in flip jacob dhruv doncarlo jesse dsnyder howech ryan nickster robochimp joe deploy instiki integrity webservers ; do sudo userdel $foo ; sudo groupdel $foo ; done
 # blow away anything git-deployed
 sudo rm -rf /var/www/{apeyeye,apidocs} /etc/{apeyeye,god,monitoring,redis,elasticsearch} /var/run/god /var/log/god /etc/sv/apeyeye
-
-# Nuke files that would be inconvenient to persist: chef config and startup files; log files; and files that contain keys of some sort.
-away_dir=/mnt/tmp/away-`date "+%Y%m%d%H"`
-sudo mkdir -p $away_dir
 # Move files out of the way that will confuse on reboot
-sudo mv /var/lib/couchdb/0.10.0/chef.couch /var/lib/rabbitmq/mnesia/rabbit /etc/hostname /etc/node*name /etc/chef/{client-config.json,chef-config.json,*.pem} /var/www/index.html $away_dir
-sudo mv /srv/chef/cache/chef_server_cookie_id /var/chef /etc/hadoop/conf/{*.xml,raw_settings.yaml*} /etc/cassandra/storage-conf* /etc/elasticsearch/* $away_dir
-sudo mkdir -p $away_dir/chef_cache; sudo mv /var/cache/chef/* $away_dir/chef_cache/
-# flush files that might have history or credentials
-sudo rm -rf /root/{.cache,.chef,emacs.d,.bash_history,.gem} ~ubuntu/{.cache,.chef,emacs.d,.bash_history,.gem} /var/backups/*
-# Zero out log files
-sudo rm -rf /var/lib/cloud/data/* /var/log/{chef,hadoop,rabbitmq,cassandra,nginx,elasticsearch}/* /etc/sv/*/log/main/* /var/log/*.gz
-sudo bash -c 'for foo in /var/log/{dmesg,syslog,messages,debug,udev,lastlog,faillog,dmesg.0,*.log} ; do echo -n > $foo ; done'
-# Nuke old chef templates
-sudo find /var /etc -iname '*.chef-2*[0-9]' -exec rm {} \; -print
-
-# If you want to record the AMI version, something like
-sudo rm /etc/motd ;
-sudo bash -c 'echo "CHIMP CHIMP CHIMP CRUNCH CRUNCH CRUNCH (image burned at `date`)" > /etc/motd ' ;
+sudo mv /var/lib/couchdb/0.10.0/chef.couch /var/lib/rabbitmq/mnesia/rabbit /srv/chef/cache/chef_server_cookie_id /etc/hadoop/conf/{*.xml,raw_settings.yaml*} /etc/cassandra/storage-conf* /etc/elasticsearch/* $away_dir
 </code></pre>
 
 h3. Burning an EBS-backed AMI
 
 Just use the console. MAKE SURE TO STOP, UNMOUNT AND DETACH ALL EBS volumes first.
 
-  infochimps.chef-client.lucid.east.ebs-32bit-20100725
-  infochimps.scraper-client.lucid.east.ebs-32bit-20100725
-  Chef client: use with http://github.com/infochimps/cluster_chef - Hadoop Cassandra & NFS under Chef
-
+  infochimps.chef-client.maverick.east.ebs-64bit-20110703
+  ClusterChef client 20110703 http://github.com/infochimps/cluster_chef - System orchestration with Chef
+  
 h3. Burning an Instance-backed (s3) AMIs
 
 From your local machine, bring over your credentials

@@ -16,42 +16,122 @@
 # limitations under the License.
 #
 
-require 'socket'
-require 'chef/knife'
-require 'json'
+require File.expand_path(File.dirname(__FILE__)+"/knife_common.rb")
 
 class Chef
   class Knife
     class ClusterLaunch < Knife
+      include ClusterChef::KnifeCommon
 
-      banner "knife cluster launch CLUSTER_NAME FACET_NAME (options)"
+      deps do
+        require 'time'
+        require 'socket'
+        ClusterChef::KnifeCommon.load_deps
+        Chef::Knife::Bootstrap.load_deps
+      end
 
-      attr_accessor :initial_sleep_delay
-
+      banner "knife cluster launch CLUSTER_NAME [FACET_NAME [INDEXES]] (options)"
+      [ :ssh_port, :ssh_password, :identity_file, :use_sudo, :no_host_key_verify,
+        :prerelease, :bootstrap_version, :template_file,
+      ].each do |name|
+        option name, Chef::Knife::Bootstrap.options[name]
+      end
       option :dry_run,
-        :long => "--dry_run",
+        :long => "--dry-run",
         :description => "Don't really run, just use mock calls"
-
       option :bootstrap,
         :long => "--bootstrap",
         :description => "Also bootstrap the launched node"
+      option :bootstrap_runs_chef_client,
+        :long => "--bootstrap-runs-chef-client",
+        :description => "If bootstrap is invoked, will do the initial run of chef-client in the bootstrap script"
+      option :force,
+        :long => "--force",
+        :description => "Perform launch operations even if it may not be safe to do so."
+      option :detailed,
+        :long => "--detailed",
+        :description => "Show detailed info on servers"
+      option :abort,
+        :long => "--abort",
+        :description => "Abort before actually launching (though this might still hit the outside world, eg sec grps)"
 
-      option :ssh_password,
-        :short => "-P PASSWORD",
-        :long => "--ssh-password PASSWORD",
-        :description => "The ssh password"
+      def run
+        load_cluster_chef
+        die(banner) if @name_args.empty?
+        configure_dry_run
 
-      option :prerelease,
-        :long => "--prerelease",
-        :description => "Install the pre-release chef gems when bootstrapping"
+        #
+        # Load the facet
+        #
+        full_target = get_slice(*@name_args)
+        display(full_target)
+        target = full_target.select(&:launchable?)
 
-      option :template_file,
-        :long => "--template-file TEMPLATE",
-        :description => "Full path to location of template to use when bootstrapping",
-        :default => false
+        warn_or_die_on_bogus_servers(full_target) unless full_target.bogus_servers.empty?
 
-      def h
-        @highline ||= HighLine.new
+        die("", "#{h.color("All servers are running -- not launching any.",:blue)}", "", 1) if target.empty?
+
+        # We need to dummy up a key_pair in simulation mode, not doing it fr'eals
+        # You must to do this manually in real life -- must save the file, etc.
+        if config[:dry_run] then ClusterChef.connection.key_pairs.create(:name => target.cluster.name) ; end
+
+        # This will create/update any roles
+        target.sync_roles
+
+        # Make security groups
+        puts
+        puts "Making security groups:"
+        full_target.security_groups.each{|name,group| group.run }
+
+        # Launch servers
+        die "Aborting! (--abort given)" if config[:abort]
+        puts
+        puts "Launching machines:"
+        target.create_servers
+
+        puts
+        display(target)
+
+        # As each server finishes, configure it
+        watcher_threads = target.map do |s|
+          Thread.new(s) do |cc_server|
+            perform_after_launch_tasks(cc_server)
+          end
+        end
+
+        progressbar_for_threads(watcher_threads)
+
+        display(target)
+      end
+
+      def display(target)
+        super(target, ["Name", "InstanceID", "State", "Flavor", "Image", "AZ", "Public IP", "Private IP", "Created At", 'Volumes', 'Elastic IP']) do |svr|
+          { 'launchable?' => (svr.launchable? ? "[blue]#{svr.launchable?}[reset]" : '-' ), }
+        end
+      end
+
+      def perform_after_launch_tasks(server)
+        # Hook up external assets
+        server.create_tags
+
+        # Pre-populate information in chef
+        server.sync_to_chef
+
+        # Wait for node creation on amazon side
+        server.fog_server.wait_for{ ready? }
+
+        # Attach volumes, etc
+        server.sync_to_cloud
+
+        # Try SSH
+        unless config[:dry_run]
+          nil until tcp_test_ssh(server.fog_server.dns_name){ sleep @initial_sleep_delay ||= 10  }
+        end
+
+        # Run Bootstrap
+        if config[:bootstrap]
+          run_bootstrap(server, server.fog_server.dns_name)
+        end
       end
 
       def tcp_test_ssh(hostname)
@@ -73,115 +153,23 @@ class Chef
         tcp_socket && tcp_socket.close
       end
 
-      def run
-        require 'fog'
-        require 'highline'
-        require 'net/ssh/multi'
-        require 'readline'
-        $: << Chef::Config[:cluster_chef_path]+'/lib'
-        require 'cluster_chef'
-        $stdout.sync = true
-
-        #
-        # Put Fog into mock mode if --dry_run
-        #
-        if config[:dry_run]
-          Fog.mock!
-          Fog::Mock.delay = 0
+      def warn_or_die_on_bogus_servers(target)
+        puts
+        puts "Cluster has servers in a transitional or undefined state (shown as 'bogus'):"
+        puts
+        display(target)
+        puts
+        unless config[:force]
+          die(
+            "Launch operations may be unpredictable under these circumstances.",
+            "You should wait for the cluster to stabilize, fix the undefined server problems",
+            "(run \"knife cluster show CLUSTER\" to see what the problems are), or launch",
+            "the cluster anyway using the --force option.", "", -2)
         end
-
-        #
-        # Load the facet
-        #
-        cluster_name, facet_name = @name_args
-        raise "Launch the cluster as: knife cluster launch CLUSTER_NAME FACET_NAME (options)" if facet_name.blank?
-        require File.expand_path(Chef::Config[:cluster_chef_path]+"/clusters/defaults")
-        require File.expand_path(Chef::Config[:cluster_chef_path]+"/clusters/#{cluster_name}")
-        facet = Chef::Config[:clusters][cluster_name].facet(facet_name)
-        facet.resolve!
-
-        #
-        # Make security groups
-        #
-        facet.cloud.security_groups.each{|name,group| group.run }
-
-        #
-        # Launch server
-        #
-        # servers = facet.list_servers.select{|s| s.state == "running" }
-        servers = (1..facet.instances).map{ facet.create_server }
-        server = servers.last
-
-        config[:ssh_user]       = facet.cloud.ssh_user
-        config[:identity_file]  = facet.cloud.ssh_identity_file
-        config[:chef_node_name] = facet.chef_node_name
-        config[:distro]         = facet.cloud.bootstrap_distro
-        config[:run_list]       = facet.run_list
-
-        puts "#{h.color("Instance ID      ", :cyan)}: #{server.id}"
-        puts "#{h.color("Flavor           ", :cyan)}: #{server.flavor_id}"
-        puts "#{h.color("Image            ", :cyan)}: #{server.image_id}"
-        puts "#{h.color("Availability Zone", :cyan)}: #{server.availability_zone}"
-        puts "#{h.color("Security Groups  ", :cyan)}: #{server.groups.join(", ")}"
-        puts "#{h.color("SSH Key          ", :cyan)}: #{server.key_name}"
-        puts "#{h.color("User Data        ", :cyan)}: #{server.user_data}"
-
-        servers.each do |server|
-          #
-          # Wait for it to be ready to do stuff
-          #
-          print "\n#{h.color("Waiting for server ", :magenta)}"
-          server.wait_for { print "."; ready? }
-          puts("\n")
-          #
-          puts "#{h.color("Public DNS Name    ", :cyan)}: #{server.dns_name}"
-          puts "#{h.color("Public IP Address  ", :cyan)}: #{server.ip_address}"
-          puts "#{h.color("Private DNS Name   ", :cyan)}: #{server.private_dns_name}"
-          puts "#{h.color("Private IP Address ", :cyan)}: #{server.private_ip_address}"
-          print "\n#{h.color("Waiting for sshd ", :magenta)}"
-          print(".") until tcp_test_ssh(server.dns_name) { sleep @initial_sleep_delay ||= 10; puts("done") }
-
-          #
-          # Bootstrap it (if requested)
-          #
-          if config[:bootstrap]
-            begin
-              bootstrap_for_node(server).run
-            rescue StandardError => e
-              warn e
-              warn e.backtrace
-            end
-          end
-        end
-
-        servers.each do |server|
-          puts "\n"
-          puts "#{h.color("Instance ID        ", :cyan)}: #{server.id}"
-          puts "#{h.color("Flavor             ", :cyan)}: #{server.flavor_id}"
-          puts "#{h.color("Image              ", :cyan)}: #{server.image_id}"
-          puts "#{h.color("Availability Zone  ", :cyan)}: #{server.availability_zone}"
-          puts "#{h.color("Security Groups    ", :cyan)}: #{server.groups.join(", ")}"
-          puts "#{h.color("SSH Key            ", :cyan)}: #{server.key_name}"
-          puts "#{h.color("Public DNS Name    ", :cyan)}: #{server.dns_name}"
-          puts "#{h.color("Public IP Address  ", :cyan)}: #{server.ip_address}"
-          puts "#{h.color("Private DNS Name   ", :cyan)}: #{server.private_dns_name}"
-          puts "#{h.color("Private IP Address ", :cyan)}: #{server.private_ip_address}"
-          puts "#{h.color("Run List           ", :cyan)}: #{facet.run_list.join(', ')}"
-        end
-      end
-
-      def bootstrap_for_node(server)
-        bootstrap = Chef::Knife::Bootstrap.new
-        bootstrap.name_args               = [server.dns_name]
-        bootstrap.config[:run_list]       = config[:run_list]
-        bootstrap.config[:ssh_user]       = config[:ssh_user]
-        bootstrap.config[:identity_file]  = config[:identity_file]
-        bootstrap.config[:chef_node_name] = config[:chef_node_name] || server.id
-        bootstrap.config[:prerelease]     = config[:prerelease]
-        bootstrap.config[:distro]         = config[:distro]
-        bootstrap.config[:use_sudo]       = true
-        bootstrap.config[:template_file]  = config[:template_file]
-        bootstrap
+        puts
+        puts "--force specified"
+        puts "Proceeding to launch anyway. This may produce undesired results."
+        puts
       end
 
     end

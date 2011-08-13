@@ -23,6 +23,7 @@
 
 require 'ohai'
 require 'json'
+require 'extlib/mash'
 
 OHAI_INFO = Ohai::System.new
 OHAI_INFO.all_plugins
@@ -46,7 +47,6 @@ chef_config.merge!(chef_config_from_file)
 attrs                 = chef_config['attributes']
 attrs_from_file       = JSON.load(File.open(CLIENT_CONFIG_FILE)) rescue {}
 attrs.merge!(attrs_from_file)
-p [chef_config]
 
 # How to identify node to chef server.
 chef_server_url        chef_config["chef_server"]            || 'http://localhost:4000'
@@ -59,17 +59,19 @@ client_key             "/etc/chef/client.pem"
 # and use it to set the node_name
 #
 if chef_config['get_name_from'] == 'broham'
+  puts "Getting name from broham within [#{attrs['cluster_name']}-#{attrs['cluster_role']}]" if attrs['node_name'].nil?
   begin
     require 'broham'
     BrohamNode.set_cluster_info!(attrs)
+    attrs["facet_index"] ||= attrs["cluster_role_index"]
   rescue Exception => e ; warn "Error getting cluster role from broham: #{e.message}\n#{e.backtrace}" ; end
 end
-attrs["cluster_role_index"] ||= OHAI_INFO[:ec2][:instance_id]
-attrs["node_name"]          ||= [ attrs["cluster_name"], attrs["cluster_role"], attrs["cluster_role_index"] ].reject(&:blank?).join('-')
+attrs["facet_index"] ||= OHAI_INFO[:ec2][:instance_id]
+attrs["node_name"]   ||= [ attrs["cluster_name"], attrs["cluster_role"], attrs["facet_index"] ].reject(&:nil?).join('-')
 node_name attrs["node_name"]
 
 # If the client file is missing, write the validation key out so chef-client can register
-if (not File.exists?("/etc/chef/client.pem")) && (not File.exists?(validation_key)) && (not chef_config["validation_key"].blank?)
+if (not File.exists?("/etc/chef/client.pem")) && (not File.exists?(validation_key)) && (not chef_config["validation_key"].nil?)
   File.open(validation_key, "w", 0600) do |f|
     f.print(chef_config["validation_key"])
   end
@@ -83,4 +85,4 @@ unless File.exists?(CLIENT_CONFIG_FILE)
 end
 json_attribs CLIENT_CONFIG_FILE if File.exists?(CLIENT_CONFIG_FILE)
 
-puts "=> chef client #{node_name} on #{chef_server_url} in #{attrs["cluster_name"]} running #{attrs["run_list"].inspect}"
+puts "=> chef client #{node_name} on #{chef_server_url} in cluster '#{attrs["cluster_name"]}'"

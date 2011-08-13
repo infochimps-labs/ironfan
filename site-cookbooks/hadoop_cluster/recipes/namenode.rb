@@ -29,14 +29,3 @@ service "#{node[:hadoop][:hadoop_handle]}-namenode" do
 end
 # register with cluster_service_discovery
 provide_service ("#{node[:cluster_name]}-namenode")
-
-# Install
-hadoop_package "secondarynamenode"
-# launch service
-service "#{node[:hadoop][:hadoop_handle]}-secondarynamenode" do
-  action [ :enable, :start ]
-  running true
-  supports :status => true, :restart => true
-end
-# register with cluster_service_discovery
-provide_service ("#{node[:cluster_name]}-secondarynamenode")

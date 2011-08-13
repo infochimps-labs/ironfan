@@ -16,83 +16,54 @@
 # limitations under the License.
 #
 
-require 'socket'
-require 'chef/knife'
-require 'json'
+require File.expand_path(File.dirname(__FILE__)+"/generic_command.rb")
 
 class Chef
   class Knife
-    class ClusterBootstrap < Knife
+    class ClusterBootstrap < ClusterChef::Script
 
-      banner "knife cluster bootstrap CLUSTER_NAME FACET_NAME SERVER_FQDN (options)"
-
-      attr_accessor :initial_sleep_delay
-
-      option :bootstrap,
-        :long => "--bootstrap",
-        :description => "Also bootstrap the launched node"
-
-      option :ssh_password,
-        :short => "-P PASSWORD",
-        :long => "--ssh-password PASSWORD",
-        :description => "The ssh password"
-
-      option :prerelease,
-        :long => "--prerelease",
-        :description => "Install the pre-release chef gems when bootstrapping"
-
+      option :ssh_user,
+        :short => "-x USERNAME",
+        :long => "--ssh-user USERNAME",
+        :description => "The ssh username"
+      option :bootstrap_runs_chef_client,
+        :long => "--bootstrap-runs-chef-client",
+        :description => "If bootstrap is invoked, will do the initial run of chef-client in the bootstrap script"
+      option :distro,
+        :short => "-d DISTRO",
+        :long => "--distro DISTRO",
+        :description => "Bootstrap a distro using a template"
       option :template_file,
         :long => "--template-file TEMPLATE",
-        :description => "Full path to location of template to use when bootstrapping",
-        :default => false
+        :description => "Full path to location of template to use"
+      option :use_sudo,
+        :long => "--sudo",
+        :description => "Execute the bootstrap via sudo",
+        :boolean => true
+      option :detailed,
+        :long => "--detailed",
+        :description => "Show detailed info on servers"
+      import_banner_and_options(Chef::Knife::Bootstrap,
+        :except => [:chef_node_name, :run_list, :ssh_user, :distro, :template_file])
+      import_banner_and_options(ClusterChef::Script)
 
-      def h
-        @highline ||= HighLine.new
+      deps do
+        Chef::Knife::Bootstrap.load_deps
+        ClusterChef::Script.load_deps
       end
 
-      def run
-        require 'fog'
-        require 'highline'
-        require 'net/ssh/multi'
-        require 'readline'
-        $: << Chef::Config[:cluster_chef_path]+'/lib'
-        require 'cluster_chef'
-        $stdout.sync = true
-
-        #
-        # Load the facet
-        #
-        cluster_name, facet_name, server_name = @name_args
-        raise "Bootstrap a node with: knife cluster bootstrap CLUSTER_NAME FACET_NAME SERVER_FQDN (options)" if facet_name.blank?
-        require File.expand_path(Chef::Config[:cluster_chef_path]+"/clusters/defaults")
-        require File.expand_path(Chef::Config[:cluster_chef_path]+"/clusters/#{cluster_name}")
-        facet = Chef::Config[:clusters][cluster_name].facet(facet_name)
-        facet.resolve!
-
-        config[:ssh_user]       = facet.cloud.ssh_user
-        config[:identity_file]  = facet.cloud.ssh_identity_file
-        config[:chef_node_name] = facet.chef_node_name
-        config[:distro]         = facet.cloud.bootstrap_distro
-        config[:run_list]       = facet.run_list
-
-        #
-        # Bootstrap 
-        #
-        bootstrap_for_node(server_name).run
+      def perform_execution target
+        target.each do |svr|
+          run_bootstrap(svr, svr.fog_server.dns_name)
+        end
       end
 
-      def bootstrap_for_node(server_name)
-        bootstrap = Chef::Knife::Bootstrap.new
-        bootstrap.name_args               = [server_name]
-        bootstrap.config[:run_list]       = config[:run_list]
-        bootstrap.config[:ssh_user]       = config[:ssh_user]
-        bootstrap.config[:identity_file]  = config[:identity_file]
-        bootstrap.config[:chef_node_name] = config[:chef_node_name]
-        bootstrap.config[:prerelease]     = config[:prerelease]
-        bootstrap.config[:distro]         = config[:distro]
-        bootstrap.config[:use_sudo]       = true
-        bootstrap.config[:template_file]  = config[:template_file]
-        bootstrap
+      def confirm_execution target
+        unless config[:yes]
+          puts "Bootstrapping the node redoes its initial setup -- only do this on an aborted launch."
+          puts "Are you absolutely certain that you want to perform this action? (Type 'Yes' to confirm)"
+          confirm_or_exit('Yes')
+        end
       end
 
     end

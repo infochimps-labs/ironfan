@@ -18,59 +18,8 @@
 # limitations under the License.
 #
 
-redis_package = "redis-server"
-
-group("redis"){ gid 335 }
-user "redis" do
-  comment   "Redis-server runner"
-  uid       335
-  gid       "redis"
-  shell     "/bin/false"
-end
-
-unless node[:platform_version].to_f < 9.0
-  package redis_package do
-    action :install
-  end
-end
-
-directory "/var/log/redis" do
-  owner     "redis"
-  group     "redis"
-  mode      "0755"
-  action    :create
-end
-
-directory node[:redis][:dbdir] do
-  owner     "redis"
-  group     "redis"
-  mode      "0755"
-  action    :create
-  recursive true
-end
-
-directory "/etc/redis" do
-  owner     "root"
-  group     "root"
-  mode      "0755"
-  action    :create
-end
-
-template "/etc/init.d/redis-server" do
-  source "redis-server-init-d.erb"
-  owner "root"
-  group "root"
-  mode 0744
-end
-
-service redis_package do
-  action :enable
-end
-
-template "/etc/redis/redis.conf" do
-  source "redis.conf.erb"
-  owner "root"
-  group "root"
-  mode 0644
-  notifies(:restart, resources(:service => redis_package)) unless node[:platform_version].to_f < 9.0
-end
+# These are included explicitly until I can untangle the hellscape of
+# dependencies on redis in the rest of our recipes
+include_recipe 'redis::base'
+include_recipe 'redis::install_from_package'
+include_recipe 'redis::server'
