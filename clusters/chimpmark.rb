@@ -53,6 +53,7 @@ ClusterChef.cluster 'chimpmark' do
     cloud.flavor        "m1.xlarge"
     cloud.backing       "ebs"
     role                "hadoop_tasktracker"
+    role                "hadoop_datanode"
   end
 
   facet 'reducest' do
