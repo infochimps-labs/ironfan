@@ -52,7 +52,8 @@ ClusterChef.cluster 'sandbox' do
 
   facet 'mrflip' do
     instances 1
-    cloud.elastic_ip '75.101.133.139'
+    #cloud.elastic_ip '75.101.133.139'
+    cloud.flavor "c1.xlarge"
     facet_role do
       run_list(*%w[
         cluster_chef::dedicated_server_tuning
@@ -95,11 +96,12 @@ ClusterChef.cluster 'sandbox' do
       ])
       override_attributes({
           :cornelius => {
-            :elastic_search => {
-              :host => "10.80.91.47",
-              :port => "9200",
-            }
-          },
+                              :elastic_search => {
+                                :port => 9200,
+                                :host => "10.84.73.223",
+                              }
+                            },
+                            
           :rvm => {
             :group_id                     => 427,
             :default_ruby                 => "system",
