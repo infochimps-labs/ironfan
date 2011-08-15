@@ -39,8 +39,8 @@ ClusterChef.cluster 'chimpmark' do
     facet_role do
       override_attributes({
                             :hadoop => { 
-                              :max_map_tasks =>  0, 
-                              :max_reduce_tasks => 6, 
+                              :max_map_tasks =>  4, 
+                              :max_reduce_tasks => 2, 
                               :java_child_opts => '-Xmx1920m -XX:+UseCompressedOops -XX:MaxNewSize=200m -server', 
                               :java_child_ulimit =>  5898240, 
                               :io_sort_factor => 25, 
