@@ -76,5 +76,24 @@ ClusterChef.cluster 'chimpmark' do
     role                "hadoop_tasktracker"
   end
 
+  facet 'overkill' do
+    facet_role do
+      override_attributes({
+                            :hadoop => { 
+                              :max_map_tasks =>  4, 
+                              :max_reduce_tasks => 2, 
+                              :java_child_opts => '-Xmx1920m -XX:+UseCompressedOops -XX:MaxNewSize=200m -server', 
+                              :java_child_ulimit =>  5898240, 
+                              :io_sort_factor => 25, 
+                              :io_sort_mb => 256, 
+                            },
+                          })
+    end
+    
+    instances 10
+    cloud.flavor        "m1.xlarge"
+    cloud.backing       "ebs"
+    role                "hadoop_tasktracker"
+  end
 
 end
