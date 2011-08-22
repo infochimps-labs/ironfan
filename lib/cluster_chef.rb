@@ -48,6 +48,21 @@ module ClusterChef
     clusters[cluster_name]
   end
 
+  # returns a hash mapping cluster name to file name
+  def self.list_clusters
+    hash = {}
+    cluster_path.each do |cp_dir|
+      Dir.foreach(cp_dir) do |filename|
+        if filename =~ /([a-zA-Z].*)\.rb$/
+          cluster_file = File.join( cp_dir, "#{$1}.rb" ) 
+          hash[$1] ||= cluster_file
+          #require cluster_file
+        end
+      end
+    end
+    return hash
+  end
+
   def self.slice cluster_name, *args
     cluster = load_cluster(cluster_name)
     cluster.resolve!
