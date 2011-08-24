@@ -96,12 +96,19 @@ ClusterChef.cluster 'sandbox' do
       ])
       override_attributes({
           :cornelius => {
-                              :elastic_search => {
-                                :port => 9200,
-                                :host => "10.84.73.223",
-                              }
-                            },
-                            
+            :elastic_search => {
+              :port => 9200,
+              :host => "10.84.73.223",
+            },
+            :hbase => {
+              :port => 8080,
+              :host => "http://10.195.218.111",
+            },
+            :geocoder => {
+              :host => "http://107.20.50.35"
+            },
+          },
+
           :rvm => {
             :group_id                     => 427,
             :default_ruby                 => "system",
