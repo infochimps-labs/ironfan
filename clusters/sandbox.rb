@@ -102,10 +102,10 @@ ClusterChef.cluster 'sandbox' do
             },
             :hbase => {
               :port => 8080,
-              :host => "http://10.195.218.111",
+              :host => "10.195.218.111",
             },
             :geocoder => {
-              :host => "http://107.20.50.35"
+              :host => "107.20.50.35"
             },
           },
 
