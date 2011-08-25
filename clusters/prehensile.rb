@@ -113,8 +113,15 @@ ClusterChef.cluster 'prehensile' do
           :elastic_search => {
             :port                     => 9200,
             :host                     => "10.112.238.81",
-          }
-        },
+            },
+          :hbase => {
+            :port                   => 8080,
+            :host                   => "10.195.218.111",
+            },
+          :geocoder => {
+            :host                   => "107.20.50.35"
+            },
+          },
         :rvm => {
           :group_id                   => 427,
           :default_ruby               => "system",
