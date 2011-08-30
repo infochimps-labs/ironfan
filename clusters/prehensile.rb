@@ -22,12 +22,22 @@ ClusterChef.cluster 'prehensile' do
     server 2 do
       cloud.availability_zones  ['us-east-1c']
     end
+    server 3 # temp added to prove a production deploy works
   end
 
   facet 'staging' do
     facet_role
-    instances           1
+    instances           3
     cloud.flavor        "m1.small"
+    server 0 do
+      cloud.availability_zones  ['us-east-1d'] # default
+    end
+    server 1 do
+      cloud.availability_zones  ['us-east-1b']
+    end
+    server 2 do
+      cloud.availability_zones  ['us-east-1c']
+    end
   end
 
   facet 'development' do
@@ -76,8 +86,8 @@ ClusterChef.cluster 'prehensile' do
         },
         :apey_eye_endpoints => {
           :environment                => 'development',
-          :staging_deploy_version     => 'e45ca3f2b8f010f407213949947d5f8f00980b56',
-          :deploy_version             => 'e45ca3f2b8f010f407213949947d5f8f00980b56',
+          :staging_deploy_version     => 'df15f32b27667a94dbb150af3a7fa3685a85f984',
+          :deploy_version             => 'df15f32b27667a94dbb150af3a7fa3685a85f984',
           :dir                        => '/var/www/apey_eye_endpoints',
           :unicorn => {
             :num_workers              => 20,
