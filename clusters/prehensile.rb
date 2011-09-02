@@ -61,7 +61,6 @@ ClusterChef.cluster 'prehensile' do
       override_attributes({
         :buzzkill => {
           :environment                => 'development',
-          :deploy_version             => '805149744ca9498db662c85f66acde0f34c622c1',
           :forwarders => {
             :apey_eye => {
               :url                    => 'http://localhost:9500',
