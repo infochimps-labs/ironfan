@@ -22,22 +22,12 @@ ClusterChef.cluster 'prehensile' do
     server 2 do
       cloud.availability_zones  ['us-east-1c']
     end
-    server 3 # temp added to prove a production deploy works
   end
 
   facet 'staging' do
     facet_role
-    instances           3
+    instances           1
     cloud.flavor        "m1.small"
-    server 0 do
-      cloud.availability_zones  ['us-east-1d'] # default
-    end
-    server 1 do
-      cloud.availability_zones  ['us-east-1b']
-    end
-    server 2 do
-      cloud.availability_zones  ['us-east-1c']
-    end
   end
 
   facet 'development' do
