@@ -21,34 +21,24 @@ ClusterChef.cluster 'sandbox' do
     flavor "t1.micro"
   end
 
-  facet 'hohyon' do
-    facet_role
-    instances 1
-    server 0 do
-      fullname 'sandbox-hohyon'
-      #cloud.flavor "m1.small"
-    end
-  end
-
-  facet 'howech' do
-    facet_role do
-      override_attributes({
-          :chh => "Was Here!"
-        })
-    end
-    instances 2
-    server 0 do
-      fullname 'sandbox-howech'
-      volume :data, :volume_id => "vol-836e28e8", :device => "/dev/sdk"
-    end
-    server 1 do
-      fullname 'sandbox-howech-databuilder'
-      volume :millionsong, :volume_id => "vol-c3d6e2a8", :device => "/dev/sdk", :mount_point => '/millionsong'
-      volume :millionsongunzipped, :volume_id => "vol-0580b46e", :device => "/dev/sdl", :mount_point => 'msong_unzipped'
-      cloud.flavor "m1.small"
-    end
-
-  end
+#   facet 'howech' do
+#     facet_role do
+#       override_attributes({
+#           :chh => "Was Here!"
+#         })
+#     end
+#     instances 2
+#     server 0 do
+#       fullname 'sandbox-howech'
+#       volume :data, :volume_id => "vol-836e28e8", :device => "/dev/sdk"
+#     end
+#     server 1 do
+#       fullname 'sandbox-howech-databuilder'
+#       volume :millionsong, :volume_id => "vol-c3d6e2a8", :device => "/dev/sdk", :mount_point => '/millionsong'
+#       volume :millionsongunzipped, :volume_id => "vol-0580b46e", :device => "/dev/sdl", :mount_point => 'msong_unzipped'
+#       cloud.flavor "m1.small"
+#     end
+#   end
 
   facet 'mrflip' do
     instances 1
@@ -78,52 +68,6 @@ ClusterChef.cluster 'sandbox' do
     end
   end
 
-  facet 'cornelius' do
-    instances 1
-    cloud.image_id          "ami-32a0535b"
-    server 0 do
-      fullname 'sandbox-cornelius'
-      cloud.flavor "c1.medium"
-    end
-    facet_role do
-      run_list(*%w[
-        role[nfs_client]
-        rvm
-        rvm::gem_package
-        nginx
-        cornelius
-        cornelius::server
-      ])
-      override_attributes({
-          :cornelius => {
-            :elastic_search => {
-              :port => 9200,
-              :host => "10.84.73.223",
-            },
-            :hbase => {
-              :port => 8080,
-              :host => "10.195.218.111",
-            },
-            :geocoder => {
-              :host => "107.20.50.35"
-            },
-          },
-
-          :rvm => {
-            :group_id                     => 427,
-            :default_ruby                 => "system",
-            :rubies                       => [ "ruby-1.9.2" ],
-            :gem_package => {
-              :rvm_string                 => %w[system ruby-1.9.2]
-            }
-          },
-          :statsd => {
-            :flushInterval                => 60000
-          }
-        })
-    end
-  end
-
   facet 'dhruv' do
     instances 1
     facet_role do
@@ -148,12 +92,6 @@ ClusterChef.cluster 'sandbox' do
     end
     facet_role do
       run_list(*%w[
-        rvm
-        rvm::gem_package
-        nginx
-        buzzkill
-        buzzkill::server
-        macaque
       ])
       override_attributes({
           :authorization =>
@@ -162,46 +100,6 @@ ClusterChef.cluster 'sandbox' do
               [ "temujin9  ALL=(ALL) NOPASSWD:ALL" ]
             }
           },
-          :macaque => {
-            :forwarders => {
-              :api_qwerly_com => {
-                # Temporary key for alpha testing only
-                :api_key                   => 'ed6mm22b854yyfrkhwrkgxa8'
-              },
-              :money_bundle_com           => {}
-            },
-            :statsd => {
-              :provider                   => 'see_no_evil',
-              :name                       => 'macaque_test'
-            }
-          },
-          :buzzkill => {
-            :environment                  => 'staging',
-            :auth_mode                    => 'greedy',
-            :deploy_version               => '50020eb09f30045b263e7321ac3f9481acf32b88',
-            :forwarder => {
-              :port                       => 9400
-            },
-            :statsd => {
-              :provider                   => 'see_no_evil',
-              :name                       => 'macaque_test_buzzkill'
-            },
-            :mongo => {
-              :provider                   => 'sausageparty-mongodb-server',
-              :db                         => 'broham_staging'
-            },
-          },
-          :rvm => {
-            :group_id                     => 427,
-            :default_ruby                 => "system",
-            :rubies                       => [ "ruby-1.9.2" ],
-            :gem_package => {
-              :rvm_string                 => %w[system ruby-1.9.2]
-            }
-          },
-          :statsd => {
-            :flushInterval                => 60000
-          }
         })
     end
   end
