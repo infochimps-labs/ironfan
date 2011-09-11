@@ -82,11 +82,18 @@ ClusterChef.cluster 'sandbox' do
     end
   end
 
-
+  # NOTES:
+  # - ruby-shadow gem required to edit location of ubuntu user home directory, not installed on chef-nonce
+  # From https://gist.github.com/796787/0e43938bdc75b7153849efd8186cf39a8745a24c:
+  # http://groups.google.com/group/rundeck-discuss/browse_thread/thread/578622f7e743675b
+  # - sudo apt-get install openjdk-6-jre openjdk-6-jdk
+  # - chown -R rundeck:rundeck /var/rundeck /var/log/rundeck /var/lib/rundeck
+  # - visudo    ## allow sudo chef-client
   facet 'temujin9' do
     facet_role
     instances 1
     cloud.image_id          "ami-32a0535b"      # Set to the one that worked for buzzkill
+    cloud.flavor "m1.small"                     # openjdk pegs CPU endlessly on a micro
     server 0 do
       fullname 'sandbox-temujin9'
     end
