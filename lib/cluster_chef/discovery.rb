@@ -98,8 +98,10 @@ module ClusterChef
         :provider              => 'AWS',
         :aws_access_key_id     => Chef::Config[:knife][:aws_access_key_id],
         :aws_secret_access_key => Chef::Config[:knife][:aws_secret_access_key],
-        #  :region                => region
+        :region                => Chef::Config[:knife][:region]
       })
+    # Chef::Log.debug("Using region")
+    # Chef::Log.debug(Chef::Config[:knife][:region])
   end
 
   def self.fog_servers
