@@ -19,4 +19,13 @@ Chef Recipes for installing [Map/R](http://www.mapr.com) on Ubuntu.
 ## Usage
 
 
+### Topology
+
+You can make your cluster rack-aware: see 'Topology' in attributes/map_r.rb
+
+
+#### Topology in AWS for resizable clusters
+
+
+
 

@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: map_r
-# Recipe:: default
+# Recipe:: master
 #
 # Copyright 2011, Philip (flip) Kromer
 #
