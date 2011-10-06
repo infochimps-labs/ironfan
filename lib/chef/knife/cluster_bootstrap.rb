@@ -17,6 +17,7 @@
 #
 
 require File.expand_path(File.dirname(__FILE__)+"/generic_command.rb")
+require 'chef/knife/bootstrap'
 
 class Chef
   class Knife
