@@ -17,6 +17,7 @@
 #
 
 require File.expand_path(File.dirname(__FILE__)+"/knife_common.rb")
+require 'chef/knife/ssh'
 
 class Chef
   class Knife
