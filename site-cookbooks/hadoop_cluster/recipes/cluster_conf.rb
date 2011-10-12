@@ -10,8 +10,8 @@ class Chef::Recipe; include HadoopCluster ; end
 # Find these variables in ../hadoop_cluster/libraries/hadoop_cluster.rb
 #
 template_variables = {
-  :namenode_address       => provider_private_ip("#{node[:cluster_name]}-namenode"),
-  :jobtracker_address     => provider_private_ip("#{node[:cluster_name]}-jobtracker"),
+  :namenode_address       => namenode_address,
+  :jobtracker_address     => jobtracker_address,
   :mapred_local_dirs      => mapred_local_dirs.join(','),
   :dfs_name_dirs          => dfs_name_dirs.join(','),
   :dfs_data_dirs          => dfs_data_dirs.join(','),
@@ -21,7 +21,7 @@ template_variables = {
   :all_cluster_volumes    => all_cluster_volumes,
   :cluster_ebs_volumes    => cluster_ebs_volumes,
   :ganglia                => provider_for_service("#{node[:cluster_name]}-gmetad"),
-  :ganglia_address           => provider_private_ip("#{node[:cluster_name]}-gmetad"),
+  :ganglia_address        => provider_private_ip("#{node[:cluster_name]}-gmetad"),
   :ganglia_port           => 8649,
 }
 Chef::Log.debug template_variables.inspect
