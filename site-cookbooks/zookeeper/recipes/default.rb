@@ -17,6 +17,8 @@
 # limitations under the License.
 #
 
+include_recipe "java"
+
 group 'zookeeper' do gid 305 ; action [:create] ; end
 user 'zookeeper' do
   comment    'Hadoop Zookeeper Daemon'
@@ -49,6 +51,9 @@ directory node[:zookeeper][:log_dir] do
   action     :create
   recursive  true
 end
+
+#
+# Config files
 #
 zookeeper_server_ips =  all_provider_private_ips("#{node[:zookeeper][:cluster_name]}-zookeeper").sort
 myid = zookeeper_server_ips.find_index( private_ip_of node )
@@ -59,12 +64,13 @@ template_variables = {
   :zookeeper_max_client_connections => node[:zookeeper][:max_client_connections],
 }
 Chef::Log.debug template_variables.inspect
+
 %w[ zoo.cfg log4j.properties].each do |conf_file|
   template "/etc/zookeeper/#{conf_file}" do
-    owner "root"
-    mode "0644"
     variables(template_variables)
-    source "#{conf_file}.erb"
+    owner    "root"
+    mode     "0644"
+    source   "#{conf_file}.erb"
   end
 end
 
@@ -74,4 +80,3 @@ template "/var/zookeeper/myid" do
  variables(template_variables)
  source "myid.erb"
 end
-

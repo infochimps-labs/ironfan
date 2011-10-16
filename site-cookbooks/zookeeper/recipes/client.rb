@@ -17,35 +17,4 @@
 # limitations under the License.
 #
 
-include_recipe "java"
 include_recipe "zookeeper"
-
-#
-# Configuration files
-#
-zookeeper_server_ips =  all_provider_private_ips("#{node[:zookeeper][:cluster_name]}-zookeeper").sort
-# FIXME: This doesn't seem stable. I think we're better off using the IP address or something(?)
-myid = zookeeper_server_ips.find_index( private_ip_of node )
-template_variables = {
-  :zookeeper_server_ips   => zookeeper_server_ips,
-  :myid                   => myid,
-  :zookeeper_data_dir     => node[:zookeeper][:data_dir],
-}
-
-directory node[:zookeeper][:log_dir] do
-  owner      "zookeeper"
-  group      "zookeeper"
-  mode       "0755"
-  action     :create
-  recursive  true
-end
-
-Chef::Log.debug template_variables.inspect
-%w[ zoo.cfg log4j.properties ].each do |conf_file|
-  template "/etc/zookeeper/#{conf_file}" do
-    owner "root"
-    mode "0644"
-    variables(template_variables)
-    source "#{conf_file}.erb"
-  end
-end
