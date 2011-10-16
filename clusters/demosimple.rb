@@ -1,3 +1,6 @@
+ClusterChef::Cloud::Ec2::IMAGE_INFO.merge!({
+        %w[us-east-1             64-bit  ebs             mrflip-natty       ] => { :image_id => 'ami-a979b5c0', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-cluster_chef", }, #
+  })
 ClusterChef.cluster 'demosimple' do
   mounts_ephemeral_volumes
   setup_role_implications
@@ -6,8 +9,8 @@ ClusterChef.cluster 'demosimple' do
     availability_zones  ['us-east-1a']
     flavor              "t1.micro"
     backing             "ebs"
-    image_name          "maverick"
-    bootstrap_distro    "ubuntu10.04-basic"
+    image_name          "mrflip-natty"
+    bootstrap_distro    "ubuntu10.04-cluster_chef"
   end
 
   role                  :base_role
@@ -36,8 +39,6 @@ ClusterChef.cluster 'demosimple' do
     cloud do
       flavor           "m1.large"
       backing          "ebs"
-      image_name       "natty"
-      bootstrap_distro "ubuntu10.04-cluster_chef"
     end
     role                :nfs_client
 
@@ -48,13 +49,13 @@ ClusterChef.cluster 'demosimple' do
       mount_point       '/data/db'
       mount_options     'defaults,nouuid,noatime'
       fs_type           'xfs'
-      # snapshot_id       'snap-d9c1edb1'
+      snapshot_id       'snap-a6e0bec5'
     end
     server(0).volume(:data) do
-      volume_id   'vol-bd6d51d7'
+      volume_id         'vol-bd6d51d7'
     end
     server(1).volume(:data) do
-      # volume_id   'vol-XXXX'
+      volume_id         'vol-b95d61d3'
     end
 
     facet_role do
