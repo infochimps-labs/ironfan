@@ -21,9 +21,12 @@ include_recipe "hadoop_cluster"
 
 # Install
 hadoop_package 'tasktracker'
+
 # Launch
 service "#{node[:hadoop][:hadoop_handle]}-tasktracker" do
-  action [ :enable, :start ]
-  running true
+  action    node[:service_states][:hadoop_tasktracker]
   supports :status => true, :restart => true
 end
+
+# register with cluster_service_discovery
+provide_service ("#{node[:cluster_name]}-tasktracker")

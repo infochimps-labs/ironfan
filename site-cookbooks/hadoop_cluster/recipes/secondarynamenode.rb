@@ -21,11 +21,12 @@ include_recipe "hadoop_cluster"
 
 # Install
 hadoop_package "secondarynamenode"
+
 # launch service
 service "#{node[:hadoop][:hadoop_handle]}-secondarynamenode" do
-  action [ :enable, :start ]
-  running true
+  action    node[:service_states][:hadoop_secondary_namenode]
   supports :status => true, :restart => true
 end
+
 # register with cluster_service_discovery
 provide_service ("#{node[:cluster_name]}-secondarynamenode")

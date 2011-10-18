@@ -25,5 +25,8 @@ execute 'format_namenode **REMOVE FROM RUNLIST ON SUCCESSFUL BOOTSTRAP**' do
   user 'hdfs'
   creates '/mnt/hadoop/hdfs/name/current/VERSION'
   creates '/mnt/hadoop/hdfs/name/current/fsimage'
-  notifies  :restart, resources(:service => "#{node[:hadoop][:hadoop_handle]}-namenode")
+  not_if{ File.exists?('/mnt/hadoop/hdfs/name/current/fsimage') }
+  if node[:service_states][:hadoop_namenode].include?(:start)
+    notifies :restart, resources(:service => "#{node[:hadoop][:hadoop_handle]}-namenode")
+  end
 end

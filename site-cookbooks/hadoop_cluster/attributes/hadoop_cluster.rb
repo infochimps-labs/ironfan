@@ -2,7 +2,17 @@
 default[:hadoop][:hadoop_handle] = 'hadoop-0.20'
 default[:hadoop][:cdh_version]   = 'cdh3b3'
 default[:hadoop][:deb_version]   = "0.20.2+737-1~lucid-cdh3b3"
-default[:hadoop][:cloudera_distro_name] = nil # in case cloudera doesn't have you distro yet
+default[:hadoop][:cloudera_distro_name] = nil # in case cloudera doesn't have your distro yet
+
+# What states to set for services.
+#   :enable => enabled service to run at boot.
+#   :start  => ensure it's started and running.
+# Default is [:enable,:start] but for complex clusters consider [:enable] alone
+default[:service_states][:hadoop_namenode]           = [ :enable, :start ]
+default[:service_states][:hadoop_secondary_namenode] = [ :enable, :start ]
+default[:service_states][:hadoop_datanode]           = [ :enable, :start ]
+default[:service_states][:hadoop_jobtracker]         = [ :enable, :start ]
+default[:service_states][:hadoop_tasktracker]        = [ :enable, :start ]
 
 # Make sure you define a cluster_size in roles/WHATEVER_cluster.rb
 default[:cluster_size] = 5

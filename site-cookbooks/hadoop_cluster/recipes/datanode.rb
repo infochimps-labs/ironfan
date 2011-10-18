@@ -21,9 +21,12 @@ include_recipe "hadoop_cluster"
 
 # Install
 hadoop_package 'datanode'
+
 # Launch
 service "#{node[:hadoop][:hadoop_handle]}-datanode" do
-  action [ :enable, :start ]
-  running true
+  action    node[:service_states][:hadoop_datanode]
   supports :status => true, :restart => true
 end
+
+# register with cluster_service_discovery
+provide_service ("#{node[:cluster_name]}-datanode")
