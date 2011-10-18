@@ -72,8 +72,6 @@ class Chef
         die(banner) if @name_args.empty?
         configure_dry_run
 
-        puts config
-
         target = get_slice_where(:killable?, *@name_args)
 
         puts
@@ -89,13 +87,13 @@ class Chef
         if config[:machine]
           puts
           puts "Killing Cloud Machines!!"
-          # target.select(&:in_cloud?).destroy
+          target.select(&:in_cloud?).destroy
           puts
         end
 
         if config[:chef_node] || config[:chef_client]
           puts "Killing Chef!!"
-          # target.select(&:in_chef? ).delete_chef(config[:chef_client], config[:chef_node])
+          target.select(&:in_chef? ).delete_chef(config[:chef_client], config[:chef_node])
           puts
         end
 

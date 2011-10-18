@@ -10,6 +10,7 @@ gem 'configliere', "~> 0.4.5"
 gem 'highline',    "~> 1.6.2"
 gem 'fog',         "~> 0.8.2"
 gem 'extlib',      "~> 0.9.15"
+gem 'mixlib-cli',  "~> 1.2.2"
 
 # Add dependencies to develop your gem here.
 # Include everything needed to run rake, tests, features, etc.
