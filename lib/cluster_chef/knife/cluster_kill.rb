@@ -35,15 +35,24 @@ class Chef
       option :undefined,
         :long => "--undefined",
         :descritption => "Kill undefined servers",
-        :boolean => true
-      option :no_chef,
-        :long => "--no-chef",
-        :descrition => "Do not delete chef nodes",
-        :boolean => true
-      option :no_fog,
-        :long => "--no-fog",
-        :description => "Do not delete any fog servers",
-        :boolean => true
+      :boolean => true
+
+      option :machine,
+        :long => '--[no-]machine',
+        :description => "Delete machine servers (default is to delete, use --no-machine to skip)",
+        :boolean => true,
+        :default => true
+      option :chef_node,
+        :long => "--[no-]chef-node",
+        :description => "Delete the chef node (default is to delete, use --no-chef-node to skip)",
+        :boolean => true,
+        :default => true
+      option :chef_client,
+        :long => "--[no-]chef-client",
+        :description => "Delete the chef client (default is to delete, use --no-chef-client to skip)",
+        :boolean => true,
+        :default => true
+
       option :yes,
         :long => "--yes",
         :description => "Skip confirmation that you want to delete the cluster.",
@@ -52,19 +61,7 @@ class Chef
         :long => "--really",
         :description => "Skip the second confirmation that you REALLY want to delete the cluster.",
         :boolean => true
-      option :no,
-        :long => "--no",
-        :description => "No matter what, do not delete anything.",
-        :boolean => true
-      option :delete_client,
-        :long => "--client",
-        :description => "Delete the chef client along with the chef node.",
-        :boolean => true
-      option :delete_node,
-        :long => "--node",
-        :description => "Delete the chef client along with the chef node.",
-        :boolean => true,
-        :default => true
+
       option :detailed,
         :long => "--detailed",
         :description => "Show detailed info on servers",
@@ -75,6 +72,8 @@ class Chef
         die(banner) if @name_args.empty?
         configure_dry_run
 
+        puts config
+
         target = get_slice_where(:killable?, *@name_args)
 
         puts
@@ -84,20 +83,19 @@ class Chef
 
         confirm_deletion_of_or_exit(target)
         really_confirm_deletion_of_or_exit
-        die("Quitting because --no was passed", 1) if config[:no]
 
         # Execute every last mf'ing one of em
 
-        unless config[:no_fog]
+        if config[:machine]
           puts
           puts "Killing Cloud Machines!!"
-          target.select(&:in_cloud?).destroy
+          # target.select(&:in_cloud?).destroy
           puts
         end
 
-        unless config[:no_chef]
-          puts "Killing Chef Nodes!!"
-          target.select(&:in_chef? ).delete_chef(config[:delete_client], config[:delete_node])
+        if config[:chef_node] || config[:chef_client]
+          puts "Killing Chef!!"
+          # target.select(&:in_chef? ).delete_chef(config[:chef_client], config[:chef_node])
           puts
         end
 
@@ -106,8 +104,9 @@ class Chef
 
       def confirm_deletion_of_or_exit target
         delete_message = [
-          ((config[:no_chef] || target.chef_nodes.empty?)  ? nil : "#{target.chef_nodes.length} chef nodes"),
-          ((config[:no_fog]  || target.fog_servers.empty?) ? nil : "#{target.fog_servers.length} fog servers") ].compact
+          (((!config[:chef_node])   || target.chef_nodes.empty?)  ? nil : "#{target.chef_nodes.length} chef nodes"),
+          (((!config[:chef_client]) || target.chef_nodes.empty?)  ? nil : "#{target.chef_nodes.length} chef clients"),
+          (((!config[:machine])     || target.fog_servers.empty?) ? nil : "#{target.fog_servers.length} fog servers") ].compact
         puts
         puts "WARNING!!!!"
         puts
