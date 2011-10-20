@@ -13,6 +13,9 @@ export HADOOP_IDENT_STRING=hadoop
 # The maximum amount of heap to use, in MB. Default is 1000.
 export HADOOP_HEAPSIZE=<%= node[:hadoop][:hadoop_daemon_heapsize] %>
 
+# Ubuntu wants us to use IPv6. Hadoop doesn't support that, but nevertheless binds to :::50010. Let's tell it we don't agree.
+export HADOOP_OPTS="$HADOOP_OPTS -Djava.net.preferIPv4Stack=true"
+
 export HADOOP_NAMENODE_OPTS="$HADOOP_NAMENODE_OPTS -XX:+UseParallelGC -Xmx<%= node[:hadoop][:hadoop_namenode_heapsize]                            || node[:hadoop][:hadoop_daemon_heapsize] %>m"
 export HADOOP_SECONDARYNAMENODE_OPTS="$HADOOP_SECONDARYNAMENODE_OPTS -XX:+UseParallelGC -Xmx<%= node[:hadoop][:hadoop_secondarynamenode_heapsize] || node[:hadoop][:hadoop_daemon_heapsize] %>m"
 export HADOOP_JOBTRACKER_OPTS="$HADOOP_JOBTRACKER_OPTS -XX:+UseParallelGC -Xmx<%= node[:hadoop][:hadoop_jobtracker_heapsize]                      || node[:hadoop][:hadoop_daemon_heapsize] %>m"
