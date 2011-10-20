@@ -18,7 +18,7 @@
 
 node.run_state[:java_pkgs] = value_for_platform(
   ["debian","ubuntu"] => {
-    "default" => ["sun-java6-jre","default-jre-headless"]
+    "default" => ["sun-java6-jre"]
   },
   "default" => ["sun-java6-jre"]
 )
