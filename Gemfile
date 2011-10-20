@@ -23,5 +23,4 @@ group :development do
   # only interesting for coverage testing
   gem 'rcov',      ">= 0.9.9"
   gem 'watchr'
-  gem 'ruby-debug'
 end
