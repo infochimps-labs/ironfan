@@ -89,6 +89,9 @@ class Chef
         puts "Launching machines:"
         target.create_servers
 
+        # This will create/update any roles
+        target.sync_roles
+
         puts
         display(target)
 

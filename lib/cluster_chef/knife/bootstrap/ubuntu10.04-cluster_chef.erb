@@ -8,38 +8,52 @@ bash -c '
 
 set -v
 
-RUBY_VERSION=1.9.1 # this actually installs 1.9.2, it just says 1.9.1
+RUBY_VERSION=1.9.2-p290 
+
+<%= "export http_proxy=\"#{knife_config[:bootstrap_proxy]}\"" if knife_config[:bootstrap_proxy] -%>
 eval `cat /etc/lsb-release `
 export DEBIAN_FRONTEND=noninteractive
 
 if [ ! -f /usr/bin/chef-client ]; then
-
 echo -e "`date` \n\n**** \n**** apt update:\n****\n"
 apt-get    update
 apt-get -y upgrade
 
 echo -e "`date` \n\n**** \n**** Installing base packages:\n****\n"
-apt-get install -y build-essential wget runit runit-services
+apt-get install -y build-essential wget runit runit-services zlib1g-dev libssl-dev openssl libcurl4-openssl-dev libreadline6-dev
 
 echo -e "`date` \n\n**** \n**** Installing ruby version ${RUBY_VERSION}:\n****\n"
-apt-get   install -y ruby${RUBY_VERSION} ruby${RUBY_VERSION}-dev libruby${RUBY_VERSION} libruby${RUBY_VERSION}-dbg ri${RUBY_VERSION} rubygems${RUBY_VERSION}
-sudo update-alternatives --install /usr/bin/ruby ruby /usr/bin/ruby${RUBY_VERSION} 100 --slave /usr/bin/ri ri /usr/bin/ri${RUBY_VERSION} --slave /usr/bin/irb irb /usr/bin/irb${RUBY_VERSION} --slave /usr/bin/erb erb /usr/bin/erb${RUBY_VERSION} --slave /usr/bin/gem gem /usr/bin/gem${RUBY_VERSION} --slave /usr/share/man/man1/ruby.1.gz ruby.1.gz /usr/share/man/man1/ruby${RUBY_VERSION}.1.gz
+
+# apt-get   install -y ruby${RUBY_VERSION} ruby${RUBY_VERSION}-dev libruby${RUBY_VERSION} libruby${RUBY_VERSION}-dbg ri${RUBY_VERSION} rubygems${RUBY_VERSION}
+
+cd /tmp
+wget ftp://ftp.ruby-lang.org//pub/ruby/1.9/ruby-${RUBY_VERSION}.tar.gz
+tar xzf ruby-${RUBY_VERSION}.tar.gz
+cd ruby-${RUBY_VERSION}
+./configure --with-ruby-version=${RUBY_VERSION} --prefix=/usr --program-suffix=${RUBY_VERSION}
+make -j2
+make install
+
+sudo update-alternatives --remove-all gem && true
+update-alternatives \
+  --install /usr/bin/ruby ruby /usr/bin/ruby${RUBY_VERSION} 400 \
+  --slave   /usr/bin/ri   ri   /usr/bin/ri${RUBY_VERSION}       \
+  --slave   /usr/bin/irb  irb  /usr/bin/irb${RUBY_VERSION}      \
+  --slave   /usr/bin/erb  erb  /usr/bin/erb${RUBY_VERSION}      \
+  --slave   /usr/bin/gem  gem  /usr/bin/gem${RUBY_VERSION}      \
+  --slave   /usr/share/man/man1/ruby.1.gz ruby.1.gz             \
+  /usr/share/man/man1/ruby${RUBY_VERSION}.1
 
 if ruby -e "exit(%x{gem --version} < \"1.6.2\" ? 0 : -1 )" ; then
-  echo -e "`date` \n\n**** \n**** Unchaining rubygems from the tyrrany of ubuntu:\n****\n"
-  # export REALLY_GEM_UPDATE_SYSTEM=true
-  # gem install --no-rdoc --no-ri rubygems-update; /var/lib/gems/${RUBY_VERSION}/bin/update_rubygems ; gem update --system ; gem --version
-  cd /tmp
-  wget http://production.cf.rubygems.org/rubygems/rubygems-1.6.2.tgz
-  tar zxf rubygems-1.6.2.tgz
-  cd rubygems-1.6.2
-  ruby setup.rb --no-format-executable
+  echo -e "`date` \n\n**** \n**** Updating rubygems:\n****\n"
+  gem install --no-rdoc --no-ri rubygems-update --version=1.6.2
+  update_rubygems --version=1.6.2
 fi
 
 echo -e "`date` \n\n**** \n**** Installing chef:\n****\n"
-gem install ohai --no-rdoc --no-ri --verbose
-gem install chef --no-rdoc --no-ri --verbose <%= bootstrap_version_string %>
-gem install --no-rdoc --no-ri extlib json ruby-shadow right_aws
+gem install ohai --no-rdoc --no-ri
+gem install chef --no-rdoc --no-ri <%= bootstrap_version_string %>
+gem install      --no-rdoc --no-ri extlib json ruby-shadow right_aws
 
 fi # if no chef-client
 
@@ -70,7 +84,7 @@ EOP
 
 echo -e "`date` \n\n**** \n**** Adding chef client runit scripts:\n****\n"
 service chef-client stop 2>/dev/null ; sleep 1 ; killall chef-client 2>/dev/null
-mkdir -p /var/log/chef /var/chef /etc/sv/chef-client/log/main
+mkdir -p /var/log/chef /var/chef /etc/sv/chef-client/log/main /etc/sv/chef-client/supervise
 cat > /etc/sv/chef-client/log/run <<EOF
 #!/bin/bash
 exec svlogd -tt ./main

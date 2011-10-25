@@ -32,7 +32,7 @@ module ClusterChef
 
     # <b>DEPRECATED:</b> Please use <tt>fullname</tt> instead.
     def chef_node_name name
-      #warn "[DEPRECATION] `chef_node_name` is deprecated.  Please use `fullname` instead."
+      # warn "[DEPRECATION] `chef_node_name` is deprecated.  Please use `fullname` instead."
       fullname name
     end
 
@@ -204,9 +204,11 @@ module ClusterChef
         chef_node.normal[key] = value
       end
       chef_node.save
+      true
     rescue Net::HTTPServerException => e
       raise unless e.response.code == '404'
       warn "chef node does not exist yet. Skipping sync"
+      false
     end
 
     def safely *args, &block
@@ -320,4 +322,3 @@ module ClusterChef
     end
   end
 end
-

@@ -1,33 +1,39 @@
 ClusterChef.cluster 'demohadoop' do
-  use :defaults
   setup_role_implications
-
-  role                  "big_package"
+  mounts_ephemeral_volumes
 
   cloud do
-    backing             "instance"
+    backing             "ebs"
     image_name          "maverick"
-    region              "us-east-1"
   end
+
+  role                  "big_package"
+  role                  "nfs_client"
+  recipe                "cluster_chef::dedicated_server_tuning"
 
   facet :master do
     instances           1
-    role                "nfs_server"
-    role                "hadoop"
-    role                "hadoop_s3_keys"
-    role                "hadoop_master"
-    recipe              'hadoop_cluster::bootstrap_format_namenode'
-    role                "hadoop_initial_bootstrap"
     cloud.flavor        "m2.xlarge"
+    #
+    role                "hadoop"
+    role                "hadoop_namenode"
+    role                "hadoop_jobtracker"
+    role                "hadoop_initial_bootstrap"
+    role                "hadoop_tasktracker"
+    role                "hadoop_datanode"
   end
 
   facet :worker do
     instances           2
-    role                "nfs_client"
+    cloud.flavor        "m1.large"
+    #
     role                "hadoop"
-    role                "hadoop_s3_keys"
+    role                "hadoop_namenode"
+    role                "hadoop_jobtracker"
+    role                "hadoop_initial_bootstrap"
+    role                "hadoop_tasktracker"
+    role                "hadoop_datanode"
     role                "hadoop_worker"
-    cloud.flavor        "c1.xlarge"
   end
 
   chef_attributes({

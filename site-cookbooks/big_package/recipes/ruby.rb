@@ -17,22 +17,6 @@
 # limitations under the License.
 #
 
-Chef::Log.debug [ node[:ruby] ].inspect + "\n\n!!!\n\n"
-
-rubygems_target_version = "1.6.2"
-bash "update rubygems to >= " do
-  code %Q{ gem update --system }
-  not_if{ `gem update --system`.chomp >= "1.6.2" }
-end
-
-cookbook_file "/tmp/fuck_you_rubygems.diff" do
-  owner   "root"
-  group   "root"
-  mode    "0644"
-  source  "fuck_you_rubygems.diff"
-  action  :create
-end
-
 # !!!!!
 #
 # Please do not add the following gems to this file. They break on one
@@ -44,9 +28,10 @@ end
 #
 
 %w[
+   rspec rspec-rails spork watchr pry
    rest-client oauth crack jeweler yard
    htmlentities right_aws libxml-ruby
-   wirble awesome_print looksee
+   wirble awesome_print
    net-proto net-scp net-sftp net-ssh net-ssh-multi
 ].each do |pkg|
   gem_package(pkg){ action :install }
