@@ -238,8 +238,8 @@ module ClusterChef
       composite_volumes.each do |vol_name, vol|
         next unless vol.volume_id && (not vol.ephemeral_device?)
         desc = "#{vol_name} on #{self.fullname} (#{vol.volume_id} @ #{vol.device})"
-        if (not vol.in_cloud?) then  Chef::Log.debug("Volume: not found #{desc}"); next ; end
-        if (vol.has_server?)   then check_server_id_pairing(vol.fog_volume, desc)          ; next ; end
+        if (not vol.in_cloud?) then  Chef::Log.debug("Volume: not found #{desc}") ; next ; end
+        if (vol.has_server?)   then check_server_id_pairing(vol.fog_volume, desc) ; next ; end
         Chef::Log.debug( "Volume: attaching #{desc} -- #{vol.inspect}" )
         safely do
           vol.fog_volume.device = vol.device

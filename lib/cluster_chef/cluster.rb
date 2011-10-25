@@ -23,7 +23,7 @@ module ClusterChef
     end
 
     def cluster_role &block
-      @cluster_role = new_chef_role(@cluster_role_name, cluster)
+      @cluster_role ||= new_chef_role(@cluster_role_name, cluster)
       role(@cluster_role_name)
       @cluster_role.instance_eval( &block ) if block_given?
       @cluster_role
@@ -53,10 +53,20 @@ module ClusterChef
       ClusterChef::ServerSlice.new(self, svrs.flatten)
     end
 
-    def slice *args
-      return ClusterChef::ServerSlice.new(self, self.servers) if args.empty?
-      facet_name = args.shift
-      find_facet(facet_name).slice(*args)
+    #
+    # A slice of a cluster:
+    #
+    # If +facet_name+ is nil, returns all servers.
+    # Otherwise, takes slice (given by +*args+) from the requested facet.
+    #
+    # @param [String] facet_name -- facet to slice (or nil for all in cluster)
+    # @param [Array, String] slice_indexes -- servers in that facet (or nil for all in facet).
+    #   You must specify a facet if you use slice_indexes.
+    #
+    # @return [ClusterChef::ServerSlice] the requested slice
+    def slice facet_name=nil, slice_indexes=nil
+      return ClusterChef::ServerSlice.new(self, self.servers) if facet_name.nil?
+      find_facet(facet_name).slice(slice_indexes)
     end
 
     def to_s

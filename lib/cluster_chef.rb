@@ -18,71 +18,108 @@ require 'cluster_chef/discovery'      # pair servers with Fog and Chef objects
 require 'cluster_chef/server_slice'   # collection of server objects
 require 'cluster_chef/volume'         # collection of server objects
 
-Chef::Config[:clusters]          ||= Mash.new
 Chef::Config[:cluster_chef_path] ||= File.expand_path(File.dirname(__FILE__)+'../..')
 Chef::Config[:cluster_path]      ||= [ File.join(Chef::Config[:cluster_chef_path], "clusters") ]
 
 module ClusterChef
+  # path to search for cluster definition files
   def self.cluster_path
     Chef::Config[:cluster_path]
   end
 
+  #
+  # Delegates
   def self.clusters
-    Chef::Config[:clusters]
+    Chef::Config[:clusters] ||= Mash.new
   end
 
-  def self.cluster name, hsh={}, &block
+  #
+  # Defines a cluster with the given name.
+  #
+  # @example
+  #   ClusterChef.cluster 'demosimple' do
+  #     cloud :ec2 do
+  #       availability_zones  ['us-east-1a']
+  #       flavor              "t1.micro"
+  #       image_name          "ubuntu-natty"
+  #     end
+  #     role                  :base_role
+  #     role                  :chef_client
+  #
+  #     facet :sandbox do
+  #       instances 2
+  #       role                :nfs_client
+  #     end
+  #   end
+  #
+  #
+  def self.cluster(name, &block)
     name = name.to_sym
     cl = ( self.clusters[name] ||= ClusterChef::Cluster.new(name) )
-    cl.configure(hsh, &block) if block
+    cl.configure(&block)
     cl
   end
 
-  def self.load_cluster cluster_name
+  #
+  # Return cluster if it's defined. Otherwise, search ClusterChef.cluster_path
+  # for an eponymous file, load it, and return the cluster it defines.
+  #
+  # Raises an error if a matching file isn't found, or if loading that file
+  # doesn't define the requested cluster.
+  #
+  # @return [ClusterChef::Cluster] the requested cluster
+  def self.load_cluster(cluster_name)
     raise ArgumentError, "Please supply a cluster name" if cluster_name.to_s.empty?
     return clusters[cluster_name] if clusters[cluster_name]
-    cluster_file = cluster_path.
-      map{ |path| File.join( path, "#{cluster_name}.rb" ) }.
-      find{|filename| File.exists?(filename) }
-    unless cluster_file then die("Couldn't find a definition for #{cluster_name} in cluster_path: #{cluster_path.inspect}") ; end
+
+    cluster_file = cluster_filenames[cluster_name] or die("Couldn't find a definition for #{cluster_name} in cluster_path: #{cluster_path.inspect}")
+
     require cluster_file
     unless clusters[cluster_name] then  die("#{cluster_file} was supposed to have the definition for the #{cluster_name} cluster, but didn't") end
+
     clusters[cluster_name]
   end
 
-  # returns a hash mapping cluster name to file name
-  def self.list_clusters
-    hash = {}
+  #
+  # Map from cluster name to file name
+  #
+  # @return [Hash] map from cluster name to file name
+  def self.cluster_filenames
+    return @cluster_filenames if @cluster_filenames
+    @cluster_filenames = {}
     cluster_path.each do |cp_dir|
-      Dir.foreach(cp_dir) do |filename|
-        if filename =~ /([a-zA-Z].*)\.rb$/
-          cluster_file = File.join( cp_dir, "#{$1}.rb" )
-          hash[$1] ||= cluster_file
-          #require cluster_file
-        end
+      Dir[ File.join(cp_dir, '*.rb') ].each do |filename|
+        cluster_name = File.basename(filename).gsub(/\.rb$/, '')
+        @cluster_filenames[cluster_name] ||= filename
       end
     end
-    return hash
+    @cluster_filenames
   end
 
-  def self.slice cluster_name, *args
-    cluster = load_cluster(cluster_name)
-    cluster.resolve!
-    cluster.discover!
-    return cluster.slice(*args)
-  end
-
+  #
+  # Utility to die with an error message.
+  # If the last arg is an integer, use it as the exit code.
+  #
   def self.die *strings
     exit_code = strings.last.is_a?(Integer) ? strings.pop : -1
     strings.each{|str| warn str }
     exit exit_code
   end
 
+  #
+  # Utility to turn an error into a warning
+  #
+  # @example
+  #   ClusterChef.safely do
+  #     ClusterChef.fog_connection.associate_address(self.fog_server.id, address)
+  #   end
+  #
   def self.safely
     begin
       yield
     rescue StandardError => boom
-      warn boom ; warn boom.backtrace.join("\n")
+      Chef::Log.info( boom )
+      Chef::Log.info( boom.backtrace.join("\n") )
     end
   end
 end

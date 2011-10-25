@@ -18,10 +18,20 @@ module ClusterChef
       $stdout.sync = true
     end
 
-    def get_slice( *predicate )
-      target = ClusterChef.slice(* predicate)
-      #target.cluster.discover!
-      target
+    #
+    # A slice of a cluster:
+    #
+    # @param [String] cluster_name  -- cluster to slice
+    # @param [String] facet_name    -- facet to slice (or nil for all in cluster)
+    # @param [Array, String] slice_indexes -- servers in that facet (or nil for all in facet).
+    #   You must specify a facet if you use slice_indexes.
+    #
+    # @return [ClusterChef::ServerSlice] the requested slice
+    def get_slice(cluster_name, facet_name=nil, slice_indexes=nil)
+      cluster = ClusterChef.load_cluster(cluster_name)
+      cluster.resolve!
+      cluster.discover!
+      cluster.slice(facet_name, slice_indexes)
     end
 
     # method to nodes should be filtered on

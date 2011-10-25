@@ -48,7 +48,15 @@ module ClusterChef
       ClusterChef::ServerSlice.new(cluster, slice(indexes) )
     end
 
-    # servers from this facet, in index order
+    #
+    # A slice of servers from this facet, in index order
+    #
+    # If +slice_indexes+ is nil, returns all servers.
+    # Otherwise, takes slice (given by +*args+) from the requested facet.
+    #
+    # @param [Array, String] slice_indexes -- servers in that facet (or nil for all in facet).
+    #
+    # @return [ClusterChef::ServerSlice] the requested slice
     def slice(slice_indexes=nil)
       return servers if (slice_indexes.nil?) || (slice_indexes == '')
       slice_indexes = indexes_from_intervals(slice_indexes) if slice_indexes.is_a?(String)
