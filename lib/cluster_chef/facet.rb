@@ -1,6 +1,6 @@
 module ClusterChef
   class Facet < ClusterChef::ComputeBuilder
-    attr_reader :cluster,:roles
+    attr_reader :cluster
     has_keys  :instances
 
     def initialize cluster, facet_name, hsh={}
@@ -9,7 +9,8 @@ module ClusterChef
       @servers    = Mash.new
       @facet_role_name = "#{cluster_name}_#{facet_name}"
       @settings[:instances] ||= 0
-      @roles = []
+      @chef_roles = []
+      facet_role
     end
 
     def cluster_name
@@ -20,21 +21,11 @@ module ClusterChef
       name
     end
 
-    def facet_role name=nil, &block
-      @facet_role_name = name if name
-      if block_given?
-        @facet_role = Chef::Role.new
-        # Do some magic to make it so that the role definition knows @cluster and @facet
-        cluster = cluster
-        facet = self
-        @facet_role.instance_eval{ @facet = facet; @cluster = cluster }
-        @facet_role.instance_eval( &block )
-        @facet_role.name @facet_role_name
-        @facet_role.description "ClusterChef generated facet role for #{cluster_name}-#{facet_name}" unless @facet_role.description
-        @roles << @facet_role
-      end
-      @settings[:run_list] << "role[#{@facet_role_name}]"
-      return @facet_role
+    def facet_role &block
+      @facet_role ||= new_chef_role(@facet_role_name, cluster, self)
+      role(@facet_role_name)
+      @facet_role.instance_eval( &block ) if block_given?
+      @facet_role
     end
 
     def server idx, hsh={}, &block

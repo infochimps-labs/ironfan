@@ -197,88 +197,27 @@ module ClusterChef
     end
 
     def sync_to_chef
-      chef_node ||= Chef::Node.load( fullname )
-      chef_node.run_list = Chef::RunList.new(*@settings[:run_list])
-      chef_attributes.each_pair do |key,value|
-        next if key == :run_list
-        chef_node.normal[key] = value
-      end
+      ensure_chef_client
+      ensure_chef_node
+      chef_set_runlist
+      chef_set_attributes
       chef_node.save
       true
-    rescue Net::HTTPServerException => e
-      raise unless e.response.code == '404'
-      warn "chef node does not exist yet. Skipping sync"
-      false
-    end
-
-    def safely *args, &block
-      ClusterChef.safely(*args, &block)
     end
 
     # FIXME: a lot of AWS logic in here. This probably lives in the facet.cloud
     # but for the one or two things that come from the facet
     def create_server
       return nil if created? # only create a server if it does not already exist
-
-      fog_description = fog_description_for_launch
-      Chef::Log.debug(JSON.generate(fog_description)) # .dup.tap{|hsh| hsh[:user_data] = "..." }
-      @fog_server = ClusterChef.connection.servers.create(fog_description)
-    end
-
-    def fog_description_for_launch
-      {
-        :image_id          => cloud.image_id,
-        :flavor_id         => cloud.flavor,
-        #
-        :groups            => cloud.security_groups.keys,
-        :key_name          => cloud.keypair,
-        # Fog does not actually create tags when it creates a server.
-        :tags              => {
-          :cluster => cluster_name,
-          :facet   => facet_name,
-          :index   => facet_index, },
-        :user_data         => JSON.pretty_generate(cloud.user_data.merge(:attributes => chef_attributes)),
-        :block_device_mapping    => block_device_mapping,
-        # :disable_api_termination => cloud.disable_api_termination,
-        # :instance_initiated_shutdown_behavior => instance_initiated_shutdown_behavior,
-        :availability_zone => self.default_availability_zone,
-        :monitoring => cloud.monitoring,
-      }
+      fog_create_server
     end
 
     def create_tags
       return unless created?
-      tags = {
+      fog_create_tags({
         "cluster" => cluster_name,
         "facet"   => facet_name,
-        "index"   => facet_index, }
-      tags.each_pair do |key,value|
-        next if fog_server.tags[key] == value.to_s
-        Chef::Log.debug( "Tagging #{key} = #{value} on #{self.fullname}" )
-        safely do
-          ClusterChef.connection.tags.create(
-            :key         => key,
-            :value       => value.to_s,
-            :resource_id => fog_server.id)
-        end
-      end
-    end
-
-    def fog_address
-      address = self.cloud.elastic_ip or return
-      ClusterChef.fog_addresses[address]
-    end
-
-    def associate_elastic_ip
-      address = self.cloud.elastic_ip
-      # ap [address, self, fog_address]
-      return unless self.in_cloud? && address
-      desc = "elastic ip #{address} for #{self.fullname}"
-      if (fog_address && fog_address.server_id) then check_server_id_pairing(fog_address, desc) ; return ; end
-      Chef::Log.debug("Address: pairing #{desc}")
-      safely do
-        ClusterChef.connection.associate_address(self.fog_server.id, address)
-      end
+        "index"   => facet_index, })
     end
 
     def block_device_mapping
@@ -290,18 +229,6 @@ module ClusterChef
         next unless vol.volume_id
         next if     vol.fog_volume
         vol.fog_volume = ClusterChef.fog_volumes.find{|fv| fv.id == vol.volume_id }
-      end
-    end
-
-    def check_server_id_pairing thing, desc
-      return unless thing && thing.server_id && self.in_cloud?
-      type_of_thing = thing.class.to_s.gsub(/.*::/,"")
-      if thing.server_id != self.fog_server.id
-        warn "#{type_of_thing} mismatch: #{desc} is on #{thing.server_id} not #{self.fog_server.id}: #{thing.inspect.gsub(/\s+/m,' ')}"
-        false
-      else
-        Chef::Log.debug("#{type_of_thing} paired: #{desc}")
-        true
       end
     end
 
@@ -320,5 +247,18 @@ module ClusterChef
         end
       end
     end
+
+    def check_server_id_pairing thing, desc
+      return unless thing && thing.server_id && self.in_cloud?
+      type_of_thing = thing.class.to_s.gsub(/.*::/,"")
+      if thing.server_id != self.fog_server.id
+        warn "#{type_of_thing} mismatch: #{desc} is on #{thing.server_id} not #{self.fog_server.id}: #{thing.inspect.gsub(/\s+/m,' ')}"
+        false
+      else
+        Chef::Log.debug("#{type_of_thing} paired: #{desc}")
+        true
+      end
+    end
+
   end
 end

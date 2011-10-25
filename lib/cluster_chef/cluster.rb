@@ -4,13 +4,14 @@ module ClusterChef
   # at resolve time; if the facet explicitly sets any attributes they will win out.
   #
   class Cluster < ClusterChef::ComputeBuilder
-    attr_reader :facets, :undefined_servers, :roles
+    attr_reader :facets, :undefined_servers
 
     def initialize clname, hsh={}
       super(clname.to_sym, hsh)
       @facets = Mash.new
       @cluster_role_name = "#{clname}_cluster"
-      @roles = []
+      @chef_roles = []
+      cluster_role
     end
 
     def cluster
@@ -21,24 +22,13 @@ module ClusterChef
       name
     end
 
-    def cluster_role name=nil, &block 
-      @cluster_role_name = name if name
-      if block_given?
-        @cluster_role = Chef::Role.new
-        # Do some magic to ensure that the role knows @cluster
-        cluster = self
-        @cluster_role.instance_eval { @cluster = cluster }
-
-        @cluster_role.instance_eval( &block )
-        @cluster_role.name @cluster_role_name
-        @facet_role.description "ClusterChef generated facet role for #{cluster_name}" unless @cluster_role.description
-        @roles << @cluster_role
-      end
-
-      @settings[:run_list] << "role[#{@cluster_role_name}]"
-      return @cluster_role
+    def cluster_role &block
+      @cluster_role = new_chef_role(@cluster_role_name, cluster)
+      role(@cluster_role_name)
+      @cluster_role.instance_eval( &block ) if block_given?
+      @cluster_role
     end
-    
+
     def self.get name
       ClusterChef.cluster(name)
     end

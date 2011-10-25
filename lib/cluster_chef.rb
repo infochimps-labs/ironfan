@@ -12,6 +12,8 @@ require 'cluster_chef/compute'        # base class for machine attributes
 require 'cluster_chef/facet'          # similar machines within a cluster
 require 'cluster_chef/cluster'        # group of machines with a common mission
 require 'cluster_chef/server'         # realization of a specific facet
+require 'cluster_chef/chef_layer'     # interface to chef for server actions
+require 'cluster_chef/fog_layer'      # interface to fog  for server actions
 require 'cluster_chef/discovery'      # pair servers with Fog and Chef objects
 require 'cluster_chef/server_slice'   # collection of server objects
 require 'cluster_chef/volume'         # collection of server objects
@@ -54,7 +56,7 @@ module ClusterChef
     cluster_path.each do |cp_dir|
       Dir.foreach(cp_dir) do |filename|
         if filename =~ /([a-zA-Z].*)\.rb$/
-          cluster_file = File.join( cp_dir, "#{$1}.rb" ) 
+          cluster_file = File.join( cp_dir, "#{$1}.rb" )
           hash[$1] ||= cluster_file
           #require cluster_file
         end
@@ -84,4 +86,3 @@ module ClusterChef
     end
   end
 end
-

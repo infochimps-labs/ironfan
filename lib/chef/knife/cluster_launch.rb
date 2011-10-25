@@ -73,7 +73,7 @@ class Chef
 
         # We need to dummy up a key_pair in simulation mode, not doing it fr'eals
         # You must to do this manually in real life -- must save the file, etc.
-        if config[:dry_run] then ClusterChef.connection.key_pairs.create(:name => target.cluster.name) ; end
+        if config[:dry_run] then ClusterChef.fog_connection.key_pairs.create(:name => target.cluster.name) ; end
 
         # This will create/update any roles
         target.sync_roles

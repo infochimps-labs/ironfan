@@ -5,6 +5,8 @@
 
 * create chef node for me
 
+  - 
+
 * chef needs to converge twice on hadoop master
 
 * dirs are fucked up under natty beause paths are /dev/xvdi not /dev/sdi

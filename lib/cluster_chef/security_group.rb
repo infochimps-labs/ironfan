@@ -25,20 +25,20 @@ module ClusterChef
         get_all
       end
       def self.get_all
-        groups_list = ClusterChef.connection.security_groups.all
+        groups_list = ClusterChef.fog_connection.security_groups.all
         @@all = groups_list.inject(Mash.new) do |hsh, group|
           hsh[group.name] = group ; hsh
         end
       end
 
       def get
-        all[name] || ClusterChef.connection.security_groups.get(name)
+        all[name] || ClusterChef.fog_connection.security_groups.get(name)
       end
 
       def self.get_or_create group_name, description
-        group = all[group_name] || ClusterChef.connection.security_groups.get(group_name)
+        group = all[group_name] || ClusterChef.fog_connection.security_groups.get(group_name)
         if ! group
-          group = all[group_name] = ClusterChef.connection.security_groups.new(:name => group_name, :description => description, :connection => ClusterChef.connection)
+          group = all[group_name] = ClusterChef.fog_connection.security_groups.new(:name => group_name, :description => description, :connection => ClusterChef.fog_connection)
           group.save
         end
         group
@@ -93,4 +93,3 @@ module ClusterChef
     end
   end
 end
-

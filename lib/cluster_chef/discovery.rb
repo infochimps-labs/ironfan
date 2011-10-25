@@ -93,33 +93,31 @@ module ClusterChef
     end
   end
 
-  def self.connection
-    @connection ||= Fog::Compute.new({
+  def self.fog_connection
+    @fog_connection ||= Fog::Compute.new({
         :provider              => 'AWS',
         :aws_access_key_id     => Chef::Config[:knife][:aws_access_key_id],
         :aws_secret_access_key => Chef::Config[:knife][:aws_secret_access_key],
         :region                => Chef::Config[:knife][:region]
       })
-    # Chef::Log.debug("Using region")
-    # Chef::Log.debug(Chef::Config[:knife][:region])
   end
 
   def self.fog_servers
     return @fog_servers if @fog_servers
     Chef::Log.debug("Using fog to catalog all servers")
-    @fog_servers = ClusterChef.connection.servers.all
+    @fog_servers = ClusterChef.fog_connection.servers.all
   end
 
   def self.fog_volumes
     return @fog_volumes if @fog_volumes
     Chef::Log.debug("Using fog to catalog all volumes")
-    @fog_volumes ||= ClusterChef.connection.volumes
+    @fog_volumes ||= ClusterChef.fog_connection.volumes
   end
 
   def self.fog_addresses
     return @fog_addresses if @fog_addresses
     Chef::Log.debug("Using fog to catalog all addresses")
-    @fog_addresses = {}.tap{|hsh| ClusterChef.connection.addresses.each{|fa| hsh[fa.public_ip] = fa } }
+    @fog_addresses = {}.tap{|hsh| ClusterChef.fog_connection.addresses.each{|fa| hsh[fa.public_ip] = fa } }
   end
 
   def safely *args, &block

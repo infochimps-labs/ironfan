@@ -1,7 +1,5 @@
 require 'chef/knife'
 
-#require 'awesome_print'
-
 module ClusterChef
   module KnifeCommon
 
@@ -16,7 +14,7 @@ module ClusterChef
 
     def load_cluster_chef
       $: << Chef::Config[:cluster_chef_path]+'/lib'
-      require 'cluster_chef/script'
+      require 'cluster_chef'
       $stdout.sync = true
     end
 

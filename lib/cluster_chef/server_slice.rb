@@ -64,8 +64,8 @@ module ClusterChef
       servers.map(&:facet)
     end
 
-    def roles
-      facets.inject( cluster.roles ){|r,f| r + f.roles }
+    def chef_roles
+      [ cluster.chef_roles, facets.map(&:chef_roles) ].flatten.compact.uniq
     end
 
     # hack -- take the ssh_identity_file from the first server.
@@ -111,7 +111,7 @@ module ClusterChef
     end
 
     def sync_roles
-      roles.each(&:save)
+      chef_roles.each(&:save)
     end
 
     def sync_to_cloud
@@ -157,7 +157,7 @@ module ClusterChef
           "Name"   => svr.fullname,
           "Facet"  => svr.facet_name,
           "Index"  => svr.facet_index,
-          "Chef?"  => (svr.chef_node ? "yes" : "[red]no[reset]"),
+          "Chef?"  => (svr.chef_node? ? "yes" : "[red]no[reset]"),
           "Bogus"  => (svr.bogus? ? "[red]#{svr.bogosity}[reset]" : '')
         }
         if (fs = svr.fog_server)

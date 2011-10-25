@@ -3,8 +3,8 @@ module ClusterChef
   # Base class allowing us to layer settings for facet over cluster
   #
   class ComputeBuilder < ClusterChef::DslObject
-    attr_reader :cloud, :volumes
-    has_keys :name, :chef_attributes, :roles, :run_list, :cloud, :bogosity
+    attr_reader :cloud, :volumes, :chef_roles
+    has_keys :name, :chef_attributes, :run_list, :cloud, :bogosity
     @@role_implications ||= Mash.new
 
     def initialize builder_name, attrs={}
@@ -89,6 +89,7 @@ module ClusterChef
     def role role_name
       run_list << "role[#{role_name}]"
       run_list.uniq!
+      @settings[:run_list] << "role[#{role_name}]"
       self.instance_eval(&@@role_implications[role_name]) if @@role_implications[role_name]
     end
 
@@ -96,6 +97,10 @@ module ClusterChef
     def recipe name
       run_list << name
       run_list.uniq!
+    end
+
+    def safely *args, &block
+      ClusterChef.safely(*args, &block)
     end
 
     # Some roles imply aspects of the machine that have to exist at creation.
@@ -152,4 +157,3 @@ module ClusterChef
 
   end
 end
-
