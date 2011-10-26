@@ -119,7 +119,15 @@ module ClusterChef
     end
 
     def sync_to_chef
-      sync_roles
+      #
+      # FIXME
+      #
+
+      # sync_roles
+
+      #
+      #
+      #
       delegate_to_servers( :sync_to_chef )
     end
 

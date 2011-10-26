@@ -25,24 +25,30 @@ class Chef
       import_banner_and_options(ClusterChef::Script)
 
       option :cloud,
-        :long => "--cloud",
-        :description => "Sync to the cloud",
-        :default => true
+        :long => "--[no-]cloud",
+        :description => "Sync to the cloud (default is yes, sync to cloud)",
+        :default => true,
+        :boolean => true
       option :chef,
-        :long => "--chef",
-        :description => "Sync to the chef server",
-        :default => true
+        :long => "--[no-]chef",
+        :description => "Sync to the chef server (default is yes, sync to chef)",
+        :default => true,
+        :boolean => true
 
       def slice_criterion
-        :exists?
+        :syncable?
       end
 
       def perform_execution target
-        sync_to_cloud target
+        if config[:chef]
+          sync_to_chef target
+        else Chef::Log.debug("Skipping sync to chef") ; end
         puts
         display(target)
         puts
-        sync_to_chef target
+        if config[:cloud]
+          sync_to_cloud target
+        else Chef::Log.debug("Skipping sync to cloud") ; end
       end
 
       def sync_to_chef target

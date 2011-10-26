@@ -49,10 +49,10 @@ module ClusterChef
     end
 
     def bogosity val=nil
-      unless val.nil? then @settings[:bogosity] = val ; val ; end
-      return @settings[:bogosity] if @settings[:bogosity]
-      return :bogus_facet  if facet.bogus?
-      #return :out_of_range if (self.facet_index.to_i >= facet.instances)
+      @settings[:bogosity] = val  if not val.nil?
+      return @settings[:bogosity] if not @settings[:bogosity].nil?
+      return :bogus_facet         if facet.bogus?
+      # return :out_of_range      if (self.facet_index.to_i >= facet.instances)
       false
     end
 
@@ -70,6 +70,10 @@ module ClusterChef
 
     def exists?
       created? || in_chef?
+    end
+
+    def syncable?
+      exists? || (not bogosity)
     end
 
     def created?
@@ -172,7 +176,7 @@ module ClusterChef
     # retrieval
     #
     def self.get(cluster_name, facet_name, facet_index)
-      cluster = Cluster.get(cluster_name)
+      cluster = ClusterChef.cluster(cluster_name)
       had_facet = cluster.has_facet?(facet_name)
       facet = cluster.facet(facet_name)
       facet.bogosity true unless had_facet
@@ -199,6 +203,7 @@ module ClusterChef
     def sync_to_chef
       ensure_chef_client
       ensure_chef_node
+      check_node_permissions
       chef_set_runlist
       chef_set_attributes
       chef_node.save

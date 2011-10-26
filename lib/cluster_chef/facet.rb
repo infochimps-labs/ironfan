@@ -3,14 +3,13 @@ module ClusterChef
     attr_reader :cluster
     has_keys  :instances
 
-    def initialize cluster, facet_name, hsh={}
-      super(facet_name.to_sym, hsh)
+    def initialize cluster, facet_name, attrs={}
+      super(facet_name.to_sym, attrs)
       @cluster    = cluster
       @servers    = Mash.new
-      @facet_role_name = "#{cluster_name}_#{facet_name}"
       @settings[:instances] ||= 0
       @chef_roles = []
-      facet_role
+      create_facet_role
     end
 
     def cluster_name
@@ -21,17 +20,36 @@ module ClusterChef
       name
     end
 
-    def facet_role &block
-      @facet_role ||= new_chef_role(@facet_role_name, cluster, self)
-      role(@facet_role_name)
+    # The auto-generated role for this facet.
+    # Instance-evals the given block in the context of that role,
+    #
+    # @example
+    #   facet_role do
+    #     override_attributes({
+    #       :time_machine => { :transition_speed => 88 },
+    #     })
+    #   end
+    #
+    # @return [Chef::Role] The auto-generated role for this facet.
+    def facet_role(&block)
       @facet_role.instance_eval( &block ) if block_given?
       @facet_role
     end
+    def main_role(&block) ; facet_role(&block) ; end
 
-    def server idx, hsh={}, &block
+    #
+    # Retrieve or define the given server
+    #
+    # @param [Integer] idx  -- the index of the desired server
+    # @param [Hash] attrs -- attributes to configure on the object
+    # @yield a block to execute in the context of the object
+    #
+    # @return [ClusterChef::Facet]
+    #
+    def server(idx, attrs={}, &block)
       idx = idx.to_i
       @servers[idx] ||= ClusterChef::Server.new(self, idx)
-      @servers[idx].configure(hsh, &block)
+      @servers[idx].configure(attrs, &block)
       @servers[idx]
     end
 
@@ -44,8 +62,11 @@ module ClusterChef
     # Slicing
     #
 
+    # All servers in this facet
+    #
+    # @return [ClusterChef::ServerSlice] slice containing all servers
     def servers
-      ClusterChef::ServerSlice.new(cluster, slice(indexes) )
+      slice(indexes)
     end
 
     #
@@ -58,7 +79,7 @@ module ClusterChef
     #
     # @return [ClusterChef::ServerSlice] the requested slice
     def slice(slice_indexes=nil)
-      return servers if (slice_indexes.nil?) || (slice_indexes == '')
+      slice_indexes = self.indexes if (slice_indexes.nil?) || (slice_indexes == '')
       slice_indexes = indexes_from_intervals(slice_indexes) if slice_indexes.is_a?(String)
       svrs = Array(slice_indexes).map(&:to_i).sort!.select{|idx| has_server?(idx) }.map{|idx| server(idx) }
       ClusterChef::ServerSlice.new(self.cluster, svrs)
@@ -73,15 +94,6 @@ module ClusterChef
     # (probably from chef or fog)
     def indexes
       [@servers.keys, valid_indexes].flatten.compact.uniq.sort
-    end
-
-    def indexes_from_intervals intervals
-      intervals.split(",").map do |term|
-        if    term =~ /^(\d+)-(\d+)$/ then ($1.to_i .. $2.to_i).to_a
-        elsif term =~ /^(\d+)$/       then  $1.to_i
-        else  warn("Bad interval: #{term}") ; nil
-        end
-      end.flatten.compact.uniq
     end
 
     def security_groups
@@ -100,5 +112,33 @@ module ClusterChef
     def resolve_servers!
       servers.each(&:resolve!)
     end
+
+  protected
+
+    # Creates a chef role named for the facet
+    def create_facet_role
+      @facet_role_name = "#{cluster_name}_#{facet_name}"
+      @facet_role      = new_chef_role(@facet_role_name, cluster, self)
+      role(@facet_role_name)
+    end
+
+    #
+    # Given a string enumerating indexes to select returns a flat array of
+    # indexes. The indexes will be unique but in an arbitrary order.
+    #
+    # @example
+    #   facet = ClusterChef::Facet.new('foo', 'bar')
+    #   facet.indexes_from_intervals('1,2-3,8-9,7') # [1, 2, 3, 8, 9, 7]
+    #   facet.indexes_from_intervals('1,3-5,4,7')   # [1, 3, 4, 5, 7]
+    #
+    def indexes_from_intervals intervals
+      intervals.split(",").map do |term|
+        if    term =~ /^(\d+)-(\d+)$/ then ($1.to_i .. $2.to_i).to_a
+        elsif term =~ /^(\d+)$/       then  $1.to_i
+        else  warn("Bad interval: #{term}") ; nil
+        end
+      end.flatten.compact.uniq
+    end
+
   end
 end

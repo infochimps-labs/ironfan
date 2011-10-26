@@ -25,11 +25,23 @@ module ClusterChef
     class_attribute :keys
     self.keys = []
 
-    def initialize attrs={}
+    def initialize(attrs={})
       @settings = attrs || Mash.new
     end
 
-    def self.has_keys *key_names
+    #
+    # Defines DSL attributes
+    #
+    # @params [Array(String)] key_names DSL attribute names
+    #
+    # @example
+    #   class Mom < ClusterChef::DslObject
+    #     has_keys(:fat, :so_fat)
+    #   end
+    #   yer_mom = Mom.new
+    #   yer_mom.fat :quite
+    #
+    def self.has_keys(*key_names)
       key_names.map!(&:to_sym)
       self.keys += key_names
       key_names.each do |key|
@@ -37,14 +49,17 @@ module ClusterChef
       end
     end
 
-    def set key=nil, val=nil
+    #
+    # Sets the DSL attribute, unless the given value is nil.
+    #
+    def set(key, val=nil)
       @settings[key] = val unless val.nil?
       @settings[key]
     end
 
-    def [] key
-      @settings[key]
-    end
+    # def [] key
+    #   @settings[key]
+    # end
 
     def to_hash
       @settings.dup
@@ -54,22 +69,20 @@ module ClusterChef
       "<#{self.class} #{to_hash.inspect}>"
     end
 
-    # def merge! hsh
-    #   @settings.merge!(hsh.to_hash)
-    # end
-
     def reverse_merge! hsh
       @settings.reverse_merge!(hsh.to_hash)
     end
 
     def configure hsh={}, &block
-      # merge!(hsh)
       @settings.merge!(hsh.to_hash)
       instance_eval(&block) if block
       self
     end
 
     # helper method for bombing out of a script
-    def die(*args) ClusterChef.die(*args) end
+    def die(*args)            ClusterChef.die(*args)            ; end
+
+    # helper method for turning exceptions into warnings
+    def safely(*args, &block) ClusterChef.safely(*args, &block) ; end
   end
 end

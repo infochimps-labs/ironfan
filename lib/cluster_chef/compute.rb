@@ -7,7 +7,7 @@ module ClusterChef
     has_keys :name, :chef_attributes, :run_list, :cloud, :bogosity
     @@role_implications ||= Mash.new
 
-    def initialize builder_name, attrs={}
+    def initialize(builder_name, attrs={})
       super(attrs)
       set :name, builder_name
       @settings[:run_list]        ||= []
@@ -34,10 +34,10 @@ module ClusterChef
     #   # same effect
     #   cloud.security_group :foo
     #
-    def cloud cloud_provider=nil, hsh={}, &block
+    def cloud(cloud_provider=nil, attrs={}, &block)
       raise "Only have ec2 so far" if cloud_provider && (cloud_provider != :ec2)
       @cloud ||= ClusterChef::Cloud::Ec2.new
-      @cloud.configure(hsh, &block) if block
+      @cloud.configure(attrs, &block)
       @cloud
     end
 
@@ -55,18 +55,19 @@ module ClusterChef
     #
     # @param volume_name [String] an arbitrary handle -- you can use the device
     #   name, or a descriptive symbol.
-    # @param hsh [Hash] a hash of attributes to pass down.
+    # @param attrs [Hash] a hash of attributes to pass down.
     #
-    def volume volume_name, hsh={}, &block
+    def volume(volume_name, attrs={}, &block)
       volumes[volume_name] ||= ClusterChef::Volume.new(:parent => self, :name => volume_name)
-      volumes[volume_name].configure(hsh, &block)
+      volumes[volume_name].configure(attrs, &block)
       volumes[volume_name]
     end
 
-    def root_volume(hsh={}, &block)
-      volume(:root, hsh, &block)
+    def root_volume(attrs={}, &block)
+      volume(:root, attrs, &block)
     end
 
+    # FIXME: this should be in cloud, and should be done right.
     def mounts_ephemeral_volumes
       # Bring the ephemeral storage (local scratch disks) online
       volume(:ephemeral0) do device '/dev/sdb'; volume_id 'ephemeral0' ; end
@@ -75,11 +76,16 @@ module ClusterChef
       volume(:ephemeral3) do device '/dev/sde'; volume_id 'ephemeral3' ; end
     end
 
-    # Merges the given hash into
-    # FIXME: needs to be a deep_merge
-    def chef_attributes hsh={}
-      @settings[:chef_attributes].merge! hsh unless hsh.empty?
-      @settings[:chef_attributes]
+    # Delegates to the (cluster/facet)_role's +Chef::Role#override_attributes+ method
+    # @param [Hash] hsh the attributes to set
+    def override_attributes(hsh)
+      main_role.override_attributes(hsh)
+    end
+
+    # Delegates to the (cluster/facet)_role's +Chef::Role#default_attributes+ method
+    # @param [Hash] hsh the attributes to set
+    def default_attributes(hsh)
+      main_role.default_attributes(hsh)
     end
 
     # Adds the given role to the run list, and invokes any role_implications it
@@ -99,59 +105,52 @@ module ClusterChef
       run_list.uniq!
     end
 
-    def safely *args, &block
-      ClusterChef.safely(*args, &block)
-    end
-
     # Some roles imply aspects of the machine that have to exist at creation.
     # For instance, on an ec2 machine you may wish the 'ssh' role to imply a
     # security group explicity opening port 22.
     #
-    # FIXME: This feels like it should be done at resolve time
-    #
-    def role_implication name, &block
+    def self.role_implication name, &block
       @@role_implications[name] = block
     end
 
-    #
-    # This is an outright kludge, awaiting a refactoring of the
-    # security group bullshit
-    #
-    def setup_role_implications
-      role_implication "hadoop_master" do
-        self.cloud.security_group 'hadoop_namenode' do
-          authorize_port_range 80..80
-        end
+    role_implication "hadoop_master" do
+      self.cloud.security_group 'hadoop_namenode' do
+        authorize_port_range 80..80
       end
+    end
 
-      role_implication "nfs_server" do
-        self.cloud.security_group "nfs_server" do
-          authorize_group "nfs_client"
-        end
+    role_implication "nfs_server" do
+      self.cloud.security_group "nfs_server" do
+        authorize_group "nfs_client"
       end
+    end
 
-      role_implication "nfs_client" do
-        self.cloud.security_group "nfs_client"
+    role_implication "nfs_client" do
+      self.cloud.security_group "nfs_client"
+    end
+
+    role_implication "ssh" do
+      self.cloud.security_group 'ssh' do
+        authorize_port_range 22..22
       end
+    end
 
-      role_implication "ssh" do
-        self.cloud.security_group 'ssh' do
-          authorize_port_range 22..22
-        end
+    role_implication "chef_server" do
+      self.cloud.security_group "chef_server" do
+        authorize_port_range 4000..4000  # chef-server-api
+        authorize_port_range 4040..4040  # chef-server-webui
       end
+    end
 
-      role_implication "chef_server" do
-        self.cloud.security_group "chef_server" do
-          authorize_port_range 4000..4000  # chef-server-api
-          authorize_port_range 4040..4040  # chef-server-webui
-        end
+    role_implication "http_server" do
+      self.cloud.security_group("http_server") do
+        authorize_port_range  80..80
       end
+    end
 
-      role_implication("george") do
-        self.cloud.security_group("#{cluster_name}-george") do
-          authorize_port_range  80..80
-          authorize_port_range 443..443
-        end
+    role_implication "https_server" do
+      self.cloud.security_group("https_server") do
+        authorize_port_range 443..443
       end
     end
 

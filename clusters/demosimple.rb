@@ -5,7 +5,6 @@ ClusterChef::Cloud::Ec2::IMAGE_INFO.merge!({
 
 ClusterChef.cluster 'demosimple' do
   mounts_ephemeral_volumes
-  setup_role_implications
 
   cloud :ec2 do
     availability_zones  ['us-east-1a']
@@ -36,7 +35,7 @@ ClusterChef.cluster 'demosimple' do
   # A throwaway facet for testing
   #
   facet :sandbox do
-    instances           2
+    instances           3
     role                :nfs_client
     cloud do
       flavor           "m1.large"
@@ -135,7 +134,7 @@ end
 # sudo service chef-client stop
 # ps auxf
 # df -BG
-# 
+#
 # away_dir=/tmp/ami_away
 # sudo mkdir -p $away_dir
 #
@@ -150,7 +149,7 @@ end
 # sudo mv /etc/hostname /etc/node*name /var/www/index.html $away_dir
 # # move away chef junk
 # sudo mv /var/chef /etc/chef/{client-config.json,first-boot.json,node-attrs.json,chef-config.json,*.pem,*~} $away_dir
-# 
+#
 # # pull in a clean /etc/chef/client.rb
 # sudo bash -c 'curl https://raw.github.com/gist/1294525/03e95f325b7c0790c27c890f7049b7b8dea07f96/etc-chef-client.rb > /etc/chef/client.rb'
 # sudo chmod og-rwx /etc/chef/client.rb
