@@ -142,14 +142,9 @@ module ClusterChef
       end
     end
 
-    role_implication "http_server" do
+    role_implication "web_server" do
       self.cloud.security_group("http_server") do
         authorize_port_range  80..80
-      end
-    end
-
-    role_implication "https_server" do
-      self.cloud.security_group("https_server") do
         authorize_port_range 443..443
       end
     end

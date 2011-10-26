@@ -68,7 +68,7 @@ ClusterChef.cluster 'demosimple' do
     recipe              'openssl'
     recipe              'thrift'
     recipe              'xfs'
-    role                'https_server'
+    role                'web_server'
 
     facet_role do
       override_attributes({
