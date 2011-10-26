@@ -49,37 +49,28 @@ ClusterChef.cluster 'demosimple' do
   #
   facet :burninator do
     instances           2
-    role                :nfs_client
     cloud do
       flavor           "m1.large"
       backing          "ebs"
     end
 
+    role                :nfs_client
+    recipe              'java::sun'
+    recipe              'jpackage'
+    role                :big_package
+    role                :elasticsearch_client
+    role                :hadoop
+    recipe              'boost'
+    recipe              'git'
+    recipe              'mysql'
+    recipe              'mysql::client'
+    recipe              'ntp'
+    recipe              'openssl'
+    recipe              'thrift'
+    recipe              'xfs'
+    role                'https_server'
+
     facet_role do
-      run_list(*%w[
-        role[base_role]
-        role[chef_client]
-        role[ssh]
-        role[nfs_client]
-        java::sun
-        jpackage
-
-        role[big_package]
-        role[elasticsearch_client]
-        role[hadoop]
-        boost
-        git
-        mysql
-        mysql::client
-        ntp
-        openssl
-        thrift
-        xfs
-
-        role[demosimple_cluster]
-        role[demosimple_sandbox]
-      ])
-
       override_attributes({
           :hadoop => {
             :hadoop_handle        => 'hadoop-0.20',

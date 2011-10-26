@@ -99,10 +99,8 @@ module ClusterChef
     end
 
     def resolve!
-      cluster_name = self.cluster_name
-      cloud.security_group(cluster_name){ authorize_group(cluster_name) }
-      cloud.keypair cluster_name         if cloud.keypair.nil?
-
+      set_default_security_group
+      cloud.keypair(cluster_name) if cloud.keypair.nil?
       @facets.values.each(&:resolve!)
     end
 
@@ -110,8 +108,12 @@ module ClusterChef
       cloud.security_groups
     end
 
-
   protected
+
+    def set_default_security_group
+      cluster_name = self.cluster_name # hack variable into scope of folllowing block
+      cloud.security_group(cluster_name){ authorize_group(cluster_name) }
+    end
 
     # Creates a chef role named for the facet
     def create_cluster_role

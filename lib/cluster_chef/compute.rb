@@ -92,7 +92,7 @@ module ClusterChef
     # implies (for instance, the 'ssh' role on an ec2 machine requires port 22
     # be explicity opened.)
     #
-    def role role_name
+    def role(role_name)
       run_list << "role[#{role_name}]"
       run_list.uniq!
       @settings[:run_list] << "role[#{role_name}]"
@@ -100,7 +100,7 @@ module ClusterChef
     end
 
     # Add the given recipe to the run list
-    def recipe name
+    def recipe(name)
       run_list << name
       run_list.uniq!
     end

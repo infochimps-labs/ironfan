@@ -96,24 +96,26 @@ module ClusterChef
       [@servers.keys, valid_indexes].flatten.compact.uniq.sort
     end
 
+    #
+    # Returns the full set of security groups: those from the facet and the cluster
+    #
     def security_groups
-      cloud.security_groups.merge(cluster.security_groups)
+      cluster.security_groups.merge(cloud.security_groups)
     end
 
     #
     # Resolve:
     #
     def resolve!
-      cloud.security_group "#{cluster_name}-#{facet_name}"
-      resolve_servers!
+      servers.each(&:resolve!)
       self
     end
 
-    def resolve_servers!
-      servers.each(&:resolve!)
-    end
-
   protected
+
+    def set_default_security_group
+      cloud.security_group "#{cluster_name}-#{facet_name}"
+    end
 
     # Creates a chef role named for the facet
     def create_facet_role
