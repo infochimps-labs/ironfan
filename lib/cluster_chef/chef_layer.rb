@@ -68,23 +68,26 @@ module ClusterChef
     #
     # OK so things get a little fishy here, and it's all Opscode's fault ;-)
     #
-    # There's currently no API for setting ACLs.
+    # There's currently no API for setting ACLs. However, if the *client the
+    # node will run as* is the *client that creates the node*, it is granted the
+    # correct permissions.
     #
     # * client exists, node exists: don't need to do anything. We trust that permissions are correct.
     # * client absent, node exists: client created, node is fine. We trust that permissions are correct.
     # * client absent, node absent: client created, so have key; client creates node, so it has write permissions.
     # * client exists, node absent: FAIL.
     #
-    # We could try some workarounds -- persist the client keys locally (insecure
-    # and unmanageable), force re-register the client if the node is absent
-    # (catastrophic if we somehow invalidate a running server's key), others.
+    # The current implementation persists the client keys locally to your
+    # Chef::Config[:keypair_path].  This is insecure and unmanageable; and the
+    # node will shortly re-register the key, making it invalide anyway.
     #
-    # Instead, if the client's private_key is blank and the node is absent, we
-    # raise an error. in that case, you can:
+    # If the client's private_key is empty/wrong and the node is absent, it will
+    # cause an error. in that case, you can:
     #
     # * create the node yourself in the management console, and
     #   grant access to its eponymous client; OR
-    # * nuke the client key from orbit (it's the only way to be sure) and re-run; OR
+    # * nuke the client key from orbit (it's the only way to be sure) and re-run,
+    #   taking all responsibility for the catastrophic results of an errant nuke; OR
     # * wait for opscode to open API access for ACLs.
     # 
     #
