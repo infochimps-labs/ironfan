@@ -27,15 +27,10 @@ module ClusterChef
     end
 
     option :dry_run,
-      :long => "--dry-run",
-      :description => "Don't really run, just use mock calls"
-    option :skip,
-      :long => "--skip X",
-      :description => "Skip step X (or all if X == true"
-    option :detailed,
-      :long => "--detailed",
-      :description => "Show detailed info on servers",
-      :boolean => true
+      :long        => "--dry-run",
+      :description => "Don't really run, just use mock calls",
+      :boolean     => true,
+      :default     => false
 
     def run
       load_cluster_chef
@@ -59,7 +54,7 @@ module ClusterChef
       display(target)
     end
 
-    def perform_execution target
+    def perform_execution(target)
       puts "Running #{sub_command}:"
       target.send(sub_command)
     end

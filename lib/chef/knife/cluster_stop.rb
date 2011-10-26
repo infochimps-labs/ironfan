@@ -21,16 +21,17 @@ require File.expand_path(File.dirname(__FILE__)+"/generic_command.rb")
 class Chef
   class Knife
     class ClusterStop < ClusterChef::Script
-      option :yes,
-        :long => "--yes",
-        :description => "Skip confirmation that you want to delete the cluster."
       import_banner_and_options(ClusterChef::Script)
+      option :yes,
+        :long        => "--yes",
+        :description => "Skip confirmation that you want to stop the cluster.",
+        :boolean     => true
 
       def slice_criterion
         :running?
       end
 
-      def confirm_execution target
+      def confirm_execution(target)
         unless config[:yes]
           puts "Unless these nodes are backed by EBS volumes, this will result in loss of all"
           puts "data not saved elsewhere. Even if they are EBS backed, there may still be some data loss."

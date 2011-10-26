@@ -24,26 +24,26 @@ class Chef
     class ClusterBootstrap < ClusterChef::Script
 
       option :ssh_user,
-        :short => "-x USERNAME",
-        :long => "--ssh-user USERNAME",
+        :short       => "-x USERNAME",
+        :long        => "--ssh-user USERNAME",
         :description => "The ssh username"
       option :bootstrap_runs_chef_client,
-        :long => "--bootstrap-runs-chef-client",
-        :description => "If bootstrap is invoked, will do the initial run of chef-client in the bootstrap script"
+        :long        => "--[no-]bootstrap-runs-chef-client",
+        :description => "If bootstrap is invoked, the bootstrap script causes an initial run of chef-client (default true).",
+        :boolean     => true,
+        :default     => true
       option :distro,
-        :short => "-d DISTRO",
-        :long => "--distro DISTRO",
+        :short       => "-d DISTRO",
+        :long        => "--distro DISTRO",
         :description => "Bootstrap a distro using a template"
       option :template_file,
-        :long => "--template-file TEMPLATE",
+        :long        => "--template-file TEMPLATE",
         :description => "Full path to location of template to use"
       option :use_sudo,
-        :long => "--sudo",
+        :long        => "--sudo",
         :description => "Execute the bootstrap via sudo",
-        :boolean => true
-      option :detailed,
-        :long => "--detailed",
-        :description => "Show detailed info on servers"
+        :boolean     => true
+
       import_banner_and_options(Chef::Knife::Bootstrap,
         :except => [:chef_node_name, :run_list, :ssh_user, :distro, :template_file])
       import_banner_and_options(ClusterChef::Script)
@@ -53,13 +53,13 @@ class Chef
         ClusterChef::Script.load_deps
       end
 
-      def perform_execution target
+      def perform_execution(target)
         target.each do |svr|
           run_bootstrap(svr, svr.fog_server.dns_name)
         end
       end
 
-      def confirm_execution target
+      def confirm_execution(target)
         unless config[:yes]
           puts "Bootstrapping the node redoes its initial setup -- only do this on an aborted launch."
           puts "Are you absolutely certain that you want to perform this action? (Type 'Yes' to confirm)"

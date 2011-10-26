@@ -28,12 +28,6 @@ class Chef
       end
 
       banner "knife cluster show CLUSTER_NAME [FACET_NAME [INDEXES]] (options)"
-      option :dry_run,
-        :long => "--dry-run",
-        :description => "Don't really run, just use mock calls"
-      option :detailed,
-        :long => "--detailed",
-        :description => "Show detailed info on servers"
 
       def run
         load_cluster_chef
@@ -42,9 +36,6 @@ class Chef
 
         # Load the cluster/facet/slice/whatever
         target = get_slice(* @name_args)
-
-        # Here's how to display the full raw dictionary for testing
-        # ClusterChef::ServerSlice.new(target.cluster, ClusterChef::Server.all.values).display(:detailed)
 
         # Display same
         display(target)

@@ -36,24 +36,28 @@ class Chef
       ].each do |name|
         option name, Chef::Knife::Bootstrap.options[name]
       end
+
       option :dry_run,
-        :long => "--dry-run",
-        :description => "Don't really run, just use mock calls"
-      option :bootstrap,
-        :long => "--bootstrap",
-        :description => "Also bootstrap the launched node"
-      option :bootstrap_runs_chef_client,
-        :long => "--bootstrap-runs-chef-client",
-        :description => "If bootstrap is invoked, will do the initial run of chef-client in the bootstrap script"
+        :long        => "--dry-run",
+        :description => "Don't really run, just use mock calls",
+        :boolean     => true,
+        :default     => false
       option :force,
-        :long => "--force",
-        :description => "Perform launch operations even if it may not be safe to do so."
-      option :detailed,
-        :long => "--detailed",
-        :description => "Show detailed info on servers"
-      option :abort,
-        :long => "--abort",
-        :description => "Abort before actually launching (though this might still hit the outside world, eg sec grps)"
+        :long        => "--force",
+        :description => "Perform launch operations even if it may not be safe to do so. Default false",
+        :boolean     => true,
+        :default     => false
+
+      option :bootstrap,
+        :long        => "--[no-]bootstrap",
+        :description => "Also bootstrap the launched node (default is NOT to bootstrap)",
+        :boolean     => true,
+        :default     => false
+      option :bootstrap_runs_chef_client,
+        :long        => "--[no-]bootstrap-runs-chef-client",
+        :description => "If bootstrap is invoked, the bootstrap script causes an initial run of chef-client (default true).",
+        :boolean     => true,
+        :default     => true
 
       def run
         load_cluster_chef
@@ -84,7 +88,6 @@ class Chef
         full_target.security_groups.each{|name,group| group.run }
 
         # Launch servers
-        die "Aborting! (--abort given)" if config[:abort]
         puts
         puts "Launching machines:"
         target.create_servers

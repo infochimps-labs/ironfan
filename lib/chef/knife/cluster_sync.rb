@@ -16,7 +16,6 @@
 # limitations under the License.
 #
 
-require File.expand_path(File.dirname(__FILE__)+"/knife_common.rb")
 require File.expand_path(File.dirname(__FILE__)+"/generic_command.rb")
 
 class Chef
@@ -25,21 +24,21 @@ class Chef
       import_banner_and_options(ClusterChef::Script)
 
       option :cloud,
-        :long => "--[no-]cloud",
-        :description => "Sync to the cloud (default is yes, sync to cloud)",
-        :default => true,
-        :boolean => true
+        :long        => "--[no-]cloud",
+        :description => "Sync to the cloud (default syncs cloud; use --no-cloud to skip)",
+        :default     => true,
+        :boolean     => true
       option :chef,
-        :long => "--[no-]chef",
-        :description => "Sync to the chef server (default is yes, sync to chef)",
-        :default => true,
-        :boolean => true
+        :long        => "--[no-]chef",
+        :description => "Sync to the chef server (default syncs chef; use --no-chef to skip)",
+        :default     => true,
+        :boolean     => true
 
       def slice_criterion
         :syncable?
       end
 
-      def perform_execution target
+      def perform_execution(target)
         if config[:chef]
           sync_to_chef target
         else Chef::Log.debug("Skipping sync to chef") ; end
@@ -51,7 +50,7 @@ class Chef
         else Chef::Log.debug("Skipping sync to cloud") ; end
       end
 
-      def sync_to_chef target
+      def sync_to_chef(target)
         if config[:dry_run]
           puts "(can't do a dry-run when syncing to chef -- skipping)"
           return
@@ -60,7 +59,7 @@ class Chef
         target.sync_to_chef
       end
 
-      def sync_to_cloud target
+      def sync_to_cloud(target)
         puts "Syncing to cloud:"
         target.sync_to_cloud
       end

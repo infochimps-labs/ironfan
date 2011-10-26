@@ -210,6 +210,12 @@ module ClusterChef
       true
     end
 
+    def delete_chef
+      return unless chef_node
+      chef_node.destroy
+      self.chef_node = nil
+    end
+
     # FIXME: a lot of AWS logic in here. This probably lives in the facet.cloud
     # but for the one or two things that come from the facet
     def create_server

@@ -40,7 +40,7 @@ module ClusterChef
     end
 
     # override in subclass to confirm risky actions
-    def confirm_execution *args
+    def confirm_execution(*args)
       # pass
     end
 
@@ -50,7 +50,7 @@ module ClusterChef
     # @example
     #    target = get_slice_where(:created?, *@name_args)
     #
-    def get_slice_where(meth, *predicate )
+    def get_slice_where(meth, *predicate)
       full_target = get_slice(*predicate)
       display(full_target) do |svr|
         result = svr.send(meth)
@@ -61,8 +61,8 @@ module ClusterChef
 
     # passes target to ClusterSlice#display, will show headings in server slice
     # tables based on the --detailed flag
-    def display target, display_style=nil, &block
-      display_style ||= (config[:detailed] ? :detailed : :default)
+    def display(target, display_style=nil, &block)
+      display_style ||= :detailed
       target.display(display_style, &block)
     end
 
@@ -77,7 +77,7 @@ module ClusterChef
     end
 
     # Show a pretty progress bar while we wait for a set of threads to finish.
-    def progressbar_for_threads threads
+    def progressbar_for_threads(threads)
       puts "\nWaiting for servers:"
       total      = threads.length
       remaining  = threads.select(&:alive?)
@@ -162,7 +162,7 @@ module ClusterChef
         self.to_s.gsub(/^.*::/, '').gsub!(/^Cluster/, '').downcase
       end
 
-      def import_banner_and_options klass, options={}
+      def import_banner_and_options(klass, options={})
         options[:except] ||= []
         klass.options.each do |name, info|
           next if options.include?(name) || options[:except].include?(name)
@@ -175,7 +175,7 @@ module ClusterChef
         end
       end
     end
-    def self.included base
+    def self.included(base)
       base.class_eval do
         extend ClassMethods
       end

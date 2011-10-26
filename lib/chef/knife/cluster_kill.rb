@@ -16,118 +16,67 @@
 # limitations under the License.
 #
 
-require File.expand_path(File.dirname(__FILE__)+"/knife_common.rb")
+require File.expand_path(File.dirname(__FILE__)+"/generic_command.rb")
 
 class Chef
   class Knife
-    class ClusterKill < Knife
-      include ClusterChef::KnifeCommon
+    class ClusterKill < ClusterChef::Script
+      import_banner_and_options(ClusterChef::Script)
+      option :yes,
+        :long        => "--yes",
+        :description => "Skip confirmation that you want to delete the cluster.",
+        :boolean     => true
 
-      deps do
-        ClusterChef::KnifeCommon.load_deps
+      option :kill_bogus,
+        :long        => "--kill-bogus",
+        :description => "Kill bogus servers (ones that exist, but are not defined in the clusters file)",
+        :boolean     => true,
+        :default     => false
+      option :cloud,
+        :long        => '--[no-]cloud',
+        :description => "Delete machines from cloud (default is to delete, use --no-cloud to skip)",
+        :boolean     => true,
+        :default     => true
+      option :chef,
+        :long        => "--[no-]chef",
+        :description => "Delete the chef node and client (default is to delete, use --no-chef to skip)",
+        :boolean     => true,
+        :default     => true
+
+      def slice_criterion
+        :killable?
       end
 
-      banner "knife cluster kill CLUSTER_NAME [FACET_NAME [INDEXES]] (options)"
-      option :dry_run,
-        :long => "--dry-run",
-        :description => "Don't really run, just use mock calls",
-        :boolean => true
-      option :undefined,
-        :long => "--undefined",
-        :descritption => "Kill undefined servers",
-      :boolean => true
-
-      option :machine,
-        :long => '--[no-]machine',
-        :description => "Delete machine servers (default is to delete, use --no-machine to skip)",
-        :boolean => true,
-        :default => true
-      option :chef_node,
-        :long => "--[no-]chef-node",
-        :description => "Delete the chef node (default is to delete, use --no-chef-node to skip)",
-        :boolean => true,
-        :default => true
-      option :chef_client,
-        :long => "--[no-]chef-client",
-        :description => "Delete the chef client (default is to delete, use --no-chef-client to skip)",
-        :boolean => true,
-        :default => true
-
-      option :yes,
-        :long => "--yes",
-        :description => "Skip confirmation that you want to delete the cluster.",
-        :boolean => true
-      option :really,
-        :long => "--really",
-        :description => "Skip the second confirmation that you REALLY want to delete the cluster.",
-        :boolean => true
-
-      option :detailed,
-        :long => "--detailed",
-        :description => "Show detailed info on servers",
-        :boolean => true
-
-      def run
-        load_cluster_chef
-        die(banner) if @name_args.empty?
-        configure_dry_run
-
-        target = get_slice_where(:killable?, *@name_args)
-
-        puts
-        Formatador.display_line("[red]Bogus servers detected[reset]: [blue]#{target.bogus_servers.map(&:fullname).inspect}[reset]") unless target.bogus_servers.empty?
-
-        die( "Nothing to kill.", "Exiting.") if target.empty?
-
-        confirm_deletion_of_or_exit(target)
-        really_confirm_deletion_of_or_exit
-
-        # Execute every last mf'ing one of em
-
-        if config[:machine]
+      # Execute every last mf'ing one of em
+      def perform_execution(target)
+        if config[:cloud]
           puts
           puts "Killing Cloud Machines!!"
           target.select(&:in_cloud?).destroy
           puts
         end
 
-        if config[:chef_node] || config[:chef_client]
+        if config[:chef]
           puts "Killing Chef!!"
-          target.select(&:in_chef? ).delete_chef(config[:chef_client], config[:chef_node])
+          target.select(&:in_chef? ).delete_chef
           puts
         end
-
-        display(target)
       end
 
-      def confirm_deletion_of_or_exit target
+      def display(target, *args, &block)
+        super
+        puts Formatador.display_line("[red]Bogus servers detected[reset]: [blue]#{target.bogus_servers.map(&:fullname).inspect}[reset]") unless target.bogus_servers.empty?
+      end
+
+      def confirm_execution(target)
         delete_message = [
-          (((!config[:chef_node])   || target.chef_nodes.empty?)  ? nil : "#{target.chef_nodes.length} chef nodes"),
-          (((!config[:chef_client]) || target.chef_nodes.empty?)  ? nil : "#{target.chef_nodes.length} chef clients"),
-          (((!config[:machine])     || target.fog_servers.empty?) ? nil : "#{target.fog_servers.length} fog servers") ].compact
-        puts
-        puts "WARNING!!!!"
-        puts
-        puts "This command will delete the following #{delete_message.join(" and ")}"
-        puts
-        display(target)
-        puts
+          (((!config[:chef])   || target.chef_nodes.empty?)  ? nil : "#{target.chef_nodes.length} chef nodes"),
+          (((!config[:cloud])  || target.fog_servers.empty?) ? nil : "#{target.fog_servers.length} fog servers") ].compact.join(" and ")
         unless config[:yes]
-          puts "Are you absolutely certain that you want to perform this action? (Type 'Yes' to confirm)"
+          puts "Are you absolutely certain that you want to delete #{delete_message}? (Type 'Yes' to confirm)"
           confirm_or_exit('Yes')
         else
-          puts "Bypassing confirmation."
-        end
-      end
-
-      def really_confirm_deletion_of_or_exit
-        unless config[:really]
-          puts "..."
-          sleep 3
-          puts "There is no going back. When these nodes and instances are deleted, they will be gone forever. Are you really sure? (Type 'YES!' to confirm)"
-          confirm_or_exit('YES!')
-        else
-          puts "Bypassing secondary confirmation. I hope you know what you are doing..."
+          puts "Bypassing confirmation: deleting #{delete_message}"
         end
       end
 

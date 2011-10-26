@@ -101,13 +101,8 @@ module ClusterChef
       delegate_to_servers( :create_server )
     end
 
-    def delete_chef( delete_clients = true, delete_nodes = true)
-      servers.each do |svr|
-        next unless svr.chef_node
-        node = svr.chef_node
-        node.destroy
-        svr.chef_node = nil
-      end
+    def delete_chef
+      delegate_to_servers( :delete_chef )
     end
 
     def sync_roles
@@ -119,15 +114,7 @@ module ClusterChef
     end
 
     def sync_to_chef
-      #
-      # FIXME
-      #
-
-      # sync_roles
-
-      #
-      #
-      #
+      sync_roles
       delegate_to_servers( :sync_to_chef )
     end
 
