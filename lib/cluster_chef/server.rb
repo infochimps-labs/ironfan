@@ -137,8 +137,6 @@ module ClusterChef
           :facet_index            => facet_index,
         })
 
-      Chef::Log.debug([ __FILE__, "server resolve!", client_key, cloud.user_data, chef_client ])
-
       if client_key
         cloud.user_data({ :client_key     => client_key, })
       else

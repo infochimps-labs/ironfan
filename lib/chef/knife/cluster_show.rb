@@ -40,13 +40,6 @@ class Chef
         # Display same
         display(target)
 
-        target.each do |svr|
-          p svr.cloud
-          p svr.chef_client
-          p svr.client_key
-          p svr.cloud.user_data
-        end
-
       end
     end
   end
