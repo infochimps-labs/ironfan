@@ -1,21 +1,6 @@
 ClusterChef.cluster 'demoweb' do
-  use :defaults
-  mounts_ephemeral_volumes 
+  mounts_ephemeral_volumes
 
-  #
-  # Define some security group triggered on having certain roles
-  #
-  setup_role_implications
-  # if you're a redis server, open the port and authorize redis clients in your group to talk to you
-  role_implication("redis_server") do
-    cluster_name = self.cluster_name # now cluster_name is in scope
-    self.cloud.security_group("#{cluster_name}-redis_server") do
-      authorize_group("#{cluster_name}-redis_client")
-    end
-  end
-  role_implication("redis_client") do
-    self.cloud.security_group("#{cluster_name}-redis_client")
-  end
   # web server? add the group "demoweb-awesome_website" and open the web holes
   role_implication("awesome_website") do
     self.cloud.security_group("#{cluster_name}-awesome_website") do
@@ -24,13 +9,26 @@ ClusterChef.cluster 'demoweb' do
     end
   end
 
+  # if you're a redis server, open the port and authorize redis clients in your group to talk to you
+  role_implication("redis_server") do
+    cluster_name = self.cluster_name # now cluster_name is in scope
+    self.cloud.security_group("#{cluster_name}-redis_server") do
+      authorize_group("#{cluster_name}-redis_client")
+    end
+  end
+
+  # if you're a redis server, open the port and authorize redis clients in your group to talk to you
+  role_implication("redis_client") do
+    self.cloud.security_group("#{cluster_name}-redis_client")
+  end
+
   cloud do
     backing             "instance"
     image_name          "maverick"
     flavor              "t1.micro"
     availability_zones  ['us-east-1a']
   end
-  
+
   role                  "nfs_client"
   role                  "big_package"
 
@@ -49,7 +47,7 @@ ClusterChef.cluster 'demoweb' do
     end
 
     chef_attributes({ :split_testing => { :group => 'A' } })
-    
+
     server(5) do
       chef_attributes({ :split_testing => { :group => 'B' } })
     end
@@ -72,13 +70,13 @@ ClusterChef.cluster 'demoweb' do
       device        '/dev/sdi'
       mount_point   '/data/db'
       mount_options 'defaults,nouuid,noatime'
-      fs_type       'xfs'      
+      fs_type       'xfs'
     end
     server(0).volume(:data).snapshot_id 'snap-d9c1edb1'
     server(1).volume(:data) do
       snapshot_id 'snap-d9c1edb1'
       volume_id   'vol-12345'
-    end    
+    end
   end
 
   facet :esnode do
@@ -95,5 +93,5 @@ ClusterChef.cluster 'demoweb' do
   chef_attributes({
       :webnode_count => facet(:webnode).instances,
     })
-  
+
 end

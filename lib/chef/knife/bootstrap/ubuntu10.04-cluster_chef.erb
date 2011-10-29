@@ -6,7 +6,10 @@ bash -c '
 # * pushes the node identity into the first-boot.json
 # * installs the chef-client service and kicks off the first run of chef
 
-set -v
+# set -v
+
+mkdir /tmp/knife-bootstrap ; chmod 700 /tmp/knife-bootstrap
+cd /tmp/knife-bootstrap
 
 RUBY_VERSION=1.9.2-p290 
 
@@ -24,9 +27,6 @@ apt-get install -y build-essential wget runit runit-services zlib1g-dev libssl-d
 
 echo -e "`date` \n\n**** \n**** Installing ruby version ${RUBY_VERSION}:\n****\n"
 
-# apt-get   install -y ruby${RUBY_VERSION} ruby${RUBY_VERSION}-dev libruby${RUBY_VERSION} libruby${RUBY_VERSION}-dbg ri${RUBY_VERSION} rubygems${RUBY_VERSION}
-
-cd /tmp
 wget ftp://ftp.ruby-lang.org//pub/ruby/1.9/ruby-${RUBY_VERSION}.tar.gz
 tar xzf ruby-${RUBY_VERSION}.tar.gz
 cd ruby-${RUBY_VERSION}
@@ -55,7 +55,9 @@ gem install ohai --no-rdoc --no-ri
 gem install chef --no-rdoc --no-ri <%= bootstrap_version_string %>
 gem install      --no-rdoc --no-ri extlib json ruby-shadow right_aws
 
-fi # if no chef-client
+else # no chef-client
+echo -e "`date` \n\n**** \n**** Chef is present -- skipping apt/ruby/chef installation\n****\n"
+fi 
 
 echo -e "`date` \n\n**** \n**** Knifing in the chef client config files:\n****\n"
 mkdir -p /etc/chef
@@ -64,15 +66,20 @@ mkdir -p /etc/chef
 cat <<'EOP'
 <%= validation_key %>
 EOP
-) > /tmp/validation.pem
-awk NF /tmp/validation.pem > /etc/chef/validation.pem
-rm /tmp/validation.pem
+) > /tmp/knife-bootstrap/validation.pem
+awk NF /tmp/knife-bootstrap/validation.pem > /etc/chef/validation.pem
+
+echo -e "`date` \n\n**** \n**** Nuking our temp files:\n****\n"
+
+cd /tmp
+rm -rf /tmp/knife-bootstrap
 
 echo -e "`date` \n\n**** \n**** Creating chef client script:\n****\n"
 
 (
 cat <<'EOP'
 <%= config_content %>
+<%= @config[:node].chef_client_script_content %>
 EOP
 ) > /etc/chef/client.rb
 
@@ -96,6 +103,8 @@ exec /usr/bin/env chef-client -i 43200 -s 20 -L /var/log/chef/client.log
 EOF
 chmod +x  /etc/sv/chef-client/log/run /etc/sv/chef-client/run
 ln -nfs /usr/bin/sv /etc/init.d/chef-client
+
+service chef-client stop
 
 <%- if (@config[:bootstrap_runs_chef_client].to_s == 'true') || (@chef_config.knife[:bootstrap_runs_chef_client].to_s == 'true') %>
 echo -e "`date` \n\n**** \n**** First run of chef:\n****\n"

@@ -4,14 +4,13 @@ module ClusterChef
   #
   class ComputeBuilder < ClusterChef::DslObject
     attr_reader :cloud, :volumes, :chef_roles
-    has_keys :name, :chef_attributes, :run_list, :cloud, :bogosity
+    has_keys :name, :run_list, :cloud, :bogosity
     @@role_implications ||= Mash.new
 
     def initialize(builder_name, attrs={})
       super(attrs)
       set :name, builder_name
       @settings[:run_list]        ||= []
-      @settings[:chef_attributes] ||= {}
       @volumes = Mash.new
     end
 
@@ -74,18 +73,6 @@ module ClusterChef
       volume(:ephemeral1) do device '/dev/sdc'; volume_id 'ephemeral1' ; end
       volume(:ephemeral2) do device '/dev/sdd'; volume_id 'ephemeral2' ; end
       volume(:ephemeral3) do device '/dev/sde'; volume_id 'ephemeral3' ; end
-    end
-
-    # Delegates to the (cluster/facet)_role's +Chef::Role#override_attributes+ method
-    # @param [Hash] hsh the attributes to set
-    def override_attributes(hsh)
-      main_role.override_attributes(hsh)
-    end
-
-    # Delegates to the (cluster/facet)_role's +Chef::Role#default_attributes+ method
-    # @param [Hash] hsh the attributes to set
-    def default_attributes(hsh)
-      main_role.default_attributes(hsh)
     end
 
     # Adds the given role to the run list, and invokes any role_implications it

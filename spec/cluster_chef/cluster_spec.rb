@@ -1,7 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
 require CLUSTER_CHEF_DIR("lib/cluster_chef")
-require CLUSTER_CHEF_DIR("lib/cluster_chef/script")
 
 describe ClusterChef::Cluster do
   describe 'discover!' do
@@ -12,4 +11,3 @@ describe ClusterChef::Cluster do
     end
   end
 end
-

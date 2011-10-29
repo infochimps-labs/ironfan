@@ -35,7 +35,6 @@ module ClusterChef
       @facet_role.instance_eval( &block ) if block_given?
       @facet_role
     end
-    def main_role(&block) ; facet_role(&block) ; end
 
     #
     # Retrieve or define the given server

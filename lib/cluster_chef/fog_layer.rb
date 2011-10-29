@@ -21,7 +21,7 @@ module ClusterChef
           :cluster => cluster_name,
           :facet   => facet_name,
           :index   => facet_index, },
-        :user_data         => JSON.pretty_generate(cloud.user_data.merge(:attributes => chef_attributes)),
+        :user_data         => JSON.pretty_generate(cloud.user_data),
         :block_device_mapping    => block_device_mapping,
         # :disable_api_termination => cloud.disable_api_termination,
         # :instance_initiated_shutdown_behavior => instance_initiated_shutdown_behavior,
@@ -60,7 +60,6 @@ module ClusterChef
         ClusterChef.fog_connection.associate_address(self.fog_server.id, address)
       end
     end
-
 
   end
 end

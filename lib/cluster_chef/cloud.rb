@@ -1,7 +1,7 @@
 module ClusterChef
   module Cloud
     class Base < ClusterChef::DslObject
-      has_keys( :name, :flavor, :image_name, :image_id, :keypair )
+      has_keys( :name, :flavor, :image_name, :image_id, :keypair, :chef_client_script )
 
       # The username to ssh with.
       # @return the ssh_user if set explicitly; otherwise, the user implied by the image name, if any; or else 'root'

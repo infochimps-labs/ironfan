@@ -20,44 +20,28 @@ module ClusterChef
       chef_node.run_list = Chef::RunList.new(*@settings[:run_list])
     end
 
-    def chef_set_attributes
-      chef_attributes.each_pair do |key,value|
-        next if key == :run_list
-        chef_node.normal[key] = value
-      end
-    end
-
-    # Execute the given chef call, but don't explode if the given http status
-    # code comes back
-    #
-    # @return chef object, or false if the server returned a recoverable response
-    def handle_chef_response(recoverable_responses, &block)
-      begin
-        block.call
-      rescue Net::HTTPServerException => e
-        raise unless Array(recoverable_responses).include?(e.response.code)
-        Chef::Log.debug("Swallowing a #{e.response.code} response in #{self.fullname}: #{e}")
-        false
-      end
+    def delete_chef
+      if chef_node   then chef_node.destroy   ; @chef_node   = nil ; end
+      if chef_client then chef_client.destroy ; @chef_client = nil ; end
     end
 
     def chef_client
       return @chef_client unless @chef_client.nil?
-      @chef_client = handle_chef_response('404') do
+      @chef_client = handle_chef_response(@chef_client, '404') do
         Chef::ApiClient.load( fullname )
+      end
+    end
+
+    def chef_node
+      return @chef_node unless @chef_node.nil?
+      @chef_node = handle_chef_response(@chef_node, '404') do
+        Chef::Node.load( fullname )
       end
     end
 
     # true if chef client is created and discovered
     def chef_client?
       !! @chef_client
-    end
-
-    def chef_node
-      return @chef_node unless @chef_node.nil?
-      @chef_node = handle_chef_response('404') do
-        Chef::Node.load( fullname )
-      end
     end
 
     # true if chef node is created and discovered
@@ -89,47 +73,48 @@ module ClusterChef
     # * nuke the client key from orbit (it's the only way to be sure) and re-run,
     #   taking all responsibility for the catastrophic results of an errant nuke; OR
     # * wait for opscode to open API access for ACLs.
-    # 
+    #
     #
 
     def ensure_chef_client
       return @chef_client if chef_client
-
       @chef_client = Chef::ApiClient.new
       @chef_client.name(fullname)
       @chef_client.admin(false)
-      handle_chef_response('409') do
+      #
+      handle_chef_response(@chef_client, '409') do
         # ApiClient#create sends extra params that fail -- we'll do it ourselves
-        response = Chef::REST.new(Chef::Config[:chef_server_url]).post_rest("clients", { 'name' => fullname, 'admin' => false })
+        response = Chef::REST.new(Chef::Config[:chef_server_url]).post_rest(
+          "clients", { 'name' => fullname, 'admin' => false, 'private_key' => true })
         @chef_client.private_key(response['private_key'])
-        Chef::Log.debug( "Created client #{@chef_client}" )
+        cloud.user_data(:client_key => @chef_client.private_key)
+        Chef::Log.debug( "Created #{@chef_client}" )
         write_client_key
       end
       @chef_client
-    end
-
-    def client_key_filename
-      File.join(Chef::Config.keypair_path, "client-#{fullname}.pem")
-    end
-    def write_client_key
-      Chef::Log.debug( "Writing client #{@chef_client} private key to #{client_key_filename}" )
-      File.open(client_key_filename, "w"){|f| f.print( @chef_client.private_key ) }
-    end
-    def read_client_key
-      return unless File.exists?(client_key_filename)
-      @chef_client.private_key(File.read(client_key_filename).chomp)
     end
 
     def ensure_chef_node
       return @chef_node if chef_node
       @chef_node = Chef::Node.new
       @chef_node.name(fullname)
-      response = handle_chef_response('409') do
+      #
+      err_message = "You've found yourself in a situation where the #{fullname} client exists, \nbut you don't have access to its client key. \nYou need to either fix its permissions in the Chef console, or (if you are aware of the terrible consequences) do \nknife client delete #{fullname}"
+      response = handle_chef_response(@chef_node, '409') do
         unless File.exists?(client_key_filename)
-          raise "Cannot create chef node #{fullname} -- no client key found in #{client_key_filename}."
+          warn "Cannot create chef node #{fullname} -- no client key found in #{client_key_filename}."
+          raise(err_message)
         end
         chef_server_rest = Chef::REST.new(Chef::Config[:chef_server_url], fullname, client_key_filename)
-        chef_server_rest.post_rest('nodes', @chef_node)
+        begin
+          chef_server_rest.post_rest('nodes', @chef_node)
+        rescue Net::HTTPServerException => e
+          if e.response.code == '401'
+            warn "Cannot create chef node #{fullname} -- client key #{client_key_filename} no longer valid."
+            warn(err_message)
+          end
+          raise
+        end
       end
       @chef_node
     end
@@ -162,5 +147,49 @@ module ClusterChef
         Chef::Log.info(" ************************ ")
       end
     end
+
+    def client_key
+      return unless chef_client
+      @client_key ||= (chef_client.private_key || read_client_key)
+    end
+
+    def chef_client_script_content
+      return @chef_client_script_content if @chef_client_script_content
+      return unless cloud.chef_client_script
+      script_filename = File.expand_path(cloud.chef_client_script, File.join(Chef::Config[:cluster_chef_path], 'config'))
+      @chef_client_script_content = safely{ File.read(script_filename) }
+    end
+
+  protected
+
+    def client_key_filename
+      File.join(Chef::Config.keypair_path, "client-#{fullname}.pem")
+    end
+    def write_client_key
+      Chef::Log.debug( "Writing #{@chef_client}' private key to #{client_key_filename}" )
+      File.open(client_key_filename, "w"){|f| f.print( @chef_client.private_key ) }
+    end
+    def read_client_key
+      return unless File.exists?(client_key_filename)
+      key = File.read(client_key_filename).chomp
+      @chef_client.private_key(key)
+      cloud.user_data(:client_key => key)
+      key
+    end
+
+    # Execute the given chef call, but don't explode if the given http status
+    # code comes back
+    #
+    # @return chef object, or false if the server returned a recoverable response
+    def handle_chef_response(action, recoverable_responses, &block)
+      begin
+        block.call
+      rescue Net::HTTPServerException => e
+        raise unless Array(recoverable_responses).include?(e.response.code)
+        Chef::Log.debug("Swallowing a #{e.response.code} response in #{self.fullname}: #{e}")
+        return false
+      end
+    end
+
   end
 end

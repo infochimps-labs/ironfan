@@ -24,8 +24,8 @@ class Chef
     class ClusterBootstrap < ClusterChef::Script
 
       option :ssh_user,
-        :short       => "-x USERNAME",
         :long        => "--ssh-user USERNAME",
+        :short       => "-x USERNAME",
         :description => "The ssh username"
       option :bootstrap_runs_chef_client,
         :long        => "--[no-]bootstrap-runs-chef-client",
@@ -33,8 +33,8 @@ class Chef
         :boolean     => true,
         :default     => true
       option :distro,
-        :short       => "-d DISTRO",
         :long        => "--distro DISTRO",
+        :short       => "-d DISTRO",
         :description => "Bootstrap a distro using a template"
       option :template_file,
         :long        => "--template-file TEMPLATE",

@@ -18,7 +18,7 @@ module ClusterChef
     # Enumerable
     #
     include Enumerable
-    def each &block
+    def each(&block)
       @servers.each(&block)
     end
     def length
@@ -102,7 +102,7 @@ module ClusterChef
     end
 
     def delete_chef
-      delegate_to_servers( :delete_chef )
+      delegate_to_servers( :delete_chef, true )
     end
 
     def sync_roles
@@ -198,19 +198,32 @@ module ClusterChef
       str[0..-2] + " #{@servers.map(&:fullname)}>"
     end
 
+    # Calls block on each server in parallel, each in its own thread
+    #
+    # @example
+    #   target = ClusterChef::Cluster.slice('web_server')
+    #   target.parallelize{|svr| svr.launch }
+    #
+    # @yield each server, in turn
+    #
+    # @return array (in same order as servers) of each block's result
+    def parallelize
+      servers.map{|svr| Thread.new(svr){|svr| yield(svr) } }
+    end
+
   protected
 
     # Helper methods for iterating through the servers to do things
-
+    #
+    # @param [Symbol]  method   -- method to call on each server
+    # @param [Boolean] threaded -- execute each call in own thread
+    #
+    # @return array (in same order as servers) of results for that method
     def delegate_to_servers method, threaded = false
-      if threaded
-        # Execute across all servers in parallel
-        threads = servers.map{|svr| Thread.new(svr) { |s| s.send(method) } }
-        # Wait for the threads to finish and return the array of results
-        threads.map{|t| t.join.value }
-      else
-        # Call the method for each server sequentially
-        # and return the results in an array
+      if threaded  # Call in threads
+        threads = parallelize{|svr| svr.send(method) }
+        threads.map{|t| t.join.value } # Wait, returning array of results
+      else         # Call the method for each server sequentially
         servers.map{|svr| svr.send(method) }
       end
     end

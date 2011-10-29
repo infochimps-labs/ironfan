@@ -61,7 +61,7 @@ module ClusterChef
     end
 
     def in_chef?
-      !! chef_node
+      chef_node || chef_client
     end
 
     def has_cloud_state?(*states)
@@ -72,8 +72,9 @@ module ClusterChef
       created? || in_chef?
     end
 
+    # Server is syncable if it is not bogus (exists in cluster definition)
     def syncable?
-      exists? || (not bogosity)
+      not bogus?
     end
 
     def created?
@@ -129,28 +130,40 @@ module ClusterChef
       cloud.user_data({
           :chef_server            => Chef::Config.chef_server_url,
           :validation_client_name => Chef::Config.validation_client_name,
-          :validation_key         => cloud.validation_key,
+          #
+          :node_name              => fullname,
+          :cluster_name           => cluster_name,
+          :facet_name             => facet_name,
+          :facet_index            => facet_index,
         })
 
+      Chef::Log.debug([ __FILE__, "server resolve!", client_key, cloud.user_data, chef_client ])
+
+      if client_key
+        cloud.user_data({ :client_key     => client_key, })
+      else
+        cloud.user_data({ :validation_key => cloud.validation_key })
+      end
       @settings[:run_list] = (@cluster.run_list + @facet.run_list + self.run_list).uniq
-
-      @settings[:chef_attributes].reverse_merge! @facet.chef_attributes
-      @settings[:chef_attributes].reverse_merge! @cluster.chef_attributes
-      chef_attributes(
-        :run_list => run_list,
-        :node_name => fullname,
-        :cluster_role_index => facet_index,
-        :facet_index => facet_index,
-        :cluster_name => cluster_name,
-        :cluster_role => facet_name,
-        :facet_name   => facet_name,
-        :cluster_chef => {
-          :cluster => cluster_name,
-          :facet => facet_name,
-          :index => facet_index,
-        })
       self
     end
+
+    #
+    # @settings[:chef_attributes].reverse_merge! @facet.chef_attributes
+    # @settings[:chef_attributes].reverse_merge! @cluster.chef_attributes
+    # chef_attributes(
+    #   :run_list => run_list,
+    #   :node_name => fullname,
+    #   :cluster_role_index => facet_index,
+    #   :facet_index => facet_index,
+    #   :cluster_name => cluster_name,
+    #   :cluster_role => facet_name,
+    #   :facet_name   => facet_name,
+    #   :cluster_chef => {
+    #     :cluster => cluster_name,
+    #     :facet => facet_name,
+    #     :index => facet_index,
+    #   })
 
     def composite_volumes
       vols = volumes.dup
@@ -205,15 +218,8 @@ module ClusterChef
       ensure_chef_node
       check_node_permissions
       chef_set_runlist
-      chef_set_attributes
       chef_node.save
       true
-    end
-
-    def delete_chef
-      return unless chef_node
-      chef_node.destroy
-      self.chef_node = nil
     end
 
     # FIXME: a lot of AWS logic in here. This probably lives in the facet.cloud

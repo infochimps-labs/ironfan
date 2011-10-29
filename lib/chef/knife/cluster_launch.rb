@@ -79,8 +79,8 @@ class Chef
         # You must to do this manually in real life -- must save the file, etc.
         if config[:dry_run] then ClusterChef.fog_connection.key_pairs.create(:name => target.cluster.name) ; end
 
-        # This will create/update any roles
-        target.sync_roles
+        # Pre-populate information in chef
+        target.sync_to_chef
 
         # Make security groups
         puts
@@ -92,17 +92,12 @@ class Chef
         puts "Launching machines:"
         target.create_servers
 
-        # This will create/update any roles
-        target.sync_roles
-
         puts
         display(target)
 
         # As each server finishes, configure it
-        watcher_threads = target.map do |s|
-          Thread.new(s) do |cc_server|
-            perform_after_launch_tasks(cc_server)
-          end
+        watcher_threads = target.parallelize do |svr|
+          perform_after_launch_tasks(svr)
         end
 
         progressbar_for_threads(watcher_threads)
@@ -119,9 +114,6 @@ class Chef
       def perform_after_launch_tasks(server)
         # Hook up external assets
         server.create_tags
-
-        # Pre-populate information in chef
-        server.sync_to_chef
 
         # Wait for node creation on amazon side
         server.fog_server.wait_for{ ready? }

@@ -5,8 +5,6 @@
 
 * create chef node for me
 
-  - 
-
 * chef needs to converge twice on hadoop master
 
 * dirs are fucked up under natty beause paths are /dev/xvdi not /dev/sdi
@@ -122,3 +120,67 @@ Revised proposal:
   environments/    
 ```
 
+
+
+
+### The cloud statement needs rethunk
+
+tl;dr -- A bare `cloud` statement is meaningless. Given that the only cloud we currently allow is EC2, I propose we remove the `cloud` directive (`cloud.flavor('t1.micro')`) in favor of `ec2` (`ec2.flavor('t1.micro')`).
+
+Since everywhere we currently say `cloud` we really mean `ec2`, I'd like to not deprecate the term but remove it -- breaking any script that currently calls it.
+
+If you don't like that idea, speak up now
+
+____________________
+
+The `cloud` statement is intended to let me say "Here, friends, is the platonic ideal of an industrial-strength hadoop cluster, wheresoever you are.  Should you find yourself in Rackspace, apply that ideal on various components sized thusly; if instead, EC2, on components sized like this."
+
+We use the terms that fog very nicely provides for describing aspects of a machine (flavor, image_name, etc), so that if you say `cloud.flavor('whatever')` the code to apply that directive is shared across providers.
+
+The DSL looks like this:
+
+```ruby
+  # no cloud specified
+  cloud do
+    flavor 'c1.medium'
+    elastic_ip '123.45.67.89'
+  end
+
+  # an equivalent way of doing the above
+  cloud.flavor 'c1.medium'
+  cloud.elastic_ip '123.45.67.89'
+
+  cloud(:ec2) do
+    flavor 'c1.medium'
+    elastic_ip '123.45.67.89'
+   end
+
+  cloud(:ec2).flavor 'c1.medium'         # (yuck)
+  cloud(:ec2).elastic_ip '123.45.67.89'
+```
+
+The idea was that with a bare `cloud` statement you would say "Here's generic description of cloud shape", vs `cloud(:ec2)` defining "Here's specifics if the cluster is launched on EC2".
+
+Now: most things on the left are generic across clouds. The rest are typically harmless even if the cloud doesn't handle them.
+
+However! almost everything that you'd put on the *right* of those is *not* cloud-agnostic. Even things like 'elastic_ip' seem global but of course only exist in the cloud that owns it.
+
+This shows that a generic 'cloud' statement doesn't make any sense, and while we have the chance to make breaking changes I'd like to delete it.
+
+Instead, we define directives `ec2` (and so on for other cloud providers). Each provider's class inherits from cloud (and so can be decorated with things that only make sense on that cloud). 
+
+```ruby
+  ec2.flavor 'c1.medium' 
+  ec2.elastic_ip '123.45.67.89'
+  
+  rackspace.flavor     '1024MB'
+  rackspace.image_name 'rs_maverick'
+
+  vagrant do
+    vfs_path '/disk2/vagrants/gibbon'
+  end
+```
+
+Since everywhere we currently say `cloud` we really mean `ec2`, it's a simple regex-replace. So I'd like to not deprecate the term but remove it -- breaking any script that currently calls it. This will also help isolate the provider-specific stuff in the cluster_chef tools (though it's the cookbooks that need the real de-linting).
+
+If you don't like the idea of breakage, speak up now.

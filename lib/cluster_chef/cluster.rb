@@ -36,7 +36,6 @@ module ClusterChef
       @cluster_role.instance_eval( &block ) if block_given?
       @cluster_role
     end
-    def main_role(&block) ; cluster_role(&block) ; end
 
     #
     # Retrieve or define the given facet
@@ -93,7 +92,6 @@ module ClusterChef
     def reverse_merge! other_cluster
       @settings.reverse_merge! other_cluster.to_hash
       @settings[:run_list] += other_cluster.run_list
-      @settings[:chef_attributes].reverse_merge! other_cluster.chef_attributes
       cloud.reverse_merge! other_cluster.cloud
       self
     end
