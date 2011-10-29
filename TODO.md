@@ -120,9 +120,6 @@ Revised proposal:
   environments/    
 ```
 
-
-
-
 ### The cloud statement needs rethunk
 
 tl;dr -- A bare `cloud` statement is meaningless. Given that the only cloud we currently allow is EC2, I propose we remove the `cloud` directive (`cloud.flavor('t1.micro')`) in favor of `ec2` (`ec2.flavor('t1.micro')`).
@@ -182,5 +179,3 @@ Instead, we define directives `ec2` (and so on for other cloud providers). Each 
 ```
 
 Since everywhere we currently say `cloud` we really mean `ec2`, it's a simple regex-replace. So I'd like to not deprecate the term but remove it -- breaking any script that currently calls it. This will also help isolate the provider-specific stuff in the cluster_chef tools (though it's the cookbooks that need the real de-linting).
-
-If you don't like the idea of breakage, speak up now.

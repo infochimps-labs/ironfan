@@ -19,8 +19,6 @@
 
 Roles define the high-level assembly of recipes into systems
 
-* 
-
 * override attributes go into the cluster.
 currently, those files are typically empty and are badly cluttering the roles/ directory.
 the cluster and facet override attributes should be together, not scattered in different files.
@@ -29,7 +27,6 @@ roles shouldn't assemble systems. The contents of the infochimps_chef/roles/plat
 * Deprecated: 
   - Cluster and facet roles (`roles/gibbon_cluster.rb`, `roles/gibbon_namenode.rb`, etc) go away
   - roles should be service-oriented: `hadoop_master` considered harmful, you should explicitly enumerate the services
-  
   
 ## Cookbooks
 
@@ -55,6 +52,4 @@ roles shouldn't assemble systems. The contents of the infochimps_chef/roles/plat
 
 * Attribute file named ???? (which is the prefered name?)
  
-
-
 
