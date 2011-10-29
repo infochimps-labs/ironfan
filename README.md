@@ -73,7 +73,7 @@ With these simple settings, if you have already [set up chef's knife to launch c
 * Syncronizes to the cloud provider:
   - Applies EC2 tags to the machine, so that you 
   
-  ![AWS Console screenshot](http://github.com/infochimps/cluster_chef/tree/version_3/notes/)
+  ![AWS Console screenshot](https://github.com/infochimps/cluster_chef/raw/version_3/notes/aws_console_screenshot.jpg)
 
 
 ```ruby
