@@ -82,9 +82,9 @@ describe ClusterChef::Server do
         user_data_hsh = JSON.parse( hsh[:user_data] )
         user_data_hsh.keys.should == ["chef_server", "validation_client_name", "validation_key", "attributes"]
         user_data_hsh["attributes"].keys.sort.should == [
-          "cluster_chef", "cluster_name", "cluster_role", "cluster_role_index",
-          "facet_index", "facet_name", "node_name",
-          "run_list", "webnode_count",
+          "cluster_name", "facet_name", "facet_index",
+          "node_name",
+          "webnode_count",
         ]
       end
     end

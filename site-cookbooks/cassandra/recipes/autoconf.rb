@@ -69,8 +69,8 @@ all_seeds  = [private_ip_of(node), all_seeds] if (all_seeds.length < 2)
 node[:cassandra][:seeds] = all_seeds.flatten.compact.uniq.sort
 
 # Pull the initial token from the cassandra data bag if one is given
-if node[:cassandra][:initial_tokens] && (not node[:cluster_role_index].nil?)
-  node[:cassandra][:initial_token] = node[:cassandra][:initial_tokens][node[:cluster_role_index].to_i]
+if node[:cassandra][:initial_tokens] && (not node[:facet_index].nil?)
+  node[:cassandra][:initial_token] = node[:cassandra][:initial_tokens][node[:facet_index].to_i]
 end
 # If there is an initial token, force auto_bootstrap to false.
 node[:cassandra][:auto_bootstrap] = false if node[:cassandra][:initial_token]

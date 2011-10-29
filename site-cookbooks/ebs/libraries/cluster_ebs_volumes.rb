@@ -1,7 +1,7 @@
 module ClusterEbsVolumes
   # ebs volume mapping for this node
   def cluster_ebs_volumes
-    all_cluster_volumes[node[:cluster_role].to_s][node[:cluster_role_index].to_i] rescue []
+    all_cluster_volumes[node[:facet_name].to_s][node[:facet_index].to_i] rescue []
   end
 
   # all ebs volumes for this cluster
@@ -12,8 +12,8 @@ module ClusterEbsVolumes
   def log_cluster_volume_info desc
     Chef::Log.info [
       desc,
-      node[:cluster_name],       node[:cluster_role],
-      node[:cluster_role_index], node[:ec2][:ami_launch_index],
+      node[:cluster_name],       node[:facet_name],
+      node[:facet_index], node[:ec2][:ami_launch_index],
       all_cluster_volumes, cluster_ebs_volumes,
     ].inspect
   end
@@ -33,4 +33,3 @@ end
 class Chef::Recipe ;              include ClusterEbsVolumes ; end
 class Chef::Resource::Directory ; include ClusterEbsVolumes ; end
 class Chef::Resource             ; include ClusterEbsVolumes ; end
-

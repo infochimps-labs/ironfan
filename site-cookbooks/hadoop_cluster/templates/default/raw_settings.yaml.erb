@@ -2,8 +2,8 @@
 # This file just shows the attributes chef used to configure the cluster
 
 :cluster_name:             <%= node[:cluster_name]                  %>
-:cluster_role:             <%= node[:cluster_role]                  %>
-:cluster_role_index:       <%= node[:cluster_role_index]            %>
+:facet_name:               <%= node[:facet_name]                    %>
+:facet_index:              <%= node[:facet_index]                   %>
 
 :hadoop_handle:            <%= node[:hadoop][:hadoop_handle]        %>
 :cdh_version:              <%= node[:hadoop][:cdh_version]          %>
@@ -23,7 +23,6 @@
 
 :namenode_address:         <%= @namenode_address                    %>            
 :jobtracker_address:       <%= @jobtracker_address                  %>
-
 
 <%- memory_in_bytes = node[:memory][:total].gsub(/kB$/, '').to_i * 1024 %>
 :n_cpus:                   <%= node[:cpu][:total] %>

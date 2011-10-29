@@ -21,7 +21,7 @@ describe "cluster_chef" do
           :name            => :demoweb,
           :run_list        => ["role[base_role]", "role[chef_client]", "role[ssh]", "role[nfs_client]", "role[big_package]", "role[demoweb_cluster]"],
           :chef_attributes => { :webnode_count => 6 },
-          :cluster_role    => "demoweb_cluster",
+          :facet_name    => "demoweb_cluster",
         }
       end
 
@@ -145,13 +145,12 @@ describe "cluster_chef" do
           @server.to_hash.should == {
             :name            => 'demoweb-webnode-5',
             :run_list        => ["role[base_role]", "role[chef_client]", "role[ssh]", "role[nfs_client]", "role[big_package]", "role[demoweb_cluster]", "role[nginx]", "role[redis_client]", "role[mysql_client]", "role[elasticsearch_client]", "role[awesome_website]", "role[demoweb_webnode]"],
-            :cluster_role => "demoweb_cluster", :facet_role => "demoweb_webnode", :instances => 6,
+            :instances => 6,
             :chef_attributes => {
               :split_testing  => {:group=>"B"},
               :webnode_count  => 6,
-              :run_list       => ["role[base_role]", "role[chef_client]", "role[ssh]", "role[nfs_client]", "role[big_package]", "role[demoweb_cluster]", "role[nginx]", "role[redis_client]", "role[mysql_client]", "role[elasticsearch_client]", "role[awesome_website]", "role[demoweb_webnode]"],
-              :node_name      => "demoweb-webnode-5", :cluster_name => :demoweb, :cluster_role => :webnode, :facet_name => :webnode, :cluster_role_index => 5, :facet_index => 5,
-              :cluster_chef   => { :cluster => :demoweb, :facet => :webnode, :index => 5 },
+              :node_name      => "demoweb-webnode-5",
+              :cluster_name => :demoweb, :facet_name => :webnode, :facet_index => 5,
             },
           }
         end
