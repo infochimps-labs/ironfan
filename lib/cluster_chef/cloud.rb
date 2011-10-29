@@ -2,38 +2,60 @@ module ClusterChef
   module Cloud
     class Base < ClusterChef::DslObject
       has_keys( :name, :flavor, :image_name, :image_id, :keypair, :chef_client_script )
+      attr_accessor :owner
+
+      def initialize(owner, *args)
+        self.owner = owner
+        super(*args)
+      end
 
       # The username to ssh with.
       # @return the ssh_user if set explicitly; otherwise, the user implied by the image name, if any; or else 'root'
-      def ssh_user val=nil
+      def ssh_user(val=nil)
         from_setting_or_image_info :ssh_user, val, 'root'
       end
 
-      # The directory holding
-      def ssh_identity_dir val=nil
+      # Location of ssh private keys
+      def ssh_identity_dir(val=nil)
         set :ssh_identity_dir, File.expand_path(val) unless val.nil?
         @settings.include?(:ssh_identity_dir) ? @settings[:ssh_identity_dir] : Chef::Config.keypair_path
       end
 
-      # The SSH identity file used for authentication
-      def ssh_identity_file val=nil
+      # SSH identity file used for knife ssh, knife boostrap and such
+      def ssh_identity_file(val=nil)
         set :ssh_identity_file, File.expand_path(val) unless val.nil?
         @settings.include?(:ssh_identity_file) ? @settings[:ssh_identity_file] : File.join(ssh_identity_dir, "#{keypair}.pem")
       end
 
-      # The ID of the image to use.
+      # ID of the machine image to use.
       # @return the image_id if set explicitly; otherwise, the id implied by the image name
-      def image_id val=nil
+      def image_id(val=nil)
         from_setting_or_image_info :image_id, val
       end
 
-      # The distribution knife should target when bootstrapping an instance
+      # Distribution knife should target when bootstrapping an instance
       # @return the bootstrap_distro if set explicitly; otherwise, the bootstrap_distro implied by the image name
-      def bootstrap_distro val=nil
+      def bootstrap_distro(val=nil)
         from_setting_or_image_info :bootstrap_distro, val, "ubuntu10.04-gems"
       end
 
-      def from_setting_or_image_info key, val=nil, default=nil
+      def validation_key
+        IO.read(Chef::Config.validation_key) rescue ''
+      end
+
+      # The instance price, drawn from the compute flavor's info
+      def price
+        flavor_info[:price]
+      end
+
+      # The instance bitness, drawn from the compute flavor's info
+      def bits
+        flavor_info[:bits]
+      end
+
+    protected
+      # If value was explicitly set, use that; if the IMAGE_INFO implies a value use that; otherwise use the default
+      def from_setting_or_image_info(key, val=nil, default=nil)
         @settings[key] = val unless val.nil?
         return @settings[key]  if @settings.include?(key)
         return image_info[key] unless image_info.nil?
@@ -48,7 +70,7 @@ module ClusterChef
         :monitoring
         )
 
-      def initialize *args
+      def initialize(*args)
         super *args
         @settings[:security_groups]      ||= Mash.new
         @settings[:user_data]            ||= Mash.new
@@ -57,22 +79,12 @@ module ClusterChef
       # An alias for disable_api_termination. Prevents the instance from being
       # terminated without flipping its disable_api_termination attribute back
       # to false
-      def permanent val=nil
+      def permanent(val=nil)
         set :disable_api_termination, val
       end
 
-      # The instance price, drawn from the compute flavor's info
-      def price
-        flavor_info[:price]
-      end
-
-      # The instance bitness, drawn from the compute flavor's info
-      def bits
-        flavor_info[:bits]
-      end
-
       # adds a security group to the cloud instance
-      def security_group sg_name, hsh={}, &block
+      def security_group(sg_name, hsh={}, &block)
         sg_name = sg_name.to_s
         security_groups[sg_name] ||= ClusterChef::Cloud::SecurityGroup.new(self, sg_name)
         security_groups[sg_name].configure(hsh, &block)
@@ -82,7 +94,7 @@ module ClusterChef
       # With a value, sets the spot price to the given fraction of the
       #   instance's full price (as found in ClusterChef::Cloud::Aws::FLAVOR_INFO)
       # With no value, returns the spot price as a fraction of the full instance price.
-      def spot_price_fraction val=nil
+      def spot_price_fraction(val=nil)
         if val
           spot_price( price.to_f * val )
         else
@@ -90,73 +102,76 @@ module ClusterChef
         end
       end
 
-      def validation_key
-        IO.read(Chef::Config.validation_key) rescue ''
-      end
-
-      # When given a hash, merge with the existing user data
-      def user_data hsh={}
-        unless hsh.empty?
-          @settings[:user_data].merge! hsh
-        end
+      # EC2 User data -- DNA typically used to bootstrap the machine.
+      # @param  [Hash] value -- when present, merged with the existing user data (overriding it)
+      # @return the user_data hash
+      def user_data(hsh={})
+        @settings[:user_data].merge!(hsh) unless hsh.empty?
         @settings[:user_data]
       end
 
-      def reverse_merge! cloud
-        @settings.reverse_merge! cloud.to_hash.compact
-        return self unless cloud.respond_to?(:security_groups)
-        @settings[:security_groups].reverse_merge!(cloud.security_groups)
-        @settings[:user_data].reverse_merge!(cloud.user_data)
-      end
-
-      def resolve! cloud
-        reverse_merge! cloud
-        resolve_region!
+      def reverse_merge!(hsh)
+        super(hsh.to_hash.compact)
+        @settings[:security_groups].reverse_merge!(hsh.security_groups) if hsh.respond_to?(:security_groups)
+        @settings[:user_data      ].reverse_merge!(hsh.user_data)       if hsh.respond_to?(:user_data)
         self
       end
 
-      def resolve_region!
-        region default_availability_zone.gsub(/^(\w+-\w+-\d)[a-z]/, '\1') if !region && availability_zones.respond_to?(:first)
+      def region(val=nil)
+        set(:region, val)
+        if    @settings[:region]        then @settings[:region]
+        elsif default_availability_zone then default_availability_zone.gsub(/^(\w+-\w+-\d)[a-z]/, '\1')
+        else  nil
+        end
       end
 
       def default_availability_zone
         availability_zones.first if availability_zones
       end
 
+      # Bring the ephemeral storage (local scratch disks) online
+      def mount_ephemerals
+        owner.volume(:ephemeral0){ device '/dev/sdb'; volume_id 'ephemeral0' } if flavor_info[:ephemeral_volumes] > 0
+        owner.volume(:ephemeral1){ device '/dev/sdc'; volume_id 'ephemeral1' } if flavor_info[:ephemeral_volumes] > 1
+        owner.volume(:ephemeral2){ device '/dev/sdd'; volume_id 'ephemeral2' } if flavor_info[:ephemeral_volumes] > 2
+        owner.volume(:ephemeral3){ device '/dev/sde'; volume_id 'ephemeral3' } if flavor_info[:ephemeral_volumes] > 3
+      end
+
       # Utility methods
 
       def image_info
-        IMAGE_INFO[ [region, bits, backing, image_name] ] or warn "Make sure to define the machine's region, bits, backing and image_name. (Have #{[region, bits, backing, image_name].inspect})"
+        IMAGE_INFO[ [region, bits, backing, image_name] ] or Chef::Log.warn "Make sure to define the machine's region, bits, backing and image_name. (Have #{[region, bits, backing, image_name].inspect})"
       end
 
       def flavor_info
         FLAVOR_INFO[ flavor ] || {} # or raise "Please define the machine's flavor."
       end
 
-      # code            $/hr    $/mo    $/day   CPU/$   Mem/$    mem    cpu     cores   cpcore  storage  bits   IO              type            name                    approx spot$
-      # t1.micro        $0.02     14     0.48   10.00   33.50    0.67    0.2    1        0.2       0       64   Low             Micro           Micro                   $...    ...
-      # m1.small        $0.085    61     2.04   11.76   20.00    1.7     1      1        1       160       32   Moderate        Standard        Small                   $0.03   35%
-      # c1.medium       $0.17    123     4.08   29.41   10.00    1.7     5      2        2.5     350       32   Moderate        High-CPU        Medium                  $0.061  36%
-      # m1.large        $0.34    246     8.16   11.76   22.06    7.5     4      2        2       850       64   High            Standard        Large                   $0.117  34%
-      # m2.xlarge       $0.50    363    12.00   13.00   35.40   17.7     6.5    2        3.25    420       64   Moderate        High-Memory     Extra Large             $0.178  36%
-      # c1.xlarge       $0.68    493    16.32   29.41   10.29    7      20      8        2.5    1690       64   High            High-CPU        Extra Large             $0.228  34%
-      # m1.xlarge       $0.68    493    16.32   11.76   22.06   15       8      4        2      1690       64   High            Standard        Extra Large             $0.243  36%
-      # m2.2xlarge      $1.00    726    24.00   13.00   34.20   34.2    13      4        3.25    850       64   High            High-Memory     Double Extra Large      $0.409  34%
-      # m2.4xlarge      $2.00   1452    48.00   13.00   34.20   68.4    26      8        3.25   1690       64   High            High-Memory     Quadruple Extra Large   $0.814  34%
+      # code            $/hr    $/mo    $/day   CPU/$   Mem/$    mem    cpu     cores   cpcore  storage  bits   IO              type            name
+      # t1.micro        $0.02     14     0.48   10.00   33.50    0.67    0.2    1        0.2       0       64   Low             Micro           Micro
+      # m1.small        $0.085    61     2.04   11.76   20.00    1.7     1      1        1       160       32   Moderate        Standard        Small
+      # c1.medium       $0.17    123     4.08   29.41   10.00    1.7     5      2        2.5     350       32   Moderate        High-CPU        Medium
+      # m1.large        $0.34    246     8.16   11.76   22.06    7.5     4      2        2       850       64   High            Standard        Large
+      # m2.xlarge       $0.50    363    12.00   13.00   35.40   17.7     6.5    2        3.25    420       64   Moderate        High-Memory     Extra Large
+      # c1.xlarge       $0.68    493    16.32   29.41   10.29    7      20      8        2.5    1690       64   High            High-CPU        Extra Large
+      # m1.xlarge       $0.68    493    16.32   11.76   22.06   15       8      4        2      1690       64   High            Standard        Extra Large
+      # m2.2xlarge      $1.00    726    24.00   13.00   34.20   34.2    13      4        3.25    850       64   High            High-Memory     Double Extra Large
+      # m2.4xlarge      $2.00   1452    48.00   13.00   34.20   68.4    26      8        3.25   1690       64   High            High-Memory     Quadruple Extra Large
       # cc1.4xlarge     $1.60   1161    38.40   20.94   14.38   23      33.5    2       16.75   1690       64   Very High 10GB  Compute         Quadruple Extra Large
-
+      # cg1.4xlarge     $2.10   1524    50.40   15.95   10.48   22      33.5    2       16.75   1690       64   Very High 10GB  Cluster GPU     Quadruple Extra Large
 
       FLAVOR_INFO = {
-        't1.micro'    => { :price => 0.02,  :bits => '64-bit', :ram =>    686, :cores => 1, :core_size => 0.25, :inst_disks => 0, :inst_disk_size => 0,   },
-        'm1.small'    => { :price => 0.085, :bits => '32-bit', :ram =>   1740, :cores => 1, :core_size => 1,    :inst_disks => 1, :inst_disk_size => 160, },
-        'c1.medium'   => { :price => 0.17,  :bits => '32-bit', :ram =>   1740, :cores => 2, :core_size => 2.5,  :inst_disks => 1, :inst_disk_size => 350, },
-        'm1.large'    => { :price => 0.34,  :bits => '64-bit', :ram =>   7680, :cores => 2, :core_size => 2,    :inst_disks => 2, :inst_disk_size => 420, },
-        'm2.xlarge'   => { :price => 0.50,  :bits => '64-bit', :ram =>  18124, :cores => 2, :core_size => 3.25, :inst_disks => 1, :inst_disk_size => 420, },
-        'c1.xlarge'   => { :price => 0.68,  :bits => '64-bit', :ram =>   7168, :cores => 8, :core_size => 2.5,  :inst_disks => 4, :inst_disk_size => 420, },
-        'm1.xlarge'   => { :price => 0.68,  :bits => '64-bit', :ram =>  15360, :cores => 4, :core_size => 2,    :inst_disks => 4, :inst_disk_size => 420, },
-        'm2.2xlarge'  => { :price => 1.00,  :bits => '64-bit', :ram =>  35020, :cores => 4, :core_size => 3.25, :inst_disks => 2, :inst_disk_size => 420, },
-        'm2.4xlarge'  => { :price => 2.00,  :bits => '64-bit', :ram =>  70041, :cores => 8, :core_size => 3.25, :inst_disks => 4, :inst_disk_size => 420, },
-        'cc1.4xlarge' => { :price => 1.60,  :bits => '64-bit', :ram =>  23552, :cores => 2, :core_size =>16.75, :inst_disks => 4, :inst_disk_size => 420, },
+        't1.micro'    => { :price => 0.02,  :bits => '64-bit', :ram =>    686, :cores => 1, :core_size => 0.25, :inst_disks => 0, :inst_disk_size =>    0, :ephemeral_volumes => 0 },
+        'm1.small'    => { :price => 0.085, :bits => '32-bit', :ram =>   1740, :cores => 1, :core_size => 1,    :inst_disks => 1, :inst_disk_size =>  160, :ephemeral_volumes => 1 },
+        'c1.medium'   => { :price => 0.17,  :bits => '32-bit', :ram =>   1740, :cores => 2, :core_size => 2.5,  :inst_disks => 1, :inst_disk_size =>  350, :ephemeral_volumes => 1 },
+        'm1.large'    => { :price => 0.34,  :bits => '64-bit', :ram =>   7680, :cores => 2, :core_size => 2,    :inst_disks => 2, :inst_disk_size =>  850, :ephemeral_volumes => 2 },
+        'm2.xlarge'   => { :price => 0.50,  :bits => '64-bit', :ram =>  18124, :cores => 2, :core_size => 3.25, :inst_disks => 1, :inst_disk_size =>  420, :ephemeral_volumes => 1 },
+        'c1.xlarge'   => { :price => 0.68,  :bits => '64-bit', :ram =>   7168, :cores => 8, :core_size => 2.5,  :inst_disks => 4, :inst_disk_size => 1690, :ephemeral_volumes => 4 },
+        'm1.xlarge'   => { :price => 0.68,  :bits => '64-bit', :ram =>  15360, :cores => 4, :core_size => 2,    :inst_disks => 4, :inst_disk_size => 1690, :ephemeral_volumes => 4 },
+        'm2.2xlarge'  => { :price => 1.00,  :bits => '64-bit', :ram =>  35020, :cores => 4, :core_size => 3.25, :inst_disks => 2, :inst_disk_size =>  850, :ephemeral_volumes => 2 },
+        'm2.4xlarge'  => { :price => 2.00,  :bits => '64-bit', :ram =>  70041, :cores => 8, :core_size => 3.25, :inst_disks => 4, :inst_disk_size => 1690, :ephemeral_volumes => 4 },
+        'cc1.4xlarge' => { :price => 1.60,  :bits => '64-bit', :ram =>  23552, :cores => 2, :core_size =>16.75, :inst_disks => 4, :inst_disk_size => 1690, :ephemeral_volumes => 2 },
+        'cg1.4xlarge' => { :price => 2.10,  :bits => '64-bit', :ram =>  22528, :cores => 2, :core_size =>16.75, :inst_disks => 4, :inst_disk_size => 1690, :ephemeral_volumes => 2 },
       }
 
       IMAGE_INFO =  {
@@ -257,9 +272,10 @@ module ClusterChef
         %w[us-east-1             64-bit  ebs             infochimps-maverick-client     ] => { :image_id => 'ami-6802f901', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # infochimps.chef-client.maverick.east.ebs-64bit-20110703c
         # %w[us-east-1           64-bit  instance        infochimps-maverick-client     ] => { :image_id => '',             :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, #
 
-        # %w[us-east-1             32-bit  ebs             mrflip-maverick-client     ] => { :image_id => 'ami-f4f6069d', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.10-cluster_chef", }, # mrflip.chef-client.maverick.east.ebs-32bit-20110124
-      }
+        # %w[us-east-1           32-bit  ebs             mrflip-maverick-client     ] => { :image_id => 'ami-f4f6069d', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.10-cluster_chef", }, # mrflip.chef-client.maverick.east.ebs-32bit-20110124
 
+        %w[us-east-1             64-bit  ebs             mrflip-natty                 ] => { :image_id => 'ami-199b5470', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-cluster_chef", }, #
+      }
     end
 
     class Slicehost < Base

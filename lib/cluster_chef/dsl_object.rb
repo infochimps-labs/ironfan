@@ -69,20 +69,23 @@ module ClusterChef
       "<#{self.class} #{to_hash.inspect}>"
     end
 
-    def reverse_merge! hsh
+    def reverse_merge!(hsh)
       @settings.reverse_merge!(hsh.to_hash)
     end
 
-    def configure hsh={}, &block
+    def configure(hsh={}, &block)
       @settings.merge!(hsh.to_hash)
       instance_eval(&block) if block
       self
     end
 
     # helper method for bombing out of a script
-    def die(*args)            ClusterChef.die(*args)            ; end
+    def die(*args) ClusterChef.die(*args) ; end
 
     # helper method for turning exceptions into warnings
     def safely(*args, &block) ClusterChef.safely(*args, &block) ; end
+
+    # helper method for debugging only
+    def dump(*args) args.each{|arg| Chef::Log.debug( [caller.first, arg].inspect ) } end
   end
 end

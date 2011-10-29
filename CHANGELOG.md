@@ -29,6 +29,10 @@ The following behaviors have been removed:
 
 * `chef_attributes` -- **BREAKING** replaced by `facet_role.override_attributes`, `facet_role.default_attributes` (or those methods on `cluster_role`.)
 
+* `cluster_role_implication` -- **BREAKING** now called role_implications, brought in by default.
+
+* `cluster.mounts_ephemeral_volumes` is now `cloud.mount_ephemerals`; it is not done by default.
+
 ### Knife Changes
 
 Several knife scripts saw name changes to their params. If you have external scripts that call `knife cluster XXX` please update them. No futher changes to parameters are expected.

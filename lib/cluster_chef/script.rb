@@ -1,1 +1,0 @@
-require 'cluster_chef'

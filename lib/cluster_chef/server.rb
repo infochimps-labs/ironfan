@@ -21,19 +21,13 @@ module ClusterChef
         "cluster" => cluster_name,
         "facet"   => facet_name,
         "index"   => facet_index }
-      warn("Duplicate server #{[self, facet.name, idx]} vs #{@@all[fullname]}") if @@all[fullname]
+      Chef::Log.warn("Duplicate server #{[self, facet.name, idx]} vs #{@@all[fullname]}") if @@all[fullname]
       @@all[fullname] = self
     end
 
     def fullname name=nil
       @fullname ||= name
       @fullname || [cluster_name, facet_name, facet_index].join('-')
-    end
-
-    # <b>DEPRECATED:</b> Please use <tt>fullname</tt> instead.
-    def chef_node_name name
-      # warn "[DEPRECATION] `chef_node_name` is deprecated.  Please use `fullname` instead."
-      fullname name
     end
 
     def cluster_name
@@ -109,10 +103,6 @@ module ClusterChef
     # Attributes
     #
 
-    def security_groups
-      cloud.security_groups.merge(facet.security_groups)
-    end
-
     def tag key, value=nil
       if value then @tags[key] = value ; end
       @tags[key]
@@ -122,11 +112,13 @@ module ClusterChef
     # Resolve:
     #
     def resolve!
-      @settings.reverse_merge! facet.to_hash
-      @settings.reverse_merge! cluster.to_hash
-
-      cloud.resolve! facet.cloud
-      cloud.resolve! cluster.cloud
+      @settings.reverse_merge!(facet.to_hash)
+      @settings.reverse_merge!(cluster.to_hash)
+      @settings[:run_list] = (@cluster.run_list + @facet.run_list + self.run_list).uniq
+      #
+      cloud.reverse_merge!(facet.cloud)
+      cloud.reverse_merge!(cluster.cloud)
+      #
       cloud.user_data({
           :chef_server            => Chef::Config.chef_server_url,
           :validation_client_name => Chef::Config.validation_client_name,
@@ -136,32 +128,17 @@ module ClusterChef
           :facet_name             => facet_name,
           :facet_index            => facet_index,
         })
-
-      if client_key
-        cloud.user_data({ :client_key     => client_key, })
-      else
-        cloud.user_data({ :validation_key => cloud.validation_key })
-      end
-      @settings[:run_list] = (@cluster.run_list + @facet.run_list + self.run_list).uniq
+      #
+      if client_key then cloud.user_data({ :client_key     => client_key, })
+      else               cloud.user_data({ :validation_key => cloud.validation_key }) ; end
+      #
+      cloud.keypair(cluster_name) if cloud.keypair.nil?
+      #
+      [self, @cluster, @cluster.cloud, @facet, @facet.cloud, @cloud].each{|o| Chef::Log.debug( [ "after resolve!", o, o.to_hash ].inspect ) }
+      Chef::Log.debug(["region: #{cloud.region}", @cluster.cloud.availability_zones, @facet.cloud.availability_zones, self.cloud.availability_zones,] )
+      #
       self
     end
-
-    #
-    # @settings[:chef_attributes].reverse_merge! @facet.chef_attributes
-    # @settings[:chef_attributes].reverse_merge! @cluster.chef_attributes
-    # chef_attributes(
-    #   :run_list => run_list,
-    #   :node_name => fullname,
-    #   :cluster_role_index => facet_index,
-    #   :facet_index => facet_index,
-    #   :cluster_name => cluster_name,
-    #   :cluster_role => facet_name,
-    #   :facet_name   => facet_name,
-    #   :cluster_chef => {
-    #     :cluster => cluster_name,
-    #     :facet => facet_name,
-    #     :index => facet_index,
-    #   })
 
     def composite_volumes
       vols = volumes.dup
@@ -267,7 +244,7 @@ module ClusterChef
       return unless thing && thing.server_id && self.in_cloud?
       type_of_thing = thing.class.to_s.gsub(/.*::/,"")
       if thing.server_id != self.fog_server.id
-        warn "#{type_of_thing} mismatch: #{desc} is on #{thing.server_id} not #{self.fog_server.id}: #{thing.inspect.gsub(/\s+/m,' ')}"
+        Chef::Log.warn "#{type_of_thing} mismatch: #{desc} is on #{thing.server_id} not #{self.fog_server.id}: #{thing.inspect.gsub(/\s+/m,' ')}"
         false
       else
         Chef::Log.debug("#{type_of_thing} paired: #{desc}")

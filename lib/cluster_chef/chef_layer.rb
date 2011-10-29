@@ -102,7 +102,7 @@ module ClusterChef
       err_message = "You've found yourself in a situation where the #{fullname} client exists, \nbut you don't have access to its client key. \nYou need to either fix its permissions in the Chef console, or (if you are aware of the terrible consequences) do \nknife client delete #{fullname}"
       response = handle_chef_response(@chef_node, '409') do
         unless File.exists?(client_key_filename)
-          warn "Cannot create chef node #{fullname} -- no client key found in #{client_key_filename}."
+          Chef::Log.warn "Cannot create chef node #{fullname} -- no client key found in #{client_key_filename}."
           raise(err_message)
         end
         chef_server_rest = Chef::REST.new(Chef::Config[:chef_server_url], fullname, client_key_filename)
@@ -110,8 +110,8 @@ module ClusterChef
           chef_server_rest.post_rest('nodes', @chef_node)
         rescue Net::HTTPServerException => e
           if e.response.code == '401'
-            warn "Cannot create chef node #{fullname} -- client key #{client_key_filename} no longer valid."
-            warn(err_message)
+            Chef::Log.warn "Cannot create chef node #{fullname} -- client key #{client_key_filename} no longer valid."
+            Chef::Log.warn(err_message)
           end
           raise
         end

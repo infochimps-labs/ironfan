@@ -4,13 +4,13 @@ module ClusterChef
   #
   class ComputeBuilder < ClusterChef::DslObject
     attr_reader :cloud, :volumes, :chef_roles
-    has_keys :name, :run_list, :cloud, :bogosity
+    has_keys :name, :run_list, :bogosity
     @@role_implications ||= Mash.new
 
     def initialize(builder_name, attrs={})
       super(attrs)
       set :name, builder_name
-      @settings[:run_list]        ||= []
+      @settings[:run_list] ||= []
       @volumes = Mash.new
     end
 
@@ -35,7 +35,7 @@ module ClusterChef
     #
     def cloud(cloud_provider=nil, attrs={}, &block)
       raise "Only have ec2 so far" if cloud_provider && (cloud_provider != :ec2)
-      @cloud ||= ClusterChef::Cloud::Ec2.new
+      @cloud ||= ClusterChef::Cloud::Ec2.new(self)
       @cloud.configure(attrs, &block)
       @cloud
     end
@@ -66,23 +66,14 @@ module ClusterChef
       volume(:root, attrs, &block)
     end
 
-    # FIXME: this should be in cloud, and should be done right.
-    def mounts_ephemeral_volumes
-      # Bring the ephemeral storage (local scratch disks) online
-      volume(:ephemeral0) do device '/dev/sdb'; volume_id 'ephemeral0' ; end
-      volume(:ephemeral1) do device '/dev/sdc'; volume_id 'ephemeral1' ; end
-      volume(:ephemeral2) do device '/dev/sdd'; volume_id 'ephemeral2' ; end
-      volume(:ephemeral3) do device '/dev/sde'; volume_id 'ephemeral3' ; end
-    end
-
+    #
     # Adds the given role to the run list, and invokes any role_implications it
-    # implies (for instance, the 'ssh' role on an ec2 machine requires port 22
-    # be explicity opened.)
+    # implies (for instance, defining and applying the 'ssh' security group if
+    # the 'ssh' role is applied.)
     #
     def role(role_name)
       run_list << "role[#{role_name}]"
       run_list.uniq!
-      @settings[:run_list] << "role[#{role_name}]"
       self.instance_eval(&@@role_implications[role_name]) if @@role_implications[role_name]
     end
 
@@ -92,11 +83,15 @@ module ClusterChef
       run_list.uniq!
     end
 
+    #
     # Some roles imply aspects of the machine that have to exist at creation.
     # For instance, on an ec2 machine you may wish the 'ssh' role to imply a
     # security group explicity opening port 22.
     #
-    def self.role_implication name, &block
+    # @param [String] role_name -- the role that triggers the block
+    # @yield block will be instance_eval'd in the object that calls 'role'
+    #
+    def self.role_implication(name, &block)
       @@role_implications[name] = block
     end
 

@@ -7,9 +7,10 @@ module ClusterChef
       super(facet_name.to_sym, attrs)
       @cluster    = cluster
       @servers    = Mash.new
-      @settings[:instances] ||= 0
       @chef_roles = []
+      @settings[:instances] ||= 0
       create_facet_role
+      create_facet_security_group unless attrs[:no_security_group]
     end
 
     def cluster_name
@@ -96,24 +97,16 @@ module ClusterChef
     end
 
     #
-    # Returns the full set of security groups: those from the facet and the cluster
-    #
-    def security_groups
-      cluster.security_groups.merge(cloud.security_groups)
-    end
-
-    #
     # Resolve:
     #
     def resolve!
       servers.each(&:resolve!)
-      self
     end
 
   protected
 
-    def set_default_security_group
-      cloud.security_group "#{cluster_name}-#{facet_name}"
+    def create_facet_security_group
+      cloud.security_group("#{cluster_name}-#{facet_name}")
     end
 
     # Creates a chef role named for the facet
@@ -136,7 +129,7 @@ module ClusterChef
       intervals.split(",").map do |term|
         if    term =~ /^(\d+)-(\d+)$/ then ($1.to_i .. $2.to_i).to_a
         elsif term =~ /^(\d+)$/       then  $1.to_i
-        else  warn("Bad interval: #{term}") ; nil
+        else  Chef::Log.warn("Bad interval: #{term}") ; nil
         end
       end.flatten.compact.uniq
     end

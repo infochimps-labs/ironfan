@@ -73,7 +73,7 @@ module ClusterChef
         # mark both bogus
         if existing_fs = svr.fog_server
           if existing_fs.id != fs.id
-            warn "Duplicate fog instance found for #{svr.fullname}: #{fs.id} and #{existing_fs.id}!!"
+            Chef::Log.warn "Duplicate fog instance found for #{svr.fullname}: #{fs.id} and #{existing_fs.id}!!"
             old_svr = svr
             svr     = old_svr.facet.server(1_000 + svr.facet_index.to_i)
             old_svr.bogosity :duplicate

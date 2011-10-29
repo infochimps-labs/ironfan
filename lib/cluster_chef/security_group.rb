@@ -38,6 +38,7 @@ module ClusterChef
       def self.get_or_create group_name, description
         group = all[group_name] || ClusterChef.fog_connection.security_groups.get(group_name)
         if ! group
+          Chef::Log.info "Creating security group #{group_name} (#{description})"
           group = all[group_name] = ClusterChef.fog_connection.security_groups.new(:name => group_name, :description => description, :connection => ClusterChef.fog_connection)
           group.save
         end
@@ -77,16 +78,16 @@ module ClusterChef
         @group_authorizations.uniq.each do |authed_group, authed_owner|
           authed_owner ||= self.owner_id
           next if group_permission_already_set?(group, authed_group, authed_owner)
-          warn ['authorizing group for', self.name, authed_group, authed_owner].inspect
+          Chef::Log.info ['authorizing group for', self.name, authed_group, authed_owner].inspect
           self.class.get_or_create(authed_group, "Authorized to access nfs server")
-          begin group.authorize_group_and_owner(authed_group, authed_owner)
-          rescue StandardError => e ; warn e ; end
+          begin  group.authorize_group_and_owner(authed_group, authed_owner)
+          rescue StandardError => e ; Chef::Log.warn e ; end
         end
         @range_authorizations.uniq.each do |range, cidr_ip, ip_protocol|
           next if range_permission_already_set?(group, range, cidr_ip, ip_protocol)
-          warn ['authorizing range for', self.name, range, { :cidr_ip => cidr_ip, :ip_protocol => ip_protocol }]
-          begin group.authorize_port_range(range, { :cidr_ip => cidr_ip, :ip_protocol => ip_protocol })
-          rescue StandardError => e ; warn e ; end
+          Chef::Log.info ['authorizing range for', self.name, range, { :cidr_ip => cidr_ip, :ip_protocol => ip_protocol }]
+          begin  group.authorize_port_range(range, { :cidr_ip => cidr_ip, :ip_protocol => ip_protocol })
+          rescue StandardError => e ; Chef::Log.warn e ; end
         end
       end
 

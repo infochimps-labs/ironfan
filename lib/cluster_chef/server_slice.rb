@@ -56,7 +56,7 @@ module ClusterChef
 
     def security_groups
       sg = {}
-      servers.each{|svr| sg.merge!(svr.security_groups) }
+      servers.each{|svr| sg.merge!(svr.cloud.security_groups) }
       sg
     end
 

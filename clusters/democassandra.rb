@@ -1,8 +1,4 @@
-
 ClusterChef.cluster 'democassandra' do
-  use :defaults
-  setup_role_implications
-
   recipe                "cluster_chef::dedicated_server_tuning"
   role                  "ebs_volumes_attach"
   role                  "ebs_volumes_mount"

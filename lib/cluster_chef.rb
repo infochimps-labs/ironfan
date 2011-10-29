@@ -56,9 +56,9 @@ module ClusterChef
   #   end
   #
   #
-  def self.cluster(name, &block)
+  def self.cluster(name, attrs={}, &block)
     name = name.to_sym
-    cl = ( self.clusters[name] ||= ClusterChef::Cluster.new(name) )
+    cl = ( self.clusters[name] ||= ClusterChef::Cluster.new(name, attrs) )
     cl.configure(&block)
     cl
   end
@@ -105,7 +105,7 @@ module ClusterChef
   #
   def self.die *strings
     exit_code = strings.last.is_a?(Integer) ? strings.pop : -1
-    strings.each{|str| warn str }
+    strings.each{|str| Chef::Log.warn str }
     exit exit_code
   end
 

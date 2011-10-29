@@ -6,11 +6,12 @@ module ClusterChef
   class Cluster < ClusterChef::ComputeBuilder
     attr_reader :facets, :undefined_servers
 
-    def initialize clname, attrs={}
-      super(clname.to_sym, attrs)
+    def initialize(name, attrs={})
+      super(name.to_sym, attrs)
       @facets            = Mash.new
       @chef_roles        = []
       create_cluster_role
+      create_cluster_security_group unless attrs[:no_security_group]
     end
 
     def cluster
@@ -89,31 +90,23 @@ module ClusterChef
       "#{super[0..-3]} @facets=>#{@facets.keys.inspect}}>"
     end
 
-    def reverse_merge! other_cluster
-      @settings.reverse_merge! other_cluster.to_hash
-      @settings[:run_list] += other_cluster.run_list
-      cloud.reverse_merge! other_cluster.cloud
-      self
-    end
-
+    #
+    # Resolve:
+    #
     def resolve!
-      set_default_security_group
-      cloud.keypair(cluster_name) if cloud.keypair.nil?
-      @facets.values.each(&:resolve!)
-    end
-
-    def security_groups
-      cloud.security_groups
+      facets.values.each(&:resolve!)
     end
 
   protected
 
-    def set_default_security_group
-      cluster_name = self.cluster_name # hack variable into scope of folllowing block
-      cloud.security_group(cluster_name){ authorize_group(cluster_name) }
+    # Create a security group named for the cluster
+    # that is friends with everything in the cluster
+    def create_cluster_security_group
+      clname = self.name # put it in scope
+      cloud.security_group(clname){ authorize_group(clname) }
     end
 
-    # Creates a chef role named for the facet
+    # Creates a chef role named for the cluster
     def create_cluster_role
       @cluster_role_name = "#{name}_cluster"
       @cluster_role      = new_chef_role(@cluster_role_name, cluster)

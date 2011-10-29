@@ -130,11 +130,11 @@ module ClusterChef
       begin
         bs.run
       rescue StandardError => e
-        warn e
-        warn e.backtrace
-        warn ""
-        warn node.inspect
-        warn ""
+        Chef::Log.warn e
+        Chef::Log.warn e.backtrace
+        Chef::Log.warn ""
+        Chef::Log.warn node.inspect
+        Chef::Log.warn ""
       end
     end
 
