@@ -1,6 +1,50 @@
-h2. Burn an AMI 
 
-<pre><code>
+
+sudo service chef-client stop
+ps auxf
+df -BG
+#
+away_dir=/tmp/ami_away
+sudo mkdir -p $away_dir
+#
+# Tidy up the joint for the next occupants
+sudo apt-get -y update  ;
+sudo apt-get -y upgrade ;
+sudo apt-get -f install ;
+sudo apt-get clean ;
+sudo updatedb ;
+#
+# move away anything tied to the identity of this machine
+sudo mv /etc/hostname /etc/node*name /var/www/index.html $away_dir
+# move away chef junk
+sudo mv /var/chef /etc/chef/{client-config.json,first-boot.json,node-attrs.json,chef-config.json,*.pem,*~} $away_dir
+#
+# pull in a clean /etc/chef/client.rb
+sudo bash -c 'curl https://raw.github.com/gist/1294525/03e95f325b7c0790c27c890f7049b7b8dea07f96/etc-chef-client.rb > /etc/chef/client.rb'
+sudo chmod og-rwx /etc/chef/client.rb
+#
+# zero out all files in /var/log
+cd /var/log ; for foo in `sudo find /var/log -type f` ; do echo $foo ; sudo bash -c "echo -n > $foo"  ; done
+#
+# make a nice bland motd
+sudo rm /etc/motd ;
+sudo bash -c 'echo "CHIMP CHIMP CHIMP CRUNCH CRUNCH CRUNCH (image burned at `date`)" > /etc/motd ' ;
+#
+# unmount your mountables
+for foo in /home /ebs* /data ; do sudo umount $foo ; done
+#
+# Go to the console; hit 'stop' on the machine, count to 100, and then hit '
+# name the AMI something like
+# infochimps-natty-64bit-useast1-ruby19-dev-20111017
+
+
+___________________________________________________________________________
+
+OLDER stuff below
+
+___________________________________________________________________________
+
+## Burn an AMI 
 
 # Fix:
 #  /etc/hosts
@@ -106,7 +150,7 @@ ami_name=infochimps.chef-client.${DISTRIB_CODENAME}.east.ami-${BITS}-`date "+%Y%
 ami_bucket=${AMI_BUCKET}/$ami_name
 sudo mkdir -p /mnt/$ami_bucket
 
-# This will take a long fucking time. 15 minutes on a small instance. It fucking sucks.
+# This will take a long fucking time (15 minutes on a small instance) so treat yourself to a large CPU-heavy machine when you're burninating
 time sudo ec2-bundle-vol --kernel $kern --exclude=$AMI_EXCLUDES -r $BITS -d /mnt/$ami_bucket -u $AWS_ACCOUNT_ID --cert cert.pem --privatekey pk.pem --ec2cert /etc/ec2/amitools/cert-ec2.pem
 
 ( cd /mnt/$ami_bucket ; ec2-unbundle --manifest image.manifest.xml --destination /mnt --privatekey $EC2_PRIVATE_KEY  )
@@ -127,11 +171,3 @@ h4. If you are in a region other than us-east-1
 # time ec2-upload-bundle    -b $ami_bucket -m /mnt/$ami_bucket/image.manifest.xml --location $AWS_REGION -a $AWS_ACCESS_KEY_ID -s $AWS_SECRET_ACCESS_KEY
 # time ec2-register -n $ami_name -d $ami_name $ami_bucket/image.manifest.xml      --region $AWS_REGION
 
-
-h2. Bootstrap chef server
-
-( cd ~/ics/sysadmin/cluster_chef/ ; knife cookbook upload --all ; for foo in ~/ics/sysadmin/cluster_chef/roles/* ; do echo $foo ; knife role from file $foo ; done ; rake load_data_bags ; rake load_data_bags ) 
-
-sudo apt-get install jardiff emacs23-nox erlang-mode python-mode ruby-elisp ruby1.8-elisp org-mode mmm-mode css-mode html-helper-mode lua-mode ruby1.8 ruby1.8-dev rdoc1.8 ri1.8 libopenssl-ruby
-
-sudo gem install --no-ri --no-rdoc extlib oniguruma fastercsv json yajl-ruby libxml-ruby  htmlentities addressable uuidtools configliere right_aws whenever rest-client oauth nokogiri crack cheat echoe jeweler yard net-proto net-scp net-sftp net-ssh idn rails wirble wukong cassandra redis dependencies wukong poolparty amazon-ec2 broham
