@@ -1,9 +1,6 @@
 ClusterChef.cluster 'demosimple' do
   cloud(:ec2) do
-    availability_zones ['us-east-1a']
     flavor              't1.micro'
-    backing             'ebs'
-    image_name          'maverick'
   end
 
   role                  :base_role
@@ -18,7 +15,6 @@ ClusterChef.cluster 'demosimple' do
   #
   facet :homebase do
     instances           1
-
     role                :nfs_server
   end
 
@@ -34,8 +30,6 @@ ClusterChef.cluster 'demosimple' do
     end
 
     role                :nfs_client
-    role                :elasticsearch_client
-    role                :redis_client
   end
 
 end

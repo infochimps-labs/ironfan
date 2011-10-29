@@ -57,10 +57,6 @@ module ClusterChef
       @settings[key]
     end
 
-    # def [] key
-    #   @settings[key]
-    # end
-
     def to_hash
       @settings.dup
     end

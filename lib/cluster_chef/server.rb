@@ -118,6 +118,7 @@ module ClusterChef
       #
       cloud.reverse_merge!(facet.cloud)
       cloud.reverse_merge!(cluster.cloud)
+      cloud.reverse_merge!(cloud.class.defaults)
       #
       cloud.user_data({
           :chef_server            => Chef::Config.chef_server_url,
@@ -127,6 +128,8 @@ module ClusterChef
           :cluster_name           => cluster_name,
           :facet_name             => facet_name,
           :facet_index            => facet_index,
+          #
+          :run_list               => run_list,
         })
       #
       if client_key then cloud.user_data({ :client_key     => client_key, })

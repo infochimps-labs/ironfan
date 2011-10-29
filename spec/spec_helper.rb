@@ -9,7 +9,9 @@ Spork.prefork do
 
   require 'chef'
   require 'fog'
-  require 'awesome_print'
+
+  Fog.mock!
+  Fog::Mock.delay = 0
 
   CHEF_CONFIG_FILE = File.expand_path(CLUSTER_CHEF_DIR('spec/test_config.rb')) unless defined?(CHEF_CONFIG_FILE)
   Chef::Config.from_file(CHEF_CONFIG_FILE)

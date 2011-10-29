@@ -9,6 +9,14 @@ module ClusterChef
         super(*args)
       end
 
+      # default values to apply where no value was set
+      # @returns [Hash] hash of defaults
+      def self.defaults
+        {
+          :image_name         => 'maverick',
+        }
+      end
+
       # The username to ssh with.
       # @return the ssh_user if set explicitly; otherwise, the user implied by the image name, if any; or else 'root'
       def ssh_user(val=nil)
@@ -74,6 +82,14 @@ module ClusterChef
         super *args
         @settings[:security_groups]      ||= Mash.new
         @settings[:user_data]            ||= Mash.new
+      end
+
+      def self.defaults
+        super.merge({
+            :availability_zones => ['us-east-1a'],
+            :backing            => 'ebs',
+            :flavor             => 't1.micro',
+          })
       end
 
       # An alias for disable_api_termination. Prevents the instance from being

@@ -18,5 +18,3 @@ validation_client_name   "chef-validator"
 validation_key           "#{keypair_path}/#{organization}-validator.pem"
 client_key               "#{keypair_path}/#{username}-client_key.pem"
 chef_server_url          "https://api.opscode.com/organizations/#{organization}"
-
-load current_dir+"/#{organization}-awskeys.rb"
