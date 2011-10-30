@@ -91,7 +91,7 @@ EOP
 
 echo -e "`date` \n\n**** \n**** Adding chef client runit scripts:\n****\n"
 service chef-client stop 2>/dev/null ; sleep 1 ; killall chef-client 2>/dev/null
-mkdir -p /var/log/chef /var/chef /etc/sv/chef-client/log/main /etc/sv/chef-client/supervise
+mkdir -p /var/log/chef /var/chef /etc/service /etc/sv/chef-client/{log/main,supervise}
 cat > /etc/sv/chef-client/log/run <<EOF
 #!/bin/bash
 exec svlogd -tt ./main
