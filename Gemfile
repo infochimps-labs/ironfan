@@ -1,6 +1,6 @@
 source "http://rubygems.org"
 
-gem 'chef',        "~> 0.10.0"
+gem 'chef',        "~> 0.10.4"
 gem 'right_aws',   "~> 2.1.0"
 #
 gem 'highline',    "~> 1.6.2"

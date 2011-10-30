@@ -51,8 +51,6 @@ class Chef
         config[:ssh_user]      ||= Chef::Config[:knife][:ssh_user]
         config[:identity_file] ||= target.ssh_identity_file
 
-        Chef::Log.debug JSON.pretty_generate(config)
-
         @action_nodes = target.chef_nodes
         addresses = target.servers.map do |svr|
           if (svr.cloud.elastic_ip)            then address = svr.cloud.elastic_ip ; end

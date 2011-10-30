@@ -39,6 +39,13 @@ class Chef
         # Display same
         display(target)
 
+        if config[:verbosity] > 1
+          target.each do |svr|
+            Chef::Log.debug( "Server #{svr.name}: #{JSON.pretty_generate(svr.to_hash)}" )
+            Chef::Log.debug( "- cloud: #{JSON.pretty_generate(svr.cloud.to_hash)}" )
+          end
+        end
+
       end
     end
   end

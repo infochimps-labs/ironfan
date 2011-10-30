@@ -31,11 +31,13 @@ module ClusterChef
     end
     
     def load
+      # Chef::Log.debug("Loading #{filename}")
       return unless File.exists?(filename)
       body = File.read(filename).chomp
     end
 
     def body=(content)
+      # Chef::Log.debug("Setting key #{content[0..50]}; #{on_update}")
       @body = content
       on_update.call(content) if on_update
       content
@@ -48,14 +50,14 @@ module ClusterChef
     end
 
     def to_s
-      [super[0..-1], name, proxy].join(" ") + '>'
+      [super[0..-2], @name, @proxy].join(" ") + '>'
     end
   end
 
   class ChefClientKey < PrivateKey
     def body
       return @body if @body
-      if proxy && proxy.private_key
+      if proxy && proxy.private_key && (not proxy.private_key.empty?)
         @body = proxy.private_key
       else
         load
@@ -68,7 +70,7 @@ module ClusterChef
 
     def body
       return @body if @body
-      if proxy && proxy.private_key
+      if proxy && proxy.private_key && (not proxy.private_key.empty?)
         @body = proxy.private_key
       else
         load
@@ -78,7 +80,6 @@ module ClusterChef
 
     def save
       (Chef::Log.debug("    key #{name} - dry run, not writing out key"); return) if ClusterChef.chef_config[:dry_run]
-      # (Chef::Log.debug("  exists -- not writing out key");  return) if File.exists?(filename)
       super
     end
 

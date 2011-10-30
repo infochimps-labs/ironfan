@@ -126,7 +126,6 @@ module ClusterChef
       bootstrap.config[:client_key]     = server.client_key.body            if server.client_key.body
       bootstrap.config[:config_content] = server.chef_client_script_content if server.chef_client_script_content
 
-      Chef::Log.debug JSON.pretty_generate(bootstrap.config)
       bootstrap
     end
 

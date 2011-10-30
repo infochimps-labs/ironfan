@@ -6,12 +6,16 @@ module ClusterChef
       discover_cluster_chef!
       discover_chef_nodes!
       discover_fog_servers!
+      discover_chef_clients!
     end
 
-  protected
-
-    def fog_servers
-      @fog_servers ||= ClusterChef.fog_servers.select{|fs| fs.tags["cluster"] == cluster_name.to_s && (fs.state != "terminated") }
+    def chef_clients
+      return @chef_clients if @chef_clients
+      @chef_clients = []
+      Chef::Search::Query.new.search(:client, "clientname:#{cluster_name}-*") do |client_hsh|
+        @chef_clients.push( Chef::ApiClient.json_create(client_hsh) )
+      end
+      @chef_clients
     end
 
     def chef_nodes
@@ -21,6 +25,12 @@ module ClusterChef
         @chef_nodes.push(n) unless n.nil? || (n.cluster_name != cluster_name.to_s)
       end
       @chef_nodes
+    end
+
+  protected
+
+    def fog_servers
+      @fog_servers ||= ClusterChef.fog_servers.select{|fs| fs.tags["cluster"] == cluster_name.to_s && (fs.state != "terminated") }
     end
 
     # Walk the list of chef nodes and
@@ -47,6 +57,11 @@ module ClusterChef
         svr.chef_node = chef_node
         @aws_instance_hash[ chef_node.ec2.instance_id ] = svr if chef_node[:ec2] && chef_node.ec2.instance_id
       end
+    end
+
+    # Walk the list of servers, asking each to discover its chef client.
+    def discover_chef_clients!
+      servers.each(&:chef_client)
     end
 
     # calling #servers vivifies each facet's ClusterChef::Server instances

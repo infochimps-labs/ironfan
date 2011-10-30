@@ -32,16 +32,13 @@ module ClusterChef
 
     def chef_client
       return @chef_client unless @chef_client.nil?
-      @chef_client = handle_chef_response(@chef_client, '404') do
-        Chef::ApiClient.load( fullname )
-      end
+      @chef_client = cluster.chef_clients.find{|ccl| ccl.name == self.fullname } || false
     end
 
     def chef_node
       return @chef_node unless @chef_node.nil?
-      @chef_node = handle_chef_response(@chef_node, '404') do
-        Chef::Node.load( fullname )
-      end
+      # @chef_node = handle_chef_response('404'){ Chef::Node.load( fullname ) }
+      @chef_node = cluster.chef_nodes.find{|nd| nd.name == self.fullname } || false
     end
 
     # true if chef client is created and discovered
@@ -88,17 +85,13 @@ module ClusterChef
       @chef_client.name(fullname)
       @chef_client.admin(false)
       #
-      handle_chef_response(@chef_client, '409') do
+      handle_chef_response('409') do
         step( "    creating chef #{@chef_client}" )
         # ApiClient#create sends extra params that fail -- we'll do it ourselves
         response = Chef::REST.new(Chef::Config[:chef_server_url]).post_rest(
           "clients", { 'name' => fullname, 'admin' => false, 'private_key' => true })
         client_key.body = response['private_key']
         client_key.save
-        p [client_key, client_key.body, client_key.proxy, @chef_client.private_key]
-        # @chef_client.private_key(response['private_key'])
-        # cloud.user_data(:client_key => @chef_client.private_key)
-        # write_client_key
       end
       @chef_client
     end
@@ -113,7 +106,7 @@ module ClusterChef
       @chef_node.override[:facet_index]  = facet_index
       #
       err_message = "You've found yourself in a situation where the #{fullname} client exists, \nbut you don't have access to its client key. \nYou need to either fix its permissions in the Chef console, or (if you are aware of the terrible consequences) do \nknife client delete #{fullname}"
-      response = handle_chef_response(@chef_node, '409') do
+      response = handle_chef_response('409') do
         unless File.exists?(client_key.filename)
           ui.warn "Cannot create chef node #{fullname} -- no client key found in #{client_key.filename}."
           raise(err_message)
@@ -133,6 +126,9 @@ module ClusterChef
       @chef_node
     end
 
+    # def aws_data_bag
+    # end
+
     # The client is required to have these permissions on its eponymous node
     REQUIRED_PERMISSIONS = %w[read create update]
 
@@ -144,22 +140,24 @@ module ClusterChef
     def check_node_permissions
       step("  ensuring chef node permissions are correct")
       chef_server_rest = Chef::REST.new(Chef::Config[:chef_server_url])
-      perms = chef_server_rest.get_rest("nodes/#{fullname}/_acl")
-      perms_valid = {}
-      REQUIRED_PERMISSIONS.each{|perm| perms_valid[perm] = perms[perm] && perms[perm]['actors'].include?(fullname) }
-      Chef::Log.debug("Checking permissions: #{perms_valid.inspect} -- #{ perms_valid.values.all? ? 'correct' : 'BADNESS' }")
-      unless perms_valid.values.all?
-        ui.info(" ************************ ")
-        ui.info(" ")
-        ui.info(" INCONSISTENT PERMISSIONS for node #{fullname}:")
-        ui.info("   The client[#{fullname}] should have permissions for #{REQUIRED_PERMISSIONS.join(', ')}")
-        ui.info("   Instead, they are #{perms_valid.inspect}")
-        ui.info("   You should create the node #{fullname} as client[#{fullname}], not as yourself.")
-        ui.info(" ")
-        ui.info("   Please adjust the permissions on the Opscode console, at")
-        ui.info("     https://manage.opscode.com/nodes/#{fullname}/_acl")
-        ui.info(" ")
-        ui.info(" ************************ ")
+      handle_chef_response('404') do
+        perms = chef_server_rest.get_rest("nodes/#{fullname}/_acl")
+        perms_valid = {}
+        REQUIRED_PERMISSIONS.each{|perm| perms_valid[perm] = perms[perm] && perms[perm]['actors'].include?(fullname) }
+        Chef::Log.debug("Checking permissions: #{perms_valid.inspect} -- #{ perms_valid.values.all? ? 'correct' : 'BADNESS' }")
+        unless perms_valid.values.all?
+          ui.info(" ************************ ")
+          ui.info(" ")
+          ui.info(" INCONSISTENT PERMISSIONS for node #{fullname}:")
+          ui.info("   The client[#{fullname}] should have permissions for #{REQUIRED_PERMISSIONS.join(', ')}")
+          ui.info("   Instead, they are #{perms_valid.inspect}")
+          ui.info("   You should create the node #{fullname} as client[#{fullname}], not as yourself.")
+          ui.info(" ")
+          ui.info("   Please adjust the permissions on the Opscode console, at")
+          ui.info("     https://manage.opscode.com/nodes/#{fullname}/_acl")
+          ui.info(" ")
+          ui.info(" ************************ ")
+        end
       end
     end
 
@@ -198,7 +196,7 @@ module ClusterChef
     # code comes back
     #
     # @return chef object, or false if the server returned a recoverable response
-    def handle_chef_response(action, recoverable_responses, &block)
+    def handle_chef_response(recoverable_responses, &block)
       begin
         block.call
       rescue Net::HTTPServerException => e
