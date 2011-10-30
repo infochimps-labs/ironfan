@@ -1,5 +1,5 @@
 #
-# Author:: Philip (flip) Kromer (flip@infochimps.com)
+# Author:: Ash Berlin (ash_github@firemirror.om) and Philip (flip) Kromer (flip@infochimps.com)
 # Copyright:: Copyright (c) 2011 Infochimps, Inc.
 # License:: Apache License, Version 2.0
 #
