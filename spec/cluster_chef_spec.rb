@@ -36,7 +36,7 @@ describe "cluster_chef" do
           :image_name         => "lucid",
           :backing            => "ebs",
           :disable_api_termination => false,
-          :elastic_ip         => false,
+          :public_ip         => false,
           :bootstrap_distro   => "ubuntu10.04-cluster_chef",
         }
       end
@@ -51,7 +51,7 @@ describe "cluster_chef" do
           :image_name         => "maverick",
           :backing            => "instance",
           :disable_api_termination => false,
-          :elastic_ip         => false,
+          :public_ip         => false,
           :bootstrap_distro   => "ubuntu10.04-cluster_chef",
           :keypair            => :demoweb,
         }
@@ -181,7 +181,7 @@ describe "cluster_chef" do
             :image_name         => "maverick",
             :backing            => "ebs",
             :disable_api_termination => false,
-            :elastic_ip         => false,
+            :public_ip         => false,
             :bootstrap_distro   => "ubuntu10.04-cluster_chef",
             :keypair            => :demoweb,
           }

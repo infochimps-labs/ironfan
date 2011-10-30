@@ -6,11 +6,20 @@ module ClusterChef
     attr_reader   :parent
     attr_accessor :fog_volume
     has_keys(
-      :keep, :name,
+      :name,
       :volume_id, :snapshot_id, :size,
       :device, :mount_point, :mount_options, :fs_type,
-      :availability_zone
+      :availability_zone,
+      :keep, :attachable, :create_at_launch
       )
+
+    VOLUME_DEFAULTS = {
+      :fs_type          => 'xfs',
+      :mount_options    => 'defaults,nouuid,noatime',
+      :attachable       => :ebs,
+      :create_at_launch => false,
+      :keep             => true,
+    }
 
     #
     # ClusterChef::Volume.new(
@@ -24,13 +33,17 @@ module ClusterChef
       @settings[:tags] ||= {}
     end
 
+    def defaults
+      self.configure(VOLUME_DEFAULTS)
+    end
+
     def ephemeral_device?
       volume_id =~ /^ephemeral/
     end
 
     # With snapshot specified but volume missing, have it auto-created at launch
     def create_at_launch?
-      volume_id.to_s.empty? && (not snapshot_id.to_s.empty?)
+      self.create_at_launch
     end
 
     def in_cloud?

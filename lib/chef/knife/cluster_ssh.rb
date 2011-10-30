@@ -53,7 +53,7 @@ class Chef
 
         @action_nodes = target.chef_nodes
         addresses = target.servers.map do |svr|
-          if (svr.cloud.elastic_ip)            then address = svr.cloud.elastic_ip ; end
+          if (svr.cloud.public_ip)            then address = svr.cloud.public_ip ; end
           if (not address) && (svr.chef_node)  then address = format_for_display( svr.chef_node )[config[:attribute]] ; end
           if (not address) && (svr.fog_server) then address = svr.fog_server.public_ip_address ; end
           address

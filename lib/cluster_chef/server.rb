@@ -141,15 +141,15 @@ module ClusterChef
 
     def composite_volumes
       vols = volumes.dup
-      facet.volumes.each do |name, vol|
-        vols[name] ||= ClusterChef::Volume.new(:parent => self, :name => name)
-        vols[name].reverse_merge!(vol)
+      facet.volumes.each do |vol_name, vol|
+        vols[vol_name] ||= ClusterChef::Volume.new(:parent => self, :name => vol_name)
+        vols[vol_name].reverse_merge!(vol)
       end
-      cluster.volumes.each do |name, vol|
-        vols[name] ||= ClusterChef::Volume.new(:parent => self, :name => name)
-        vols[name].reverse_merge!(vol)
+      cluster.volumes.each do |vol_name, vol|
+        vols[vol_name] ||= ClusterChef::Volume.new(:parent => self, :name => vol_name)
+        vols[vol_name].reverse_merge!(vol)
       end
-      vols.each{|name, vol| vol.availability_zone self.default_availability_zone }
+      vols.each{|vol_name, vol| vol.availability_zone self.default_availability_zone }
       vols
     end
 
@@ -185,7 +185,7 @@ module ClusterChef
       step "Syncing to cloud", :blue
       attach_volumes
       create_tags
-      associate_elastic_ip
+      associate_public_ip
     end
 
     def sync_to_chef
@@ -194,8 +194,17 @@ module ClusterChef
       ensure_chef_node
       check_node_permissions
       chef_set_runlist
+      sync_volume_attributes
       save_chef_node
       true
+    end
+
+    def sync_volume_attributes
+      composite_volumes.each do |vol_name, vol|
+        chef_node.normal[:mountable_volumes][:volumes] ||= Mash.new
+        p [vol, vol.to_hash, chef_node.normal[:mountable_volumes]]
+        chef_node.normal[:mountable_volumes][:volumes][vol_name] = vol.to_hash.compact
+      end
     end
 
     # FIXME: a lot of AWS logic in here. This probably lives in the facet.cloud

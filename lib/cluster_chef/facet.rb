@@ -37,6 +37,12 @@ module ClusterChef
       @facet_role
     end
 
+    def assign_volume_ids(volume_name, *volume_ids)
+      volume_ids.flatten.zip(servers).each do |volume_id, server|
+        server.volume(volume_name){ volume_id(volume_id) }
+      end
+    end
+
     #
     # Retrieve or define the given server
     #

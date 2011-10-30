@@ -181,7 +181,7 @@ module ClusterChef
           end
         end
         hsh['Volumes']    = hsh['Volumes'].join(',')
-        hsh['Elastic IP'] = svr.cloud.elastic_ip if svr.cloud.elastic_ip
+        hsh['Elastic IP'] = svr.cloud.public_ip if svr.cloud.public_ip
         if block_given?
           extra_info = yield(svr)
           hsh.merge!(extra_info)

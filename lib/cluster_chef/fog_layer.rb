@@ -47,7 +47,7 @@ module ClusterChef
     end
 
     def fog_address
-      address_str = self.cloud.elastic_ip or return
+      address_str = self.cloud.public_ip or return
       ClusterChef.fog_addresses[address_str]
     end
 
@@ -58,6 +58,7 @@ module ClusterChef
       return if composite_volumes.empty?
       step("  attaching volumes")
       composite_volumes.each do |vol_name, vol|
+        next if vol.volume_id.nil? || vol.volume_id.to_s.empty?
         desc = "#{vol_name} on #{self.fullname} (#{vol.volume_id} @ #{vol.device})"
         if (not vol.in_cloud?) then  Chef::Log.debug("Volume: not found #{desc}") ; next ; end
         if (vol.has_server?)   then check_server_id_pairing(vol.fog_volume, desc) ; next ; end
@@ -69,8 +70,8 @@ module ClusterChef
       end
     end
 
-    def associate_elastic_ip
-      address = self.cloud.elastic_ip
+    def associate_public_ip
+      address = self.cloud.public_ip
       return unless self.in_cloud? && address
       desc = "elastic ip #{address} for #{self.fullname}"
       if (fog_address && fog_address.server_id) then check_server_id_pairing(fog_address, desc) ; return ; end

@@ -109,6 +109,7 @@ ClusterChef.cluster 'demoweb' do
       device            '/dev/sdi'                  
       mount_point       '/data'              
       snapshot_id       'snap-a10234f'             
+      attachable        :ebs
     end
     server(0).volume(:data){ volume_id('vol-1254') }
   end
@@ -128,9 +129,7 @@ ClusterChef.cluster 'demoweb' do
       mount_point       '/server_logs'              
       snapshot_id       'snap-d9c1edb1'             
     end
-    %w[ vol-1234 vol-4321 vol-234a vol-9879 vol-3423 vol-1233 ].each_with_index do |vol_name, idx|
-      server(idx).volume(:server_logs){ volume_id(vol_name) }
-    end
+    assign_volume_ids(:data, %w[ vol-1234 vol-4321 vol-234a vol-9879 vol-3423 vol-1233 ])
   end
 
   facet :esnode do
