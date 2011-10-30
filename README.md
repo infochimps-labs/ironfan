@@ -79,6 +79,7 @@ The commands available are
 * ssh        
 * start/stop       
 * kill       
+* kick -- trigger a chef-client run on each named machine, tailing the logs until the run completes
 
 
 ### Advanced clusters remain simple

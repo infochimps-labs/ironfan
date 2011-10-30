@@ -1,6 +1,6 @@
 #
 # Author:: Ash Berlin (ash_github@firemirror.om) and Philip (flip) Kromer (flip@infochimps.com)
-# Copyright:: Copyright (c) 2011 Infochimps, Inc.
+# Copyright:: Copyright (c) 2011 DigiResults Ltd. and Infochimps, Inc.
 # License:: Apache License, Version 2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
