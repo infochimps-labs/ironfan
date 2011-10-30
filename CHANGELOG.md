@@ -46,3 +46,10 @@ Several knife scripts saw name changes to their params. If you have external scr
 
 * Standardized on `node[:cluster_name]`, `node[:facet_name]` and `node[:facet_index]` as the way to refer to the cluster, facet and server parts of a node's name. This replaces the way-too-many names for these: `node[:cluster_chef][:facet]` and `node[:cluster_role]` (use `node[:facet_name]`), `node[:cluster_chef][:index]` and `node[:cluster_role_index]` (use `node[:facet_index]`) .
 * ClusterChef family of cookbooks were updated accordingly.
+
+#### Deprecated cookbooks
+
+You must add `"#{cluster_chef_path}/deprecated-cookbooks"` to your cookbook_path in knife.rb if you would like to keep using
+
+* `cluster_ebs_volumes` -- use `mountable_volumes` instead.
+
