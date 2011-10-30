@@ -22,22 +22,16 @@ class Chef
   class Knife
     class ClusterStop < ClusterChef::Script
       import_banner_and_options(ClusterChef::Script)
-      option :yes,
-        :long        => "--yes",
-        :description => "Skip confirmation that you want to stop the cluster.",
-        :boolean     => true
 
       def slice_criterion
         :running?
       end
 
       def confirm_execution(target)
-        unless config[:yes]
-          puts "Unless these nodes are backed by EBS volumes, this will result in loss of all"
-          puts "data not saved elsewhere. Even if they are EBS backed, there may still be some data loss."
-          puts "Are you absolutely certain that you want to perform this action? (Type 'Yes' to confirm)"
-          confirm_or_exit('Yes')
-        end
+        ui.info "  Unless these nodes are backed by EBS volumes, this will result in loss of all data"
+        ui.info "  not saved elsewhere. Even if they are EBS backed, there may still be some data loss."
+        ui.info "  Are you absolutely certain that you want to perform this action? (Type 'Yes' to confirm)"
+        confirm_or_exit('Yes')
       end
     end
   end

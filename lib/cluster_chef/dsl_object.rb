@@ -75,6 +75,15 @@ module ClusterChef
       self
     end
 
+    # delegate to the knife ui presenter
+    def ui()      ClusterChef.ui ; end
+    # delegate to the knife ui presenter
+    def self.ui() ClusterChef.ui ; end
+
+    def step(desc, *style)
+      ui.info("  #{"%-15s" % (name+":")}\t#{ui.color(desc, *style)}")
+    end
+
     # helper method for bombing out of a script
     def die(*args) ClusterChef.die(*args) ; end
 

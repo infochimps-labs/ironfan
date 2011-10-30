@@ -6,10 +6,11 @@ module ClusterChef
   #
   #
   class ServerSlice < ClusterChef::DslObject
-    attr_reader :servers, :cluster
+    attr_reader :name, :servers, :cluster
 
     def initialize cluster, servers
       super()
+      @name    = "#{cluster.name} slice"
       @cluster = cluster
       @servers = servers
     end
@@ -106,6 +107,7 @@ module ClusterChef
     end
 
     def sync_roles
+      step("syncing cluster and facet roles")
       chef_roles.each(&:save)
     end
 
@@ -124,9 +126,9 @@ module ClusterChef
 
     # FIXME: this is a jumble. we need to pass it in some other way.
 
-    DEFAULT_HEADINGS = ["Name", "Chef?", "InstanceID", "State", "Public IP", "Private IP", "Created At"].to_set.freeze
-    DETAILED_HEADINGS = (DEFAULT_HEADINGS + ['Flavor', 'Image', 'AZ', 'SSH Key']).freeze
-    EXPANDED_HEADINGS = DETAILED_HEADINGS + ['Volumes', 'Elastic IP']
+    DEFAULT_HEADINGS = ["Name", "Chef?", "State", "InstanceID", "Public IP", "Private IP", "Created At"].to_set.freeze
+    DETAILED_HEADINGS = (DEFAULT_HEADINGS + ['Flavor', 'AZ']).freeze
+    EXPANDED_HEADINGS = DETAILED_HEADINGS + ['Image', 'Volumes', 'Elastic IP', 'SSH Key']
 
     #
     # This is a generic display routine for cluster-like sets of nodes. If you
@@ -187,7 +189,7 @@ module ClusterChef
         hsh
       end
       if defined_data.empty?
-        puts "Nothing to report"
+        ui.info "Nothing to report"
       else
         Formatador.display_compact_table(defined_data, headings.to_a)
       end
@@ -196,6 +198,10 @@ module ClusterChef
     def to_s
       str = super
       str[0..-2] + " #{@servers.map(&:fullname)}>"
+    end
+
+    def joined_names
+      map(&:name).join(", ").gsub(/, ([^,]*)$/, ' and \1')
     end
 
     # Calls block on each server in parallel, each in its own thread
@@ -208,7 +214,10 @@ module ClusterChef
     #
     # @return array (in same order as servers) of each block's result
     def parallelize
-      servers.map{|svr| Thread.new(svr){|svr| yield(svr) } }
+      servers.map do |svr|
+        sleep(0.1) # avoid hammering with simultaneous requests
+        Thread.new(svr){|svr| yield(svr) }
+      end
     end
 
   protected
@@ -219,7 +228,7 @@ module ClusterChef
     # @param [Boolean] threaded -- execute each call in own thread
     #
     # @return array (in same order as servers) of results for that method
-    def delegate_to_servers method, threaded = false
+    def delegate_to_servers method, threaded = true
       if threaded  # Call in threads
         threads = parallelize{|svr| svr.send(method) }
         threads.map{|t| t.join.value } # Wait, returning array of results

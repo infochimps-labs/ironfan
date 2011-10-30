@@ -53,7 +53,33 @@ Each server inherits the appropriate behaviors from its facet and cluster. All t
 
 As you can see, the dbnode facet asks for a different flavor of machine ('m1.large') than the cluster default ('t1.micro'). Settings in the facet override those in the server, and settings in the server override those of its facet. You economically describe only what's significant about each machine.
 
-The facets are described and scale independently. If you'd like to add more webnodes, just increase the instance count. If a machine misbehaves, just terminate it. Running `knife cluster launch awesome webnode` will note which machines are missing, and launch and configure them appropriately.
+### Cluster-level tools
+
+
+```
+$ knife cluster show awesome
+
+  +--------------------+-------+------------+-------------+--------------+---------------+-----------------+----------+--------------+------------+------------+
+  | Name               | Chef? | InstanceID | State       | Public IP    | Private IP    | Created At      | Flavor   | Image        | AZ         | SSH Key    |
+  +--------------------+-------+------------+-------------+--------------+---------------+-----------------+----------+--------------+------------+------------+
+  | awesome-dbnode-0   | yes   | i-43c60e20 | running     | 107.22.6.104 | 10.88.112.201 | 20111029-204156 | t1.micro | ami-cef405a7 | us-east-1a | awesome    |
+  | awesome-webnode-0  | yes   | i-1233aef1 | running     | 102.99.3.123 | 10.88.112.123 | 20111029-204156 | t1.micro | ami-cef405a7 | us-east-1a | awesome    |
+  | awesome-webnode-1  | yes   | i-0986423b | not running |              |               |                 |          |              |            |            |
+  +--------------------+-------+------------+-------------+--------------+---------------+-----------------+----------+--------------+------------+------------+
+
+
+```
+
+The commands available are
+* list -- lists known clusters
+* show -- show the named servers
+* launch -- launch server
+* bootstrap  
+* sync       
+* ssh        
+* start/stop       
+* kill       
+
 
 ### Advanced clusters remain simple
 
@@ -127,6 +153,8 @@ ClusterChef.cluster 'demoweb' do
   })
 end
 ```
+
+The facets are described and scale independently. If you'd like to add more webnodes, just increase the instance count. If a machine misbehaves, just terminate it. Running `knife cluster launch awesome webnode` will note which machines are missing, and launch and configure them appropriately.
 
 ClusterChef speaks naturally to both Chef and your cloud provider. The esnode's `cluster_role.override_attributes` statement will be synchronized to the chef server, pinning the elasticsearch version across the clients and server.. Your chef roles should focus system-specific information; the cluster file lets you see the architecture as a whole.
 

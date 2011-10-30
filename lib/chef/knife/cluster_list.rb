@@ -34,14 +34,14 @@ class Chef
         configure_dry_run
 
         hash = ClusterChef.list_clusters
-        
+
         table = []
         hash.keys.sort.each do |key|
           table.push( { :cluster => key, :path => hash[key] } )
         end
-        
-        puts "Cluster Path: #{ ClusterChef.cluster_path.join ", " }"
-        
+
+        ui.info "Cluster Path: #{ ClusterChef.cluster_path.join ", " }"
+
         Formatador.display_compact_table(table, [:cluster,:path])
 
       end

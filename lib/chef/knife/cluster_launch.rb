@@ -80,19 +80,18 @@ class Chef
         if config[:dry_run] then ClusterChef.fog_connection.key_pairs.create(:name => target.cluster.name) ; end
 
         # Pre-populate information in chef
+        section("Sync'ing to chef and cloud")
         target.sync_to_chef
 
         # Make security groups
-        puts
-        puts "Making security groups:"
+        section("Making security groups")
         full_target.security_groups.each{|name,group| group.run }
 
         # Launch servers
-        puts
-        puts "Launching machines:"
+        section("Launching machines", :green)
         target.create_servers
 
-        puts
+        ui.info("")
         display(target)
 
         # As each server finishes, configure it
@@ -112,9 +111,6 @@ class Chef
       end
 
       def perform_after_launch_tasks(server)
-        # Hook up external assets
-        server.create_tags
-
         # Wait for node creation on amazon side
         server.fog_server.wait_for{ ready? }
 
@@ -152,11 +148,11 @@ class Chef
       end
 
       def warn_or_die_on_bogus_servers(target)
-        puts
-        puts "Cluster has servers in a transitional or undefined state (shown as 'bogus'):"
-        puts
+        ui.info("")
+        ui.info "Cluster has servers in a transitional or undefined state (shown as 'bogus'):"
+        ui.info("")
         display(target)
-        puts
+        ui.info("")
         unless config[:force]
           die(
             "Launch operations may be unpredictable under these circumstances.",
@@ -164,10 +160,10 @@ class Chef
             "(run \"knife cluster show CLUSTER\" to see what the problems are), or launch",
             "the cluster anyway using the --force option.", "", -2)
         end
-        puts
-        puts "--force specified"
-        puts "Proceeding to launch anyway. This may produce undesired results."
-        puts
+        ui.info("")
+        ui.info "--force specified"
+        ui.info "Proceeding to launch anyway. This may produce undesired results."
+        ui.info("")
       end
 
     end

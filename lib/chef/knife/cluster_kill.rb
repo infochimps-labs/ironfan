@@ -22,10 +22,6 @@ class Chef
   class Knife
     class ClusterKill < ClusterChef::Script
       import_banner_and_options(ClusterChef::Script)
-      option :yes,
-        :long        => "--yes",
-        :description => "Skip confirmation that you want to delete the cluster.",
-        :boolean     => true
 
       option :kill_bogus,
         :long        => "--kill-bogus",
@@ -50,34 +46,27 @@ class Chef
       # Execute every last mf'ing one of em
       def perform_execution(target)
         if config[:cloud]
-          puts
-          puts "Killing Cloud Machines!!"
+          section("Killing Cloud Machines!!", :red)
           target.select(&:in_cloud?).destroy
-          puts
         end
 
         if config[:chef]
-          puts "Killing Chef!!"
+          section("Killing Chef!!", :red)
           target.select(&:in_chef? ).delete_chef
-          puts
         end
       end
 
       def display(target, *args, &block)
         super
-        puts Formatador.display_line("[red]Bogus servers detected[reset]: [blue]#{target.bogus_servers.map(&:fullname).inspect}[reset]") unless target.bogus_servers.empty?
+        ui.info Formatador.display_line("[red]Bogus servers detected[reset]: [blue]#{target.bogus_servers.map(&:fullname).inspect}[reset]") unless target.bogus_servers.empty?
       end
 
       def confirm_execution(target)
         delete_message = [
           (((!config[:chef])   || target.chef_nodes.empty?)  ? nil : "#{target.chef_nodes.length} chef nodes"),
           (((!config[:cloud])  || target.fog_servers.empty?) ? nil : "#{target.fog_servers.length} fog servers") ].compact.join(" and ")
-        unless config[:yes]
-          puts "Are you absolutely certain that you want to delete #{delete_message}? (Type 'Yes' to confirm)"
-          confirm_or_exit('Yes')
-        else
-          puts "Bypassing confirmation: deleting #{delete_message}"
-        end
+        ui.info "Are you absolutely certain that you want to delete #{delete_message}? (Type 'Yes' to confirm)"
+        confirm_or_exit('Yes')
       end
 
     end

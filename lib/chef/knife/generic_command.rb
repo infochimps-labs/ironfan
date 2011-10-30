@@ -31,6 +31,10 @@ module ClusterChef
       :description => "Don't really run, just use mock calls",
       :boolean     => true,
       :default     => false
+    option :yes,
+      :long        => "--yes",
+      :description => "Skip confirmation prompts on risky actions.",
+      :boolean     => true
 
     def run
       load_cluster_chef
@@ -39,23 +43,23 @@ module ClusterChef
 
       target = get_slice_where(slice_criterion, *@name_args)
 
-      die('', "No nodes to #{sub_command}, exiting", 1) if target.empty?
+      die("No nodes to #{sub_command}, exiting", 1) if target.empty?
 
-      puts
-      puts "About to run #{sub_command} on the following servers:"
-      display(target)
-      puts
-      confirm_execution(target)
+      ui.info(["\n",
+          ui.color("Running #{sub_command}", :cyan),
+          " on #{target.joined_names}..."].join())
+      unless config[:yes]
+        ui.info("")
+        confirm_execution(target)
+      end
       #
       perform_execution(target)
-      puts
-      puts "Finished!"
-      puts
+      ui.info("")
+      ui.info "Finished! Current state:"
       display(target)
     end
 
     def perform_execution(target)
-      puts "Running #{sub_command}:"
       target.send(sub_command)
     end
   end

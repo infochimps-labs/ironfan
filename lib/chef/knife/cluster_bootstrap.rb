@@ -60,11 +60,9 @@ class Chef
       end
 
       def confirm_execution(target)
-        unless config[:yes]
-          puts "Bootstrapping the node redoes its initial setup -- only do this on an aborted launch."
-          puts "Are you absolutely certain that you want to perform this action? (Type 'Yes' to confirm)"
-          confirm_or_exit('Yes')
-        end
+        ui.info "Bootstrapping the node redoes its initial setup -- only do this on an aborted launch."
+        ui.info "Are you absolutely certain that you want to perform this action? (Type 'Yes' to confirm)"
+        confirm_or_exit('Yes')
       end
 
     end

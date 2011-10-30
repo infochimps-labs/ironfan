@@ -10,14 +10,19 @@ module ClusterChef
     end
   end
 
-
   #
   # ClusterChef::Server methods that handle chef actions
   #
   Server.class_eval do
 
     def chef_set_runlist
+      step("  setting node runlist")
       chef_node.run_list = Chef::RunList.new(*@settings[:run_list])
+    end
+
+    def save_chef_node
+      step("  saving chef node", :green)
+      chef_node.save
     end
 
     def delete_chef
@@ -77,41 +82,47 @@ module ClusterChef
     #
 
     def ensure_chef_client
+      step("  ensuring chef client exists")
       return @chef_client if chef_client
       @chef_client = Chef::ApiClient.new
       @chef_client.name(fullname)
       @chef_client.admin(false)
       #
       handle_chef_response(@chef_client, '409') do
+        step( "    creating chef #{@chef_client}" )
         # ApiClient#create sends extra params that fail -- we'll do it ourselves
         response = Chef::REST.new(Chef::Config[:chef_server_url]).post_rest(
           "clients", { 'name' => fullname, 'admin' => false, 'private_key' => true })
         @chef_client.private_key(response['private_key'])
         cloud.user_data(:client_key => @chef_client.private_key)
-        Chef::Log.debug( "Created #{@chef_client}" )
         write_client_key
       end
       @chef_client
     end
 
     def ensure_chef_node
+      step("  ensuring chef node exists")
       return @chef_node if chef_node
       @chef_node = Chef::Node.new
       @chef_node.name(fullname)
+      @chef_node.override[:cluster_name] = cluster_name
+      @chef_node.override[:facet_name]   = facet_name
+      @chef_node.override[:facet_index]  = facet_index
       #
       err_message = "You've found yourself in a situation where the #{fullname} client exists, \nbut you don't have access to its client key. \nYou need to either fix its permissions in the Chef console, or (if you are aware of the terrible consequences) do \nknife client delete #{fullname}"
       response = handle_chef_response(@chef_node, '409') do
         unless File.exists?(client_key_filename)
-          Chef::Log.warn "Cannot create chef node #{fullname} -- no client key found in #{client_key_filename}."
+          ui.warn "Cannot create chef node #{fullname} -- no client key found in #{client_key_filename}."
           raise(err_message)
         end
         chef_server_rest = Chef::REST.new(Chef::Config[:chef_server_url], fullname, client_key_filename)
         begin
+          ui.info("    creating chef #{@chef_node}")
           chef_server_rest.post_rest('nodes', @chef_node)
         rescue Net::HTTPServerException => e
           if e.response.code == '401'
-            Chef::Log.warn "Cannot create chef node #{fullname} -- client key #{client_key_filename} no longer valid."
-            Chef::Log.warn(err_message)
+            ui.warn "Cannot create chef node #{fullname} -- client key #{client_key_filename} no longer valid."
+            ui.warn(err_message)
           end
           raise
         end
@@ -128,23 +139,24 @@ module ClusterChef
     # We don't raise an error, just a very noisy warning.
     #
     def check_node_permissions
+      step("  ensuring chef node permissions are correct")
       chef_server_rest = Chef::REST.new(Chef::Config[:chef_server_url])
       perms = chef_server_rest.get_rest("nodes/#{fullname}/_acl")
       perms_valid = {}
       REQUIRED_PERMISSIONS.each{|perm| perms_valid[perm] = perms[perm] && perms[perm]['actors'].include?(fullname) }
       Chef::Log.debug("Checking permissions: #{perms_valid.inspect} -- #{ perms_valid.values.all? ? 'correct' : 'BADNESS' }")
       unless perms_valid.values.all?
-        Chef::Log.info(" ************************ ")
-        Chef::Log.info(" ")
-        Chef::Log.info(" INCONSISTENT PERMISSIONS for node #{fullname}:")
-        Chef::Log.info("   The client[#{fullname}] should have permissions for #{REQUIRED_PERMISSIONS.join(', ')}")
-        Chef::Log.info("   Instead, they are #{perms_valid.inspect}")
-        Chef::Log.info("   You should create the node #{fullname} as client[#{fullname}], not as yourself.")
-        Chef::Log.info(" ")
-        Chef::Log.info("   Please adjust the permissions on the Opscode console, at")
-        Chef::Log.info("     https://manage.opscode.com/nodes/#{fullname}/_acl")
-        Chef::Log.info(" ")
-        Chef::Log.info(" ************************ ")
+        ui.info(" ************************ ")
+        ui.info(" ")
+        ui.info(" INCONSISTENT PERMISSIONS for node #{fullname}:")
+        ui.info("   The client[#{fullname}] should have permissions for #{REQUIRED_PERMISSIONS.join(', ')}")
+        ui.info("   Instead, they are #{perms_valid.inspect}")
+        ui.info("   You should create the node #{fullname} as client[#{fullname}], not as yourself.")
+        ui.info(" ")
+        ui.info("   Please adjust the permissions on the Opscode console, at")
+        ui.info("     https://manage.opscode.com/nodes/#{fullname}/_acl")
+        ui.info(" ")
+        ui.info(" ************************ ")
       end
     end
 
@@ -166,7 +178,7 @@ module ClusterChef
       File.join(Chef::Config.keypair_path, "client-#{fullname}.pem")
     end
     def write_client_key
-      Chef::Log.debug( "Writing #{@chef_client}' private key to #{client_key_filename}" )
+      ui.info( "    writing #{@chef_client}' private key to #{client_key_filename}" )
       File.open(client_key_filename, "w"){|f| f.print( @chef_client.private_key ) }
     end
     def read_client_key

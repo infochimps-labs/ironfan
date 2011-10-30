@@ -42,25 +42,22 @@ class Chef
         if config[:chef]
           sync_to_chef target
         else Chef::Log.debug("Skipping sync to chef") ; end
-        puts
-        display(target)
-        puts
-        if config[:cloud]
+        if config[:cloud] && target.any?(&:in_cloud?)
           sync_to_cloud target
         else Chef::Log.debug("Skipping sync to cloud") ; end
       end
 
       def sync_to_chef(target)
         if config[:dry_run]
-          puts "(can't do a dry-run when syncing to chef -- skipping)"
+          ui.info "(can't do a dry-run when syncing to chef -- skipping)"
           return
         end
-        puts "Syncing to Chef:"
+        ui.info "Syncing to Chef:"
         target.sync_to_chef
       end
 
       def sync_to_cloud(target)
-        puts "Syncing to cloud:"
+        ui.info "Syncing to cloud:"
         target.sync_to_cloud
       end
 

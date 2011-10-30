@@ -156,7 +156,7 @@ module ClusterChef
       # Utility methods
 
       def image_info
-        IMAGE_INFO[ [region, bits, backing, image_name] ] or Chef::Log.warn "Make sure to define the machine's region, bits, backing and image_name. (Have #{[region, bits, backing, image_name].inspect})"
+        IMAGE_INFO[ [region, bits, backing, image_name] ] or ui.warn "Make sure to define the machine's region, bits, backing and image_name. (Have #{[region, bits, backing, image_name].inspect})"
       end
 
       def flavor_info

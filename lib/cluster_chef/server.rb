@@ -21,7 +21,7 @@ module ClusterChef
         "cluster" => cluster_name,
         "facet"   => facet_name,
         "index"   => facet_index }
-      Chef::Log.warn("Duplicate server #{[self, facet.name, idx]} vs #{@@all[fullname]}") if @@all[fullname]
+      ui.warn("Duplicate server #{[self, facet.name, idx]} vs #{@@all[fullname]}") if @@all[fullname]
       @@all[fullname] = self
     end
 
@@ -134,11 +134,7 @@ module ClusterChef
       #
       if client_key then cloud.user_data({ :client_key     => client_key, })
       else               cloud.user_data({ :validation_key => cloud.validation_key }) ; end
-      #
       cloud.keypair(cluster_name) if cloud.keypair.nil?
-      #
-      [self, @cluster, @cluster.cloud, @facet, @facet.cloud, @cloud].each{|o| Chef::Log.debug( [ "after resolve!", o, o.to_hash ].inspect ) }
-      Chef::Log.debug(["region: #{cloud.region}", @cluster.cloud.availability_zones, @facet.cloud.availability_zones, self.cloud.availability_zones,] )
       #
       self
     end
@@ -186,17 +182,19 @@ module ClusterChef
     #
 
     def sync_to_cloud
+      step "Syncing to cloud", :blue
       attach_volumes
       create_tags
       associate_elastic_ip
     end
 
     def sync_to_chef
+      step "Syncing to chef server", :blue
       ensure_chef_client
       ensure_chef_node
       check_node_permissions
       chef_set_runlist
-      chef_node.save
+      save_chef_node
       true
     end
 
@@ -227,27 +225,11 @@ module ClusterChef
       end
     end
 
-    def attach_volumes
-      return unless in_cloud?
-      discover_volumes!
-      composite_volumes.each do |vol_name, vol|
-        next unless vol.volume_id && (not vol.ephemeral_device?)
-        desc = "#{vol_name} on #{self.fullname} (#{vol.volume_id} @ #{vol.device})"
-        if (not vol.in_cloud?) then  Chef::Log.debug("Volume: not found #{desc}") ; next ; end
-        if (vol.has_server?)   then check_server_id_pairing(vol.fog_volume, desc) ; next ; end
-        Chef::Log.debug( "Volume: attaching #{desc} -- #{vol.inspect}" )
-        safely do
-          vol.fog_volume.device = vol.device
-          vol.fog_volume.server = fog_server
-        end
-      end
-    end
-
     def check_server_id_pairing thing, desc
       return unless thing && thing.server_id && self.in_cloud?
       type_of_thing = thing.class.to_s.gsub(/.*::/,"")
       if thing.server_id != self.fog_server.id
-        Chef::Log.warn "#{type_of_thing} mismatch: #{desc} is on #{thing.server_id} not #{self.fog_server.id}: #{thing.inspect.gsub(/\s+/m,' ')}"
+        ui.warn "#{type_of_thing} mismatch: #{desc} is on #{thing.server_id} not #{self.fog_server.id}: #{thing.inspect.gsub(/\s+/m,' ')}"
         false
       else
         Chef::Log.debug("#{type_of_thing} paired: #{desc}")

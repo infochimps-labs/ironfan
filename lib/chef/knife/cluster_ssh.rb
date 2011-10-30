@@ -41,7 +41,7 @@ class Chef
         :description => "The attribute to use for opening the connection - default is fqdn (ec2 users may prefer cloud.public_hostname)"
 
       def configure_session
-        predicate = @name_args[0].split(/\s+/).map(&:strip)
+        predicate = @name_args[0].split(/[\s\-]+/).map(&:strip)
 
         target = get_slice(*predicate).select(&:sshable?)
 
@@ -54,21 +54,16 @@ class Chef
         Chef::Log.debug JSON.pretty_generate(config)
 
         @action_nodes = target.chef_nodes
-        list = target.servers.map do |svr|
-          case
-          # when cloud.elastic_ip
-          #   svr.elastic_ip
-          when svr.chef_node
-            format_for_display( svr.chef_node )[config[:attribute]]
-          when svr.fog_server
-            svr.fog_server.public_ip_address
-          else nil
-          end
+        addresses = target.servers.map do |svr|
+          if (svr.cloud.elastic_ip)            then address = svr.cloud.elastic_ip ; end
+          if (not address) && (svr.chef_node)  then address = format_for_display( svr.chef_node )[config[:attribute]] ; end
+          if (not address) && (svr.fog_server) then address = svr.fog_server.public_ip_address ; end
+          address
         end.compact
 
-        (ui.fatal("No nodes returned from search!"); exit 10) if list.nil? || list.length == 0
+        (ui.fatal("No nodes returned from search!"); exit 10) if addresses.nil? || addresses.length == 0
 
-        session_from_list(list)
+        session_from_list(addresses)
       end
 
       def cssh

@@ -25,6 +25,7 @@ Chef::Config[:cluster_chef_path] ||= File.expand_path(File.dirname(__FILE__)+'..
 Chef::Config[:cluster_path]      ||= [ File.join(Chef::Config[:cluster_chef_path], "clusters") ]
 
 module ClusterChef
+
   # path to search for cluster definition files
   def self.cluster_path
     Chef::Config[:cluster_path]
@@ -35,6 +36,9 @@ module ClusterChef
   def self.clusters
     Chef::Config[:clusters] ||= Mash.new
   end
+
+  def self.ui=(ui) @ui = ui ; end
+  def self.ui()    @ui      ; end
 
   #
   # Defines a cluster with the given name.
@@ -105,7 +109,7 @@ module ClusterChef
   #
   def self.die *strings
     exit_code = strings.last.is_a?(Integer) ? strings.pop : -1
-    strings.each{|str| Chef::Log.warn str }
+    strings.each{|str| ui.warn str }
     exit exit_code
   end
 
@@ -121,8 +125,8 @@ module ClusterChef
     begin
       yield
     rescue StandardError => boom
-      Chef::Log.info( boom )
-      Chef::Log.info( boom.backtrace.join("\n") )
+      ui.info( boom )
+      ui.info( boom.backtrace.join("\n") )
     end
   end
 end

@@ -16,6 +16,7 @@ module ClusterChef
       $: << Chef::Config[:cluster_chef_path]+'/lib'
       require 'cluster_chef'
       $stdout.sync = true
+      ClusterChef.ui = ui
     end
 
     #
@@ -29,12 +30,20 @@ module ClusterChef
     # @return [ClusterChef::ServerSlice] the requested slice
     def get_slice(cluster_name, facet_name=nil, slice_indexes=nil)
       if facet_name.nil? && slice_indexes.nil?
-        cluster_name, facet_name, slice_indexes = cluster_name.split("-", 3)
+        cluster_name, facet_name, slice_indexes = cluster_name.split(/[\s\-]/, 3)
       end
+      ui.info("Inventorying servers in #{predicate_str(cluster_name, facet_name, slice_indexes)}")
       cluster = ClusterChef.load_cluster(cluster_name)
       cluster.resolve!
       cluster.discover!
       cluster.slice(facet_name, slice_indexes)
+    end
+
+    def predicate_str(cluster_name, facet_name, slice_indexes)
+      [ "#{ui.color(cluster_name, :bold)} cluster",
+        (facet_name    ? "#{ui.color(facet_name, :bold)} facet"      : "#{ui.color("all", :bold)} facets"),
+        (slice_indexes ? "servers #{ui.color(slice_indexes, :bold)}" : "#{ui.color("all", :bold)} servers")
+      ].join(', ')
     end
 
     # method to nodes should be filtered on
@@ -81,24 +90,23 @@ module ClusterChef
 
     # Show a pretty progress bar while we wait for a set of threads to finish.
     def progressbar_for_threads(threads)
-      puts "\nWaiting for servers:"
+      section "Waiting for servers:"
       total      = threads.length
       remaining  = threads.select(&:alive?)
       start_time = Time.now
       until remaining.empty?
         remaining = remaining.select(&:alive?)
-        if config[:verbosity]
-          puts "waiting: #{total - remaining.length} / #{total}, #{(Time.now - start_time).to_i}s"
-          sleep 3
+        if config[:verbose]
+          ui.info "waiting: #{total - remaining.length} / #{total}, #{(Time.now - start_time).to_i}s"
+          sleep 5
         else
-          ap config
           Formatador.redisplay_progressbar(total - remaining.length, total, {:started_at => start_time })
           sleep 1
         end
       end
       # Collapse the threads
       threads.each(&:join)
-      puts ''
+      ui.info ''
     end
 
     def bootstrapper(server, hostname)
@@ -124,17 +132,17 @@ module ClusterChef
     def run_bootstrap(node, hostname)
       bs = bootstrapper(node, hostname)
       if config[:skip].to_s == 'true'
-        puts "Skipping: bootstrapp #{hostname} with #{JSON.pretty_generate(bs.config)}"
+        ui.info "Skipping: bootstrapp #{hostname} with #{JSON.pretty_generate(bs.config)}"
         return
       end
       begin
         bs.run
       rescue StandardError => e
-        Chef::Log.warn e
-        Chef::Log.warn e.backtrace
-        Chef::Log.warn ""
-        Chef::Log.warn node.inspect
-        Chef::Log.warn ""
+        ui.warn e
+        ui.warn e.backtrace
+        ui.warn ""
+        ui.warn node.inspect
+        ui.warn ""
       end
     end
 
@@ -151,7 +159,15 @@ module ClusterChef
       unless response.chomp == str
         die "I didn't think so.", "Aborting!", 1
       end
-      puts
+      ui.info("")
+    end
+
+    #
+    # Announce a new section of tasks
+    #
+    def section(desc, *style)
+      style = [:blue] if style.empty?
+      ui.info(ui.color(desc, *style))
     end
 
     def h

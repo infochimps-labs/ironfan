@@ -22,7 +22,6 @@ class Chef
   class Knife
     class ClusterShow < Knife
       include ClusterChef::KnifeCommon
-
       deps do
         ClusterChef::KnifeCommon.load_deps
       end

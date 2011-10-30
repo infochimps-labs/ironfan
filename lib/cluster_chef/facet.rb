@@ -129,7 +129,7 @@ module ClusterChef
       intervals.split(",").map do |term|
         if    term =~ /^(\d+)-(\d+)$/ then ($1.to_i .. $2.to_i).to_a
         elsif term =~ /^(\d+)$/       then  $1.to_i
-        else  Chef::Log.warn("Bad interval: #{term}") ; nil
+        else  ui.warn("Bad interval: #{term}") ; nil
         end
       end.flatten.compact.uniq
     end
