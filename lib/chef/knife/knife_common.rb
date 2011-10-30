@@ -16,7 +16,8 @@ module ClusterChef
       $: << Chef::Config[:cluster_chef_path]+'/lib'
       require 'cluster_chef'
       $stdout.sync = true
-      ClusterChef.ui = ui
+      ClusterChef.ui          = self.ui
+      ClusterChef.chef_config = self.config
     end
 
     #
@@ -122,7 +123,7 @@ module ClusterChef
       bootstrap.config[:distro]         = config[:distro]         || server.cloud.bootstrap_distro
       bootstrap.config[:use_sudo]       = true unless config[:use_sudo] == false
       bootstrap.config[:chef_node_name] = server.fullname
-      bootstrap.config[:client_key]     = server.client_key                 if server.client_key
+      bootstrap.config[:client_key]     = server.client_key.body            if server.client_key.body
       bootstrap.config[:config_content] = server.chef_client_script_content if server.chef_client_script_content
 
       Chef::Log.debug JSON.pretty_generate(bootstrap.config)

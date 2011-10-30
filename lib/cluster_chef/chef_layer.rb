@@ -93,9 +93,12 @@ module ClusterChef
         # ApiClient#create sends extra params that fail -- we'll do it ourselves
         response = Chef::REST.new(Chef::Config[:chef_server_url]).post_rest(
           "clients", { 'name' => fullname, 'admin' => false, 'private_key' => true })
-        @chef_client.private_key(response['private_key'])
-        cloud.user_data(:client_key => @chef_client.private_key)
-        write_client_key
+        client_key.body = response['private_key']
+        client_key.save
+        p [client_key, client_key.body, client_key.proxy, @chef_client.private_key]
+        # @chef_client.private_key(response['private_key'])
+        # cloud.user_data(:client_key => @chef_client.private_key)
+        # write_client_key
       end
       @chef_client
     end
@@ -111,17 +114,17 @@ module ClusterChef
       #
       err_message = "You've found yourself in a situation where the #{fullname} client exists, \nbut you don't have access to its client key. \nYou need to either fix its permissions in the Chef console, or (if you are aware of the terrible consequences) do \nknife client delete #{fullname}"
       response = handle_chef_response(@chef_node, '409') do
-        unless File.exists?(client_key_filename)
-          ui.warn "Cannot create chef node #{fullname} -- no client key found in #{client_key_filename}."
+        unless File.exists?(client_key.filename)
+          ui.warn "Cannot create chef node #{fullname} -- no client key found in #{client_key.filename}."
           raise(err_message)
         end
-        chef_server_rest = Chef::REST.new(Chef::Config[:chef_server_url], fullname, client_key_filename)
+        chef_server_rest = Chef::REST.new(Chef::Config[:chef_server_url], fullname, client_key.filename)
         begin
           ui.info("    creating chef #{@chef_node}")
           chef_server_rest.post_rest('nodes', @chef_node)
         rescue Net::HTTPServerException => e
           if e.response.code == '401'
-            ui.warn "Cannot create chef node #{fullname} -- client key #{client_key_filename} no longer valid."
+            ui.warn "Cannot create chef node #{fullname} -- client key #{client_key.filename} no longer valid."
             ui.warn(err_message)
           end
           raise
@@ -161,8 +164,10 @@ module ClusterChef
     end
 
     def client_key
-      return unless chef_client
-      @client_key ||= (chef_client.private_key || read_client_key)
+      @client_key ||= ClusterChef::ChefClientKey.new("client-#{fullname}", chef_client) do |body|
+        chef_client.private_key(body)
+        cloud.user_data(:client_key => body)
+      end
     end
 
     def chef_client_script_content
@@ -174,20 +179,20 @@ module ClusterChef
 
   protected
 
-    def client_key_filename
-      File.join(Chef::Config.keypair_path, "client-#{fullname}.pem")
-    end
-    def write_client_key
-      ui.info( "    writing #{@chef_client}' private key to #{client_key_filename}" )
-      File.open(client_key_filename, "w"){|f| f.print( @chef_client.private_key ) }
-    end
-    def read_client_key
-      return unless File.exists?(client_key_filename)
-      key = File.read(client_key_filename).chomp
-      @chef_client.private_key(key)
-      cloud.user_data(:client_key => key)
-      key
-    end
+    # def client_key_filename
+    #   File.join(Chef::Config.keypair_path, "client-#{fullname}.pem")
+    # end
+    # def write_client_key
+    #   ui.info( "    writing #{@chef_client}' private key to #{client_key_filename}" )
+    #   File.open(client_key_filename, "w"){|f| f.print( @chef_client.private_key ) }
+    # end
+    # def read_client_key
+    #   return unless File.exists?(client_key_filename)
+    #   key = File.read(client_key_filename).chomp
+    #   @chef_client.private_key(key)
+    #   cloud.user_data(:client_key => key)
+    #   key
+    # end
 
     # Execute the given chef call, but don't explode if the given http status
     # code comes back

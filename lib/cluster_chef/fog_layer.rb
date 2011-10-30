@@ -47,8 +47,8 @@ module ClusterChef
     end
 
     def fog_address
-      address = self.cloud.elastic_ip or return
-      ClusterChef.fog_addresses[address]
+      address_str = self.cloud.elastic_ip or return
+      ClusterChef.fog_addresses[address_str]
     end
 
     def attach_volumes
@@ -80,5 +80,15 @@ module ClusterChef
       end
     end
 
+  end
+
+  class ServerSlice
+    def sync_keypairs
+      step("ensuring keypairs exist")
+      keypairs  = servers.map{|svr| [svr.cluster.cloud.keypair, svr.cloud.keypair] }.flatten - ClusterChef.fog_keypairs.keys
+      keypairs.uniq.compact.each do |keypair_name|
+        keypair_obj = ClusterChef::Ec2Keypair.create!(keypair_name)
+      end
+    end
   end
 end

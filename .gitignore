@@ -36,7 +36,6 @@ rdoc
 doc
 pkg
 .yardoc
-*private*
 
 ## PROJECT::SPECIFIC
 .rake_test_cache

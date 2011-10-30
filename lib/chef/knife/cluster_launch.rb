@@ -75,12 +75,9 @@ class Chef
 
         die("", "#{h.color("All servers are running -- not launching any.",:blue)}", "", 1) if target.empty?
 
-        # We need to dummy up a key_pair in simulation mode, not doing it fr'eals
-        # You must to do this manually in real life -- must save the file, etc.
-        if config[:dry_run] then ClusterChef.fog_connection.key_pairs.create(:name => target.cluster.name) ; end
-
         # Pre-populate information in chef
         section("Sync'ing to chef and cloud")
+        target.sync_to_cloud
         target.sync_to_chef
 
         # Make security groups

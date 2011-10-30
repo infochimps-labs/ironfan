@@ -15,6 +15,7 @@ require 'cluster_chef/server'         # realization of a specific facet
 require 'cluster_chef/discovery'      # pair servers with Fog and Chef objects
 require 'cluster_chef/server_slice'   # collection of server objects
 require 'cluster_chef/volume'         # collection of server objects
+require 'cluster_chef/private_key'    # interface to fog  for server actions
 #
 require 'cluster_chef/chef_layer'     # interface to chef for server actions
 require 'cluster_chef/fog_layer'      # interface to fog  for server actions
@@ -39,6 +40,9 @@ module ClusterChef
 
   def self.ui=(ui) @ui = ui ; end
   def self.ui()    @ui      ; end
+
+  def self.chef_config=(cc) @chef_config = cc ; end
+  def self.chef_config()    @chef_config      ; end
 
   #
   # Defines a cluster with the given name.

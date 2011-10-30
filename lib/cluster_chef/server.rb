@@ -132,8 +132,8 @@ module ClusterChef
           :run_list               => run_list,
         })
       #
-      if client_key then cloud.user_data({ :client_key     => client_key, })
-      else               cloud.user_data({ :validation_key => cloud.validation_key }) ; end
+      if client_key.body then cloud.user_data({ :client_key     => client_key.body, })
+      else                    cloud.user_data({ :validation_key => cloud.validation_key }) ; end
       cloud.keypair(cluster_name) if cloud.keypair.nil?
       #
       self

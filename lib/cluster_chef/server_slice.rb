@@ -107,11 +107,12 @@ module ClusterChef
     end
 
     def sync_roles
-      step("syncing cluster and facet roles")
+      step("  syncing cluster and facet roles")
       chef_roles.each(&:save)
     end
 
     def sync_to_cloud
+      sync_keypairs
       delegate_to_servers( :sync_to_cloud )
     end
 
