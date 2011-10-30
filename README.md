@@ -14,7 +14,7 @@ Here's a very simple cluster:
 
 
 ```ruby
-ClusterChef.cluster 'demosimple' do
+ClusterChef.cluster 'awesome' do
   cloud(:ec2) do
     flavor              't1.micro'
   end
@@ -23,38 +23,112 @@ ClusterChef.cluster 'demosimple' do
   role                  :chef_client
   role                  :ssh
 
-  # An NFS server to hold your home drives.
-  facet :homebase do
+  # The database server
+  facet :dbnode do
     instances           1
-    role                :nfs_server
-    facet_role.default_attributes({
-      :nfs_server => { :exports => '/home' }
-      })
-  end
+    role                :mysql_server
 
-  # A throwaway facet for development.
-  facet :sandbox do
-    instances           2
     cloud do
       flavor           'm1.large'
       backing          'ebs'
     end
-    role                :nfs_client
+  end
+
+  # A throwaway facet for development.
+  facet :webnode do
+    instances           2
+    role                :nginx_server
+    role                :awesome_webapp
   end
 end
 ```
 
-It defines a cluster named demosimple. A cluster is a group of servers united around a common purpose. 
+This code defines a cluster named demosimple. A cluster is a group of servers united around a common purpose, in this case to serve a scalable web application.
 
-The demosimple cluster has two 'facets' -- a subgroup of interchangeable servers that provide a logical set of systems.
+The awesome cluster has two 'facets' -- dbnode and webnode. A facet is a subgroup of interchangeable servers that provide a logical set of systems: in this case, the systems that store the website's data and those that render it.
 
-The first facet, 'homebase', has one server, which will be named 'demosimple-homebase-0'; the 'sandbox' facet has two servers, 'demosimple-sandbox-0' and 'demosimple-sandbox-1'.
+The dbnode facet has one server, which will be named 'awesome-dbnode-0'; the webnode facet has two servers, 'awesome-webnode-0' and 'awesome-webnode-1'.
 
-Each server inherits the appropriate behaviors from its facet and cluster. All the servers in this cluster have the 'base_role', 'chef_client' and 'ssh' roles. The homebase server additionally applies the NFS chef role, while the sandboxen add the 'nfs_client' role.
+Each server inherits the appropriate behaviors from its facet and cluster. All the servers in this cluster have the `base_role`, `chef_client` and `ssh` roles. The dbnode machines additionally house a MySQL server, while the webnodes have an nginx reverse proxy for the custom `awesome_webapp`.
 
-As you can see, the sandbox facet asks for a different flavor of machine ('m1.large') than the cluster default ('t1.micro'). Settings in the facet override those in the server, and settings in the server override those of its facet, so you can economically describe only what's significant about each machine.
+As you can see, the dbnode facet asks for a different flavor of machine ('m1.large') than the cluster default ('t1.micro'). Settings in the facet override those in the server, and settings in the server override those of its facet. You economically describe only what's significant about each machine.
 
-ClusterChef speaks naturally to both Chef and your cloud provider. The `facet_role.default_attributes` statement will be synchronized to the chef server. Your chef roles should focus system-specific information; the cluster file lets you see the architecture as a whole.
+The facets are described and scale independently. If you'd like to add more webnodes, just increase the instance count. If a machine misbehaves, just terminate it. Running `knife cluster launch awesome webnode` will note which machines are missing, and launch and configure them appropriately.
+
+### Advanced clusters remain simple
+
+Let's say that app is truly awesome, and the features and demand increases. This cluster adds an [ElasticSearch server](http://elasticsearch.org) for searching, a haproxy loadbalancer, and spreads the webnodes across two availability zones.
+
+```ruby
+ClusterChef.cluster 'demoweb' do
+  cloud(:ec2) do
+    image_name          "maverick"
+    flavor              "t1.micro"
+    availability_zones  ['us-east-1a']
+  end
+
+  # The database server
+  facet :dbnode do
+    instances           1
+    role                :mysql_server
+    cloud do
+      flavor           'm1.large'
+      backing          'ebs'
+    end
+
+    volume(:data) do
+      size              20
+      keep              true                        
+      device            '/dev/sdi'                  
+      mount_point       '/data'              
+      snapshot_id       'snap-a10234f'             
+    end
+    server(0).volume(:data){ volume_id('vol-1254') }
+  end
+
+  facet :webnode do
+    instances           6
+    cloud.availability_zones  ['us-east-1a', 'us-east-1b']
+
+    role                :nginx_server
+    role                :awesome_webapp
+    role                :elasticsearch_client
+
+    volume(:server_logs) do
+      size              5                           
+      keep              true                        
+      device            '/dev/sdi'                  
+      mount_point       '/server_logs'              
+      snapshot_id       'snap-d9c1edb1'             
+    end
+    %w[ vol-1234 vol-4321 vol-234a vol-9879 vol-3423 vol-1233 ].each_with_index do |vol_name, idx|
+      server(idx).volume(:server_logs){ volume_id(vol_name) }
+    end
+  end
+
+  facet :esnode do
+    instances           1
+    role                "elasticsearch_data_esnode"
+    role                "elasticsearch_http_esnode"
+    cloud.flavor        "m1.large"
+  end
+
+  facet :loadbalancer do
+    instances           1
+    role                "haproxy"
+    cloud.flavor        "m1.xlarge"
+    elastic_ip          "128.69.69.23"
+  end
+  
+  cluster_role.override_attributes({
+    :elasticsearch => {
+      :version => '0.17.8',
+    },
+  })
+end
+```
+
+ClusterChef speaks naturally to both Chef and your cloud provider. The esnode's `cluster_role.override_attributes` statement will be synchronized to the chef server, pinning the elasticsearch version across the clients and server.. Your chef roles should focus system-specific information; the cluster file lets you see the architecture as a whole.
 
 With these simple settings, if you have already [set up chef's knife to launch cloud servers](http://wiki.opscode.com/display/chef/Launch+Cloud+Instances+with+Knife), typing `knife cluster launch demosimple --bootstrap` will (using Amazon EC2 as an example):
 
@@ -69,84 +143,14 @@ With these simple settings, if you have already [set up chef's knife to launch c
   - Recognize the `nfs_server` role, and adds security groups `nfs_server` and `nfs_client`
   - Authorizes the `nfs_server` to accept connections from all `nfs_client`s. Machines in other clusters that you mark as `nfs_client`s can connect to the NFS server, but are not automatically granted any other access to the machines in this cluster. ClusterChef's opinionated behavior is about more than saving you effort -- tying this behavior to the chef role means you can't screw it up. 
 * Launches the machines in parallel:
+  - using the image name and the availability zone, it determines the appropriate region, image ID, and other implied behavior. 
   - passes a JSON-encoded user_data hash specifying the machine's chef `node_name` and client key. An appropriately-configured machine image will need no further bootstrapping -- it will connect to the chef server with the appropriate identity and proceed completely unattended.
 * Syncronizes to the cloud provider:
-  - Applies EC2 tags to the machine, so that you 
-  
-  ![AWS Console screenshot](https://github.com/infochimps/cluster_chef/raw/version_3/notes/aws_console_screenshot.jpg)
+  - Applies EC2 tags to the machine, making your console intelligible: ![AWS Console screenshot](https://github.com/infochimps/cluster_chef/raw/version_3/notes/aws_console_screenshot.jpg)
+  - Connects external (EBS) volumes, if any, to the correct mount point
+  - Associates an elastic IP, if any, to the machine
+* Bootstraps the machine using knife bootstrap
 
-
-```ruby
-ClusterChef.cluster 'demohadoop' do
-  cloud :ec2 do
-    image_name          "maverick"
-    flavor              "c1.medium"
-    availability_zones  ['us-east-1d']
-    security_group :logmuncher do
-      authorize_group "webnode"
-    end
-  end
-  
-  facet 'master' do
-    instances           1
-    role                "nfs_server"
-    role                "hadoop_master"
-    role                "hadoop_worker"
-    role                "hadoop_initial_bootstrap"
-  end
-
-  facet :webnode do
-    instances           2
-    role                "nfs_client"
-    role                "hadoop_worker"
-
-    volume(:server_logs) do
-      size              5                           
-      keep              true                        
-      device            '/dev/sdi'                  
-      mount_point       '/server_logs'              
-      mount_options     'defaults,nouuid,noatime'   
-      fs_type           'xfs'                       
-      snapshot_id       'snap-d9c1edb1'             
-    end
-    server(0).volume(:server_logs){ volume_id('vol-12345') }
-    server(1).volume(:server_logs){ volume_id('vol-6789a') }
-  end
-
-  facet :esnode do
-    instances           1
-    role                "nginx"
-    role                "elasticsearch_data_esnode"
-    role                "elasticsearch_http_esnode"
-    #
-    cloud.flavor        "m1.large"
-  end
-  
-end
-```
-
-This defines a *cluster* (group of machines that serve some common purpose) with two *facets*, or unique configurations of machines within the cluster. (For another example, a webserver farm might have a loadbalancer facet, a database facet, and a webnode facet).
-
-In the example above, the master serves out a home directory over NFS, and runs the processes that distribute jobs to hadoop workers. In this small cluster, the master also has workers itself, and a utility role that helps initialize it out of the box.
-
-There are 2 workers; they use the home directory served out by the master, and run the hadoop worker processes. 
-
-Lastly, we define what machines to use for this cluster. Instead of having to look up and type in an image ID, we just say we want the Ubuntu 'Lucid' distribution on a c1.medium machine. Cluster_chef understands that this means we need the 32-bit image in the us-east-1 region, and makes the cloud instance request accordingly. It also creates a 'logmunchers' security group, opening it so all the 'webnode' machines can push their server logs onto the HDFS.
-
-The following commands launch each machine, and once ready, ssh in to install chef and converge all its software.
-
-```ruby
-knife cluster launch demohadoop master --bootstrap
-knife cluster launch demohadoop worker --bootstrap
-```
-
-You can also now launch the entire cluster at once with the following
-
-```ruby
-knife cluster launch demohadoop --bootstrap
-```
-
-The cluster launch operation is idempotent: nodes that are running won't be started!
 
 ## Philosophy
 
