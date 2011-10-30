@@ -24,7 +24,7 @@ module ClusterChef
           :index   => facet_index, },
         :user_data         => JSON.pretty_generate(cloud.user_data),
         :block_device_mapping    => block_device_mapping,
-        # :disable_api_termination => cloud.disable_api_termination,
+        # :disable_api_termination => cloud.permanent,
         # :instance_initiated_shutdown_behavior => instance_initiated_shutdown_behavior,
         :availability_zone => self.default_availability_zone,
         :monitoring => cloud.monitoring,

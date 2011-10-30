@@ -24,20 +24,27 @@ module ClusterChef
     # * executes the block in the cloud's object context
     #
     # @example
-    #   # defines a security group
-    #   cloud :ec2 do
-    #     security_group :foo
+    #   cloud do
+    #     image_name     'maverick'
+    #     security_group :nagios
     #   end
     #
-    # @example
-    #   # same effect
-    #   cloud.security_group :foo
+    #   # defines ec2-specific behavior
+    #   cloud(:ec2) do
+    #     public_ip      '1.2.3.4'
+    #     region         'us-east-1d'
+    #   end
     #
     def cloud(cloud_provider=nil, attrs={}, &block)
       raise "Only have ec2 so far" if cloud_provider && (cloud_provider != :ec2)
       @cloud ||= ClusterChef::Cloud::Ec2.new(self)
       @cloud.configure(attrs, &block)
       @cloud
+    end
+
+    # sugar for cloud(:ec2)
+    def ec2(attrs={}, &block)
+      cloud(:ec2, attrs, &block)
     end
 
     # Magic method to describe a volume

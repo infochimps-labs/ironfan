@@ -1,7 +1,54 @@
 module ClusterChef
   module Cloud
+
+    #
+    # Right now only one cloud provider is implemented, so the separation
+    # between `cloud` and `cloud(:ec2)` is muddy.
+    #
+    # The goal though is to allow
+    #
+    # * cloud with no predicate -- definitions that apply to all cloud
+    #   providers. If you only use one provider ever nothing stops you from
+    #   always saying `cloud`.
+    # * Declarations irrelevant to other providers are acceptable and will be ignored
+    # * Declarations that are wrong in the context of other providers (a `public_ip`
+    #   that is not available) will presumably cause a downstream error -- it's
+    #   your responsibility to overlay with provider-correct values.
+    # * There are several declarations that *could* be sensibly abstracted, but
+    #   are not. Rather than specifying `flavor 'm1.xlarge'`, I could ask for
+    #   :ram => 15, :cores => 4 or storage => 1500 and get the cheapest machine
+    #   that met or exceeded each constraint -- the default of `:price =>
+    #   :smallest` would get me a t1.micro on EC2, a 256MB on
+    #   Rackspace. Availability zones could also plausibly be parameterized.
+    #
+    # @example
+    #     # these apply regardless of cloud provider
+    #     cloud do
+    #       # this makes sense everywhere
+    #       image_name            'maverick'
+    #
+    #       # this is not offered by many providers, and its value is non-portable;
+    #       # but if you only run in one cloud there's harm in putting it here
+    #       # or overriding it.
+    #       public_ip             '1.2.3.4'
+    #
+    #       # Implemented differently across providers but its meaning is clear
+    #       security_group        :nagios
+    #
+    #       # This is harmless for the other clouds
+    #       availability_zones   ['us-east-1d']
+    #     end
+    #
+    #     # these only apply to ec2 launches.
+    #     # `ec2` is sugar for `cloud(:ec2)`.
+    #     ec2 do
+    #       spot_price_fraction   0.4
+    #     end
+    #
     class Base < ClusterChef::DslObject
-      has_keys( :name, :flavor, :image_name, :image_id, :keypair, :chef_client_script )
+      has_keys(
+        :name, :flavor, :image_name, :image_id, :keypair,
+        :chef_client_script, :public_ip, :permanent )
       attr_accessor :owner
 
       def initialize(owner, *args)
@@ -73,8 +120,9 @@ module ClusterChef
 
     class Ec2 < Base
       has_keys(
-        :region, :availability_zones, :backing, :permanent, :elastic_ip,
-        :spot_price, :spot_price_fraction, :user_data, :security_groups,
+        :region, :availability_zones, :backing,
+        :spot_price, :spot_price_fraction,
+        :user_data, :security_groups,
         :monitoring
         )
 
@@ -90,13 +138,6 @@ module ClusterChef
             :backing            => 'ebs',
             :flavor             => 't1.micro',
           })
-      end
-
-      # An alias for disable_api_termination. Prevents the instance from being
-      # terminated without flipping its disable_api_termination attribute back
-      # to false
-      def permanent(val=nil)
-        set :disable_api_termination, val
       end
 
       # adds a security group to the cloud instance

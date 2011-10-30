@@ -1,10 +1,8 @@
 module ClusterChef
-  class Cluster
 
+  class Cluster
     #
-    # !! DEPRECATED !!
-    #
-    # This doesn't really work -- it should be ripped out.
+    # **DEPRECATED**: This doesn't really work -- use +reverse_merge!+ instead
     #
     def use(*clusters)
       ui.warn "The 'use' statement is deprecated #{callers.inspect}"
@@ -18,10 +16,18 @@ module ClusterChef
   end
 
   class Server
-    # <b>DEPRECATED:</b> Please use <tt>fullname</tt> instead.
+    # **DEPRECATED**: Please use +fullname+ instead.
     def chef_node_name name
       ui.warn "[DEPRECATION] `chef_node_name` is deprecated.  Please use `fullname` instead."
       fullname name
     end
   end
+
+  class Cloud::Ec2
+    # **DEPRECATED**: Please use +public_ip+ instead.
+    def elastic_ip(*args, &block)
+      public_ip(*args, &block)
+    end
+  end
+
 end
