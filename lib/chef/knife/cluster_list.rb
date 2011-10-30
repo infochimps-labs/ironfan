@@ -33,7 +33,7 @@ class Chef
         load_cluster_chef
         configure_dry_run
 
-        hash = ClusterChef.list_clusters
+        hash = ClusterChef.cluster_filenames
 
         table = []
         hash.keys.sort.each do |key|

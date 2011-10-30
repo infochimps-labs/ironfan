@@ -21,6 +21,17 @@ require File.expand_path(File.dirname(__FILE__)+"/cluster_ssh.rb")
 
 class Chef
   class Knife
+    #
+    # Based on https://gist.github.com/1325982 by Ash Berlin
+    #
+    #     "Since chef v0.10 you can send USR1 to the chef-client process and it
+    #     will wake up and do a run. But the usual case when I want to do a run
+    #     is cos I'm either testing a cookbook change or I want to deploy now. I
+    #     could just run sudo chef-client but then that will only log to std
+    #     out.  Just run this script, it will send chef-client a USR1 signal and
+    #     then tail the log file (but nicely so that you'll get your terminal
+    #     back when the run completes)."
+    #
     class ClusterKick < Chef::Knife::ClusterSsh
 
       import_banner_and_options(Chef::Knife::ClusterSsh)
@@ -38,6 +49,7 @@ set -e
 <%= ((config[:verbosity].to_i > 1) ? "set -v" : "") %>
 
 pid_file="<%= config[:pid_file] %>"
+log_file=/var/log/chef/client.log
 
 declare tail_pid
 
@@ -51,7 +63,7 @@ trap "on_exit" EXIT ERR
 pipe=/tmp/pipe-$$
 mkfifo $pipe
 
-tail -fn0 /var/log/chef/client.log > $pipe &
+tail -fn0 "$log_file" > $pipe &
 
 tail_pid=$!
 
