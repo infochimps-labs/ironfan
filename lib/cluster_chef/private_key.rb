@@ -33,7 +33,7 @@ module ClusterChef
     def load
       # Chef::Log.debug("Loading #{filename}")
       return unless File.exists?(filename)
-      body = File.read(filename).chomp
+      self.body = File.read(filename).chomp
     end
 
     def body=(content)
@@ -50,7 +50,7 @@ module ClusterChef
     end
 
     def to_s
-      [super[0..-2], @name, @proxy].join(" ") + '>'
+      [super[0..-2], @name, @proxy, @body.to_s[0..30], @body.to_s[-60..-30]].join(" ") + '>'
     end
   end
 

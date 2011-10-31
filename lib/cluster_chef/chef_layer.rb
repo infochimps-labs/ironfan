@@ -15,12 +15,16 @@ module ClusterChef
   #
   Server.class_eval do
 
-    def chef_set_runlist
-      step("  setting node runlist")
+    def chef_set_attributes
+      step("  setting node attributes")
       chef_node.run_list = Chef::RunList.new(*@settings[:run_list])
+      chef_node.override[:cluster_name] = cluster_name
+      chef_node.override[:facet_name]   = facet_name
+      chef_node.override[:facet_index]  = facet_index
     end
 
     def save_chef_node
+      return unless chef_node
       step("  saving chef node", :green)
       chef_node.save
     end
@@ -37,7 +41,6 @@ module ClusterChef
 
     def chef_node
       return @chef_node unless @chef_node.nil?
-      # @chef_node = handle_chef_response('404'){ Chef::Node.load( fullname ) }
       @chef_node = cluster.chef_nodes.find{|nd| nd.name == self.fullname } || false
     end
 
@@ -98,12 +101,11 @@ module ClusterChef
 
     def ensure_chef_node
       step("  ensuring chef node exists")
-      return @chef_node if chef_node
+      @chef_node = handle_chef_response('404'){ Chef::Node.load( fullname ) }
+      return @chef_node if @chef_node
       @chef_node = Chef::Node.new
       @chef_node.name(fullname)
-      @chef_node.override[:cluster_name] = cluster_name
-      @chef_node.override[:facet_name]   = facet_name
-      @chef_node.override[:facet_index]  = facet_index
+      chef_set_attributes
       #
       err_message = "You've found yourself in a situation where the #{fullname} client exists, \nbut you don't have access to its client key. \nYou need to either fix its permissions in the Chef console, or (if you are aware of the terrible consequences) do \nknife client delete #{fullname}"
       response = handle_chef_response('409') do
@@ -163,7 +165,7 @@ module ClusterChef
 
     def client_key
       @client_key ||= ClusterChef::ChefClientKey.new("client-#{fullname}", chef_client) do |body|
-        chef_client.private_key(body)
+        chef_client.private_key(body) if chef_client.present? && body.present?
         cloud.user_data(:client_key => body)
       end
     end

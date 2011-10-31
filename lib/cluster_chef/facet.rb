@@ -39,7 +39,7 @@ module ClusterChef
 
     def assign_volume_ids(volume_name, *volume_ids)
       volume_ids.flatten.zip(servers).each do |volume_id, server|
-        server.volume(volume_name){ volume_id(volume_id) }
+        server.volume(volume_name){ volume_id(volume_id) } if server
       end
     end
 

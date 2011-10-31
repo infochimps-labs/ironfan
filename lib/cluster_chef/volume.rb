@@ -43,6 +43,10 @@ module ClusterChef
     end
 
     # With snapshot specified but volume missing, have it auto-created at launch
+    #
+    # Be careful with this -- you can end up with multiple volumes claiming to
+    # be the same thing.
+    #
     def create_at_launch?
       self.create_at_launch
     end

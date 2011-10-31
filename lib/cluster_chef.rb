@@ -85,6 +85,8 @@ module ClusterChef
 
     cluster_file = cluster_filenames[cluster_name] or die("Couldn't find a definition for #{cluster_name} in cluster_path: #{cluster_path.inspect}")
 
+    Chef::Log.info("Loading cluster #{cluster_file}")
+
     require cluster_file
     unless clusters[cluster_name] then  die("#{cluster_file} was supposed to have the definition for the #{cluster_name} cluster, but didn't") end
 

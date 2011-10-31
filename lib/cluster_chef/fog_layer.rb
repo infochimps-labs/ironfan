@@ -7,6 +7,7 @@ module ClusterChef
     def fog_create_server
       step(" creating cloud server", :green)
       fog_description = fog_description_for_launch
+      Chef::Log.debug(JSON.pretty_generate(fog_description))
       @fog_server = ClusterChef.fog_connection.servers.create(fog_description)
     end
 

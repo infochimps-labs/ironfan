@@ -124,7 +124,6 @@ module ClusterChef
       bootstrap.config[:use_sudo]       = true unless config[:use_sudo] == false
       bootstrap.config[:chef_node_name] = server.fullname
       bootstrap.config[:client_key]     = server.client_key.body            if server.client_key.body
-      bootstrap.config[:config_content] = server.chef_client_script_content if server.chef_client_script_content
 
       bootstrap
     end

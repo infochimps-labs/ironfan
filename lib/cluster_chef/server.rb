@@ -193,7 +193,7 @@ module ClusterChef
       ensure_chef_client
       ensure_chef_node
       check_node_permissions
-      chef_set_runlist
+      chef_set_attributes
       sync_volume_attributes
       save_chef_node
       true

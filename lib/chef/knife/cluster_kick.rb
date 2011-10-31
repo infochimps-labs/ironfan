@@ -47,7 +47,6 @@ class Chef
 #!/bin/bash
 set -e
 <%= ((config[:verbosity].to_i > 1) ? "set -v" : "") %>
-set -v
 
 pid_file="<%= config[:pid_file] %>"
 log_file=/var/log/chef/client.log

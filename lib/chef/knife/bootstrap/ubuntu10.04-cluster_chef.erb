@@ -6,7 +6,7 @@ bash -c '
 # * pushes the node identity into the first-boot.json
 # * installs the chef-client service and kicks off the first run of chef
 
-# set -v
+<%= (@config[:verbosity].to_i > 1 ? 'set -v' : '') %>
 
 mkdir /tmp/knife-bootstrap ; chmod 700 /tmp/knife-bootstrap
 cd /tmp/knife-bootstrap
@@ -62,12 +62,21 @@ fi
 echo -e "`date` \n\n**** \n**** Knifing in the chef client config files:\n****\n"
 mkdir -p /etc/chef
 
+<%- if @config[:client_key] %>
+(
+cat <<'EOP'
+<%= @config[:client_key] %>
+EOP
+) > /tmp/knife-bootstrap/client.pem
+awk NF /tmp/knife-bootstrap/client.pem > /etc/chef/client.pem
+<%- else %>
 (
 cat <<'EOP'
 <%= validation_key %>
 EOP
 ) > /tmp/knife-bootstrap/validation.pem
 awk NF /tmp/knife-bootstrap/validation.pem > /etc/chef/validation.pem
+<%- end %>
 
 echo -e "`date` \n\n**** \n**** Nuking our temp files:\n****\n"
 
