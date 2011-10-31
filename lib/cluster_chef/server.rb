@@ -202,7 +202,6 @@ module ClusterChef
     def sync_volume_attributes
       composite_volumes.each do |vol_name, vol|
         chef_node.normal[:mountable_volumes][:volumes] ||= Mash.new
-        p [vol, vol.to_hash, chef_node.normal[:mountable_volumes]]
         chef_node.normal[:mountable_volumes][:volumes][vol_name] = vol.to_hash.compact
       end
     end

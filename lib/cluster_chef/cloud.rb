@@ -187,11 +187,11 @@ module ClusterChef
       end
 
       # Bring the ephemeral storage (local scratch disks) online
-      def mount_ephemerals
-        owner.volume(:ephemeral0){ device '/dev/sdb'; volume_id 'ephemeral0' } if flavor_info[:ephemeral_volumes] > 0
-        owner.volume(:ephemeral1){ device '/dev/sdc'; volume_id 'ephemeral1' } if flavor_info[:ephemeral_volumes] > 1
-        owner.volume(:ephemeral2){ device '/dev/sdd'; volume_id 'ephemeral2' } if flavor_info[:ephemeral_volumes] > 2
-        owner.volume(:ephemeral3){ device '/dev/sde'; volume_id 'ephemeral3' } if flavor_info[:ephemeral_volumes] > 3
+      def mount_ephemerals(attrs={})
+        owner.volume(:ephemeral0, attrs){ device '/dev/sdb'; volume_id 'ephemeral0' } if flavor_info[:ephemeral_volumes] > 0
+        owner.volume(:ephemeral1, attrs){ device '/dev/sdc'; volume_id 'ephemeral1' } if flavor_info[:ephemeral_volumes] > 1
+        owner.volume(:ephemeral2, attrs){ device '/dev/sdd'; volume_id 'ephemeral2' } if flavor_info[:ephemeral_volumes] > 2
+        owner.volume(:ephemeral3, attrs){ device '/dev/sde'; volume_id 'ephemeral3' } if flavor_info[:ephemeral_volumes] > 3
       end
 
       # Utility methods

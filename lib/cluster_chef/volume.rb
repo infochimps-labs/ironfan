@@ -10,7 +10,8 @@ module ClusterChef
       :volume_id, :snapshot_id, :size,
       :device, :mount_point, :mount_options, :fs_type,
       :availability_zone,
-      :keep, :attachable, :create_at_launch
+      :keep, :attachable, :create_at_launch,
+      :tags
       )
 
     VOLUME_DEFAULTS = {
@@ -52,6 +53,12 @@ module ClusterChef
 
     def has_server?
       in_cloud? && fog_volume.server_id.present?
+    end
+
+    def reverse_merge!(other_hsh)
+      super(other_hsh)
+      self.tags.reverse_merge!(other_hsh.tags) if other_hsh.respond_to?(:tags) && other_hsh.tags.present?
+      self
     end
 
     # An array of hashes with dorky-looking keys, just like Fog wants it.

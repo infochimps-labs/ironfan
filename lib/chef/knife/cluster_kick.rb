@@ -35,7 +35,7 @@ class Chef
     class ClusterKick < Chef::Knife::ClusterSsh
 
       import_banner_and_options(Chef::Knife::ClusterSsh)
-      banner 'knife cluster kick "CLUSTER [FACET [INDEXES]]" COMMAND (options) - start a run of chef-client on each server, tailing the logs and exiting when the run completes.'
+      banner 'knife cluster kick "CLUSTER [FACET [INDEXES]]" (options) - start a run of chef-client on each server, tailing the logs and exiting when the run completes.'
       load_deps
 
       option :pid_file,
@@ -47,6 +47,7 @@ class Chef
 #!/bin/bash
 set -e
 <%= ((config[:verbosity].to_i > 1) ? "set -v" : "") %>
+set -v
 
 pid_file="<%= config[:pid_file] %>"
 log_file=/var/log/chef/client.log
@@ -67,11 +68,14 @@ tail -fn0 "$log_file" > $pipe &
 
 tail_pid=$!
 
-sudo kill -USR1 $(cat $pid_file)
-sed -r "/(ERROR: Sleeping for [[:digit:]+] seconds before trying again|INFO: Report handlers complete)\$/{q}" $pipe
+sudo true
+pid="$(sudo cat $pid_file)"
+sudo kill -USR1 "$pid"
+sed -r "/(ERROR: Sleeping for [0-9]+ seconds before trying again|INFO: Report handlers complete)\$/{q}" $pipe
 EOF
 
       def run
+        @name_args = [ @name_args.join(' ') ]
         script = Erubis::Eruby.new(KICKSTART_SCRIPT).result(:config => config)
         @name_args[1] = script
         super

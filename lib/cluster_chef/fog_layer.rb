@@ -58,9 +58,9 @@ module ClusterChef
       return if composite_volumes.empty?
       step("  attaching volumes")
       composite_volumes.each do |vol_name, vol|
-        next if vol.volume_id.nil? || vol.volume_id.to_s.empty?
+        next if vol.volume_id.blank? || (vol.attachable != :ebs)
         desc = "#{vol_name} on #{self.fullname} (#{vol.volume_id} @ #{vol.device})"
-        if (not vol.in_cloud?) then  Chef::Log.debug("Volume: not found #{desc}") ; next ; end
+        if (not vol.in_cloud?) then  Chef::Log.debug("Volume not found: #{desc}") ; next ; end
         if (vol.has_server?)   then check_server_id_pairing(vol.fog_volume, desc) ; next ; end
         step("  - attaching #{desc} -- #{vol.inspect}", :green)
         safely do
@@ -86,9 +86,11 @@ module ClusterChef
   class ServerSlice
     def sync_keypairs
       step("ensuring keypairs exist")
-      keypairs  = servers.map{|svr| [svr.cluster.cloud.keypair, svr.cloud.keypair] }.flatten - ClusterChef.fog_keypairs.keys
-      keypairs.uniq.compact.each do |keypair_name|
+      keypairs  = servers.map{|svr| [svr.cluster.cloud.keypair, svr.cloud.keypair] }.flatten.map(&:to_s).reject(&:blank?).uniq
+      keypairs  = keypairs - ClusterChef.fog_keypairs.keys
+      keypairs.each do |keypair_name|
         keypair_obj = ClusterChef::Ec2Keypair.create!(keypair_name)
+        ClusterChef.fog_keypairs[keypair_name] = keypair_obj
       end
     end
   end

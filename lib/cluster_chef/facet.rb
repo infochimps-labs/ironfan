@@ -85,7 +85,7 @@ module ClusterChef
     #
     # @return [ClusterChef::ServerSlice] the requested slice
     def slice(slice_indexes=nil)
-      slice_indexes = self.indexes if (slice_indexes.nil?) || (slice_indexes == '')
+      slice_indexes = self.indexes if slice_indexes.blank?
       slice_indexes = indexes_from_intervals(slice_indexes) if slice_indexes.is_a?(String)
       svrs = Array(slice_indexes).map(&:to_i).sort!.select{|idx| has_server?(idx) }.map{|idx| server(idx) }
       ClusterChef::ServerSlice.new(self.cluster, svrs)

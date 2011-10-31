@@ -22,7 +22,7 @@ module ClusterChef
       return @chef_nodes if @chef_nodes
       @chef_nodes = []
       Chef::Search::Query.new.search(:node,"cluster_name:#{cluster_name}") do |n|
-        @chef_nodes.push(n) unless n.nil? || (n.cluster_name != cluster_name.to_s)
+        @chef_nodes.push(n) unless n.blank? || (n.cluster_name != cluster_name.to_s)
       end
       @chef_nodes
     end

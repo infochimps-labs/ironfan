@@ -44,7 +44,9 @@ module ClusterChef
     def self.has_keys(*key_names)
       key_names.map!(&:to_sym)
       self.keys += key_names
+      self.keys.uniq!
       key_names.each do |key|
+        next if method_defined?(key)
         define_method(key){|*args| set(key, *args) }
       end
     end
