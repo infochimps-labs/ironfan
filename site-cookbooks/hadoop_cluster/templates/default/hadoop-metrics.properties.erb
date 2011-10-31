@@ -1,11 +1,3 @@
-
-<% unless @ganglia %>
-# Configuration of the "dfs" context for null
-dfs.class=org.apache.hadoop.metrics.spi.NullContext
-# Configuration of the "mapred" context for null
-mapred.class=org.apache.hadoop.metrics.spi.NullContext
-<% end %>
-
 # Configuration of the "dfs" context for file
 # dfs.class=org.apache.hadoop.metrics.file.FileContext
 # dfs.period=10
@@ -18,8 +10,14 @@ mapred.class=org.apache.hadoop.metrics.spi.NullContext
 dfs.class=org.apache.hadoop.metrics.ganglia.GangliaContext31
 dfs.period=10
 dfs.servers=<%= @ganglia_address %>:<%= @ganglia_port %>
-<% end %>
 
+<% else %>
+# Configuration of the "dfs" context for null
+dfs.class=org.apache.hadoop.metrics.spi.NullContext
+# Configuration of the "mapred" context for null
+mapred.class=org.apache.hadoop.metrics.spi.NullContext
+
+<% end %>
 
 # Configuration of the "mapred" context for file
 # mapred.class=org.apache.hadoop.metrics.file.FileContext
@@ -27,7 +25,6 @@ dfs.servers=<%= @ganglia_address %>:<%= @ganglia_port %>
 # mapred.fileName=/tmp/mrmetrics.log
 
 # Configuration of the "mapred" context for ganglia
-
 <% if @ganglia %>
 # Pick one: Ganglia 3.0 (former) or Ganglia 3.1 (latter)
 # mapred.class=org.apache.hadoop.metrics.ganglia.GangliaContext

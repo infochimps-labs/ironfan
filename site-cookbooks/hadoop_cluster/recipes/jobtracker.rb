@@ -26,6 +26,7 @@ hadoop_package "jobtracker"
 service "#{node[:hadoop][:hadoop_handle]}-jobtracker" do
   action    node[:service_states][:hadoop_jobtracker]
   supports :status => true, :restart => true
+  ignore_failure true
 end
 
 # register with cluster_service_discovery

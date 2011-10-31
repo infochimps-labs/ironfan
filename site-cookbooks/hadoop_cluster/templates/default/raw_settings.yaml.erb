@@ -14,12 +14,15 @@
 :child_opts:               <%= node[:hadoop][:java_child_opts]      %>
 :child_ulimit:             <%= node[:hadoop][:java_child_ulimit]    %>
 
-:local_hadoop_dirs:        <%= @local_hadoop_dirs.inspect           %>
-:persistent_hadoop_dirs:   <%= @persistent_hadoop_dirs.inspect      %>
+:hadoop_scratch_dirs:      <%= @hadoop_scratch_dirs.inspect         %>
+:hadoop_persistent_dirs:   <%= @hadoop_persistent_dirs.inspect      %>
 :mapred_local_dirs:        <%= @mapred_local_dirs                   %>
 :dfs_name_dirs:            <%= @dfs_name_dirs                       %>
 :fs_checkpoint_dirs:       <%= @fs_checkpoint_dirs                  %>
 :dfs_data_dirs:            <%= @dfs_data_dirs                       %>
+
+:hadoop_tmp_dir:           <%= @hadoop_tmp_dir                      %>
+:hadoop_log_dir:           <%= @hadoop_log_dir                      %>
 
 :namenode_address:         <%= @namenode_address                    %>            
 :jobtracker_address:       <%= @jobtracker_address                  %>

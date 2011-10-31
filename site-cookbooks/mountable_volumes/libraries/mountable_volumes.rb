@@ -12,7 +12,11 @@ module ClusterEbsVolumes
   #     }
   #   }
   def mountable_volumes
-    node[:mountable_volumes][:volumes]
+    vols = node[:mountable_volumes][:volumes].to_hash || {}
+    vols.reject!{|vol_name, vol| vol['mount_point'].to_s.empty? }
+    fix_for_xen!(vols)
+    # Chef::Log.info( JSON.pretty_generate(vols) )
+    vols
   end
 
   # attachable volume mapping for this node -- selects any volume with an
@@ -29,8 +33,16 @@ module ClusterEbsVolumes
   #     }
   #   }
   def attachable_volumes(type)
-    return unless mountable_volumes
-    mountable_volumes.select{|name, conf| conf[:attachable].to_s == type.to_s }
+    return({}) unless mountable_volumes
+    mountable_volumes.select{|vol_name, vol| vol['attachable'].to_s == type.to_s && (! vol['volume_id'].to_s.empty?) }
+  end
+
+  def mounted_volumes
+    mountable_volumes.select{|vol_name, vol| File.exists?(vol['device']) }
+  end
+
+  def mounted_volumes_tagged(tag)
+    mounted_volumes.select{|vol_name, vol| vol['tags'] && vol['tags'][tag] }
   end
 
   # Loads AWS credentials, from either databag or node metadata.
@@ -48,11 +60,10 @@ module ClusterEbsVolumes
     elsif node[:mountable_volumes][:aws_credential_source].to_s == 'node_attributes'
       aws = node[:aws]
     end
-    if aws.nil? || aws.empty?
-      Chef::Log.warn("You must set AWS permissions in your aws #{node[:mountable_volumes][:aws_credential_source]} so forth for ebs::attach_volumes to work")
-    else
-      aws[:aws_access_key_id] ||= aws[:aws_access_key]
+    if aws.nil? || aws.empty? || aws['aws_access_key_id'].nil?
+      Chef::Log.warn("You must set AWS permissions in your aws #{node[:mountable_volumes][:aws_credential_source]} for ebs::attach_volumes to work")
     end
+    aws
   end
 
   # Use `file -s` to identify volume type: ohai doesn't seem to want to do so.
@@ -67,6 +78,23 @@ module ClusterEbsVolumes
       'ext3'
     end
   end
+
+  # On Xen virtualization systems (eg EC2), the volumes are *renamed* from
+  # /dev/sdj to /dev/xvdj -- but the amazon API requires you refer to it as
+  # /dev/sdj.
+  #
+  # If the virtualization is 'xen' **and** there are no /dev/sdXX devices
+  # **and** there are /dev/xvdXX devices, we relabel all the /dev/sdXX device
+  # points to be /dev/xvdXX.
+  def fix_for_xen!(vols)
+    return unless node[:virtualization] && (node[:virtualization][:system] == 'xen')
+    return unless (Dir['/dev/sd*'].empty?) && (not Dir['/dev/xvd*'].empty?)
+    vols.each do |vol_name, vol|
+      next unless vol.has_key?('device')
+      vol['device'].gsub!(%r{^/dev/sd}, '/dev/xvd')
+    end
+  end
+  
 end
 
 class Chef::Recipe              ; include ClusterEbsVolumes ; end

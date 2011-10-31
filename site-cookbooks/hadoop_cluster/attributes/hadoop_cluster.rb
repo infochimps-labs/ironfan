@@ -2,7 +2,7 @@
 default[:hadoop][:hadoop_handle] = 'hadoop-0.20'
 default[:hadoop][:cdh_version]   = 'cdh3b3'
 default[:hadoop][:deb_version]   = "0.20.2+737-1~lucid-cdh3b3"
-default[:hadoop][:cloudera_distro_name] = nil # in case cloudera doesn't have your distro yet
+default[:hadoop][:cloudera_distro_name] = nil # override distro name if cloudera doesn't have yours yet
 
 # What states to set for services.
 #   :enable => enabled service to run at boot.
@@ -36,7 +36,7 @@ default[:hadoop][:mapred_jobtracker_completeuserjobs_maximum ] = 100
 default[:hadoop][:extra_classpaths]  = { }
 
 # uses /etc/default/hadoop-0.20 to set the hadoop daemon's heapsize
-default[:hadoop][:hadoop_daemon_heapsize]            = 1000
+default[:hadoop][:hadoop_daemon_heapsize]       = 1000
 
 #
 # fs.inmemory.size.mb  # default XX
@@ -47,17 +47,10 @@ default[:groups]['supergroup'][:gid] = 301
 default[:groups]['hdfs'      ][:gid] = 302
 default[:groups]['mapred'    ][:gid] = 303
 
-#
-# For ebs-backed volumes (or in general, machines with small or slow root
-# volumes), you may wish to exclude the root volume from consideration
-#
-default[:hadoop][:use_root_as_scratch_vol]    = true
-default[:hadoop][:use_root_as_persistent_vol] = false
-default[:hadoop][:ignore_ebs_volumes]         = false
-
-# Extra directories for the Namenode metadata to persist to, for example an
-# off-cluster NFS path (only necessary to use if you have a physical cluster)
-set[:hadoop][:extra_nn_metadata_path] = nil
+# persistent dirs hold the HDFS, namenode metadata, and so forth.
+default[:hadoop][:persistent_dirs] = %w[ /mnt/hadoop ]
+# scratch dirs hold the mapreduce local dirs, logs, and so forth.
+default[:hadoop][:scratch_dirs]    = %w[ /mnt/hadoop ]
 
 # Other hadoop settings
 default[:hadoop][:max_balancer_bandwidth]     = 1048576  # bytes per second -- 1MB/s by default
@@ -116,23 +109,25 @@ hadoop_performance_settings =
     { :max_map_tasks => n_mappers, :max_reduce_tasks => n_reducers, :java_child_opts => "-Xmx#{heap_size}m", :java_child_ulimit => child_ulimit, :io_sort_factor => 10, :io_sort_mb => 100, }
   end
 
-hadoop_performance_settings[:local_disks]=[]
-[ [ '/mnt',  'block_device_mapping_ephemeral0'],
-  [ '/mnt2', 'block_device_mapping_ephemeral1'],
-  [ '/mnt3', 'block_device_mapping_ephemeral2'],
-  [ '/mnt4', 'block_device_mapping_ephemeral3'],
-].each do |mnt, ephemeral|
-  dev_str = node[:ec2][ephemeral] or next
-  # sometimes ohai leaves the /dev/ off.
-  dev_str = '/dev/'+dev_str unless dev_str =~ %r{^/dev/}
-  hadoop_performance_settings[:local_disks] << [mnt, dev_str]
-end
+# hadoop_performance_settings[:local_disks]=[]
+# [ [ '/mnt',  'block_device_mapping_ephemeral0'],
+#   [ '/mnt2', 'block_device_mapping_ephemeral1'],
+#   [ '/mnt3', 'block_device_mapping_ephemeral2'],
+#   [ '/mnt4', 'block_device_mapping_ephemeral3'],
+# ].each do |mnt, ephemeral|
+#   dev_str = node[:ec2][ephemeral] or next
+#   # sometimes ohai leaves the /dev/ off.
+#   dev_str = '/dev/'+dev_str unless dev_str =~ %r{^/dev/}
+#   hadoop_performance_settings[:local_disks] << [mnt, dev_str]
+# end
+
 Chef::Log.info(["Hadoop mapreduce tuning", hadoop_performance_settings].inspect)
 
 hadoop_performance_settings.each{|k,v| set[:hadoop][k] = v }
 
 # You may wish to set the following to the same as your HDFS block size, esp if
 # you're seeing issues with s3:// turning 1TB files into 30_000+ map tasks
-default[:hadoop][:min_split_size] = (128 * 1024 * 1024)
+#
+# default[:hadoop][:min_split_size] = (128 * 1024 * 1024)
 # default[:hadoop][:s3_block_size]  = (128 * 1024 * 1024)
 # default[:hadoop][:dfs_block_size] = (128 * 1024 * 1024)

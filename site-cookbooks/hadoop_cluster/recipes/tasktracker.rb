@@ -22,10 +22,13 @@ include_recipe "hadoop_cluster"
 # Install
 hadoop_package 'tasktracker'
 
+Chef::Log.info(hadoop_config_hash.inspect)
+
 # Launch
 service "#{node[:hadoop][:hadoop_handle]}-tasktracker" do
   action    node[:service_states][:hadoop_tasktracker]
   supports :status => true, :restart => true
+  ignore_failure true
 end
 
 # register with cluster_service_discovery

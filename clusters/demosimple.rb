@@ -27,6 +27,12 @@ ClusterChef.cluster 'demosimple' do
     cloud do
       flavor           'm1.large'
       backing          'ebs'
+
+      image_name          'mrflip-natty'
+      bootstrap_distro    'ubuntu10.04-cluster_chef'
+      chef_client_script  'client-v3.rb'
+      mount_ephemerals(:tags => { :hadoop_scratch => true })
+
     end
 
     role                :nfs_client

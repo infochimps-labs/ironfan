@@ -28,7 +28,7 @@ OHAI_INFO = Ohai::System.new
 OHAI_INFO.all_plugins
 merge_safely(chef_config){ JSON.parse(OHAI_INFO[:ec2][:userdata]) }
 
-puts JSON.pretty_generate(chef_config)
+puts JSON.generate(chef_config) # .reject{|key,value| key.to_s =~ /key/ })
 
 #
 # Configure chef run

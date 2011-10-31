@@ -19,12 +19,6 @@
 
 include_recipe "java"
 
-# Tell ElasticSearch where to find its other nodes
-provide_service "#{node[:cluster_name]}-elasticsearch"
-if node[:elasticsearch][:seeds].nil?
-    node[:elasticsearch][:seeds] = all_provider_private_ips("#{node[:cluster_name]}-elasticsearch").sort().map { |ip| ip+':9300' }
-end
-
 group "elasticsearch" do
   group_name 'elasticsearch'
   gid         61021

@@ -22,10 +22,13 @@ include_recipe "hadoop_cluster"
 # Install
 hadoop_package "namenode"
 
+Chef::Log.info(hadoop_config_hash.inspect)
+
 # Launch service
 service "#{node[:hadoop][:hadoop_handle]}-namenode" do
   action    node[:service_states][:hadoop_namenode]
   supports :status => true, :restart => true
+  ignore_failure true
 end
 
 # register with cluster_service_discovery

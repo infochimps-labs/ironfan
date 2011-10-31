@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-include_recipe "java"
+include_recipe "java::sun"
 class Chef::Recipe; include HadoopCluster ; end
 
 #
@@ -80,7 +80,34 @@ group 'supergroup' do
   group_name 'supergroup'
   gid        node[:groups]['supergroup'][:gid]
   action     [:create]
+  not_if     "grep -q supergroup /etc/group"
 end
+
+#
+# Hadoop directories
+#
+
+# Important: In CDH3 Beta 3, the mapred.system.dir directory must be located inside a directory that is owned by mapred. For example, if mapred.system.dir is specified as /mapred/system, then /mapred must be owned by mapred. Don't, for example, specify /mrsystem as mapred.system.dir because you don't want / owned by mapred.
+#
+# Directory             Owner           Permissions
+# dfs.name.dir          hdfs:hadoop     drwx------
+# dfs.data.dir          hdfs:hadoop     drwxr-xr-x
+# mapred.local.dir      mapred:hadoop   drwxr-xr-x
+# mapred.system.dir     mapred:hadoop   drwxr-xr-x
+
+[ dfs_name_dirs, dfs_data_dirs, fs_checkpoint_dirs, mapred_local_dirs, hadoop_tmp_dir, hadoop_log_dir].each do |dirset|
+  Chef::Log.info(dirset.inspect)
+end
+
+#
+# Physical directories for HDFS files and metadata
+#
+dfs_name_dirs.each{      |dir| make_hadoop_dir(dir, 'hdfs',   "0700") }
+dfs_data_dirs.each{      |dir| make_hadoop_dir(dir, 'hdfs',   "0755") }
+fs_checkpoint_dirs.each{ |dir| make_hadoop_dir(dir, 'hdfs',   "0700") }
+mapred_local_dirs.each{  |dir| make_hadoop_dir(dir, 'mapred', "0755") }
+[hadoop_tmp_dir].each{   |dir| make_hadoop_dir(dir, 'hdfs',   "0777") }
+[hadoop_log_dir].each{   |dir| make_hadoop_dir(dir, 'hdfs',   "0777") }
 
 #
 # Hadoop packages

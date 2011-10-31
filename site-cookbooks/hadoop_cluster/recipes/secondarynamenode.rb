@@ -26,6 +26,7 @@ hadoop_package "secondarynamenode"
 service "#{node[:hadoop][:hadoop_handle]}-secondarynamenode" do
   action    node[:service_states][:hadoop_secondary_namenode]
   supports :status => true, :restart => true
+  ignore_failure true
 end
 
 # register with cluster_service_discovery

@@ -18,7 +18,7 @@
 <property>
   <name>hadoop.tmp.dir</name>
   <!-- *NOT* an erb bug: hadoop will interpolate the $ part -->
-  <value>/mnt/tmp/hadoop-${user.name}</value>
+  <value><%= @hadoop_tmp_dir %>/hadoop-${user.name}</value>
   <final>true</final>
 </property>
 <property>
@@ -44,7 +44,7 @@
   <name>io.compression.codecs</name>
   <value>org.apache.hadoop.io.compress.DefaultCodec,org.apache.hadoop.io.compress.GzipCodec,org.apache.hadoop.io.compress.BZip2Codec</value>
 </property>
-<%- unless node[:aws].nil? %>
+<%- unless @aws.nil? %>
 <property>
   <name>fs.s3.awsAccessKeyId</name>
   <value><%= node[:aws][:aws_access_key_id] %></value>
