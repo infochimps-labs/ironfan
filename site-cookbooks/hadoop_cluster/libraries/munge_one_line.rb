@@ -11,7 +11,7 @@ module MungeOneLine
   def munge_one_line(name, filename, old_line, new_line, shibboleth)
     execute name do
       command %Q{sed -i -e 's|#{old_line}|#{new_line}| ' '#{filename}'}
-      not_if  %Q{grep -e -q '#{shibboleth}' '#{filename}'}
+      not_if  %Q{grep -q -e '#{shibboleth}' '#{filename}'}
       only_if{ File.exists?(filename) }
       yield if block_given?
     end

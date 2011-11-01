@@ -62,7 +62,7 @@ module ClusterChef
             # it, and in the right place
             ( fog_server && fv.server_id && vol.device  &&
               (fv.server_id   == fog_server.id)         &&
-              (fv.device.to_s == vol.device.to_s)         ) # ||
+              (fv.device.to_s == vol.device.to_s)         ) ||
             # OR this volume is tagged as belonging to this machine
             ( fv.tags.present?                         &&
               (fv.tags['server'] == self.fullname)     &&

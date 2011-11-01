@@ -27,7 +27,7 @@ class Chef::Recipe; include HadoopCluster ; end
 # Get the archive key for cloudera package repo
 execute "curl -s http://archive.cloudera.com/debian/archive.key | apt-key add -" do
   not_if "apt-key export 'Cloudera Apt Repository' | grep 'BEGIN PGP PUBLIC KEY'"
-  notifies :run, "execute[apt-get update]", :immediately
+  notifies :run, "execute[apt-get update]"
 end
 
 # # Add cloudera package repo
@@ -37,8 +37,6 @@ apt_repository 'cloudera' do
   distro        = node[:hadoop][:cloudera_distro_name] || node[:lsb][:codename]
   distribution    "#{distro}-#{node[:hadoop][:cdh_version]}"
   components      ['contrib']
-  # keyserver       'http://archive.cloudera.com/debian/archive.key'
-  # key             'Cloudera Apt Repository'
   action :add
 end
 

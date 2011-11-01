@@ -18,16 +18,6 @@ ClusterChef.cluster 'demohadoop' do
 
   role                  :mrflip_base
 
-  volume(:ebs1) do
-    defaults
-    size                10
-    device              '/dev/sdj' # note: will appear as /dev/xvdi on natty
-    mount_point         '/data/ebs1'
-    attachable          :ebs
-    snapshot_id         'snap-a6e0bec5'
-    tags( :hdfs => 'ebs1' )
-  end
-
   facet :master do
     instances           1
     assign_volume_ids(:ebs1, [] )
@@ -45,7 +35,7 @@ ClusterChef.cluster 'demohadoop' do
   end
 
   facet :worker do
-    instances           5
+    instances           6
     assign_volume_ids(:ebs1, [ ])
 
     role                :hadoop
@@ -53,6 +43,16 @@ ClusterChef.cluster 'demohadoop' do
     role                :hadoop_tasktracker
     role                :hadoop_datanode
     recipe              'hadoop_cluster::cluster_conf'
+  end
+
+  volume(:ebs1) do
+    defaults
+    size                10
+    device              '/dev/sdj' # note: will appear as /dev/xvdi on natty
+    mount_point         '/data/ebs1'
+    attachable          :ebs
+    snapshot_id         'snap-a6e0bec5'
+    tags( :hdfs => 'ebs1' )
   end
 
   cluster_role.override_attributes({

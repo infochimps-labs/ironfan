@@ -9,14 +9,19 @@ class Chef::Recipe; include HadoopCluster ; end
 #
 # Find these variables in ../hadoop_cluster/libraries/hadoop_cluster.rb
 #
-Chef::Log.debug hadoop_config_hash.inspect
+
+Chef::Log.info([ hadoop_services, hadoop_config_hash ].inspect)
+
 %w[raw_settings.yaml core-site.xml fairscheduler.xml hdfs-site.xml mapred-site.xml hadoop-metrics.properties].each do |conf_file|
   template "/etc/hadoop/conf/#{conf_file}" do
     owner "root"
     mode "0644"
     variables(hadoop_config_hash)
     source "#{conf_file}.erb"
-    hadoop_services.each{|svc| notifies :restart, "sercive[#{node[:hadoop][:hadoop_handle]}-#{svc}]", :delayed }
+    hadoop_services.each{|svc| notifies :restart, "service[#{node[:hadoop][:hadoop_handle]}-#{svc}]", :delayed }
+
+    Chef::Log.info([ hadoop_services, hadoop_config_hash ].inspect)
+
   end
 end
 

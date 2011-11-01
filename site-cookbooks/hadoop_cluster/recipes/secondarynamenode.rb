@@ -31,7 +31,6 @@ end
 
 # register with cluster_service_discovery
 provide_service ("#{node[:cluster_name]}-secondarynamenode")
-tag('secondarynamenode')
 
 fs_checkpoint_dirs.each do |dir|
   make_hadoop_dir(dir, 'hdfs',   "0700")

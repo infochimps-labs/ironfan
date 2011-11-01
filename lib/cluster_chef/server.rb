@@ -7,7 +7,7 @@ module ClusterChef
   # or if it exists in the real world (as revealed by Fog)
   #
   class Server < ClusterChef::ComputeBuilder
-    attr_reader   :cluster, :facet, :facet_index
+    attr_reader   :cluster, :facet, :facet_index, :tags
     attr_accessor :chef_node, :fog_server
 
     @@all ||= Mash.new
@@ -18,7 +18,7 @@ module ClusterChef
       @facet_index = idx
       @fullname    = [cluster_name, facet_name, facet_index].join('-')
       super(@fullname)
-      @tags = { "cluster" => cluster_name, "facet"   => facet_name, "index"   => facet_index }
+      @tags = { "name" => name, "cluster" => cluster_name, "facet"   => facet_name, "index" => facet_index, }
       ui.warn("Duplicate server #{[self, facet.name, idx]} vs #{@@all[fullname]}") if @@all[fullname]
       @@all[fullname] = self
     end
@@ -225,7 +225,7 @@ module ClusterChef
     def create_tags
       return unless created?
       step("  labeling servers and volumes")
-      fog_create_tags(fog_server, self.fullname, { "name" => name, "cluster" => cluster_name, "facet"   => facet_name, "index"   => facet_index, })
+      fog_create_tags(fog_server, self.fullname, tags)
       composite_volumes.each do |vol_name, vol|
         if vol.fog_volume
           fog_create_tags(vol.fog_volume, vol.desc,

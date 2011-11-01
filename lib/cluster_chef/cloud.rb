@@ -208,6 +208,11 @@ module ClusterChef
         IMAGE_INFO[ [region, bits, backing, image_name] ] or ui.warn "Make sure to define the machine's region, bits, backing and image_name. (Have #{[region, bits, backing, image_name].inspect})"
       end
 
+      def flavor(val=nil)
+        warn("Unknown machine image name '#{val}'") if val && (not FLAVOR_INFO.has_key?(val.to_s))
+        set :flavor, val
+      end
+
       def flavor_info
         FLAVOR_INFO[ flavor ] || {} # or raise "Please define the machine's flavor."
       end
@@ -337,9 +342,9 @@ module ClusterChef
         %w[us-east-1             64-bit  ebs             infochimps-maverick-client     ] => { :image_id => 'ami-6802f901', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # infochimps.chef-client.maverick.east.ebs-64bit-20110703c
         # %w[us-east-1           64-bit  instance        infochimps-maverick-client     ] => { :image_id => '',             :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, #
 
-        # %w[us-east-1           32-bit  ebs             mrflip-maverick-client     ] => { :image_id => 'ami-f4f6069d', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.10-cluster_chef", }, # mrflip.chef-client.maverick.east.ebs-32bit-20110124
+        # %w[us-east-1           64-bit  ebs             mrflip-natty                 ] => { :image_id => 'ami-199b5470', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-cluster_chef", }, #
+        %w[us-east-1             64-bit  ebs             mrflip-natty                 ] => { :image_id => 'ami-9ffa34f6', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-cluster_chef", }, # infochimps-natty-64bit-useast1-ruby19-dev-20111101b
 
-        %w[us-east-1             64-bit  ebs             mrflip-natty                 ] => { :image_id => 'ami-199b5470', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-cluster_chef", }, #
       }
     end
 

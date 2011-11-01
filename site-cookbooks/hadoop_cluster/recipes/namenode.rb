@@ -31,7 +31,6 @@ end
 
 # register with cluster_service_discovery
 provide_service ("#{node[:cluster_name]}-namenode")
-tag('namenode')
 
 dfs_name_dirs.each do |dir|
   make_hadoop_dir(dir, 'hdfs',   "0700")

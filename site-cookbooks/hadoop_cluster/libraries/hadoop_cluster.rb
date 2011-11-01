@@ -22,7 +22,7 @@ module HadoopCluster
   def make_hadoop_dir dir, dir_owner, dir_mode="0755"
     directory dir do
       owner    dir_owner
-      group    dir_owner
+      group    'hadoop'
       mode     dir_mode
       action   :create
       recursive true
@@ -40,7 +40,7 @@ module HadoopCluster
 
   def hadoop_services
     %w[namenode secondarynamenode jobtracker datanode tasktracker].select do |svc|
-      tagged?(svc)
+      node[:provides_service]["#{node[:cluster_name]}-#{svc}"]
     end
   end
 
@@ -104,7 +104,7 @@ module HadoopCluster
       :hadoop_scratch_dirs    => hadoop_scratch_dirs,
       :hadoop_persistent_dirs => hadoop_persistent_dirs,
       #
-      :aws                    => node[:aws],
+      :aws                    => (node[:aws] && node[:aws].to_hash),
       #
       :ganglia                => provider_for_service("#{node[:cluster_name]}-gmetad"),
       :ganglia_address        => provider_private_ip("#{node[:cluster_name]}-gmetad"),

@@ -13,7 +13,7 @@ module ClusterEbsVolumes
   #   }
   def mountable_volumes
     vols = node[:mountable_volumes][:volumes].to_hash || {}
-    vols.reject!{|vol_name, vol| vol['mount_point'].to_s.empty? }
+    vols.reject!{|vol_name, vol| vol['mount_point'].to_s.empty? || (vol['mountable'].to_s == 'false') }
     fix_for_xen!(vols)
     # Chef::Log.info( JSON.pretty_generate(vols) )
     vols
@@ -56,7 +56,12 @@ module ClusterEbsVolumes
   #
   def mntvol_aws_credentials
     if    node[:mountable_volumes][:aws_credential_source].to_s == 'data_bag'
-      aws = data_bag_item("aws", node[:mountable_volumes][:aws_credential_handle])
+      begin
+        aws = data_bag_item("aws", node[:mountable_volumes][:aws_credential_handle])
+      rescue Net::HTTPServerException => e
+        Chef::Log.warn("Can't load data bag for AWS credentials #{node[:mountable_volumes][:aws_credential_handle]}: #{e}")
+        return nil
+      end
     elsif node[:mountable_volumes][:aws_credential_source].to_s == 'node_attributes'
       aws = node[:aws]
     end

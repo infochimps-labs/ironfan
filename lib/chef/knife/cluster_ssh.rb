@@ -41,7 +41,7 @@ class Chef
         :description => "The attribute to use for opening the connection - default is fqdn (ec2 users may prefer cloud.public_hostname)"
 
       def configure_session
-        predicate = @name_args[0].split(/[\s\-]+/).map(&:strip)
+        predicate = @name_args[0].split(/[\s\-]+/,3).map(&:strip)
 
         target = get_slice(*predicate).select(&:sshable?)
 

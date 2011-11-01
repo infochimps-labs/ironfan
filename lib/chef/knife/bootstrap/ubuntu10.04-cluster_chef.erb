@@ -11,7 +11,7 @@ bash -c '
 mkdir /tmp/knife-bootstrap ; chmod 700 /tmp/knife-bootstrap
 cd /tmp/knife-bootstrap
 
-RUBY_VERSION=1.9.2-p290 
+RUBY_VERSION=1.9.3-p0  #  1.9.2-p290
 
 <%= "export http_proxy=\"#{knife_config[:bootstrap_proxy]}\"" if knife_config[:bootstrap_proxy] -%>
 eval `cat /etc/lsb-release `

@@ -1,42 +1,36 @@
-
-
 sudo service chef-client stop
 ps auxf
 df -BG
 #
 away_dir=/tmp/ami_away
 sudo mkdir -p $away_dir
-#
+
 # Tidy up the joint for the next occupants
 sudo apt-get -y update  ;
 sudo apt-get -y upgrade ;
 sudo apt-get -f install ;
 sudo apt-get clean ;
 sudo updatedb ;
-#
+
 # move away anything tied to the identity of this machine
 sudo mv /etc/hostname /etc/node*name /var/www/index.html $away_dir
 # move away chef junk
 sudo mv /var/chef /etc/chef/{client-config.json,first-boot.json,node-attrs.json,chef-config.json,*.pem,*~} $away_dir
-#
-# pull in a clean /etc/chef/client.rb
-sudo bash -c 'curl https://raw.github.com/gist/1294525/03e95f325b7c0790c27c890f7049b7b8dea07f96/etc-chef-client.rb > /etc/chef/client.rb'
-sudo chmod og-rwx /etc/chef/client.rb
-#
-# zero out all files in /var/log
-cd /var/log ; for foo in `sudo find /var/log -type f` ; do echo $foo ; sudo bash -c "echo -n > $foo"  ; done
+
 #
 # make a nice bland motd
 sudo rm /etc/motd ;
 sudo bash -c 'echo "CHIMP CHIMP CHIMP CRUNCH CRUNCH CRUNCH (image burned at `date`)" > /etc/motd ' ;
 #
 # unmount your mountables
-for foo in /home /ebs* /data ; do sudo umount $foo ; done
+cd / ; for foo in /home /ebs* /data/ebs* /data ; do sudo umount $foo ; done
 #
+# zero out all files in /var/log
+cd /var/log ; for foo in `sudo find /var/log -type f` ; do echo $foo ; sudo bash -c "echo -n > $foo"  ; done
+
 # Go to the console; hit 'stop' on the machine, count to 100, and then hit '
 # name the AMI something like
-# infochimps-natty-64bit-useast1-ruby19-dev-20111017
-
+# infochimps-natty-64bit-useast1-ruby19-dev-20111101b
 
 ___________________________________________________________________________
 

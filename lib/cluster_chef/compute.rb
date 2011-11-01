@@ -86,7 +86,7 @@ module ClusterChef
 
     # Add the given recipe to the run list
     def recipe(name)
-      run_list << name
+      run_list << name.to_s
       run_list.uniq!
     end
 
