@@ -3,8 +3,8 @@ action :add do
     Chef::Log.info "Adding #{new_resource.repo_name} repository to /etc/apt/sources.list.d/#{new_resource.repo_name}-source.list"
     # add key
     if new_resource.key && new_resource.keyserver
-      e = execute "install-key #{new_resource.key}" do
-        command "apt-key adv --keyserver #{new_resource.keyserver} --recv #{new_resource.key}"
+      e = execute "install-key '#{new_resource.key}'" do
+        command "apt-key adv --keyserver '#{new_resource.keyserver}' --recv '#{new_resource.key}'"
         action :run
       end
       e.run_action(:run)
