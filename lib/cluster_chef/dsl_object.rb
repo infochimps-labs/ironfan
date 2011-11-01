@@ -1,3 +1,15 @@
+Mash.class_eval do
+  def reverse_merge!(other_hash)
+    # stupid mash doesn't take a block arg, which breaks the implementation of
+    # reverse_merge!
+    other_hash.each_pair do |key, value|
+      key = convert_key(key)
+      regular_writer(key, convert_value(value)) unless has_key?(key)
+    end
+    self
+  end
+end
+
 module ClusterChef
   #
   # Provides magic methods, defined with has_keys
@@ -26,7 +38,7 @@ module ClusterChef
     self.keys = []
 
     def initialize(attrs={})
-      @settings = attrs || Mash.new
+      @settings = attrs.to_mash || Mash.new
     end
 
     #
@@ -55,11 +67,15 @@ module ClusterChef
     # Sets the DSL attribute, unless the given value is nil.
     #
     def set(key, val=nil)
-      @settings[key] = val unless val.nil?
-      @settings[key]
+      @settings[key.to_s] = val unless val.nil?
+      @settings[key.to_s]
     end
 
     def to_hash
+      @settings.to_hash
+    end
+
+    def to_mash
       @settings.dup
     end
 
@@ -83,7 +99,7 @@ module ClusterChef
     def self.ui() ClusterChef.ui ; end
 
     def step(desc, *style)
-      ui.info("  #{"%-15s" % (name+":")}\t#{ui.color(desc, *style)}")
+      ui.info("  #{"%-15s" % (name.to_s+":")}\t#{ui.color(desc.to_s, *style)}")
     end
 
     # helper method for bombing out of a script
@@ -93,6 +109,6 @@ module ClusterChef
     def safely(*args, &block) ClusterChef.safely(*args, &block) ; end
 
     # helper method for debugging only
-    def dump(*args) args.each{|arg| Chef::Log.debug( [caller.first, arg].inspect ) } end
+    def dump(*args) args.each{|arg| Chef::Log.debug( arg.inspect ) } end
   end
 end

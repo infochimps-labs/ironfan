@@ -35,14 +35,13 @@ module ClusterChef
     #
     # Takes key-value pairs and idempotently sets those tags on the cloud machine
     #
-    def fog_create_tags(tags)
-      step("  labeling servers")
+    def fog_create_tags(fog_obj, desc, tags)
       tags.each do |key, value|
-        next if fog_server.tags[key] == value.to_s
-        Chef::Log.debug( "tagging #{key} = #{value} on #{self.fullname}" )
+        next if fog_obj.tags[key] == value.to_s
+        Chef::Log.debug( "tagging #{key} = #{value} on #{desc}" )
         safely do
           ClusterChef.fog_connection.tags.create({
-            :key => key, :value => value.to_s, :resource_id => fog_server.id })
+            :key => key, :value => value.to_s, :resource_id => fog_obj.id })
         end
       end
     end
@@ -52,18 +51,41 @@ module ClusterChef
       ClusterChef.fog_addresses[address_str]
     end
 
+    def discover_volumes!
+      composite_volumes.each do |vol_name, vol|
+        my_vol = volumes[vol_name]
+        next if my_vol.fog_volume
+        my_vol.fog_volume = ClusterChef.fog_volumes.find do |fv|
+          ( # matches the explicit volume id
+            (vol.volume_id && (fv.id == vol.volume_id)    ) ||
+            # OR this server's machine exists, and this volume is attached to
+            # it, and in the right place
+            ( fog_server && fv.server_id && vol.device  &&
+              (fv.server_id   == fog_server.id)         &&
+              (fv.device.to_s == vol.device.to_s)         ) # ||
+            # OR this volume is tagged as belonging to this machine
+            ( fv.tags.present?                         &&
+              (fv.tags['server'] == self.fullname)     &&
+              (fv.tags['device'] == vol.device.to_s) )
+            )
+        end
+        next unless my_vol.fog_volume
+        my_vol.volume_id(my_vol.fog_volume.id)                        unless my_vol.volume_id.present?
+        my_vol.availability_zone(my_vol.fog_volume.availability_zone) unless my_vol.availability_zone.present?
+        check_server_id_pairing(my_vol.fog_volume, my_vol.desc)
+      end
+    end
+
     def attach_volumes
       return unless in_cloud?
       discover_volumes!
-      vols = composite_volumes.reject{|vol_name, vol| (not vol.volume_id) || (vol.ephemeral_device?) }
       return if composite_volumes.empty?
       step("  attaching volumes")
       composite_volumes.each do |vol_name, vol|
         next if vol.volume_id.blank? || (vol.attachable != :ebs)
-        desc = "#{vol_name} on #{self.fullname} (#{vol.volume_id} @ #{vol.device})"
-        if (not vol.in_cloud?) then  Chef::Log.debug("Volume not found: #{desc}") ; next ; end
-        if (vol.has_server?)   then check_server_id_pairing(vol.fog_volume, desc) ; next ; end
-        step("  - attaching #{desc} -- #{vol.inspect}", :green)
+        if (not vol.in_cloud?) then  Chef::Log.debug("Volume not found: #{vol.desc}") ; next ; end
+        if (vol.has_server?)   then check_server_id_pairing(vol.fog_volume, vol.desc) ; next ; end
+        step("  - attaching #{vol.desc} -- #{vol.inspect}", :green)
         safely do
           vol.fog_volume.device = vol.device
           vol.fog_volume.server = fog_server
@@ -79,6 +101,18 @@ module ClusterChef
       safely do
         step("  assigning #{desc}", :green)
         ClusterChef.fog_connection.associate_address(self.fog_server.id, address)
+      end
+    end
+
+    def check_server_id_pairing thing, desc
+      return unless thing && thing.server_id && self.in_cloud?
+      type_of_thing = thing.class.to_s.gsub(/.*::/,"")
+      if thing.server_id != self.fog_server.id
+        ui.warn "#{type_of_thing} mismatch: #{desc} is on #{thing.server_id} not #{self.fog_server.id}: #{thing.inspect.gsub(/\s+/m,' ')}"
+        false
+      else
+        Chef::Log.debug("#{type_of_thing} paired: #{desc}")
+        true
       end
     end
 

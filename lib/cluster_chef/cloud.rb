@@ -58,7 +58,7 @@ module ClusterChef
 
       # default values to apply where no value was set
       # @returns [Hash] hash of defaults
-      def self.defaults
+      def defaults
         {
           :image_name         => 'maverick',
         }
@@ -132,7 +132,15 @@ module ClusterChef
         @settings[:user_data]            ||= Mash.new
       end
 
-      def self.defaults
+      #
+      # Sets some defaults for amazon cloud usage, and registers the root volume
+      #
+      def defaults
+        owner.volume(:root) do
+          device      '/dev/sda1'
+          mount_point '/'
+          mountable   false
+        end
         super.merge({
             :availability_zones => ['us-east-1a'],
             :backing            => 'ebs',
@@ -163,12 +171,12 @@ module ClusterChef
       # @param  [Hash] value -- when present, merged with the existing user data (overriding it)
       # @return the user_data hash
       def user_data(hsh={})
-        @settings[:user_data].merge!(hsh) unless hsh.empty?
+        @settings[:user_data].merge!(hsh.to_hash) unless hsh.empty?
         @settings[:user_data]
       end
 
       def reverse_merge!(hsh)
-        super(hsh.to_hash.compact)
+        super(hsh.to_mash.compact)
         @settings[:security_groups].reverse_merge!(hsh.security_groups) if hsh.respond_to?(:security_groups)
         @settings[:user_data      ].reverse_merge!(hsh.user_data)       if hsh.respond_to?(:user_data)
         self

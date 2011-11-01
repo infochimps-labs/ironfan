@@ -7,6 +7,7 @@ module ClusterChef
       discover_chef_nodes!
       discover_fog_servers!
       discover_chef_clients!
+      discover_volumes!
     end
 
     def chef_clients

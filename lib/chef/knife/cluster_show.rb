@@ -37,7 +37,7 @@ class Chef
         target = get_slice(* @name_args)
 
         # Display same
-        display(target)
+        display(target, :expanded)
 
         if config[:verbosity] > 1
           target.each do |svr|

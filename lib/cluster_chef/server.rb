@@ -16,18 +16,16 @@ module ClusterChef
       @cluster     = facet.cluster
       @facet       = facet
       @facet_index = idx
-      super(fullname)
-      @tags = {
-        "cluster" => cluster_name,
-        "facet"   => facet_name,
-        "index"   => facet_index }
+      @fullname    = [cluster_name, facet_name, facet_index].join('-')
+      super(@fullname)
+      @tags = { "cluster" => cluster_name, "facet"   => facet_name, "index"   => facet_index }
       ui.warn("Duplicate server #{[self, facet.name, idx]} vs #{@@all[fullname]}") if @@all[fullname]
       @@all[fullname] = self
     end
 
-    def fullname name=nil
-      @fullname ||= name
-      @fullname || [cluster_name, facet_name, facet_index].join('-')
+    def fullname fn=nil
+      @fullname = fn if fn
+      @fullname
     end
 
     def cluster_name
@@ -112,13 +110,12 @@ module ClusterChef
     # Resolve:
     #
     def resolve!
-      @settings.reverse_merge!(facet.to_hash)
-      @settings.reverse_merge!(cluster.to_hash)
+      reverse_merge!(facet)
+      reverse_merge!(cluster)
       @settings[:run_list] = (@cluster.run_list + @facet.run_list + self.run_list).uniq
       #
       cloud.reverse_merge!(facet.cloud)
       cloud.reverse_merge!(cluster.cloud)
-      cloud.reverse_merge!(cloud.class.defaults)
       #
       cloud.user_data({
           :chef_server            => Chef::Config.chef_server_url,
@@ -139,14 +136,26 @@ module ClusterChef
       self
     end
 
+    #
+    # This prepares a composited view of the volumes -- it shows the cluster
+    # definition overlaid by the facet definition overlaid by the server
+    # definition.
+    #
+    # This method *does* auto-vivify an empty volume declaration on the server,
+    # but doesn't modify it.
+    #
+    # This code is pretty smelly, but so is the resolve! behavior. advice welcome.
+    #
     def composite_volumes
-      vols = volumes.dup
+      vols = {}
       facet.volumes.each do |vol_name, vol|
-        vols[vol_name] ||= ClusterChef::Volume.new(:parent => self, :name => vol_name)
+        self.volumes[vol_name] ||= ClusterChef::Volume.new(:parent => self, :name => vol_name)
+        vols[vol_name]         ||= self.volumes[vol_name].dup
         vols[vol_name].reverse_merge!(vol)
       end
       cluster.volumes.each do |vol_name, vol|
-        vols[vol_name] ||= ClusterChef::Volume.new(:parent => self, :name => vol_name)
+        self.volumes[vol_name] ||= ClusterChef::Volume.new(:parent => self, :name => vol_name)
+        vols[vol_name]         ||= self.volumes[vol_name].dup
         vols[vol_name].reverse_merge!(vol)
       end
       vols.each{|vol_name, vol| vol.availability_zone self.default_availability_zone }
@@ -192,7 +201,7 @@ module ClusterChef
       step "Syncing to chef server", :blue
       ensure_chef_client
       ensure_chef_node
-      check_node_permissions
+      # check_node_permissions # _acl API not working, skipping it
       chef_set_attributes
       sync_volume_attributes
       save_chef_node
@@ -202,7 +211,7 @@ module ClusterChef
     def sync_volume_attributes
       composite_volumes.each do |vol_name, vol|
         chef_node.normal[:mountable_volumes][:volumes] ||= Mash.new
-        chef_node.normal[:mountable_volumes][:volumes][vol_name] = vol.to_hash.compact
+        chef_node.normal[:mountable_volumes][:volumes][vol_name] = vol.to_mash.compact
       end
     end
 
@@ -215,34 +224,18 @@ module ClusterChef
 
     def create_tags
       return unless created?
-      fog_create_tags({
-        "cluster" => cluster_name,
-        "facet"   => facet_name,
-        "index"   => facet_index, })
+      step("  labeling servers and volumes")
+      fog_create_tags(fog_server, self.fullname, { "name" => name, "cluster" => cluster_name, "facet"   => facet_name, "index"   => facet_index, })
+      composite_volumes.each do |vol_name, vol|
+        if vol.fog_volume
+          fog_create_tags(vol.fog_volume, vol.desc,
+            { "server" => self.fullname, "name" => "#{name}-#{vol.name}", "device" => vol.device, "mount_point" => vol.mount_point, "cluster" => cluster_name, "facet"   => facet_name, "index"   => facet_index, })
+        end
+      end
     end
 
     def block_device_mapping
       composite_volumes.values.map(&:block_device_mapping).compact
-    end
-
-    def discover_volumes!
-      composite_volumes.each do |name, vol|
-        next unless vol.volume_id
-        next if     vol.fog_volume
-        vol.fog_volume = ClusterChef.fog_volumes.find{|fv| fv.id == vol.volume_id }
-      end
-    end
-
-    def check_server_id_pairing thing, desc
-      return unless thing && thing.server_id && self.in_cloud?
-      type_of_thing = thing.class.to_s.gsub(/.*::/,"")
-      if thing.server_id != self.fog_server.id
-        ui.warn "#{type_of_thing} mismatch: #{desc} is on #{thing.server_id} not #{self.fog_server.id}: #{thing.inspect.gsub(/\s+/m,' ')}"
-        false
-      else
-        Chef::Log.debug("#{type_of_thing} paired: #{desc}")
-        true
-      end
     end
 
   end

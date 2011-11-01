@@ -9,7 +9,7 @@ module ClusterChef
       :name,
       :volume_id, :snapshot_id, :size,
       :device, :mount_point, :mount_options, :fs_type,
-      :availability_zone,
+      :availability_zone, :mountable,
       :keep, :attachable, :create_at_launch,
       :tags
       )
@@ -32,6 +32,11 @@ module ClusterChef
       @parent = attrs.delete(:parent)
       super(attrs)
       @settings[:tags] ||= {}
+    end
+
+    # human-readable description for logging messages and such
+    def desc
+      "#{name} on #{parent.fullname} (#{volume_id} @ #{device})"
     end
 
     def defaults
