@@ -8,8 +8,6 @@ run_list *%w[
   hadoop_cluster::ec2_conf
   cluster_chef::dedicated_server_tuning
 
-  hadoop_cluster::cluster_conf
-
   ]
 
 default_attributes({

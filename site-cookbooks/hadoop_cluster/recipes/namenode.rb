@@ -22,8 +22,6 @@ include_recipe "hadoop_cluster"
 # Install
 hadoop_package "namenode"
 
-Chef::Log.info(hadoop_config_hash.inspect)
-
 # Launch service
 service "#{node[:hadoop][:hadoop_handle]}-namenode" do
   action    node[:service_states][:hadoop_namenode]
@@ -33,3 +31,8 @@ end
 
 # register with cluster_service_discovery
 provide_service ("#{node[:cluster_name]}-namenode")
+tag('namenode')
+
+dfs_name_dirs.each do |dir|
+  make_hadoop_dir(dir, 'hdfs',   "0700")
+end

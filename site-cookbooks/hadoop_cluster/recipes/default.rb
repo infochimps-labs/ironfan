@@ -24,28 +24,41 @@ class Chef::Recipe; include HadoopCluster ; end
 # Cloudera repo
 #
 
-# Dummy apt-get resource, will only be run if the apt repo requires updating
-execute("apt-get update"){ action :nothing }
-
-# Add cloudera package repo
-template "/etc/apt/sources.list.d/cloudera.list" do
-  owner "root"
-  mode "0644"
-  source "sources.list.d-cloudera.list.erb"
-  notifies :run, resources("execute[apt-get update]")
-end
 # Get the archive key for cloudera package repo
 execute "curl -s http://archive.cloudera.com/debian/archive.key | apt-key add -" do
   not_if "apt-key export 'Cloudera Apt Repository' | grep 'BEGIN PGP PUBLIC KEY'"
-  notifies :run, resources("execute[apt-get update]"), :immediately
+  notifies :run, "execute[apt-get update]", :immediately
 end
+
+# # Add cloudera package repo
+apt_repository 'cloudera' do
+  uri             'http://archive.cloudera.com/debian'
+  distribution    node[:hadoop][:cloudera_distro_name]
+  distro        = node[:hadoop][:cloudera_distro_name] || node[:lsb][:codename]
+  distribution    "#{distro}-#{node[:hadoop][:cdh_version]}"
+  components      ['contrib']
+  # keyserver       'http://archive.cloudera.com/debian/archive.key'
+  # key             'Cloudera Apt Repository'
+  action :add
+end
+
+# # Dummy apt-get resource, will only be run if the apt repo requires updating
+# execute("apt-get update"){ action :nothing }
+#
+# # Add cloudera package repo
+# template "/etc/apt/sources.list.d/cloudera.list" do
+#   owner "root"
+#   mode "0644"
+#   source "sources.list.d-cloudera.list.erb"
+#   notifies :run, resources("execute[apt-get update]")
+# end
 
 #
 # Hadoop users and group
 #
 
-group 'hdfs' do gid 302 ; action [:create] ; end
-user 'hdfs' do
+group 'hdfs' do gid(node[:groups]['hdfs'][:gid]) ; action [:create] ; end
+user  'hdfs' do
   comment    'Hadoop HDFS User'
   uid        302
   group      'hdfs'
@@ -56,8 +69,8 @@ user 'hdfs' do
   action     [:create, :manage]
 end
 
-group 'mapred' do gid 303 ; action [:create] ; end
-user 'mapred' do
+group 'mapred' do gid(node[:groups]['mapred'][:gid]) ; action [:create] ; end
+user  'mapred' do
   comment    'Hadoop Mapred Runner'
   uid        303
   group      'mapred'
@@ -95,22 +108,24 @@ end
 # mapred.local.dir      mapred:hadoop   drwxr-xr-x
 # mapred.system.dir     mapred:hadoop   drwxr-xr-x
 
-[ dfs_name_dirs, dfs_data_dirs, fs_checkpoint_dirs, mapred_local_dirs, hadoop_tmp_dir, hadoop_log_dir].each do |dirset|
-  Chef::Log.info(dirset.inspect)
-end
-
 #
 # Physical directories for HDFS files and metadata
-#
-dfs_name_dirs.each{      |dir| make_hadoop_dir(dir, 'hdfs',   "0700") }
-dfs_data_dirs.each{      |dir| make_hadoop_dir(dir, 'hdfs',   "0755") }
-fs_checkpoint_dirs.each{ |dir| make_hadoop_dir(dir, 'hdfs',   "0700") }
+# (dfs_name_dirs/fs_checkpoint_dirs are in namenode/secondarynamenode recipes)
+dfs_data_dirs.each{      |dir| make_hadoop_dir(dir, 'hdfs',   "0700") }
 mapred_local_dirs.each{  |dir| make_hadoop_dir(dir, 'mapred', "0755") }
 [hadoop_tmp_dir].each{   |dir| make_hadoop_dir(dir, 'hdfs',   "0777") }
 [hadoop_log_dir].each{   |dir| make_hadoop_dir(dir, 'hdfs',   "0777") }
 
+# Locate hadoop logs on scratch dirs
+force_link("/var/log/hadoop", hadoop_log_dir )
+force_link("/var/log/#{node[:hadoop][:hadoop_handle]}", hadoop_log_dir )
+
+# Make hadoop point to /var/run for pids
+make_hadoop_dir('/var/run/hadoop-0.20', 'root', "0775")
+force_link('/var/run/hadoop', '/var/run/hadoop-0.20')
+
 #
-# Hadoop packages
+# Primary hadoop packages
 #
 
 hadoop_package nil

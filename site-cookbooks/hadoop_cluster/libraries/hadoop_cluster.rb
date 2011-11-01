@@ -22,7 +22,7 @@ module HadoopCluster
   def make_hadoop_dir dir, dir_owner, dir_mode="0755"
     directory dir do
       owner    dir_owner
-      group    "hadoop"
+      group    dir_owner
       mode     dir_mode
       action   :create
       recursive true
@@ -36,6 +36,12 @@ module HadoopCluster
       not_if{ File.symlink?(dest) }
     end
     link(dest){ to src }
+  end
+
+  def hadoop_services
+    %w[namenode secondarynamenode jobtracker datanode tasktracker].select do |svc|
+      tagged?(svc)
+    end
   end
 
   # The HDFS data. Spread out across persistent storage only
@@ -71,7 +77,7 @@ module HadoopCluster
 
   # Hadoop logs
   def hadoop_log_dir
-    hadoop_scratch_dirs.map{|dir| File.join(dir, 'tmp') }.first
+    hadoop_scratch_dirs.map{|dir| File.join(dir, 'logs') }.first
   end
 
   def hadoop_scratch_dirs

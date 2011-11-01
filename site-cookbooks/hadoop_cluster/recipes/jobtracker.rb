@@ -31,3 +31,6 @@ end
 
 # register with cluster_service_discovery
 provide_service ("#{node[:cluster_name]}-jobtracker")
+tag('jobtracker')
+
+Chef::Log.info(hadoop_config_hash.inspect)

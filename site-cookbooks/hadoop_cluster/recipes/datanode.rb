@@ -22,9 +22,7 @@ include_recipe "hadoop_cluster"
 # Install
 hadoop_package 'datanode'
 
-Chef::Log.info(hadoop_config_hash.inspect)
-
-# Launch
+# Launch service
 service "#{node[:hadoop][:hadoop_handle]}-datanode" do
   action    node[:service_states][:hadoop_datanode]
   supports :status => true, :restart => true
@@ -33,3 +31,6 @@ end
 
 # register with cluster_service_discovery
 provide_service ("#{node[:cluster_name]}-datanode")
+tag('datanode')
+
+Chef::Log.info(hadoop_config_hash.inspect)

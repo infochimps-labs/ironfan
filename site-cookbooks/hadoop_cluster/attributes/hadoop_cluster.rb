@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
 default[:hadoop][:hadoop_handle] = 'hadoop-0.20'
-default[:hadoop][:cdh_version]   = 'cdh3b3'
-default[:hadoop][:deb_version]   = "0.20.2+737-1~lucid-cdh3b3"
+default[:hadoop][:cdh_version]   = 'cdh3u2'
+default[:hadoop][:deb_version]   = '0.20.2+923.142-1~maverick-cdh3'
 default[:hadoop][:cloudera_distro_name] = nil # override distro name if cloudera doesn't have yours yet
 
 # What states to set for services.
 #   :enable => enabled service to run at boot.
 #   :start  => ensure it's started and running.
 # Default is [:enable,:start] but for complex clusters consider [:enable] alone
-default[:service_states][:hadoop_namenode]           = [ :enable, :start ]
-default[:service_states][:hadoop_secondary_namenode] = [ :enable, :start ]
-default[:service_states][:hadoop_datanode]           = [ :enable, :start ]
-default[:service_states][:hadoop_jobtracker]         = [ :enable, :start ]
-default[:service_states][:hadoop_tasktracker]        = [ :enable, :start ]
+default[:service_states][:hadoop_namenode]           = [:start]
+default[:service_states][:hadoop_secondary_namenode] = []
+default[:service_states][:hadoop_datanode]           = [:start]
+default[:service_states][:hadoop_jobtracker]         = []
+default[:service_states][:hadoop_tasktracker]        = []
 
 # Make sure you define a cluster_size in roles/WHATEVER_cluster.rb
 default[:cluster_size] = 5
@@ -38,10 +38,6 @@ default[:hadoop][:extra_classpaths]  = { }
 # uses /etc/default/hadoop-0.20 to set the hadoop daemon's heapsize
 default[:hadoop][:hadoop_daemon_heapsize]       = 1000
 
-#
-# fs.inmemory.size.mb  # default XX
-#
-
 default[:groups]['hadoop'    ][:gid] = 300
 default[:groups]['supergroup'][:gid] = 301
 default[:groups]['hdfs'      ][:gid] = 302
@@ -54,6 +50,7 @@ default[:hadoop][:scratch_dirs]    = %w[ /mnt/hadoop ]
 
 # Other hadoop settings
 default[:hadoop][:max_balancer_bandwidth]     = 1048576  # bytes per second -- 1MB/s by default
+# fs.inmemory.size.mb  # default XX
 
 #
 # Tune cluster settings for size of instance
@@ -108,18 +105,6 @@ hadoop_performance_settings =
     child_ulimit = 2 * heap_size * 1024
     { :max_map_tasks => n_mappers, :max_reduce_tasks => n_reducers, :java_child_opts => "-Xmx#{heap_size}m", :java_child_ulimit => child_ulimit, :io_sort_factor => 10, :io_sort_mb => 100, }
   end
-
-# hadoop_performance_settings[:local_disks]=[]
-# [ [ '/mnt',  'block_device_mapping_ephemeral0'],
-#   [ '/mnt2', 'block_device_mapping_ephemeral1'],
-#   [ '/mnt3', 'block_device_mapping_ephemeral2'],
-#   [ '/mnt4', 'block_device_mapping_ephemeral3'],
-# ].each do |mnt, ephemeral|
-#   dev_str = node[:ec2][ephemeral] or next
-#   # sometimes ohai leaves the /dev/ off.
-#   dev_str = '/dev/'+dev_str unless dev_str =~ %r{^/dev/}
-#   hadoop_performance_settings[:local_disks] << [mnt, dev_str]
-# end
 
 Chef::Log.info(["Hadoop mapreduce tuning", hadoop_performance_settings].inspect)
 

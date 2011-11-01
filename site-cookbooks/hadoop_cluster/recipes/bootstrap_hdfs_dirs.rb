@@ -40,21 +40,22 @@
 execute 'create user dirs on HDFS' do
   only_if "service hadoop-0.20-namenode status"
   only_if "hadoop dfsadmin -safemode get | grep -q OFF"
-  not_if do File.exists?("/mnt/hadoop/logs/made_initial_dirs.log") end
+  not_if do File.exists?("#{hadoop_tmp_dir}/made_initial_dirs.log") end
   user 'hdfs'
   command %Q{
     hadoop_users=/user/"`grep supergroup /etc/group | cut -d: -f4 | sed -e 's|,| /user/|g'`"
     hadoop_users="/user/ubuntu $hadoop_users"
-    hadoop fs -mkdir    /tmp /user /user/hive/warehouse $hadoop_users;
-    hadoop fs -chmod a+w /tmp /user /user/hive/warehouse;
+    hadoop fs -mkdir           /tmp /user /user/hive/warehouse $hadoop_users;
+    hadoop fs -chmod a+w       /tmp /user /user/hive/warehouse;
     hadoop fs -mkdir           /hadoop/system/mapred
     hadoop fs -chown -R mapred /hadoop/system
-    hadoop fs -chmod 600       /hadoop/system/mapred
+    hadoop fs -chmod 700       /hadoop/system/mapred
     hadoop fs -mkdir           /hadoop/hbase
     hadoop fs -chown -R hbase  /hadoop/hbase
     for user in $hadoop_users ; do
       hadoop fs -chown ${user#/user/} $user;
     done ;
-    touch /mnt/hadoop/logs/made_initial_dirs.log ;
+    touch #{hadoop_tmp_dir}/made_initial_dirs.log ;
+    true
   }
 end

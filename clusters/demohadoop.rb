@@ -1,6 +1,6 @@
 ClusterChef.cluster 'demohadoop' do
-
   cloud :ec2 do
+    defaults
     availability_zones ['us-east-1a']
     flavor              't1.micro'
     backing             'ebs'
@@ -16,7 +16,7 @@ ClusterChef.cluster 'demohadoop' do
   role                  :nfs_client
   role                  :mountable_volumes
 
-  role :mrflip_base
+  role                  :mrflip_base
 
   volume(:ebs1) do
     defaults
@@ -35,11 +35,12 @@ ClusterChef.cluster 'demohadoop' do
     role                :hadoop
     role                :hadoop_s3_keys
     role                :hadoop_namenode
-    recipe              'hadoop_cluster::bootstrap_format_namenode'
+    # recipe              'hadoop_cluster::bootstrap_format_namenode'
     role                :hadoop_jobtracker
     role                :hadoop_secondarynamenode
     role                :hadoop_tasktracker
     role                :hadoop_datanode
+    recipe              'hadoop_cluster::cluster_conf'
     role                :hadoop_initial_bootstrap
   end
 
@@ -51,13 +52,14 @@ ClusterChef.cluster 'demohadoop' do
     role                :hadoop_s3_keys
     role                :hadoop_tasktracker
     role                :hadoop_datanode
+    recipe              'hadoop_cluster::cluster_conf'
   end
 
   cluster_role.override_attributes({
       :hadoop => {
         :hadoop_handle        => 'hadoop-0.20',
-        :cdh_version          => 'cdh3u1',
-        :deb_version          => '0.20.2+923.97-1~maverick-cdh3',
+        :cdh_version          => 'cdh3u2',
+        :deb_version          => '0.20.2+923.142-1~maverick-cdh3',
         :cloudera_distro_name => 'maverick', # no natty distro  yet
         :persistent_dirs      => [],
         :scratch_dirs         => ['/mnt/hadoop'],
@@ -72,7 +74,7 @@ ClusterChef.cluster 'demohadoop' do
         :hadoop_namenode           => [:start],
         :hadoop_secondary_namenode => [:disable],
         :hadoop_jobtracker         => [:disable],
-        :hadoop_datanode           => [:disable],
+        :hadoop_datanode           => [:start],
         :hadoop_tasktracker        => [:disable],
       },
     })
