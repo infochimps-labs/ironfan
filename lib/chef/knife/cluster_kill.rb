@@ -46,12 +46,12 @@ class Chef
       # Execute every last mf'ing one of em
       def perform_execution(target)
         if config[:cloud]
-          section("Killing Cloud Machines!!", :red)
+          section("Killing Cloud Machines")
           target.select(&:in_cloud?).destroy
         end
 
         if config[:chef]
-          section("Killing Chef!!", :red)
+          section("Killing Chef")
           target.select(&:in_chef? ).delete_chef
         end
       end

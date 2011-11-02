@@ -85,7 +85,7 @@ module ClusterChef
         next if vol.volume_id.blank? || (vol.attachable != :ebs)
         if (not vol.in_cloud?) then  Chef::Log.debug("Volume not found: #{vol.desc}") ; next ; end
         if (vol.has_server?)   then check_server_id_pairing(vol.fog_volume, vol.desc) ; next ; end
-        step("  - attaching #{vol.desc} -- #{vol.inspect}", :green)
+        step("  - attaching #{vol.desc} -- #{vol.inspect}", :blue)
         safely do
           vol.fog_volume.device = vol.device
           vol.fog_volume.server = fog_server
@@ -99,7 +99,7 @@ module ClusterChef
       desc = "elastic ip #{address} for #{self.fullname}"
       if (fog_address && fog_address.server_id) then check_server_id_pairing(fog_address, desc) ; return ; end
       safely do
-        step("  assigning #{desc}", :green)
+        step("  assigning #{desc}", :blue)
         ClusterChef.fog_connection.associate_address(self.fog_server.id, address)
       end
     end

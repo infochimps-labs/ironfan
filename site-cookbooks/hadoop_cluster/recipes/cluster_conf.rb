@@ -10,7 +10,7 @@ class Chef::Recipe; include HadoopCluster ; end
 # Find these variables in ../hadoop_cluster/libraries/hadoop_cluster.rb
 #
 
-Chef::Log.info([ hadoop_services, hadoop_config_hash ].inspect)
+Chef::Log.info([ node[:cluster_name], node[:facet_name], hadoop_services, hadoop_config_hash ].inspect)
 
 %w[raw_settings.yaml core-site.xml fairscheduler.xml hdfs-site.xml mapred-site.xml hadoop-metrics.properties].each do |conf_file|
   template "/etc/hadoop/conf/#{conf_file}" do

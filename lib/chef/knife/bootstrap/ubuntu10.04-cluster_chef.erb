@@ -8,10 +8,10 @@ bash -c '
 
 <%= (@config[:verbosity].to_i > 1 ? 'set -v' : '') %>
 
-mkdir /tmp/knife-bootstrap ; chmod 700 /tmp/knife-bootstrap
+mkdir -p /tmp/knife-bootstrap ; chmod 700 /tmp/knife-bootstrap 
 cd /tmp/knife-bootstrap
 
-RUBY_VERSION=1.9.3-p0  #  1.9.2-p290
+RUBY_VERSION=1.9.2-p290
 
 <%= "export http_proxy=\"#{knife_config[:bootstrap_proxy]}\"" if knife_config[:bootstrap_proxy] -%>
 eval `cat /etc/lsb-release `
@@ -23,7 +23,7 @@ apt-get    update
 apt-get -y upgrade
 
 echo -e "`date` \n\n**** \n**** Installing base packages:\n****\n"
-apt-get install -y build-essential wget runit runit-services zlib1g-dev libssl-dev openssl libcurl4-openssl-dev libreadline6-dev
+apt-get install -y build-essential wget runit runit-services zlib1g-dev libssl-dev openssl libcurl4-openssl-dev libreadline6-dev libyaml-dev
 
 echo -e "`date` \n\n**** \n**** Installing ruby version ${RUBY_VERSION}:\n****\n"
 
@@ -81,7 +81,7 @@ awk NF /tmp/knife-bootstrap/validation.pem > /etc/chef/validation.pem
 echo -e "`date` \n\n**** \n**** Nuking our temp files:\n****\n"
 
 cd /tmp
-rm -rf /tmp/knife-bootstrap
+# rm -rf /tmp/knife-bootstrap
 
 echo -e "`date` \n\n**** \n**** Creating chef client script:\n****\n"
 
@@ -99,8 +99,8 @@ EOP
 ) > /etc/chef/first-boot.json
 
 echo -e "`date` \n\n**** \n**** Adding chef client runit scripts:\n****\n"
-service chef-client stop 2>/dev/null ; sleep 1 ; killall chef-client 2>/dev/null
-mkdir -p /var/log/chef /var/chef /etc/service /etc/sv/chef-client/{log/main,supervise}
+service chef-client stop 2>/dev/null ; sleep 1 ; killall chef-client 2>/dev/null ; true
+mkdir -p /var/log/chef /var/chef /etc/service /etc/sv/chef-client/{log/main,supervise} 
 cat > /etc/sv/chef-client/log/run <<EOF
 #!/bin/bash
 exec svlogd -tt ./main
@@ -113,11 +113,13 @@ EOF
 chmod +x  /etc/sv/chef-client/log/run /etc/sv/chef-client/run
 ln -nfs /usr/bin/sv /etc/init.d/chef-client
 
-service chef-client stop
+service chef-client stop ; true
 
 <%- if (@config[:bootstrap_runs_chef_client].to_s == 'true') || (@chef_config.knife[:bootstrap_runs_chef_client].to_s == 'true') %>
 echo -e "`date` \n\n**** \n**** First run of chef:\n****\n"
+set -e
 <%= start_chef %>
+set +e
 <%- end %>
 
 echo -e "`date` \n\n**** \n**** Cleanup:\n****\n"

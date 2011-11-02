@@ -36,15 +36,15 @@ class Chef
         # Load the cluster/facet/slice/whatever
         target = get_slice(* @name_args)
 
-        # Display same
-        display(target, :expanded)
-
         if config[:verbosity] > 1
           target.each do |svr|
             Chef::Log.debug( "Server #{svr.name}: #{JSON.pretty_generate(svr.to_hash)}" )
             Chef::Log.debug( "- cloud: #{JSON.pretty_generate(svr.cloud.to_hash)}" )
           end
         end
+
+        # Display same
+        display(target, :expanded)
 
       end
     end

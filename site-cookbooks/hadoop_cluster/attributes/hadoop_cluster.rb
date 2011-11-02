@@ -8,9 +8,9 @@ default[:hadoop][:cloudera_distro_name] = nil # override distro name if cloudera
 #   :enable => enabled service to run at boot.
 #   :start  => ensure it's started and running.
 # Default is [:enable,:start] but for complex clusters consider [:enable] alone
-default[:service_states][:hadoop_namenode]           = [:start]
+default[:service_states][:hadoop_namenode]           = [:enable]
 default[:service_states][:hadoop_secondary_namenode] = []
-default[:service_states][:hadoop_datanode]           = [:start]
+default[:service_states][:hadoop_datanode]           = [:enable]
 default[:service_states][:hadoop_jobtracker]         = []
 default[:service_states][:hadoop_tasktracker]        = []
 

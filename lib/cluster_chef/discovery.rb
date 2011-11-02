@@ -19,6 +19,11 @@ module ClusterChef
       @chef_clients
     end
 
+    # returns client with the given name if in catalog, nil otherwise
+    def find_client(cl_name)
+      chef_clients.find{|ccl| ccl.name == cl_name }
+    end
+
     def chef_nodes
       return @chef_nodes if @chef_nodes
       @chef_nodes = []
@@ -26,6 +31,11 @@ module ClusterChef
         @chef_nodes.push(n) unless n.blank? || (n.cluster_name != cluster_name.to_s)
       end
       @chef_nodes
+    end
+
+    # returns node with the given name if in catalog, nil otherwise
+    def find_node(nd_name)
+      chef_nodes.find{|nd| nd.name == nd_name }
     end
 
   protected

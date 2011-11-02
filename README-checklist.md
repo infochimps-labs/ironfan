@@ -1,5 +1,7 @@
 # Checklist for cookbooks, clusters and roles
 
+
+
 ## Clusters
 
 * Describe physical configuration:
@@ -36,6 +38,9 @@ roles shouldn't assemble systems. The contents of the infochimps_chef/roles/plat
   - *yes*: `java`, `ruby`, `cluster_service_discovery`, etc.
   - *no*:  `zookeeper:client`, `nfs:server`, or anything that will start a daemon
 
+
+* **attributes files**: If there is only one, name it 'default'. If there are externally-interesting tunable parameters, name it 'tunables'. If attributes may be interesting to other cookbooks, they are referred to as `include_atttributes 'cookbook::filename'`, or plain `include_atttributes 'cookbook'` when the file is named 'default.rb'. (Attributes are otherwise loaded in alphabetical order across all machines).
+
 * (*see TODO*) Does `cluster_service_discovery` uniformly handle referring to a foreign cluster for the service?
 
 #### Recipes
@@ -53,3 +58,18 @@ roles shouldn't assemble systems. The contents of the infochimps_chef/roles/plat
 * Attribute file named ???? (which is the prefered name?)
  
 
+
+
+Names:
+
+* `force_distro_name`: forces the distro name (maverick, natty, etc) when the t
+* `default[:service_states][:hadoop_tasktracker]`
+
+
+* log files: named hash OR array of length 
+
+
+
+* "I haz a port, I listens there"
+* "I haz a logfile, I writes to it"
+* "

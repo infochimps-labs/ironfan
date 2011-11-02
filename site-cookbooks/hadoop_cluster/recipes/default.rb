@@ -33,7 +33,6 @@ end
 # # Add cloudera package repo
 apt_repository 'cloudera' do
   uri             'http://archive.cloudera.com/debian'
-  distribution    node[:hadoop][:cloudera_distro_name]
   distro        = node[:hadoop][:cloudera_distro_name] || node[:lsb][:codename]
   distribution    "#{distro}-#{node[:hadoop][:cdh_version]}"
   components      ['contrib']

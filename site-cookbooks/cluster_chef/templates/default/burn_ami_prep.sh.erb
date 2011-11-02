@@ -1,0 +1,39 @@
+service chef-client stop
+ps auxf
+df -BG
+#
+away_dir=/tmp/ami_away
+mkdir -p "$away_dir"
+cd /tmp
+
+# Tidy up the joint for the next occupants
+apt-get -y update  ;
+apt-get -y upgrade ;
+apt-get -f install ;
+apt-get clean ;
+updatedb ;
+
+# move away anything tied to the identity of this machine
+mv /etc/hostname /etc/node*name /var/www/index.html "$away_dir"
+# move away chef junk
+mv /var/chef /etc/chef/*.json /etc/chef/*.pem /etc/chef/*~ "$away_dir"
+
+# make a nice bland motd
+. /etc/lsb-release 
+img_info="  infochimps-$DISTRIB_CODENAME-`uname -i`-`ruby --version | cut -d' '  -f2`-`date +"%Y%m%d-%H"`"
+rm /etc/motd ;
+echo "CHIMP CHIMP CHIMP CRUNCH CRUNCH CRUNCH (image burned at `date`): $img_info" > /etc/motd;
+
+# unmount your mountables
+cd / ; for foo in /home /ebs* /data/ebs* /data ; do umount $foo 2>/dev/null ; done
+
+# zero out all files in /var/log
+cd /var/log ; for foo in `find /var/log -type f` ; do echo $foo ; bash -c "echo -n > $foo"  ; done
+
+echo "Done!"
+echo ""
+echo "Go to the console; hit 'stop' on the machine, count to a hundred,"
+echo "then hit 'Create Image (EBS AMI)'. Name the AMI something like"
+echo ""
+echo "  $img_info"
+echo ""

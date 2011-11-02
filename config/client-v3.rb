@@ -41,6 +41,7 @@ chef_server_url        chef_config["chef_server"]            if chef_config["che
 validation_client_name chef_config["validation_client_name"] if chef_config["validation_client_name"]
 validation_key         "/etc/chef/validation.pem"
 client_key             "/etc/chef/client.pem"
+node_attrs_file        "/etc/chef/first-boot.json"
 
 # If the client file is missing, write the validation key out so chef-client can register
 unless File.exists?(client_key)
@@ -49,5 +50,11 @@ unless File.exists?(client_key)
   else  warn "Yikes -- I have no client key or validation key!!"
   end
 end
+
+unless File.exists?(node_attrs_file)
+  reduced_chef_config = chef_config.reject{|k,v| k.to_s =~ /(_key|run_list)$/ }
+  create_file_if_empty(node_attrs_file, JSON.pretty_generate(reduced_chef_config))
+end
+json_attribs node_attrs_file
 
 puts "=> chef client #{node_name} on #{chef_server_url} in cluster +#{chef_config["cluster_name"]}+"

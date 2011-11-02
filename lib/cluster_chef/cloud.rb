@@ -343,7 +343,7 @@ module ClusterChef
         # %w[us-east-1           64-bit  instance        infochimps-maverick-client     ] => { :image_id => '',             :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, #
 
         # %w[us-east-1           64-bit  ebs             mrflip-natty                 ] => { :image_id => 'ami-199b5470', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-cluster_chef", }, #
-        %w[us-east-1             64-bit  ebs             mrflip-natty                 ] => { :image_id => 'ami-9ffa34f6', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-cluster_chef", }, # infochimps-natty-64bit-useast1-ruby19-dev-20111101b
+        %w[us-east-1             64-bit  ebs             mrflip-natty                 ] => { :image_id => 'ami-0df63864', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-cluster_chef", }, # infochimps-natty-64bit-useast1-ruby19-dev-20111101b
 
       }
     end

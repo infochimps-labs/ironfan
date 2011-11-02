@@ -191,28 +191,16 @@ module ClusterChef
     #
 
     def sync_to_cloud
-      step "Syncing to cloud", :blue
+      step "Syncing to cloud"
       attach_volumes
       create_tags
       associate_public_ip
     end
 
     def sync_to_chef
-      step "Syncing to chef server", :blue
-      ensure_chef_client
-      ensure_chef_node
-      # check_node_permissions # _acl API not working, skipping it
-      chef_set_attributes
-      sync_volume_attributes
-      save_chef_node
+      step "Syncing to chef server"
+      sync_chef_node
       true
-    end
-
-    def sync_volume_attributes
-      composite_volumes.each do |vol_name, vol|
-        chef_node.normal[:mountable_volumes][:volumes] ||= Mash.new
-        chef_node.normal[:mountable_volumes][:volumes][vol_name] = vol.to_mash.compact
-      end
     end
 
     # FIXME: a lot of AWS logic in here. This probably lives in the facet.cloud

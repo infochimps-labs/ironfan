@@ -71,18 +71,18 @@ ClusterChef.cluster 'demohadoop' do
 
   facet(:master).facet_role.override_attributes({
       :service_states => {
-        :hadoop_namenode           => [:start],
+        :hadoop_namenode           => [:enable],
         :hadoop_secondary_namenode => [:disable],
         :hadoop_jobtracker         => [:disable],
-        :hadoop_datanode           => [:start],
+        :hadoop_datanode           => [:enable],
         :hadoop_tasktracker        => [:disable],
       },
     })
 
   facet(:worker).facet_role.override_attributes({
       :service_states => {
-        :hadoop_datanode           => [:enable, :start],
-        :hadoop_tasktracker        => [:enable, :start],
+        :hadoop_datanode           => [:enable],
+        :hadoop_tasktracker        => [:enable],
       },
     })
 end

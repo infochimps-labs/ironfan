@@ -38,7 +38,7 @@ module ClusterChef
       def self.get_or_create group_name, description
         group = all[group_name] || ClusterChef.fog_connection.security_groups.get(group_name)
         if ! group
-          self.step(group_name, "creating (#{description})")
+          self.step(group_name, "creating (#{description})", :blue)
           group = all[group_name] = ClusterChef.fog_connection.security_groups.new(:name => group_name, :description => description, :connection => ClusterChef.fog_connection)
           group.save
         end
@@ -78,24 +78,24 @@ module ClusterChef
         @group_authorizations.uniq.each do |authed_group, authed_owner|
           authed_owner ||= self.owner_id
           next if group_permission_already_set?(group, authed_group, authed_owner)
-          step("authorizing access from all machines in #{authed_group}")
+          step("authorizing access from all machines in #{authed_group}", :blue)
           self.class.get_or_create(authed_group, "Authorized to access nfs server")
           begin  group.authorize_group_and_owner(authed_group, authed_owner)
           rescue StandardError => e ; ui.warn e ; end
         end
         @range_authorizations.uniq.each do |range, cidr_ip, ip_protocol|
           next if range_permission_already_set?(group, range, cidr_ip, ip_protocol)
-          step("opening #{ip_protocol} ports #{range} to #{cidr_ip}")
+          step("opening #{ip_protocol} ports #{range} to #{cidr_ip}", :blue)
           begin  group.authorize_port_range(range, { :cidr_ip => cidr_ip, :ip_protocol => ip_protocol })
           rescue StandardError => e ; ui.warn e ; end
         end
       end
 
-      def self.step(group_name, desc)
-        ui.info("  group #{"%-15s" % (group_name+":")}\t#{desc}")
+      def self.step(group_name, desc, *style)
+        ui.info("  group #{"%-15s" % (group_name+":")}\t#{ui.color(desc.to_s, *style)}")
       end
-      def step(desc)
-        self.class.step(self.name, desc)
+      def step(desc, *style)
+        self.class.step(self.name, desc, *style)
       end
 
     end
