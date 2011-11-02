@@ -59,9 +59,9 @@ module ClusterChef
       # default values to apply where no value was set
       # @returns [Hash] hash of defaults
       def defaults
-        {
+        reverse_merge!({
           :image_name         => 'maverick',
-        }
+        })
       end
 
       # The username to ssh with.
@@ -109,7 +109,7 @@ module ClusterChef
       end
 
     protected
-      # If value was explicitly set, use that; if the IMAGE_INFO implies a value use that; otherwise use the default
+      # If value was explicitly set, use that; if the Chef::Config[:ec2_image_info] implies a value use that; otherwise use the default
       def from_setting_or_image_info(key, val=nil, default=nil)
         @settings[key] = val unless val.nil?
         return @settings[key]  if @settings.include?(key)
@@ -141,11 +141,12 @@ module ClusterChef
           mount_point '/'
           mountable   false
         end
-        super.merge({
-            :availability_zones => ['us-east-1a'],
+        self.reverse_merge!({
+            :availability_zones => ['us-east-1d'],
             :backing            => 'ebs',
             :flavor             => 't1.micro',
           })
+        super
       end
 
       # adds a security group to the cloud instance
@@ -205,7 +206,14 @@ module ClusterChef
       # Utility methods
 
       def image_info
-        IMAGE_INFO[ [region, bits, backing, image_name] ] or ui.warn "Make sure to define the machine's region, bits, backing and image_name. (Have #{[region, bits, backing, image_name].inspect})"
+        Chef::Config[:ec2_image_info][ [region, bits, backing, image_name] ] or ui.warn "Make sure to define the machine's region, bits, backing and image_name. (Have #{[region, bits, backing, image_name].inspect})"
+      end
+
+      def list_images
+        ui.info("Available images:")
+        Chef::Config[:ec2_image_info].each do |flavor_name, flavor|
+          ui.info("  #{flavor_name}\t#{flavor.inspect}")
+        end
       end
 
       def flavor(val=nil)
@@ -214,7 +222,14 @@ module ClusterChef
       end
 
       def flavor_info
-        FLAVOR_INFO[ flavor ] || {} # or raise "Please define the machine's flavor."
+        FLAVOR_INFO[flavor] or raise "Please define the machine's flavor: have #{self.inspect}"
+      end
+
+      def list_flavors
+        ui.info("Available flavors:")
+        FLAVOR_INFO.each do |flavor_name, flavor|
+          ui.info("  #{flavor_name}\t#{flavor.inspect}")
+        end
       end
 
       # code            $/hr    $/mo    $/day   CPU/$   Mem/$    mem    cpu     cores   cpcore  storage  bits   IO              type            name
@@ -244,108 +259,102 @@ module ClusterChef
         'cg1.4xlarge' => { :price => 2.10,  :bits => '64-bit', :ram =>  22528, :cores => 2, :core_size =>16.75, :inst_disks => 4, :inst_disk_size => 1690, :ephemeral_volumes => 2 },
       }
 
-      IMAGE_INFO =  {
-        #
-        # Lucid (Ubuntu 9.10)
-        #
-        %w[us-east-1             64-bit  instance        karmic                         ] => { :image_id => 'ami-55739e3c', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[us-east-1             32-bit  instance        karmic                         ] => { :image_id => 'ami-bb709dd2', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[us-west-1             64-bit  instance        karmic                         ] => { :image_id => 'ami-cb2e7f8e', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[us-west-1             32-bit  instance        karmic                         ] => { :image_id => 'ami-c32e7f86', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[eu-west-1             64-bit  instance        karmic                         ] => { :image_id => 'ami-05c2e971', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[eu-west-1             32-bit  instance        karmic                         ] => { :image_id => 'ami-2fc2e95b', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+      #
+      # To add to this list, use this snippet:
+      #
+      #     Chef::Config[:ec2_image_info] ||= {}
+      #     Chef::Config[:ec2_image_info].merge!({
+      #       # ... lines like the below
+      #     })
+      #
+      # in your knife.rb or whereever. We'll notice that it exists and add to it, rather than clobbering it.
+      #
+      Chef::Config[:ec2_image_info] ||= {}
+      Chef::Config[:ec2_image_info].merge!({
 
-        #
-        # Lucid (Ubuntu 10.04.3)
-        #
-        %w[ap-southeast-1        64-bit  ebs             lucid                          ] => { :image_id => 'ami-77f28d25', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[ap-southeast-1        32-bit  ebs             lucid                          ] => { :image_id => 'ami-4df28d1f', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[ap-southeast-1        64-bit  instance        lucid                          ] => { :image_id => 'ami-57f28d05', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[ap-southeast-1        32-bit  instance        lucid                          ] => { :image_id => 'ami-a5f38cf7', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[eu-west-1             64-bit  ebs             lucid                          ] => { :image_id => 'ami-ab4d67df', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[eu-west-1             32-bit  ebs             lucid                          ] => { :image_id => 'ami-a94d67dd', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[eu-west-1             64-bit  instance        lucid                          ] => { :image_id => 'ami-a54d67d1', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[eu-west-1             32-bit  instance        lucid                          ] => { :image_id => 'ami-cf4d67bb', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        #
-        %w[us-east-1             64-bit  ebs             lucid                          ] => { :image_id => 'ami-4b4ba522', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[us-east-1             32-bit  ebs             lucid                          ] => { :image_id => 'ami-714ba518', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[us-east-1             64-bit  instance        lucid                          ] => { :image_id => 'ami-fd4aa494', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[us-east-1             32-bit  instance        lucid                          ] => { :image_id => 'ami-2d4aa444', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        #
-        %w[us-west-1             64-bit  ebs             lucid                          ] => { :image_id => 'ami-d197c694', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[us-west-1             32-bit  ebs             lucid                          ] => { :image_id => 'ami-cb97c68e', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[us-west-1             64-bit  instance        lucid                          ] => { :image_id => 'ami-c997c68c', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[us-west-1             32-bit  instance        lucid                          ] => { :image_id => 'ami-c597c680', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          #
+          # Lucid (Ubuntu 9.10)
+          #
+          %w[us-east-1             64-bit  instance        karmic                         ] => { :image_id => 'ami-55739e3c', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[us-east-1             32-bit  instance        karmic                         ] => { :image_id => 'ami-bb709dd2', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[us-west-1             64-bit  instance        karmic                         ] => { :image_id => 'ami-cb2e7f8e', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[us-west-1             32-bit  instance        karmic                         ] => { :image_id => 'ami-c32e7f86', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[eu-west-1             64-bit  instance        karmic                         ] => { :image_id => 'ami-05c2e971', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[eu-west-1             32-bit  instance        karmic                         ] => { :image_id => 'ami-2fc2e95b', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
 
-        #
-        # Maverick (Ubuntu 10.10)
-        #
-        %w[ ap-southeast-1       64-bit  ebs             maverick                       ] => { :image_id => 'ami-32423c60', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[ ap-southeast-1       64-bit  instance        maverick                       ] => { :image_id => 'ami-12423c40', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[ ap-southeast-1       32-bit  ebs             maverick                       ] => { :image_id => 'ami-0c423c5e', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[ ap-southeast-1       32-bit  instance        maverick                       ] => { :image_id => 'ami-7c423c2e', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        #
-        %w[ eu-west-1            64-bit  ebs             maverick                       ] => { :image_id => 'ami-e59ca991', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[ eu-west-1            64-bit  instance        maverick                       ] => { :image_id => 'ami-1b9ca96f', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[ eu-west-1            32-bit  ebs             maverick                       ] => { :image_id => 'ami-fb9ca98f', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[ eu-west-1            32-bit  instance        maverick                       ] => { :image_id => 'ami-339ca947', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        #
-        %w[ us-east-1            64-bit  ebs             maverick                       ] => { :image_id => 'ami-cef405a7', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[ us-east-1            64-bit  instance        maverick                       ] => { :image_id => 'ami-08f40561', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[ us-east-1            32-bit  ebs             maverick                       ] => { :image_id => 'ami-ccf405a5', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[ us-east-1            32-bit  instance        maverick                       ] => { :image_id => 'ami-a6f504cf', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        #
-        %w[ us-west-1            64-bit  ebs             maverick                       ] => { :image_id => 'ami-af7e2eea', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[ us-west-1            64-bit  instance        maverick                       ] => { :image_id => 'ami-a17e2ee4', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[ us-west-1            32-bit  ebs             maverick                       ] => { :image_id => 'ami-ad7e2ee8', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[ us-west-1            32-bit  instance        maverick                       ] => { :image_id => 'ami-957e2ed0', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          #
+          # Lucid (Ubuntu 10.04.3)
+          #
+          %w[ap-southeast-1        64-bit  ebs             lucid                          ] => { :image_id => 'ami-77f28d25', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ap-southeast-1        32-bit  ebs             lucid                          ] => { :image_id => 'ami-4df28d1f', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ap-southeast-1        64-bit  instance        lucid                          ] => { :image_id => 'ami-57f28d05', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ap-southeast-1        32-bit  instance        lucid                          ] => { :image_id => 'ami-a5f38cf7', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[eu-west-1             64-bit  ebs             lucid                          ] => { :image_id => 'ami-ab4d67df', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[eu-west-1             32-bit  ebs             lucid                          ] => { :image_id => 'ami-a94d67dd', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[eu-west-1             64-bit  instance        lucid                          ] => { :image_id => 'ami-a54d67d1', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[eu-west-1             32-bit  instance        lucid                          ] => { :image_id => 'ami-cf4d67bb', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          #
+          %w[us-east-1             64-bit  ebs             lucid                          ] => { :image_id => 'ami-4b4ba522', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[us-east-1             32-bit  ebs             lucid                          ] => { :image_id => 'ami-714ba518', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[us-east-1             64-bit  instance        lucid                          ] => { :image_id => 'ami-fd4aa494', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[us-east-1             32-bit  instance        lucid                          ] => { :image_id => 'ami-2d4aa444', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          #
+          %w[us-west-1             64-bit  ebs             lucid                          ] => { :image_id => 'ami-d197c694', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[us-west-1             32-bit  ebs             lucid                          ] => { :image_id => 'ami-cb97c68e', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[us-west-1             64-bit  instance        lucid                          ] => { :image_id => 'ami-c997c68c', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[us-west-1             32-bit  instance        lucid                          ] => { :image_id => 'ami-c597c680', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
 
-        #
-        # Natty (Ubuntu 11.04)
-        #
-        %w[ ap-northeast-1       32-bit  ebs             natty                          ] => { :image_id => 'ami-00b10501', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[ ap-northeast-1       32-bit  instance        natty                          ] => { :image_id => 'ami-f0b004f1', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[ ap-northeast-1       64-bit  ebs             natty                          ] => { :image_id => 'ami-02b10503', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[ ap-northeast-1       64-bit  instance        natty                          ] => { :image_id => 'ami-fab004fb', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        #
-        %w[ ap-southeast-1       32-bit  ebs             natty                          ] => { :image_id => 'ami-06255f54', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[ ap-southeast-1       32-bit  instance        natty                          ] => { :image_id => 'ami-72255f20', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[ ap-southeast-1       64-bit  ebs             natty                          ] => { :image_id => 'ami-04255f56', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[ ap-southeast-1       64-bit  instance        natty                          ] => { :image_id => 'ami-7a255f28', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        #
-        %w[ eu-west-1            32-bit  ebs             natty                          ] => { :image_id => 'ami-a4f7c5d0', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[ eu-west-1            32-bit  instance        natty                          ] => { :image_id => 'ami-fef7c58a', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[ eu-west-1            64-bit  ebs             natty                          ] => { :image_id => 'ami-a6f7c5d2', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[ eu-west-1            64-bit  instance        natty                          ] => { :image_id => 'ami-c0f7c5b4', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        #
-        %w[ us-east-1            32-bit  ebs             natty                          ] => { :image_id => 'ami-e358958a', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[ us-east-1            32-bit  instance        natty                          ] => { :image_id => 'ami-c15994a8', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[ us-east-1            64-bit  ebs             natty                          ] => { :image_id => 'ami-fd589594', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[ us-east-1            64-bit  instance        natty                          ] => { :image_id => 'ami-71589518', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        #
-        %w[ us-west-1            32-bit  ebs             natty                          ] => { :image_id => 'ami-43580406', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[ us-west-1            32-bit  instance        natty                          ] => { :image_id => 'ami-e95f03ac', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[ us-west-1            64-bit  ebs             natty                          ] => { :image_id => 'ami-4d580408', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-        %w[ us-west-1            64-bit  instance        natty                          ] => { :image_id => 'ami-a15f03e4', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          #
+          # Maverick (Ubuntu 10.10)
+          #
+          %w[ ap-southeast-1       64-bit  ebs             maverick                       ] => { :image_id => 'ami-32423c60', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ ap-southeast-1       64-bit  instance        maverick                       ] => { :image_id => 'ami-12423c40', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ ap-southeast-1       32-bit  ebs             maverick                       ] => { :image_id => 'ami-0c423c5e', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ ap-southeast-1       32-bit  instance        maverick                       ] => { :image_id => 'ami-7c423c2e', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          #
+          %w[ eu-west-1            64-bit  ebs             maverick                       ] => { :image_id => 'ami-e59ca991', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ eu-west-1            64-bit  instance        maverick                       ] => { :image_id => 'ami-1b9ca96f', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ eu-west-1            32-bit  ebs             maverick                       ] => { :image_id => 'ami-fb9ca98f', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ eu-west-1            32-bit  instance        maverick                       ] => { :image_id => 'ami-339ca947', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          #
+          %w[ us-east-1            64-bit  ebs             maverick                       ] => { :image_id => 'ami-cef405a7', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ us-east-1            64-bit  instance        maverick                       ] => { :image_id => 'ami-08f40561', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ us-east-1            32-bit  ebs             maverick                       ] => { :image_id => 'ami-ccf405a5', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ us-east-1            32-bit  instance        maverick                       ] => { :image_id => 'ami-a6f504cf', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          #
+          %w[ us-west-1            64-bit  ebs             maverick                       ] => { :image_id => 'ami-af7e2eea', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ us-west-1            64-bit  instance        maverick                       ] => { :image_id => 'ami-a17e2ee4', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ us-west-1            32-bit  ebs             maverick                       ] => { :image_id => 'ami-ad7e2ee8', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ us-west-1            32-bit  instance        maverick                       ] => { :image_id => 'ami-957e2ed0', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
 
-        #
-        # Infochimps
-        #
-        # sorry to stuff these in here -- the above are generic, these are infochimps internal
-        %w[us-east-1             64-bit  ebs             infochimps-hadoop-client       ] => { :image_id => 'ami-a236c7cb', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # microchimps
-        #
-        %w[us-east-1             32-bit  ebs             infochimps-maverick-client     ] => { :image_id => 'ami-32a0535b', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # infochimps.chef-client.maverick.east.ami-32bit-20110211
-        %w[us-east-1             64-bit  ebs             infochimps-maverick-client-old ] => { :image_id => 'ami-48be4e21', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # infochimps.chef-client.maverick.east.ami-64bit-20110118
-        %w[us-east-1             64-bit  instance        infochimps-maverick-client     ] => { :image_id => 'ami-50659439', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # infochimps.hadoop-client.maverick.east.ami-64bit-20110113
-        #
-        # %w[us-east-1           32-bit  ebs             infochimps-maverick-client     ] => { :image_id => '',             :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, #
-        %w[us-east-1             64-bit  ebs             infochimps-maverick-client     ] => { :image_id => 'ami-6802f901', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, # infochimps.chef-client.maverick.east.ebs-64bit-20110703c
-        # %w[us-east-1           64-bit  instance        infochimps-maverick-client     ] => { :image_id => '',             :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", }, #
-
-        # %w[us-east-1           64-bit  ebs             mrflip-natty                 ] => { :image_id => 'ami-199b5470', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-cluster_chef", }, #
-        %w[us-east-1             64-bit  ebs             mrflip-natty                 ] => { :image_id => 'ami-0df63864', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-cluster_chef", }, # infochimps-natty-64bit-useast1-ruby19-dev-20111101b
-
-      }
+          #
+          # Natty (Ubuntu 11.04)
+          #
+          %w[ ap-northeast-1       32-bit  ebs             natty                          ] => { :image_id => 'ami-00b10501', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ ap-northeast-1       32-bit  instance        natty                          ] => { :image_id => 'ami-f0b004f1', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ ap-northeast-1       64-bit  ebs             natty                          ] => { :image_id => 'ami-02b10503', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ ap-northeast-1       64-bit  instance        natty                          ] => { :image_id => 'ami-fab004fb', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          #
+          %w[ ap-southeast-1       32-bit  ebs             natty                          ] => { :image_id => 'ami-06255f54', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ ap-southeast-1       32-bit  instance        natty                          ] => { :image_id => 'ami-72255f20', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ ap-southeast-1       64-bit  ebs             natty                          ] => { :image_id => 'ami-04255f56', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ ap-southeast-1       64-bit  instance        natty                          ] => { :image_id => 'ami-7a255f28', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          #
+          %w[ eu-west-1            32-bit  ebs             natty                          ] => { :image_id => 'ami-a4f7c5d0', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ eu-west-1            32-bit  instance        natty                          ] => { :image_id => 'ami-fef7c58a', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ eu-west-1            64-bit  ebs             natty                          ] => { :image_id => 'ami-a6f7c5d2', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ eu-west-1            64-bit  instance        natty                          ] => { :image_id => 'ami-c0f7c5b4', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          #
+          %w[ us-east-1            32-bit  ebs             natty                          ] => { :image_id => 'ami-e358958a', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ us-east-1            32-bit  instance        natty                          ] => { :image_id => 'ami-c15994a8', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ us-east-1            64-bit  ebs             natty                          ] => { :image_id => 'ami-fd589594', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ us-east-1            64-bit  instance        natty                          ] => { :image_id => 'ami-71589518', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          #
+          %w[ us-west-1            32-bit  ebs             natty                          ] => { :image_id => 'ami-43580406', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ us-west-1            32-bit  instance        natty                          ] => { :image_id => 'ami-e95f03ac', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ us-west-1            64-bit  ebs             natty                          ] => { :image_id => 'ami-4d580408', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ us-west-1            64-bit  instance        natty                          ] => { :image_id => 'ami-a15f03e4', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+        })
     end
 
     class Slicehost < Base
