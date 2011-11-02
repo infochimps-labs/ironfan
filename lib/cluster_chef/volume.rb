@@ -53,7 +53,7 @@ module ClusterChef
     # be the same thing.
     #
     def create_at_launch?
-      self.create_at_launch
+      volume_id.blank? && self.create_at_launch
     end
 
     def in_cloud?
