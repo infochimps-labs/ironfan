@@ -1,11 +1,16 @@
 ClusterChef.cluster 'demosimple' do
   cloud(:ec2) do
-    flavor              't1.micro'
+    defaults
+    image_name          'natty'
+    bootstrap_distro    'ubuntu10.04-cluster_chef'
+    chef_client_script  'client-v3.rb'
+    mount_ephemerals(:tags => { :hadoop_scratch => true })
   end
 
   role                  :base_role
   role                  :chef_client
   role                  :ssh
+  role                  :mountable_volumes
 
   #
   # An NFS server to hold your home drives.
@@ -15,6 +20,7 @@ ClusterChef.cluster 'demosimple' do
   #
   facet :homebase do
     instances           1
+
     role                :nfs_server
   end
 
@@ -24,18 +30,13 @@ ClusterChef.cluster 'demosimple' do
   facet :sandbox do
     instances           2
 
-    cloud do
-      flavor           'm1.large'
-      backing          'ebs'
-
-      image_name          'mrflip-natty'
-      bootstrap_distro    'ubuntu10.04-cluster_chef'
-      chef_client_script  'client-v3.rb'
-      mount_ephemerals(:tags => { :hadoop_scratch => true })
-
-    end
-
     role                :nfs_client
   end
+
+  cluster_role.override_attributes({
+      :mountable_volumes => {
+        :aws_credential_source => 'node_attributes',
+      },
+    })
 
 end

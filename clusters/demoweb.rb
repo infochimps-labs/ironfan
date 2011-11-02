@@ -26,7 +26,7 @@ ClusterChef.cluster 'demoweb' do
     backing             "instance"
     image_name          "maverick"
     flavor              "t1.micro"
-    availability_zones  ['us-east-1a']
+    availability_zones  ['us-east-1d']
   end
 
   role                  "nfs_client"
@@ -41,7 +41,7 @@ ClusterChef.cluster 'demoweb' do
     role                "awesome_website"
     #
     cloud.backing       "ebs"
-    azs = ['us-east-1a', 'us-east-1b', 'us-east-1c']
+    azs = ['us-east-1d', 'us-east-1b', 'us-east-1c']
     (0...instances).each do |idx|
       server(idx).cloud.availability_zones [azs[ idx % azs.length ]]
     end

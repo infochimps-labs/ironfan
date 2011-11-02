@@ -1,7 +1,7 @@
 ClusterChef.cluster 'demohadoop' do
   cloud :ec2 do
     defaults
-    availability_zones ['us-east-1a']
+    availability_zones ['us-east-1d']
     flavor              't1.micro'
     backing             'ebs'
     image_name          'mrflip-natty'

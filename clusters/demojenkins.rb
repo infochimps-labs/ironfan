@@ -6,7 +6,7 @@ ClusterChef.cluster 'demojenkins' do
     backing             "ebs"
     image_name          "maverick"
     flavor              "t1.micro"
-    availability_zones  ['us-east-1a']
+    availability_zones  ['us-east-1d']
     bootstrap_distro    'ubuntu10.04-cluster_chef'
   end
 
