@@ -7,16 +7,12 @@ default[:hadoop][:cloudera_distro_name] = nil # override distro name if cloudera
 # What states to set for services.
 #   :enable => enabled service to run at boot.
 #   :start  => ensure it's started and running.
-# You want to bring then big daemons up deliberately on initial start --
-# override in your cluster definition when things are stable.
-default[:service_states][:hadoop_namenode]           = []
+# Default is [:enable,:start] but for complex clusters consider [:enable] alone
+default[:service_states][:hadoop_namenode]           = [:enable]
 default[:service_states][:hadoop_secondary_namenode] = []
+default[:service_states][:hadoop_datanode]           = [:enable]
 default[:service_states][:hadoop_jobtracker]         = []
-# These we can do [:enable,:start] -- though on a full-cluster stop/start (or
-#   any other time the main daemons' ip address changes) you may need to
-#   converge chef and then restart them all.
-default[:service_states][:hadoop_datanode]           = [:enable, :start]
-default[:service_states][:hadoop_tasktracker]        = [:enable, :start]
+default[:service_states][:hadoop_tasktracker]        = []
 
 # Make sure you define a cluster_size in roles/WHATEVER_cluster.rb
 default[:cluster_size] = 5
