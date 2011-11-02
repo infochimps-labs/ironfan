@@ -26,7 +26,7 @@ module ClusterEbsVolumes
   #   # the first two will be returned when attachable_volumes(:ebs) is called.
   #   node[:mountable_volumes] = {
   #     :volumes => {
-  #       :data  => { :name=>:data, :tags=>{}, :volume_id=>"vol-b95d61d3", :size=>10, :keep=>true, :device=>"/dev/sdi", :mount_point=>"/data", :snapshot_id=>"snap-a10234f", :attachable=>:ebs, :create_at_launch=>false, :availability_zone=>"us-east-1a"}
+  #       :data  => { :name=>:data, :tags=>{}, :volume_id=>"vol-b95d61d3", :size=>10, :keep=>true, :device=>"/dev/sdi", :mount_point=>"/data", :snapshot_id=>"snap-a10234f", :attachable=>:ebs, :create_at_launch=>false, :availability_zone=>"us-east-1d"}
   #       :hdfs1 => { "device": "/dev/sdj",  "volume_id": "vol-cf0ed8a6", "mount_point": "/data/hdfs1", :attachable => :ebs },
   #       :hdfs2 => { "device": "/dev/sdk",  "volume_id": "vol-c10ed8a8", "mount_point": "/data/hdfs2", :attachable => :ebs },
   #       :mnt2  => { "device": "/dev/sdc",  "volume_id": "ephemeral1",   "mount_point": "/mnt2", },
@@ -67,6 +67,8 @@ module ClusterEbsVolumes
     end
     if aws.nil? || aws.empty? || aws['aws_access_key_id'].nil?
       Chef::Log.warn("You must set AWS permissions in your aws #{node[:mountable_volumes][:aws_credential_source]} for ebs::attach_volumes to work")
+    else
+      Chef::Log.info(aws.to_hash.inspect)
     end
     aws
   end

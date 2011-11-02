@@ -1,6 +1,4 @@
 service chef-client stop
-ps auxf
-df -BG
 #
 away_dir=/tmp/ami_away
 mkdir -p "$away_dir"
@@ -29,6 +27,12 @@ cd / ; for foo in /home /ebs* /data/ebs* /data ; do umount $foo 2>/dev/null ; do
 
 # zero out all files in /var/log
 cd /var/log ; for foo in `find /var/log -type f` ; do echo $foo ; bash -c "echo -n > $foo"  ; done
+
+# show what we hath wrought
+ps auxf
+df -BG
+ls -l /etc/chef/
+ls -l /etc/service/
 
 echo "Done!"
 echo ""

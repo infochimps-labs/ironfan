@@ -35,5 +35,3 @@ provide_service ("#{node[:cluster_name]}-secondarynamenode")
 fs_checkpoint_dirs.each do |dir|
   make_hadoop_dir(dir, 'hdfs',   "0700")
 end
-
-Chef::Log.info(hadoop_config_hash.inspect)

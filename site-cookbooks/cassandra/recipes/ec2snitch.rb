@@ -8,9 +8,9 @@
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,7 +29,7 @@
                                :dc => az_parts[0..1].join('-') + "-#{az_parts.last[0]}"}
 end
 
-node.set_unless[:cassandra][:ec2_snitch_default_az] = "us-east-1a"
+node.set_unless[:cassandra][:ec2_snitch_default_az] = "us-east-1d"
 default_az_parts = node[:cassandra][:ec2_snitch_default_az].split('-')
 @default_az = {:rack => default_az_parts.last[1], :dc => default_az_parts[0..1].join('-') + "-#{default_az_parts.last[0]}"}
 

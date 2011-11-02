@@ -45,7 +45,7 @@ describe "cluster_chef" do
         cloud_hash = @cluster.cloud.to_hash
         [:security_groups, :user_data].each{|k| cloud_hash.delete k }
         cloud_hash.should == {
-          :availability_zones => ['us-east-1a'],
+          :availability_zones => ['us-east-1d'],
           :region             => "us-east-1",
           :flavor             => "t1.micro",
           :image_name         => "maverick",

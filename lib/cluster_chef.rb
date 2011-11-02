@@ -50,7 +50,7 @@ module ClusterChef
   # @example
   #   ClusterChef.cluster 'demosimple' do
   #     cloud :ec2 do
-  #       availability_zones  ['us-east-1a']
+  #       availability_zones  ['us-east-1d']
   #       flavor              "t1.micro"
   #       image_name          "ubuntu-natty"
   #     end

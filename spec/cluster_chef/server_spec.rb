@@ -31,7 +31,7 @@ describe ClusterChef::Server do
           :mount_point       => "/data/db",
           :mount_options     => "defaults,nouuid,noatime",
           :fs_type           => "xfs",
-          :availability_zone => "us-east-1a"
+          :availability_zone => "us-east-1d"
         }
       end
 
@@ -72,7 +72,7 @@ describe ClusterChef::Server do
             {"DeviceName"=>"/dev/sdd", "VirtualName"=>"ephemeral2"},
             {"DeviceName"=>"/dev/sde", "VirtualName"=>"ephemeral3"},
           ],
-          :availability_zone    => "us-east-1a",
+          :availability_zone    => "us-east-1d",
           :monitoring           => nil
         }
       end

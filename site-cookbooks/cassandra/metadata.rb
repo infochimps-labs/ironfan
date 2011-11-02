@@ -9,7 +9,6 @@ recipe            "cassandra::iptables", "Automatically configure iptables rules
 depends           "java"
 depends           "runit"
 depends           "thrift"
-depends           "ebs"
 depends           "cluster_service_discovery"
 
 %w{ubuntu debian}.each do |os|
