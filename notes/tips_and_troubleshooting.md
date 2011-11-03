@@ -17,6 +17,23 @@ If you set `disable_api_termination` to true, in order to terminate the node run
 
 curl http://169.254.169.254/latest/user-data
 
+
+### EBS Volumes for a persistent HDFS
+
+* Make one volume and format for XFS:
+    `$ sudo mkfs.xfs -f /dev/sdh1`
+* options "defaults,nouuid,noatime" give good results. The 'nouuid' part
+  prevents errors when mounting multiple volumes from the same snapshot.
+* poke a file onto the drive :
+  datename=`date +%Y%m%d`
+  sudo bash -c "(echo $datename ; df /data/ebs1 ) > /data/ebs1/xfs-created-at-$datename.txt"
+
+
+If you want to grow the drive: 
+* take a snapshot.
+* make a new volume from it
+* mount that, and run `sudo xfs_growfs`
+
 ### Hadoop: On-the-fly backup of your namenode metadata
 
 bkupdir=/ebs2/hadoop-nn-backup/`date +"%Y%m%d"`

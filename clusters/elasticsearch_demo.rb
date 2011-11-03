@@ -70,7 +70,7 @@ ClusterChef.cluster 'elasticsearch_demo' do
           },
           :service_states => {
             :hadoop_namenode           => [:enable],
-            :hadoop_secondary_namenode => [:enable],
+            :hadoop_secondarynamenode  => [:enable],
             :hadoop_jobtracker         => [:enable],
             :hadoop_datanode           => [:enable],
             :hadoop_tasktracker        => [:enable],
@@ -114,7 +114,7 @@ ClusterChef.cluster 'elasticsearch_demo' do
           },
           :service_states => {
             :hadoop_namenode           => [:disable, :stop],
-            :hadoop_secondary_namenode => [:disable, :stop],
+            :hadoop_secondarynamenode  => [:disable, :stop],
             :hadoop_jobtracker         => [:disable, :stop],
             :hadoop_datanode           => [:enable],
             :hadoop_tasktracker        => [:enable],

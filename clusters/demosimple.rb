@@ -1,10 +1,11 @@
 ClusterChef.cluster 'demosimple' do
   cloud(:ec2) do
     defaults
+    availability_zones ['us-east-1d']
     image_name          'natty'
     bootstrap_distro    'ubuntu10.04-cluster_chef'
     chef_client_script  'client-v3.rb'
-    mount_ephemerals(:tags => { :hadoop_scratch => true })
+    mount_ephemerals
   end
 
   role                  :base_role
@@ -20,8 +21,18 @@ ClusterChef.cluster 'demosimple' do
   #
   facet :homebase do
     instances           1
-
     role                :nfs_server
+
+    volume(:home) do
+      defaults
+      size                15
+      device              '/dev/sdh' # note: will appear as /dev/xvdi on natty
+      mount_point         '/home'
+      attachable          :ebs
+      # snapshot_id       '' # 200gb xfs
+      tags                :home => '/home'
+      create_at_launch    true # if no volume is tagged for that node, it will be created
+    end
   end
 
   #
@@ -29,14 +40,8 @@ ClusterChef.cluster 'demosimple' do
   #
   facet :sandbox do
     instances           2
-
     role                :nfs_client
   end
 
-  cluster_role.override_attributes({
-      :mountable_volumes => {
-        :aws_credential_source => 'node_attributes',
-      },
-    })
-
+  cluster_role.override_attributes( :mountable_volumes => { :aws_credential_source => 'node_attributes', })
 end

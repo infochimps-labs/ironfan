@@ -18,10 +18,11 @@ Chef::Log.info([ node[:cluster_name], node[:facet_name], hadoop_services, hadoop
     mode "0644"
     variables(hadoop_config_hash)
     source "#{conf_file}.erb"
-    hadoop_services.each{|svc| notifies :restart, "service[#{node[:hadoop][:hadoop_handle]}-#{svc}]", :delayed }
-
-    Chef::Log.info([ hadoop_services, hadoop_config_hash ].inspect)
-
+    hadoop_services.each do |svc|
+      if node[:service_states][svc] && node[:service_states][svc].include?(:start)
+        notifies :restart, "service[#{node[:hadoop][:hadoop_handle]}-#{svc}]", :delayed
+      end
+    end
   end
 end
 
