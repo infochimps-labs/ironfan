@@ -131,6 +131,16 @@ module ClusterChef
     DETAILED_HEADINGS = (DEFAULT_HEADINGS + ['Flavor', 'AZ']).freeze
     EXPANDED_HEADINGS = DETAILED_HEADINGS + ['Image', 'Volumes', 'Elastic IP', 'SSH Key']
 
+    MACHINE_STATE_COLORS  = {
+      'running'       => :green,
+      'pending'       => :yellow,
+      'stopping'      => :magenta,
+      'shutting-down' => :magenta,
+      'stopped'       => :cyan,
+      'terminated'    => :blue,
+      'not running'   => :blue,
+    }
+
     #
     # This is a generic display routine for cluster-like sets of nodes. If you
     # call it with no args, you get the basic table that knife cluster show
@@ -165,7 +175,7 @@ module ClusterChef
               "Image"      => fs.image_id,
               "AZ"         => fs.availability_zone,
               "SSH Key"    => fs.key_name,
-              "State"      => "[#{fs.state == 'running' ? 'green' : 'blue'}]#{fs.state}[reset]",
+              "State"      => "[#{MACHINE_STATE_COLORS[fs.state] || 'white'}]#{fs.state}[reset]",
               "Public IP"  => fs.public_ip_address,
               "Private IP" => fs.private_ip_address,
               "Created At" => fs.created_at.strftime("%Y%m%d-%H%M%S")
