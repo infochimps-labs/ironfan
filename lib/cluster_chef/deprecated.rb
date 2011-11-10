@@ -5,7 +5,7 @@ module ClusterChef
     # **DEPRECATED**: This doesn't really work -- use +reverse_merge!+ instead
     #
     def use(*clusters)
-      ui.warn "The 'use' statement is deprecated #{callers.inspect}"
+      ui.warn "The 'use' statement is deprecated #{caller.inspect}"
       clusters.each do |c|
         other_cluster =  ClusterChef.load_cluster(c)
         reverse_merge! other_cluster
