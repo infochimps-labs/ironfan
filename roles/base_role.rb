@@ -7,4 +7,10 @@ run_list *%w[
   build-essential
   ubuntu
 
+  java
+
+  xml
+  zlib
+  zsh
+  ntp
   ]

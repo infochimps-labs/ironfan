@@ -1,96 +1,26 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
 
- <!-- modified by chef, changes will be overwritten -->
-  
+<!-- modified by chef, changes will be overwritten -->
+
 <configuration>
-<property>
-  <name>dfs.block.size</name>
-  <value>134217728</value>
-  <final>true</final>
-</property>
-<property>
-  <name>dfs.data.dir</name>
-  <value><%= @dfs_data_dirs %></value>
-  <final>true</final>
-</property>
-<property>
-  <name>dfs.datanode.du.reserved</name>
-  <value>4073741824</value>
-  <final>true</final>
-</property>
-<property>
-  <name>dfs.datanode.handler.count</name>
-  <value><%= node[:hadoop][:datanode_handler_count] %></value>
-  <final>true</final>
-</property>
 
-<property>
-  <name>dfs.datanode.max.xcievers</name>
-  <value>4096</value>
-  <final>true</final>
-</property>
-<property>
-  <name>dfs.datanode.max.xceivers</name>
-  <value>4096</value>
-  <final>true</final>
-</property>
-<property>
-  <name>dfs.datanode.socket.write.timeout</name>
-  <value>0</value>
-</property>
+<property><name>dfs.name.dir</name>                      <value><%= @dfs_name_dirs %></value><final>true</final></property>
+<property><name>dfs.data.dir</name>                      <value><%= @dfs_data_dirs %></value><final>true</final></property>
+<property><name>dfs.permissions</name>                   <value>true</value><final>true</final></property>
 
-<!--property>
-  <name>dfs.hosts</name>
-  <value>/etc/<%= node[:hadoop][:hadoop_handle] %>/conf/dfs.hosts</value>
-  <final>true</final>
-</property-->
-<property>
-  <name>dfs.hosts.exclude</name>
-  <value>/etc/<%= node[:hadoop][:hadoop_handle] %>/conf/dfs.hosts.exclude</value>
-  <final>true</final>
-</property>
-<property>
-  <name>dfs.name.dir</name>
-  <value><%= @dfs_name_dirs %></value>
-  <final>true</final>
-</property>
-<property>
-  <name>dfs.namenode.handler.count</name>
-  <value><%= node[:hadoop][:namenode_handler_count] %></value>
-  <final>true</final>
-</property>
-<property>
-  <name>dfs.permissions</name>
-  <value>true</value>
-  <final>true</final>
-</property>
-<property>
-  <name>dfs.replication</name>
-  <value><%= node[:hadoop][:dfs_replication] %></value>
-</property>
-<property>
-  <name>dfs.balance.bandwidthPerSec</name>
-  <value><%= node[:hadoop][:max_balancer_bandwidth] %></value>
-</property>
+<property><name>dfs.block.size</name>                    <value>134217728</value><final>true</final></property>
+<property><name>dfs.datanode.du.reserved</name>          <value>4073741824</value><final>true</final></property>
+<property><name>dfs.replication</name>                   <value><%= node[:hadoop][:dfs_replication] %></value></property>
 
-<!-- Start Cloudera Hue -->
-<!-- <property> -->
-<!--   <name>dfs.namenode.plugins</name> -->
-<!--   <value>org.apache.hadoop.thriftfs.NamenodePlugin</value> -->
-<!--   <description>Comma-separated list of namenode plug-ins to be activated. -->
-<!--   </description> -->
-<!-- </property> -->
-<!-- <property> -->
-<!--   <name>dfs.datanode.plugins</name> -->
-<!--   <value>org.apache.hadoop.thriftfs.DatanodePlugin</value> -->
-<!--   <description>Comma-separated list of datanode plug-ins to be activated. -->
-<!--   </description> -->
-<!-- </property> -->
-<!-- <property> -->
-<!--   <name>dfs.thrift.address</name> -->
-<!--   <value>0.0.0.0:9090</value> -->
-<!-- </property> -->
+<property><name>dfs.datanode.handler.count</name>        <value><%= node[:hadoop][:datanode_handler_count] %></value><final>true</final></property>
+<property><name>dfs.namenode.handler.count</name>        <value><%= node[:hadoop][:namenode_handler_count] %></value><final>true</final></property>
+<property><name>dfs.datanode.max.xcievers</name>         <value>4096</value><final>true</final></property>
+<property><name>dfs.datanode.socket.write.timeout</name> <value>0</value></property>
+<property><name>dfs.balance.bandwidthPerSec</name>       <value><%= node[:hadoop][:max_balancer_bandwidth] %></value></property>
+
+<property><name>dfs.hosts.exclude</name>                 <value>/etc/<%= node[:hadoop][:hadoop_handle] %>/conf/dfs.hosts.exclude</value><final>true</final></property>
+<!-- <property><name>dfs.hosts</name>                    <value>/etc/<%= node[:hadoop][:hadoop_handle] %>/conf/dfs.hosts</value><final>true</final></property> -->
 
 </configuration>
 

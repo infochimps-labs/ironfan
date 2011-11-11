@@ -7,12 +7,17 @@ default[:hadoop][:cloudera_distro_name] = nil # override distro name if cloudera
 # What states to set for services.
 #   :enable => enabled service to run at boot.
 #   :start  => ensure it's started and running.
-# Default is [:enable,:start] but for complex clusters consider [:enable] alone
-default[:service_states][:hadoop_namenode]           = [:enable]
+# You want to bring then big daemons up deliberately on initial start --
+# override in your cluster definition when things are stable.
+default[:service_states][:hadoop_namenode]           = []
 default[:service_states][:hadoop_secondarynamenode ] = []
-default[:service_states][:hadoop_datanode]           = [:enable]
 default[:service_states][:hadoop_jobtracker]         = []
-default[:service_states][:hadoop_tasktracker]        = []
+
+# These we can do [:enable,:start] -- though on a full-cluster stop/start (or
+#   any other time the main daemons' ip address changes) you may need to
+#   converge chef and then restart them all.
+default[:service_states][:hadoop_datanode]           = [:enable, :start]
+default[:service_states][:hadoop_tasktracker]        = [:enable, :start]
 
 # Make sure you define a cluster_size in roles/WHATEVER_cluster.rb
 default[:cluster_size] = 5
@@ -24,8 +29,12 @@ default[:hadoop][:jobtracker_handler_count    ] = [node[:cluster_size] * 4, 32].
 default[:hadoop][:namenode_handler_count      ] = [node[:cluster_size] * 4, 32].min
 default[:hadoop][:datanode_handler_count      ] = 10
 
-default[:hadoop][:compress_map_output         ] = 'true'
-default[:hadoop][:output_compression_type     ] = 'BLOCK'
+default[:hadoop][:compress_output           ] = 'true'
+default[:hadoop][:compress_mapout           ] = 'true'
+default[:hadoop][:compress_output_type      ] = 'BLOCK'
+
+default[:hadoop][:compress_output_codec     ] = 'org.apache.hadoop.io.compress.DefaultCodec'
+default[:hadoop][:compress_mapout_codec     ] = 'org.apache.hadoop.io.compress.DefaultCodec'
 
 default[:hadoop][:mapred_userlog_retain_hours ] = 24
 default[:hadoop][:mapred_jobtracker_completeuserjobs_maximum ] = 100
@@ -36,7 +45,11 @@ default[:hadoop][:mapred_jobtracker_completeuserjobs_maximum ] = 100
 default[:hadoop][:extra_classpaths]  = { }
 
 # uses /etc/default/hadoop-0.20 to set the hadoop daemon's heapsize
-default[:hadoop][:hadoop_daemon_heapsize]       = 1000
+default[:hadoop][:daemon_heapsize]       = 1000
+# these will be set to the daemon heapsize if nil
+default[:hadoop][:namenode_heapsize]          = nil
+default[:hadoop][:secondarynamenode_heapsize] = nil
+default[:hadoop][:jobtracker_heapsize]        = nil
 
 default[:groups]['hadoop'    ][:gid] = 300
 default[:groups]['supergroup'][:gid] = 301
