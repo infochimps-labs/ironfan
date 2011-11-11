@@ -13,17 +13,13 @@ end
 set_proc_sys_limit "VM overcommit ratio", '/proc/sys/vm/overcommit_memory', overcommit_memory
 set_proc_sys_limit "VM overcommit memory", '/proc/sys/vm/overcommit_ratio',  overcommit_ratio
 
-%w[ @hadoop @elasticsearch hbase ].each do |usr|
-  { 'hard' => ulimit_hard_nofile, 'soft' => ulimit_soft_nofile,  }.each do |limit_type, limit|
-    bash "Increase open files #{limit_type} ulimit for #{usr} group" do
-      not_if "egrep -q '#{usr}.*#{limit_type}.*nofile.*#{limit}' /etc/security/limits.conf"
-      code <<EOF
-        egrep -q '#{usr}.*#{limit_type}.*nofile' || ( echo '#{usr} #{limit_type} nofile' >> /etc/security/limits.conf )
-        sed -i "s/#{usr}.*#{limit_type}.*nofile.*/#{usr}    #{limit_type}    nofile  #{limit}/" /etc/security/limits.conf
-EOF
-    end
+node[:server_tuning][:ulimit].each do |user, ulimits|
+  conf_file = user.gsub(/^@/, 'group_')
+
+  template "/etc/security/limits.d/#{conf_file}.conf" do
+    owner "root"
+    mode "0644"
+    variables({ :user => user, :ulimits => ulimits })
+    source "etc_security_limits_overrides.conf.erb"
   end
 end
-
-
-
