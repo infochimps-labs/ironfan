@@ -23,13 +23,13 @@ module ClusterChef
     def filename
       File.join(Chef::Config.keypair_path, "#{name}.pem")
     end
-    
+
     def save
       return unless @body
       ui.info( "    key #{name} - writing to #{filename}" )
       File.open(filename, "w", 0600){|f| f.print( @body ) }
     end
-    
+
     def load
       # Chef::Log.debug("Loading #{filename}")
       return unless File.exists?(filename)
@@ -84,8 +84,10 @@ module ClusterChef
     end
 
     def create_proxy!
-      ui.info(ui.color("    key #{name} - creating"))
-      @proxy = ClusterChef.fog_connection.key_pairs.create(:name => name)
+      safely do
+        ui.info(ui.color("    key #{name} - creating"))
+        @proxy = ClusterChef.fog_connection.key_pairs.create(:name => name)
+      end
       ClusterChef.fog_keypairs[name] = proxy
       self.body = proxy.private_key
       save
