@@ -58,10 +58,10 @@ template "/usr/lib/pig/conf/pig.properties" do
   source "pig.properties.erb"
 end
 
-# bash 'build piggybank' do
-#   user 'root'
-#   cwd  '/usr/local/share/pig/contrib/piggybank/java'
-#   environment 'JAVA_HOME' => node[:pig][:java_home]
-#   code "ant"
-#   not_if{ File.exists?("/usr/local/share/pig/contrib/piggybank/java/piggybank.jar") }
-# end
+bash 'build piggybank' do
+  user 'root'
+  cwd  '/usr/lib/pig/contrib/piggybank/java'
+  environment 'JAVA_HOME' => node[:pig][:java_home]
+  code "ant"
+  not_if{ File.exists?("/usr/local/share/pig/contrib/piggybank/java/piggybank.jar") }
+end
