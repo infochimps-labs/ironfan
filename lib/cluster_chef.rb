@@ -132,8 +132,8 @@ module ClusterChef
       yield
     rescue StandardError => boom
       ui.info( boom )
-      Log.error( boom )
-      Log.error( boom.backtrace.join("\n") )
+      Chef::Log.error( boom )
+      Chef::Log.error( boom.backtrace.join("\n") )
     end
   end
 end
