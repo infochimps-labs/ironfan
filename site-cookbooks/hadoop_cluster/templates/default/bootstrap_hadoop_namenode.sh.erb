@@ -48,6 +48,7 @@ dfs_name_dir_root="<%= @dfs_name_dirs.last %>"
 hadoop_tmp_dir="<%=    @hadoop_tmp_dir %>"
 hadoop_log_dir="<%=    @hadoop_log_dir %>"
 namenode_daemon="<%= "#{node[:hadoop][:hadoop_handle]}-namenode" %>"
+sentinel="$hadoop_tmp_dir/made_initial_dirs"
 
 make_hadoop_dir_if_not_exists() {
   dir="$1"
@@ -102,23 +103,25 @@ hadoop dfsadmin -safemode wait
 #
 echo "Preparing filesystem"
 #
-sentinel="$hadoop_tmp_dir/made_initial_dirs.log"
 if [ -f "$sentinel" ] ; then
   echo "Looks like we already made the hdfs dirs -- try 'hadoop fs -lsr /' to see. if not, remove '$sentinel' and re-run."
 else
   set +e
   hadoop_users=/user/"`grep supergroup /etc/group | cut -d: -f4 | sed -e 's|,| /user/|g'`"
   hadoop_users="/user/ubuntu $hadoop_users"
+  echo "   /tmp /user /user/hive/warehouse $hadoop_users"
   sudo -u "$hdfs_user" hadoop fs -mkdir           /tmp /user /user/hive/warehouse $hadoop_users
-  sudo -u "$hdfs_user" hadoop fs -chmod a+w       /tmp /user /user/hive/warehouse;
+  sudo -u "$hdfs_user" hadoop fs -chmod a+w       /tmp /user /user/hive/warehouse
+  echo "   /hadoop/mapred/system /hadoop/mapred/staging"
   sudo -u "$hdfs_user" hadoop fs -mkdir           /hadoop/mapred/system /hadoop/mapred/staging
   sudo -u "$hdfs_user" hadoop fs -chmod 700       /hadoop/mapred/system /hadoop/mapred/staging
   sudo -u "$hdfs_user" hadoop fs -chown -R mapred /hadoop/mapred
+  echo "   /hadoop/hbase"
   sudo -u "$hdfs_user" hadoop fs -mkdir           /hadoop/hbase
   sudo -u "$hdfs_user" hadoop fs -chown -R hbase  /hadoop/hbase
   for user in $hadoop_users ; do
     sudo -u "$hdfs_user" hadoop fs -chown ${user#/user/} $user
-  done ;
+  done 
   touch "$sentinel"
   set -e
 fi

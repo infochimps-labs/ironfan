@@ -31,6 +31,7 @@ slug=`date "+%Y%m%d%H%M%S"`
 
 hadoop_root_dirs="<%= @hadoop_persistent_dirs.map{|dir| File.join(dir, 'hdfs') }.join(" ") %>"
 hadoop_log_dir="<%=    @hadoop_log_dir %>"
+sentinel="$hadoop_tmp_dir/made_initial_dirs"
 
 #
 echo "Stopping hadoop daemons"
@@ -59,7 +60,7 @@ if [ "$doit" = "YES" ] ; then
       sudo  mv    -n "$root/hdfs"    "$root/away/hdfs-$slug"
     fi
   done
-  rm -f $hadoop_log_dir/made_initial_dirs.log
+  rm -f "$sentinel"
 
   echo ""
   echo "To bootstrap a new HDFS, see $script_dir/bootstrap_hadoop_namenode.sh"
