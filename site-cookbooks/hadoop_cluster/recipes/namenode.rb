@@ -22,7 +22,7 @@ include_recipe "hadoop_cluster"
 # Install
 hadoop_package "namenode"
 
-# Launch service
+# Set up service
 service "#{node[:hadoop][:hadoop_handle]}-namenode" do
   action    node[:service_states][:hadoop_namenode]
   supports :status => true, :restart => true
@@ -34,4 +34,12 @@ provide_service ("#{node[:cluster_name]}-namenode")
 
 dfs_name_dirs.each do |dir|
   make_hadoop_dir(dir, 'hdfs',   "0700")
+end
+
+# lay in a script to boostrap the namenode (initial format, important HDFS dirs, etc
+template "/etc/hadoop/conf/bootstrap_hadoop_namenode.sh" do
+  owner "root"
+  mode "0755"
+  variables(hadoop_config_hash)
+  source "bootstrap_hadoop_namenode.sh.erb"
 end

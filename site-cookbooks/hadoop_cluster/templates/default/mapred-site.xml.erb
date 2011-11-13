@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
 
+<!-- about these variables: http://archive.cloudera.com/cdh/3/hadoop/mapred-default.html -->
 <!-- modified by chef, changes will be overwritten -->
 
 <configuration>
@@ -8,48 +9,57 @@
 <property> <name>mapred.job.tracker</name>                        <value><%= @jobtracker_address %>:8021</value></property>
 
 <property> <name>mapred.local.dir</name>                          <value><%= @mapred_local_dirs %></value>                       <final>true</final></property>
-<property> <name>mapred.system.dir</name>                         <value>/hadoop/system/mapred</value></property>
+<property> <name>mapred.system.dir</name>                         <value>/hadoop/mapred/system</value></property>
+<property> <name>mapreduce.jobtracker.staging.root.dir</name>     <value>/hadoop/mapred/staging</value></property>
+
+<!-- map tuning -->
+
+<property> <name>io.sort.mb</name>                                <value><%= node[:hadoop][:io_sort_mb] %></value></property>
+<property> <name>io.sort.record.percent</name>                    <value>0.15</value></property>
+<property> <name>mapred.min.split.size</name>                     <value><%= node[:hadoop][:min_split_size] %></value></property>
+
+<!-- reduce tuning -->
 
 <property> <name>io.sort.factor</name>                            <value><%= node[:hadoop][:io_sort_factor] %></value></property>
-<property> <name>io.sort.mb</name>                                <value><%= node[:hadoop][:io_sort_mb] %></value></property>
-<property> <name>io.sort.record.percent</name>                    <value>0.05</value></property>
-<%- if node[:hadoop][:min_split_size] %>
-<property> <name>mapred.min.split.size</name>                     <value><%= node[:hadoop][:min_split_size] %></value></property>
-<%- end %>
+<property> <name>mapred.inmem.merge.threshold</name>              <value>0</value></property>
+<property> <name>mapred.job.reduce.input.buffer.percent</name>    <value>0.0</value></property>
+<property> <name>mapred.reduce.parallel.copies</name>             <value><%= node[:hadoop][:reduce_parallel_copies] %></value></property>
 
-<!-- mapred.jobtracker.restart.recover -->
-<!-- "true" to enable (job) recovery upon restart, "false" to start afresh -->
+<!-- child jobs -->
 
 <property> <name>mapred.child.java.opts</name>                    <value><%= node[:hadoop][:java_child_opts] %></value></property>
 <property> <name>mapred.child.ulimit</name>                       <value><%= node[:hadoop][:java_child_ulimit] %></value>        <final>true</final></property>
 <property> <name>mapred.job.reuse.jvm.num.tasks</name>            <value> -1 </value></property>
 
+<!-- communication -->
+
 <property> <name>mapred.tasktracker.map.tasks.maximum</name>      <value><%= node[:hadoop][:max_map_tasks] %></value>            <final>true</final></property>
 <property> <name>mapred.tasktracker.reduce.tasks.maximum</name>   <value><%= node[:hadoop][:max_reduce_tasks] %></value>         <final>true</final></property>
 <property> <name>tasktracker.http.threads</name>                  <value><%= node[:hadoop][:tasktracker_http_threads] %></value> <final>true</final></property>
-
 <property> <name>mapred.job.tracker.handler.count</name>          <value><%= node[:hadoop][:jobtracker_handler_count] %></value> <final>true</final></property>
-<property> <name>mapred.reduce.parallel.copies</name>             <value><%= node[:hadoop][:reduce_parallel_copies] %></value></property>
+
+<!-- compression -->
+
+<property> <name>mapred.output.compress</name>                    <value><%= node[:hadoop][:compress_output] %></value></property>
+<property> <name>mapred.output.compression.type</name>            <value><%= node[:hadoop][:compress_output_type] %></value></property>
+<property> <name>mapred.output.compression.codec</name>           <value><%= node[:hadoop][:compress_output_codec] %></value></property>
+<property> <name>mapred.compress.map.output</name>                <value><%= node[:hadoop][:compress_mapout] %></value></property>
+<property> <name>mapred.map.output.compression.codec</name>       <value><%= node[:hadoop][:compress_mapout_codec] %></value></property>
+
+<!-- job scheduling -->
 
 <property> <name>mapred.map.tasks.speculative.execution</name>    <value>true</value></property>
 <property> <name>mapred.reduce.tasks.speculative.execution</name> <value>false</value></property>
 <property> <name>mapred.reduce.slowstart.completed.maps</name>    <value>0.05</value></property>
 <property> <name>mapred.submit.replication</name>                 <value>10</value></property>
 
-<property> <name>mapred.output.compress</name>                    <value><%= node[:hadoop][:compress_output] %></value></property>
-<property> <name>mapred.output.compression.type</name>            <value><%= node[:hadoop][:compress_output_type] %></value></property>
-<property> <name>mapred.output.compression.codec</name>           <value><%= node[:hadoop][:compress_output_codec] %></value></property>
-
-<property> <name>mapred.compress.map.output</name>                <value><%= node[:hadoop][:compress_mapout] %></value></property>
-<property> <name>mapred.map.output.compression.codec</name>       <value><%= node[:hadoop][:compress_mapout_codec] %></value></property>
-
-<!-- mapred.jobtracker.completeuserjobs.maximum -->
-<!-- mapred.job.tracker.retiredjobs.cache.size -->
-
-
-<property> <name>mapred.userlog.retain.hours</name>               <value>240</value></property>
-
 <property> <name>mapred.jobtracker.taskScheduler</name>           <value>org.apache.hadoop.mapred.FairScheduler</value></property>
 <property> <name>mapred.fairscheduler.allocation.file</name>      <value>/etc/<%= node[:hadoop][:hadoop_handle] %>/conf/fairscheduler.xml</value></property>
+
+<property> <name>mapred.userlog.retain.hours</name>               <value>240</value></property>
+<property> <name>mapred.jobtracker.completeuserjobs.maximum</name><value>20</value></property>
+<!--  -->
+<!-- mapred.job.tracker.retiredjobs.cache.size -->
+<!-- mapred.jobtracker.restart.recover --><!-- "true" to enable (job) recovery upon restart, "false" to start afresh -->
 
 </configuration>

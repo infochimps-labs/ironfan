@@ -1,21 +1,23 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
 
+<!-- about these variables: http://archive.cloudera.com/cdh/3/hadoop/hdfs-default.html -->
 <!-- modified by chef, changes will be overwritten -->
 
 <configuration>
 
-<property><name>dfs.name.dir</name>                      <value><%= @dfs_name_dirs %></value><final>true</final></property>
-<property><name>dfs.data.dir</name>                      <value><%= @dfs_data_dirs %></value><final>true</final></property>
+<property><name>dfs.name.dir</name>                      <value><%= @dfs_name_dirs.join(",") %></value><final>true</final></property>
+<property><name>dfs.data.dir</name>                      <value><%= @dfs_data_dirs.join(",") %></value><final>true</final></property>
 <property><name>dfs.permissions</name>                   <value>true</value><final>true</final></property>
 
-<property><name>dfs.block.size</name>                    <value>134217728</value><final>true</final></property>
+<property><name>dfs.block.size</name>                    <value><%= node[:aws][:hdfs_block_size] %></value><final>true</final></property>
 <property><name>dfs.datanode.du.reserved</name>          <value>4073741824</value><final>true</final></property>
 <property><name>dfs.replication</name>                   <value><%= node[:hadoop][:dfs_replication] %></value></property>
 
 <property><name>dfs.datanode.handler.count</name>        <value><%= node[:hadoop][:datanode_handler_count] %></value><final>true</final></property>
 <property><name>dfs.namenode.handler.count</name>        <value><%= node[:hadoop][:namenode_handler_count] %></value><final>true</final></property>
 <property><name>dfs.datanode.max.xcievers</name>         <value>4096</value><final>true</final></property>
+<property><name>dfs.datanode.max.xceivers</name>         <value>4096</value><final>true</final></property>
 <property><name>dfs.datanode.socket.write.timeout</name> <value>0</value></property>
 <property><name>dfs.balance.bandwidthPerSec</name>       <value><%= node[:hadoop][:max_balancer_bandwidth] %></value></property>
 
