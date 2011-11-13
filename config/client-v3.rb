@@ -28,8 +28,6 @@ OHAI_INFO = Ohai::System.new
 OHAI_INFO.all_plugins
 merge_safely(chef_config){ JSON.parse(OHAI_INFO[:ec2][:userdata]) }
 
-puts JSON.generate(chef_config) # .reject{|key,value| key.to_s =~ /key/ })
-
 #
 # Configure chef run
 #
@@ -51,10 +49,11 @@ unless File.exists?(client_key)
   end
 end
 
+reduced_chef_config = chef_config.reject{|k,v| k.to_s =~ /(_key|run_list)$/ }
 unless File.exists?(node_attrs_file)
-  reduced_chef_config = chef_config.reject{|k,v| k.to_s =~ /(_key|run_list)$/ }
   create_file_if_empty(node_attrs_file, JSON.pretty_generate(reduced_chef_config))
 end
 json_attribs node_attrs_file
 
-puts "=> chef client #{node_name} on #{chef_server_url} in cluster +#{chef_config["cluster_name"]}+"
+Chef::Log.debug(JSON.generate(chef_config))
+Chef::Log.info("=> chef client #{node_name} on #{chef_server_url} in cluster +#{chef_config["cluster_name"]}+")

@@ -51,6 +51,20 @@ jvm.servers=<%= @ganglia_address %>:<%= @ganglia_port %>
 # Configuration of the "ugi" context for null
 ugi.class=org.apache.hadoop.metrics.spi.NullContext
 
+# Configuration of the "fairscheduler" context for null
+#fairscheduler.class=org.apache.hadoop.metrics.spi.NullContext
+
+# Configuration of the "fairscheduler" context for file
+#fairscheduler.class=org.apache.hadoop.metrics.file.FileContext
+#fairscheduler.period=10
+#fairscheduler.fileName=/tmp/fairschedulermetrics.log
+
+# Configuration of the "fairscheduler" context for ganglia
+# fairscheduler.class=org.apache.hadoop.metrics.ganglia.GangliaContext
+# fairscheduler.period=10
+# fairscheduler.servers=localhost:8649
+#
+
 #
 # for hue, you need to change the above following cloudera's directions:
 #   http://archive.cloudera.com/desktop/packages.html

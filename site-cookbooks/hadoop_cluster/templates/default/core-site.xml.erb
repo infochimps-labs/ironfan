@@ -7,7 +7,7 @@
   
 <property> <name>fs.default.name</name>              <value>hdfs://<%= @namenode_address %>:8020/</value></property>
 
-<property> <name>fs.checkpoint.dir</name>            <value><%= @dfs_2nn_dirs %></value>                 <final>true</final></property>
+<property> <name>fs.checkpoint.dir</name>            <value><%= @dfs_2nn_dirs.join(",") %></value>             <final>true</final></property>
 <property> <name>hadoop.tmp.dir</name>               <value><%= @hadoop_tmp_dir %>/hadoop-${user.name}</value> <final>true</final></property>
 
 <property> <name>fs.trash.interval</name>            <value>1440</value>                                       <final>true</final></property>

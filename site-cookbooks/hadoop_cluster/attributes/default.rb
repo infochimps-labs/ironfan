@@ -128,6 +128,4 @@ hadoop_performance_settings =
 
 # (Mappers+Reducers)*ChildTaskHeap + DNheap + TTheap + 3GB + RSheap + OtherServices'
 
-Chef::Log.info(["Hadoop mapreduce tuning", hadoop_performance_settings].inspect)
-
 hadoop_performance_settings.each{|k,v| set[:hadoop][k] = v }

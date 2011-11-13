@@ -3,9 +3,6 @@
 # Recipe::        ec2_conf
 #
 
-Chef::Log.info(hadoop_config_hash.inspect)
-
-
 #
 # Mounting things is now done in mountable_volumes::mount
 #

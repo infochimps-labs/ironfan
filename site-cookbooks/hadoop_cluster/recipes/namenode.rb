@@ -39,7 +39,14 @@ end
 # lay in a script to boostrap the namenode (initial format, important HDFS dirs, etc
 template "/etc/hadoop/conf/bootstrap_hadoop_namenode.sh" do
   owner "root"
-  mode "0755"
+  mode "0744"
   variables(hadoop_config_hash)
   source "bootstrap_hadoop_namenode.sh.erb"
+end
+
+template "/etc/hadoop/conf/nuke_hdfs_from_orbit_its_the_only_way_to_be_sure.sh" do
+  owner "root"
+  mode "0744"
+  variables(hadoop_config_hash)
+  source "nuke_hdfs_from_orbit_its_the_only_way_to_be_sure.sh.erb"
 end
