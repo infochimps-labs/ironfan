@@ -25,54 +25,54 @@
 #   and links that to /usr/local/share/pig
 #
 
-directory "/usr/local/src" do
-  mode      '0775'
-  owner     'root'
-  group     'admin'
-  action    :create
-  recursive true
+
+pig_package_file = File.join('/usr/local/src',   File.basename(node[:pig][:install_url]))
+pig_install_dir  = File.join('/usr/local/share', pig_install_pkg.gsub(%r{(?:-bin)?\.tar\.gz}, ''))
+
+node[:pig_install_dir] = pig_install_dir
+
+[File.dirname(pig_package_file), File.dirname(pig_install_dir)].each do |dir|
+  directory(dir) do
+    mode      '0775'
+    owner     'root'
+    group     'admin'
+    action    :create
+    recursive true
+  end
 end
 
-pig_install_pkg     = File.basename(node[:pig][:install_url])
-pig_install_dir     = pig_install_pkg.gsub(%r{(?:-bin)?\.tar\.gz}, '')
-pig_hbase_path_name = File.basename(node[:pig][:pig_hbase_patch])
-
-remote_file "/usr/local/src/#{pig_install_pkg}" do
-  source    node[:pig][:install_url]
-  mode      "0644"
-  action :create
+remote_file pig_package_file do
+  source      node[:pig][:install_url]
+  mode        "0644"
+  action      :create
 end
 
-bash 'install pig from tarball' do
-  user 'root'
-  cwd  '/usr/local/share'
-  code "tar xzf /usr/local/src/#{pig_install_pkg}"
-  not_if{ File.directory?("/usr/local/share/#{pig_install_dir}") }
-end
-
-link "/usr/local/share/pig" do
-  to "/usr/local/share/#{pig_install_dir}"
-  action :create
-end
-
-link "/usr/local/bin/pig" do
-  to "/usr/local/share/pig/bin/pig"
-  action :create
+bash 'unpack pig tarball' do
+  user        'root'
+  cwd         File.dirname(pig_install_dir)
+  code        "tar xzf '#{pig_package_file}'"
+  not_if{ File.directory?(pig_install_dir) }
 end
 
 bash 'build pig classes' do
-  user 'root'
-  cwd  '/usr/local/share/pig'
+  user        'root'
+  cwd         pig_install_dir
+  code        "ant"
   environment 'JAVA_HOME' => node[:pig][:java_home]
-  code "ant"
-  not_if{ File.exists?("/usr/local/share/pig/pig.jar") }
+  not_if{ File.exists?("#{pig_install_dir}/pig.jar") }
 end
 
-bash 'build piggybank' do
-  user 'root'
-  cwd  '/usr/local/share/pig/contrib/piggybank/java'
-  environment 'JAVA_HOME' => node[:pig][:java_home]
-  code "ant"
-  not_if{ File.exists?("/usr/local/share/pig/contrib/piggybank/java/piggybank.jar") }
+link '/usr/local/share/pig' do
+  to          pig_install_dir
+  action      :create
 end
 
+link node[:pig][:home_dir]
+  to          pig_install_dir
+  action      :create
+end
+
+link "/usr/local/bin/pig" do
+  to          File.join(node[:pig][:home_dir], 'bin', 'pig')
+  action      :create
+end

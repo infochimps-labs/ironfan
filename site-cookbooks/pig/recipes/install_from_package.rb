@@ -20,48 +20,19 @@
 package "hadoop-pig"
 
 #
-# Link hbase jars to $PIG_HOME/lib
-#
-node[:pig][:hbase_jars].each do |hbase_jar|
-  link "/usr/lib/pig/lib/#{hbase_jar}" do
-    to "/usr/lib/hbase/#{hbase_jar}"
-    action :create
-  end
-end
-
-#
-# Link zookeeper jars to $PIG_HOME/lib
-#
-node[:pig][:zookeeper_jars].each do |zoo_jar|
-  link "/usr/lib/pig/lib/#{zoo_jar}" do
-    to "/usr/lib/zookeeper/#{zoo_jar}"
-    action :create
-  end
-end
-
-
-#
 # Pig configuration, by default HBASE_CONF_DIR is set to garbage
 #
-template "/usr/lib/pig/conf/pig-env.sh" do
-  owner "root"
-  mode "0644"
-  source "pig-env.sh.erb"
+template "#{node[:pig][:home_dir]}/conf/pig-env.sh" do
+  owner       "root"
+  mode        "0644"
+  source      "pig-env.sh.erb"
 end
 
 #
-# Pig hbase stuff
+# Pig config stuff
 #
-template "/usr/lib/pig/conf/pig.properties" do
-  owner "root"
-  mode "0644"
-  source "pig.properties.erb"
-end
-
-bash 'build piggybank' do
-  user 'root'
-  cwd  '/usr/lib/pig/contrib/piggybank/java'
-  environment 'JAVA_HOME' => node[:pig][:java_home]
-  code "ant"
-  not_if{ File.exists?("/usr/local/share/pig/contrib/piggybank/java/piggybank.jar") }
+template "#{node[:pig][:home_dir]}/conf/pig.properties" do
+  owner       "root"
+  mode        "0644"
+  source      "pig.properties.erb"
 end

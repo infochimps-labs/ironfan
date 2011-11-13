@@ -25,36 +25,10 @@
 #   and links that to /usr/local/share/pig
 #
 
-directory "/usr/local/src" do
-  mode      '0775'
-  owner     'root'
-  group     'admin'
-  action    :create
-  recursive true
-end
-
 pig_install_pkg      = File.basename(node[:pig][:install_url])
 pig_install_dir      = pig_install_pkg.gsub(%r{(?:-bin)?\.tar\.gz}, '')
 pig_hbase_patch_name = File.basename(node[:pig][:pig_hbase_patch])
 pig_zookeeper_jar    = File.basename(node[:pig][:zookeeper_jar_url])
-
-remote_file "/usr/local/src/#{pig_install_pkg}" do
-  source    node[:pig][:install_url]
-  mode      "0644"
-  action :create
-end
-
-bash 'install pig from tarball' do
-  user 'root'
-  cwd  '/usr/local/share'
-  code "tar xzf /usr/local/src/#{pig_install_pkg}"
-  not_if{ File.directory?("/usr/local/share/#{pig_install_dir}") }
-end
-
-link "/usr/local/share/pig" do
-  to "/usr/local/share/#{pig_install_dir}"
-  action :create
-end
 
 #
 # Put our own version of the pig executable in place
@@ -72,11 +46,6 @@ template "/usr/local/share/pig/conf/pig.properties" do
   owner "root"
   mode "0644"
   source "pig.properties.erb"
-end
-
-link "/usr/local/bin/pig" do
-  to "/usr/local/share/pig/bin/pig"
-  action :create
 end
 
 #
@@ -130,9 +99,9 @@ end
 # Fetch updated zookeeper jar so it's in the pig classpath
 #
 remote_file "/usr/local/share/pig/lib/#{pig_zookeeper_jar}" do
-  source node[:pig][:zookeeper_jar_url]
+  source    node[:pig][:zookeeper_jar_url]
   mode      "0644"
-  action :create
+  action    :create
 end
 
 #
@@ -158,37 +127,5 @@ script 'cleanup build and rename jar' do
   rm -r build
   rm -r lib/hbase*
   EOH
-  not_if{File.exists?("/usr/local/share/pig/pig.jar")}  
-end
-
-#
-# Link hbase jars to $PIG_HOME/lib
-#
-node[:pig][:hbase_jars].each do |hbase_jar|
-  link "/usr/local/share/pig/lib/#{hbase_jar}" do
-    to "/usr/lib/hbase/#{hbase_jar}"
-    action :create
-  end
-end
-
-#
-# Link hbase configuration to $PIG_HOME/conf
-#
-node[:pig][:hbase_configs].each do |xml_conf|
-  link "/usr/local/share/pig/conf/#{xml_conf}" do
-    to "/etc/hbase/conf/#{xml_conf}"
-    action :create
-  end
-end
-
-
-#
-# Build piggybank jar
-#
-bash 'build piggybank' do
-  user 'root'
-  cwd  '/usr/local/share/pig/contrib/piggybank/java'
-  environment 'JAVA_HOME' => node[:pig][:java_home]
-  code "ant"
-  not_if{ File.exists?("/usr/local/share/pig/contrib/piggybank/java/piggybank.jar") }
+  not_if{File.exists?("/usr/local/share/pig/pig.jar")}
 end
