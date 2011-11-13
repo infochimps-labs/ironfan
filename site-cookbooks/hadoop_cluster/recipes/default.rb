@@ -111,7 +111,7 @@ end
 dfs_data_dirs.each{      |dir| make_hadoop_dir(dir, 'hdfs',   "0700") }
 mapred_local_dirs.each{  |dir| make_hadoop_dir(dir, 'mapred', "0755") }
 [hadoop_tmp_dir].each{   |dir| make_hadoop_dir(dir, 'hdfs',   "0777") }
-[hadoop_log_dir].each{   |dir| make_hadoop_dir(dir, 'hdfs',   "0755") }
+[hadoop_log_dir].each{   |dir| make_hadoop_dir(dir, 'hdfs',   "0775") }
 
 # Locate hadoop logs on scratch dirs
 force_link("/var/log/hadoop", hadoop_log_dir )
