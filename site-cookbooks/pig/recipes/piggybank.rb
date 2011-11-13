@@ -1,3 +1,4 @@
+include_recipe('java')
 package "sun-java6-jdk"
 package "sun-java6-bin"
 package "sun-java6-jre"

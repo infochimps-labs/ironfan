@@ -6,3 +6,4 @@ long_description IO.read(File.join(File.dirname(__FILE__), 'README.textile'))
 version          "0.1"
 
 depends           "hadoop_cluster"
+depends           "install_from"

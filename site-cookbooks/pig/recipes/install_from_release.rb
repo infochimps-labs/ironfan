@@ -25,50 +25,20 @@
 #   and links that to /usr/local/share/pig
 #
 
+include_recipe('java')
+package "sun-java6-jdk"
+package "sun-java6-bin"
+package "sun-java6-jre"
 
-pig_package_file = File.join('/usr/local/src',   File.basename(node[:pig][:install_url]))
-pig_install_dir  = File.join('/usr/local/share', pig_install_pkg.gsub(%r{(?:-bin)?\.tar\.gz}, ''))
-
-node[:pig_install_dir] = pig_install_dir
-
-[File.dirname(pig_package_file), File.dirname(pig_install_dir)].each do |dir|
-  directory(dir) do
-    mode      '0775'
-    owner     'root'
-    group     'admin'
-    action    :create
-    recursive true
-  end
-end
-
-remote_file pig_package_file do
-  source      node[:pig][:install_url]
-  mode        "0644"
-  action      :create
-end
-
-bash 'unpack pig tarball' do
-  user        'root'
-  cwd         File.dirname(pig_install_dir)
-  code        "tar xzf '#{pig_package_file}'"
-  not_if{ File.directory?(pig_install_dir) }
-end
-
-bash 'build pig classes' do
-  user        'root'
-  cwd         pig_install_dir
-  code        "ant"
-  environment 'JAVA_HOME' => node[:pig][:java_home]
-  not_if{ File.exists?("#{pig_install_dir}/pig.jar") }
+install_from_java('pig') do
+  package_url node[:pig][:install_url]
+  home_dir    node[:pig][:home_dir]
+  action      :install
+  not_if{ ::File.exists?("#{node[:pig][:home_dir]}/pig.jar") }
 end
 
 link '/usr/local/share/pig' do
-  to          pig_install_dir
-  action      :create
-end
-
-link node[:pig][:home_dir]
-  to          pig_install_dir
+  to          node[:pig][:home_dir]
   action      :create
 end
 
