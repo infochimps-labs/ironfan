@@ -1,43 +1,32 @@
-directory "/usr/local/src" do
-  mode      '0775'
-  owner     'root'
-  group     'admin'
-  action    :create
-  recursive true
+#
+# Cookbook Name:: redis
+# Recipe::        install_from_release
+#
+# Copyright 2009, Infochimps, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+install_from_package('redis') do
+  package_url  node[:redis][:install_url]
+  home_dir     node[:redis][:home_dir]
+  action       [ :install, :install_with_make ]
+  not_if{      File.exists?(File.join(node[:redis][:home_dir], "redis-server")) }
 end
 
-redis_install_url = node[:redis][:install_url]
-redis_install_pkg = File.basename(redis_install_url)
-redis_install_dir = redis_install_pkg.gsub(%r{(?:-bin)?\.tar\.gz}, '')
-
-remote_file "/usr/local/src/"+redis_install_pkg do
-  source    redis_install_url
-  mode      "0644"
-  action :create
-end
-
-
-bash 'install redis from tarball' do
-  user         'root'
-  cwd          '/usr/local/share'
-  code <<EOF
-  tar xzf /usr/local/src/#{redis_install_pkg}
-  cd  #{redis_install_dir}
-  make
-  true
-EOF
-  not_if{ File.directory?("/usr/local/share/#{redis_install_dir}") && File.exists?("/usr/local/share/#{redis_install_dir}/redis-server") }
-end
-
-link "/usr/local/share/redis" do
-  to "/usr/local/share/"+redis_install_dir
-  action :create
-end
-
-%w[redis-benchmark redis-cli redis-server
-].each do |redis_cmd|
-  link "/usr/local/bin/#{redis_cmd}" do
-    to "/usr/local/share/redis/#{redis_cmd}"
+%w[ redis-benchmark redis-cli redis-server ].each do |redis_cmd|
+  link File.join("/usr/local/bin", redis_cmd) do
+    to File.join(node[:redis][:home_dir], redis_cmd)
     action :create
   end
 end

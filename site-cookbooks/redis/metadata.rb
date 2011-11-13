@@ -9,6 +9,7 @@ version           "0.1"
 end
 
 depends          "runit"
+depends          "install_from"
 
 attribute "redis",
   :display_name => "Redis",
@@ -84,4 +85,3 @@ attribute "redis/shareobjectspoolsize",
   :display_name => "Redis shared object pool size",
   :description => "The size of the pool for object sharing.  The default is 1024.",
   :default => "1024"
-

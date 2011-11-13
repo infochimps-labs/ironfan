@@ -1,3 +1,4 @@
+default[:redis][:home_dir]       = "/usr/local/share/redis"
 default[:redis][:address]        = "0.0.0.0"
 default[:redis][:port]           = "6379"
 default[:redis][:pidfile]        = "/var/run/redis.pid"
@@ -21,4 +22,3 @@ default[:redis][:shareobjects] = "no"
 if node[:redis][:shareobjects] == "yes"
   default[:redis][:shareobjectspoolsize] = 1024
 end
-
