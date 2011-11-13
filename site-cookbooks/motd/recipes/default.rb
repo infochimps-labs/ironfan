@@ -14,7 +14,7 @@ end
 
 def get_silly
   svcs = (node[:provides_service] || {}).keys
-  case                                     # max length = 20
+  case
   when (! svcs.grep(/chef_server/).empty?)           then "BORK BORK BORK"
   when (! svcs.grep(/hadoop/).empty?)                then "CRUNCH CRUNCH CRUNCH"
   when (! svcs.grep(/scrape/).empty?)                then "SCRAPE SCRAPE SCRAPE"
@@ -31,10 +31,6 @@ end
 motd_vars = {}
 motd_vars[:roles]            = node[:roles] || []
 motd_vars[:silliness]        = get_silly
-motd_vars[:provides_service] = (node[:provides_service] || {}).map do |svc,info|
-  vals = [svc] + info.map{|k,v| (k == 'timestamp') ? nil : v }.compact
-  vals.join('-')
-end
 
 [ :instance_id, :instance_type, :public_hostname, ].each{|v| motd_vars[v] = (node[:ec2]   || {})[v] || '' }
 [ :security_groups,                               ].each{|v| motd_vars[v] = (node[:ec2]   || {})[v] || [] }
