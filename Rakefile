@@ -73,7 +73,10 @@ task :bundle_cookbook, :cookbook do |t, args|
   child_folders.each do |folder|
     file_path = File.join(TOPDIR, folder, ".")
     FileUtils.cp_r(file_path, temp_cookbook_dir) if File.directory?(file_path)
+  end
+
   system("tar", "-C", temp_dir, "-cvzf", File.join(tarball_dir, tarball_name), "./#{args.cookbook}")
+
   FileUtils.rm_rf temp_dir
 end
 
@@ -85,7 +88,7 @@ Jeweler::Tasks.new do |gem|
   # gem is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
   gem.name        = "cluster_chef"
   gem.homepage    = "http://infochimps.com/labs"
-  gem.license     = NEW_COOKBOOK_LICENSE
+  gem.license     = NEW_COOKBOOK_LICENSE.to_s
   gem.summary     = %Q{cluster_chef allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks.}
   gem.description = %Q{cluster_chef allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks.}
   gem.email       = SSL_EMAIL_ADDRESS
@@ -97,7 +100,8 @@ Jeweler::Tasks.new do |gem|
   ignores = File.readlines(".gitignore").grep(/^[^#]\S+/).map{|s| s.chomp }
   dotfiles = [".gemtest", ".gitignore", ".rspec", ".yardopts"]
   gem.files = dotfiles + Dir["**/*"].
-    reject{|f| f =~ %r{^(clusters|config|cookbooks|data_bags|roles|site-cookbooks)/} }.
+    reject{|f| f =~ %r{^(cookbooks|site-cookbooks|meta-cookbooks|integration-cookbooks)} }.
+    reject{|f| f =~ %r{^(certificates|clusters|config|data_bags|environments|roles|chefignore|deprecated|tasks)/} }.
     reject{|f| File.directory?(f) }.
     reject{|f| ignores.any?{|i| File.fnmatch(i, f) || File.fnmatch(i+'/**/*', f) } }
   gem.test_files = gem.files.grep(/^spec\//)

@@ -4,31 +4,40 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = %q{cluster_chef}
-  s.version = "0.1.10"
+  s.name = "cluster_chef"
+  s.version = "3.0.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Infochimps"]
-  s.date = %q{2011-10-06}
-  s.description = %q{Chef is a powerful tool for maintaining and describing the software and configurations that let a machine provide its services.}
-  s.email = %q{coders@infochimps.org}
+  s.date = "2011-11-14"
+  s.description = "cluster_chef allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
+  s.email = "coders@infochimps.com"
   s.extra_rdoc_files = [
     "LICENSE",
-    "README.textile"
+    "README-checklist.md",
+    "README-contents.md",
+    "README.md"
   ]
   s.files = [
     ".gitignore",
     ".rspec",
+    "CHANGELOG.md",
     "Gemfile",
     "LICENSE",
-    "README.textile",
+    "README-checklist.md",
+    "README-contents.md",
+    "README.md",
     "Rakefile",
     "TODO.md",
     "VERSION",
+    "chefignore",
     "cluster_chef.gemspec",
+    "lib/TAGS",
+    "lib/chef/TAGS",
     "lib/chef/knife/bootstrap/ubuntu10.04-basic.erb",
     "lib/chef/knife/bootstrap/ubuntu10.04-cluster_chef.erb",
     "lib/chef/knife/cluster_bootstrap.rb",
+    "lib/chef/knife/cluster_kick.rb",
     "lib/chef/knife/cluster_kill.rb",
     "lib/chef/knife/cluster_launch.rb",
     "lib/chef/knife/cluster_list.rb",
@@ -40,42 +49,25 @@ Gem::Specification.new do |s|
     "lib/chef/knife/generic_command.rb",
     "lib/chef/knife/knife_common.rb",
     "lib/cluster_chef.rb",
+    "lib/cluster_chef/chef_layer.rb",
     "lib/cluster_chef/cloud.rb",
     "lib/cluster_chef/cluster.rb",
     "lib/cluster_chef/compute.rb",
+    "lib/cluster_chef/deprecated.rb",
     "lib/cluster_chef/discovery.rb",
     "lib/cluster_chef/dsl_object.rb",
     "lib/cluster_chef/facet.rb",
-    "lib/cluster_chef/script.rb",
+    "lib/cluster_chef/fog_layer.rb",
+    "lib/cluster_chef/private_key.rb",
     "lib/cluster_chef/security_group.rb",
     "lib/cluster_chef/server.rb",
     "lib/cluster_chef/server_slice.rb",
     "lib/cluster_chef/volume.rb",
-    "notes/burn_your_own_AMI.textile",
-    "notes/cluster_roles_and_service_discovery.textile",
-    "notes/design_your_cluster.textile",
-    "notes/ec2pricing-and-capacity.numbers",
+    "notes/aws_console_screenshot.jpg",
+    "notes/burn_your_own_AMI.txt",
+    "notes/design_your_cluster.md",
     "notes/ec2pricing-and-capacity.txt",
-    "notes/make_your_hdfs_persistent_with_ebs_volumes.textile",
-    "notes/patching-hadoop-the-kludgey-way.textile",
-    "notes/pt1-initial-settings-and-credentials.textile",
-    "notes/pt2-chef_server_and_local_chef.textile",
-    "notes/tips_and_troubleshooting.textile",
-    "spec/cluster_chef/cluster_spec.rb",
-    "spec/cluster_chef/facet_spec.rb",
-    "spec/cluster_chef/server_slice_spec.rb",
-    "spec/cluster_chef/server_spec.rb",
-    "spec/cluster_chef_spec.rb",
-    "spec/spec_helper.rb",
-    "spec/test_config.rb",
-    "tasks/databag.rake"
-  ]
-  s.homepage = %q{http://infochimps.com/labs}
-  s.licenses = ["MIT"]
-  s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.7.2}
-  s.summary = %q{Chef is a powerful tool for maintaining and describing the software and configurations that let a machine provide its services.}
-  s.test_files = [
+    "notes/tips_and_troubleshooting.md",
     "spec/cluster_chef/cluster_spec.rb",
     "spec/cluster_chef/facet_spec.rb",
     "spec/cluster_chef/server_slice_spec.rb",
@@ -84,75 +76,63 @@ Gem::Specification.new do |s|
     "spec/spec_helper.rb",
     "spec/test_config.rb"
   ]
+  s.homepage = "http://infochimps.com/labs"
+  s.licenses = ["apachev2"]
+  s.require_paths = ["lib"]
+  s.rubygems_version = "1.8.11"
+  s.summary = "cluster_chef allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
+  s.test_files = ["spec/cluster_chef/cluster_spec.rb", "spec/cluster_chef/facet_spec.rb", "spec/cluster_chef/server_slice_spec.rb", "spec/cluster_chef/server_spec.rb", "spec/cluster_chef_spec.rb", "spec/spec_helper.rb", "spec/test_config.rb"]
 
   if s.respond_to? :specification_version then
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
-      s.add_runtime_dependency(%q<chef>, ["~> 0.10.0"])
-      s.add_runtime_dependency(%q<json>, ["~> 1.5.1"])
+      s.add_runtime_dependency(%q<chef>, ["~> 0.10.4"])
       s.add_runtime_dependency(%q<right_aws>, ["~> 2.1.0"])
+      s.add_runtime_dependency(%q<highline>, ["~> 1.6.2"])
+      s.add_runtime_dependency(%q<fog>, ["~> 0.8.2"])
       s.add_runtime_dependency(%q<formatador>, ["~> 0.1.4"])
       s.add_runtime_dependency(%q<choice>, ["~> 0.1.4"])
       s.add_runtime_dependency(%q<gorillib>, ["~> 0.1.3"])
-      s.add_runtime_dependency(%q<configliere>, ["~> 0.4.5"])
-      s.add_runtime_dependency(%q<highline>, ["~> 1.6.2"])
-      s.add_runtime_dependency(%q<fog>, ["~> 0.8.2"])
-      s.add_runtime_dependency(%q<extlib>, ["~> 0.9.15"])
-      s.add_development_dependency(%q<bundler>, ["~> 1.0.12"])
+      s.add_development_dependency(%q<bundler>, ["~> 1"])
       s.add_development_dependency(%q<yard>, ["~> 0.6.7"])
-      s.add_development_dependency(%q<jeweler>, ["~> 1.5.2"])
+      s.add_development_dependency(%q<jeweler>, ["~> 1.6.4"])
       s.add_development_dependency(%q<rspec>, ["~> 2.5.0"])
       s.add_development_dependency(%q<spork>, ["~> 0.9.0.rc5"])
-      s.add_development_dependency(%q<RedCloth>, [">= 0"])
-      s.add_development_dependency(%q<rcov>, [">= 0.9.9"])
       s.add_development_dependency(%q<watchr>, [">= 0"])
-      s.add_development_dependency(%q<ruby-debug>, [">= 0"])
       s.add_development_dependency(%q<bundler>, ["~> 1.0.12"])
       s.add_development_dependency(%q<jeweler>, ["~> 1.5.2"])
     else
-      s.add_dependency(%q<chef>, ["~> 0.10.0"])
-      s.add_dependency(%q<json>, ["~> 1.5.1"])
+      s.add_dependency(%q<chef>, ["~> 0.10.4"])
       s.add_dependency(%q<right_aws>, ["~> 2.1.0"])
+      s.add_dependency(%q<highline>, ["~> 1.6.2"])
+      s.add_dependency(%q<fog>, ["~> 0.8.2"])
       s.add_dependency(%q<formatador>, ["~> 0.1.4"])
       s.add_dependency(%q<choice>, ["~> 0.1.4"])
       s.add_dependency(%q<gorillib>, ["~> 0.1.3"])
-      s.add_dependency(%q<configliere>, ["~> 0.4.5"])
-      s.add_dependency(%q<highline>, ["~> 1.6.2"])
-      s.add_dependency(%q<fog>, ["~> 0.8.2"])
-      s.add_dependency(%q<extlib>, ["~> 0.9.15"])
-      s.add_dependency(%q<bundler>, ["~> 1.0.12"])
+      s.add_dependency(%q<bundler>, ["~> 1"])
       s.add_dependency(%q<yard>, ["~> 0.6.7"])
-      s.add_dependency(%q<jeweler>, ["~> 1.5.2"])
+      s.add_dependency(%q<jeweler>, ["~> 1.6.4"])
       s.add_dependency(%q<rspec>, ["~> 2.5.0"])
       s.add_dependency(%q<spork>, ["~> 0.9.0.rc5"])
-      s.add_dependency(%q<RedCloth>, [">= 0"])
-      s.add_dependency(%q<rcov>, [">= 0.9.9"])
       s.add_dependency(%q<watchr>, [">= 0"])
-      s.add_dependency(%q<ruby-debug>, [">= 0"])
       s.add_dependency(%q<bundler>, ["~> 1.0.12"])
       s.add_dependency(%q<jeweler>, ["~> 1.5.2"])
     end
   else
-    s.add_dependency(%q<chef>, ["~> 0.10.0"])
-    s.add_dependency(%q<json>, ["~> 1.5.1"])
+    s.add_dependency(%q<chef>, ["~> 0.10.4"])
     s.add_dependency(%q<right_aws>, ["~> 2.1.0"])
+    s.add_dependency(%q<highline>, ["~> 1.6.2"])
+    s.add_dependency(%q<fog>, ["~> 0.8.2"])
     s.add_dependency(%q<formatador>, ["~> 0.1.4"])
     s.add_dependency(%q<choice>, ["~> 0.1.4"])
     s.add_dependency(%q<gorillib>, ["~> 0.1.3"])
-    s.add_dependency(%q<configliere>, ["~> 0.4.5"])
-    s.add_dependency(%q<highline>, ["~> 1.6.2"])
-    s.add_dependency(%q<fog>, ["~> 0.8.2"])
-    s.add_dependency(%q<extlib>, ["~> 0.9.15"])
-    s.add_dependency(%q<bundler>, ["~> 1.0.12"])
+    s.add_dependency(%q<bundler>, ["~> 1"])
     s.add_dependency(%q<yard>, ["~> 0.6.7"])
-    s.add_dependency(%q<jeweler>, ["~> 1.5.2"])
+    s.add_dependency(%q<jeweler>, ["~> 1.6.4"])
     s.add_dependency(%q<rspec>, ["~> 2.5.0"])
     s.add_dependency(%q<spork>, ["~> 0.9.0.rc5"])
-    s.add_dependency(%q<RedCloth>, [">= 0"])
-    s.add_dependency(%q<rcov>, [">= 0.9.9"])
     s.add_dependency(%q<watchr>, [">= 0"])
-    s.add_dependency(%q<ruby-debug>, [">= 0"])
     s.add_dependency(%q<bundler>, ["~> 1.0.12"])
     s.add_dependency(%q<jeweler>, ["~> 1.5.2"])
   end
