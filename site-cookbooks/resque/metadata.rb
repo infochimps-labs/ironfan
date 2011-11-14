@@ -15,112 +15,112 @@ depends          "redis"
 end
 
 attribute "resque/dir",
-  :default               => "/data/db/resque",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "/data/db/resque"
 
 attribute "resque/log_dir",
-  :default               => "/data/db/resque/log",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "/data/db/resque/log"
 
 attribute "resque/tmp_dir",
-  :default               => "/data/db/resque/tmp",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "/data/db/resque/tmp"
 
 attribute "resque/dbdir",
-  :default               => "/data/db/resque/data",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "/data/db/resque/data"
 
 attribute "resque/swapdir",
-  :default               => "/data/db/resque/swap",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "/data/db/resque/swap"
 
 attribute "resque/conf_dir",
-  :default               => "/etc/resque",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "/etc/resque"
 
 attribute "resque/dbfile",
-  :default               => "resque_queue.rdb",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "resque_queue.rdb"
 
 attribute "resque/cluster_name",
-  :default               => "cluster_name",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "cluster_name"
 
 attribute "resque/namespace",
-  :default               => "cluster_name",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "cluster_name"
 
 attribute "resque/user",
-  :default               => "resque",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "resque"
 
 attribute "resque/group",
-  :default               => "resque",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "resque"
 
 attribute "resque/queue_address",
-  :default               => "10.20.30.40",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "10.20.30.40"
 
 attribute "resque/queue_port",
-  :default               => "6388",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "6388"
 
 attribute "resque/dashboard_port",
-  :default               => "6389",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "6389"
 
 attribute "resque/redis_client_timeout",
-  :default               => "300",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "300"
 
 attribute "resque/redis_glueoutputbuf",
-  :default               => "yes",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "yes"
 
 attribute "resque/redis_vm_enabled",
-  :default               => "yes",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "yes"
 
 attribute "resque/redis_vm_max_memory",
-  :default               => "128m",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "128m"
 
 attribute "resque/redis_vm_pages",
-  :default               => "16777216",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "16777216"
 
 attribute "resque/redis_saves",
-  :type                  => "array",
-  :default               => [["900", "1"], ["300", "10"], ["60", "10000"]],
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :type                  => "array",
+  :default               => [["900", "1"], ["300", "10"], ["60", "10000"]]
 
 attribute "resque/redis_slave",
-  :default               => "no",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "no"
 
 attribute "resque/app_env",
-  :default               => "production",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "production"

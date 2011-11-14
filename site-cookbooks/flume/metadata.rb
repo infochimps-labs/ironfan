@@ -14,9 +14,9 @@ depends          "java"
 end
 
 attribute "flume/cluster_name",
-  :default               => "cluster_name",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "cluster_name"
 
 attribute "flume/plugins",
   :display_name          => "",
@@ -44,9 +44,9 @@ attribute "flume/collector",
   :default               => ""
 
 attribute "flume/data_dir",
-  :default               => "/data/db/flume",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "/data/db/flume"
 
 attribute "flume/master/external_zookeeper",
   :display_name          => "",
@@ -54,6 +54,6 @@ attribute "flume/master/external_zookeeper",
   :default               => ""
 
 attribute "flume/master/zookeeper_port",
-  :default               => "2181",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "2181"

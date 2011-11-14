@@ -13,26 +13,26 @@ description      "Installs/Configures zookeeper"
 end
 
 attribute "groups/zookeeper/gid",
-  :default               => "305",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "305"
 
 attribute "zookeeper/data_dir",
-  :default               => "/var/zookeeper",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "/var/zookeeper"
 
 attribute "zookeeper/cluster_name",
-  :default               => "cluster_name",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "cluster_name"
 
 attribute "zookeeper/log_dir",
-  :default               => "/var/log/zookeeper",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "/var/log/zookeeper"
 
 attribute "zookeeper/max_client_connections",
-  :default               => "30",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "30"

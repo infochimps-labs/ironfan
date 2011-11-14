@@ -42,9 +42,9 @@ attribute "cassandra/authenticator",
   :default               => "org.apache.cassandra.auth.AllowAllAuthenticator"
 
 attribute "cassandra/partitioner",
-  :default               => "org.apache.cassandra.dht.RandomPartitioner",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "org.apache.cassandra.dht.RandomPartitioner"
 
 attribute "cassandra/initial_token",
   :display_name          => "",
@@ -52,136 +52,136 @@ attribute "cassandra/initial_token",
   :default               => ""
 
 attribute "cassandra/commitlog_dir",
-  :default               => "/mnt/cassandra/commitlog",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "/mnt/cassandra/commitlog"
 
 attribute "cassandra/data_file_dirs",
-  :type                  => "array",
-  :default               => ["/data/db/cassandra"],
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :type                  => "array",
+  :default               => ["/data/db/cassandra"]
 
 attribute "cassandra/callout_location",
-  :default               => "/var/lib/cassandra/callouts",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "/var/lib/cassandra/callouts"
 
 attribute "cassandra/staging_file_dir",
-  :default               => "/var/lib/cassandra/staging",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "/var/lib/cassandra/staging"
 
 attribute "cassandra/seeds",
-  :type                  => "array",
-  :default               => ["127.0.0.1"],
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :type                  => "array",
+  :default               => ["127.0.0.1"]
 
 attribute "cassandra/rpc_timeout",
-  :default               => "5000",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "5000"
 
 attribute "cassandra/commitlog_rotation_threshold",
-  :default               => "128",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "128"
 
 attribute "cassandra/listen_addr",
-  :default               => "localhost",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "localhost"
 
 attribute "cassandra/storage_port",
-  :default               => "7000",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "7000"
 
 attribute "cassandra/rpc_addr",
-  :default               => "localhost",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "localhost"
 
 attribute "cassandra/rpc_port",
-  :default               => "9160",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "9160"
 
 attribute "cassandra/thrift_framed_transport",
-  :default               => "15",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "15"
 
 attribute "cassandra/disk_access_mode",
-  :default               => "auto",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "auto"
 
 attribute "cassandra/sliced_buffer_size",
-  :default               => "64",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "64"
 
 attribute "cassandra/flush_data_buffer_size",
-  :default               => "32",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "32"
 
 attribute "cassandra/flush_index_buffer_size",
-  :default               => "8",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "8"
 
 attribute "cassandra/column_index_size",
-  :default               => "64",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "64"
 
 attribute "cassandra/memtable_throughput",
-  :default               => "64",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "64"
 
 attribute "cassandra/binary_memtable_throughput",
-  :default               => "256",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "256"
 
 attribute "cassandra/memtable_ops",
-  :default               => "0.3",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "0.3"
 
 attribute "cassandra/memtable_flush_after",
-  :default               => "60",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "60"
 
 attribute "cassandra/concurrent_reads",
-  :default               => "8",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "8"
 
 attribute "cassandra/concurrent_writes",
-  :default               => "32",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "32"
 
 attribute "cassandra/commitlog_sync",
-  :default               => "periodic",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "periodic"
 
 attribute "cassandra/commitlog_sync_period",
-  :default               => "10000",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "10000"
 
 attribute "cassandra/gc_grace",
-  :default               => "864000",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "864000"
 
 attribute "cassandra/public_access",
   :display_name          => "Public access",
@@ -189,84 +189,84 @@ attribute "cassandra/public_access",
   :default               => ""
 
 attribute "cassandra/cassandra_home",
-  :default               => "/usr/local/share/cassandra",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "/usr/local/share/cassandra"
 
 attribute "cassandra/cassandra_conf",
-  :default               => "/etc/cassandra",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "/etc/cassandra"
 
 attribute "cassandra/cassandra_user",
-  :default               => "cassandra",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "cassandra"
 
 attribute "cassandra/saved_caches_dir",
-  :default               => "/var/lib/cassandra/saved_caches",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "/var/lib/cassandra/saved_caches"
 
 attribute "cassandra/jmx_port",
-  :default               => "12345",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "12345"
 
 attribute "cassandra/authority",
-  :default               => "org.apache.cassandra.auth.AllowAllAuthority",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "org.apache.cassandra.auth.AllowAllAuthority"
 
 attribute "cassandra/hinted_handoff_enabled",
-  :default               => "true",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "true"
 
 attribute "cassandra/max_hint_window_in_ms",
-  :default               => "3600000",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "3600000"
 
 attribute "cassandra/hinted_handoff_throttle_delay_in_ms",
-  :default               => "50",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "50"
 
 attribute "cassandra/endpoint_snitch",
-  :default               => "org.apache.cassandra.locator.SimpleSnitch",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "org.apache.cassandra.locator.SimpleSnitch"
 
 attribute "cassandra/dynamic_snitch",
-  :default               => "true",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "true"
 
 attribute "cassandra/java_min_heap",
-  :default               => "128M",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "128M"
 
 attribute "cassandra/java_max_heap",
-  :default               => "1650M",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "1650M"
 
 attribute "cassandra/java_eden_heap",
-  :default               => "1500M",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "1500M"
 
 attribute "cassandra/memtable_flush_writers",
-  :default               => "1",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "1"
 
 attribute "cassandra/thrift_max_message_length",
-  :default               => "16",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "16"
 
 attribute "cassandra/incremental_backups",
   :display_name          => "",
@@ -279,91 +279,91 @@ attribute "cassandra/snapshot_before_compaction",
   :default               => ""
 
 attribute "cassandra/in_memory_compaction_limit",
-  :default               => "64",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "64"
 
 attribute "cassandra/compaction_preheat_key_cache",
-  :default               => "true",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "true"
 
 attribute "cassandra/flush_largest_memtables_at",
-  :default               => "0.75",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "0.75"
 
 attribute "cassandra/reduce_cache_sizes_at",
-  :default               => "0.85",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "0.85"
 
 attribute "cassandra/reduce_cache_capacity_to",
-  :default               => "0.6",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "0.6"
 
 attribute "cassandra/rpc_timeout_in_ms",
-  :default               => "10000",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "10000"
 
 attribute "cassandra/rpc_keepalive",
-  :default               => "false",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "false"
 
 attribute "cassandra/phi_convict_threshold",
-  :default               => "8",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "8"
 
 attribute "cassandra/request_scheduler",
-  :default               => "org.apache.cassandra.scheduler.NoScheduler",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "org.apache.cassandra.scheduler.NoScheduler"
 
 attribute "cassandra/throttle_limit",
-  :default               => "80",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "80"
 
 attribute "cassandra/request_scheduler_id",
-  :default               => "keyspace",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "keyspace"
 
 attribute "cassandra/install_url",
-  :default               => "http://www.eng.lsu.edu/mirrors/apache/cassandra/0.7.7/apache-cassandra-0.7.7-bin.tar.gz",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "http://www.eng.lsu.edu/mirrors/apache/cassandra/0.7.7/apache-cassandra-0.7.7-bin.tar.gz"
 
 attribute "cassandra/git_repo",
-  :default               => "git://git.apache.org/cassandra.git",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "git://git.apache.org/cassandra.git"
 
 attribute "cassandra/git_revision",
-  :default               => "cdd239dcf82ab52cb840e070fc01135efb512799",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "cdd239dcf82ab52cb840e070fc01135efb512799"
 
 attribute "cassandra/jna_deb_amd64_url",
-  :default               => "http://debian.riptano.com/maverick/pool/libjna-java_3.2.7-0~nmu.2_amd64.deb",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "http://debian.riptano.com/maverick/pool/libjna-java_3.2.7-0~nmu.2_amd64.deb"
 
 attribute "cassandra/mx4j_url",
-  :default               => "http://downloads.sourceforge.net/project/mx4j/MX4J%20Binary/3.0.2/mx4j-3.0.2.zip?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fmx4j%2Ffiles%2F&ts=1303407638&use_mirror=iweb",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "http://downloads.sourceforge.net/project/mx4j/MX4J%20Binary/3.0.2/mx4j-3.0.2.zip?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fmx4j%2Ffiles%2F&ts=1303407638&use_mirror=iweb"
 
 attribute "cassandra/mx4j_listen_addr",
-  :default               => "127.0.0.1",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "127.0.0.1"
 
 attribute "cassandra/mx4j_listen_port",
-  :default               => "8081",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "8081"

@@ -17,39 +17,39 @@ depends          "provides_service"
 end
 
 attribute "elasticsearch/version",
-  :default               => "0.13.1",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "0.13.1"
 
 attribute "elasticsearch/cluster_name",
-  :default               => "default",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "default"
 
 attribute "elasticsearch/install_dir",
-  :default               => "/usr/local/share/elasticsearch",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "/usr/local/share/elasticsearch"
 
 attribute "elasticsearch/data_root",
-  :default               => "/mnt/elasticsearch",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "/mnt/elasticsearch"
 
 attribute "elasticsearch/java_home",
-  :default               => "/usr/lib/jvm/java-6-sun/jre",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "/usr/lib/jvm/java-6-sun/jre"
 
 attribute "elasticsearch/git_repo",
-  :default               => "https://github.com/elasticsearch/elasticsearch.git",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "https://github.com/elasticsearch/elasticsearch.git"
 
 attribute "elasticsearch/heap_size",
-  :default               => "1000",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "1000"
 
 attribute "elasticsearch/ulimit_mlock",
   :display_name          => "",
@@ -57,54 +57,54 @@ attribute "elasticsearch/ulimit_mlock",
   :default               => ""
 
 attribute "elasticsearch/default_replicas",
-  :default               => "1",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "1"
 
 attribute "elasticsearch/default_shards",
-  :default               => "6",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "6"
 
 attribute "elasticsearch/flush_threshold",
-  :default               => "5000",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "5000"
 
 attribute "elasticsearch/index_buffer_size",
-  :default               => "10%",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "10%"
 
 attribute "elasticsearch/merge_factor",
-  :default               => "10",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "10"
 
 attribute "elasticsearch/max_thread_count",
-  :default               => "4",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "4"
 
 attribute "elasticsearch/term_index_interval",
-  :default               => "128",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "128"
 
 attribute "elasticsearch/refresh_interval",
-  :default               => "1s",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "1s"
 
 attribute "elasticsearch/snapshot_interval",
-  :default               => "-1",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "-1"
 
 attribute "elasticsearch/snapshot_on_close",
-  :default               => "false",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "false"
 
 attribute "elasticsearch/seeds",
   :display_name          => "",
@@ -112,67 +112,67 @@ attribute "elasticsearch/seeds",
   :default               => ""
 
 attribute "elasticsearch/recovery_after_nodes",
-  :default               => "2",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "2"
 
 attribute "elasticsearch/recovery_after_time",
-  :default               => "5m",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "5m"
 
 attribute "elasticsearch/expected_nodes",
-  :default               => "2",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "2"
 
 attribute "elasticsearch/fd_ping_interval",
-  :default               => "1s",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "1s"
 
 attribute "elasticsearch/fd_ping_timeout",
-  :default               => "30s",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "30s"
 
 attribute "elasticsearch/fd_ping_retries",
-  :default               => "3",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "3"
 
 attribute "elasticsearch/jmx_port",
-  :default               => "9400-9500",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "9400-9500"
 
 attribute "elasticsearch/log_level/default",
-  :default               => "DEBUG",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "DEBUG"
 
 attribute "elasticsearch/log_level/index_store",
-  :default               => "INFO",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "INFO"
 
 attribute "elasticsearch/log_level/action_shard",
-  :default               => "INFO",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "INFO"
 
 attribute "elasticsearch/log_level/cluster_service",
-  :default               => "INFO",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "INFO"
 
 attribute "elasticsearch/raid/devices",
-  :type                  => "array",
-  :default               => ["/dev/sdb", "/dev/sdc", "/dev/sdd", "/dev/sde"],
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :type                  => "array",
+  :default               => ["/dev/sdb", "/dev/sdc", "/dev/sdd", "/dev/sde"]
 
 attribute "elasticsearch/raid/use_raid",
-  :default               => "true",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "true"

@@ -14,14 +14,14 @@ depends          "rsyslog"
 end
 
 attribute "papertrail/logger",
-  :default               => "rsyslog",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "rsyslog"
 
 attribute "papertrail/remote_host",
-  :default               => "logs.papertrailapp.com",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "logs.papertrailapp.com"
 
 attribute "papertrail/remote_port",
   :display_name          => "",
@@ -29,14 +29,14 @@ attribute "papertrail/remote_port",
   :default               => ""
 
 attribute "papertrail/cert_file",
-  :default               => "/etc/papertrail.crt",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "/etc/papertrail.crt"
 
 attribute "papertrail/cert_url",
-  :default               => "https://papertrailapp.com/tools/syslog.papertrail.crt",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "https://papertrailapp.com/tools/syslog.papertrail.crt"
 
 attribute "papertrail/hostname_name",
   :display_name          => "",

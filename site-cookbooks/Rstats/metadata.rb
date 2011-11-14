@@ -14,6 +14,6 @@ recipe           "Rstats",             "Installs the base R package, a ruby inte
 end
 
 attribute "Rstats/cran_mirror_url",
-  :default               => "http://cran.us.r-project.org",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "http://cran.us.r-project.org"

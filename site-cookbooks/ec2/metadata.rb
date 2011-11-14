@@ -13,16 +13,16 @@ description      "Installs/Configures ec2-specific capabilites"
 end
 
 attribute "ec2/raid_level",
-  :default               => "0",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "0"
 
 attribute "ec2/raid_read_ahead",
-  :default               => "65536",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "65536"
 
 attribute "ec2/raid_mount",
-  :default               => "/raid0",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "/raid0"

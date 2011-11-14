@@ -13,6 +13,6 @@ description      "A bunch of fun packages"
 end
 
 attribute "ruby/version",
-  :default               => "1.8",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "1.8"

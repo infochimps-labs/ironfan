@@ -17,44 +17,44 @@ depends          "provides_service"
 end
 
 attribute "jenkins/apt_mirror",
-  :default               => "http://pkg.jenkins-ci.org/debian",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "http://pkg.jenkins-ci.org/debian"
 
 attribute "jenkins/plugins_mirror",
-  :default               => "http://updates.jenkins-ci.org",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "http://updates.jenkins-ci.org"
 
 attribute "jenkins/java_home",
-  :default               => "/System/Library/Frameworks/JavaVM.framework/Versions/1.6.0/Home",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "/System/Library/Frameworks/JavaVM.framework/Versions/1.6.0/Home"
 
 attribute "jenkins/iptables_allow",
-  :default               => "enable",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "enable"
 
 attribute "jenkins/server/home",
-  :default               => "/var/lib/jenkins",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "/var/lib/jenkins"
 
 attribute "jenkins/server/user",
-  :default               => "jenkins",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "jenkins"
 
 attribute "jenkins/server/group",
-  :default               => "nogroup",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "nogroup"
 
 attribute "jenkins/server/port",
-  :default               => "8080",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "8080"
 
 attribute "jenkins/server/host",
   :display_name          => "",
@@ -62,9 +62,9 @@ attribute "jenkins/server/host",
   :default               => ""
 
 attribute "jenkins/server/jvm_heap",
-  :default               => "384",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "384"
 
 attribute "jenkins/server/plugins",
   :display_name          => "",
@@ -82,19 +82,19 @@ attribute "jenkins/node/name",
   :default               => ""
 
 attribute "jenkins/node/description",
-  :default               => "ubuntu 10.4 [  ] slave on hostname",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "ubuntu 10.4 [  ] slave on hostname"
 
 attribute "jenkins/node/executors",
-  :default               => "1",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "1"
 
 attribute "jenkins/node/home",
-  :default               => "/var/lib/jenkins-node",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "/var/lib/jenkins-node"
 
 attribute "jenkins/node/labels",
   :display_name          => "",
@@ -102,29 +102,29 @@ attribute "jenkins/node/labels",
   :default               => ""
 
 attribute "jenkins/node/mode",
-  :default               => "normal",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "normal"
 
 attribute "jenkins/node/launcher",
-  :default               => "ssh",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "ssh"
 
 attribute "jenkins/node/availability",
-  :default               => "always",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "always"
 
 attribute "jenkins/node/in_demand_delay",
-  :default               => "0",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "0"
 
 attribute "jenkins/node/idle_delay",
-  :default               => "1",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "1"
 
 attribute "jenkins/node/env",
   :display_name          => "",
@@ -132,9 +132,9 @@ attribute "jenkins/node/env",
   :default               => ""
 
 attribute "jenkins/node/user",
-  :default               => "jenkins-node",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "jenkins-node"
 
 attribute "jenkins/node/ssh_host",
   :display_name          => "",
@@ -142,9 +142,9 @@ attribute "jenkins/node/ssh_host",
   :default               => ""
 
 attribute "jenkins/node/ssh_port",
-  :default               => "22",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "22"
 
 attribute "jenkins/node/ssh_pass",
   :display_name          => "",
@@ -167,15 +167,15 @@ attribute "jenkins/http_proxy/variant",
   :default               => ""
 
 attribute "jenkins/http_proxy/www_redirect",
-  :default               => "disable",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "disable"
 
 attribute "jenkins/http_proxy/listen_ports",
-  :type                  => "array",
-  :default               => [80],
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :type                  => "array",
+  :default               => [80]
 
 attribute "jenkins/http_proxy/host_name",
   :display_name          => "",
@@ -188,6 +188,6 @@ attribute "jenkins/http_proxy/host_aliases",
   :default               => ""
 
 attribute "jenkins/http_proxy/client_max_body_size",
-  :default               => "1024m",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "1024m"

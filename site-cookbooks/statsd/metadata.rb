@@ -16,36 +16,36 @@ depends          "graphite"
 end
 
 attribute "statsd/cluster_name",
-  :default               => "cluster_name",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "cluster_name"
 
 attribute "statsd/git_uri",
-  :default               => "https://github.com/etsy/statsd.git",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "https://github.com/etsy/statsd.git"
 
 attribute "statsd/src_path",
-  :default               => "/usr/src/statsd",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "/usr/src/statsd"
 
 attribute "statsd/port",
-  :default               => "8125",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "8125"
 
 attribute "statsd/flushInterval",
-  :default               => "10000",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "10000"
 
 attribute "statsd/graphite/port",
-  :default               => "2003",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "2003"
 
 attribute "statsd/graphite/host",
-  :default               => "localhost",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "localhost"

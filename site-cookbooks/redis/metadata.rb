@@ -86,16 +86,16 @@ attribute "redis/shareobjectspoolsize",
   :default               => "1024"
 
 attribute "redis/home_dir",
-  :default               => "/usr/local/share/redis",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "/usr/local/share/redis"
 
 attribute "redis/install_url",
-  :default               => "http://redis.googlecode.com/files/redis-2.0.2.tar.gz",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "http://redis.googlecode.com/files/redis-2.0.2.tar.gz"
 
 attribute "redis/shareobjects",
-  :default               => "no",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "no"

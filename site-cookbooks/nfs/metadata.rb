@@ -19,7 +19,7 @@ attribute "nfs/exports",
   :default               => ""
 
 attribute "nfs/mounts",
-  :type                  => "array",
-  :default               => [["/home", {:owner=>"root", :remote_path=>"/home"}]],
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :type                  => "array",
+  :default               => [["/home", {:owner=>"root", :remote_path=>"/home"}]]

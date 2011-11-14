@@ -18,24 +18,24 @@ depends          "provides_service"
 end
 
 attribute "cluster_size",
-  :default               => "5",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "5"
 
 attribute "hadoop/hadoop_handle",
-  :default               => "hadoop-0.20",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "hadoop-0.20"
 
 attribute "hadoop/cdh_version",
-  :default               => "cdh3u2",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "cdh3u2"
 
 attribute "hadoop/deb_version",
-  :default               => "0.20.2+923.142-1~maverick-cdh3",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "0.20.2+923.142-1~maverick-cdh3"
 
 attribute "hadoop/cloudera_distro_name",
   :display_name          => "",
@@ -43,69 +43,69 @@ attribute "hadoop/cloudera_distro_name",
   :default               => ""
 
 attribute "hadoop/dfs_replication",
-  :default               => "3",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "3"
 
 attribute "hadoop/reduce_parallel_copies",
-  :default               => "10",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "10"
 
 attribute "hadoop/tasktracker_http_threads",
-  :default               => "32",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "32"
 
 attribute "hadoop/jobtracker_handler_count",
-  :default               => "40",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "40"
 
 attribute "hadoop/namenode_handler_count",
-  :default               => "40",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "40"
 
 attribute "hadoop/datanode_handler_count",
-  :default               => "8",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "8"
 
 attribute "hadoop/compress_output",
-  :default               => "true",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "true"
 
 attribute "hadoop/compress_output_type",
-  :default               => "BLOCK",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "BLOCK"
 
 attribute "hadoop/compress_output_codec",
-  :default               => "org.apache.hadoop.io.compress.DefaultCodec",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "org.apache.hadoop.io.compress.DefaultCodec"
 
 attribute "hadoop/compress_mapout",
-  :default               => "true",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "true"
 
 attribute "hadoop/compress_mapout_codec",
-  :default               => "org.apache.hadoop.io.compress.DefaultCodec",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "org.apache.hadoop.io.compress.DefaultCodec"
 
 attribute "hadoop/mapred_userlog_retain_hours",
-  :default               => "24",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "24"
 
 attribute "hadoop/mapred_jobtracker_completeuserjobs_maximum",
-  :default               => "100",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "100"
 
 attribute "hadoop/extra_classpaths",
   :display_name          => "",
@@ -113,9 +113,9 @@ attribute "hadoop/extra_classpaths",
   :default               => ""
 
 attribute "hadoop/daemon_heapsize",
-  :default               => "1000",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "1000"
 
 attribute "hadoop/namenode_heapsize",
   :display_name          => "",
@@ -133,66 +133,66 @@ attribute "hadoop/jobtracker_heapsize",
   :default               => ""
 
 attribute "hadoop/persistent_dirs",
-  :type                  => "array",
-  :default               => ["/mnt/hadoop"],
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :type                  => "array",
+  :default               => ["/mnt/hadoop"]
 
 attribute "hadoop/scratch_dirs",
-  :type                  => "array",
-  :default               => ["/mnt/hadoop"],
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :type                  => "array",
+  :default               => ["/mnt/hadoop"]
 
 attribute "hadoop/max_balancer_bandwidth",
-  :default               => "1048576",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "1048576"
 
 attribute "hadoop/min_split_size",
-  :default               => "134217728",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "134217728"
 
 attribute "hadoop/s3_block_size",
-  :default               => "134217728",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "134217728"
 
 attribute "hadoop/hdfs_block_size",
-  :default               => "134217728",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "134217728"
 
 attribute "hadoop/max_map_tasks",
-  :default               => "3",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "3"
 
 attribute "hadoop/max_reduce_tasks",
-  :default               => "2",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "2"
 
 attribute "hadoop/java_child_opts",
-  :default               => "-Xmx2432m -Xss128k -XX:+UseCompressedOops -XX:MaxNewSize=200m -server",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "-Xmx2432m -Xss128k -XX:+UseCompressedOops -XX:MaxNewSize=200m -server"
 
 attribute "hadoop/java_child_ulimit",
-  :default               => "7471104",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "7471104"
 
 attribute "hadoop/io_sort_factor",
-  :default               => "25",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "25"
 
 attribute "hadoop/io_sort_mb",
-  :default               => "256",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "256"
 
 attribute "service_states/hadoop_namenode",
   :display_name          => "",
@@ -210,51 +210,51 @@ attribute "service_states/hadoop_jobtracker",
   :default               => ""
 
 attribute "service_states/hadoop_datanode",
-  :type                  => "array",
-  :default               => [:enable, :start],
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :type                  => "array",
+  :default               => [:enable, :start]
 
 attribute "service_states/hadoop_tasktracker",
-  :type                  => "array",
-  :default               => [:enable, :start],
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :type                  => "array",
+  :default               => [:enable, :start]
 
 attribute "groups/hadoop/gid",
-  :default               => "300",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "300"
 
 attribute "groups/supergroup/gid",
-  :default               => "301",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "301"
 
 attribute "groups/hdfs/gid",
-  :default               => "302",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "302"
 
 attribute "groups/mapred/gid",
-  :default               => "303",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "303"
 
 attribute "server_tuning/ulimit/hdfs",
-  :type                  => "hash",
-  :default               => {:nofile=>{:both=>32768}, :nproc=>{:both=>50000}},
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :type                  => "hash",
+  :default               => {:nofile=>{:both=>32768}, :nproc=>{:both=>50000}}
 
 attribute "server_tuning/ulimit/hbase",
-  :type                  => "hash",
-  :default               => {:nofile=>{:both=>32768}, :nproc=>{:both=>50000}},
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :type                  => "hash",
+  :default               => {:nofile=>{:both=>32768}, :nproc=>{:both=>50000}}
 
 attribute "server_tuning/ulimit/mapred",
-  :type                  => "hash",
-  :default               => {:nofile=>{:both=>32768}, :nproc=>{:both=>50000}},
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :type                  => "hash",
+  :default               => {:nofile=>{:both=>32768}, :nproc=>{:both=>50000}}

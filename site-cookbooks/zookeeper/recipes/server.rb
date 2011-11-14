@@ -20,7 +20,7 @@
 
 include_recipe "zookeeper"
 
-provide_service ("#{node[:zookeeper][:cluster_name]}-zookeeper")
+provide_service("#{node[:zookeeper][:cluster_name]}-zookeeper")
 
 # Install
 package "hadoop-zookeeper-server"

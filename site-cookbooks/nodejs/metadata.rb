@@ -14,21 +14,21 @@ depends          "python"
 end
 
 attribute "nodejs/git_uri",
-  :default               => "https://github.com/joyent/node.git",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "https://github.com/joyent/node.git"
 
 attribute "nodejs/jobs",
-  :default               => "2",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "2"
 
 attribute "nodejs/src_path",
-  :default               => "/usr/src/nodejs",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "/usr/src/nodejs"
 
 attribute "nodejs/bin_path",
-  :default               => "/usr/local/bin/node",
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :default               => "/usr/local/bin/node"
