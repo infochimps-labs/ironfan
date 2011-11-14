@@ -2,7 +2,7 @@ maintainer       "Librato, Inc."
 maintainer_email "mike@librato.com"
 license          "All rights reserved"
 description      "Installs/Configures Sys Logging to papertrailapp.com"
-long_description IO.read(File.join(File.dirname(__FILE__), 'README.rdoc'))
+long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 version          "0.0.1"
 
 depends          "rsyslog"
