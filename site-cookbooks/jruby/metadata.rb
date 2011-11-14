@@ -1,6 +1,14 @@
-maintainer       "YOUR_COMPANY_NAME"
-maintainer_email "YOUR_EMAIL"
-license          "All rights reserved"
-description      "Installs/Configures jruby"
+maintainer       "Jacob Perkins - Infochimps, Inc"
+maintainer_email "coders@infochimps.com"
+license          "Apache 2.0"
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version          "0.0.1"
+version          "3.0.0"
+
+description      "Installs/Configures jruby"
+
+depends          "java"
+
+
+%w[ debian ubuntu ].each do |os|
+  supports os
+end
