@@ -1,3 +1,13 @@
+#
+# Cookbook Name::       nfs
+# Recipe::              server
+# Author::              37signals
+#
+# Copyright 2011, 37signals
+#
+# (no license specified)
+#
+
 package "nfs-kernel-server"
 
 if node[:nfs][:exports]

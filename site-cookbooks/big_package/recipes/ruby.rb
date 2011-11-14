@@ -1,6 +1,7 @@
 #
-# Cookbook Name:: ruby
-# Recipe:: default
+# Cookbook Name::       big_package
+# Recipe::              ruby
+# Author::              Philip (flip) Kromer - Infochimps, Inc
 #
 # Copyright 2008-2009, Opscode, Inc.
 #

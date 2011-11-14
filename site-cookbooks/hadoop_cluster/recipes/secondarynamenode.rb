@@ -1,6 +1,7 @@
 #
-# Cookbook Name:: hadoop
-# Recipe:: namenode
+# Cookbook Name::       hadoop_cluster
+# Recipe::              secondarynamenode
+# Author::              Philip (flip) Kromer - Infochimps, Inc
 #
 # Copyright 2009, Opscode, Inc.
 #

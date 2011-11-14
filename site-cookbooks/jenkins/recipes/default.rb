@@ -1,10 +1,8 @@
 #
-# Cookbook Name:: jenkins
-# Based on hudson
-# Recipe:: default
-#
-# Author:: Doug MacEachern <dougm@vmware.com>
-# Author:: Fletcher Nichol <fnichol@nichol.ca>
+# Cookbook Name::       jenkins
+# Recipe::              default
+# Author::              Doug MacEachern <dougm@vmware.com>
+# Author::              Fletcher Nichol <fnichol@nichol.ca>
 #
 # Copyright 2010, VMware, Inc.
 #

@@ -1,6 +1,7 @@
 #
-# Cookbook Name:: elasticsearch
-# Recipe:: default
+# Cookbook Name::       elasticsearch
+# Recipe::              default
+# Author::              GoTime, modifications by Infochimps
 #
 # Copyright 2010, GoTime
 #

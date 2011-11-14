@@ -1,6 +1,7 @@
 #
-# Cookbook Name:: hadoop
-# Recipe:: hive
+# Cookbook Name::       hive
+# Recipe::              default
+# Author::              Philip (flip) Kromer - Infochimps, Inc
 #
 # Copyright 2009, Opscode, Inc.
 #

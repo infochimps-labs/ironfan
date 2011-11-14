@@ -1,6 +1,7 @@
 #
-# Cookbook Name:: install_from
-# Recipe:: default
+# Cookbook Name::       install_from
+# Recipe::              default
+# Author::              Philip (flip) Kromer - Infochimps, Inc
 #
 # Copyright 2011, Philip (flip) Kromer, infochimps.com
 #
@@ -16,3 +17,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
+

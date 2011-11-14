@@ -1,7 +1,7 @@
 #
-# Author:: Doug MacEachern <dougm@vmware.com>
-# Cookbook Name:: jenkins
-# Recipe:: default
+# Cookbook Name::       jenkins
+# Recipe::              server
+# Author::              Doug MacEachern <dougm@vmware.com>
 #
 # Copyright 2010, VMware, Inc.
 #

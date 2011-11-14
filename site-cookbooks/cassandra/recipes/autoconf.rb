@@ -1,7 +1,7 @@
 #
-# Author:: Benjamin Black (<b@b3k.us>)
-# Cookbook Name:: cassandra
-# Recipe:: autoconf
+# Cookbook Name::       cassandra
+# Recipe::              autoconf
+# Author::              Benjamin Black (<b@b3k.us>)
 #
 # Copyright 2010, Benjamin Black
 #

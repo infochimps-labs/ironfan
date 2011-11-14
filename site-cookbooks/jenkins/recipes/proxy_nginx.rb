@@ -1,8 +1,7 @@
 #
-# Cookbook Name:: jenkins
-# Recipe:: proxy_nginx
-#
-# Author:: Fletcher Nichol <fnichol@nichol.ca>
+# Cookbook Name::       jenkins
+# Recipe::              proxy_nginx
+# Author::              Fletcher Nichol <fnichol@nichol.ca>
 #
 # Copyright 2011, Fletcher Nichol
 #

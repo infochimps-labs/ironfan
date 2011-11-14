@@ -1,6 +1,7 @@
 #
-# Cookbook Name:: zookeeper
-# Recipe:: default
+# Cookbook Name::       zookeeper
+# Recipe::              default
+# Author::              Chris Howe - Infochimps, Inc
 #
 # Copyright 2010, Infochimps, Inc.
 #

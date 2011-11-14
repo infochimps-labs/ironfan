@@ -1,7 +1,7 @@
 #
-# Author:: Mike Heffner (<mike@librato.com>)
-# Cookbook Name:: ec2
-# Recipe:: raid_ephemeral
+# Cookbook Name::       ec2
+# Recipe::              raid_ephemeral
+# Author::              Mike Heffner (<mike@librato.com>)
 #
 # Copyright 2011, Librato, Inc.
 #

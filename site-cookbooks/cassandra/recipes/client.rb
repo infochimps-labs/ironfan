@@ -1,7 +1,7 @@
 #
-# Author:: Benjamin Black (<b@b3k.us>)
-# Cookbook Name:: cassandra
-# Recipe:: daemon
+# Cookbook Name::       cassandra
+# Recipe::              client
+# Author::              Benjamin Black (<b@b3k.us>)
 #
 # Copyright 2010, Flip Kromer
 #

@@ -1,9 +1,7 @@
 #
-# Cookbook Name:: jenkins
-# Based on hudson
-# Recipe:: build_from_github
-#
-# Author:: Philip (flip) Kromer <flip@infochimps.com>
+# Cookbook Name::       jenkins
+# Recipe::              auth_github_oauth
+# Author::              Philip (flip) Kromer <flip@infochimps.com>
 #
 # Copyright 2010, Infochimps, Inc
 #

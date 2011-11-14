@@ -1,6 +1,7 @@
 #
-# Cookbook Name:: hadoop
-# Recipe::        tasktracker
+# Cookbook Name::       hadoop_cluster
+# Recipe::              tasktracker
+# Author::              Philip (flip) Kromer - Infochimps, Inc
 #
 # Copyright 2009, Opscode, Inc.
 #

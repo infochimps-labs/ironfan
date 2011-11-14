@@ -1,6 +1,7 @@
 #
-# Cookbook Name:: hadoop
-# Recipe:: pseudo_distributed
+# Cookbook Name::       hadoop_cluster
+# Recipe::              pseudo_distributed
+# Author::              Philip (flip) Kromer - Infochimps, Inc
 #
 # Copyright 2009, Opscode, Inc.
 #

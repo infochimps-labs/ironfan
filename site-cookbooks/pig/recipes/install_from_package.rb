@@ -1,6 +1,7 @@
 #
-# Cookbook Name:: pig
-# Recipe:: install_from_package
+# Cookbook Name::       pig
+# Recipe::              install_from_package
+# Author::              Philip (flip) Kromer - Infochimps, Inc
 #
 # Copyright 2009, Opscode, Inc.
 #

@@ -1,7 +1,7 @@
 #
-# Author:: Benjamin Black (<b@b3k.us>)
-# Cookbook Name:: cassandra
-# Recipe:: ec2snitch
+# Cookbook Name::       cassandra
+# Recipe::              ec2snitch
+# Author::              Benjamin Black (<b@b3k.us>)
 #
 # Copyright 2010, Benjamin Black
 #

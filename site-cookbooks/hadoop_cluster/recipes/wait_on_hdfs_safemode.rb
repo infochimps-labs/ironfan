@@ -1,6 +1,7 @@
 #
-# Cookbook Name:: hadoop_cluster
-# Recipe:: make_standard_hdfs_dirs
+# Cookbook Name::       hadoop_cluster
+# Recipe::              wait_on_hdfs_safemode
+# Author::              Philip (flip) Kromer - Infochimps, Inc
 #
 # Copyright 2010, Infochimps, Inc.
 #

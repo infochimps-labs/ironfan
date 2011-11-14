@@ -1,6 +1,7 @@
 #
-# Cookbook Name:: hadoop
-# Recipe::        datanode
+# Cookbook Name::       hadoop_cluster
+# Recipe::              datanode
+# Author::              Philip (flip) Kromer - Infochimps, Inc
 #
 # Copyright 2009, Opscode, Inc.
 #

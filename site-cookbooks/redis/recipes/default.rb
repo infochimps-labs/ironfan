@@ -1,7 +1,7 @@
 #
-# Author:: Benjamin Black (<b@b3k.us>)
-# Cookbook Name:: redis
-# Recipe:: default
+# Cookbook Name::       redis
+# Recipe::              default
+# Author::              Benjamin Black (<b@b3k.us>)
 #
 # Copyright 2009, Benjamin Black
 #

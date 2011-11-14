@@ -1,3 +1,13 @@
+#
+# Cookbook Name::       nfs
+# Recipe::              client
+# Author::              37signals
+#
+# Copyright 2011, 37signals
+#
+# (no license specified)
+#
+
 package "nfs-common"
 
 nfs_server_ip = provider_private_ip('nfs_server')

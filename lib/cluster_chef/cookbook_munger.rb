@@ -25,6 +25,13 @@ module CookbookMunger
   TEMPLATE_ROOT  = File.expand_path('cookbook_munger', File.dirname(__FILE__))
   COOKBOOKS_ROOT = File.expand_path('../..', File.dirname(__FILE__))
 
+
+  # ===========================================================================
+  #
+  # DummyAttribute -- holds metadata about a single cookbook attribute.
+  #
+  # named like a path: node[:pig][:home_dir] is 'pig/home_dir'
+  #
   class DummyAttribute
     attr_accessor :name
     attr_accessor :display_name
@@ -84,6 +91,14 @@ module CookbookMunger
 
   end
 
+  # ===========================================================================
+  #
+  # DummyAttributeCollection -- the cascading buckets to hold attributes
+  #
+  # This auto-vivifies: just saying `foo[:bar][:baz][:bing]` results in
+  # foo becoming
+  #     `{ :bar => { :baz => { :bing => {} } } }`
+  #
   class DummyAttributeCollection < Mash
     attr_accessor :path
 
@@ -127,6 +142,11 @@ module CookbookMunger
 
   end
 
+  # ===========================================================================
+  #
+  # CookbookComponent - shared mixin methods for Chef-DSL files (recipes,
+  #   attributes, definitions, resources, etc)
+  #
   module CookbookComponent
     attr_reader :filename
 
@@ -149,11 +169,23 @@ module CookbookMunger
     def self.included(base) base.extend ClassMethods ; end
   end
 
+  # ===========================================================================
+  #
+  # RecipeFile -- a chef recipe
+  #
   class RecipeFile
     include       CookbookComponent
 
   end
 
+
+  # ===========================================================================
+  #
+  # AttributeFile -- a chef attribute file
+  #
+  # The metadata in here will be merged with anything found in the metadata.rb
+  # file, with these winning
+  #
   class AttributeFile
     include       Chef::Mixin::FromFile
     include       CookbookComponent
@@ -185,6 +217,13 @@ module CookbookMunger
 
   end
 
+
+  # ===========================================================================
+  #
+  # CookbookMetadata -- the main deal. Unifies information from metadata.rb, the
+  # attributes/ files, the rest of the tree; produces a synthesized metadata.rb
+  # and README.md.
+  #
   class CookbookMetadata < ClusterChef::DslObject
     include       Chef::Mixin::FromFile
     attr_reader   :cookbook_type
@@ -257,7 +296,48 @@ module CookbookMunger
         :libraries   => Dir[file_in_cookbook('definitions/*.rb')  ].map{|f| File.basename(f, '.rb') },
       }
 
-      components[:attributes].each{|attrib_name| add_attribute_file(attrib_name) }
+      # components[:attributes].each{|attrib_name| add_attribute_file(attrib_name) }
+      fix_file_headers
+
+    end
+
+    def fix_file_headers
+      components[:recipes].each do |recipe_name|
+        recipe_filename = file_in_cookbook("recipes/#{recipe_name}.rb")
+        recipe_content = File.readlines(recipe_filename)
+        recipe_content.each(&:chomp!)
+
+        recipe_old_header = []
+        author_lines      = []
+        copyright_lines   = []
+        until recipe_content.first !~ /^#/ || recipe_content.empty?
+          line = recipe_content.first
+          author_lines      << "# Author::              #{$1}" if line =~ /^# Author::\s*(.*)/
+          copyright_lines   << line if line =~ /^# Copyright / && line !~ /YOUR_COMPANY_NAME/
+          recipe_old_header << recipe_content.shift
+        end
+        until recipe_content.first =~ /\S+/ || recipe_content.empty?
+          recipe_content.shift
+        end
+        copyright_lines     = ["# Copyright #{copyright_text}"]     if copyright_lines.blank?
+        author_lines        = ["# Author::              #{maintainer}"] if author_lines.blank?
+
+        new_content         = ['#']
+        new_content         << "# Cookbook Name::       #{name}"
+        new_content         << "# Recipe::              #{recipe_name}"
+        new_content         += author_lines
+        new_content         << "#"
+        new_content         += copyright_lines
+        new_content         << "#"
+        new_content         << ("# "+short_license_text.gsub(/\n/, "\n# ").gsub(/\n# \n/, "\n#\n")) << '#'
+
+        File.open(recipe_filename+'.bak', 'w') do |f|
+          f << new_content.join("\n")
+          f << "\n\n"
+          f << recipe_content.join("\n")
+          f << "\n"
+        end
+      end
     end
 
     def add_attribute_file(attrib_name)
@@ -295,12 +375,11 @@ module CookbookMunger
 
     def self.licenses
       return @licenses if @licenses
-      @licenses = YAML.load(self.load_template_file('licenses.yaml'))
+      @licenses = YAML.load(File.read(File.expand_path("licenses.yaml", CookbookMunger::TEMPLATE_ROOT)))
     end
 
     def license_info
-      return @license_info if @license_info.nil?
-      @license_info = self.class.licenses.values.detect{|lic| lic[:name] == license } || false
+      @license_info = self.class.licenses.values.detect{|lic| lic[:name] == license }
     end
 
     def short_license_text

@@ -1,6 +1,7 @@
 #
-# Cookbook Name:: redis
-# Recipe::        install_from_release
+# Cookbook Name::       redis
+# Recipe::              install_from_release
+# Author::              Benjamin Black
 #
 # Copyright 2009, Infochimps, Inc.
 #

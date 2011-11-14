@@ -1,6 +1,7 @@
 #
-# Cookbook Name:: pig
-# Recipe:: install_from_package
+# Cookbook Name::       pig
+# Recipe::              apache_plus_cloudera_best_friends_forever
+# Author::              Philip (flip) Kromer - Infochimps, Inc
 #
 # Copyright 2009, Infochimps, Inc.
 #
