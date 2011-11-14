@@ -18,7 +18,7 @@ attribute "server_tuning/ulimit/default",
   :default               => ""
 
 attribute "server_tuning/ulimit/@elasticsearch",
-  :type                  => "hash",
-  :default               => {:nofile=>{:both=>32768}, :nproc=>{:both=>50000}},
   :display_name          => "",
-  :description           => ""
+  :description           => "",
+  :type                  => "hash",
+  :default               => {:nofile=>{:both=>32768}, :nproc=>{:both=>50000}}

@@ -296,9 +296,8 @@ module CookbookMunger
         :libraries   => Dir[file_in_cookbook('definitions/*.rb')  ].map{|f| File.basename(f, '.rb') },
       }
 
-      # components[:attributes].each{|attrib_name| add_attribute_file(attrib_name) }
+      components[:attributes].each{|attrib_name| add_attribute_file(attrib_name) }
       fix_file_headers
-
     end
 
     def fix_file_headers
@@ -331,12 +330,12 @@ module CookbookMunger
         new_content         << "#"
         new_content         << ("# "+short_license_text.gsub(/\n/, "\n# ").gsub(/\n# \n/, "\n#\n")) << '#'
 
-        File.open(recipe_filename+'.bak', 'w') do |f|
-          f << new_content.join("\n")
-          f << "\n\n"
-          f << recipe_content.join("\n")
-          f << "\n"
-        end
+        # File.open(recipe_filename+'.bak', 'w') do |f|
+        #   f << new_content.join("\n")
+        #   f << "\n\n"
+        #   f << recipe_content.join("\n")
+        #   f << "\n"
+        # end
       end
     end
 
@@ -346,9 +345,7 @@ module CookbookMunger
       attr_file.all_attributes.attrs.each do |af_attrib|
         my_attrib = attribute(af_attrib.name)
         my_attrib.merge!(af_attrib.to_hash)
-        p [my_attrib, af_attrib]
       end
-      # puts af.all_attributes.pretty_str
       attr_file
     end
 
@@ -364,9 +361,9 @@ module CookbookMunger
 
       lint!
 
-      File.open(file_in_cookbook('metadata.rb.bak'), 'w') do |f|
-        f << render('metadata.rb')
-      end
+      # File.open(file_in_cookbook('metadata.rb.bak'), 'w') do |f|
+      #   f << render('metadata.rb')
+      # end
     end
 
     #

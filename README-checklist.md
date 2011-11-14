@@ -23,22 +23,11 @@
   
 * Recipes shouldn't repeat their service name: `hbase:master` and not `hbase:hbase_master`; `zookeeper:server` not `zookeeper:zookeeper_server`.
 
-#### Attributes
+#### Attribute Files
 
-* Attribute file named ???? (which is the prefered name?)
- 
-
-
-
-Names:
-
-* `force_distro_name`: forces the distro name (maverick, natty, etc) when the t
-* `default[:service_states][:hadoop_tasktracker]`
-
-
-* log files: named hash OR array of length 
-
-
+* The main attribute file should be named `attributes/default.rb`.
+* If there are a sizeable number of tunable attributes (hadoop, cassandra), place them in `attributes/tuneables.rb`.
+* ?? Place integration attribute *hooks* in `attributes/integration.rb` ??
 
 ## Provides Service items and their Magic Attributes
 
@@ -48,8 +37,7 @@ A *file* is the full directory and basename for a file. A *dir* is a directory w
 
 #### Application
 
-* **log_files**, **log_dirs**:  
-  - auto-discovery:     `log_file` or `xx_log_file`; `log_dir`, `xx_log_dir`, `log_dirs` or `xx_log_dirs`.
+* **log_file**, **log_dir**, **xx_log_file**, **xx_log_dir**:
   - default:        
     - if the log files will always be trivial in size, put them in `/var/log/:cookbook.log` or `/var/log/:cookbook/(whatever)`.
     - if it's a runit-managed service, leave them in `/etc/sv/:cookbook-:component/log/main/current`, and make a symlink from `/var/log/:cookbook-component` to `/etc/sv/:cookbook-:component/log/main/`.
@@ -58,7 +46,6 @@ A *file* is the full directory and basename for a file. A *dir* is a directory w
     - in all cases, the directory is named `.../log`, not `.../logs`. Also, never put things in `/tmp`.
     - Use the physical location for the `log_dir` attribute, not the /var/log symlink.
 * **tmp_dir**:   
-  - auto-discovery:     `tmp_dir`, `tmp_dirs`.
   - default:            `/:scratch_root/:cookbook/tmp/`
 * **conf_dir**: 
   - default:            `/etc/:cookbook/conf`
@@ -75,16 +62,17 @@ A *file* is the full directory and basename for a file. A *dir* is a directory w
   - default:            `:scratch_root/:cookbook/:component/scratch`
   - instead of:         `commitlog_dir`  
 
-* **src_dir**: location of the compressed tarball, its expanded contents, and the compiled files when installing from source. Use this when you will run `make install` or equivalent and use the files elsewhere.
+* **home_dir**: Logical location for the system's code.
+  - default: typically, leave it up to the package maintainer. Otherwise, `/usr/local/share/:cookbook` should be a symlink to the `install_dir` (see below).
+  - instead of:         `xx_home` / `dir` alone / `install_dir`
+* **install_dir**: The system's code, in case the home dir is a pointer to potential alternates.
+  - default: `/usr/local/share/:cookbook-:version`
+  - Make `home_dir` a symlink to this directory (eg home_dir `/usr/local/share/elasticsearch` links to install_dir `/usr/local/share/elasticsearch-0.17.8`).
+  - Use this only if the code runs from this directory -- if you don't need the directory after the cookbook runs, use `src_dir` instead.
+* **src_dir**: holds the compressed tarball, its expanded contents, and the compiled files when installing from source. Use this when you will run `make install` or equivalent and use the files elsewhere.
   - default:            `/usr/local/src/package_name-version`, eg `/usr/local/src/pig-0.9.tar.gz` leading to `/usr/local/src/pig-0.9/`
   - do not:             expand the tarball to `/usr/local/src/(whatever)` if it will actually be used from there; instead, use the `home_dir` convention described below. (As a guideline, I should be able to blow away `/usr/local/src` and everything still works).
-* **home_dir**: Where the system's code resides. Typically only cookbook-level.
-  - typically, leave it up to the package maintainer.
-  - if installed directly:
-    - put it physically in `/usr/local/share/:cookbook-:version`, but don't refer to this directory directly (eg `/usr/local/share/elasticsearch-0.17.8/`)
-    - make a symlink `/usr/local/share/:cookbook` pointing to it, and use that as the `home_dir` (eg `/usr/local/share/elasticsearch => /usr/local/share/elasticsearch-0.17.8`).
-  - instead of:         `xx_home` / `dir` alone / `install_dir`
-* **deploy_dir**: Used for deployed code that follows the capistrano convention. See more about deploy variables below.
+* **deploy_dir**: deployed code that follows the capistrano convention. See more about deploy variables below.
   - the `:deploy_dir/shared` directory holds common files
   - releases are checked out to `:deploy_dir/releases/{sha}`
   - the operational release is a symlink to the right release: `:deploy_dir/current -> :deploy_dir/releases/xxx`.
@@ -105,13 +93,13 @@ A *file* is the full directory and basename for a file. A *dir* is a directory w
   - instead of          username, group_name, using uid for user name or vice versa.
   - if there are multiple users, use a prefix: `launcher_user` and `observer_user`.
 
-### Deploy Aspects
+### Install / Deploy Aspects
 
 * **version**:          if it's a simply-versioned resource that uses the `major.minor.patch-cruft` convention. Do not use unless this is true, and do not use the source control revision ID here.
 
-* **package_url_root**: URL for the package. Glue the **package_url** together using the version
-  - instead of:         install_url, package_url_base, being careless about partial vs whole URLs
-* **package_file**:     Where to put the package.
+* **release_url**:      URL for the release.
+  - instead of:         install_url, package_url, being careless about partial vs whole URLs
+* **release_file**:     Where to put the package.
   - default:            `/usr/local/src/package_file-version.ext`, eg `/usr/local/src/elasticsearch-0.17.8.tar.bz2`. 
   - don't use `/tmp` -- let me decide when to blow it away (and be idempotent with the install).
   - don't use a non-versioned URL or file name.
@@ -132,20 +120,17 @@ A *file* is the full directory and basename for a file. A *dir* is a directory w
 
 ### Ports 
 
-This needs some more thinking. 
-
-
-* **ports**: hash of 
-  - auto-discovery:     `port` or `xx_port`: `ssl_port`, `thrift_port`, `web_port`, `webui_port`, `zookeeper_port`, `carbon_port` and `whisper_port`.
-  - need some way to signal if it binds to any address besides the `local_ip`.
-  - port or xx_port:
+* **xx_port**:
+  - *don't* use 'port' on its own.
+  - examples: `thrift_port`, `webui_port`, `zookeeper_port`, `carbon_port` and `whisper_port`.
+  - xx_port:
     - [:port]      =  5000  becomes :ports => {:port => "5000"}
-  - ports or xx_ports, if an array:
+  - xx_ports, if an array:
     - [:ports]     = [5000, 5001, 5002] becomes :ports => {:port_00 => "5000", :port_01 => "5000", :port_02 => "5000"}
     - [:foo_ports] = [5000, 5001, 5002] becomes :ports => {:foo_00 => "5000", :foo_01 => "5000", :foo_02 => "5000"}
-  - We always refer to `port`. If you need CIDR-style references you're on your own.
 
-* **host**: 
+* **addr**, **xx_addr**
+  - if all ports bind to the same interface, use `addr`. Otherwise, do *not* use `addr`, and use a unique `foo_addr` for each `foo_port`.
   - instead of:         `hostname`, `binding`, `address`
 
 * Want some way to announce my port is http or https.
