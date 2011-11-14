@@ -26,7 +26,7 @@ Settings.define :supports,         :default => %w[debian ubuntu]
 
 module CookbookMunger
   TEMPLATE_ROOT  = File.expand_path('cookbook_munger', File.dirname(__FILE__))
-  COOKBOOKS_ROOT = File.expand_path('../..', File.dirname(__FILE__))
+  COOKBOOKS_ROOT = File.expand_path('../../site-cookbooks', File.dirname(__FILE__))
 
   class DummyAttribute
     attr_accessor :name
@@ -112,31 +112,56 @@ module CookbookMunger
 
   end
 
-  class AttributeFile < ClusterChef::DslObject
-    include       Chef::Mixin::FromFile
-    attr_reader   :all_attributes, :filename
+  module CookbookComponent
+    attr_reader :filename
 
-    def initialize(filename)
-      @all_attributes = DummyAttributeCollection.new
+    def initialize(filename, *args, &block)
+      super(*args, &block)
       @filename = filename
-    end
-
-    def default
-      all_attributes
     end
 
     def read!
       from_file(filename)
     end
+
+    module ClassMethods
+      def self.read(filename)
+        attr_file = self.new(filename)
+        attr_file.read!
+      end
+    end
+    def self.included(base) base.class_eval{ include ClassMethods } ; end
   end
 
-  class MetadataFile < ClusterChef::DslObject
-    include       Chef::Mixin::FromFile
-    has_keys      :author, :maintainer, :maintainer_email, :license, :version, :description, :long_desc_gen
-    attr_reader   :all_depends, :all_recipes, :all_attributes, :all_resources, :all_supports
+  class RecipeFile
+    include       CookbookComponent
 
-    def initialize(*args, &block)
+  end
+
+  class AttributeFile < ClusterChef::DslObject
+    include       Chef::Mixin::FromFile
+    include       CookbookComponent
+    attr_reader   :all_attributes
+
+    def initialize(filename)
+      super(filename)
+      @all_attributes = DummyAttributeCollection.new
+    end
+
+    def default
+      all_attributes
+    end
+  end
+
+  class CookbookMetadata < ClusterChef::DslObject
+    include       Chef::Mixin::FromFile
+    has_keys      :name, :author, :maintainer, :maintainer_email, :license, :version, :description, :long_desc_gen
+    attr_reader   :all_depends, :all_recipes, :all_attributes, :all_resources, :all_supports
+    attr_reader   :components
+
+    def initialize(nm, *args, &block)
       super(*args, &block)
+      name(nm)
       @attribute_files  = []
       @all_attributes   = CookbookMunger::DummyAttributeCollection.new
       @all_depends    ||= {}
@@ -154,7 +179,7 @@ module CookbookMunger
     # add supported OS to list
     def supports(nm)          @all_supports << nm ;     end
     # add recipe to list
-    def recipe(nm, desc)      @all_recipes[nm] = { :name => nm, :description => desc } ;   end
+    def recipe(nm, desc)      @all_recipes[nm]   = { :name => nm, :description => desc } ;   end
     # add resource to list
     def resource(nm, desc)    @all_resources[nm] = { :name => nm, :description => desc } ;   end
     # fake long description -- we ignore it anyway
@@ -169,9 +194,24 @@ module CookbookMunger
       attr_branch[leaf] = CookbookMunger::DummyAttribute.new(nm, info)
     end
 
+    #
+    # Read project
+    #
+
+    def file_in_cookbook(filename)
+      File.expand_path("#{name}/#{filename}", CookbookMunger::COOKBOOKS_ROOT)
+    end
+
+    def load_components
+      from_file(file_in_cookbook("metadata.rb"))
+
+      @components = {
+        :recipes => Dir[file_in_cookbook('recipes/*.rb')].map{|f| File.basename(f, '.rb') }
+      }
+    end
+
     def add_attribute_file(filename)
-      attr_file = CookbookMunger::AttributeFile.new(filename)
-      attr_file.read!
+      attr_file = CookbookMunger::AttributeFile.read(filename)
       attribute_files << attr_file
     end
 
@@ -200,15 +240,6 @@ module CookbookMunger
     # Display
     #
 
-    def to_hash
-      super.merge({
-          :all_depends    => all_depends,
-          :all_recipes    => all_recipes,
-          :all_attributes => all_attributes,
-          :all_supports   => all_supports,
-        })
-    end
-
     def render
       self.class.template.result(self.send(:binding))
     end
@@ -219,21 +250,17 @@ module CookbookMunger
 
     def self.template
       return @template if @template
-      # template_text = load_template_file('metadata.rb.erb')
-      template_text   = load_template_file('README.md.erb')
+      template_text = load_template_file('metadata.rb.erb')
+      # template_text   = load_template_file('README.md.erb')
       @template = Erubis::Eruby.new(template_text)
     end
   end
 
-  metadata_file = MetadataFile.new(Settings.merge(
-      :description => 'hi'
-      ))
-
-  metadata_file.from_file( File.expand_path('site-cookbooks/zenoss/metadata.rb', CookbookMunger::COOKBOOKS_ROOT))
-
+  metadata_file = CookbookMetadata.new('zenoss', Settings.dup)
+  metadata_file.load_components
   puts metadata_file.render
 
-  # attr_file = CookbookMunger::AttributeFile.new(File.expand_path('site-cookbooks/pig/attributes/default.rb', CookbookMunger::COOKBOOKS_ROOT))
+  # attr_file = CookbookMunger::AttributeFile.new(File.expand_path('site-pig/attributes/default.rb', CookbookMunger::COOKBOOKS_ROOT))
   # attr_file.read!
   # puts attr_file.all_attributes.pretty_str
 

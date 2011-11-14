@@ -1,9 +1,19 @@
-maintainer       "Infochimps Org"
+maintainer       "Infochimps, Inc"
 maintainer_email "coders@infochimps.org"
 license          "Apache 2.0"
+long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
+version          "3.0.0"
+
 description      "Installs/Configures pig"
-long_description IO.read(File.join(File.dirname(__FILE__), 'README.textile'))
-version          "0.1"
 
 depends           "hadoop_cluster"
 depends           "install_from"
+
+%w{ debian ubuntu }.each do |os|
+  supports os
+end
+
+attribute "pig/home_dir",
+  :display_name => ".",
+  :description  => ".",
+  :default      => ""
