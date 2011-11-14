@@ -1,35 +1,6 @@
 # Checklist for cookbooks, clusters and roles
-  
-## Cookbooks
-
-* Dependencies are in metadata.rb, and include_recipe in the `default` recipe 
-  - especially: `runit`, `java`, `cluster_service_discrovery`, `thrift`, `apt`
-  - **include_recipe** is only used if putting it in the role would be utterly un-interesting. You *want* the run to break unless it's explicitly included the role. 
-  - *yes*: `java`, `ruby`, `provides_service`, etc.
-  - *no*:  `zookeeper:client`, `nfs:server`, or anything that will start a daemon
-
-
-* **attributes files**: If there is only one, name it 'default'. If there are externally-interesting tunable parameters, name it 'tunables'. If attributes may be interesting to other cookbooks, they are referred to as `include_atttributes 'cookbook::filename'`, or plain `include_atttributes 'cookbook'` when the file is named 'default.rb'. (Attributes are otherwise loaded in alphabetical order across all machines).
-
-* (*see TODO*) Does `provides_service` uniformly handle referring to a foreign cluster for the service?
-
-#### Recipes
-
-* Naming:
-  - foo/default    -- information shared by anyone using foo, including support packages, directories
-  - foo/client     -- configure me as a foo client 
-  - foo/server     -- configure me as a foo server
-  - foo/aws_config -- cloud-specific settings
-  
-* Recipes shouldn't repeat their service name: `hbase:master` and not `hbase:hbase_master`; `zookeeper:server` not `zookeeper:zookeeper_server`.
-
-#### Attribute Files
-
-* The main attribute file should be named `attributes/default.rb`.
-* If there are a sizeable number of tunable attributes (hadoop, cassandra), place them in `attributes/tuneables.rb`.
-* ?? Place integration attribute *hooks* in `attributes/integration.rb` ??
-
-## Provides Service items and their Magic Attributes
+ 
+## Naming Attributes
 
 ### File and Dir Aspects
 
@@ -139,13 +110,39 @@ A *file* is the full directory and basename for a file. A *dir* is a directory w
 ### Application Integration
 
 * **jmx_port**
-* **Java options**: `XX_java_heap_max`, `java_heap_min`, `java_home`, `java_heap_eden`, `java_opts`
-* **tunables**
 
-#### Jars
+### Tunables
 
-`i_can_haz_jars '/usr/lib/pig/pig.jar', '/usr/lib/pig/pig-nohadoop.jar'`
+* **XX_heap_max**, **xx_heap_min**, **java_heap_eden**
+* **java_home** 
+* AVOID **java_opts** if possible: assemble it in your recipe from intelligible attribute names.
 
+
+## Cookbooks
+
+* Dependencies are in metadata.rb, and include_recipe in the `default` recipe 
+  - especially: `runit`, `java`, `cluster_service_discrovery`, `thrift`, `apt`
+  - **include_recipe** is only used if putting it in the role would be utterly un-interesting. You *want* the run to break unless it's explicitly included the role. 
+  - *yes*: `java`, `ruby`, `provides_service`, etc.
+  - *no*:  `zookeeper:client`, `nfs:server`, or anything that will start a daemon
+
+* (*see TODO*) Does `provides_service` uniformly handle referring to a foreign cluster for the service?
+
+#### Recipes
+
+* Naming:
+  - foo/default    -- information shared by anyone using foo, including support packages, directories
+  - foo/client     -- configure me as a foo client 
+  - foo/server     -- configure me as a foo server
+  - foo/aws_config -- cloud-specific settings
+  
+* Recipes shouldn't repeat their service name: `hbase:master` and not `hbase:hbase_master`; `zookeeper:server` not `zookeeper:zookeeper_server`.
+
+#### Attribute Files
+
+* The main attribute file should be named `attributes/default.rb`.
+* If there are a sizeable number of tunable attributes (hadoop, cassandra), place them in `attributes/tuneables.rb`.
+* ?? Place integration attribute *hooks* in `attributes/integration.rb` ??
 
 ## Integrations
 
@@ -155,11 +152,9 @@ A *file* is the full directory and basename for a file. A *dir* is a directory w
 
 ### i_haz_a_port '8080', :itz => :http
 
+#### Jars
 
-
-
-
-
+`i_can_haz_jars '/usr/lib/pig/pig.jar', '/usr/lib/pig/pig-nohadoop.jar'`
 
 
 ## Clusters
