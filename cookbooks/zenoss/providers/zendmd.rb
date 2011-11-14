@@ -87,3 +87,37 @@ action :system do
     action :run
   end
 end
+
+action :users do
+  command = ""
+  new_resource.users.each do |user|
+    userid = user.id
+    if user.has_key?("zenoss")
+      password = user['zenoss']['password']
+      pager = user['zenoss']['pager']
+      email = user['zenoss']['email']
+      roles = user['zenoss']['roles']
+      user_groups = user['zenoss']['user_groups']
+    end
+    command += "dmd.ZenUsers.manage_addUser('#{userid}'"
+    command += ", '#{password}'" if password
+    command += ", email='#{email}'" if email
+    command += ", pager='#{pager}'" if pager
+    if roles and (roles.length > 0)
+      command += ", roles=("
+      roles.each {|r| command += "'#{r}',"}
+      command += ")"
+    end
+    command += ")\n"
+    if user_groups and (user_groups.length > 0)
+      user_groups.each {|g| command += "dmd.ZenUsers.manage_addGroup('#{g}')\n"}
+      command += "dmd.ZenUsers.manage_addUsersToGroups('#{userid}', ("
+      user_groups.each {|g| command += "'#{g}',"}
+      command += "))\n"
+    end
+  end
+  zenoss_zendmd "Creating users and user groups" do
+    command command
+    action :run
+  end
+end

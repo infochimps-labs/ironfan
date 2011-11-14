@@ -19,6 +19,7 @@
 # limitations under the License.
 #
 
+include_recipe "openssh"
 include_recipe "apt"
 
 # Zenoss apt repository
@@ -64,7 +65,7 @@ service "zenoss" do
   end
 end
 
-#skip the new install Wizard. This is now in zope somewhere
+#skip the new install Wizard.
 zenoss_zendmd "skip setup wizard" do
   command "dmd._rq = True"
   action :run
@@ -76,11 +77,11 @@ zenoss_zendmd "set admin pass" do
   action :run
 end
 
-#walk the 'users' databag and pull out users and groups for creation
-#sort out password, whether 1-time or unset
-sysadmins = search(:zenoss_users, 'groups:sysadmin')
-#dmd.ZenUsers.manage_addUser(userid=<string>, password=<string>, roles=('ZenUser','ZenManager'))
-#dmd.ZenUsers.getUserSettings(user.getId()).email = <string>
+#search the 'users' databag and pull out sysadmins for users and groups
+zenoss_zendmd "add users" do
+  users search(:users, 'groups:sysadmin') || []
+  action :users
+end
 
 #put public key in an attribute
 ruby_block "zenoss public key" do
@@ -88,6 +89,10 @@ ruby_block "zenoss public key" do
     pubkey = IO.read("/home/zenoss/.ssh/id_dsa.pub")
     node.set["zenoss"]["server"]["zenoss_pubkey"] = pubkey
     node.save
+    #write out the authorized_keys for the zenoss user
+    ak = File.new("/home/zenoss/.ssh/authorized_keys", "w+")
+    ak.puts pubkey
+    ak.chown(File.stat("/home/zenoss/.ssh/id_dsa.pub").uid,File.stat("/home/zenoss/.ssh/id_dsa.pub").gid)
   end
   action :nothing
 end
@@ -99,15 +104,6 @@ execute "ssh-keygen -q -t dsa -f /home/zenoss/.ssh/id_dsa -N \"\" " do
   not_if {File.exists?("/home/zenoss/.ssh/id_dsa.pub")}
   notifies :create, resources(:ruby_block => "zenoss public key"), :immediate
 end
-
-#write out the authorized_keys for the zenoss user as well!!!
-#check if authorized_keys doesn't exist and doesn't already have the pub_key
-#     pubkey = IO.read("/home/zenoss/.ssh/id_dsa.pub")
-# execute "cat /home/zenoss/.ssh/id_dsa.pub >> /home/zenoss/.ssh/authorized_keys" do
-#   user "zenoss"
-#   action :run
-#   not_if {File.exists?("/home/zenoss/.ssh/id_dsa.pub")}
-# end
   
 #this list should get appended by other recipes
 node["zenoss"]["server"]["installed_zenpacks"].each do |package, zpversion| 

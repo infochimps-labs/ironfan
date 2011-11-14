@@ -2,7 +2,7 @@ Description
 ===========
 WORK IN PROGRESS, TODO.txt covers planned features
 
-Installs and configures a Zenoss server with the `zenoss::server` recipe. Devices can be added to the Zenoss server by using the `zenoss::client` recipe and utilizing Chef roles to map to Zenoss Device Classes, Locations and Groups. LWRPs are available for installing ZenPacks, zenpatches, loading devices and running zendmd commands.
+Installs and configures a Zenoss server with the `zenoss::server` recipe. Devices can be added to the Zenoss server by using the `zenoss::client` recipe and utilizing Chef roles to map to Zenoss Device Classes, Locations and Groups. LWRPs are available for installing ZenPacks, zenpatches, loading devices and users and running zendmd commands.
 
 Requirements
 ============
@@ -73,28 +73,30 @@ The recipe does the following:
 8. Creates Device Classes, Groups and Locations based on Chef roles containing custom settings.
 9. Adds Systems to the server based on which recipes are used within Chef.
 10. Adds itself to be monitored.
-11. Searches for members of the sysadmins group by searching through 'users' data bag and adds them to a list for notification/contacts.
+11. Searches for members of the `sysadmins` group by searching through `users` data bag and adds them to the server.
 12. Finds all nodes implementing `zenoss::client` and adds them for monitoring and places them in the proper Device Classes, Groups, Systems and Locations and any node-specific settings as well.
-
 
 Data Bags
 =========
-Create a `users` data bag that will contain the users that will be able to log into the Zenoss server (admin is automatically provided). Zenoss-specific information is stored in "zenoss". Passwords may be set to be reset on login. Multiple roles may be set, the choices with Zenoss Core are Manager, ZenManager, Zenuser or empty. Users may belong to User Groups within Zenoss (listing them here will create them). Users that should be able to log in should be in the sysadmin group. Example user data bag item:
+Create a `users` data bag that will contain the users that will be able to log into the Zenoss server (members of the 'sysadmin' group). The admin user is automatically provided. Zenoss-specific information is stored in the `zenoss` hash. Passwords may be set or left out. Multiple roles may be set; the choices with Zenoss Core are Manager, ZenManager, ZenUser or empty. Users may belong to User Groups within Zenoss (listing them here will create them). Example user data bag item:
 
     {
-    "id": "joeadmin",
+    "id": "zenossadmin",
+    "groups": "sysadmin",
     "zenoss": {
-      "password": "",
-      "roles": "Manager",
-      "user_groups": "sysadmin",
-      "pager": "nagiosadmin_pager@example.com",
-      "email": "nagiosadmin@example.com"
+      "password": "abc",
+      "roles": ["Manager", "ZenUser"],
+      "user_groups": ["managers"],
+      "pager": "zpager@example.com",
+      "email": "zemail@example.com"
       }
     }
 
-An example data bag is provided and may be loaded like this:
+Two example data bags are provided and may be loaded like this:
 
-    knife data bag from file cookbooks/zenoss/data_bags/Zenoss_Users.rb
+    knife data bag create users
+    knife data bag from file users cookbooks/zenoss/data_bags/Zenoss_User.json
+    knife data bag from file users cookbooks/zenoss/data_bags/Zenoss_Readonly_User.json
 
 Roles
 =====
