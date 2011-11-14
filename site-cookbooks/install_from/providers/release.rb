@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: install_from
-# Provider::      install_from_package
+# Provider::      install_from_release
 #
 # Copyright 2011, Infochimps, Inc.
 #
@@ -23,7 +23,7 @@
 # Given a project 'pig', with url 'http://apache.org/pig/pig-0.8.0.tar.gz', and
 # the default :root_dir of '/usr/local', this provider will
 #
-# * fetch  it to :package_file ('/usr/local/src/pig-0.8.0.tar.gz')
+# * fetch  it to :release_file ('/usr/local/src/pig-0.8.0.tar.gz')
 # * unpack it to :install_dir  ('/usr/local/share/pig-0.8.0')
 # * create a symlink for :home_dir ('/usr/local/share/pig') pointing to :install_dir
 # * configure the project
@@ -32,14 +32,14 @@
 
 action :download do
   new_resource.assume_defaults!
-  directory(::File.dirname(new_resource.package_file)) do
+  directory(::File.dirname(new_resource.release_file)) do
     mode      '0755'
     action    :create
     recursive true
   end
 
-  remote_file new_resource.package_file do
-    source    new_resource.package_url
+  remote_file new_resource.release_file do
+    source    new_resource.release_url
     mode      "0644"
     action    :create
     not_if{   ::File.directory?(new_resource.install_dir) }
@@ -54,10 +54,10 @@ action :unpack do
     recursive true
   end
 
-  bash "unpack #{new_resource.name} package" do
+  bash "unpack #{new_resource.name} release" do
     user      new_resource.user
     cwd       ::File.dirname(new_resource.install_dir)
-    code      "#{new_resource.unpackage_cmd} '#{new_resource.package_file}'"
+    code      "#{new_resource.unrelease_cmd} '#{new_resource.release_file}'"
     not_if{   ::File.directory?(new_resource.install_dir) }
   end
 

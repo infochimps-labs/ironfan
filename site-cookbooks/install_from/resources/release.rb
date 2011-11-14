@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: install_from
-# Resource::      package
+# Resource::      release
 #
 # Author:: Philip (flip) Kromer <flip@infochimps.com>
 #
@@ -26,18 +26,18 @@ actions( :download, :unpack, :configure, :build, :install,
   )
 
 attribute :name,          :name_attribute => true
-attribute :package_url,   :kind_of => String, :required => true
+attribute :release_url,   :kind_of => String, :required => true
 
 # Prefix directory -- other _dir attributes hang off this by default
 attribute :root_dir,      :kind_of => String, :default  => '/usr/local'
-# Directory for the unpackaged contents,   eg /usr/local/share/pig-0.8.0
+# Directory for the unreleased contents,   eg /usr/local/share/pig-0.8.0
 attribute :install_dir,   :kind_of => String
 # Directory as the project is referred to, eg /usr/local/share/pig
 attribute :home_dir,      :kind_of => String
-# Directory for the package file, eg /usr/local/src
-attribute :package_file,  :kind_of => String
-# Command to unpackage project
-attribute :unpackage_cmd, :kind_of => String
+# Directory for the release file, eg /usr/local/src
+attribute :release_file,  :kind_of => String
+# Command to expand project
+attribute :expand_cmd, :kind_of => String
 # User to run as
 attribute :user,          :kind_of => String, :default => 'root'
 
@@ -48,19 +48,19 @@ end
 
 def assume_defaults!
   # eg 'pig-0.8.0' and 'tar.gz' given 'http://apache.org/pig/pig-0.8.0.tar.gz'
-  ::File.basename(package_url) =~ %r{^(.+?)(?:-bin)?\.(tar\.gz|tar\.bz2|zip)$}
-  package_basename, package_ext = [$1, $2]
+  ::File.basename(release_url) =~ %r{^(.+?)(?:-bin)?\.(tar\.gz|tar\.bz2|zip)$}
+  release_basename, release_ext = [$1, $2]
 
-  Chef::Log.info( [self, package_basename, package_ext, self.to_hash, package_url, root_dir ].inspect )
+  Chef::Log.info( [self, release_basename, release_ext, self.to_hash, release_url, root_dir ].inspect )
 
-  @install_dir   ||= ::File.join(root_dir, 'share', package_basename)
+  @install_dir   ||= ::File.join(root_dir, 'share', release_basename)
   @home_dir      ||= ::File.join(root_dir, 'share', name)
-  @package_file  ||= ::File.join(root_dir, 'src', ::File.basename(package_url))
-  @unpackage_cmd ||=
-    case package_ext
+  @release_file  ||= ::File.join(root_dir, 'src', ::File.basename(release_url))
+  @expand_cmd ||=
+    case release_ext
     when 'tar.gz'  then 'tar xzf'
     when 'tar.bz2' then 'tar xjf'
     when 'zip' then 'unzip'
-    else raise "Don't know how to unpackage #{package_url} which has extension '#{package_ext}'"
+    else raise "Don't know how to expand #{release_url} which has extension '#{release_ext}'"
     end
 end

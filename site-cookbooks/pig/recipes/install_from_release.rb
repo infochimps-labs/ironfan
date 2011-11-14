@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: pig
-# Recipe:: install_from_package
+# Recipe:: install_from_release
 #
 # Copyright 2009, Infochimps, Inc.
 #
@@ -30,10 +30,11 @@ package "sun-java6-jdk"
 package "sun-java6-bin"
 package "sun-java6-jre"
 
-install_from_java('pig') do
-  package_url node[:pig][:install_url]
+install_from_release('pig') do
+  release_url node[:pig][:install_url]
   home_dir    node[:pig][:home_dir]
-  action      :install
+  action      :build_with_ant, :install
+  environment('JAVA_HOME' => node[:pig][:java_home]) if node[:pig][:java_home]
   not_if{ ::File.exists?("#{node[:pig][:home_dir]}/pig.jar") }
 end
 
