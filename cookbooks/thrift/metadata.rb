@@ -9,6 +9,6 @@ recipe "thrift", "Installs thrift from source"
 
 supports "ubuntu"
 
-%w{ build-essential boost python }.each do |cb|
-  depends cb
-end
+depends 'build-essential'
+depends 'boost'
+depends 'python'

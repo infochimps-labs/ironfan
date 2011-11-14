@@ -11,3 +11,18 @@ description      "Installs/Configures ec2-specific capabilites"
 %w[ debian ubuntu ].each do |os|
   supports os
 end
+
+attribute "ec2/raid_level",
+  :default               => "0",
+  :display_name          => "",
+  :description           => ""
+
+attribute "ec2/raid_read_ahead",
+  :default               => "65536",
+  :display_name          => "",
+  :description           => ""
+
+attribute "ec2/raid_mount",
+  :default               => "/raid0",
+  :display_name          => "",
+  :description           => ""

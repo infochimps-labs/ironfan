@@ -29,7 +29,6 @@ service "#{node[:hadoop][:hadoop_handle]}-secondarynamenode" do
   ignore_failure true
 end
 
-# register with cluster_service_discovery
 provide_service ("#{node[:cluster_name]}-secondarynamenode")
 
 dfs_2nn_dirs.each do |dir|

@@ -36,10 +36,16 @@ module CookbookMunger
     attr_accessor :recipes
     attr_accessor :default
 
-    def initialize(name, opts={})
+    def initialize(name, hsh={})
       self.name = name
-      opts.each do |key, val|
-        self.send("#{key}=", val)
+      merge!(hsh)
+      @display_name ||= ''
+      @description  ||= ''
+    end
+
+    def merge!(hsh)
+      hsh.each do |key, val|
+        self.send("#{key}=", val) unless val.blank?
       end
     end
 
@@ -51,27 +57,31 @@ module CookbookMunger
       name.split("/").map{|s| "[:#{s}]" }.join
     end
 
+    def keys
+      [:display_name, :description, :choice, :calculated, :type, :required, :recipes, :default]
+    end
+
     def to_hash
-      {
-        :display_name => display_name,
-        :description  => description,
-        :choice       => choice,
-        :calculated   => calculated,
-        :type         => type,
-        :required     => required,
-        :recipes      => recipes,
-        :default      => default,
-      }
+      hsh = {}
+      keys.each do |key|
+        hsh[key] = self.send(key) if instance_variable_defined?("@#{key}")
+      end
+      case hsh[:default]
+      when Symbol, Numeric, TrueClass, NilClass, FalseClass then hsh[:default] = hsh[:default].to_s
+      when Hash            then hsh[:type] ||= 'hash'
+      when Array           then hsh[:type] ||= 'array'
+      end
+      hsh
     end
 
     def pretty_str
       str = [ %Q{attribute "#{name}"} ]
       to_hash.each do |key, val|
-        next if val.blank? && [:default, :type, :choice, :calculated, :required, :recipes].include?(key)
         str << ("  :%-21s => %s" % [ key, val.inspect ])
       end
       str.flatten.join(",\n")
     end
+
   end
 
   class DummyAttributeCollection < Mash
@@ -130,12 +140,13 @@ module CookbookMunger
     end
 
     module ClassMethods
-      def self.read(filename)
+      def read(filename)
         attr_file = self.new(filename)
         attr_file.read!
+        attr_file
       end
     end
-    def self.included(base) base.class_eval{ include ClassMethods } ; end
+    def self.included(base) base.extend ClassMethods ; end
   end
 
   class RecipeFile
@@ -143,7 +154,7 @@ module CookbookMunger
 
   end
 
-  class AttributeFile < ClusterChef::DslObject
+  class AttributeFile
     include       Chef::Mixin::FromFile
     include       CookbookComponent
     attr_reader   :all_attributes
@@ -156,6 +167,22 @@ module CookbookMunger
     def default
       all_attributes
     end
+    def set
+      all_attributes
+    end
+    def node
+      { :platform     => 'ubuntu',   :platform_version => '10.4',
+        :hostname     => 'hostname',
+        :cpu          => {:total => 2 }, :memory => { :total => 2 },
+        :kernel       => {:os => '', :release => '', :machine => '' ,},
+        :cluster_name => :cluster_name,
+        :ec2          => { :instance_type => 'm1.large', },
+        :jenkins      => { :server => { :user => 'jenkins' } },
+        :redis        => { :slave => 'no' },
+        :cloud        => { :private_ips => ['10.20.30.40'] }
+      }
+    end
+
   end
 
   class CookbookMetadata < ClusterChef::DslObject
@@ -163,7 +190,7 @@ module CookbookMunger
     attr_reader   :cookbook_type
     has_keys      :name, :author, :maintainer, :maintainer_email, :license, :version, :description, :long_desc_gen
     attr_reader   :all_depends, :all_recipes, :all_attributes, :all_resources, :all_supports
-    attr_reader   :components
+    attr_reader   :components, :attribute_files
 
     # also: grouping, conflicts, provides, replaces, recommends, suggests
 
@@ -174,7 +201,7 @@ module CookbookMunger
       super(*args, &block)
       name(nm)
       @cookbook_type    = cookbook_type
-      @attribute_files  = []
+      @attribute_files  = {}
       @all_attributes   = CookbookMunger::DummyAttributeCollection.new
       @all_depends    ||= {}
       @all_recipes    ||= {}
@@ -198,13 +225,15 @@ module CookbookMunger
     def long_description(val) @long_description = val end
 
     # add attribute to list
-    def attribute(nm, info)
-      return if info[:type] == 'hash'
+    def attribute(nm, info={})
       path_segs = nm.split("/")
       leaf      = path_segs.pop
       attr_branch = @all_attributes
       path_segs.each{|seg| attr_branch = attr_branch[seg] }
-      attr_branch[leaf] = CookbookMunger::DummyAttribute.new(nm, info)
+      if info.present? || (not attr_branch.has_key?(leaf))
+        attr_branch[leaf] = CookbookMunger::DummyAttribute.new(nm, info)
+      end
+      attr_branch[leaf]
     end
 
     #
@@ -219,13 +248,28 @@ module CookbookMunger
       from_file(file_in_cookbook("metadata.rb"))
 
       @components = {
-        :recipes => Dir[file_in_cookbook('recipes/*.rb')].map{|f| File.basename(f, '.rb') }
+        :attributes  => Dir[file_in_cookbook('attributes/*.rb')   ].map{|f| File.basename(f, '.rb') },
+        :recipes     => Dir[file_in_cookbook('recipes/*.rb')      ].map{|f| File.basename(f, '.rb') },
+        :resources   => Dir[file_in_cookbook('resources/*.rb')    ].map{|f| File.basename(f, '.rb') },
+        :providers   => Dir[file_in_cookbook('providers/*.rb')    ].map{|f| File.basename(f, '.rb') },
+        :templates   => Dir[file_in_cookbook('templates/**/*.rb') ].map{|f| File.join(File.basename(File.dirname(f)), File.basename(f, '.rb')) },
+        :definitions => Dir[file_in_cookbook('definitions/*.rb')  ].map{|f| File.basename(f, '.rb') },
+        :libraries   => Dir[file_in_cookbook('definitions/*.rb')  ].map{|f| File.basename(f, '.rb') },
       }
+
+      components[:attributes].each{|attrib_name| add_attribute_file(attrib_name) }
     end
 
-    def add_attribute_file(filename)
-      attr_file = CookbookMunger::AttributeFile.read(filename)
-      attribute_files << attr_file
+    def add_attribute_file(attrib_name)
+      attr_file = AttributeFile.read(file_in_cookbook("attributes/#{attrib_name}.rb"))
+      self.attribute_files[attrib_name] = attr_file
+      attr_file.all_attributes.attrs.each do |af_attrib|
+        my_attrib = attribute(af_attrib.name)
+        my_attrib.merge!(af_attrib.to_hash)
+        p [my_attrib, af_attrib]
+      end
+      # puts af.all_attributes.pretty_str
+      attr_file
     end
 
     def lint!

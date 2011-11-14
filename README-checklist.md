@@ -5,13 +5,13 @@
 * Dependencies are in metadata.rb, and include_recipe in the `default` recipe 
   - especially: `runit`, `java`, `cluster_service_discrovery`, `thrift`, `apt`
   - **include_recipe** is only used if putting it in the role would be utterly un-interesting. You *want* the run to break unless it's explicitly included the role. 
-  - *yes*: `java`, `ruby`, `cluster_service_discovery`, etc.
+  - *yes*: `java`, `ruby`, `provides_service`, etc.
   - *no*:  `zookeeper:client`, `nfs:server`, or anything that will start a daemon
 
 
 * **attributes files**: If there is only one, name it 'default'. If there are externally-interesting tunable parameters, name it 'tunables'. If attributes may be interesting to other cookbooks, they are referred to as `include_atttributes 'cookbook::filename'`, or plain `include_atttributes 'cookbook'` when the file is named 'default.rb'. (Attributes are otherwise loaded in alphabetical order across all machines).
 
-* (*see TODO*) Does `cluster_service_discovery` uniformly handle referring to a foreign cluster for the service?
+* (*see TODO*) Does `provides_service` uniformly handle referring to a foreign cluster for the service?
 
 #### Recipes
 

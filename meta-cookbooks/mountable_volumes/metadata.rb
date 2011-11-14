@@ -13,3 +13,13 @@ depends          "xfs"
 %w[ debian ubuntu ].each do |os|
   supports os
 end
+
+attribute "mountable_volumes/aws_credential_source",
+  :default               => "data_bag",
+  :display_name          => "",
+  :description           => ""
+
+attribute "mountable_volumes/aws_credential_handle",
+  :default               => "main",
+  :display_name          => "",
+  :description           => ""

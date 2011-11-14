@@ -12,3 +12,48 @@ depends          "java"
 %w[ debian ubuntu ].each do |os|
   supports os
 end
+
+attribute "flume/cluster_name",
+  :default               => "cluster_name",
+  :display_name          => "",
+  :description           => ""
+
+attribute "flume/plugins",
+  :display_name          => "",
+  :description           => "",
+  :default               => ""
+
+attribute "flume/classes",
+  :display_name          => "",
+  :description           => "",
+  :default               => ""
+
+attribute "flume/classpath",
+  :display_name          => "",
+  :description           => "",
+  :default               => ""
+
+attribute "flume/java_opts",
+  :display_name          => "",
+  :description           => "",
+  :default               => ""
+
+attribute "flume/collector",
+  :display_name          => "",
+  :description           => "",
+  :default               => ""
+
+attribute "flume/data_dir",
+  :default               => "/data/db/flume",
+  :display_name          => "",
+  :description           => ""
+
+attribute "flume/master/external_zookeeper",
+  :display_name          => "",
+  :description           => "",
+  :default               => ""
+
+attribute "flume/master/zookeeper_port",
+  :default               => "2181",
+  :display_name          => "",
+  :description           => ""

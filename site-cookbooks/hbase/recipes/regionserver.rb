@@ -19,5 +19,4 @@ service "hadoop-hbase-regionserver" do
   supports :status => true, :restart => true
 end
 
-# register with cluster_service_discovery
 provide_service ("#{node[:hbase][:cluster_name]}-hbase-regionserver")

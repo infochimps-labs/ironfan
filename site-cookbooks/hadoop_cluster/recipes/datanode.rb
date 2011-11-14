@@ -29,5 +29,4 @@ service "#{node[:hadoop][:hadoop_handle]}-datanode" do
   ignore_failure true
 end
 
-# register with cluster_service_discovery
 provide_service ("#{node[:cluster_name]}-datanode")

@@ -2,7 +2,7 @@
 # default[:cluster_size] = 5
 
 # The "cassandra" data bag "clusters" item defines keyspaces for the cluster named here:
- default[:cassandra][:cluster_name]                  = node[:cluster_name] || "Test"
+default[:cassandra][:cluster_name]                  = node[:cluster_name] || "Test"
 
 #
 # Make a databag called 'cassandra', with an element 'clusters'.

@@ -9,7 +9,7 @@
 
 * dirs are fucked up under natty beause paths are /dev/xvdi not /dev/sdi
 
-### cluster_service_discovery
+### provides_service
 
 * should let me concisely refer to another cluster for a service (or use the current server)
 * Wait for service to announce
@@ -45,7 +45,7 @@ Cluster chef currently consists of the following separate(able) concerns:
   - the knife commands which use that DSL
   - optional bootstrap scripts for a machine image that can then launch bootstrap-less
 * **cluster-oriented cookbooks**
-  - `cluster_service_discovery` (recipes to let clusters discover services using chef-server's search)
+  - `provides_service` (recipes to let clusters discover services using chef-server's search)
   - ?others?
 * **cloud utility cookbooks**
   - motd, system_internals (swappiness, ulimit, etc)
@@ -66,7 +66,7 @@ Proposed:
 
 * `cluster_chef` holds only the DSL, knife commands, and bootstrap scripts -- basically the stuff in `lib/`, along with the gemspec etc.
 * `cluster_chef-systems` -- holds cookbooks, roles and example clusters that use them. 
-  - Utility cookbooks (`cluster_service_discovery`, motd, etc) and system cookbooks(hadoop, cassandra, etc) are housed in two separate folders. 
+  - Utility cookbooks (`provides_service`, motd, etc) and system cookbooks(hadoop, cassandra, etc) are housed in two separate folders. 
   - The standard layout would just include the cookbooks, but a cluster-oriented approach demands that the roles travel along too
 * (possibly) `cluster_chef-chef-repo` (??better name, anyone??) -- a fork of https://github.com/opscode/chef-repo that integrates the above
 
@@ -107,7 +107,7 @@ Revised proposal:
   vendor/
     opscode/cookbooks/      # git submodule of https://github.com/opscode/cookbooks
     cluster_chef-systems/   # git submodule of https://github.com/infochimps/cluster_chef-systems
-      site-cookbooks/         # hadoop, cassandra, cluster_service_discovery, etc.
+      site-cookbooks/         # hadoop, cassandra, provides_service, etc.
       roles/
       examples/
         clusters/           # example clusters

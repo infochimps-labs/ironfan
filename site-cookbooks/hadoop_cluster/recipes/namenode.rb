@@ -29,7 +29,6 @@ service "#{node[:hadoop][:hadoop_handle]}-namenode" do
   ignore_failure true
 end
 
-# register with cluster_service_discovery
 provide_service ("#{node[:cluster_name]}-namenode")
 
 dfs_name_dirs.each do |dir|

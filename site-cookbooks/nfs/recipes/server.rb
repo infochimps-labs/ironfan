@@ -1,6 +1,6 @@
 package "nfs-kernel-server"
 
-if node[:nfs] && node[:nfs][:exports]
+if node[:nfs][:exports]
   provide_service('nfs_server', node[:nfs][:exports].to_hash)
 
   service "nfs-kernel-server" do

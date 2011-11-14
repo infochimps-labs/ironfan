@@ -6,9 +6,20 @@ version          "3.0.0"
 
 description      "Configures NFS"
 
-depends          "cluster_service_discovery"
+depends          "provides_service"
 
 
 %w[ debian ubuntu ].each do |os|
   supports os
 end
+
+attribute "nfs/exports",
+  :display_name          => "",
+  :description           => "",
+  :default               => ""
+
+attribute "nfs/mounts",
+  :type                  => "array",
+  :default               => [["/home", {:owner=>"root", :remote_path=>"/home"}]],
+  :display_name          => "",
+  :description           => ""

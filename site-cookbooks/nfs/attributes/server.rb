@@ -1,6 +1,5 @@
-nfs Mash.new unless attribute?(:nfs)
-nfs[:exports] = Mash.new unless nfs.has_key?(:exports)
+default[:nfs][:exports] = Mash.new
 
-nfs[:mounts] = [
+default[:nfs][:mounts] = [
   ['/home', { :owner => 'root', :remote_path => "/home" } ],
 ]

@@ -32,7 +32,7 @@ attribute "redis/pidfile",
 attribute "redis/logfile",
   :display_name          => "Redis log file path",
   :description           => "Path to the log file when daemonized.  The default is /var/log/redis.log.",
-  :default               => "/var/log/redis.log"
+  :default               => "/var/log/redis/redis.log"
 
 attribute "redis/dbdir",
   :display_name          => "Redis database directory",
@@ -57,7 +57,8 @@ attribute "redis/glueoutputbuf",
 attribute "redis/saves",
   :display_name          => "Redis disk persistence policies",
   :description           => "An array of arrays of time, changed objects policies for persisting data to disk.  The default is [[900, 1], [300, 10], [60, 10000]].",
-  :default               => "[[900, 1], [300, 10], [60, 10000]]"
+  :type                  => "array",
+  :default               => [["900", "1"], ["300", "10"], ["60", "10000"]]
 
 attribute "redis/slave",
   :display_name          => "Redis replication slave",
@@ -83,3 +84,18 @@ attribute "redis/shareobjectspoolsize",
   :display_name          => "Redis shared object pool size",
   :description           => "The size of the pool for object sharing.  The default is 1024.",
   :default               => "1024"
+
+attribute "redis/home_dir",
+  :default               => "/usr/local/share/redis",
+  :display_name          => "",
+  :description           => ""
+
+attribute "redis/install_url",
+  :default               => "http://redis.googlecode.com/files/redis-2.0.2.tar.gz",
+  :display_name          => "",
+  :description           => ""
+
+attribute "redis/shareobjects",
+  :default               => "no",
+  :display_name          => "",
+  :description           => ""

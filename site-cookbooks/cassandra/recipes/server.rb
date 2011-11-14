@@ -40,7 +40,7 @@ template "/etc/cassandra/log4j-server.properties" do
 end
 
 # have some fraction of the nodes register as a seed with
-# cluster_service_discovery
+# provides_service
 if node[:facet_index].nil? ||
     (node[:facet_index].to_i % 3 == 0) ||
     node[:cassandra][:seed_node]

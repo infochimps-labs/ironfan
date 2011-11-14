@@ -290,8 +290,8 @@ Symlink in the cookbooks you'll need, and upload them to your chef server:
 
 ```ruby
         cd $CHEF_REPO_DIR/cookbooks
-        ln -s         ../cluster_chef/site-cookbooks/{nfs,big_package,cluster_chef,cluster_service_discovery,firewall,motd}         .
-        knife cookbook upload nfs big_package cluster_chef cluster_service_discovery firewall motd
+        ln -s         ../cluster_chef/site-cookbooks/{nfs,big_package,cluster_chef,provides_service,firewall,motd}         .
+        knife cookbook upload nfs big_package cluster_chef provides_service firewall motd
 ```
 
 #### AWS credentials

@@ -11,3 +11,8 @@ description      "A bunch of fun packages"
 %w[ debian ubuntu ].each do |os|
   supports os
 end
+
+attribute "ruby/version",
+  :default               => "1.8",
+  :display_name          => "",
+  :description           => ""

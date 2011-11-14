@@ -11,7 +11,7 @@ nohup.out
 .#*
 *~
 *.sw[a-z]
-.bak
+*.bak
 REVISION
 TAGS*
 tmtags

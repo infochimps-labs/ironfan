@@ -24,7 +24,7 @@ We recommend you set up your
     │   │   └── cookbooks               - git submodule of https://github.com/opscode/cookbooks
     │   │  
     │   └── cluster_chef                - git submodule of https://github.com/infochimps/cluster_chef
-    │       ├── site-cookbooks          - systems:     hadoop, cassandra, cluster_service_discovery, etc.
+    │       ├── site-cookbooks          - systems:     hadoop, cassandra, provides_service, etc.
     │       ├── integration-cookbooks   - integration: connects systems together
     │       ├── meta-cookbooks          - utilities:   provides_service, system_params, can_haz
     │       │  

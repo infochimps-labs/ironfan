@@ -11,3 +11,14 @@ description      "Installs/Configures cluster_chef"
 %w[ debian ubuntu ].each do |os|
   supports os
 end
+
+attribute "server_tuning/ulimit/default",
+  :display_name          => "",
+  :description           => "",
+  :default               => ""
+
+attribute "server_tuning/ulimit/@elasticsearch",
+  :type                  => "hash",
+  :default               => {:nofile=>{:both=>32768}, :nproc=>{:both=>50000}},
+  :display_name          => "",
+  :description           => ""

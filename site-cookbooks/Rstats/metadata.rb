@@ -12,3 +12,8 @@ recipe           "Rstats",             "Installs the base R package, a ruby inte
 %w[ debian ubuntu ].each do |os|
   supports os
 end
+
+attribute "Rstats/cran_mirror_url",
+  :default               => "http://cran.us.r-project.org",
+  :display_name          => "",
+  :description           => ""

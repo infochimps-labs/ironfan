@@ -12,3 +12,23 @@ depends          "python"
 %w[ debian ubuntu ].each do |os|
   supports os
 end
+
+attribute "nodejs/git_uri",
+  :default               => "https://github.com/joyent/node.git",
+  :display_name          => "",
+  :description           => ""
+
+attribute "nodejs/jobs",
+  :default               => "2",
+  :display_name          => "",
+  :description           => ""
+
+attribute "nodejs/src_path",
+  :default               => "/usr/src/nodejs",
+  :display_name          => "",
+  :description           => ""
+
+attribute "nodejs/bin_path",
+  :default               => "/usr/local/bin/node",
+  :display_name          => "",
+  :description           => ""
