@@ -19,7 +19,7 @@ A *file* is the full directory and basename for a file. A *dir* is a directory w
 * **tmp_dir**:   
   - default:            `/:scratch_root/:cookbook/tmp/`
 * **conf_dir**: 
-  - default:            `/etc/:cookbook/conf`
+  - default:            `/etc/:cookbook`
 * **pid_file**, **pid_dir**: 
   - default:            pid_file: `/var/run/:cookbook.pid` or `/var/run/:cookbook/:component.pid`; pid_dir: `/var/run/:cookbook/`
   - instead of:         `job_dir`, `job_file`, `pidfile`, `run_dir`.
