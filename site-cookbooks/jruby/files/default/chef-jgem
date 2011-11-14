@@ -1,8 +1,10 @@
 #!/usr/lib/jruby/bin/jruby -S
 
-# This is basicaly the same as the stock version of jgem, except that it runs jruby with the -S option.
-# The overall effect is that this version of the script is suitable for use as the "gem-binary" option
-# on gem_package resources in chef.
+# This is basicaly the same as the stock version of jgem, except that it runs
+# jruby with the -S option.  The overall effect is that this version of the
+# script is suitable for use as the "gem-binary" option on gem_package resources
+# in chef.
+#
 #--
 # Copyright 2006 by Chad Fowler, Rich Kilmer, Jim Weirich and others.
 # All rights reserved.
@@ -26,4 +28,3 @@ begin
 rescue Gem::SystemExitException => e
   exit e.exit_code
 end
-

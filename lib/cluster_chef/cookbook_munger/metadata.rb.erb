@@ -14,7 +14,7 @@ depends          <%= dep %>
 recipe           <%= "%-21s" % "\"#{nm}\"," %> "<%= recipe[:description] %>"
 <%- end -%>
 
-%w{ <%= all_supports.join(" ") %> }.each do |os|
+%w[ <%= all_supports.join(" ") %> ].each do |os|
   supports os
 end
 <%- all_attributes.attrs.each do |attrib| %>

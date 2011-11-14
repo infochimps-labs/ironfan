@@ -15,14 +15,11 @@ $:.unshift File.expand_path('..', File.dirname(__FILE__))
 require 'cluster_chef/dsl_object'
 
 
-Settings.define :author,           :default => "Philip (flip) Kromer"
-Settings.define :maintainer,       :default => "Infochimps, Inc"
-Settings.define :maintainer_email, :default => "coders@infochimps.org"
+Settings.define :maintainer,       :default => "Philip (flip) Kromer - Infochimps, Inc"
+Settings.define :maintainer_email, :default => "coders@infochimps.com"
 Settings.define :license,          :default => "Apache 2.0"
 Settings.define :long_desc_gen,    :default => %Q{IO.read(File.join(File.dirname(__FILE__), 'README.md'))}
 Settings.define :version,          :default => "3.0.0"
-Settings.define :supports,         :default => %w[debian ubuntu]
-
 
 module CookbookMunger
   TEMPLATE_ROOT  = File.expand_path('cookbook_munger', File.dirname(__FILE__))
@@ -32,8 +29,12 @@ module CookbookMunger
     attr_accessor :name
     attr_accessor :display_name
     attr_accessor :description
-    attr_accessor :default
+    attr_accessor :choice
+    attr_accessor :calculated
     attr_accessor :type
+    attr_accessor :required
+    attr_accessor :recipes
+    attr_accessor :default
 
     def initialize(name, opts={})
       self.name = name
@@ -54,15 +55,19 @@ module CookbookMunger
       {
         :display_name => display_name,
         :description  => description,
-        :default      => default,
+        :choice       => choice,
+        :calculated   => calculated,
         :type         => type,
+        :required     => required,
+        :recipes      => recipes,
+        :default      => default,
       }
     end
 
     def pretty_str
       str = [ %Q{attribute "#{name}"} ]
       to_hash.each do |key, val|
-        next if val.blank? && [:default, :type].include?(key)
+        next if val.blank? && [:default, :type, :choice, :calculated, :required, :recipes].include?(key)
         str << ("  :%-21s => %s" % [ key, val.inspect ])
       end
       str.flatten.join(",\n")
@@ -160,6 +165,11 @@ module CookbookMunger
     attr_reader   :all_depends, :all_recipes, :all_attributes, :all_resources, :all_supports
     attr_reader   :components
 
+    # also: grouping, conflicts, provides, replaces, recommends, suggests
+
+    # definition: provides "here(:kitty, :time_to_eat)"
+    # resource:   provides "service[snuggle]"
+
     def initialize(cookbook_type, nm, *args, &block)
       super(*args, &block)
       name(nm)
@@ -218,8 +228,18 @@ module CookbookMunger
       attribute_files << attr_file
     end
 
+    def lint!
+      # Settings.each do |attr, sval|
+      #   my_val = self.send(attr) rescue nil
+      #   warn([name, attr, sval, my_val ]) unless sval == my_val
+      # end
+    end
+
     def dump
       load_components
+
+      lint!
+
       File.open(file_in_cookbook('metadata-out.rb'), 'w') do |f|
         f << render('metadata.rb')
       end
@@ -262,7 +282,7 @@ module CookbookMunger
   end
 
   [:meta, :site].each do |cookbook_type|
-    Dir[CookbookMunger::COOKBOOKS_ROOT+"/#{cookbook_type}-cookbooks/*"].map{|f| File.basename(f) }.each do |nm|
+    Dir[CookbookMunger::COOKBOOKS_ROOT+"/#{cookbook_type}-cookbooks/*/metadata.rb"].map{|f| File.basename(File.dirname(f)) }.each do |nm|
       puts nm
       cookbook_metadata = CookbookMetadata.new(cookbook_type, nm, Settings.dup)
       cookbook_metadata.dump
