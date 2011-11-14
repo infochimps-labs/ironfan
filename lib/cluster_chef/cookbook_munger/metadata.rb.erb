@@ -1,0 +1,23 @@
+maintainer       "<%= maintainer %>"
+maintainer_email "<%= maintainer_email %>"
+license          "<%= license %>"
+long_description <%= long_desc_gen %>
+version          "<%= version %>"
+
+description      "<%= description %>"
+
+<%- all_depends.each do |nm, dep| %>
+depends          <%= dep %>
+<%- end %>
+
+<%- all_recipes.each do |nm, recipe| %>
+recipe           <%= "%-21s" % "\"#{nm}\"," %> "<%= recipe[:description] %>"
+<%- end %>
+
+%w{ <%= all_supports.join(" ") %> }.each do |os|
+  supports os
+end
+<%- all_attributes.attrs.each do |attrib| %>
+
+<%= attrib.pretty_str %>
+<%- end %>

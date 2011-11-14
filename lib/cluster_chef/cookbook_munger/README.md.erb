@@ -1,0 +1,34 @@
+## Description
+
+<%= description %>
+
+## Requirements
+
+
+## Attributes
+
+<%- all_attributes.attrs.each do |attrib| %>
+* <%= "%-45s" % ('`'+attrib.bracketed_name+'`') %> - <%= attrib.description %>
+  <%- if attrib.default.is_a?(String) || attrib.default.is_a?(Symbol) %>
+  - default: <%= attrib.default.inspect %>
+  <%- end %>
+<%- end %>
+
+<%- if all_recipes.present? %>
+## Recipes 
+
+<%- end %>
+<%- if all_resources.present? %>
+## Resources / Providers
+
+<%- end %>
+
+## Usage
+
+
+## License and Author
+
+Author::                <%= maintainer %> <<%= maintainer_email %>>
+Copyright::             <%= copyright_text %>
+
+<%= short_license_text %>
