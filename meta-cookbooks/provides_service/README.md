@@ -1,13 +1,10 @@
 
-ClusterServiceDiscovery --
+## ClusterServiceDiscovery --
 
-Since there's no good way to do this yet, let's at least put an abstraction in
-place.
+Based in good part on code from Ben Black's cassandra recipes
 
 Allow nodes to discover the location for a given service at runtime, adapting
 when new services register.
-
-Based in good part on code from Ben Black's cassandra recipes
 
 Operations:
 
