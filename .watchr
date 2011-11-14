@@ -11,6 +11,14 @@ def run_spec(file)
   puts
 end
 
+watch('lib/cluster_chef/cookbook_munger\.rb') do |match|
+  system match[0]
+end
+
+watch('lib/cluster_chef/cookbook_munger/.*\.erb') do |match|
+  system 'lib/cluster_chef/cookbook_munger.rb'
+end
+
 watch("spec/.*/*_spec\.rb") do |match|
   run_spec match[0]
 end

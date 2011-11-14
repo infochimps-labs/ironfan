@@ -19,4 +19,5 @@ group :development do
   gem 'rspec',     "~> 2.5.0"
   gem 'spork',     "~> 0.9.0.rc5"
   gem 'watchr'
+  gem 'configliere'
 end

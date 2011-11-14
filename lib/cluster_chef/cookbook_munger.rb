@@ -240,7 +240,7 @@ module CookbookMunger
 
       lint!
 
-      File.open(file_in_cookbook('metadata-out.rb'), 'w') do |f|
+      File.open(file_in_cookbook('metadata.rb.bak'), 'w') do |f|
         f << render('metadata.rb')
       end
     end
