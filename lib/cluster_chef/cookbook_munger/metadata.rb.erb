@@ -1,18 +1,18 @@
-maintainer       "<%= maintainer %>"
-maintainer_email "<%= maintainer_email %>"
-license          "<%= license %>"
+maintainer       <%= maintainer.inspect %>
+maintainer_email <%= maintainer_email.inspect %>
+license          <%= license.inspect %>
 long_description <%= long_desc_gen %>
-version          "<%= version %>"
+version          <%= version.inspect %>
 
-description      "<%= description %>"
+description      <%= description.inspect %>
 
-<%- all_depends.each do |nm, dep| %>
+<%- all_depends.each do |nm, dep| -%>
 depends          <%= dep %>
-<%- end %>
+<%- end -%>
 
-<%- all_recipes.each do |nm, recipe| %>
+<%- all_recipes.each do |nm, recipe| -%>
 recipe           <%= "%-21s" % "\"#{nm}\"," %> "<%= recipe[:description] %>"
-<%- end %>
+<%- end -%>
 
 %w{ <%= all_supports.join(" ") %> }.each do |os|
   supports os
@@ -21,5 +21,3 @@ end
 
 <%= attrib.pretty_str %>
 <%- end %>
-
-<%= components.inspect %>

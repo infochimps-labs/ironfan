@@ -26,7 +26,7 @@ Settings.define :supports,         :default => %w[debian ubuntu]
 
 module CookbookMunger
   TEMPLATE_ROOT  = File.expand_path('cookbook_munger', File.dirname(__FILE__))
-  COOKBOOKS_ROOT = File.expand_path('../../site-cookbooks', File.dirname(__FILE__))
+  COOKBOOKS_ROOT = File.expand_path('../..', File.dirname(__FILE__))
 
   class DummyAttribute
     attr_accessor :name
@@ -155,19 +155,21 @@ module CookbookMunger
 
   class CookbookMetadata < ClusterChef::DslObject
     include       Chef::Mixin::FromFile
+    attr_reader   :cookbook_type
     has_keys      :name, :author, :maintainer, :maintainer_email, :license, :version, :description, :long_desc_gen
     attr_reader   :all_depends, :all_recipes, :all_attributes, :all_resources, :all_supports
     attr_reader   :components
 
-    def initialize(nm, *args, &block)
+    def initialize(cookbook_type, nm, *args, &block)
       super(*args, &block)
       name(nm)
+      @cookbook_type    = cookbook_type
       @attribute_files  = []
       @all_attributes   = CookbookMunger::DummyAttributeCollection.new
       @all_depends    ||= {}
       @all_recipes    ||= {}
       @all_resources  ||= {}
-      @all_supports   ||= []
+      @all_supports   ||= %w[ debian ubuntu ]
     end
 
     #
@@ -177,7 +179,7 @@ module CookbookMunger
     # add dependency to list
     def depends(nm, ver=nil)  @all_depends[nm] = (ver ? %Q{"#{nm}", "#{ver}"} : %Q{"#{nm}"} ) ; end
     # add supported OS to list
-    def supports(nm)          @all_supports << nm ;     end
+    def supports(nm)          @all_supports << nm ; @all_supports.uniq! ; @all_supports ; end
     # add recipe to list
     def recipe(nm, desc)      @all_recipes[nm]   = { :name => nm, :description => desc } ;   end
     # add resource to list
@@ -187,6 +189,7 @@ module CookbookMunger
 
     # add attribute to list
     def attribute(nm, info)
+      return if info[:type] == 'hash'
       path_segs = nm.split("/")
       leaf      = path_segs.pop
       attr_branch = @all_attributes
@@ -199,7 +202,7 @@ module CookbookMunger
     #
 
     def file_in_cookbook(filename)
-      File.expand_path("#{name}/#{filename}", CookbookMunger::COOKBOOKS_ROOT)
+      File.expand_path("#{cookbook_type}-cookbooks/#{name}/#{filename}", CookbookMunger::COOKBOOKS_ROOT)
     end
 
     def load_components
@@ -215,6 +218,13 @@ module CookbookMunger
       attribute_files << attr_file
     end
 
+    def dump
+      load_components
+      File.open(file_in_cookbook('metadata-out.rb'), 'w') do |f|
+        f << render('metadata.rb')
+      end
+    end
+
     #
     # Content
     #
@@ -225,11 +235,12 @@ module CookbookMunger
     end
 
     def license_info
-      @license_info ||= self.class.licenses.values.detect{|lic| lic[:name] == license }
+      return @license_info if @license_info.nil?
+      @license_info = self.class.licenses.values.detect{|lic| lic[:name] == license } || false
     end
 
     def short_license_text
-      license_info[:short]
+      license_info ? license_info[:short] : '(no license specified)'
     end
 
     def copyright_text
@@ -240,30 +251,28 @@ module CookbookMunger
     # Display
     #
 
-    def render
-      self.class.template.result(self.send(:binding))
+    def render(filename)
+      self.class.template(filename).result(self.send(:binding))
     end
 
-    def self.load_template_file(filename)
-      File.read(File.expand_path(filename, CookbookMunger::TEMPLATE_ROOT))
-    end
-
-    def self.template
-      return @template if @template
-      template_text = load_template_file('metadata.rb.erb')
-      # template_text   = load_template_file('README.md.erb')
-      @template = Erubis::Eruby.new(template_text)
+    def self.template(filename)
+      template_text = File.read(File.expand_path("#{filename}.erb", CookbookMunger::TEMPLATE_ROOT))
+      Erubis::Eruby.new(template_text)
     end
   end
 
-  metadata_file = CookbookMetadata.new('zenoss', Settings.dup)
-  metadata_file.load_components
-  puts metadata_file.render
+  [:meta, :site].each do |cookbook_type|
+    Dir[CookbookMunger::COOKBOOKS_ROOT+"/#{cookbook_type}-cookbooks/*"].map{|f| File.basename(f) }.each do |nm|
+      puts nm
+      cookbook_metadata = CookbookMetadata.new(cookbook_type, nm, Settings.dup)
+      cookbook_metadata.dump
+    end
+  end
 
   # attr_file = CookbookMunger::AttributeFile.new(File.expand_path('site-pig/attributes/default.rb', CookbookMunger::COOKBOOKS_ROOT))
   # attr_file.read!
   # puts attr_file.all_attributes.pretty_str
 
-  # p metadata_file.all_attributes
+  # p cookbook_metadata.all_attributes
   # puts Time.now
 end
