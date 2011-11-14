@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-if platform?("centos", "redhat", "fedora")
+if platform?("redhat", "centos", "scientific", "fedora")
   package "mod_ssl" do
     action :install
     notifies :run, resources(:execute => "generate-module-list"), :immediately
@@ -33,8 +33,9 @@ ports = node[:apache][:listen_ports].include?("443") ? node[:apache][:listen_por
 
 template "#{node[:apache][:dir]}/ports.conf" do
   source "ports.conf.erb"
-  variables :apache_listen_ports => ports
+  variables :apache_listen_ports => ports.map{|p| p.to_i}.uniq
   notifies :restart, resources(:service => "apache2")
+  mode 0644
 end
 
 apache_module "ssl" do

@@ -18,15 +18,7 @@ LockFile logs/accept.lock
 # PidFile: The file in which the server should record its process
 # identification number when it starts.
 #
-<% if node[:platform] == "debian" || node[:platform] == "ubuntu" -%>
-PidFile /var/run/apache2.pid
-<% elsif node[:platform] == "centos" || node[:platform] == "redhat" || node[:platform] == "fedora" -%>
-PidFile /var/run/httpd.pid
-<% elsif node[:platform] == "arch" -%>
-PidFile /var/run/httpd/httpd.pid
-<% else -%>
-PidFile logs/httpd.pid
-<% end -%>
+PidFile <%= node[:apache][:pid_file] %>
 
 #
 # Timeout: The number of seconds before receives and sends time out.
@@ -88,7 +80,7 @@ KeepAliveTimeout <%= node[:apache][:keepalivetimeout] %>
 </IfModule>
 
 User <%= node[:apache][:user] %>
-Group <%= node[:apache][:user] %>
+Group <%= node[:apache][:group] %>
 
 #
 # AccessFileName: The name of the file to look for in each directory

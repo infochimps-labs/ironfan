@@ -16,31 +16,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
+version = node['thrift']['version']
+
 include_recipe "build-essential"
 include_recipe "boost"
-include_recipe "java"
-include_recipe "subversion"
+include_recipe "python"
 
 %w{ flex bison libtool autoconf pkg-config }.each do |pkg|
   package pkg
 end
 
-if node[:platform] == "ubuntu"
-  %w{ libssl-dev python-dev }.each do |pkg|
-    package pkg
-  end
+remote_file "#{Chef::Config[:file_cache_path]}/thrift-0.6.0.tar.gz" do
+  source "#{node['thrift']['mirror']}/thrift/#{version}/thrift-#{version}.tar.gz"
+  checksum node['thrift']['checksum']
 end
 
 bash "install_thrift" do
-  user "root"
-  cwd "/tmp"
+  cwd Chef::Config[:file_cache_path]
   code <<-EOH
-    svn co #{node[:thrift][:repo_url]}/#{node[:thrift][:repo_rel]} thrift
-    cd thrift;
-    cp /usr/share/aclocal/pkg.m4 ./aclocal
-    sh bootstrap.sh
-    ./configure --with-boost=/usr/local --with-libevent=/usr/local --prefix=/usr/local --with-erlang=no
-    make install
+    (tar -zxvf thrift-#{version}.tar.gz)
+    (cd thrift-#{version} && ./configure #{node['thrift']['configure_options'].join(' ')})
+    (cd thrift-#{version} && make install)
   EOH
   not_if { FileTest.exists?("/usr/local/bin/thrift") }
 end

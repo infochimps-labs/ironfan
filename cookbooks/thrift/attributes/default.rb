@@ -1,8 +1,8 @@
 #
 # Cookbook Name:: thrift
-# Attribute File:: thrift
+# Attributes:: default
 #
-# Copyright 2011, Infochimps, Inc.
+# Copyright 2011, Opscode, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,5 +17,7 @@
 # limitations under the License.
 #
 
-default[:thrift][:repo_url] = 'http://svn.apache.org/repos/asf/thrift'
-default[:thrift][:repo_rel] = 'branches/0.6.x'
+default['thrift']['version']  = '0.6.0'
+default['thrift']['mirror']   = 'http://apache.mirrors.tds.net'
+default['thrift']['checksum'] = 'c1a282de4d24c772cdf62ab110cf24937fd3c42d807e9cfd49d77c1488c0b7c5'
+default['thrift']['configure_options'] = []

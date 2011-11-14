@@ -1,33 +1,28 @@
-= DESCRIPTION:
+Description
+====
 
-Installs Thrift from source.
+Provide a library method to generate secure random passwords in recipes.
 
-= REQUIREMENTS:
+Requirements
+====
 
-== Platform:
+Works on any platform with OpenSSL Ruby bindings installed, which are a requirement for Chef anyway.
 
-Only tested on Ubuntu 9.04.
+Usage
+====
 
-== Cookbooks:
+Most often this will be used to generate a secure password for an attribute.
 
-Opscode cookbooks:
+    include Opscode::OpenSSL::Password
 
-* build-essential
-* java
-* subversion
-* boost
+    set_unless[:my_password] = secure_password
 
-= USAGE:
-
-Include the Thrift recipe to install Thrift from source on your systems.
-
-  include_recipe "thrift"
-
-= LICENSE and AUTHOR:
-
+License and Author
+====
 
 Author:: Joshua Timberman (<joshua@opscode.com>)
-Copyright:: 2009, Opscode, Inc.
+
+Copyright:: 2009-2011, Opscode, Inc
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
