@@ -1,3 +1,6 @@
+# Put files/directories that should be ignored in this file.
+# Lines that start with '# ' are comments.
+
 ## OS
 .DS_Store
 Icon?
@@ -7,7 +10,7 @@ nohup.out
 \#*
 .#*
 *~
-*.swp
+*.sw[a-z]
 .bak
 REVISION
 TAGS*
@@ -26,24 +29,6 @@ a.out
 *.so
 
 ## OTHER SCM
-.bzr
-.hg
-.svn
-
-## PROJECT::GENERAL
-coverage
-rdoc
-doc
-pkg
-.yardoc
-
-## PROJECT::SPECIFIC
-.rvmrc
-.vendor
-.bundle
-Gemfile.lock
-
-.rake_test_cache
-metadata.json
-.chef
-*.pem
+*/.bzr/*
+*/.hg/*
+*/.svn/*
