@@ -26,6 +26,7 @@ Wouldn't it be nice if
 
 If you make those aspects standardized and predictable, you can decorate each aspect with decoupled *concerns*, such as logging, monitoring, dashboarding and discovery. The key is to make integration *inevitable*. No more forgetting to rotate or monitor a service, or having a config change over here screw up an integration over there.
 
+
 __________________________________________________________________________
 
 Attributes are scoped by *cookbook* and then by *component*.
@@ -82,15 +83,7 @@ If things are simple, you get magic: declare `i_haz_a_service_itz(:jenkins, :nod
 
 #### Names:
 
-* Names for cookbooks and components must only consist of `a-z0-9_`. Do not use capital letters or dashes.
-* Don't repeat the cookbook name in the component name: `hbase` cookbook should have a `regionserver` component, not an `hbase_regionserver` component.
-
-#### Do nots:
-
 * don't use the term `XX_path`. Use `xx_root` if it is only a base to house other named items, `xx_dir` if the directory serves a purpose (even if it is also a base for other named items).
-
-
-
 
 default[:flume][:cluster_name]
 

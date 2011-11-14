@@ -1,6 +1,55 @@
 # Checklist for cookbooks, clusters and roles
+
+Ordinary cookbooks describe a single system, consisting of one or more components. For example, the `redis` cookbook has a `server` component (with a daemon and moving parts), and a `client` component (which is static).
+
+You should crisply separate cookbook-wide concerns from component concerns. The server's attributes live in `node[:redis][:server]`, it is installed by the `redis::server` cookbook, and so forth.
+  
+You should also separate system configuration from multi-system integration. Cookbooks should provide hooks that are neighborly but not exhibitionist, and otherwise mind their own business. The `hadoop_cluster` cookbook describes hadoop, the `pig` cookbook pig, and the `zookeeper` cookbook zookeeper. The job of tying those components together (copying zookeeper jars into the pig home dir, or the port+addr of hadoop daemons) should be isolated.
+
+## Cookbooks
+
+### Recipes
+
+* Naming:
+  - foo/default    -- information shared by anyone using foo, including support packages, directories
+  - foo/client     -- configure me as a foo client 
+  - foo/server     -- configure me as a foo server
+  - foo/aws_config -- cloud-specific settings
+* *DO NOT* install daemons via the default cookbook, even if that's currently the only thing it does. Remember, a node that is a client -- or refers to any current or future component of the system -- will include the default recipe.
+* Do not repeat the cookbook name in a recipe title: `hbase:master`, not `hbase:hbase_master`; `zookeeper:server`, not `zookeeper:zookeeper_server`.
+* Use only `[a-z0-9_]` for cookbook and component names. Do not use capital letters or dashes. Keep names to fewer than 15 characters.
+
+### Dependencies
+
+* Dependencies should be announced in metadata.rb, of course.
+* *DO* remember to explicitly `include_recipe` for system resources -- `runit`, `java`, `provides_service`, `thrift` and `apt`.
+* *DO NOT* use `include_recipe` unless putting it in the role would be utterly un-interesting. You *want* the run to break unless it's explicitly included the role. 
+  - *yes*: `java`, `ruby`, `provides_service`, etc.
+  - *no*:  `zookeeper:client`, `nfs:server`, or anything that will start a daemon
+
+Remember: ordinary cookbooks describe systems, roles and integration cookbooks coordinate them.
+
+## Attributes
  
-## Naming Attributes
+* Scope concerns by *cookbook* or *cookbook and component*. `node[:hadoop]` holds cookbook-wide concerns, `node[:hadoop][:namenode]` holds component-specific concerns.
+* Attributes shared by all components sit at cookbook level, and are always named for the cookbook: `node[:hadoop][:log_dir]` (since it is shared by all its components).
+* Component-specific attributes sit at component level (`node[:cookbook_name][:component_name]`): eg `node[:hadoop][:namenode][:service_state]`. Do not use a prefix (NO: `node[:hadoop][:namenode_handler_count]`)
+
+#### Attribute Files
+
+* The main attribute file should be named `attributes/default.rb`.
+* If there are a sizeable number of tunable attributes (hadoop, cassandra), place them in `attributes/tuneables.rb`.
+* ?? Place integration attribute *hooks* in `attributes/integration.rb` ??
+
+* be generic when you're simple, descriptive when you're not: so, [:foosvc][:port] good, [:foosvc][:foosvc_port] (as the only one it serves) bad, [:foosvc][:dashboard_port] and [:foosvc][:client_port] good.
+
+* If you don't have exactly the semantics and datatype of the convention, don't use the convention.  That is, don't use `:port` and give it an array, or `:address` and give it an email address.
+
+* use `foo_client` when you are a client of a service: so [:rails][:mysql_client][:host] to specify the hostname of your mysql server.
+
+* There's an argument for saying "everything hadoop-related goes in /hadoop/{stuff}, and we symlink to its actual location. This way everything is the same from machine to machine". However, in this world you give up the integration hooks that being explicit gives you.  There's nothing stopping you from *also* creating those symlinks, but the core attributes (`tmp_dir`, `log_dir`, etc) should be explicit. 
+ 
+## Attribute Names
 
 ### File and Dir Aspects
 
@@ -8,35 +57,10 @@ A *file* is the full directory and basename for a file. A *dir* is a directory w
 
 #### Application
 
-* **log_file**, **log_dir**, **xx_log_file**, **xx_log_dir**:
-  - default:        
-    - if the log files will always be trivial in size, put them in `/var/log/:cookbook.log` or `/var/log/:cookbook/(whatever)`.
-    - if it's a runit-managed service, leave them in `/etc/sv/:cookbook-:component/log/main/current`, and make a symlink from `/var/log/:cookbook-component` to `/etc/sv/:cookbook-:component/log/main/`.
-    - If the log files are non-trivial in size, set log dir `/:scratch_root/:cookbook/log/`, and symlink `/var/log/:cookbook/` to it. 
-    - If the log files should be persisted, place them in `/:persistent_root/:cookbook/log`, and symlink `/var/log/:cookbook/` to it. 
-    - in all cases, the directory is named `.../log`, not `.../logs`. Also, never put things in `/tmp`.
-    - Use the physical location for the `log_dir` attribute, not the /var/log symlink.
-* **tmp_dir**:   
-  - default:            `/:scratch_root/:cookbook/tmp/`
-* **conf_dir**: 
-  - default:            `/etc/:cookbook/conf`
-* **pid_file**, **pid_dir**: 
-  - default:            pid_file: `/var/run/:cookbook.pid` or `/var/run/:cookbook/:component.pid`; pid_dir: `/var/run/:cookbook/`
-  - instead of:         `job_dir`, `job_file`, `pidfile`, `run_dir`.
-* **cache_dir**: 
-  - default:            `/var/cache/:cookbook`.
-
-* **data_dir**:
-  - default:            `:persistent_root/:cookbook/:component/data`
-  - instead of:         `datadir, `dbfile`, `dbdir`
-* **journal_dir**: high-speed local storage for commitlogs and so forth. Can be deleted, but you'd rather it wasn't.
-  - default:            `:scratch_root/:cookbook/:component/scratch`
-  - instead of:         `commitlog_dir`  
-
-* **home_dir**: Logical location for the system's code.
+* **home_dir**: Logical location for the cookbook's system code.
   - default: typically, leave it up to the package maintainer. Otherwise, `/usr/local/share/:cookbook` should be a symlink to the `install_dir` (see below).
   - instead of:         `xx_home` / `dir` alone / `install_dir`
-* **install_dir**: The system's code, in case the home dir is a pointer to potential alternates.
+* **install_dir**: The cookbook's system code, in case the home dir is a pointer to potential alternates.
   - default: `/usr/local/share/:cookbook-:version`
   - Make `home_dir` a symlink to this directory (eg home_dir `/usr/local/share/elasticsearch` links to install_dir `/usr/local/share/elasticsearch-0.17.8`).
   - Use this only if the code runs from this directory -- if you don't need the directory after the cookbook runs, use `src_dir` instead.
@@ -50,6 +74,31 @@ A *file* is the full directory and basename for a file. A *dir* is a directory w
   - do not:             use this when you mean `home_dir`.
 * **bin_dir**:
   - default:            `/:home_dir/bin`
+
+* **log_file**, **log_dir**, **xx_log_file**, **xx_log_dir**:
+  - default:        
+    - if the log files will always be trivial in size, put them in `/var/log/:cookbook.log` or `/var/log/:cookbook/(whatever)`.
+    - if it's a runit-managed service, leave them in `/etc/sv/:cookbook-:component/log/main/current`, and make a symlink from `/var/log/:cookbook-component` to `/etc/sv/:cookbook-:component/log/main/`.
+    - If the log files are non-trivial in size, set log dir `/:scratch_root/:cookbook/log/`, and symlink `/var/log/:cookbook/` to it. 
+    - If the log files should be persisted, place them in `/:persistent_root/:cookbook/log`, and symlink `/var/log/:cookbook/` to it. 
+    - in all cases, the directory is named `.../log`, not `.../logs`. Also, never put things in `/tmp`.
+    - Use the physical location for the `log_dir` attribute, not the /var/log symlink.
+* **tmp_dir**:   
+  - default:            `/:scratch_root/:cookbook/tmp/`
+* **conf_dir**: 
+  - default:            `/etc/:cookbook`
+* **pid_file**, **pid_dir**: 
+  - default:            pid_file: `/var/run/:cookbook.pid` or `/var/run/:cookbook/:component.pid`; pid_dir: `/var/run/:cookbook/`
+  - instead of:         `job_dir`, `job_file`, `pidfile`, `run_dir`.
+* **cache_dir**: 
+  - default:            `/var/cache/:cookbook`.
+
+* **data_dir**:
+  - default:            `:persistent_root/:cookbook/:component/data`
+  - instead of:         `datadir, `dbfile`, `dbdir`
+* **journal_dir**: high-speed local storage for commitlogs and so forth. Can be deleted, but you'd rather it wasn't.
+  - default:            `:scratch_root/:cookbook/:component/scratch`
+  - instead of:         `commitlog_dir`  
 
 ### Daemon Aspects
 
@@ -116,33 +165,6 @@ A *file* is the full directory and basename for a file. A *dir* is a directory w
 * **XX_heap_max**, **xx_heap_min**, **java_heap_eden**
 * **java_home** 
 * AVOID **java_opts** if possible: assemble it in your recipe from intelligible attribute names.
-
-
-## Cookbooks
-
-* Dependencies are in metadata.rb, and include_recipe in the `default` recipe 
-  - especially: `runit`, `java`, `cluster_service_discrovery`, `thrift`, `apt`
-  - **include_recipe** is only used if putting it in the role would be utterly un-interesting. You *want* the run to break unless it's explicitly included the role. 
-  - *yes*: `java`, `ruby`, `provides_service`, etc.
-  - *no*:  `zookeeper:client`, `nfs:server`, or anything that will start a daemon
-
-* (*see TODO*) Does `provides_service` uniformly handle referring to a foreign cluster for the service?
-
-#### Recipes
-
-* Naming:
-  - foo/default    -- information shared by anyone using foo, including support packages, directories
-  - foo/client     -- configure me as a foo client 
-  - foo/server     -- configure me as a foo server
-  - foo/aws_config -- cloud-specific settings
-  
-* Recipes shouldn't repeat their service name: `hbase:master` and not `hbase:hbase_master`; `zookeeper:server` not `zookeeper:zookeeper_server`.
-
-#### Attribute Files
-
-* The main attribute file should be named `attributes/default.rb`.
-* If there are a sizeable number of tunable attributes (hadoop, cassandra), place them in `attributes/tuneables.rb`.
-* ?? Place integration attribute *hooks* in `attributes/integration.rb` ??
 
 ## Integrations
 
