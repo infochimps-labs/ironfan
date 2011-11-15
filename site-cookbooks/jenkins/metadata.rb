@@ -14,6 +14,18 @@ depends          "iptables"
 depends          "mountable_volumes"
 depends          "provides_service"
 
+recipe           "jenkins::auth_github_oauth",         "Auth Github Oauth"
+recipe           "jenkins::build_from_github",         "Build From Github"
+recipe           "jenkins::build_ruby_rspec",          "Build Ruby Rspec"
+recipe           "jenkins::default",                   "Default"
+recipe           "jenkins::iptables",                  "Iptables"
+recipe           "jenkins::node_jnlp",                 "Node Jnlp"
+recipe           "jenkins::node_ssh",                  "Node Ssh"
+recipe           "jenkins::node_windows",              "Node Windows"
+recipe           "jenkins::proxy_apache2",             "Proxy Apache2"
+recipe           "jenkins::proxy_nginx",               "Proxy Nginx"
+recipe           "jenkins::server",                    "Server"
+recipe           "jenkins::user_key",                  "User Key"
 
 %w[ debian ubuntu ].each do |os|
   supports os

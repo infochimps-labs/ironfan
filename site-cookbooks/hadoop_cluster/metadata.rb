@@ -12,6 +12,21 @@ depends          "runit"
 depends          "mountable_volumes"
 depends          "provides_service"
 
+recipe           "hadoop_cluster::cluster_conf",       "Cluster Conf"
+recipe           "hadoop_cluster::datanode",           "Datanode"
+recipe           "hadoop_cluster::default",            "Default"
+recipe           "hadoop_cluster::doc",                "Doc"
+recipe           "hadoop_cluster::ec2_conf",           "Ec2 Conf"
+recipe           "hadoop_cluster::hadoop_webfront",    "Hadoop Webfront"
+recipe           "hadoop_cluster::hdfs_fuse",          "Hdfs Fuse"
+recipe           "hadoop_cluster::jobtracker",         "Jobtracker"
+recipe           "hadoop_cluster::namenode",           "Namenode"
+recipe           "hadoop_cluster::pseudo_distributed", "Pseudo Distributed"
+recipe           "hadoop_cluster::secondarynamenode",  "Secondarynamenode"
+recipe           "hadoop_cluster::tasktracker",        "Tasktracker"
+recipe           "hadoop_cluster::update_apt",         "Update Apt"
+recipe           "hadoop_cluster::wait_on_hdfs_safemode", "Wait On Hdfs Safemode"
+
 %w[ debian ubuntu ].each do |os|
   supports os
 end

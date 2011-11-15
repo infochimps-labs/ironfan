@@ -7,6 +7,7 @@ version          "3.0.0"
 description      "The most helpful motd file evar"
 
 
+recipe           "motd::default",                      "Default"
 
 %w[ debian ubuntu ].each do |os|
   supports os

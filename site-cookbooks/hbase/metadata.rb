@@ -14,6 +14,14 @@ depends          "hadoop_cluster"
 depends          "zookeeper"
 depends          "ganglia"
 
+recipe           "hbase::backup_tables",               "Backup Tables"
+recipe           "hbase::default",                     "Default"
+recipe           "hbase::hbase_master",                "Hbase Master"
+recipe           "hbase::hbase_regionserver",          "Hbase Regionserver"
+recipe           "hbase::master",                      "Master"
+recipe           "hbase::regionserver",                "Regionserver"
+recipe           "hbase::stargate",                    "Stargate"
+
 %w[ debian ubuntu ].each do |os|
   supports os
 end

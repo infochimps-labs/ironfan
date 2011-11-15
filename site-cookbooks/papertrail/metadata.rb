@@ -8,6 +8,7 @@ description      "Installs/Configures Sys Logging to papertrailapp.com"
 
 depends          "rsyslog"
 
+recipe           "papertrail::default",                "Default"
 
 %w[ debian ubuntu ].each do |os|
   supports os

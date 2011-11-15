@@ -27,11 +27,9 @@ You should also separate system configuration from multi-system integration. Coo
 * *DO NOT* use `include_recipe` unless putting it in the role would be utterly un-interesting. You *want* the run to break unless it's explicitly included the role. 
   - *yes*: `java`, `ruby`, `provides_service`, etc.
   - *no*:  `zookeeper:client`, `nfs:server`, or anything that will start a daemon
-
-* `include_recipe` statements should only appear in recipes that are entry points. The `redis::server` recipe calls `include_recipe 'runit'`
+  Remember: ordinary cookbooks describe systems, roles and integration cookbooks coordinate them.
+* `include_recipe` statements should only appear in recipes that are entry points. Recipes that are not meant to be called directly should assume their dependencies have been met.
 * If a recipe is meant to be the primary entrypoint, it *should* include default, and it should do so explicitly: `include_recipe 'foo::default'` (not just 'foo'). 
-
-Remember: ordinary cookbooks describe systems, roles and integration cookbooks coordinate them.
 
 ### Attributes
  

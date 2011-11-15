@@ -7,6 +7,8 @@ version          "3.0.0"
 description      "Installs/Configures ec2-specific capabilites"
 
 
+recipe           "ec2::default",                       "Default"
+recipe           "ec2::raid_ephemeral",                "Raid Ephemeral"
 
 %w[ debian ubuntu ].each do |os|
   supports os

@@ -9,6 +9,11 @@ description      "Installs and configures Redis server"
 depends          "runit"
 depends          "install_from"
 
+recipe           "redis::default",                     "Default"
+recipe           "redis::install_from_package",        "Install From Package"
+recipe           "redis::install_from_release",        "Install From Release"
+recipe           "redis::server",                      "Server"
+
 %w[ debian ubuntu ].each do |os|
   supports os
 end

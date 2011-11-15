@@ -7,6 +7,14 @@ version          "3.0.0"
 description      "A bunch of fun packages"
 
 
+recipe           "big_package::data_analysis_tools",   "Data Analysis Tools"
+recipe           "big_package::default",               "Default"
+recipe           "big_package::emacs",                 "Emacs"
+recipe           "big_package::other",                 "Other"
+recipe           "big_package::python",                "Python"
+recipe           "big_package::ruby-datamapper",       "Ruby Datamapper"
+recipe           "big_package::ruby-fix_rubygems_version", "Ruby Fix Rubygems Version"
+recipe           "big_package::ruby",                  "Ruby"
 
 %w[ debian ubuntu ].each do |os|
   supports os

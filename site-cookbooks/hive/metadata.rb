@@ -9,6 +9,8 @@ description      "Installs/Configures hive"
 depends          "java"
 depends          "hadoop_cluster"
 
+recipe           "hive::default",                      "Default"
+
 %w[ debian ubuntu ].each do |os|
   supports os
 end

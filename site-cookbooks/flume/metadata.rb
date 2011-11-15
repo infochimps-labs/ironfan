@@ -11,6 +11,13 @@ depends          "apt"
 depends          "mountable_volumes"
 depends          "provides_service"
 
+recipe           "flume::default",                     "Default"
+recipe           "flume::hbase_sink_plugin",           "Hbase Sink Plugin"
+recipe           "flume::jruby_plugin",                "Jruby Plugin"
+recipe           "flume::master",                      "Master"
+recipe           "flume::node",                        "Node"
+recipe           "flume::test_flow",                   "Test Flow"
+
 %w[ debian ubuntu ].each do |os|
   supports os
 end

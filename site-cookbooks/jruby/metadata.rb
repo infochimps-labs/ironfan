@@ -8,6 +8,8 @@ description      "Installs/Configures jruby"
 
 depends          "java"
 
+recipe           "jruby::default",                     "Default"
+recipe           "jruby::gems",                        "Gems"
 
 %w[ debian ubuntu ].each do |os|
   supports os

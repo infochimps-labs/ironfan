@@ -8,6 +8,8 @@ description      "Installs/Configures nodejs"
 
 depends          "python"
 
+recipe           "nodejs::compile",                    "Compile"
+recipe           "nodejs::default",                    "Default"
 
 %w[ debian ubuntu ].each do |os|
   supports os

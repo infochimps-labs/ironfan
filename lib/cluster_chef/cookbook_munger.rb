@@ -17,6 +17,7 @@ require 'gorillib/hash/reverse_merge'
 require 'gorillib/object/blank'
 require 'gorillib/hash/compact'
 require 'gorillib/string/inflections'
+require 'gorillib/string/human'
 require 'set'
 
 require 'erubis'
@@ -32,10 +33,10 @@ Settings.define :license,          :default => "Apache 2.0"
 Settings.define :long_desc_gen,    :default => %Q{IO.read(File.join(File.dirname(__FILE__), 'README.md'))}
 Settings.define :version,          :default => "3.0.0"
 
+Settings.define :cookbook_paths,   :type => Array, :default => ["{site,meta}-cookbooks"]
+
 module CookbookMunger
   TEMPLATE_ROOT  = File.expand_path('cookbook_munger', File.dirname(__FILE__))
-  COOKBOOKS_ROOT = File.expand_path('../..', File.dirname(__FILE__))
-
 
   # ===========================================================================
   #
@@ -159,17 +160,23 @@ module CookbookMunger
   #   attributes, definitions, resources, etc)
   #
   module CookbookComponent
-    attr_reader   :name, :filename
+    attr_reader   :name, :desc, :filename
     attr_accessor :header_lines, :body_lines
 
-    def initialize(name, filename, *args, &block)
+    def initialize(name, desc, filename, *args, &block)
       super(*args, &block)
       @name     = name
+      @desc     = desc
       @filename = filename
     end
 
     def raw_lines
-      @raw_lines ||= File.readlines(filename).map(&:chomp)
+      begin
+        @raw_lines ||= File.readlines(filename).map(&:chomp)
+      rescue Errno::ENOENT => boom
+        warn boom.to_s
+        return []
+      end
     end
 
     def read
@@ -216,8 +223,8 @@ module CookbookMunger
     end
 
     module ClassMethods
-      def read(name, filename)
-        attr_file = self.new(name, filename)
+      def read(name, desc, filename)
+        attr_file = self.new(name, desc, filename)
         attr_file.read
         attr_file
       end
@@ -287,8 +294,8 @@ module CookbookMunger
     include       CookbookComponent
     attr_reader   :all_attributes
 
-    def initialize(name, filename)
-      super(name, filename)
+    def initialize(name, desc, filename)
+      super(name, desc, filename)
       @all_attributes = DummyAttributeCollection.new
     end
 
@@ -320,7 +327,7 @@ module CookbookMunger
   #
   class CookbookMetadata < ClusterChef::DslObject
     include       Chef::Mixin::FromFile
-    attr_reader   :cookbook_type
+    attr_reader   :dirname
     has_keys      :name, :author, :maintainer, :maintainer_email, :license, :version, :description, :long_desc_gen
     attr_reader   :all_depends, :all_recipes, :all_attributes, :all_resources, :all_supports
     attr_reader   :components, :attribute_files
@@ -330,10 +337,10 @@ module CookbookMunger
     # definition: provides "here(:kitty, :time_to_eat)"
     # resource:   provides "service[snuggle]"
 
-    def initialize(cookbook_type, nm, *args, &block)
+    def initialize(nm, dirname, *args, &block)
       super(*args, &block)
       name(nm)
-      @cookbook_type    = cookbook_type
+      @dirname          = dirname
       @attribute_files  = {}
       @all_attributes   = CookbookMunger::DummyAttributeCollection.new
       @all_depends    ||= {}
@@ -350,8 +357,6 @@ module CookbookMunger
     def depends(nm, ver=nil)  @all_depends[nm] = (ver ? %Q{"#{nm}", "#{ver}"} : %Q{"#{nm}"} ) ; end
     # add supported OS to list
     def supports(nm)          @all_supports << nm ; @all_supports.uniq! ; @all_supports ; end
-    # add recipe to list
-    def recipe(nm, desc)      @all_recipes[nm]   = { :name => nm, :description => desc } ;   end
     # add resource to list
     def resource(nm, desc)    @all_resources[nm] = { :name => nm, :description => desc } ;   end
     # fake long description -- we ignore it anyway
@@ -369,20 +374,34 @@ module CookbookMunger
       attr_branch[leaf]
     end
 
+    # add recipe to list
+    def recipe(recipe_name, desc=nil)
+      recipe_name = 'default' if recipe_name == name
+      recipe_name = "#{name}::#{recipe_name}" unless recipe_name =~ /::/
+      basename    = recipe_name.gsub(/^#{name}::/, "")
+      #
+      desc      ||= basename.titleize
+      filename    = file_in_cookbook("recipes/#{basename}.rb")
+      p [recipe_name, desc, filename]
+      @all_recipes[recipe_name]      ||= RecipeFile.read(recipe_name, desc, filename)
+      @all_recipes[recipe_name].desc ||= desc if desc.present?
+      @all_recipes[recipe_name]
+    end
+
     #
     # Read project
     #
 
     def file_in_cookbook(filename)
-      File.expand_path("#{cookbook_type}-cookbooks/#{name}/#{filename}", CookbookMunger::COOKBOOKS_ROOT)
+      File.expand_path(filename, self.dirname)
     end
 
     def load_components
       from_file(file_in_cookbook("metadata.rb"))
 
       @components = {
-        :attributes  => Dir[file_in_cookbook('attributes/*.rb')   ].map{|f| AttributeFile.read(File.basename(f, '.rb'), f) },
-        :recipes     => Dir[file_in_cookbook('recipes/*.rb')      ].map{|f| RecipeFile.read(   File.basename(f, '.rb'), f) },
+        :attributes  => Dir[file_in_cookbook('attributes/*.rb')   ].map{|f| nm = File.basename(f, '.rb') ; AttributeFile.read(nm, "attributes[#{self.name}::#{nm}", f) },
+        :recipes     => Dir[file_in_cookbook('recipes/*.rb')      ].map{|f| nm = File.basename(f, '.rb') ; recipe("#{name}::#{nm}", nil) },
         :resources   => Dir[file_in_cookbook('resources/*.rb')    ].map{|f| File.basename(f, '.rb') },
         :providers   => Dir[file_in_cookbook('providers/*.rb')    ].map{|f| File.basename(f, '.rb') },
         :templates   => Dir[file_in_cookbook('templates/**/*.rb') ].map{|f| File.join(File.basename(File.dirname(f)), File.basename(f, '.rb')) },
@@ -393,9 +412,6 @@ module CookbookMunger
       components[:attributes].each do |attrib_file|
         merge_attribute_file(attrib_file)
       end
-      components[:recipes].each do |recipe_file|
-        digest_recipe_file(recipe_file)
-      end
     end
 
     def merge_attribute_file(attrib_file)
@@ -404,10 +420,6 @@ module CookbookMunger
         my_attrib = attribute(af_attrib.name)
         my_attrib.merge!(af_attrib.to_hash)
       end
-    end
-
-    def digest_recipe_file(recipe_file)
-      recipe_file
     end
 
     def lint!
@@ -476,18 +488,14 @@ module CookbookMunger
     end
   end
 
-  [:meta, :site].each do |cookbook_type|
-    Dir[CookbookMunger::COOKBOOKS_ROOT+"/#{cookbook_type}-cookbooks/*/metadata.rb"].map{|f| File.basename(File.dirname(f)) }.each do |nm|
+  Settings.cookbook_paths.each do |cookbook_path|
+    Dir["#{cookbook_path}/*/metadata.rb"].each do |f|
+      dirname = File.dirname(f)
+      nm      = File.basename(dirname)
       puts "====== %-20s ====================" % nm
-      cookbook_metadata = CookbookMetadata.new(cookbook_type, nm, Settings.dup)
+      cookbook_metadata = CookbookMetadata.new(nm, dirname, Settings.dup)
       cookbook_metadata.dump
     end
   end
 
-  # attr_file = CookbookMunger::AttributeFile.new(File.expand_path('site-pig/attributes/default.rb', CookbookMunger::COOKBOOKS_ROOT))
-  # attr_file.read!
-  # puts attr_file.all_attributes.pretty_str
-
-  # p cookbook_metadata.all_attributes
-  # puts Time.now
 end

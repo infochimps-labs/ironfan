@@ -7,6 +7,9 @@ version          "3.0.0"
 description      "Installs/Configures cluster_chef"
 
 
+recipe           "cluster_chef::burn_ami_prep",        "Burn Ami Prep"
+recipe           "cluster_chef::cluster_webfront",     "Cluster Webfront"
+recipe           "cluster_chef::dedicated_server_tuning", "Dedicated Server Tuning"
 
 %w[ debian ubuntu ].each do |os|
   supports os

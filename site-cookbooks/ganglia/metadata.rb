@@ -9,6 +9,11 @@ description      "Installs/Configures ganglia"
 depends          "java"
 depends          "provides_service"
 
+recipe           "ganglia::client",                    "Client"
+recipe           "ganglia::default",                   "Default"
+recipe           "ganglia::gmetad",                    "Gmetad"
+recipe           "ganglia::server",                    "Server"
+
 %w[ debian ubuntu ].each do |os|
   supports os
 end

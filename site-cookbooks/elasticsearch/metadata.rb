@@ -13,6 +13,15 @@ depends          "mountable_volumes"
 depends          "provides_service"
 depends          "nginx"
 
+recipe           "elasticsearch::autoconf",            "Autoconf"
+recipe           "elasticsearch::build_raid",          "Build Raid"
+recipe           "elasticsearch::client",              "Client"
+recipe           "elasticsearch::default",             "Default"
+recipe           "elasticsearch::http",                "Http"
+recipe           "elasticsearch::install_from_git",    "Install From Git"
+recipe           "elasticsearch::install_from_release", "Install From Release"
+recipe           "elasticsearch::install_plugins",     "Install Plugins"
+recipe           "elasticsearch::server",              "Server"
 
 %w[ debian ubuntu ].each do |os|
   supports os

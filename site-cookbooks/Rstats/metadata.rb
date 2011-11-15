@@ -7,7 +7,7 @@ version          "3.0.0"
 description      "Installs and configures the R stats analysis language"
 
 
-recipe           "Rstats",             "Installs the base R package, a ruby interface, and some basic R packages."
+recipe           "Rstats::default",                    "Installs the base R package, a ruby interface, and some basic R packages."
 
 %w[ debian ubuntu ].each do |os|
   supports os

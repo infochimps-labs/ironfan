@@ -11,6 +11,11 @@ depends          "apt"
 depends          "mountable_volumes"
 depends          "provides_service"
 
+recipe           "zookeeper::client",                  "Client"
+recipe           "zookeeper::default",                 "Default"
+recipe           "zookeeper::server",                  "Server"
+recipe           "zookeeper::zookeeper_server",        "Zookeeper Server"
+
 %w[ debian ubuntu ].each do |os|
   supports os
 end

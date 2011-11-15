@@ -10,6 +10,11 @@ depends          "python"
 depends          "apache2"
 depends          "ganglia"
 
+recipe           "graphite::carbon",                   "Carbon"
+recipe           "graphite::default",                  "Default"
+recipe           "graphite::ganglia",                  "Ganglia"
+recipe           "graphite::web",                      "Web"
+recipe           "graphite::whisper",                  "Whisper"
 
 %w[ debian ubuntu ].each do |os|
   supports os

@@ -10,6 +10,7 @@ depends          "runit"
 depends          "nodejs"
 depends          "graphite"
 
+recipe           "statsd::default",                    "Default"
 
 %w[ debian ubuntu ].each do |os|
   supports os

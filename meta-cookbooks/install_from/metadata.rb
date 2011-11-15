@@ -7,6 +7,7 @@ version          "3.0.0"
 description      "Installs/Configures install_from"
 
 
+recipe           "install_from::default",              "Default"
 
 %w[ debian ubuntu ].each do |os|
   supports os
