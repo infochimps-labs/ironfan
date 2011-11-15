@@ -18,7 +18,15 @@
 # limitations under the License.
 #
 
-provide_service("#{node[:cluster_name]}-redis", :port => node[:redis][:port] )
+include_recipe "runit"
+
+group("redis"){ gid 335 }
+user "redis" do
+  comment   "Redis-server runner"
+  uid       335
+  gid       "redis"
+  shell     "/bin/false"
+end
 
 template "/etc/init.d/redis-server" do
   source "redis-server-init-d.erb"
@@ -27,7 +35,7 @@ template "/etc/init.d/redis-server" do
   mode 0744
 end
 
-service "redis-server" do
+runit_service "redis-server" do
   action :enable
 end
 
@@ -38,3 +46,5 @@ template "/etc/redis/redis.conf" do
   mode 0644
   notifies(:restart, resources(:service => "redis-server")) unless node[:platform_version].to_f < 9.0
 end
+
+provide_service("#{node[:cluster_name]}-redis", :port => node[:redis][:port] )

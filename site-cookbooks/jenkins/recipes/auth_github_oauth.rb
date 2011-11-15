@@ -18,11 +18,10 @@
 # limitations under the License.
 #
 
-include_recipe 'build_from_github'
+include_recipe 'jenkins::build_from_github'
 
 jenkins_plugins = %w[ github-oauth ]
 unless jenkins_plugins.all?{|jplg| node[:jenkins][:server][:plugins].include?(jplg) }
   node[:jenkins][:server][:plugins] = (node[:jenkins][:server][:plugins] + jenkins_plugins).uniq
   node.save
 end
-

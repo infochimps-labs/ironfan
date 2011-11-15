@@ -18,8 +18,6 @@
 # limitations under the License.
 #
 
-Chef::Log.debug [ node[:ruby] ].inspect + "\n\n!!!\n\n"
-
 %w[
   git-core cvs subversion exuberant-ctags tree zip liblzo2-dev
   libpcre3-dev libbz2-dev libidn11-dev libxml2-dev libxml2-utils libxslt1-dev libevent-dev

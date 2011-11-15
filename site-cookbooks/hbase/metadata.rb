@@ -6,7 +6,13 @@ version          "3.0.0"
 
 description      "Installs/Configures HBase"
 
-
+depends          "java"
+depends          "apt"
+depends          "mountable_volumes"
+depends          "provides_service"
+depends          "hadoop_cluster"
+depends          "zookeeper"
+depends          "ganglia"
 
 %w[ debian ubuntu ].each do |os|
   supports os

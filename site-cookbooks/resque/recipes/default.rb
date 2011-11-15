@@ -18,6 +18,9 @@
 # limitations under the License.
 #
 
+include_recipe 'runit'
+include_recipe 'redis::client'
+
 %w[
   thin rack resque redis redis-namespace yajl-ruby
 ].each{|gem_name| gem_package gem_name }
@@ -57,5 +60,3 @@ end
     action    :create
   end
 end
-
-

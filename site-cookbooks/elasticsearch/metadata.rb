@@ -7,9 +7,11 @@ version          "3.0.0"
 description      "Installs/Configures elasticsearch"
 
 depends          "java"
-depends          "runit"
 depends          "aws"
+depends          "runit"
+depends          "mountable_volumes"
 depends          "provides_service"
+depends          "nginx"
 
 
 %w[ debian ubuntu ].each do |os|

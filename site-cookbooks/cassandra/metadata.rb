@@ -9,6 +9,7 @@ description      "Installs and configures the Cassandra distributed storage syst
 depends          "java"
 depends          "runit"
 depends          "thrift"
+depends          "mountable_volumes"
 depends          "provides_service"
 depends          "iptables"
 

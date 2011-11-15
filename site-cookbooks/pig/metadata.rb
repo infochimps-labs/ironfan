@@ -6,7 +6,8 @@ version          "3.0.0"
 
 description      "Installs/Configures pig"
 
-depends          "hadoop_cluster"
+depends          "java"
+depends          "apt"
 depends          "install_from"
 
 

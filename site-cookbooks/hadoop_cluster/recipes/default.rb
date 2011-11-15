@@ -19,10 +19,13 @@
 #
 
 include_recipe "java::sun"
+include_recipe "runit"
+include_recipe "apt"
+include_recipe "mountable_volumes"
 class Chef::Recipe; include HadoopCluster ; end
 
 #
-# Cloudera repo
+# Add Cloudera Apt Repo
 #
 
 # Get the archive key for cloudera package repo
@@ -31,25 +34,15 @@ execute "curl -s http://archive.cloudera.com/debian/archive.key | apt-key add -"
   notifies :run, "execute[apt-get update]"
 end
 
-# # Add cloudera package repo
+# Add cloudera package repo
 apt_repository 'cloudera' do
   uri             'http://archive.cloudera.com/debian'
-  distro        = node[:hadoop][:cloudera_distro_name] || node[:lsb][:codename]
+  distro        = node[:lsb][:codename]
   distribution    "#{distro}-#{node[:hadoop][:cdh_version]}"
   components      ['contrib']
-  action :add
+  key             "http://archive.cloudera.com/debian/archive.key"
+  action          :add
 end
-
-# # Dummy apt-get resource, will only be run if the apt repo requires updating
-# execute("apt-get update"){ action :nothing }
-#
-# # Add cloudera package repo
-# template "/etc/apt/sources.list.d/cloudera.list" do
-#   owner "root"
-#   mode "0644"
-#   source "sources.list.d-cloudera.list.erb"
-#   notifies :run, resources("execute[apt-get update]")
-# end
 
 #
 # Hadoop users and group

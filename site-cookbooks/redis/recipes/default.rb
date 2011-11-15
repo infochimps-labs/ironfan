@@ -18,8 +18,24 @@
 # limitations under the License.
 #
 
-# These are included explicitly until I can untangle the hellscape of
-# dependencies on redis in the rest of our recipes
-include_recipe 'redis::base'
-include_recipe 'redis::install_from_package'
-include_recipe 'redis::server'
+directory "/var/log/redis" do
+  owner     "redis"
+  group     "redis"
+  mode      "0755"
+  action    :create
+end
+
+directory node[:redis][:dbdir] do
+  owner     "redis"
+  group     "redis"
+  mode      "0755"
+  action    :create
+  recursive true
+end
+
+directory "/etc/redis" do
+  owner     "root"
+  group     "root"
+  mode      "0755"
+  action    :create
+end

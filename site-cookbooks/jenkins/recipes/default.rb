@@ -19,9 +19,8 @@
 # limitations under the License.
 #
 
-Chef::Log.info ['starting jenkins recipe', __FILE__]
-
-include_recipe "java"
+include_recipe "java::sun"
+include_recipe "mountable_volumes"
 include_recipe 'jenkins::user_key'
 
 package 'groovy'

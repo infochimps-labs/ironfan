@@ -18,10 +18,10 @@
 # limitations under the License.
 #
 
-include_recipe "java"
+include_recipe "java::sun"
 include_recipe "thrift"
 include_recipe "runit"
-
+include_recipe "mountable_volumes"
 
 %w[ sun-java6-jdk  sun-java6-bin ].each{|pkg| package(pkg) }
 

@@ -7,8 +7,6 @@ version          "3.0.0"
 description      "Mounts volumes  as directed by node metadata. Can attach external cloud drives, such as ebs volumes."
 
 depends          "aws"
-depends          "xfs"
-
 
 %w[ debian ubuntu ].each do |os|
   supports os

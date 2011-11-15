@@ -7,7 +7,9 @@ version          "3.0.0"
 description      "Installs/Configures flume"
 
 depends          "java"
-
+depends          "apt"
+depends          "mountable_volumes"
+depends          "provides_service"
 
 %w[ debian ubuntu ].each do |os|
   supports os

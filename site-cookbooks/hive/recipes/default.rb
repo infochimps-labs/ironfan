@@ -18,6 +18,7 @@
 # limitations under the License.
 #
 
-include_recipe "hadoop_cluster"
+include_recipe "java::sun"
+include_recipe "hadoop_cluster" # will add the cloudera apt repo
 
 package "hadoop-hive"

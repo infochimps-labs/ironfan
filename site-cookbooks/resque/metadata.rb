@@ -9,7 +9,6 @@ description      "Installs/Configures resque"
 depends          "runit"
 depends          "redis"
 
-
 %w[ debian ubuntu ].each do |os|
   supports os
 end

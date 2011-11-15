@@ -6,7 +6,8 @@ version          "3.0.0"
 
 description      "Installs/Configures ganglia"
 
-
+depends          "java"
+depends          "provides_service"
 
 %w[ debian ubuntu ].each do |os|
   supports os

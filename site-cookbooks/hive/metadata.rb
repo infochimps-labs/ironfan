@@ -6,7 +6,8 @@ version          "3.0.0"
 
 description      "Installs/Configures hive"
 
-
+depends          "java"
+depends          "hadoop_cluster"
 
 %w[ debian ubuntu ].each do |os|
   supports os

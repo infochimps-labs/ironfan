@@ -7,11 +7,10 @@ version          "3.0.0"
 description      "Installs hadoop and sets up a high-performance cluster. Inspired by Tom White / Cloudera's hadoop-ec2 command line utilities"
 
 depends          "java"
+depends          "apt"
+depends          "runit"
 depends          "mountable_volumes"
-depends          "aws"
-depends          "ubuntu"
 depends          "provides_service"
-
 
 %w[ debian ubuntu ].each do |os|
   supports os

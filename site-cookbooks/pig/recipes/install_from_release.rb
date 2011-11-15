@@ -26,10 +26,7 @@
 #   and links that to /usr/local/share/pig
 #
 
-include_recipe('java')
-package "sun-java6-jdk"
-package "sun-java6-bin"
-package "sun-java6-jre"
+include_recipe "pig::default"
 
 install_from_release('pig') do
   release_url node[:pig][:install_url]

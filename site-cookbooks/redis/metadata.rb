@@ -9,7 +9,6 @@ description      "Installs and configures Redis server"
 depends          "runit"
 depends          "install_from"
 
-
 %w[ debian ubuntu ].each do |os|
   supports os
 end

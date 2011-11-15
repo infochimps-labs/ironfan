@@ -15,6 +15,7 @@ You should also separate system configuration from multi-system integration. Coo
   - `foo/recipes/client.rb`     -- configure me as a foo client 
   - `foo/recipes/server.rb`     -- configure me as a foo server
   - `foo/recipes/ec2_conf`      -- cloud-specific settings
+* Always include a `default.rb` recipe, even if it is blank. 
 * *DO NOT* install daemons via the default cookbook, even if that's currently the only thing it does. Remember, a node that is a client -- or refers to any current or future component of the system -- will include the default recipe.
 * Do not repeat the cookbook name in a recipe title: `hbase:master`, not `hbase:hbase_master`; `zookeeper:server`, not `zookeeper:zookeeper_server`.
 * Use only `[a-z0-9_]` for cookbook and component names. Do not use capital letters or dashes. Keep names to fewer than 15 characters.
@@ -26,6 +27,9 @@ You should also separate system configuration from multi-system integration. Coo
 * *DO NOT* use `include_recipe` unless putting it in the role would be utterly un-interesting. You *want* the run to break unless it's explicitly included the role. 
   - *yes*: `java`, `ruby`, `provides_service`, etc.
   - *no*:  `zookeeper:client`, `nfs:server`, or anything that will start a daemon
+
+* `include_recipe` statements should only appear in recipes that are entry points. The `redis::server` recipe calls `include_recipe 'runit'`
+* If a recipe is meant to be the primary entrypoint, it *should* include default, and it should do so explicitly: `include_recipe 'foo::default'` (not just 'foo'). 
 
 Remember: ordinary cookbooks describe systems, roles and integration cookbooks coordinate them.
 

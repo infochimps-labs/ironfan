@@ -6,9 +6,12 @@ version          "0.5"
 
 description      "Installs and configures Jenkins CI server & slaves"
 
-depends          "runit"
 depends          "java"
+depends          "apache2"
+depends          "nginx"
+depends          "runit"
 depends          "iptables"
+depends          "mountable_volumes"
 depends          "provides_service"
 
 

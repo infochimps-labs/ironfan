@@ -18,6 +18,8 @@
 # limitations under the License.
 #
 
+include_recipe "java::sun"
+
 bash "install_jruby_from_tarball" do
 user "root"
   cwd "/tmp"

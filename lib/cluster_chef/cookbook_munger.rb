@@ -16,6 +16,7 @@ require 'gorillib/metaprogramming/class_attribute'
 require 'gorillib/hash/reverse_merge'
 require 'gorillib/object/blank'
 require 'gorillib/hash/compact'
+require 'gorillib/string/inflections'
 require 'set'
 
 require 'erubis'
@@ -158,21 +159,66 @@ module CookbookMunger
   #   attributes, definitions, resources, etc)
   #
   module CookbookComponent
-    attr_reader :filename
+    attr_reader   :name, :filename
+    attr_accessor :header_lines, :body_lines
 
-    def initialize(filename, *args, &block)
+    def initialize(name, filename, *args, &block)
       super(*args, &block)
+      @name     = name
       @filename = filename
     end
 
-    def read!
+    def raw_lines
+      @raw_lines ||= File.readlines(filename).map(&:chomp)
+    end
+
+    def read
+      @header_lines = []
+      @body_lines   = []
+      # Gobble the header -- all comment lines following the first
+      until raw_lines.first !~ /^#/ || raw_lines.empty?
+        line = raw_lines.first
+        header_lines << raw_lines.shift
+        process_header_line(line)
+      end
+      # skip blank lines that follow the header
+      until raw_lines.first =~ /\S+/ || raw_lines.empty?
+        raw_lines.shift
+      end
+      raw_lines.each do |line|
+        body_lines << line
+        process_body_line(line)
+      end
+    end
+
+    # called on each header line in #read
+    def process_header_line(line)
+      # override in subclass if you like
+    end
+    # called on each body line in #read
+    def process_body_line(line)
+      # override in subclass if you like
+    end
+
+    # save to {filename}.bak
+    def dump
+      File.open(filename+'.bak', 'w') do |f|
+        f << header_lines.join("\n")
+        f << "\n\n"
+        f << body_lines.join("\n")
+        f << "\n"
+      end
+    end
+
+    # Use the chef from_file mixin -- instance_exec the file
+    def execute!
       from_file(filename)
     end
 
     module ClassMethods
-      def read(filename)
-        attr_file = self.new(filename)
-        attr_file.read!
+      def read(name, filename)
+        attr_file = self.new(name, filename)
+        attr_file.read
         attr_file
       end
     end
@@ -184,10 +230,50 @@ module CookbookMunger
   # RecipeFile -- a chef recipe
   #
   class RecipeFile
+    attr_accessor :copyright_lines, :author_lines, :include_recipes
     include       CookbookComponent
 
-  end
+    def initialize(*args, &block)
+      super
+      @include_recipes = []
+    end
 
+    def process_header_line(line)
+      self.author_lines    << "# Author::              #{$1}" if line =~ /^# Author::\s*(.*)/
+      self.copyright_lines << line if line =~ /^# Copyright / && line !~ /YOUR_COMPANY_NAME/
+    end
+
+    def process_body_line(line)
+      if line =~ /include_recipe\(?\s*[\"\']([^\"\'\:]*?)(::.*?)?[\"\']\s*\)?(?:#.*)?$/
+        self.include_recipes << $1
+      end
+    end
+
+    def read
+      self.author_lines      = []
+      self.copyright_lines   = []
+      super
+      self.copyright_lines   = ["# Copyright #{copyright_text}"]         if copyright_lines.blank?
+      self.author_lines      = ["# Author::              #{maintainer}"] if author_lines.blank?
+    end
+
+    def dump
+      super
+    end
+
+    def generate_header!
+      new_header_lines = ['#']
+      new_header_lines << "# Cookbook Name::       #{name}"
+      new_header_lines << "# Recipe::              #{recipe_name}"
+      new_header_lines += author_lines
+      new_header_lines << "#"
+      new_header_lines += copyright_lines
+      new_header_lines << "#"
+      new_header_lines << ("# "+short_license_text.gsub(/\n/, "\n# ").gsub(/\n# \n/, "\n#\n")) << '#'
+      header_lines = new_header_lines
+    end
+
+  end
 
   # ===========================================================================
   #
@@ -201,8 +287,8 @@ module CookbookMunger
     include       CookbookComponent
     attr_reader   :all_attributes
 
-    def initialize(filename)
-      super(filename)
+    def initialize(name, filename)
+      super(name, filename)
       @all_attributes = DummyAttributeCollection.new
     end
 
@@ -224,9 +310,7 @@ module CookbookMunger
         :cloud        => { :private_ips => ['10.20.30.40'] }
       }
     end
-
   end
-
 
   # ===========================================================================
   #
@@ -297,8 +381,8 @@ module CookbookMunger
       from_file(file_in_cookbook("metadata.rb"))
 
       @components = {
-        :attributes  => Dir[file_in_cookbook('attributes/*.rb')   ].map{|f| File.basename(f, '.rb') },
-        :recipes     => Dir[file_in_cookbook('recipes/*.rb')      ].map{|f| File.basename(f, '.rb') },
+        :attributes  => Dir[file_in_cookbook('attributes/*.rb')   ].map{|f| AttributeFile.read(File.basename(f, '.rb'), f) },
+        :recipes     => Dir[file_in_cookbook('recipes/*.rb')      ].map{|f| RecipeFile.read(   File.basename(f, '.rb'), f) },
         :resources   => Dir[file_in_cookbook('resources/*.rb')    ].map{|f| File.basename(f, '.rb') },
         :providers   => Dir[file_in_cookbook('providers/*.rb')    ].map{|f| File.basename(f, '.rb') },
         :templates   => Dir[file_in_cookbook('templates/**/*.rb') ].map{|f| File.join(File.basename(File.dirname(f)), File.basename(f, '.rb')) },
@@ -306,57 +390,24 @@ module CookbookMunger
         :libraries   => Dir[file_in_cookbook('definitions/*.rb')  ].map{|f| File.basename(f, '.rb') },
       }
 
-      components[:attributes].each{|attrib_name| add_attribute_file(attrib_name) }
-      fix_file_headers
-    end
-
-    def fix_file_headers
-      components[:recipes].each do |recipe_name|
-        recipe_filename = file_in_cookbook("recipes/#{recipe_name}.rb")
-        recipe_content = File.readlines(recipe_filename)
-        recipe_content.each(&:chomp!)
-
-        recipe_old_header = []
-        author_lines      = []
-        copyright_lines   = []
-        until recipe_content.first !~ /^#/ || recipe_content.empty?
-          line = recipe_content.first
-          author_lines      << "# Author::              #{$1}" if line =~ /^# Author::\s*(.*)/
-          copyright_lines   << line if line =~ /^# Copyright / && line !~ /YOUR_COMPANY_NAME/
-          recipe_old_header << recipe_content.shift
-        end
-        until recipe_content.first =~ /\S+/ || recipe_content.empty?
-          recipe_content.shift
-        end
-        copyright_lines     = ["# Copyright #{copyright_text}"]     if copyright_lines.blank?
-        author_lines        = ["# Author::              #{maintainer}"] if author_lines.blank?
-
-        new_content         = ['#']
-        new_content         << "# Cookbook Name::       #{name}"
-        new_content         << "# Recipe::              #{recipe_name}"
-        new_content         += author_lines
-        new_content         << "#"
-        new_content         += copyright_lines
-        new_content         << "#"
-        new_content         << ("# "+short_license_text.gsub(/\n/, "\n# ").gsub(/\n# \n/, "\n#\n")) << '#'
-
-        # File.open(recipe_filename+'.bak', 'w') do |f|
-        #   f << new_content.join("\n")
-        #   f << "\n\n"
-        #   f << recipe_content.join("\n")
-        #   f << "\n"
-        # end
+      components[:attributes].each do |attrib_file|
+        merge_attribute_file(attrib_file)
+      end
+      components[:recipes].each do |recipe_file|
+        digest_recipe_file(recipe_file)
       end
     end
 
-    def add_attribute_file(attrib_name)
-      attr_file = AttributeFile.read(file_in_cookbook("attributes/#{attrib_name}.rb"))
-      self.attribute_files[attrib_name] = attr_file
-      attr_file.all_attributes.attrs.each do |af_attrib|
+    def merge_attribute_file(attrib_file)
+      attrib_file.execute!
+      attrib_file.all_attributes.attrs.each do |af_attrib|
         my_attrib = attribute(af_attrib.name)
         my_attrib.merge!(af_attrib.to_hash)
       end
-      attr_file
+    end
+
+    def digest_recipe_file(recipe_file)
+      recipe_file
     end
 
     def lint!
@@ -364,16 +415,30 @@ module CookbookMunger
       #   my_val = self.send(attr) rescue nil
       #   warn([name, attr, sval, my_val ]) unless sval == my_val
       # end
+      lint_dependencies
+    end
+
+    def lint_dependencies
+      include_recipes = []
+      components[:recipes].each do |recipe_file|
+        include_recipes += recipe_file.include_recipes
+      end
+      include_recipes = include_recipes.sort.uniq
+      missing_dependencies = (include_recipes  - all_depends.keys - [name])
+      missing_includes     = (all_depends.keys - include_recipes  - [name, 'provides_service', 'install_from'])
+      warn "Coookbook #{name} doesn't declare dependency on #{missing_dependencies.join(", ")}, but has an include_recipe that refers to it" if missing_dependencies.present?
+      warn "Coookbook #{name} declares dependency on #{missing_includes.join(", ")}, but never calls include_recipe with it"             if missing_includes.present?
     end
 
     def dump
       load_components
-
       lint!
-
-      # File.open(file_in_cookbook('metadata.rb.bak'), 'w') do |f|
-      #   f << render('metadata.rb')
-      # end
+      File.open(file_in_cookbook('metadata.rb.bak'), 'w') do |f|
+        f << render('metadata.rb')
+      end
+      components[:recipes].each do |recipe_file|
+        recipe_file.dump
+      end
     end
 
     #
@@ -413,7 +478,7 @@ module CookbookMunger
 
   [:meta, :site].each do |cookbook_type|
     Dir[CookbookMunger::COOKBOOKS_ROOT+"/#{cookbook_type}-cookbooks/*/metadata.rb"].map{|f| File.basename(File.dirname(f)) }.each do |nm|
-      puts nm
+      puts "====== %-20s ====================" % nm
       cookbook_metadata = CookbookMetadata.new(cookbook_type, nm, Settings.dup)
       cookbook_metadata.dump
     end

@@ -18,7 +18,10 @@
 # limitations under the License.
 #
 
-include_recipe "java"
+include_recipe "aws"
+include_recipe "java::sun"
+include_recipe "runit"
+include_recipe "mountable_volumes"
 
 group "elasticsearch" do
   group_name 'elasticsearch'

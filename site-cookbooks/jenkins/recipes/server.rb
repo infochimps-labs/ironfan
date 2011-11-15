@@ -18,6 +18,9 @@
 # limitations under the License.
 #
 
+include_recipe "runit"
+include_recipe "iptables"
+
 group(node[:jenkins][:server][:user]){ gid 360 }
 user node[:jenkins][:server][:user] do
   comment "Jenkins CI node (ssh)"
@@ -111,4 +114,3 @@ log "plugins updated, restarting jenkins" do
     end
   end
 end
-
