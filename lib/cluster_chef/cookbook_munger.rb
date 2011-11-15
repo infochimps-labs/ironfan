@@ -1,5 +1,15 @@
 #!/usr/bin/env ruby
 
+#
+# cookbook_munger.rb -- keep cookbook metadata complete, consistent and correct.
+#
+# This script reads the actual content of a cookbook -- actually interpreting
+# the metadata.rb and attribute files, along with recipes/resources/etc files'
+# headers -- and re-generates the metadata.rb and README files.
+#
+# It also has hooks to do a limited amount of validation and linting.
+#
+
 require 'configliere'
 require 'extlib/mash'
 require 'gorillib/metaprogramming/class_attribute'

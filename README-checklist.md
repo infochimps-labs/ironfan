@@ -75,9 +75,10 @@ Ignore the temptation to make a one-true-home-for-my-system, or to fight the pac
   - the operational release is a symlink to the right release: `:deploy_dir/current -> :deploy_dir/releases/xxx`.
   - do not:             use this when you mean `home_dir`.
 
-* **scratch_roots**, **persistent_roots**: an array of directories, spread a
-  - these attributes are provided by the `mountable_volume` meta-cookbook. 
-  - each element in `persistent_roots` is by contract on a separate volume, and similarly each of the `scratch_roots` is on a separate volume. A volume *may* be in scratch and persistent though. You should always trust the integration cookbook's choices in this matter.
+* **scratch_roots**, **persistent_roots**: an array of directories spread across volumes, with expectations on persistence
+  - `scratch_root`s have no guarantee of persistence -- for example, stop/start'ing a machine on EC2 destroys the contents of its local (ephemeral) drives. `persistent_root`s have the *best available* promise of persistance: if permanent (eg EBS) volumes are available, they will exclusively populate the `persistent_root`s; but if not, the ephemeral drives are used instead.
+  - these attributes are provided by the `mountable_volume` meta-cookbook and its appropriate integration recipe. Ordinary cookbooks should always trust the integration cookbook's choices (or visit the integration cookbook to correct them).
+  - each element in `persistent_roots` is by contract on a separate volume, and similarly each of the `scratch_roots` is on a separate volume. A volume *may* be in both scratch and persistent (for example, there may be only one volume!).
   - the singular forms  **scratch_root** and **persistent_root** are provided for your convenience and always correspond to `scratch_roots.first` and `persistent_roots.first`. This means lots the first named volume is picked on the heaviest -- if you don't like that, choose explicitly (but not randomly, or you won't be idempotent).
 
 
