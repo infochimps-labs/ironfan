@@ -9,7 +9,7 @@ description      "Configures NFS"
 depends          "provides_service"
 
 recipe           "nfs::client",                        "Client"
-recipe           "nfs::default",                       "Default"
+recipe           "nfs::default",                       "Base configuration for nfs"
 recipe           "nfs::server",                        "Server"
 
 %w[ debian ubuntu ].each do |os|

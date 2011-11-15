@@ -61,16 +61,16 @@ Ignore the temptation to make a one-true-home-for-my-system, or to fight the pac
 #### Application
 
 * **home_dir**: Logical location for the cookbook's system code.
-  - default: typically, leave it up to the package maintainer. Otherwise, `:install_root/share/:cookbook` should be a symlink to the `install_dir` (see below).
+  - default: typically, leave it up to the package maintainer. Otherwise, `:prefix_root/share/:cookbook` should be a symlink to the `install_dir` (see below).
   - instead of:         `xx_home` / `dir` alone / `install_dir`
-* **install_root**: A container with directories bin, lib, share, src, to use according to convention
+* **prefix_root**: A container with directories bin, lib, share, src, to use according to convention
   - default: `/usr/local`.
 * **install_dir**: The cookbook's system code, in case the home dir is a pointer to potential alternates.
-  - default: `:install_root/share/:cookbook-:version` ( you don't need the directory after the cookbook runs, use `:install_root/share/:cookbook-:version` instead, eg `/usr/local/src/tokyo_tyrant-xx.xx`)
+  - default: `:prefix_root/share/:cookbook-:version` ( you don't need the directory after the cookbook runs, use `:prefix_root/share/:cookbook-:version` instead, eg `/usr/local/src/tokyo_tyrant-xx.xx`)
   - Make `home_dir` a symlink to this directory (eg home_dir `/usr/local/share/elasticsearch` links to install_dir `/usr/local/share/elasticsearch-0.17.8`).
 * **src_dir**: holds the compressed tarball, its expanded contents, and the compiled files when installing from source. Use this when you will run `make install` or equivalent and use the files elsewhere.
-  - default:            `:install_root/src/:system_name-:version`, eg `/usr/local/src/pig-0.9.tar.gz`
-  - do not:             expand the tarball to `:install_root/src/(whatever)` if it will actually be used from there; instead, use the `install_dir` convention described above. (As a guideline, I should be able to blow away `/usr/local/src` and everything still works).
+  - default:            `:prefix_root/src/:system_name-:version`, eg `/usr/local/src/pig-0.9.tar.gz`
+  - do not:             expand the tarball to `:prefix_root/src/(whatever)` if it will actually be used from there; instead, use the `install_dir` convention described above. (As a guideline, I should be able to blow away `/usr/local/src` and everything still works).
 * **deploy_dir**: deployed code that follows the capistrano convention. See more about deploy variables below.
   - the `:deploy_dir/shared` directory holds common files
   - releases are checked out to `:deploy_dir/releases/{sha}`
@@ -130,7 +130,7 @@ Ignore the temptation to make a one-true-home-for-my-system, or to fight the pac
 * **release_url**:      URL for the release.
   - instead of:         install_url, package_url, being careless about partial vs whole URLs
 * **release_file**:     Where to put the release.
-  - default:            `:install_root/src/system_name-version.ext`, eg `/usr/local/src/elasticsearch-0.17.8.tar.bz2`. 
+  - default:            `:prefix_root/src/system_name-version.ext`, eg `/usr/local/src/elasticsearch-0.17.8.tar.bz2`. 
   - do not use `/tmp` -- let me decide when to blow it away (and make it easy to be idempotent).
   - do not use a non-versioned URL or file name.
 * **release_file_sha** or **release_file_md5** fingerprint

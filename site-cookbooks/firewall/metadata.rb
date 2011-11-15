@@ -8,7 +8,7 @@ description      "Installs/Configures firewall"
 
 depends          "iptables"
 
-recipe           "firewall::default",                  "Default"
+recipe           "firewall::default",                  "Base configuration for firewall"
 recipe           "firewall::port_scan",                "Port Scan"
 
 %w[ debian ubuntu ].each do |os|

@@ -26,14 +26,14 @@ require 'chef/mixin/from_file'
 $:.unshift File.expand_path('..', File.dirname(__FILE__))
 require 'cluster_chef/dsl_object'
 
-
-Settings.define :maintainer,       :default => "Philip (flip) Kromer - Infochimps, Inc"
-Settings.define :maintainer_email, :default => "coders@infochimps.com"
-Settings.define :license,          :default => "Apache 2.0"
-Settings.define :long_desc_gen,    :default => %Q{IO.read(File.join(File.dirname(__FILE__), 'README.md'))}
-Settings.define :version,          :default => "3.0.0"
-
-Settings.define :cookbook_paths,   :type => Array, :default => ["{site,meta}-cookbooks"]
+Settings.define :maintainer,       :default => 'default mantainer name', :default => "Philip (flip) Kromer - Infochimps, Inc"
+Settings.define :maintainer_email, :default => 'default email to add to cookbook headers', :default => "coders@infochimps.com"
+Settings.define :license,          :default => 'default license to apply to cookbooks', :default => "Apache 2.0"
+#
+Settings.define :cookbook_paths,   :description => 'list of paths holding cookbooks', :type => Array, :default => ["./{site-cookbooks,meta-cookbooks}"]
+#
+Settings.use(:commandline)
+Settings.resolve!
 
 module CookbookMunger
   TEMPLATE_ROOT  = File.expand_path('cookbook_munger', File.dirname(__FILE__))
@@ -263,8 +263,8 @@ module CookbookMunger
       self.author_lines      = []
       self.copyright_lines   = []
       super
-      self.copyright_lines   = ["# Copyright #{copyright_text}"]         if copyright_lines.blank?
-      self.author_lines      = ["# Author::              #{maintainer}"] if author_lines.blank?
+      self.copyright_lines   = ["# Copyright #{cookbook.copyright_text}"]         if copyright_lines.blank?
+      self.author_lines      = ["# Author::              #{cookbook.maintainer}"] if author_lines.blank?
     end
 
     def dump
@@ -303,12 +303,17 @@ module CookbookMunger
       @all_attributes = DummyAttributeCollection.new
     end
 
+    #
+    # Fake the DSL so we can run the attributes file in our context
+    #
+
     def default
       all_attributes
     end
     def set
       all_attributes
     end
+    def attribute?(key) node.has_key?(key.to_sym) ; end
     def node
       { :platform     => 'ubuntu',   :platform_version => '10.4',
         :hostname     => 'hostname',
@@ -318,9 +323,18 @@ module CookbookMunger
         :ec2          => { :instance_type => 'm1.large', },
         :jenkins      => { :server => { :user => 'jenkins' } },
         :redis        => { :slave => 'no' },
-        :cloud        => { :private_ips => ['10.20.30.40'] }
-      }
+        :cloud        => { :private_ips => ['10.20.30.40'] },
+        :ipaddress    => '10.20.30.40',
+      }.merge(@all_attributes)
     end
+    def method_missing(meth, *args)
+      if args.empty? && node.has_key?(meth)
+        node[meth]
+      else
+        super(meth, *args)
+      end
+    end
+
   end
 
   # ===========================================================================
@@ -333,7 +347,7 @@ module CookbookMunger
     include       Chef::Mixin::FromFile
     attr_reader   :dirname
     has_keys      :name, :author, :maintainer, :maintainer_email, :license, :version, :description, :long_desc_gen
-    attr_reader   :all_depends, :all_recipes, :all_attributes, :all_resources, :all_supports
+    attr_reader   :all_depends, :all_recipes, :all_attributes, :all_resources, :all_supports, :all_recommends
     attr_reader   :components, :attribute_files
 
     # also: grouping, conflicts, provides, replaces, recommends, suggests
@@ -348,9 +362,11 @@ module CookbookMunger
       @attribute_files  = {}
       @all_attributes   = CookbookMunger::DummyAttributeCollection.new
       @all_depends    ||= {}
+      @all_recommends ||= {}
+      @all_supports   ||= %w[ debian ubuntu ]
       @all_recipes    ||= {}
       @all_resources  ||= {}
-      @all_supports   ||= %w[ debian ubuntu ]
+      long_desc_gen(%Q{IO.read(File.join(File.dirname(__FILE__), 'README.md'))}) unless long_desc_gen
     end
 
     #
@@ -358,16 +374,19 @@ module CookbookMunger
     #
 
     # add dependency to list
-    def depends(nm, ver=nil)  @all_depends[nm] = (ver ? %Q{"#{nm}", "#{ver}"} : %Q{"#{nm}"} ) ; end
+    def depends(nm, ver=nil)    @all_depends[nm]    = (ver ? %Q{"#{nm}", "#{ver}"} : %Q{"#{nm}"} ) ; end
+    # add recommended dependency to list
+    def recommends(nm, ver=nil) @all_recommends[nm] = (ver ? %Q{"#{nm}", "#{ver}"} : %Q{"#{nm}"} ) ; end
     # add supported OS to list
-    def supports(nm)          @all_supports << nm ; @all_supports.uniq! ; @all_supports ; end
+    def supports(nm, ver=nil)   @all_supports      << nm ; @all_supports.uniq!   ; @all_supports ; end
     # add resource to list
-    def resource(nm, desc)    @all_resources[nm] = { :name => nm, :description => desc } ;   end
+    def resource(nm, desc)      @all_resources[nm]  = { :name => nm, :description => desc } ;   end
     # fake long description -- we ignore it anyway
-    def long_description(val) @long_description = val end
+    def long_description(val)   @long_description = val end
 
     # add attribute to list
     def attribute(nm, info={})
+      return if info[:type] == 'hash'
       path_segs = nm.split("/")
       leaf      = path_segs.pop
       attr_branch = @all_attributes

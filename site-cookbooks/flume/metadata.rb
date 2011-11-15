@@ -11,7 +11,7 @@ depends          "apt"
 depends          "mountable_volumes"
 depends          "provides_service"
 
-recipe           "flume::default",                     "Default"
+recipe           "flume::default",                     "Base configuration for flume"
 recipe           "flume::hbase_sink_plugin",           "Hbase Sink Plugin"
 recipe           "flume::jruby_plugin",                "Jruby Plugin"
 recipe           "flume::master",                      "Master"

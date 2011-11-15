@@ -9,7 +9,7 @@ description      "Installs and configures Redis server"
 depends          "runit"
 depends          "install_from"
 
-recipe           "redis::default",                     "Default"
+recipe           "redis::default",                     "Base configuration for redis"
 recipe           "redis::install_from_package",        "Install From Package"
 recipe           "redis::install_from_release",        "Install From Release"
 recipe           "redis::server",                      "Server"

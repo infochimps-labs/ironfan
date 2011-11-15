@@ -9,7 +9,7 @@ description      "Mounts volumes  as directed by node metadata. Can attach exter
 depends          "aws"
 
 recipe           "mountable_volumes::attach",          "Attach"
-recipe           "mountable_volumes::default",         "Default"
+recipe           "mountable_volumes::default",         "Base configuration for mountable_volumes"
 recipe           "mountable_volumes::mount",           "Mount"
 
 %w[ debian ubuntu ].each do |os|

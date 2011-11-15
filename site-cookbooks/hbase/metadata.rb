@@ -15,7 +15,7 @@ depends          "zookeeper"
 depends          "ganglia"
 
 recipe           "hbase::backup_tables",               "Backup Tables"
-recipe           "hbase::default",                     "Default"
+recipe           "hbase::default",                     "Base configuration for hbase"
 recipe           "hbase::hbase_master",                "Hbase Master"
 recipe           "hbase::hbase_regionserver",          "Hbase Regionserver"
 recipe           "hbase::master",                      "Master"

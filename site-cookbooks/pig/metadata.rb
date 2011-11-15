@@ -11,7 +11,7 @@ depends          "apt"
 depends          "install_from"
 
 recipe           "pig::apache_plus_cloudera_best_friends_forever", "Apache Plus Cloudera Best Friends Forever"
-recipe           "pig::default",                       "Default"
+recipe           "pig::default",                       "Base configuration for pig"
 recipe           "pig::install_from_package",          "Install From Package"
 recipe           "pig::install_from_release",          "Install From Release"
 recipe           "pig::link_extra_jars",               "Link Extra Jars"

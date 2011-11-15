@@ -9,7 +9,7 @@ description      "Installs/Configures resque"
 depends          "runit"
 depends          "redis"
 
-recipe           "resque::default",                    "Default"
+recipe           "resque::default",                    "Base configuration for resque"
 recipe           "resque::server",                     "Server"
 
 %w[ debian ubuntu ].each do |os|

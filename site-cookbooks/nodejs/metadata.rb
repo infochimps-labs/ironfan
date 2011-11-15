@@ -9,7 +9,7 @@ description      "Installs/Configures nodejs"
 depends          "python"
 
 recipe           "nodejs::compile",                    "Compile"
-recipe           "nodejs::default",                    "Default"
+recipe           "nodejs::default",                    "Base configuration for nodejs"
 
 %w[ debian ubuntu ].each do |os|
   supports os

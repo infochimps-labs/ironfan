@@ -12,7 +12,7 @@ depends          "mountable_volumes"
 depends          "provides_service"
 
 recipe           "zookeeper::client",                  "Client"
-recipe           "zookeeper::default",                 "Default"
+recipe           "zookeeper::default",                 "Base configuration for zookeeper"
 recipe           "zookeeper::server",                  "Server"
 recipe           "zookeeper::zookeeper_server",        "Zookeeper Server"
 

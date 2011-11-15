@@ -10,7 +10,7 @@ depends          "java"
 depends          "provides_service"
 
 recipe           "ganglia::client",                    "Client"
-recipe           "ganglia::default",                   "Default"
+recipe           "ganglia::default",                   "Base configuration for ganglia"
 recipe           "ganglia::gmetad",                    "Gmetad"
 recipe           "ganglia::server",                    "Server"
 

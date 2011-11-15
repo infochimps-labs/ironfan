@@ -14,7 +14,7 @@ depends          "provides_service"
 
 recipe           "hadoop_cluster::cluster_conf",       "Cluster Conf"
 recipe           "hadoop_cluster::datanode",           "Datanode"
-recipe           "hadoop_cluster::default",            "Default"
+recipe           "hadoop_cluster::default",            "Base configuration for hadoop_cluster"
 recipe           "hadoop_cluster::doc",                "Doc"
 recipe           "hadoop_cluster::ec2_conf",           "Ec2 Conf"
 recipe           "hadoop_cluster::hadoop_webfront",    "Hadoop Webfront"

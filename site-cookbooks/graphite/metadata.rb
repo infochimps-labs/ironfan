@@ -11,7 +11,7 @@ depends          "apache2"
 depends          "ganglia"
 
 recipe           "graphite::carbon",                   "Carbon"
-recipe           "graphite::default",                  "Default"
+recipe           "graphite::default",                  "Base configuration for graphite"
 recipe           "graphite::ganglia",                  "Ganglia"
 recipe           "graphite::web",                      "Web"
 recipe           "graphite::whisper",                  "Whisper"

@@ -19,7 +19,7 @@ recipe           "cassandra::iptables",                "Automatically configure 
 recipe           "cassandra::authentication",          "Authentication"
 recipe           "cassandra::bintools",                "Bintools"
 recipe           "cassandra::client",                  "Client"
-recipe           "cassandra::default",                 "Default"
+recipe           "cassandra::default",                 "Base configuration for cassandra"
 recipe           "cassandra::install_from_git",        "Install From Git"
 recipe           "cassandra::install_from_package",    "Install From Package"
 recipe           "cassandra::install_from_release",    "Install From Release"
