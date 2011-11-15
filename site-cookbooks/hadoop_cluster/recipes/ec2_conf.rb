@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       hadoop_cluster
+# Description::         Ec2 Conf
 # Recipe::              ec2_conf
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

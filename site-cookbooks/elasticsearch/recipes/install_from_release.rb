@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       elasticsearch
+# Description::         Install From Release
 # Recipe::              install_from_release
 # Author::              GoTime, modifications by Infochimps
 #

@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       pig
+# Description::         Piggybank
 # Recipe::              piggybank
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

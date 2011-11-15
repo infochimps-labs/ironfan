@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       pig
+# Description::         Apache Plus Cloudera Best Friends Forever
 # Recipe::              apache_plus_cloudera_best_friends_forever
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

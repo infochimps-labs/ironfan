@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       cassandra
+# Description::         Jna Support
 # Recipe::              jna_support
 # Author::              Benjamin Black
 #

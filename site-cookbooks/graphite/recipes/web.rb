@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       graphite
+# Description::         Web
 # Recipe::              web
 # Author::              Heavy Water Software Inc.
 #

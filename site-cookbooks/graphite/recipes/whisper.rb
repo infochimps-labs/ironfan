@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       graphite
+# Description::         Whisper
 # Recipe::              whisper
 # Author::              Heavy Water Software Inc.
 #

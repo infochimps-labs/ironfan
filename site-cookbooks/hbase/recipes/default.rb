@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       hbase
+# Description::         Base configuration for hbase
 # Recipe::              default
 # Author::              Chris Howe - Infochimps, Inc
 #

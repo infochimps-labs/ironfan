@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       hadoop_cluster
+# Description::         Namenode
 # Recipe::              namenode
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

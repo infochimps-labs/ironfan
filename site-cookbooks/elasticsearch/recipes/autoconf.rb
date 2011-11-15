@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       elasticsearch
+# Description::         Autoconf
 # Recipe::              autoconf
 # Author::              GoTime, modifications by Infochimps
 #

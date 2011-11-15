@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       mountable_volumes
+# Description::         Attach
 # Recipe::              attach
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

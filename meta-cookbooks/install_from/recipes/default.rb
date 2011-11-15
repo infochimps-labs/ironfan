@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       install_from
+# Description::         Base configuration for install_from
 # Recipe::              default
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

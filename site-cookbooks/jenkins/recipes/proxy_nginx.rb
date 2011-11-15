@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       jenkins
+# Description::         Proxy Nginx
 # Recipe::              proxy_nginx
 # Author::              Fletcher Nichol <fnichol@nichol.ca>
 #

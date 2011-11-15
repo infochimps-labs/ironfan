@@ -161,10 +161,13 @@ module CookbookMunger
   #
   module CookbookComponent
     attr_reader   :name, :desc, :filename
+    # the cookbook object this belongs to
+    attr_reader   :cookbook
     attr_accessor :header_lines, :body_lines
 
-    def initialize(name, desc, filename, *args, &block)
+    def initialize(cookbook, name, desc, filename, *args, &block)
       super(*args, &block)
+      @cookbook = cookbook
       @name     = name
       @desc     = desc
       @filename = filename
@@ -223,8 +226,8 @@ module CookbookMunger
     end
 
     module ClassMethods
-      def read(name, desc, filename)
-        attr_file = self.new(name, desc, filename)
+      def read(cookbook, name, desc, filename)
+        attr_file = self.new(cookbook, name, desc, filename)
         attr_file.read
         attr_file
       end
@@ -270,14 +273,15 @@ module CookbookMunger
 
     def generate_header!
       new_header_lines = ['#']
-      new_header_lines << "# Cookbook Name::       #{name}"
-      new_header_lines << "# Recipe::              #{recipe_name}"
+      new_header_lines << "# Cookbook Name::       #{cookbook.name}"
+      new_header_lines << "# Description::         #{desc}"
+      new_header_lines << "# Recipe::              #{name}"
       new_header_lines += author_lines
       new_header_lines << "#"
       new_header_lines += copyright_lines
       new_header_lines << "#"
-      new_header_lines << ("# "+short_license_text.gsub(/\n/, "\n# ").gsub(/\n# \n/, "\n#\n")) << '#'
-      header_lines = new_header_lines
+      new_header_lines << ("# "+cookbook.short_license_text.gsub(/\n/, "\n# ").gsub(/\n# \n/, "\n#\n")) << '#'
+      self.header_lines = new_header_lines
     end
 
   end
@@ -294,8 +298,8 @@ module CookbookMunger
     include       CookbookComponent
     attr_reader   :all_attributes
 
-    def initialize(name, desc, filename)
-      super(name, desc, filename)
+    def initialize(*args, &block)
+      super(*args, &block)
       @all_attributes = DummyAttributeCollection.new
     end
 
@@ -377,13 +381,11 @@ module CookbookMunger
     # add recipe to list
     def recipe(recipe_name, desc=nil)
       recipe_name = 'default' if recipe_name == name
-      recipe_name = "#{name}::#{recipe_name}" unless recipe_name =~ /::/
-      basename    = recipe_name.gsub(/^#{name}::/, "")
+      recipe_name = recipe_name.gsub(/^#{name}::/, "")
       #
-      desc      ||= basename.titleize
-      filename    = file_in_cookbook("recipes/#{basename}.rb")
-      p [recipe_name, desc, filename]
-      @all_recipes[recipe_name]      ||= RecipeFile.read(recipe_name, desc, filename)
+      desc        = (recipe_name == 'default' ? "Base configuration for #{name}" : recipe_name.titleize) if (desc.blank? || desc == recipe_name.titleize)
+      filename    = file_in_cookbook("recipes/#{recipe_name}.rb")
+      @all_recipes[recipe_name]      ||= RecipeFile.read(self, recipe_name, desc, filename)
       @all_recipes[recipe_name].desc ||= desc if desc.present?
       @all_recipes[recipe_name]
     end
@@ -400,8 +402,8 @@ module CookbookMunger
       from_file(file_in_cookbook("metadata.rb"))
 
       @components = {
-        :attributes  => Dir[file_in_cookbook('attributes/*.rb')   ].map{|f| nm = File.basename(f, '.rb') ; AttributeFile.read(nm, "attributes[#{self.name}::#{nm}", f) },
-        :recipes     => Dir[file_in_cookbook('recipes/*.rb')      ].map{|f| nm = File.basename(f, '.rb') ; recipe("#{name}::#{nm}", nil) },
+        :attributes  => Dir[file_in_cookbook('attributes/*.rb')   ].map{|f| nm = File.basename(f, '.rb') ; AttributeFile.read(self, nm, "attributes[#{self.name}::#{nm}", f) },
+        :recipes     => Dir[file_in_cookbook('recipes/*.rb')      ].map{|f| nm = File.basename(f, '.rb') ; recipe("#{name}::#{nm}") },
         :resources   => Dir[file_in_cookbook('resources/*.rb')    ].map{|f| File.basename(f, '.rb') },
         :providers   => Dir[file_in_cookbook('providers/*.rb')    ].map{|f| File.basename(f, '.rb') },
         :templates   => Dir[file_in_cookbook('templates/**/*.rb') ].map{|f| File.join(File.basename(File.dirname(f)), File.basename(f, '.rb')) },
@@ -449,6 +451,7 @@ module CookbookMunger
         f << render('metadata.rb')
       end
       components[:recipes].each do |recipe_file|
+        recipe_file.generate_header!
         recipe_file.dump
       end
     end

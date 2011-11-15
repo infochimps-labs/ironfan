@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       hive
+# Description::         Base configuration for hive
 # Recipe::              default
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

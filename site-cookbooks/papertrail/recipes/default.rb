@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       papertrail
+# Description::         Base configuration for papertrail
 # Recipe::              default
 # Author::              Mike Heffner, Librato, Inc.
 #

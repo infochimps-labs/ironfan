@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       ec2
+# Description::         Base configuration for ec2
 # Recipe::              default
 # Author::              Mike Heffner
 #

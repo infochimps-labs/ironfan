@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       resque
+# Description::         Server
 # Recipe::              server
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

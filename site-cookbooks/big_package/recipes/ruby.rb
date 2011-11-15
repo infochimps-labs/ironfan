@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       big_package
+# Description::         Ruby
 # Recipe::              ruby
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

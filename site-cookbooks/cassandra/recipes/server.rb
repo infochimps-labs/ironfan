@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       cassandra
+# Description::         Server
 # Recipe::              server
 # Author::              Benjamin Black (<b@b3k.us>)
 #

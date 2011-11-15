@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       ganglia
+# Description::         Server
 # Recipe::              server
 # Author::              Chris Howe - Infochimps, Inc
 #

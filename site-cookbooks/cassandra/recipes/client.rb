@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       cassandra
+# Description::         Client
 # Recipe::              client
 # Author::              Benjamin Black (<b@b3k.us>)
 #

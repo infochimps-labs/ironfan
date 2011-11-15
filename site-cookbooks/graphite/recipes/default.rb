@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       graphite
+# Description::         Base configuration for graphite
 # Recipe::              default
 # Author::              Heavy Water Software Inc.
 #

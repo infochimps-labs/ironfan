@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       elasticsearch
+# Description::         Base configuration for elasticsearch
 # Recipe::              default
 # Author::              GoTime, modifications by Infochimps
 #

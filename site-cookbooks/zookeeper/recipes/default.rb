@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       zookeeper
+# Description::         Base configuration for zookeeper
 # Recipe::              default
 # Author::              Chris Howe - Infochimps, Inc
 #

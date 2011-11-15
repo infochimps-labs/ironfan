@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       big_package
+# Description::         Emacs
 # Recipe::              emacs
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

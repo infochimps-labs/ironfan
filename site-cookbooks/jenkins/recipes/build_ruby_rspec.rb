@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       jenkins
+# Description::         Build Ruby Rspec
 # Recipe::              build_ruby_rspec
 # Author::              Philip (flip) Kromer <flip@infochimps.com>
 #

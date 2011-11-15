@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       jruby
+# Description::         Base configuration for jruby
 # Recipe::              default
 # Author::              Jacob Perkins - Infochimps, Inc
 #

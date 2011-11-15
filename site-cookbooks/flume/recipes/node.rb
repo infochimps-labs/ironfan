@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       flume
+# Description::         Node
 # Recipe::              node
 # Author::              Chris Howe - Infochimps, Inc
 #

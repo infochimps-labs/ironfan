@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       cassandra
+# Description::         Automatically configure iptables rules for cassandra.
 # Recipe::              iptables
 # Author::              Benjamin Black (<b@b3k.us>)
 #

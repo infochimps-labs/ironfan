@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       flume
+# Description::         Base configuration for flume
 # Recipe::              default
 # Author::              Chris Howe - Infochimps, Inc
 #

@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       big_package
+# Description::         Python
 # Recipe::              python
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       hbase
+# Description::         Master
 # Recipe::              master
 # Author::              Chris Howe - Infochimps, Inc
 #

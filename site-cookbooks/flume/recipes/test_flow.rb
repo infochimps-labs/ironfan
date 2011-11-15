@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       flume
+# Description::         Test Flow
 # Recipe::              test_flow
 # Author::              Chris Howe - Infochimps, Inc
 #

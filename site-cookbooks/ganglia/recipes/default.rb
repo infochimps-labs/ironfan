@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       ganglia
+# Description::         Base configuration for ganglia
 # Recipe::              default
 # Author::              Chris Howe - Infochimps, Inc
 #

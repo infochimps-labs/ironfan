@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       elasticsearch
+# Description::         Http
 # Recipe::              http
 # Author::              GoTime, modifications by Infochimps
 #

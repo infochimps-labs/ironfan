@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       hadoop_cluster
+# Description::         Secondarynamenode
 # Recipe::              secondarynamenode
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

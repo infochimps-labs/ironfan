@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       graphite
+# Description::         Ganglia
 # Recipe::              ganglia
 # Author::              Heavy Water Software Inc.
 #

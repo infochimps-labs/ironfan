@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       hadoop_cluster
+# Description::         Update Apt
 # Recipe::              update_apt
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

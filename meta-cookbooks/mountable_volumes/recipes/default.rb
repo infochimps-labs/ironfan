@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       mountable_volumes
+# Description::         Base configuration for mountable_volumes
 # Recipe::              default
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

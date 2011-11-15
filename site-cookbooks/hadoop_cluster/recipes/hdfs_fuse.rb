@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       hadoop_cluster
+# Description::         Hdfs Fuse
 # Recipe::              hdfs_fuse
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

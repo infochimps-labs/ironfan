@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       jenkins
+# Description::         Iptables
 # Recipe::              iptables
 # Author::              Fletcher Nichol <fnichol@nichol.ca>
 #

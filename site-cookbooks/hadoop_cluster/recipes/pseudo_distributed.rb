@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       hadoop_cluster
+# Description::         Pseudo Distributed
 # Recipe::              pseudo_distributed
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

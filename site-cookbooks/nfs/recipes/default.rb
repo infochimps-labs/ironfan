@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       nfs
+# Description::         Base configuration for nfs
 # Recipe::              default
 # Author::              37signals
 #

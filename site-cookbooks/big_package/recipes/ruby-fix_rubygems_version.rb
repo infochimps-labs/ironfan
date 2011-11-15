@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       big_package
+# Description::         Ruby Fix Rubygems Version
 # Recipe::              ruby-fix_rubygems_version
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

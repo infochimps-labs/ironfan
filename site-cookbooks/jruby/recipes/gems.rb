@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       jruby
+# Description::         Gems
 # Recipe::              gems
 # Author::              Jacob Perkins - Infochimps, Inc
 #

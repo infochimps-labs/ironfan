@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       cluster_chef
+# Description::         Dedicated Server Tuning
 # Recipe::              dedicated_server_tuning
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

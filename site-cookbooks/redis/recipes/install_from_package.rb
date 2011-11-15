@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       redis
+# Description::         Install From Package
 # Recipe::              install_from_package
 # Author::              Benjamin Black
 #

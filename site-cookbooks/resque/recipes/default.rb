@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       resque
+# Description::         Base configuration for resque
 # Recipe::              default
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

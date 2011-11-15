@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       hadoop_cluster
+# Description::         Cluster Conf
 # Recipe::              cluster_conf
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

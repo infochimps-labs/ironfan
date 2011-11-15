@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       jenkins
+# Description::         User Key
 # Recipe::              user_key
 # Author::              Fletcher Nichol
 #

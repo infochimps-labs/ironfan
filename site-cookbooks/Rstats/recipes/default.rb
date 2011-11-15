@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       Rstats
+# Description::         Installs the base R package, a ruby interface, and some basic R packages.
 # Recipe::              default
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       big_package
+# Description::         Data Analysis Tools
 # Recipe::              data_analysis_tools
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

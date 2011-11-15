@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       big_package
+# Description::         Base configuration for big_package
 # Recipe::              default
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

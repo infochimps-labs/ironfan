@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       jenkins
+# Description::         Node Ssh
 # Recipe::              node_ssh
 # Author::              Doug MacEachern <dougm@vmware.com>
 # Author::              Fletcher Nichol <fnichol@nichol.ca>

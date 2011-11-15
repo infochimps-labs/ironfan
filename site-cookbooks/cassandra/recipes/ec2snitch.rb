@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       cassandra
+# Description::         Automatically configure properties snitch for clusters on EC2.
 # Recipe::              ec2snitch
 # Author::              Benjamin Black (<b@b3k.us>)
 #

@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       cassandra
+# Description::         Base configuration for cassandra
 # Recipe::              default
 # Author::              Benjamin Black (<b@b3k.us>)
 #

@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       redis
+# Description::         Base configuration for redis
 # Recipe::              default
 # Author::              Benjamin Black (<b@b3k.us>)
 #

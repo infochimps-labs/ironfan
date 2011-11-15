@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       firewall
+# Description::         Port Scan
 # Recipe::              port_scan
 # Author::              Mike Heffner
 #

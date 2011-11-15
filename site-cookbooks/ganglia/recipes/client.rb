@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       ganglia
+# Description::         Client
 # Recipe::              client
 # Author::              Chris Howe - Infochimps, Inc
 #

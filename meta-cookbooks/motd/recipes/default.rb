@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       motd
+# Description::         Base configuration for motd
 # Recipe::              default
 # Author::              Dhruv Bansal - Infochimps, Inc
 #

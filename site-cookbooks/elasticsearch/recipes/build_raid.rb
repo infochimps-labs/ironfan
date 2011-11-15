@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       elasticsearch
+# Description::         Build Raid
 # Recipe::              build_raid
 # Author::              GoTime, modifications by Infochimps
 #

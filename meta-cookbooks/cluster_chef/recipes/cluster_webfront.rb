@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       cluster_chef
+# Description::         Cluster Webfront
 # Recipe::              cluster_webfront
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

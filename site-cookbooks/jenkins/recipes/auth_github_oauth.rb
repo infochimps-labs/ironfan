@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       jenkins
+# Description::         Auth Github Oauth
 # Recipe::              auth_github_oauth
 # Author::              Philip (flip) Kromer <flip@infochimps.com>
 #

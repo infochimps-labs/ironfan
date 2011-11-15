@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       jenkins
+# Description::         Node Windows
 # Recipe::              node_windows
 # Author::              Doug MacEachern <dougm@vmware.com>
 # Author::              Fletcher Nichol <fnichol@nichol.ca>

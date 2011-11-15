@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       pig
+# Description::         Link Extra Jars
 # Recipe::              link_extra_jars
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       statsd
+# Description::         Base configuration for statsd
 # Recipe::              default
 # Author::              Nathaniel Eliot - Infochimps, Inc
 #

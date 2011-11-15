@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       jenkins
+# Description::         Server
 # Recipe::              server
 # Author::              Doug MacEachern <dougm@vmware.com>
 #

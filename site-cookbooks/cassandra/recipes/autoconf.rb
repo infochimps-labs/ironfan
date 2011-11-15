@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       cassandra
+# Description::         Automatically configure nodes from chef-server information.
 # Recipe::              autoconf
 # Author::              Benjamin Black (<b@b3k.us>)
 #

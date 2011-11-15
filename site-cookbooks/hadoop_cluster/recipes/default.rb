@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       hadoop_cluster
+# Description::         Base configuration for hadoop_cluster
 # Recipe::              default
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

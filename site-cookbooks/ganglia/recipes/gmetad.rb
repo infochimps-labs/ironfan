@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       ganglia
+# Description::         Gmetad
 # Recipe::              gmetad
 # Author::              Chris Howe - Infochimps, Inc
 #

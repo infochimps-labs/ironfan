@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       cassandra
+# Description::         Install From Git
 # Recipe::              install_from_git
 # Author::              Benjamin Black
 #

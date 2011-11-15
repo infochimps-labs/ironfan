@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       hbase
+# Description::         Stargate
 # Recipe::              stargate
 # Author::              Chris Howe - Infochimps, Inc
 #

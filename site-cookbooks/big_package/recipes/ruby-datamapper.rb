@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       big_package
+# Description::         Ruby Datamapper
 # Recipe::              ruby-datamapper
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

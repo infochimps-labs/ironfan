@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       redis
+# Description::         Server
 # Recipe::              server
 # Author::              Benjamin Black
 #

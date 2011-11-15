@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       jenkins
+# Description::         Node Jnlp
 # Recipe::              node_jnlp
 # Author::              Doug MacEachern <dougm@vmware.com>
 # Author::              Fletcher Nichol <fnichol@nichol.ca>

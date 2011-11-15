@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       firewall
+# Description::         Base configuration for firewall
 # Recipe::              default
 # Author::              Mike Heffner
 #

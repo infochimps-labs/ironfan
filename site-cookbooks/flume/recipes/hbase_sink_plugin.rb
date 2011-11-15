@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       flume
+# Description::         Hbase Sink Plugin
 # Recipe::              hbase_sink_plugin
 # Author::              Chris Howe - Infochimps, Inc
 #

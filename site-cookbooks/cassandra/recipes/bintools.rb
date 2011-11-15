@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       cassandra
+# Description::         Bintools
 # Recipe::              bintools
 # Author::              Benjamin Black
 #

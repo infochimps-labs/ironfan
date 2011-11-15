@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       hadoop_cluster
+# Description::         Hadoop Webfront
 # Recipe::              hadoop_webfront
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

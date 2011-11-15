@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       zookeeper
+# Description::         Zookeeper Server
 # Recipe::              zookeeper_server
 # Author::              Chris Howe - Infochimps, Inc
 #

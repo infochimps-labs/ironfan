@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       cassandra
+# Description::         Authentication
 # Recipe::              authentication
 # Author::              Mike Heffner (<mike@librato.com>)
 #

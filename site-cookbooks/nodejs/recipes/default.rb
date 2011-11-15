@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       nodejs
+# Description::         Base configuration for nodejs
 # Recipe::              default
 # Author::              Nathaniel Eliot - Infochimps, Inc
 #

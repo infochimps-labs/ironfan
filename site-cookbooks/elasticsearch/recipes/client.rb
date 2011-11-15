@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       elasticsearch
+# Description::         Client
 # Recipe::              client
 # Author::              GoTime, modifications by Infochimps
 #

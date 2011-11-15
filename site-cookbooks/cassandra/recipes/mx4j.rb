@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       cassandra
+# Description::         Mx4j
 # Recipe::              mx4j
 # Author::              Mike Heffner (<mike@librato.com>)
 #

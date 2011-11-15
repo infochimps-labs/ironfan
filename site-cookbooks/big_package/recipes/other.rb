@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       big_package
+# Description::         Other
 # Recipe::              other
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

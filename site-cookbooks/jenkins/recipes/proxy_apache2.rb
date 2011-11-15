@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       jenkins
+# Description::         Proxy Apache2
 # Recipe::              proxy_apache2
 # Author::              Fletcher Nichol <fnichol@nichol.ca>
 #

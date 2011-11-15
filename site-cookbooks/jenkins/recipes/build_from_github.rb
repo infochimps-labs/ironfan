@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       jenkins
+# Description::         Build From Github
 # Recipe::              build_from_github
 # Author::              Philip (flip) Kromer <flip@infochimps.com>
 #

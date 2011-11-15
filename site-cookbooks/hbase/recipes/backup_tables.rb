@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       hbase
+# Description::         Backup Tables
 # Recipe::              backup_tables
 # Author::              Chris Howe - Infochimps, Inc
 #

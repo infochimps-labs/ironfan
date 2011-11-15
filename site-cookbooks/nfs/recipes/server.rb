@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       nfs
+# Description::         Server
 # Recipe::              server
 # Author::              37signals
 #

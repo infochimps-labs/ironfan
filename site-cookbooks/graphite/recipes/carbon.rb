@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       graphite
+# Description::         Carbon
 # Recipe::              carbon
 # Author::              Heavy Water Software Inc.
 #

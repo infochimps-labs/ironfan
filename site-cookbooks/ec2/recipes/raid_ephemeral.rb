@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       ec2
+# Description::         Raid Ephemeral
 # Recipe::              raid_ephemeral
 # Author::              Mike Heffner (<mike@librato.com>)
 #

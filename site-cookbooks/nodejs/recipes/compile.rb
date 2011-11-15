@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       nodejs
+# Description::         Compile
 # Recipe::              compile
 # Author::              Nathaniel Eliot - Infochimps, Inc
 #

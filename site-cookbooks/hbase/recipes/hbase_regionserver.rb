@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       hbase
+# Description::         Hbase Regionserver
 # Recipe::              hbase_regionserver
 # Author::              Chris Howe - Infochimps, Inc
 #

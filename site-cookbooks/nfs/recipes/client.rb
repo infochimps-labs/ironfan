@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       nfs
+# Description::         Client
 # Recipe::              client
 # Author::              37signals
 #

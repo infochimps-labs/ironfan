@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       flume
+# Description::         Jruby Plugin
 # Recipe::              jruby_plugin
 # Author::              Chris Howe - Infochimps, Inc
 #

@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       jenkins
+# Description::         Base configuration for jenkins
 # Recipe::              default
 # Author::              Doug MacEachern <dougm@vmware.com>
 # Author::              Fletcher Nichol <fnichol@nichol.ca>

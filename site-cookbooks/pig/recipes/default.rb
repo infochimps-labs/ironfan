@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       pig
+# Description::         Base configuration for pig
 # Recipe::              default
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

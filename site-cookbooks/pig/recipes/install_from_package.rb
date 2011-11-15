@@ -1,5 +1,6 @@
 #
 # Cookbook Name::       pig
+# Description::         Install From Package
 # Recipe::              install_from_package
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #
