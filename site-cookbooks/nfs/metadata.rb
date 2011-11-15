@@ -19,7 +19,7 @@ end
 attribute "nfs/exports",
   :display_name          => "NFS Exports",
   :description           => "Describes the volumes to export. Supply a list of pairs: <path-to-export, hash-of-NFS-options>. For example, \n   default[:nfs][:exports] = [[ '/home', { :nfs_options => '*.internal(rw,no_root_squash,no_subtree_check)' }]]",
-  :default               => {}
+  :default               => ""
 
 attribute "nfs/mounts",
   :display_name          => "NFS Mounts",

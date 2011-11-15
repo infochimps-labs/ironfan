@@ -27,7 +27,7 @@ attribute "pig/home_dir",
 
 attribute "pig/install_url",
   :display_name          => "URL of pig release tarball",
-  :description           => "",
+  :description           => "URL of pig release tarball",
   :default               => "http://apache.mirrors.tds.net/pig/pig-0.9.1/pig-0.9.1.tar.gz"
 
 attribute "pig/java_home",
@@ -43,7 +43,7 @@ attribute "pig/extra_jars",
 
 attribute "pig/extra_confs",
   :display_name          => "List of filenames for other systems' conf files to place within pig's purview",
-  :description           => "",
+  :description           => "List of filenames for other systems' conf files to place within pig's purview",
   :type                  => "array",
   :default               => ["/etc/hbase/conf/hbase-default.xml", "/etc/hbase/conf/hbase-site.xml"]
 

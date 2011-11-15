@@ -126,3 +126,8 @@ attribute "resque/app_env",
   :display_name          => "",
   :description           => "",
   :default               => "production"
+
+attribute "resque/home_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/data/db/resque"

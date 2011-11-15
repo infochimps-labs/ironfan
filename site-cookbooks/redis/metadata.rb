@@ -103,3 +103,8 @@ attribute "redis/shareobjects",
   :display_name          => "",
   :description           => "",
   :default               => "no"
+
+attribute "redis/addr",
+  :display_name          => "",
+  :description           => "",
+  :default               => "0.0.0.0"
