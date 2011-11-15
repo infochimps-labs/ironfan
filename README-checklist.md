@@ -1,25 +1,25 @@
 # Checklist for cookbooks, clusters and roles
 
+## Cookbooks
+
 Ordinary cookbooks describe a single system, consisting of one or more components. For example, the `redis` cookbook has a `server` component (with a daemon and moving parts), and a `client` component (which is static).
 
 You should crisply separate cookbook-wide concerns from component concerns. The server's attributes live in `node[:redis][:server]`, it is installed by the `redis::server` cookbook, and so forth.
   
 You should also separate system configuration from multi-system integration. Cookbooks should provide hooks that are neighborly but not exhibitionist, and otherwise mind their own business. The `hadoop_cluster` cookbook describes hadoop, the `pig` cookbook pig, and the `zookeeper` cookbook zookeeper. The job of tying those components together (copying zookeeper jars into the pig home dir, or the port+addr of hadoop daemons) should be isolated.
 
-## Cookbooks
-
 ### Recipes
 
 * Naming:
-  - foo/default    -- information shared by anyone using foo, including support packages, directories
-  - foo/client     -- configure me as a foo client 
-  - foo/server     -- configure me as a foo server
-  - foo/aws_config -- cloud-specific settings
+  - `foo/recipes/default.rb`    -- information shared by anyone using foo, including support packages, directories
+  - `foo/recipes/client.rb`     -- configure me as a foo client 
+  - `foo/recipes/server.rb`     -- configure me as a foo server
+  - `foo/recipes/ec2_conf`      -- cloud-specific settings
 * *DO NOT* install daemons via the default cookbook, even if that's currently the only thing it does. Remember, a node that is a client -- or refers to any current or future component of the system -- will include the default recipe.
 * Do not repeat the cookbook name in a recipe title: `hbase:master`, not `hbase:hbase_master`; `zookeeper:server`, not `zookeeper:zookeeper_server`.
 * Use only `[a-z0-9_]` for cookbook and component names. Do not use capital letters or dashes. Keep names to fewer than 15 characters.
 
-### Dependencies
+### Cookbook Dependencies
 
 * Dependencies should be announced in metadata.rb, of course.
 * *DO* remember to explicitly `include_recipe` for system resources -- `runit`, `java`, `provides_service`, `thrift` and `apt`.
@@ -29,7 +29,7 @@ You should also separate system configuration from multi-system integration. Coo
 
 Remember: ordinary cookbooks describe systems, roles and integration cookbooks coordinate them.
 
-## Attributes
+### Attributes
  
 * Scope concerns by *cookbook* or *cookbook and component*. `node[:hadoop]` holds cookbook-wide concerns, `node[:hadoop][:namenode]` holds component-specific concerns.
 * Attributes shared by all components sit at cookbook level, and are always named for the cookbook: `node[:hadoop][:log_dir]` (since it is shared by all its components).
@@ -41,13 +41,12 @@ Remember: ordinary cookbooks describe systems, roles and integration cookbooks c
 * If there are a sizeable number of tunable attributes (hadoop, cassandra), place them in `attributes/tuneables.rb`.
 * ?? Place integration attribute *hooks* in `attributes/integration.rb` ??
 
-* be generic when you're simple, descriptive when you're not: so, [:foosvc][:port] good, [:foosvc][:foosvc_port] (as the only one it serves) bad, [:foosvc][:dashboard_port] and [:foosvc][:client_port] good.
+* Be generic when you're *simple and alone*, descriptive when you're not. 
+  - If a component has only one log file, call it 'log_file': `node[:foo][:server][:log_file]` and in general do not use a prefix.
+  - If a component has more than one log_file, *always* use a prefix: `node[:foo][:server][:dashboard_log_file]` and `node[:foo][:server][:gc_log_file]`.
 
-* If you don't have exactly the semantics and datatype of the convention, don't use the convention.  That is, don't use `:port` and give it an array, or `:address` and give it an email address.
-
-* use `foo_client` when you are a client of a service: so [:rails][:mysql_client][:host] to specify the hostname of your mysql server.
-
-* There's an argument for saying "everything hadoop-related goes in /hadoop/{stuff}, and we symlink to its actual location. This way everything is the same from machine to machine". However, in this world you give up the integration hooks that being explicit gives you.  There's nothing stopping you from *also* creating those symlinks, but the core attributes (`tmp_dir`, `log_dir`, etc) should be explicit. 
+* If you don't have exactly the semantics and datatype of the convention, don't use the convention.  That is, don't use `:port` and give it a comma-separated string, or `:addr` and give it an email address.
+* (*this advice will change as we figure out integration rules*: use `foo_client` when you are a client of a service: so [:rails][:mysql_client][:host] to specify the hostname of your mysql server.)
  
 ## Attribute Names
 
@@ -55,25 +54,32 @@ Remember: ordinary cookbooks describe systems, roles and integration cookbooks c
 
 A *file* is the full directory and basename for a file. A *dir* is a directory whose contents correspond to a single concern. A *root* is a prefix not intended to be used directly -- it will be decorated with suffixes to form dirs and files. A *basename* is only the leaf part of a file reference. Don't use the terms 'path' or 'filename'.
 
+Ignore the temptation to make a one-true-home-for-my-system, or to fight the package maintainer's choices. 
+
 #### Application
 
 * **home_dir**: Logical location for the cookbook's system code.
-  - default: typically, leave it up to the package maintainer. Otherwise, `/usr/local/share/:cookbook` should be a symlink to the `install_dir` (see below).
+  - default: typically, leave it up to the package maintainer. Otherwise, `:install_root/share/:cookbook` should be a symlink to the `install_dir` (see below).
   - instead of:         `xx_home` / `dir` alone / `install_dir`
+* **install_root**: A container with directories bin, lib, share, src, to use according to convention
+  - default: `/usr/local`.
 * **install_dir**: The cookbook's system code, in case the home dir is a pointer to potential alternates.
-  - default: `/usr/local/share/:cookbook-:version`
+  - default: `:install_root/share/:cookbook-:version` ( you don't need the directory after the cookbook runs, use `:install_root/share/:cookbook-:version` instead, eg `/usr/local/src/tokyo_tyrant-xx.xx`)
   - Make `home_dir` a symlink to this directory (eg home_dir `/usr/local/share/elasticsearch` links to install_dir `/usr/local/share/elasticsearch-0.17.8`).
-  - Use this only if the code runs from this directory -- if you don't need the directory after the cookbook runs, use `src_dir` instead.
 * **src_dir**: holds the compressed tarball, its expanded contents, and the compiled files when installing from source. Use this when you will run `make install` or equivalent and use the files elsewhere.
-  - default:            `/usr/local/src/package_name-version`, eg `/usr/local/src/pig-0.9.tar.gz` leading to `/usr/local/src/pig-0.9/`
-  - do not:             expand the tarball to `/usr/local/src/(whatever)` if it will actually be used from there; instead, use the `home_dir` convention described below. (As a guideline, I should be able to blow away `/usr/local/src` and everything still works).
+  - default:            `:install_root/src/:system_name-:version`, eg `/usr/local/src/pig-0.9.tar.gz`
+  - do not:             expand the tarball to `:install_root/src/(whatever)` if it will actually be used from there; instead, use the `install_dir` convention described above. (As a guideline, I should be able to blow away `/usr/local/src` and everything still works).
 * **deploy_dir**: deployed code that follows the capistrano convention. See more about deploy variables below.
   - the `:deploy_dir/shared` directory holds common files
   - releases are checked out to `:deploy_dir/releases/{sha}`
   - the operational release is a symlink to the right release: `:deploy_dir/current -> :deploy_dir/releases/xxx`.
   - do not:             use this when you mean `home_dir`.
-* **bin_dir**:
-  - default:            `/:home_dir/bin`
+
+* **scratch_roots**, **persistent_roots**: an array of directories, spread a
+  - these attributes are provided by the `mountable_volume` meta-cookbook. 
+  - each element in `persistent_roots` is by contract on a separate volume, and similarly each of the `scratch_roots` is on a separate volume. A volume *may* be in scratch and persistent though. You should always trust the integration cookbook's choices in this matter.
+  - the singular forms  **scratch_root** and **persistent_root** are provided for your convenience and always correspond to `scratch_roots.first` and `persistent_roots.first`. This means lots the first named volume is picked on the heaviest -- if you don't like that, choose explicitly (but not randomly, or you won't be idempotent).
+
 
 * **log_file**, **log_dir**, **xx_log_file**, **xx_log_dir**:
   - default:        
@@ -81,12 +87,15 @@ A *file* is the full directory and basename for a file. A *dir* is a directory w
     - if it's a runit-managed service, leave them in `/etc/sv/:cookbook-:component/log/main/current`, and make a symlink from `/var/log/:cookbook-component` to `/etc/sv/:cookbook-:component/log/main/`.
     - If the log files are non-trivial in size, set log dir `/:scratch_root/:cookbook/log/`, and symlink `/var/log/:cookbook/` to it. 
     - If the log files should be persisted, place them in `/:persistent_root/:cookbook/log`, and symlink `/var/log/:cookbook/` to it. 
-    - in all cases, the directory is named `.../log`, not `.../logs`. Also, never put things in `/tmp`.
+    - in all cases, the directory is named `.../log`, not `.../logs`. Never put things in `/tmp`.
     - Use the physical location for the `log_dir` attribute, not the /var/log symlink.
 * **tmp_dir**:   
   - default:            `/:scratch_root/:cookbook/tmp/`
+  - Do not put a symlink or directory in `/tmp` -- something else blows it away, the app recreates it as a physical directory, `/tmp` overflows, pagers go off, sadness spreads throughout the land.
 * **conf_dir**: 
   - default:            `/etc/:cookbook`
+* **bin_dir**:
+  - default:            `/:home_dir/bin`
 * **pid_file**, **pid_dir**: 
   - default:            pid_file: `/var/run/:cookbook.pid` or `/var/run/:cookbook/:component.pid`; pid_dir: `/var/run/:cookbook/`
   - instead of:         `job_dir`, `job_file`, `pidfile`, `run_dir`.
@@ -96,18 +105,18 @@ A *file* is the full directory and basename for a file. A *dir* is a directory w
 * **data_dir**:
   - default:            `:persistent_root/:cookbook/:component/data`
   - instead of:         `datadir, `dbfile`, `dbdir`
-* **journal_dir**: high-speed local storage for commitlogs and so forth. Can be deleted, but you'd rather it wasn't.
+* **journal_dir**: high-speed local storage for commitlogs and so forth. Can be deleted, though you may rather it wasn't.
   - default:            `:scratch_root/:cookbook/:component/scratch`
   - instead of:         `commitlog_dir`  
 
 ### Daemon Aspects
 
-* **daemon_name** daemon's actual service name, if it differs from the component. For example, the `hadoop-namenode` component's daemon is `hadoop-0.20-namenode` as installed by apt.
-* **daemon_state**:     one of the verbs acceptable to the Chef `service` resource: `:enable`, `:start`, etc.
-* **num_xx_processes**, **num_xx_handlers** the number of separate top-level processes (distinct PIDs) or internal threads to run
+* **daemon_name**:      daemon's actual service name, if it differs from the component. For example, the `hadoop-namenode` component's daemon is `hadoop-0.20-namenode` as installed by apt.
+* **daemon_states**:    an array of the verbs acceptable to the Chef `service` resource: `:enable`, `:start`, etc.
+* **num_xx_processes**, **num_xx_threads** the number of separate top-level processes (distinct PIDs) or internal threads to run
   - instead of          `num_workers`, `num_servers`, `worker_processes`, `foo_threads`.
-* **log_level** 
-  - takes values        info, debug, warn
+* **log_level**
+  - application-specific; often takes values info, debug, warn
   - instead of          `verbose`, `verbosity`, `loglevel`
 * **user**, **group**, **uid**, **gid** -- `user` is the user name.  The `user` and `group` should be strings, even the `uid` and `gid` should be integers.
   - instead of          username, group_name, using uid for user name or vice versa.
@@ -115,16 +124,15 @@ A *file* is the full directory and basename for a file. A *dir* is a directory w
 
 ### Install / Deploy Aspects
 
-* **version**:          if it's a simply-versioned resource that uses the `major.minor.patch-cruft` convention. Do not use unless this is true, and do not use the source control revision ID here.
-
 * **release_url**:      URL for the release.
   - instead of:         install_url, package_url, being careless about partial vs whole URLs
-* **release_file**:     Where to put the package.
-  - default:            `/usr/local/src/package_file-version.ext`, eg `/usr/local/src/elasticsearch-0.17.8.tar.bz2`. 
-  - don't use `/tmp` -- let me decide when to blow it away (and be idempotent with the install).
-  - don't use a non-versioned URL or file name.
-* **package_sha** or **package_md5** fingerprint
+* **release_file**:     Where to put the release.
+  - default:            `:install_root/src/system_name-version.ext`, eg `/usr/local/src/elasticsearch-0.17.8.tar.bz2`. 
+  - do not use `/tmp` -- let me decide when to blow it away (and make it easy to be idempotent).
+  - do not use a non-versioned URL or file name.
+* **release_file_sha** or **release_file_md5** fingerprint
   - instead of:         `whatever_checksum`, `whatever_fingerprint`
+* **version**:          if it's a simply-versioned resource that uses the `major.minor.patch-cruft` convention. Do not use unless this is true, and do not use the source control revision ID.
 
 * **deploy_repo_url**:  url for the repo, eg `git@github.com:infochimps/cluster_chef.git` or `http://github.com/infochimps/cluster_chef.git`
   - instead of:         `git_repo`, `git_url`
@@ -136,18 +144,15 @@ A *file* is the full directory and basename for a file. A *dir* is a directory w
 
 * **apt_url**:          eg `http://archive.cloudera.com/debian`
 * **apt_key**:          GPG key
-* **force_distro**:     forces the distro (eg you are on natty but the apt repo only has maverick)
+* **force_distro**:     forces the distro (eg, you are on natty but the apt repo only has maverick)
 
 ### Ports 
 
 * **xx_port**:
-  - *don't* use 'port' on its own.
+  - *do not* use 'port' on its own.
   - examples: `thrift_port`, `webui_port`, `zookeeper_port`, `carbon_port` and `whisper_port`.
-  - xx_port:
-    - [:port]      =  5000  becomes :ports => {:port => "5000"}
-  - xx_ports, if an array:
-    - [:ports]     = [5000, 5001, 5002] becomes :ports => {:port_00 => "5000", :port_01 => "5000", :port_02 => "5000"}
-    - [:foo_ports] = [5000, 5001, 5002] becomes :ports => {:foo_00 => "5000", :foo_01 => "5000", :foo_02 => "5000"}
+  - xx_port: `default[:foo][:server][:port] =  5000`
+  - xx_ports, if an array: `default[:foo][:server][:ports] = [5000, 5001, 5002]` 
 
 * **addr**, **xx_addr**
   - if all ports bind to the same interface, use `addr`. Otherwise, do *not* use `addr`, and use a unique `foo_addr` for each `foo_port`.
