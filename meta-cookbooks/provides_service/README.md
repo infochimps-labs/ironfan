@@ -1,6 +1,3 @@
-
-## ClusterServiceDiscovery --
-
 Based in good part on code from Ben Black's cassandra recipes
 
 Allow nodes to discover the location for a given service at runtime, adapting

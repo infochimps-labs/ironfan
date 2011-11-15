@@ -1,2 +1,2 @@
 
-Redis fast light database
+Redis, a fast lightweight database

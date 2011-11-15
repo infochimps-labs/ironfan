@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd <%= @node[:resque][:dbdir] %>
+cd <%= node[:resque][:data_dir] %>
 
 exec 2>&1
 exec chpst -u <%= node[:resque][:user] %> /usr/bin/redis-server \

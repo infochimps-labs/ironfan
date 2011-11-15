@@ -48,8 +48,7 @@ default[:jenkins][:iptables_allow] = "enable"
 #example: ["git", "URLSCM", ...]
 default[:jenkins][:server][:plugins] = []
 
-#working around: http://tickets.opscode.com/browse/CHEF-1848
-#set to true if you have the CHEF-1848 patch applied
+# working around: http://tickets.opscode.com/browse/CHEF-1848; set to true if you have the CHEF-1848 patch applied
 default[:jenkins][:server][:use_head] = false
 
 

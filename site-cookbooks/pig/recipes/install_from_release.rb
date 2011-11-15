@@ -19,6 +19,8 @@
 # limitations under the License.
 #
 
+include_recipe "pig::default"
+
 #
 # Install pig from latest release
 #
@@ -26,8 +28,6 @@
 #   expands it into /usr/local/share/pig-xxx
 #   and links that to /usr/local/share/pig
 #
-
-include_recipe "pig::default"
 
 install_from_release('pig') do
   release_url node[:pig][:install_url]

@@ -19,7 +19,7 @@
 # limitations under the License.
 #
 
-include_recipe "zookeeper"
+include_recipe "zookeeper::default"
 
 provide_service("#{node[:zookeeper][:cluster_name]}-zookeeper")
 

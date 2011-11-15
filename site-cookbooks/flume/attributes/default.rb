@@ -7,9 +7,9 @@ default[:flume][:cluster_name] = node[:cluster_name]
 # Set :external_zookeeper to "true". The recipe will
 # work out which machines are in the zookeeper quorum
 # based on cluster membership. (See [:flume][:cluster_name]
-# above. 
+# above.
 default[:flume][:master][:external_zookeeper] = false
-default[:flume][:master][:zookeeper_port] = 2181  
+default[:flume][:master][:zookeeper_port] = 2181
 
 # configuration data for plugins.
 # node[:flume][:plugins][:some_plugin][:classes]    = [ 'java.lang.String' ]
@@ -28,3 +28,8 @@ default[:flume][:java_opts] = []
 
 default[:flume][:collector] = {}
 default[:flume][:data_dir] = "/data/db/flume"
+
+
+# Set the following two attributes to allow writing to s3 buckets:
+default[:flume][:aws_access_key] = nil
+default[:flume][:aws_secret_key] = nil

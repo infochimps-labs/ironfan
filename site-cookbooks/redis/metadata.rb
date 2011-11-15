@@ -28,17 +28,17 @@ attribute "redis/port",
   :description           => "TCP port to bind.  The default is 6379.",
   :default               => "6379"
 
-attribute "redis/pidfile",
+attribute "redis/pid_file",
   :display_name          => "Redis PID file path",
   :description           => "Path to the PID file when daemonized.  The default is /var/run/redis.pid.",
   :default               => "/var/run/redis.pid"
 
-attribute "redis/logfile",
+attribute "redis/log_file",
   :display_name          => "Redis log file path",
   :description           => "Path to the log file when daemonized.  The default is /var/log/redis.log.",
   :default               => "/var/log/redis/redis.log"
 
-attribute "redis/dbdir",
+attribute "redis/data_dir",
   :display_name          => "Redis database directory",
   :description           => "Path to the directory for database files.  The default is /var/lib/redis.",
   :default               => "/var/lib/redis"

@@ -1,11 +1,3 @@
-## DESCRIPTION:
-
-## REQUIREMENTS:
-
-## ATTRIBUTES:
-
-## USAGE:
-
 There are many aspects shared by the great majority of installed systems. For example, each of these is an example of what we'll call *aspects*:
 * I launch these daemons
 * I log to this directory
@@ -65,7 +57,7 @@ If things are simple, you get magic: declare `i_haz_a_service_itz(:jenkins, :nod
 
 * be generic when you're simple, descriptive when you're not: so, [:foosvc][:port] good, [:foosvc][:foosvc_port] (as the only one it serves) bad, [:foosvc][:dashboard_port] and [:foosvc][:client_port] good.
 
-* If you don't have exactly the semantics and datatype of the convention, don't use the convention.  That is, don't use `:port` and give it an array, or `:address` and give it an email address.
+* If you don't have exactly the semantics and datatype of the convention, don't use the convention.  That is, don't use `:port` and give it an array, or `:addr` and give it an email address.
 
 * use `foo_client` when you are a client of a service: so [:rails][:mysql_client][:host] to specify the hostname of your mysql server.
 
@@ -90,7 +82,7 @@ default[:flume][:cluster_name]
 default[:XXX][:aws_credential_handle] = 'main'
 default[:XXX][:aws_credential_source] = :data_bag
 
-    node[:chef][:chef_server][:address]       = 1
+    node[:chef][:chef_server][:addr]       = 1
     node[:chef][:chef_server][:webui_port]    = 1
     node[:chef][:chef_server][:knife_port]    = 1
          .. becomes :ports => { :webui => xx, :knife => xx}
@@ -119,9 +111,9 @@ default[:XXX][:aws_credential_source] = :data_bag
 
     i_haz_a_service_itz('redis_server',
 
-      # if there is a value for node[:redis][:redis_server][:address] then it sets :addresses => [that] on the provides_service call
+      # if there is a value for node[:redis][:server][:addr] then it sets :addres => [that] on the provides_service call
       #
-      :addresses => [....] # will prevent the auto-adding
+      :addres => [....] # will prevent the auto-adding
 
       ]
     )

@@ -1,7 +1,7 @@
-default[:resque][:dir]                   = '/data/db/resque'
+default[:resque][:home_dir]                   = '/data/db/resque'
 default[:resque][:log_dir]               = '/data/db/resque/log'
 default[:resque][:tmp_dir]               = '/data/db/resque/tmp'
-default[:resque][:dbdir]                 = "/data/db/resque/data"
+default[:resque][:data_dir]                 = "/data/db/resque/data"
 default[:resque][:swapdir]               = "/data/db/resque/swap"
 default[:resque][:conf_dir]              = '/etc/resque'
 default[:resque][:dbfile]                = "resque_queue.rdb"

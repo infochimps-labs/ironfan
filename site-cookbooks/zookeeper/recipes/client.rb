@@ -19,4 +19,4 @@
 # limitations under the License.
 #
 
-include_recipe "zookeeper"
+include_recipe "zookeeper::default"

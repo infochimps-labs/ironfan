@@ -9,6 +9,6 @@
 # /srv/nfs4/homes  gss/krb5i(rw,sync)
 #
 
-<% @node[:nfs][:exports].each_key do |mount_point| -%>
-<%= mount_point %> <%= @node[:nfs][:exports][mount_point][:nfs_options] %>
+<% node[:nfs][:exports].each_key do |mount_point| -%>
+<%= mount_point %> <%= node[:nfs][:exports][mount_point][:nfs_options] %>
 <% end %>

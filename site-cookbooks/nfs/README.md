@@ -1,6 +1,0 @@
-## DESCRIPTION:
-
-## ATTRIBUTES:
-
-## USAGE:
-

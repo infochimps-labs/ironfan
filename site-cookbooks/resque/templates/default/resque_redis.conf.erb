@@ -18,18 +18,18 @@ daemonize no
 
 # When running daemonized, Redis writes a pid file in /var/run/redis.pid by
 # default. You can specify a custom pid file location here.
-# pidfile <%= @node[:resque][:log_dir] %>/redis.pid
+# pidfile <%= node[:resque][:log_dir] %>/redis.pid
 
 # Accept connections on the specified port, default is 6379
-port <%= @node[:resque][:queue_port] %>
+port <%= node[:resque][:queue_port] %>
 
 # If you want you can bind a single interface, if the bind option is not
 # specified all the interfaces will listen for incoming connections.
 #
-bind <%= @node[:resque][:queue_address] %>
+bind <%= node[:resque][:queue_address] %>
 
 # Close the connection after a client is idle for N seconds (0 to disable)
-timeout <%= @node[:resque][:redis_client_timeout] %>
+timeout <%= node[:resque][:redis_client_timeout] %>
 
 # Set server verbosity to 'debug'
 # it can be one of:
@@ -42,7 +42,7 @@ loglevel verbose
 # Specify the log file name. Also 'stdout' can be used to force
 # Redis to log on the standard output. Note that if you use standard
 # output for logging but daemonize, logs will be sent to /dev/null
-logfile <%= @node[:resque][:log_dir] %>/redis.log
+logfile <%= node[:resque][:log_dir] %>/redis.log
 
 # Set the number of databases. The default database is DB 0, you can select
 # a different one on a per-connection basis using SELECT <dbid> where
@@ -64,7 +64,7 @@ databases 16
 #   after 60 sec if at least 10000 keys changed
 #
 #   Note: you can disable saving at all commenting all the "save" lines.
-<% @node[:resque][:redis_saves].each do |save| %>
+<% node[:resque][:redis_saves].each do |save| %>
   <%= "save #{save[0]} #{save[1]}" %>
 <% end %>
 
@@ -77,7 +77,7 @@ rdbcompression yes
 # The filename where to dump the DB
 
 # The filename where to dump the DB
-dbfilename <%= @node[:resque][:dbfile] %>
+dbfilename <%= node[:resque][:dbfile] %>
 
 # The working directory.
 #
@@ -87,7 +87,7 @@ dbfilename <%= @node[:resque][:dbfile] %>
 # Also the Append Only File will be created inside this directory.
 # 
 # Note that you must specify a directory here, not a file name.
-dir <%= @node[:resque][:dbdir] %>
+dir <%= node[:resque][:data_dir] %>
 
 ################################# REPLICATION #################################
 
@@ -96,8 +96,8 @@ dir <%= @node[:resque][:dbdir] %>
 # so for example it is possible to configure the slave to save the DB with a
 # different interval, or to listen to another port, and so on.
 #
-<%- if @node[:resque][:redis_slave] == "yes" %>
-slaveof <%= @node[:resque][:redis_master_server] %> <%= @node[:resque][:redis_master_port] %>
+<%- if node[:resque][:redis_slave] == "yes" %>
+slaveof <%= node[:resque][:redis_master_server] %> <%= node[:resque][:redis_master_port] %>
 <%- else %>
 # slaveof
 <%- end %>
@@ -225,7 +225,7 @@ vm-enabled <%= node[:resque][:redis_vm_enabled] %>
 # *** WARNING *** if you are using a shared hosting the default of putting
 # the swap file under /tmp is not secure. Create a dir with access granted
 # only to Redis user and configure Redis to create the swap file there.
-vm-swap-file <%= @node[:resque][:swapdir] %>/redis.swap
+vm-swap-file <%= node[:resque][:swapdir] %>/redis.swap
 
 # vm-max-memory configures the VM to use at max the specified amount of
 # RAM. Everything that deos not fit will be swapped on disk *if* possible, that
@@ -235,7 +235,7 @@ vm-swap-file <%= @node[:resque][:swapdir] %>/redis.swap
 # default, just specify the max amount of RAM you can in bytes, but it's
 # better to leave some margin. For instance specify an amount of RAM
 # that's more or less between 60 and 80% of your free RAM.
-vm-max-memory <%= @node[:resque][:redis_vm_max_memory] %>
+vm-max-memory <%= node[:resque][:redis_vm_max_memory] %>
 
 # Redis swap files is split into pages. An object can be saved using multiple
 # contiguous pages, but pages can't be shared between different objects.
@@ -259,7 +259,7 @@ vm-page-size 32
 #
 # It's better to use the smallest acceptable value for your application,
 # but the default is large in order to work in most conditions.
-vm-pages <%= @node[:resque][:redis_vm_pages] %>
+vm-pages <%= node[:resque][:redis_vm_pages] %>
 
 # Max number of VM I/O threads running at the same time.
 # This threads are used to read/write data from/to swap file, since they
@@ -277,7 +277,7 @@ vm-max-threads 4
 # Glue small output buffers together in order to send small replies in a
 # single TCP packet. Uses a bit more CPU but most of the times it is a win
 # in terms of number of queries per second. Use 'yes' if unsure.
-glueoutputbuf <%= @node[:resque][:redis_glueoutputbuf] %>
+glueoutputbuf <%= node[:resque][:redis_glueoutputbuf] %>
 
 # Hashes are encoded in a special way (much more memory efficient) when they
 # have at max a given numer of elements, and the biggest element does not

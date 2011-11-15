@@ -1,6 +1,6 @@
 export ES_CONF_DIR=${ES_CONF_DIR-/etc/elasticsearch}
-export ES_DATA_DIR=${ES_DATA_DIR-<%= @node[:elasticsearch][:data_root] %>/data}
-export ES_WORK_DIR=${ES_WORK_DIR-<%= @node[:elasticsearch][:data_root] %>/work}
+export ES_DATA_DIR=${ES_DATA_DIR-<%= node[:elasticsearch][:data_root] %>/data}
+export ES_WORK_DIR=${ES_WORK_DIR-<%= node[:elasticsearch][:data_root] %>/work}
 
 export CLASSPATH=$ES_HOME/plugins/cloud-aws.zip
 CLASSPATH=$CLASSPATH:$ES_HOME/lib/elasticsearch-*.jar:$ES_HOME/lib/*:$ES_HOME/lib/sigar/*
@@ -30,7 +30,7 @@ JAVA_OPTS="$JAVA_OPTS -XX:MaxTenuringThreshold=1"
 JAVA_OPTS="$JAVA_OPTS -XX:+HeapDumpOnOutOfMemoryError"
 JAVA_OPTS="$JAVA_OPTS -XX:HeapDumpPath=$ES_WORK_DIR/heap"
 
-<% if @node[:kernel][:machine] == 'x86_64' -%>
+<% if node[:kernel][:machine] == 'x86_64' -%>
 # run compressed pointers to save on heap
 JAVA_OPTS="$JAVA_OPTS -XX:+UseCompressedOops"
 <% end -%>
@@ -38,7 +38,7 @@ JAVA_OPTS="$JAVA_OPTS -XX:+UseCompressedOops"
 # ensures JMX accessible from outside world
 JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote.ssl=false"
 JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote.authenticate=false"
-JAVA_OPTS="$JAVA_OPTS -Djava.rmi.server.hostname=<%= @node[:ec2][:public_hostname] %>"
+JAVA_OPTS="$JAVA_OPTS -Djava.rmi.server.hostname=<%= node[:ec2][:public_hostname] %>"
 
 # More options to consider LATER
 # java.net.preferIPv4Stack=true: Better OOTB experience, especially with jgroups

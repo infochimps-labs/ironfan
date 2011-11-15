@@ -3,7 +3,7 @@
 #
 
 cluster:
-  name:                         <%= @node[:elasticsearch][:cluster_name] %>
+  name:                         <%= node[:elasticsearch][:cluster_name] %>
 
   # http://groups.google.com/a/elasticsearch.com/group/users/browse_thread/thread/439afb06f3e85aa7/431a8543811d7848?lnk=gst&q=configuration#431a8543811d7848    
   routing:
@@ -12,7 +12,7 @@ cluster:
 
 # File paths
 path:
-  home:                         <%= @node[:elasticsearch][:install_dir] %>
+  home:                         <%= node[:elasticsearch][:install_dir] %>
   conf:                         /etc/elasticsearch
   logs:                         /var/log/elasticsearch
   # data dirs are set in in the elasticsearch.in.sh
@@ -42,13 +42,13 @@ gateway:
   #
   # recovery begins when recover_after_nodes are present and then either
   # recovery_after_time has passed *or* expected_nodes have shown up.
-  recover_after_nodes:          <%= @node[:elasticsearch][:recovery_after_nodes] %>
-  recovery_after_time:          <%= @node[:elasticsearch][:recovery_after_time]  %>    # 5m
-  expected_nodes:               <%= @node[:elasticsearch][:expected_nodes] %>          # 2
+  recover_after_nodes:          <%= node[:elasticsearch][:recovery_after_nodes] %>
+  recovery_after_time:          <%= node[:elasticsearch][:recovery_after_time]  %>    # 5m
+  expected_nodes:               <%= node[:elasticsearch][:expected_nodes] %>          # 2
   #
   # use with type: s3
   s3:
-    bucket:                     <%= @node[:elasticsearch][:s3_gateway_bucket] %>         
+    bucket:                     <%= node[:elasticsearch][:s3_gateway_bucket] %>         
 
 # http://groups.google.com/a/elasticsearch.com/group/users/browse_thread/thread/1f3001f43266879a/06d62ea3ceb4db30?lnk=gst&q=translog#06d62ea3ceb4db30
 indices:
@@ -58,7 +58,7 @@ indices:
     # with max_index_buffer_size and min_index_buffer_size. 10% by default.
     # 512m for writing:
     # index_buffer_size:        512m
-    index_buffer_size:          <%= @node[:elasticsearch][:index_buffer_size]   %>
+    index_buffer_size:          <%= node[:elasticsearch][:index_buffer_size]   %>
 
 cache:
   memory:
@@ -75,15 +75,15 @@ bootstrap:
   mlockall:                     true
     
 index:
-  number_of_shards:             <%= @node[:elasticsearch][:default_shards]   %>
-  number_of_replicas:           <%= @node[:elasticsearch][:default_replicas] %>
+  number_of_shards:             <%= node[:elasticsearch][:default_shards]   %>
+  number_of_replicas:           <%= node[:elasticsearch][:default_replicas] %>
   #
   translog:
     # A shard is flushed to local disk (the lucene index is committed) once this
     # number of operations accumulate in the translog. defaults to 5000
     #
     # If you have 
-    flush_threshold:            <%= @node[:elasticsearch][:flush_threshold] %>
+    flush_threshold:            <%= node[:elasticsearch][:flush_threshold] %>
   merge:
     policy:
       # Determines how often segment indices are merged by index operation. With
@@ -94,7 +94,7 @@ index:
       # (greater than 10) are best for batch index creation, and smaller values
       # (lower than 10) for indices that are interactively maintained. Defaults
       # to 10.
-      merge_factor:             <%= @node[:elasticsearch][:merge_factor] %>
+      merge_factor:             <%= node[:elasticsearch][:merge_factor] %>
       # Use the compound file format. If not set, controlled by the actually
       # store used, this is because the compound format was created to reduce
       # the number of open file handles when using file based storage. The file
@@ -118,13 +118,13 @@ index:
       # segments. Defaults to unbounded
       # max_merge_docs
     scheduler:
-      max_thread_count:         <%= @node[:elasticsearch][:max_thread_count] %>
+      max_thread_count:         <%= node[:elasticsearch][:max_thread_count] %>
   # deletionpolicy:             keep_only_last
 
   # How often to schedule the refresh operation (the same one the Refresh
   # API, which enables near real time search).  Default '1s'; set to -1 to
   # disable automatic refresh (you must instead initiate refresh via API)
-  refresh_interval:         <%= @node[:elasticsearch][:refresh_interval] %>
+  refresh_interval:         <%= node[:elasticsearch][:refresh_interval] %>
 
   shard:
     recovery:
@@ -141,7 +141,7 @@ index:
       # to be used by a reader / searcher, but slow random-access to
       # terms. Small values cause more memory to be used by a reader / searcher,
       # and speed random-access to terms. Defaults to 128.
-      term_index_interval:      <%= @node[:elasticsearch][:term_index_interval] %>
+      term_index_interval:      <%= node[:elasticsearch][:term_index_interval] %>
       
   gateway:
     # The index.gateway.snapshot_interval is a time setting allowing to
@@ -149,11 +149,11 @@ index:
     # gateway will take place. Note, only primary shards start this scheduled
     # snapshotting process. It defaults to 10s, and can be disabled by setting
     # it to -1.
-    snapshot_interval:          <%= @node[:elasticsearch][:snapshot_interval] %>
+    snapshot_interval:          <%= node[:elasticsearch][:snapshot_interval] %>
     # When a primary shard is shut down explicitly (not relocated), the
     # index.gateway.snapshot_on_close flag can control if while shutting down, a
     # gateway snapshot should be performed. It defaults to true.
-    snapshot_on_close:          <%= @node[:elasticsearch][:snapshot_on_close] %>
+    snapshot_on_close:          <%= node[:elasticsearch][:snapshot_on_close] %>
 
 # http://www.elasticsearch.com/docs/elasticsearch/modules/node/network/      
 network:
@@ -181,7 +181,7 @@ transport:
 jmx:
   # Create an RMI connector?
   create_connector:             true
-  port:                         <%= @node[:elasticsearch][:jmx_port] %>
+  port:                         <%= node[:elasticsearch][:jmx_port] %>
   domain:                       elasticsearch
 
 # http://www.elasticsearch.com/docs/elasticsearch/modules/threadpool/
@@ -219,11 +219,11 @@ discovery:
     # its still alive or an election process needs to be initiated.
     fd:
       # How often a node gets pinged. Defaults to "1s".
-      ping_interval:            <%= @node[:elasticsearch][:fd_ping_interval] %>
+      ping_interval:            <%= node[:elasticsearch][:fd_ping_interval] %>
       # # How long to wait for a ping response, defaults to "30s".
-      ping_timeout:             <%= @node[:elasticsearch][:fd_ping_timeout] %>
+      ping_timeout:             <%= node[:elasticsearch][:fd_ping_timeout] %>
       # # How many ping failures / timeouts cause a node to be considered failed. Defaults to 3.
-      ping_retries:             <%= @node[:elasticsearch][:fd_ping_retries] %>
+      ping_retries:             <%= node[:elasticsearch][:fd_ping_retries] %>
   #
   # # ec2 discovery can cause big trouble with the hadoop loader:
   # # discovery churn can hit API usage limits
@@ -231,7 +231,7 @@ discovery:
   # #
   # ec2:
   #   # security groups used for discovery
-  #   groups:                   <%= @node[:elasticsearch][:cluster_name] %>-data_esnode
+  #   groups:                   <%= node[:elasticsearch][:cluster_name] %>-data_esnode
   #   # require *all* (false) or *any* (true) of those groups?
   #   any_group:                true
   #   # private_ip, public_ip, private_dns, public_dns

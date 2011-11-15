@@ -11,10 +11,9 @@ depends          "apt"
 depends          "mountable_volumes"
 depends          "provides_service"
 
-recipe           "zookeeper::client",                  "Client"
+recipe           "zookeeper::client",                  "Installs Zookeeper client libraries"
 recipe           "zookeeper::default",                 "Base configuration for zookeeper"
-recipe           "zookeeper::server",                  "Server"
-recipe           "zookeeper::zookeeper_server",        "Zookeeper Server"
+recipe           "zookeeper::server",                  "Installs Zookeeper server, sets up and starts service"
 
 %w[ debian ubuntu ].each do |os|
   supports os

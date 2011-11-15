@@ -26,7 +26,7 @@ directory "/var/log/redis" do
   action    :create
 end
 
-directory node[:redis][:dbdir] do
+directory node[:redis][:data_dir] do
   owner     "redis"
   group     "redis"
   mode      "0755"

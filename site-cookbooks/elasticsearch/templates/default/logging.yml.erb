@@ -5,26 +5,26 @@ rootLogger: DEBUG, console, file
 #
 logger:
   # log action execution errors for easier debugging
-  action :      <%= @node[:elasticsearch][:log_level][:default] %>
+  action :      <%= node[:elasticsearch][:log_level][:default] %>
 
   index:
     shard:
-      recovery: <%= @node[:elasticsearch][:log_level][:default] %>
-    store:      <%= @node[:elasticsearch][:log_level][:index_store] %>
-    gateway:    <%= @node[:elasticsearch][:log_level][:default] %>
-    engine:     <%= @node[:elasticsearch][:log_level][:default] %>
-    merge:      <%= @node[:elasticsearch][:log_level][:default] %>
-    translog:   <%= @node[:elasticsearch][:log_level][:default] %>
+      recovery: <%= node[:elasticsearch][:log_level][:default] %>
+    store:      <%= node[:elasticsearch][:log_level][:index_store] %>
+    gateway:    <%= node[:elasticsearch][:log_level][:default] %>
+    engine:     <%= node[:elasticsearch][:log_level][:default] %>
+    merge:      <%= node[:elasticsearch][:log_level][:default] %>
+    translog:   <%= node[:elasticsearch][:log_level][:default] %>
   cluster:
-    service:    <%= @node[:elasticsearch][:log_level][:cluster_service] %>
+    service:    <%= node[:elasticsearch][:log_level][:cluster_service] %>
     action:
-      shard:    <%= @node[:elasticsearch][:log_level][:action_shard] %>
-  gateway:      <%= @node[:elasticsearch][:log_level][:default] %>
-  discovery:    <%= @node[:elasticsearch][:log_level][:default] %>
-  jmx:          <%= @node[:elasticsearch][:log_level][:default] %>
+      shard:    <%= node[:elasticsearch][:log_level][:action_shard] %>
+  gateway:      <%= node[:elasticsearch][:log_level][:default] %>
+  discovery:    <%= node[:elasticsearch][:log_level][:default] %>
+  jmx:          <%= node[:elasticsearch][:log_level][:default] %>
   httpclient:   INFO
-  node:         <%= @node[:elasticsearch][:log_level][:default] %>
-  plugins:      <%= @node[:elasticsearch][:log_level][:default] %>
+  node:         <%= node[:elasticsearch][:log_level][:default] %>
+  plugins:      <%= node[:elasticsearch][:log_level][:default] %>
 
 appender:
   console:

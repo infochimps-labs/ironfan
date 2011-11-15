@@ -26,7 +26,7 @@ include_recipe 'redis::client'
   thin rack resque redis redis-namespace yajl-ruby
 ].each{|gem_name| gem_package gem_name }
 
-directory node[:resque][:dir]+'/..' do
+directory node[:resque][:home_dir]+'/..' do
   owner     'root'
   group     'root'
   mode      "0775"
@@ -42,7 +42,7 @@ user 'resque' do
   comment    'Resque queue user'
   uid        336
   group      'resque'
-  home       node[:resque][:dir]
+  home       node[:resque][:home_dir]
   shell      "/bin/false"
   password   nil
   supports   :manage_home => true
@@ -52,7 +52,7 @@ end
 #
 # Directories
 #
-[ :log_dir, :tmp_dir, :dbdir, :swapdir, :conf_dir  ].each do |dirname|
+[ :log_dir, :tmp_dir, :data_dir, :swapdir, :conf_dir  ].each do |dirname|
   directory node[:resque][dirname] do
     owner     node[:resque][:user]
     group     node[:resque][:group]

@@ -1,5 +1,5 @@
 upstream elasticsearch {
-  server <%= @node[:ipaddress] %>:9200 ;
+  server <%= node[:ipaddress] %>:9200 ;
 }
 
 server {

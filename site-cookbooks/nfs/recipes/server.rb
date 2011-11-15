@@ -21,11 +21,11 @@ if node[:nfs][:exports]
   end
 
   template "/etc/exports" do
-    source "exports.erb"
-    owner "root"
-    group "root"
-    mode 0644
-    notifies  :restart, resources(:service => "nfs-kernel-server")
+    source      "exports.erb"
+    owner       "root"
+    group       "root"
+    mode        "0644"
+    notifies    :restart, resources(:service => "nfs-kernel-server")
   end
 else
   Chef::Log.warn "You included the NFS server recipe without defining nfs exports: set node[:nfs][:exports]."

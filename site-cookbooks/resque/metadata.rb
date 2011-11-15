@@ -31,7 +31,7 @@ attribute "resque/tmp_dir",
   :description           => "",
   :default               => "/data/db/resque/tmp"
 
-attribute "resque/dbdir",
+attribute "resque/data_dir",
   :display_name          => "",
   :description           => "",
   :default               => "/data/db/resque/data"

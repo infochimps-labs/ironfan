@@ -1,8 +1,3 @@
-= DESCRIPTION:
+Has recipes to:
 
-= REQUIREMENTS:
-
-= ATTRIBUTES:
-
-= USAGE:
-
+* **create a raid volume of ephememeral drives**
