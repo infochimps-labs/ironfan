@@ -248,7 +248,7 @@ On EC2, you can make a machine that auto-vivifies -- no bootstrap necessary. Bur
 
 #### EBS Volumes
 
-Define a `snapshot_id` for your volumes, and set `create_at_launch` true
+Define a `snapshot_id` for your volumes, and set `create_at_launch` true.
 
 __________________________________________________________________________
 

@@ -154,7 +154,7 @@ module ClusterChef
       set_chef_node_attributes
       set_chef_node_environment
       sync_volume_attributes
-      chef_api_server_as_client.put_rest("nodes/#{@chef_node.name}", @chef_node)
+      chef_api_server_as_admin.put_rest("nodes/#{@chef_node.name}", @chef_node)
     end
 
 

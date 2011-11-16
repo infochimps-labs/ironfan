@@ -19,6 +19,13 @@ Split cluster chef repo (or brightline how they would split) into:
   - need to upgrade kernel, restart
 * A 'safety catch' -- see https://github.com/infochimps/cluster_chef/issues/18#issuecomment-1194916
 
+__________________________________________________________________________
+
+to Bitch at opscode aboout
+
+* fix your permissions API
+* save opcode/cookbooks 
+* 
 
 __________________________________________________________________________
 
