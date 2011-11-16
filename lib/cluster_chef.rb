@@ -8,19 +8,20 @@ require 'set'
 require 'cluster_chef/dsl_object'
 require 'cluster_chef/cloud'
 require 'cluster_chef/security_group'
-require 'cluster_chef/compute'        # base class for machine attributes
-require 'cluster_chef/facet'          # similar machines within a cluster
-require 'cluster_chef/cluster'        # group of machines with a common mission
-require 'cluster_chef/server'         # realization of a specific facet
-require 'cluster_chef/discovery'      # pair servers with Fog and Chef objects
-require 'cluster_chef/server_slice'   # collection of server objects
-require 'cluster_chef/volume'         # collection of server objects
-require 'cluster_chef/private_key'    # interface to fog  for server actions
+require 'cluster_chef/compute'           # base class for machine attributes
+require 'cluster_chef/facet'             # similar machines within a cluster
+require 'cluster_chef/cluster'           # group of machines with a common mission
+require 'cluster_chef/server'            # realization of a specific facet
+require 'cluster_chef/discovery'         # pair servers with Fog and Chef objects
+require 'cluster_chef/server_slice'      # collection of server objects
+require 'cluster_chef/volume'            # configure external and internal volumes
+require 'cluster_chef/private_key'       # coordinate chef keys, cloud keypairs, etc
+require 'cluster_chef/role_implications' # make roles trigger other actions (security groups, etc)
 #
-require 'cluster_chef/chef_layer'     # interface to chef for server actions
-require 'cluster_chef/fog_layer'      # interface to fog  for server actions
-
-require 'cluster_chef/deprecated'     # stuff slated to go away
+require 'cluster_chef/chef_layer'        # interface to chef for server actions
+require 'cluster_chef/fog_layer'         # interface to fog  for server actions
+#
+require 'cluster_chef/deprecated'        # stuff slated to go away
 
 Chef::Config[:cluster_chef_path] ||= File.expand_path(File.dirname(__FILE__)+'../..')
 Chef::Config[:cluster_path]      ||= [ File.join(Chef::Config[:cluster_chef_path], "clusters") ]

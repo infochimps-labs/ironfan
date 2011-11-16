@@ -10,27 +10,6 @@ ClusterChef.cluster 'demoweb' do
     mount_ephemerals(:tags => { :scratch_dirs => true })
   end
 
-  # web server? add the group "demoweb-awesome_website" and open the web holes
-  role_implication("awesome_website") do
-    self.cloud.security_group("#{cluster_name}-awesome_website") do
-      authorize_port_range 80..80
-      authorize_port_range 443..443
-    end
-  end
-
-  # if you're a redis server, open the port and authorize redis clients in your group to talk to you
-  role_implication("redis_server") do
-    cluster_name = self.cluster_name # now cluster_name is in scope
-    self.cloud.security_group("#{cluster_name}-redis_server") do
-      authorize_group("#{cluster_name}-redis_client")
-    end
-  end
-
-  # if you're a redis server, open the port and authorize redis clients in your group to talk to you
-  role_implication("redis_client") do
-    self.cloud.security_group("#{cluster_name}-redis_client")
-  end
-
   role                  "nfs_client"
   role                  "big_package"
 
@@ -41,12 +20,13 @@ ClusterChef.cluster 'demoweb' do
     role                "mysql_client"
     role                "elasticsearch_client"
     role                "awesome_website"
-    #
+    role                "web_server"      # this triggers opening appropriate ports
+    # Rotate nodes among availability zones
     azs = ['us-east-1d', 'us-east-1b', 'us-east-1c']
     (0...instances).each do |idx|
       server(idx).cloud.availability_zones [azs[ idx % azs.length ]]
     end
-
+    # Rote nodes among A/B testing groups
     (0..instances).each do |idx|
       chef_node.norma[:split_testing] = ( (idx % 2 == 0) ? 'A' : 'B' )
     end

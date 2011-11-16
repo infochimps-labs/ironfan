@@ -90,53 +90,5 @@ module ClusterChef
       run_list.uniq!
     end
 
-    #
-    # Some roles imply aspects of the machine that have to exist at creation.
-    # For instance, on an ec2 machine you may wish the 'ssh' role to imply a
-    # security group explicity opening port 22.
-    #
-    # @param [String] role_name -- the role that triggers the block
-    # @yield block will be instance_eval'd in the object that calls 'role'
-    #
-    def self.role_implication(name, &block)
-      @@role_implications[name] = block
-    end
-
-    role_implication "hadoop_master" do
-      self.cloud.security_group 'hadoop_namenode' do
-        authorize_port_range 80..80
-      end
-    end
-
-    role_implication "nfs_server" do
-      self.cloud.security_group "nfs_server" do
-        authorize_group "nfs_client"
-      end
-    end
-
-    role_implication "nfs_client" do
-      self.cloud.security_group "nfs_client"
-    end
-
-    role_implication "ssh" do
-      self.cloud.security_group 'ssh' do
-        authorize_port_range 22..22
-      end
-    end
-
-    role_implication "chef_server" do
-      self.cloud.security_group "chef_server" do
-        authorize_port_range 4000..4000  # chef-server-api
-        authorize_port_range 4040..4040  # chef-server-webui
-      end
-    end
-
-    role_implication "web_server" do
-      self.cloud.security_group("http_server") do
-        authorize_port_range  80..80
-        authorize_port_range 443..443
-      end
-    end
-
   end
 end
