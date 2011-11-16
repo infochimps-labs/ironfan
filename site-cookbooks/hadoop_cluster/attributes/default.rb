@@ -29,7 +29,7 @@ default[:hadoop][:jobtracker_handler_count    ] = 40
 default[:hadoop][:namenode_handler_count      ] = 40
 default[:hadoop][:datanode_handler_count      ] =  8
 
-default[:hadoop][:compress_output           ] = 'true'
+default[:hadoop][:compress_output           ] = 'false'
 default[:hadoop][:compress_output_type      ] = 'BLOCK'
 default[:hadoop][:compress_output_codec     ] = 'org.apache.hadoop.io.compress.DefaultCodec'
 default[:hadoop][:compress_mapout           ] = 'true'

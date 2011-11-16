@@ -111,7 +111,6 @@ ClusterChef.cluster 'demoweb' do
       snapshot_id       'snap-a10234f'             
       attachable        :ebs
     end
-    server(0).volume(:data){ volume_id('vol-1254') }
   end
 
   facet :webnode do
@@ -129,7 +128,6 @@ ClusterChef.cluster 'demoweb' do
       mount_point       '/server_logs'              
       snapshot_id       'snap-d9c1edb1'             
     end
-    assign_volume_ids(:data, %w[ vol-1234 vol-4321 vol-234a vol-9879 vol-3423 vol-1233 ])
   end
 
   facet :esnode do
@@ -175,10 +173,51 @@ With these simple settings, if you have already [set up chef's knife to launch c
   - passes a JSON-encoded user_data hash specifying the machine's chef `node_name` and client key. An appropriately-configured machine image will need no further bootstrapping -- it will connect to the chef server with the appropriate identity and proceed completely unattended.
 * Syncronizes to the cloud provider:
   - Applies EC2 tags to the machine, making your console intelligible: ![AWS Console screenshot](https://github.com/infochimps/cluster_chef/raw/version_3/notes/aws_console_screenshot.jpg)
-  - Connects external (EBS) volumes, if any, to the correct mount point
+  - Connects external (EBS) volumes, if any, to the correct mount point -- it uses (and applies) tags to the volumes, so they know which machine to adhere to. If you've manually added volumes, just make sure they're defined correctly in your cluster file and run `knife cluster sync {cluster_name}`; it will paint them with the correct tags.
   - Associates an elastic IP, if any, to the machine
 * Bootstraps the machine using knife bootstrap
 
+---------------------------------------------------------------------------
+
+## Getting Started
+
+This assumes you have installed chef, have a working chef server, and have an AWS account. If you can run knife and use the web browser to see your EC2 console, you can start here. If not, see the instructions below.
+
+### Setup
+
+```ruby
+bundle install
+```
+
+### Your first cluster
+
+Let's create a cluster called 'demosimple'. It's, well, a simple demo cluster.
+
+#### Create a simple demo cluster
+
+Create a directory for your clusters; copy the demosimple cluster and its associated roles from cluster_chef:
+
+```ruby
+        mkdir -p $CHEF_REPO_DIR/clusters
+        cp cluster_chef/clusters/{defaults,demosimple}.rb ./clusters/
+        cp cluster_chef/roles/{big_package,nfs_*,ssh,base_role,chef_client}.rb  ./roles/
+```
+
+Lastly, add the `cookbooks`, `site-cookbooks`, and `meta-cookbooks` directories
+from cluster_chef to the `cookbooks_path` in your knife.rb, and push everything
+to the chef server. (see below for details).
+
+#### knife cluster launch
+
+Hooray! You're ready to launch a cluster:
+
+```ruby
+    knife cluster launch demosimple homebase --bootstrap
+</pre>
+
+It will kick off a node and then bootstrap it. You'll see it install a whole bunch of things. Yay.
+
+__________________________________________________________________________
 
 ## Philosophy
 
@@ -199,22 +238,41 @@ Some general principles of how we use chef.
   - but machines should be ablt independently assert things like load balancer registration that that might change at any point in the lifetime.
 * It's even nicer, though, to have *full idempotency from the command line*: I can at any time push truth from the git repo to the chef server and know that it will take hold.
 
+__________________________________________________________________________
 
----------------------------------------------------------------------------
+## Advanced Superpowers
 
-## Getting Started
+#### Auto-vivifying machines (no bootstrap required!)
 
-This assumes you have installed chef, have a working chef server, and have an AWS account. If you can run knife and use the web browser to see your EC2 console, you can start here. If not, see the instructions below.
+On EC2, you can make a machine that auto-vivifies -- no bootstrap necessary. Burn an AMI that has the `config/client.rb` file in /etc/chef/client.rb. It will use the ec2 userdata (passed in by knife) to realize its purpose in life, its identity, and the chef server to connect to; everything happens automagically from there. No parallel ssh required!
 
-### Setup
+#### EBS Volumes
 
-```ruby
-bundle install
-```
+Define a `snapshot_id` for your volumes, and set `create_at_launch` true
+
+__________________________________________________________________________
+
+
+## Extended Installation Notes
+
+#### Set up Knife on your local machine, and a Chef Server in the cloud
+
+If you already have a working chef installation you can skip this section.
+
+To get started with knife and chef, follow the "Chef Quickstart,":http://wiki.opscode.com/display/chef/Quick+Start We use the hosted chef service and are very happy, but there are instructions on the wiki to set up a chef server too. Stop when you get to "Bootstrap the Ubuntu system" -- cluster chef is going to make that much easier.
+
+#### Cloud setup
+
+Next,
+
+* sign up for an AWS account
+* Follow the "Knife with AWS quickstart": on the opscode wiki.
+
+Right now cluster chef works well with AWS.  If you're interested in modifying it to work with other cloud providers, "see here":https://github.com/infochimps/cluster_chef/issues/28 or get in touch.
 
 #### Knife setup
 
-In your <code>$DOT_CHEF_DIR/knife.rb</code>, modify the cookbook path (to include cluster_chef/cookbooks and cluster_chef/site-cookbooks) and to add settings for @cluster_chef_path@, @cluster_path@ and @keypair_path@. Here's mine:
+In your `.chef/knife.rb`, modify the cookbook path to include cluster_chef's `cookbooks`, `meta-cookbooks` and `site-cookbooks`, and to add settings for `cluster_chef_path`, `cluster_path` and `keypair_path`. Here's mine:
 
 ```
         current_dir = File.dirname(__FILE__)
@@ -240,9 +298,11 @@ In your <code>$DOT_CHEF_DIR/knife.rb</code>, modify the cookbook path (to includ
 
         # The first things have lowest priority (so, site-cookbooks gets to win)
         cookbook_path            [
-          "#{cluster_chef_path}/cookbooks",
-          "#{current_dir}/../cookbooks",
-          "#{current_dir}/../site-cookbooks",
+          "#{cluster_chef_path}/cookbooks",      # std cookbooks from opscode/cookbooks
+          "#{cluster_chef_path}/meta-cookbooks", # coordinate services among cookbooks
+          "#{cluster_chef_path}/site-cookbooks", # infochimps' collection of cookbooks
+          "#{current_dir}/../cookbooks",         
+          "#{current_dir}/../site-cookbooks",    # your internal cookbooks
         ]
 
         # If you primarily use AWS cloud services:
@@ -270,69 +330,3 @@ To send all the cookbooks and role to the chef server, visit your cluster_chef d
 ```
 
 You should see all the cookbooks defined in cluster_chef/cookbooks (ant, apt, ...) listed among those it uploads.
-
-### Your first cluster
-
-Let's create a cluster called 'demosimple'. It's, well, a simple demo cluster.
-
-#### Create a simple demo cluster
-
-Create a directory for your clusters; copy the demosimple cluster and its associated roles from cluster_chef:
-
-```ruby
-        mkdir -p $CHEF_REPO_DIR/clusters
-        cp cluster_chef/clusters/{defaults,demosimple}.rb ./clusters/
-        cp cluster_chef/roles/{big_package,nfs_*,ssh,base_role,chef_client}.rb  ./roles/
-        for foo in roles/*.rb ; do knife role from file $foo ; done
-```
-
-Symlink in the cookbooks you'll need, and upload them to your chef server:
-
-```ruby
-        cd $CHEF_REPO_DIR/cookbooks
-        ln -s         ../cluster_chef/site-cookbooks/{nfs,big_package,cluster_chef,provides_service,firewall,motd}         .
-        knife cookbook upload nfs big_package cluster_chef provides_service firewall motd
-```
-
-#### AWS credentials
-
-Make a cloud keypair, a secure key for communication with Amazon AWS cloud. cluster_chef expects a keypair named after its cluster -- this is a best practice that helps keep your environments distinct.
-
-1. Log in to the "AWS console":http://bit.ly/awsconsole and create a new keypair named @demosimple@. Your browser will download the private key file.
-2. Move the private key file you just downloaded to your .chef dir, and make it private key unsnoopable, or ssh will complain:
-
-```ruby
-mv ~/downloads/demosimple.pem $DOT_CHEF_DIR/demosimple.pem
-chmod 600 $DOT_CHEF_DIR/*.pem
-```
-
-### Cluster chef knife commands
-
-#### knife cluster launch
-
-Hooray! You're ready to launch a cluster:
-
-```ruby
-    knife cluster launch demosimple homebase --bootstrap
-</pre>
-
-It will kick off a node and then bootstrap it. You'll see it install a whole bunch of things. Yay.
-
-## Extended Installation Notes
-
-### Set up Knife on your local machine, and a Chef Server in the cloud
-
-If you already have a working chef installation you can skip this section.
-
-To get started with knife and chef, follow the "Chef Quickstart,":http://wiki.opscode.com/display/chef/Quick+Start We use the hosted chef service and are very happy, but there are instructions on the wiki to set up a chef server too. Stop when you get to "Bootstrap the Ubuntu system" -- cluster chef is going to make that much easier.
-
-### Cloud setup
-
-If you can use the normal knife bootstrap commands to launch a machine, you can skip this step.
-
-Steps:
-
-* sign up for an AWS account
-* Follow the "Knife with AWS quickstart": on the opscode wiki.
-
-Right now cluster chef works well with AWS.  If you're interested in modifying it to work with other cloud providers, "see here":https://github.com/infochimps/cluster_chef/issues/28 or get in touch.

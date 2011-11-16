@@ -36,13 +36,13 @@ recipe           "jenkins::proxy_apache2",             "Uses the apache2 recipe 
 recipe           "jenkins::proxy_nginx",               "Uses the nginx::source recipe from the nginx cookbook to install an HTTP frontend proxy. To automatically activate this recipe set the `node[:jenkins][:http_proxy][:variant]` to `nginx`."
 recipe           "jenkins::server",                    "Server"
 recipe           "jenkins::user_key",                  "User Key"
-recipe           "jenkins::cli",                       "This resource can be used to execute the Jenkins cli from your recipes.  For example, install plugins via update center and restart Jenkins:
+recipe           "jenkins::cli",                       %q{This resource can be used to execute the Jenkins cli from your recipes.  For example, install plugins via update center and restart Jenkins:
 
     %w(git URLSCM build-publisher).each do |plugin|
       jenkins_cli "install-plugin #{plugin}"
       jenkins_cli "safe-restart"
-    end"
-recipe           "jenkins::node",                      "This resource can be used to configure nodes as the 'node_ssh' and 'node_windows' recipes do or "Launch slave via execution of command on the Master".
+    end}
+recipe           "jenkins::node",                      %q{This resource can be used to configure nodes as the 'node_ssh' and 'node_windows' recipes do or "Launch slave via execution of command on the Master".
 
     jenkins_node node[:fqdn] do
       description  "My node for things, stuff and whatnot"
@@ -51,8 +51,8 @@ recipe           "jenkins::node",                      "This resource can be use
       launcher     "command"
       command      "ssh -i my_key #{node[:fqdn]} java -jar #{remote_fs}/slave.jar"
       env          "ANT_HOME" => "/usr/local/ant", "M2_REPO" => "/dev/null"
-    end"
-recipe           "jenkins::job",                       "This resource manages jenkins jobs, supporting the following actions:
+    end}
+recipe           "jenkins::job",                       %q{This resource manages jenkins jobs, supporting the following actions:
 
    :create, :update, :delete, :build, :disable, :enable
 
@@ -73,7 +73,7 @@ The 'create' and 'update' actions require a jenkins job config.xml.  Example:
       variables :job_name => job_name, :branch => git_branch, :node => node[:fqdn]
       notifies :update, resources(:jenkins_job => job_name), :immediately
       notifies :build, resources(:jenkins_job => job_name), :immediately
-    end"
+    end}
 recipe           "jenkins::manage_node",               "The script to generate groovy that manages a node can be used standalone.  For example:
 
     % ruby manage_node.rb name slave-hostname remote_fs /home/jenkins ... | java -jar jenkins-cli.jar -s http://jenkins:8080/ groovy = "
