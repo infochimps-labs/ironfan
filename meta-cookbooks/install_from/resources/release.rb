@@ -40,6 +40,8 @@ attribute :release_file,  :kind_of => String
 attribute :expand_cmd, :kind_of => String
 # User to run as
 attribute :user,          :kind_of => String, :default => 'root'
+# Environment to pass on to commands
+attribute :environment,   :kind_of => Hash, :default => {}
 
 def initialize(*args)
   super

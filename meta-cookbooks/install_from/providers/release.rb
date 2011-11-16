@@ -33,16 +33,16 @@
 action :download do
   new_resource.assume_defaults!
   directory(::File.dirname(new_resource.release_file)) do
-    mode      '0755'
-    action    :create
-    recursive true
+    mode        '0755'
+    action      :create
+    recursive   true
   end
 
   remote_file new_resource.release_file do
-    source    new_resource.release_url
-    mode      "0644"
-    action    :create
-    not_if{   ::File.directory?(new_resource.install_dir) }
+    source      new_resource.release_url
+    mode        "0644"
+    action      :create
+    not_if{     ::File.directory?(new_resource.install_dir) }
   end
 end
 
@@ -55,10 +55,11 @@ action :unpack do
   end
 
   bash "unpack #{new_resource.name} release" do
-    user      new_resource.user
-    cwd       ::File.dirname(new_resource.install_dir)
-    code      "#{new_resource.unrelease_cmd} '#{new_resource.release_file}'"
-    not_if{   ::File.directory?(new_resource.install_dir) }
+    user        new_resource.user
+    cwd         ::File.dirname(new_resource.install_dir)
+    code        "#{new_resource.unrelease_cmd} '#{new_resource.release_file}'"
+    not_if{     ::File.directory?(new_resource.install_dir) }
+    environment new_resource.environment
   end
 
   link new_resource.home_dir do
@@ -85,7 +86,7 @@ action :build_with_ant do
     user        new_resource.user
     cwd         new_resource.install_dir
     code        "ant"
-    environment('JAVA_HOME' => new_resource.java_home) if new_resource.java_home
+    environment new_resource.environment
   end
 end
 
@@ -94,6 +95,7 @@ action :configure_with_configure do
     user        new_resource.user
     cwd         new_resource.install_dir
     code        "./configure"
+    environment new_resource.environment
   end
 end
 
@@ -102,6 +104,7 @@ action :build_with_make do
     user        new_resource.user
     cwd         new_resource.install_dir
     code        "make"
+    environment new_resource.environment
   end
 end
 
@@ -110,5 +113,6 @@ action :install_with_make do
     user        new_resource.user
     cwd         new_resource.install_dir
     code        "make install"
+    environment new_resource.environment
   end
 end
