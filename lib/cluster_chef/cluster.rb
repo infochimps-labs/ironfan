@@ -10,6 +10,7 @@ module ClusterChef
       super(name.to_sym, attrs)
       @facets            = Mash.new
       @chef_roles        = []
+      environment          :_default if environment.blank?
       create_cluster_role
       create_cluster_security_group unless attrs[:no_security_group]
     end

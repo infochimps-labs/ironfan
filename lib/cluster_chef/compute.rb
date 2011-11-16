@@ -4,7 +4,7 @@ module ClusterChef
   #
   class ComputeBuilder < ClusterChef::DslObject
     attr_reader :cloud, :volumes, :chef_roles
-    has_keys :name, :run_list, :bogosity
+    has_keys :name, :run_list, :bogosity, :environment
     @@role_implications ||= Mash.new
 
     def initialize(builder_name, attrs={})
@@ -88,6 +88,18 @@ module ClusterChef
     def recipe(name)
       run_list << name.to_s
       run_list.uniq!
+    end
+
+    #
+    # Some roles imply aspects of the machine that have to exist at creation.
+    # For instance, on an ec2 machine you may wish the 'ssh' role to imply a
+    # security group explicity opening port 22.
+    #
+    # @param [String] role_name -- the role that triggers the block
+    # @yield block will be instance_eval'd in the object that calls 'role'
+    #
+    def self.role_implication(name, &block)
+      @@role_implications[name] = block
     end
 
   end

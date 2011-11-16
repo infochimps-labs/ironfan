@@ -128,7 +128,7 @@ module ClusterChef
     # FIXME: this is a jumble. we need to pass it in some other way.
 
     DEFAULT_HEADINGS = ["Name", "Chef?", "State", "InstanceID", "Public IP", "Private IP", "Created At"].to_set.freeze
-    DETAILED_HEADINGS = (DEFAULT_HEADINGS + ['Flavor', 'AZ']).freeze
+    DETAILED_HEADINGS = (DEFAULT_HEADINGS + ['Flavor', 'AZ', 'Env']).freeze
     EXPANDED_HEADINGS = DETAILED_HEADINGS + ['Image', 'Volumes', 'Elastic IP', 'SSH Key']
 
     MACHINE_STATE_COLORS  = {
@@ -166,8 +166,14 @@ module ClusterChef
           "Facet"  => svr.facet_name,
           "Index"  => svr.facet_index,
           "Chef?"  => (svr.chef_node? ? "yes" : "[red]no[reset]"),
-          "Bogus"  => (svr.bogus? ? "[red]#{svr.bogosity}[reset]" : '')
+          "Bogus"  => (svr.bogus? ? "[red]#{svr.bogosity}[reset]" : ''),
+          "Env"    => svr.environment,
         }
+        # if (cs = svr.chef_server)
+        #   hsh.merge!(
+        #     "Env"    => cs.environment,
+        #     )
+        # end
         if (fs = svr.fog_server)
           hsh.merge!(
               "InstanceID" => (fs.id && fs.id.length > 0) ? fs.id : "???",

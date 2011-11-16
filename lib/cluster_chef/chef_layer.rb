@@ -152,6 +152,7 @@ module ClusterChef
     def _update_chef_node
       step("  updating chef node", :blue)
       set_chef_node_attributes
+      set_chef_node_environment
       sync_volume_attributes
       chef_api_server_as_client.put_rest("nodes/#{@chef_node.name}", @chef_node)
     end
@@ -170,6 +171,10 @@ module ClusterChef
       @chef_node.override[:cluster_name] = cluster_name
       @chef_node.override[:facet_name]   = facet_name
       @chef_node.override[:facet_index]  = facet_index
+    end
+
+    def set_chef_node_environment
+      @chef_node.chef_environment(environment.to_s)
     end
 
     #
@@ -220,7 +225,7 @@ module ClusterChef
     end
 
     #
-    # The below *was* present but was pulled for some reason (??0
+    # The below *was* present but was pulled from the API by opscode for some reason (2011/10/20)
     #
 
     # # The client is required to have these permissions on its eponymous node

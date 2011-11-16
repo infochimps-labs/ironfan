@@ -1,16 +1,5 @@
 module ClusterChef
   ComputeBuilder.class_eval do
-    #
-    # Some roles imply aspects of the machine that have to exist at creation.
-    # For instance, on an ec2 machine you may wish the 'ssh' role to imply a
-    # security group explicity opening port 22.
-    #
-    # @param [String] role_name -- the role that triggers the block
-    # @yield block will be instance_eval'd in the object that calls 'role'
-    #
-    def self.role_implication(name, &block)
-      @@role_implications[name] = block
-    end
 
     role_implication "nfs_server" do
       self.cloud.security_group "nfs_server" do
