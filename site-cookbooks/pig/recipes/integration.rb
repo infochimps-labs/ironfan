@@ -33,7 +33,7 @@ end
 # Link hbase configuration to $PIG_HOME/conf
 #
 node[:pig][:extra_confs].each do |xml_conf|
-  link "/usr/local/share/pig/conf/#{File.basename(xml_conf)}" do
+  link "#{node[:pig][:home_dir]}/conf/#{File.basename(xml_conf)}" do
     to xml_conf
     action :create
   end
@@ -42,7 +42,16 @@ end
 #
 # Pig configuration, by default HBASE_CONF_DIR is set to garbage
 #
-template "#{node[:pig][:home_dir]}/conf/pig-env.sh" do
+template "#{node[:pig][:home_dir]}/bin/pig.new" do
+  owner       "root"
+  mode        "0644"
+  source      "pig.erb"
+end
+
+#
+# Pig configuration, by default HBASE_CONF_DIR is set to garbage
+#
+template "#{node[:pig][:home_dir]}/conf/pig-env.sh.new" do
   owner       "root"
   mode        "0644"
   source      "pig-env.sh.erb"
@@ -51,7 +60,7 @@ end
 #
 # Pig config stuff
 #
-template "#{node[:pig][:home_dir]}/conf/pig.properties" do
+template "#{node[:pig][:home_dir]}/conf/pig.properties.new" do
   owner       "root"
   mode        "0644"
   source      "pig.properties.erb"

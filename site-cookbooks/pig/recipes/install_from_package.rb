@@ -47,3 +47,9 @@ end
 #
 
 package "hadoop-pig"
+
+# why does this need to be here?
+link "/usr/local/bin/pig" do
+  to          File.join(node[:pig][:home_dir], 'bin', 'pig')
+  action      :create
+end
