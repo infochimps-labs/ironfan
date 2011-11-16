@@ -7,7 +7,7 @@ ClusterChef.cluster 'demohadoop' do
     image_name          'natty'
     bootstrap_distro    'ubuntu10.04-cluster_chef'
     chef_client_script  'client.rb'
-    mount_ephemerals(:tags => { :hadoop_scratch => true })
+    mount_ephemerals(:tags => { :scratch_dirs => true, :hadoop_scratch => true })
   end
 
   role                  :base_role

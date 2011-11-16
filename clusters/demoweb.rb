@@ -1,5 +1,14 @@
 ClusterChef.cluster 'demoweb' do
-  mounts_ephemeral_volumes
+  cloud :ec2 do
+    defaults
+    availability_zones ['us-east-1d']
+    flavor              't1.micro'  # change to something larger for serious use
+    backing             'ebs'
+    image_name          'natty'
+    bootstrap_distro    'ubuntu10.04-cluster_chef'
+    chef_client_script  'client.rb'
+    mount_ephemerals(:tags => { :scratch_dirs => true })
+  end
 
   # web server? add the group "demoweb-awesome_website" and open the web holes
   role_implication("awesome_website") do
@@ -22,13 +31,6 @@ ClusterChef.cluster 'demoweb' do
     self.cloud.security_group("#{cluster_name}-redis_client")
   end
 
-  cloud do
-    backing             "instance"
-    image_name          "maverick"
-    flavor              "t1.micro"
-    availability_zones  ['us-east-1d']
-  end
-
   role                  "nfs_client"
   role                  "big_package"
 
@@ -40,16 +42,13 @@ ClusterChef.cluster 'demoweb' do
     role                "elasticsearch_client"
     role                "awesome_website"
     #
-    cloud.backing       "ebs"
     azs = ['us-east-1d', 'us-east-1b', 'us-east-1c']
     (0...instances).each do |idx|
       server(idx).cloud.availability_zones [azs[ idx % azs.length ]]
     end
 
-    chef_attributes({ :split_testing => { :group => 'A' } })
-
-    server(5) do
-      chef_attributes({ :split_testing => { :group => 'B' } })
+    (0..instances).each do |idx|
+      chef_node.norma[:split_testing] = ( (idx % 2 == 0) ? 'A' : 'B' )
     end
   end
 
@@ -57,11 +56,10 @@ ClusterChef.cluster 'demoweb' do
     instances           2
     role                "mysql_server"
     role                "redis_client"
-    # an m1.large is usually OK but if we have to increase the number of backend
-    # machines, make the extra machines large.
-    cloud.flavor        "c1.xlarge"
+    # burly master, wussier slaves
+    cloud.flavor        "m1.large"
     server(0) do
-      cloud.flavor      "m1.large"
+      cloud.flavor      "c1.xlarge"
     end
 
     volume(:data) do
@@ -71,11 +69,7 @@ ClusterChef.cluster 'demoweb' do
       mount_point   '/data/db'
       mount_options 'defaults,nouuid,noatime'
       fs_type       'xfs'
-    end
-    server(0).volume(:data).snapshot_id 'snap-d9c1edb1'
-    server(1).volume(:data) do
-      snapshot_id 'snap-d9c1edb1'
-      volume_id   'vol-12345'
+      snapshot_id   'snap-d9c1edb1'
     end
   end
 
@@ -88,10 +82,4 @@ ClusterChef.cluster 'demoweb' do
     #
     cloud.flavor        "m1.large"
   end
-
-
-  chef_attributes({
-      :webnode_count => facet(:webnode).instances,
-    })
-
 end
