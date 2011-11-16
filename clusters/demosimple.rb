@@ -3,9 +3,6 @@ ClusterChef.cluster 'demosimple' do
     defaults
     availability_zones ['us-east-1d']
     image_name          'natty'
-    bootstrap_distro    'ubuntu10.04-cluster_chef'
-    chef_client_script  'client-v3.rb'
-    mount_ephemerals
   end
 
   role                  :base_role
@@ -23,16 +20,19 @@ ClusterChef.cluster 'demosimple' do
     instances           1
     role                :nfs_server
 
-    volume(:home) do
-      defaults
-      size                15
-      device              '/dev/sdh' # note: will appear as /dev/xvdi on natty
-      mount_point         '/home'
-      attachable          :ebs
-      # snapshot_id       '' # 200gb xfs
-      tags                :home => '/home'
-      create_at_launch    true # if no volume is tagged for that node, it will be created
-    end
+    # #
+    # # Follow the directions in the aws cookbook about an AWS credentials databag
+    # #
+    # volume(:home) do
+    #   defaults
+    #   size                15
+    #   device              '/dev/sdh'       # note: will appear as /dev/xvdi on natty
+    #   mount_point         '/home'
+    #   attachable          :ebs
+    #   # snapshot_id       ''               # create a snapshot and place its id here
+    #   create_at_launch    true             # if no volume is tagged for that node, it will be created
+    #   tags                :home => '/home'
+    # end
   end
 
   #
@@ -43,5 +43,4 @@ ClusterChef.cluster 'demosimple' do
     role                :nfs_client
   end
 
-  cluster_role.override_attributes( :mountable_volumes => { :aws_credential_source => 'node_attributes', })
 end
