@@ -86,7 +86,8 @@ module ClusterChef
     #
     # See notes at top of file for why all this jiggery-fuckery
     #
-    # * client exists, node exists: see if client can update, fail otherwise
+    # * client exists, node exists: assume client can update, weep later when
+    #   the initial chef run fails. Not much we can do here -- holler at opscode.
     # * client exists, node absent: see if client can create, fail otherwise
     # * client absent, node absent: see if client can create both, fail otherwise
     # * client absent, node exists: fail (we can't get permissions)
@@ -99,7 +100,7 @@ module ClusterChef
       chef_client
       #
       case
-      when    @chef_client  &&    @chef_node  then _update_chef_node
+      when    @chef_client  &&    @chef_node  then _update_chef_node # this will fail later if the chef client is in a bad state but whaddayagonnado
       when    @chef_client  && (! @chef_node) then _create_chef_node
       when (! @chef_client) && (! @chef_node) then # create both
         ensure_chef_client
