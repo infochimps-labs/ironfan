@@ -14,6 +14,7 @@ depends          "provides_service"
 recipe           "zookeeper::client",                  "Installs Zookeeper client libraries"
 recipe           "zookeeper::default",                 "Base configuration for zookeeper"
 recipe           "zookeeper::server",                  "Installs Zookeeper server, sets up and starts service"
+recipe           "zookeeper::add_cloudera_repo",       "Add Cloudera repo to package manager"
 
 %w[ debian ubuntu ].each do |os|
   supports os

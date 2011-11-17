@@ -30,12 +30,12 @@ Copyright:: 2009, Opscode, Inc; 2010, 2011 Infochimps, In
 
 * `[:cluster_size]`                   - Number of machines in the cluster (default: "5")
   Number of machines in the cluster. This is used to size things like handler counts, etc.
+* `[:apt][:cloudera][:force_distro]`  - Override the distro name apt uses to look up repos
+  Typically, leave this blank. However if (as is the case in Nov 2011) you are on natty but Cloudera's repo only has packages up to maverick, use this to override.
+* `[:apt][:cloudera][:release_name]`  - Release identifier (eg cdh3u2) of the cloudera repo to use. See also hadoop/deb_version (default: "cdh3u2")
 * `[:hadoop][:handle]`                - Version prefix for the daemons and other components (default: "hadoop-0.20")
   Cloudera distros have a prefix most (but not all) things with. This helps isolate the times they say 'hadoop-0.20' vs. 'hadoop'
-* `[:apt][:cloudera][:release_name]`           - Version identifier (eg cdh3u2) of the cloudera repo to use. See also hadoop/deb_version (default: "cdh3u2")
-* `[:hadoop][:deb_version]`           - Apt revision identifier (eg 0.20.2+923.142-1~maverick-cdh3) of the specific cloudera apt to use. See also hadoop/cdh_version (default: "0.20.2+923.142-1~maverick-cdh3")
-* `[:apt][:cloudera][:force_distro]`          - Override the distro to pull repos from
-  Typically, leave this blank. However if (as is the case in Nov 2011) you are on natty but Cloudera's repo only has packages up to maverick, use this to override.
+* `[:hadoop][:deb_version]`           - Apt revision identifier (eg 0.20.2+923.142-1~maverick-cdh3) of the specific cloudera apt to use. See also apt/release_name (default: "0.20.2+923.142-1~maverick-cdh3")
 * `[:hadoop][:dfs_replication]`       - Default HDFS replication factor (default: "3")
   HDFS blocks are by default reproduced to this many machines.
 * `[:hadoop][:reduce_parallel_copies]` -  (default: "10")
@@ -66,7 +66,7 @@ Copyright:: 2009, Opscode, Inc; 2010, 2011 Infochimps, In
 * `[:hadoop][:java_child_opts]`       -  (default: "-Xmx2432m -Xss128k -XX:+UseCompressedOops -XX:MaxNewSize=200m -server")
 * `[:hadoop][:java_child_ulimit]`     -  (default: "7471104")
 * `[:hadoop][:io_sort_factor]`        -  (default: "25")
-* `[:hadoop][:io_sort_mb]`            -  (default: "256")
+* `[:hadoop][:io_sort_mb]`            -  (default: "250")
 * `[:hadoop][:namenode][:service_state]` - 
 * `[:hadoop][:namenode][:java_heap_size_max]` - 
 * `[:hadoop][:secondarynamenode][:service_state]` - 
@@ -85,6 +85,7 @@ Copyright:: 2009, Opscode, Inc; 2010, 2011 Infochimps, In
 
 ## Recipes 
 
+* `add_cloudera_repo`        - Add Cloudera repo to package manager
 * `cluster_conf`             - Cluster Conf
 * `datanode`                 - Datanode
 * `default`                  - Base configuration for hadoop_cluster
@@ -97,8 +98,7 @@ Copyright:: 2009, Opscode, Inc; 2010, 2011 Infochimps, In
 * `pseudo_distributed`       - Pseudo Distributed
 * `secondarynamenode`        - Secondarynamenode
 * `tasktracker`              - Tasktracker
-* `update_apt`               - Update Apt
-* `wait_on_hdfs_safemode`    - Wait On Hdfs Safemode
+* `wait_on_hdfs_safemode`    - Wait On HDFS Safemode
 
 
 ## Integration

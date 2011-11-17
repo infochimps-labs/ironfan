@@ -9,6 +9,7 @@ description      "Installs/Configures hive"
 depends          "java"
 
 recipe           "hive::default",                      "Base configuration for hive"
+recipe           "hive::add_cloudera_repo",            "Add Cloudera repo to package manager"
 
 %w[ debian ubuntu ].each do |os|
   supports os

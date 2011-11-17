@@ -20,61 +20,16 @@ recipe           "jenkins::build_ruby_rspec",          "Build Ruby Rspec"
 recipe           "jenkins::default",                   "Installs a Jenkins CI server using the http://jenkins-ci.org/redhat RPM.  The recipe also generates an ssh private key and stores the ssh public key in the node 'jenkins[:pubkey]' attribute for use by the node recipes."
 recipe           "jenkins::iptables",                  "Set up ip_tables to allow access to the daemons"
 recipe           "jenkins::node_jnlp",                 "Creates the user and group for the Jenkins slave to run as and '/jnlpJars/slave.jar' is downloaded from the Jenkins server.  Depends on runit_service from the runit cookbook."
-recipe           "jenkins::node_ssh",                  "Creates the user and group for the Jenkins slave to run as and sets `.ssh/authorized_keys` to the 'jenkins[:pubkey]' attribute.  The 'jenkins-cli.jar'[1] is downloaded from the Jenkins server and used to manage the nodes via the 'groovy'[2] cli command.  Jenkins is configured to launch a slave agent on the node using its SSH slave plugin[3].
-
-[1] http://wiki.jenkins-ci.org/display/JENKINS/Jenkins+CLI
-[2] http://wiki.jenkins-ci.org/display/JENKINS/Jenkins+Script+Console
-[3] http://wiki.jenkins-ci.org/display/JENKINS/SSH+Slaves+plugin"
-recipe           "jenkins::node_windows",              "Creates the home directory for the node slave and sets 'JENKINS_HOME' and 'JENKINS_URL' system environment variables.  The 'winsw'[1] Windows service wrapper will be downloaded and installed, along with generating `jenkins-slave.xml` from a template.  Jenkins is configured with the node as a 'jnlp'[2] slave and '/jnlpJars/slave.jar' is downloaded from the Jenkins server.  The 'jenkinsslave' service will be started the first time the recipe is run or if the service is not running.  The 'jenkinsslave' service will be restarted if '/jnlpJars/slave.jar' has changed.  The end results is functionally the same had you chosen the option to 'Let Jenkins control this slave as a Windows service'[3].
-
-[1] http://weblogs.java.net/blog/2008/09/29/winsw-windows-service-wrapper-less-restrictive-license
-[2] http://wiki.jenkins-ci.org/display/JENKINS/Distributed+builds
-[3] http://wiki.jenkins-ci.org/display/JENKINS/Installing+Jenkins+as+a+Windows+service"
+recipe           "jenkins::node_ssh",                  "Creates the user and group for the Jenkins slave to run as and sets `.ssh/authorized_keys` to the 'jenkins[:pubkey]' attribute.  The 'jenkins-cli.jar'[1] is downloaded from the Jenkins server and used to manage the nodes via the 'groovy'[2] cli command.  Jenkins is configured to launch a slave agent on the node using its SSH slave plugin[3].\n\n[1] http://wiki.jenkins-ci.org/display/JENKINS/Jenkins+CLI\n[2] http://wiki.jenkins-ci.org/display/JENKINS/Jenkins+Script+Console\n[3] http://wiki.jenkins-ci.org/display/JENKINS/SSH+Slaves+plugin"
+recipe           "jenkins::node_windows",              "Creates the home directory for the node slave and sets 'JENKINS_HOME' and 'JENKINS_URL' system environment variables.  The 'winsw'[1] Windows service wrapper will be downloaded and installed, along with generating `jenkins-slave.xml` from a template.  Jenkins is configured with the node as a 'jnlp'[2] slave and '/jnlpJars/slave.jar' is downloaded from the Jenkins server.  The 'jenkinsslave' service will be started the first time the recipe is run or if the service is not running.  The 'jenkinsslave' service will be restarted if '/jnlpJars/slave.jar' has changed.  The end results is functionally the same had you chosen the option to 'Let Jenkins control this slave as a Windows service'[3].\n\n[1] http://weblogs.java.net/blog/2008/09/29/winsw-windows-service-wrapper-less-restrictive-license\n[2] http://wiki.jenkins-ci.org/display/JENKINS/Distributed+builds\n[3] http://wiki.jenkins-ci.org/display/JENKINS/Installing+Jenkins+as+a+Windows+service"
 recipe           "jenkins::proxy_apache2",             "Uses the apache2 recipe from the apache2 cookbook to install an HTTP frontend proxy. To automatically activate this recipe set the `node[:jenkins][:http_proxy][:variant]` to `apache2`."
 recipe           "jenkins::proxy_nginx",               "Uses the nginx::source recipe from the nginx cookbook to install an HTTP frontend proxy. To automatically activate this recipe set the `node[:jenkins][:http_proxy][:variant]` to `nginx`."
 recipe           "jenkins::server",                    "Server"
 recipe           "jenkins::user_key",                  "User Key"
-recipe           "jenkins::cli",                       %q{This resource can be used to execute the Jenkins cli from your recipes.  For example, install plugins via update center and restart Jenkins:
-
-    %w(git URLSCM build-publisher).each do |plugin|
-      jenkins_cli "install-plugin #{plugin}"
-      jenkins_cli "safe-restart"
-    end}
-recipe           "jenkins::node",                      %q{This resource can be used to configure nodes as the 'node_ssh' and 'node_windows' recipes do or "Launch slave via execution of command on the Master"
-
-    jenkins_node node[:fqdn] do
-      description  "My node for things, stuff and whatnot"
-      executors    5
-      remote_fs    "/var/jenkins"
-      launcher     "command"
-      command      "ssh -i my_key #{node[:fqdn]} java -jar #{remote_fs}/slave.jar"
-      env          "ANT_HOME" => "/usr/local/ant", "M2_REPO" => "/dev/null"
-    end}
-recipe           "jenkins::job",                       %q{This resource manages jenkins jobs, supporting the following actions:
-
-   :create, :update, :delete, :build, :disable, :enable
-
-The 'create' and 'update' actions require a jenkins job config.xml.  Example:
-
-    git_branch = 'master'
-    job_name = "sigar-#{branch}-#{node[:os]}-#{node[:kernel][:machine]}"
-
-    job_config = File.join(node[:jenkins][:node][:home], "#{job_name}-config.xml")
-
-    jenkins_job job_name do
-      action :nothing
-      config job_config
-    end
-
-    template job_config do
-      source "sigar-jenkins-config.xml"
-      variables :job_name => job_name, :branch => git_branch, :node => node[:fqdn]
-      notifies :update, resources(:jenkins_job => job_name), :immediately
-      notifies :build, resources(:jenkins_job => job_name), :immediately
-    end}
-recipe           "jenkins::manage_node",               %q{The script to generate groovy that manages a node can be used standalone.  For example:
-
-    % ruby manage_node.rb name slave-hostname remote_fs /home/jenkins ... | java -jar jenkins-cli.jar -s http://jenkins:8080/ groovy = }
+recipe           "jenkins::cli",                       "This resource can be used to execute the Jenkins cli from your recipes.  For example, install plugins via update center and restart Jenkins:\n\n    %w(git URLSCM build-publisher).each do |plugin|\n      jenkins_cli \"install-plugin \#{plugin}\"\n      jenkins_cli \"safe-restart\"\n    end"
+recipe           "jenkins::node",                      "This resource can be used to configure nodes as the 'node_ssh' and 'node_windows' recipes do or \"Launch slave via execution of command on the Master\"\n\n    jenkins_node node[:fqdn] do\n      description  \"My node for things, stuff and whatnot\"\n      executors    5\n      remote_fs    \"/var/jenkins\"\n      launcher     \"command\"\n      command      \"ssh -i my_key \#{node[:fqdn]} java -jar \#{remote_fs}/slave.jar\"\n      env          \"ANT_HOME\" => \"/usr/local/ant\", \"M2_REPO\" => \"/dev/null\"\n    end"
+recipe           "jenkins::job",                       "This resource manages jenkins jobs, supporting the following actions:\n\n   :create, :update, :delete, :build, :disable, :enable\n\nThe 'create' and 'update' actions require a jenkins job config.xml.  Example:\n\n    git_branch = 'master'\n    job_name = \"sigar-\#{branch}-\#{node[:os]}-\#{node[:kernel][:machine]}\"\n\n    job_config = File.join(node[:jenkins][:node][:home], \"\#{job_name}-config.xml\")\n\n    jenkins_job job_name do\n      action :nothing\n      config job_config\n    end\n\n    template job_config do\n      source \"sigar-jenkins-config.xml\"\n      variables :job_name => job_name, :branch => git_branch, :node => node[:fqdn]\n      notifies :update, resources(:jenkins_job => job_name), :immediately\n      notifies :build, resources(:jenkins_job => job_name), :immediately\n    end"
+recipe           "jenkins::manage_node",               "The script to generate groovy that manages a node can be used standalone.  For example:\n\n    % ruby manage_node.rb name slave-hostname remote_fs /home/jenkins ... | java -jar jenkins-cli.jar -s http://jenkins:8080/ groovy = "
 
 %w[ debian ubuntu ].each do |os|
   supports os

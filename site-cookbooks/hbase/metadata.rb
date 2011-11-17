@@ -21,6 +21,7 @@ recipe           "hbase::hbase_regionserver",          "Hbase Regionserver"
 recipe           "hbase::master",                      "Master"
 recipe           "hbase::regionserver",                "Regionserver"
 recipe           "hbase::stargate",                    "Stargate"
+recipe           "hbase::add_cloudera_repo",           "Add Cloudera repo to package manager"
 
 %w[ debian ubuntu ].each do |os|
   supports os

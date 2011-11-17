@@ -24,7 +24,7 @@ include_recipe "apt"
 include_recipe "mountable_volumes"
 class Chef::Resource::Template ; include FlumeCluster ; end
 
-include_recipe "flume::cloudera_apt_repo"
+include_recipe "flume::add_cloudera_repo"
 
 #
 # Install package

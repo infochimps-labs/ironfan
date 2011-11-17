@@ -20,6 +20,6 @@
 #
 
 include_recipe "java::sun"
-include_recipe "hive::cloudera_apt_repo"
+include_recipe "hive::add_cloudera_repo"
 
 package "hadoop-hive"

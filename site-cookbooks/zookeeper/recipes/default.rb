@@ -23,7 +23,7 @@ include_recipe "java::sun"
 include_recipe "apt"
 include_recipe "mountable_volumes"
 
-include_recipe "zookeeper::cloudera_apt_repo"
+include_recipe "zookeeper::add_cloudera_repo"
 
 #
 # Install package

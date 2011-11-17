@@ -25,7 +25,7 @@ include_recipe "apt"
 include_recipe "mountable_volumes"
 class Chef::Recipe; include HadoopCluster ; end
 
-include_recipe "hadoop_cluster::cloudera_apt_repo"
+include_recipe "hadoop_cluster::add_cloudera_repo"
 
 #
 # Hadoop users and group

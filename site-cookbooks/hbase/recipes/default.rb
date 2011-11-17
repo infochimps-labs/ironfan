@@ -26,7 +26,7 @@ include_recipe "hadoop_cluster"
 include_recipe "zookeeper::client"
 include_recipe "ganglia"
 
-include_recipe "hbase::cloudera_apt_repo"
+include_recipe "hbase::add_cloudera_repo"
 
 #
 # Users

@@ -15,6 +15,7 @@ recipe           "pig::install_from_package",          "Installs pig from the cl
 recipe           "pig::install_from_release",          "Install From the release tarball."
 recipe           "pig::integration",                   "Link in jars from hbase and zookeeper"
 recipe           "pig::piggybank",                     "Compiles the Piggybank, a library of useful functions for pig"
+recipe           "pig::add_cloudera_repo",             "Add Cloudera repo to package manager"
 
 %w[ debian ubuntu ].each do |os|
   supports os

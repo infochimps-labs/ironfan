@@ -22,7 +22,7 @@
 include_recipe "apt"
 include_recipe "pig::default"
 
-include_recipe "pig::cloudera_apt_repo"
+include_recipe "pig::add_cloudera_repo"
 
 #
 # Install package

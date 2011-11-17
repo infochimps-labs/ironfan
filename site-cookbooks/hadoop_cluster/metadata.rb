@@ -24,8 +24,8 @@ recipe           "hadoop_cluster::namenode",           "Namenode"
 recipe           "hadoop_cluster::pseudo_distributed", "Pseudo Distributed"
 recipe           "hadoop_cluster::secondarynamenode",  "Secondarynamenode"
 recipe           "hadoop_cluster::tasktracker",        "Tasktracker"
-recipe           "hadoop_cluster::update_apt",         "Update Apt"
-recipe           "hadoop_cluster::wait_on_hdfs_safemode", "Wait On Hdfs Safemode"
+recipe           "hadoop_cluster::wait_on_hdfs_safemode", "Wait On HDFS Safemode"
+recipe           "hadoop_cluster::add_cloudera_repo",  "Add Cloudera repo to package manager"
 
 %w[ debian ubuntu ].each do |os|
   supports os
@@ -36,11 +36,6 @@ attribute "cluster_size",
   :description           => "Number of machines in the cluster. This is used to size things like handler counts, etc.",
   :default               => "5"
 
-attribute "hadoop/handle",
-  :display_name          => "Version prefix for the daemons and other components",
-  :description           => "Cloudera distros have a prefix most (but not all) things with. This helps isolate the times they say 'hadoop-0.20' vs. 'hadoop'",
-  :default               => "hadoop-0.20"
-
 attribute "apt/cloudera/force_distro",
   :display_name          => "Override the distro name apt uses to look up repos",
   :description           => "Typically, leave this blank. However if (as is the case in Nov 2011) you are on natty but Cloudera's repo only has packages up to maverick, use this to override.",
@@ -50,6 +45,11 @@ attribute "apt/cloudera/release_name",
   :display_name          => "Release identifier (eg cdh3u2) of the cloudera repo to use. See also hadoop/deb_version",
   :description           => "Release identifier (eg cdh3u2) of the cloudera repo to use. See also hadoop/deb_version",
   :default               => "cdh3u2"
+
+attribute "hadoop/handle",
+  :display_name          => "Version prefix for the daemons and other components",
+  :description           => "Cloudera distros have a prefix most (but not all) things with. This helps isolate the times they say 'hadoop-0.20' vs. 'hadoop'",
+  :default               => "hadoop-0.20"
 
 attribute "hadoop/deb_version",
   :display_name          => "Apt revision identifier (eg 0.20.2+923.142-1~maverick-cdh3) of the specific cloudera apt to use. See also apt/release_name",
@@ -201,7 +201,7 @@ attribute "hadoop/io_sort_factor",
 attribute "hadoop/io_sort_mb",
   :display_name          => "",
   :description           => "",
-  :default               => "256"
+  :default               => "250"
 
 attribute "hadoop/namenode/service_state",
   :display_name          => "",
