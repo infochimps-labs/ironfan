@@ -61,7 +61,16 @@ module ClusterServiceDiscovery
     all_providers_for_service(service_name).last
   end
 
-  def service_info server,service_name
+  # Find all service info for a given service name
+  def all_service_info service_name
+    all_providers_for_service(service_name).map do |server|
+      server[:provides_service][service_name]
+    end
+  end
+
+  # Find the most recent associated service info for a given service name
+  def service_info service_name
+    server = provider_for_service service_name
     server[:provides_service][service_name]
   end
 
