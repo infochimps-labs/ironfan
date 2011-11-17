@@ -1,6 +1,6 @@
 #
 # Cookbook Name::       ec2
-# Description::         Base configuration for ec2
+# Description::         Placeholder cookbook -- see ec2::raid_ephemeral
 # Recipe::              default
 # Author::              Mike Heffner
 #
@@ -19,4 +19,6 @@
 # limitations under the License.
 #
 
-
+#
+# Placeholder cookbook -- see ec2::raid_ephemeral
+#

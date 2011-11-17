@@ -46,7 +46,7 @@ attribute "resque/conf_dir",
   :description           => "",
   :default               => "/etc/resque"
 
-attribute "resque/dbfile",
+attribute "resque/db_basename",
   :display_name          => "",
   :description           => "",
   :default               => "resque_queue.rdb"

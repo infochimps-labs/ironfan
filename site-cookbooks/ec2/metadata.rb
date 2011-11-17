@@ -7,24 +7,24 @@ version          "3.0.0"
 description      "Installs/Configures ec2-specific capabilites"
 
 
-recipe           "ec2::default",                       "Base configuration for ec2"
-recipe           "ec2::raid_ephemeral",                "Raid Ephemeral"
+recipe           "ec2::default",                       "Placeholder cookbook -- see ec2::raid_ephemeral"
+recipe           "ec2::raid_ephemeral",                "Build a RAID volume out of the ephemeral drives"
 
 %w[ debian ubuntu ].each do |os|
   supports os
 end
 
-attribute "ec2/raid_level",
-  :display_name          => "",
-  :description           => "",
+attribute "ec2/raid/level",
+  :display_name          => "Raid level to apply to the volume.",
+  :description           => "Raid level to apply to the volume. See the mdadm documentation",
   :default               => "0"
 
-attribute "ec2/raid_read_ahead",
+attribute "ec2/raid/read_ahead",
   :display_name          => "",
   :description           => "",
   :default               => "65536"
 
-attribute "ec2/raid_mount",
+attribute "ec2/raid/mount",
   :display_name          => "",
   :description           => "",
   :default               => "/raid0"

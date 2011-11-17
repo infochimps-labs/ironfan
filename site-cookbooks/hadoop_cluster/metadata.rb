@@ -32,8 +32,8 @@ recipe           "hadoop_cluster::wait_on_hdfs_safemode", "Wait On Hdfs Safemode
 end
 
 attribute "cluster_size",
-  :display_name          => "",
-  :description           => "",
+  :display_name          => "Number of machines in the cluster",
+  :description           => "Number of machines in the cluster. This is used to size",
   :default               => "5"
 
 attribute "hadoop/hadoop_handle",

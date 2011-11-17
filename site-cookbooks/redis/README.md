@@ -18,7 +18,7 @@ Redis, a fast lightweight database
   Path to the log file when daemonized.  The default is /var/log/redis.log.
 * `[:redis][:data_dir]`               - Redis database directory (default: "/var/lib/redis")
   Path to the directory for database files.  The default is /var/lib/redis.
-* `[:redis][:dbfile]`                 - Redis database filename (default: "dump.rdb")
+* `[:redis][:db_basename]`                 - Redis database filename (default: "dump.rdb")
   Filename for the database storage.  The default is dump.rdb.
 * `[:redis][:client_timeout]`         - Redis client timeout (default: "300")
   Timeout, in seconds, for disconnection of idle clients.  The default is 300 (5 minutes).

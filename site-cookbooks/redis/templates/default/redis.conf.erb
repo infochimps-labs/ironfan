@@ -33,7 +33,7 @@ timeout <%= node[:redis][:client_timeout] %>
 <% end %>
 
 # The filename where to dump the DB
-dbfilename <%= node[:redis][:dbfile] %>
+dbfilename <%= node[:redis][:db_basename] %>
 
 # For default save/load DB in/from the working directory
 # Note that you must specify a directory not a file name.

@@ -23,9 +23,9 @@ __________________________________________________________________________
 
 to Bitch at opscode aboout
 
-* fix your permissions API
+* open up your permissions API already dammit
 * save opcode/cookbooks 
-* 
+* metadata.rb -- make it useful on the community site or shoot it in the head.
 
 __________________________________________________________________________
 

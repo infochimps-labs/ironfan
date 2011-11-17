@@ -4,7 +4,7 @@ default[:resque][:tmp_dir]               = '/data/db/resque/tmp'
 default[:resque][:data_dir]                 = "/data/db/resque/data"
 default[:resque][:swapdir]               = "/data/db/resque/swap"
 default[:resque][:conf_dir]              = '/etc/resque'
-default[:resque][:dbfile]                = "resque_queue.rdb"
+default[:resque][:db_basename]                = "resque_queue.rdb"
 
 default[:resque][:cluster_name]          = node[:cluster_name]
 

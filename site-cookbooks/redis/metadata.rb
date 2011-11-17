@@ -43,7 +43,7 @@ attribute "redis/data_dir",
   :description           => "Path to the directory for database files.  The default is /var/lib/redis.",
   :default               => "/var/lib/redis"
 
-attribute "redis/dbfile",
+attribute "redis/db_basename",
   :display_name          => "Redis database filename",
   :description           => "Filename for the database storage.  The default is dump.rdb.",
   :default               => "dump.rdb"
