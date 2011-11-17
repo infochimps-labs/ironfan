@@ -136,11 +136,11 @@ module ClusterChef
       # Sets some defaults for amazon cloud usage, and registers the root volume
       #
       def defaults
-        owner.volume(:root) do
-          device      '/dev/sda1'
-          mount_point '/'
-          mountable   false
-        end
+        owner.volume(:root).reverse_merge!({
+            device      => '/dev/sda1',
+            mount_point => '/',
+            mountable   => false,
+          })
         self.reverse_merge!({
             :availability_zones => ['us-east-1d'],
             :backing            => 'ebs',
