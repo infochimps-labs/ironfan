@@ -61,6 +61,10 @@ module ClusterServiceDiscovery
     all_providers_for_service(service_name).last
   end
 
+  def service_info server,service_name
+    server[:provides_service][service_name]
+  end
+
   # Register to provide the given service.
   # If you pass in a hash of information, it will be added to
   # the registry, and available to clients
