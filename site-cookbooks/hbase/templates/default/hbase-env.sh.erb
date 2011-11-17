@@ -53,8 +53,8 @@ export HBASE_JMX_BASE="-Dcom.sun.management.jmxremote.ssl=false  -Dcom.sun.manag
 export HBASE_JMX_BASE="-Djava.rmi.server.hostname=<%= @jmx_hostname %> $HBASE_JMX_BASE"
 
 # Java options for hbase processes
-export HBASE_MASTER_OPTS="$HBASE_MASTER_OPTS             -Xms<%= node[:hbase][:master_heap_size] %> -Xmx<%= node[:hbase][:master_heap_size] %> -XX:NewSize=<%= node[:hbase][:master_gc_new_size] %> -XX:MaxNewSize=<%= node[:hbase][:master_gc_new_size] %> <%= node[:hbase][:master_gc_tuning_opts] %> <%= node[:hbase][:master_gc_log_opts] %> $HBASE_JMX_BASE -Dcom.sun.management.jmxremote.port=10101"
-export HBASE_REGIONSERVER_OPTS="$HBASE_REGIONSERVER_OPTS -Xms<%= node[:hbase][:regionserver_heap_size] %> -Xmx<%= node[:hbase][:regionserver_heap_size] %> -XX:NewSize=<%= node[:hbase][:regionserver_gc_new_size] %> -XX:MaxNewSize=<%= node[:hbase][:regionserver_gc_new_size] %>  <%= node[:hbase][:regionserver_gc_tuning_opts] %> <%= node[:hbase][:regionserver_gc_log_opts] %> $HBASE_JMX_BASE -Dcom.sun.management.jmxremote.port=10102"
+export HBASE_MASTER_OPTS="$HBASE_MASTER_OPTS             -Xms<%= node[:hbase][:master_java_heap_size_max] %> -Xmx<%= node[:hbase][:master_java_heap_size_max] %> -XX:NewSize=<%= node[:hbase][:master_gc_new_size] %> -XX:MaxNewSize=<%= node[:hbase][:master_gc_new_size] %> <%= node[:hbase][:master_gc_tuning_opts] %> <%= node[:hbase][:master_gc_log_opts] %> $HBASE_JMX_BASE -Dcom.sun.management.jmxremote.port=10101"
+export HBASE_REGIONSERVER_OPTS="$HBASE_REGIONSERVER_OPTS -Xms<%= node[:hbase][:regionserver_java_heap_size_max] %> -Xmx<%= node[:hbase][:regionserver_java_heap_size_max] %> -XX:NewSize=<%= node[:hbase][:regionserver_gc_new_size] %> -XX:MaxNewSize=<%= node[:hbase][:regionserver_gc_new_size] %>  <%= node[:hbase][:regionserver_gc_tuning_opts] %> <%= node[:hbase][:regionserver_gc_log_opts] %> $HBASE_JMX_BASE -Dcom.sun.management.jmxremote.port=10102"
 # export HBASE_THRIFT_OPTS="$HBASE_THRIFT_OPTS $HBASE_JMX_BASE -Dcom.sun.management.jmxremote.port=10103"
 # export HBASE_ZOOKEEPER_OPTS="$HBASE_ZOOKEEPER_OPTS $HBASE_JMX_BASE -Dcom.sun.management.jmxremote.port=10104"
 

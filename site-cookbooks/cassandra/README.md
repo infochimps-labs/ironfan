@@ -106,6 +106,15 @@ Side question: what are the tradeoffs to consider to choose between the same $$ 
 
 * `[:cassandra][:cluster_name]`       - Cassandra cluster name (default: "cluster_name")
   The name for the Cassandra cluster in which this node should participate.  The default is 'Test Cluster'.
+
+* `[:cassandra][:home_dir]`     -  (default: "/usr/local/share/cassandra")
+* `[:cassandra][:conf_dir]`     -  (default: "/etc/cassandra")
+* `[:cassandra][:cassandra_user]`     -  (default: "cassandra")
+* `[:cassandra][:commitlog_dir]`      -  (default: "/mnt/cassandra/commitlog")
+* `[:cassandra][:data_dirs]`     - 
+* `[:cassandra][:callout_location]`   -  (default: "/var/lib/cassandra/callouts")
+* `[:cassandra][:staging_dir]`   -  (default: "/var/lib/cassandra/staging")
+
 * `[:cassandra][:auto_bootstrap]`     - Cassandra automatic boostrap boolean (default: "false")
   Boolean indicating whether a node should automatically boostrap on startup.
 * `[:cassandra][:keyspaces]`          - Cassandra keyspaces
@@ -114,10 +123,7 @@ Side question: what are the tradeoffs to consider to choose between the same $$ 
   The IAuthenticator to be used for access control.
 * `[:cassandra][:partitioner]`        -  (default: "org.apache.cassandra.dht.RandomPartitioner")
 * `[:cassandra][:initial_token]`      - 
-* `[:cassandra][:commitlog_dir]`      -  (default: "/mnt/cassandra/commitlog")
-* `[:cassandra][:data_file_dirs]`     - 
-* `[:cassandra][:callout_location]`   -  (default: "/var/lib/cassandra/callouts")
-* `[:cassandra][:staging_file_dir]`   -  (default: "/var/lib/cassandra/staging")
+
 * `[:cassandra][:seeds]`              - 
 * `[:cassandra][:rpc_timeout]`        -  (default: "5000")
 * `[:cassandra][:commitlog_rotation_threshold]` -  (default: "128")
@@ -142,20 +148,18 @@ Side question: what are the tradeoffs to consider to choose between the same $$ 
 * `[:cassandra][:gc_grace]`           -  (default: "864000")
 * `[:cassandra][:public_access]`      - Public access
   If the node is on a cloud server with public and private IP addresses and public_access is true, then Thrift will be bound on the public IP address.  Disabled by default.
-* `[:cassandra][:cassandra_home]`     -  (default: "/usr/local/share/cassandra")
-* `[:cassandra][:cassandra_conf]`     -  (default: "/etc/cassandra")
-* `[:cassandra][:cassandra_user]`     -  (default: "cassandra")
+
 * `[:cassandra][:saved_caches_dir]`   -  (default: "/var/lib/cassandra/saved_caches")
 * `[:cassandra][:jmx_port]`           -  (default: "12345")
 * `[:cassandra][:authority]`          -  (default: "org.apache.cassandra.auth.AllowAllAuthority")
 * `[:cassandra][:hinted_handoff_enabled]` -  (default: "true")
 * `[:cassandra][:max_hint_window_in_ms]` -  (default: "3600000")
-* `[:cassandra][:hinted_handoff_throttle_delay_in_ms]` -  (default: "50")
+* `[:cassandra][:hinted_handoff_delay_ms]` -  (default: "50")
 * `[:cassandra][:endpoint_snitch]`    -  (default: "org.apache.cassandra.locator.SimpleSnitch")
 * `[:cassandra][:dynamic_snitch]`     -  (default: "true")
-* `[:cassandra][:java_min_heap]`      -  (default: "128M")
-* `[:cassandra][:java_max_heap]`      -  (default: "1650M")
-* `[:cassandra][:java_eden_heap]`     -  (default: "1500M")
+* `[:cassandra][:java_heap_size_min]`      -  (default: "128M")
+* `[:cassandra][:java_heap_size_max]`      -  (default: "1650M")
+* `[:cassandra][:java_heap_size_eden]`     -  (default: "1500M")
 * `[:cassandra][:memtable_flush_writers]` -  (default: "1")
 * `[:cassandra][:thrift_max_message_length]` -  (default: "16")
 * `[:cassandra][:incremental_backups]` - 

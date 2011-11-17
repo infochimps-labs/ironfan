@@ -52,6 +52,8 @@ You should also separate system configuration from multi-system integration. Coo
  
 ## Attribute Names
 
+### Universal Aspects
+
 ### File and Dir Aspects
 
 A *file* is the full directory and basename for a file. A *dir* is a directory whose contents correspond to a single concern. A *root* is a prefix not intended to be used directly -- it will be decorated with suffixes to form dirs and files. A *basename* is only the leaf part of a file reference. Don't use the terms 'path' or 'filename'.
@@ -137,17 +139,25 @@ Ignore the temptation to make a one-true-home-for-my-system, or to fight the pac
   - instead of:         `whatever_checksum`, `whatever_fingerprint`
 * **version**:          if it's a simply-versioned resource that uses the `major.minor.patch-cruft` convention. Do not use unless this is true, and do not use the source control revision ID.
 
-* **deploy_repo_url**:  url for the repo, eg `git@github.com:infochimps/cluster_chef.git` or `http://github.com/infochimps/cluster_chef.git`
-  - instead of:         `git_repo`, `git_url`
-* **deploy_env**        production / staging / etc
-* **deploy_strategy** 
-* **deploy_dir**:       Only use `deploy_dir` if you are following the capistrano convention: see above.
-* **deploy_revision**:  SHA or branch
-  - instead of:         `git_revision`
+use `deploy_{}` for anything that would be true whatever SCM you're using; use
+`git_{}` (and so forth) where specific to that repo.
 
-* **apt_url**:          eg `http://archive.cloudera.com/debian`
-* **apt_key**:          GPG key
-* **force_distro**:     forces the distro (eg, you are on natty but the apt repo only has maverick)
+* **deploy_env**        production / staging / etc
+* **deploy_strategy**   
+* **deploy_user**       user to run as
+* **deploy_dir**:       Only use `deploy_dir` if you are following the capistrano convention: see above.
+
+* **git_repo**:  url for the repo, eg `git@github.com:infochimps/cluster_chef.git` or `http://github.com/infochimps/cluster_chef.git`
+  - instead of:         `deploy_repo`, `git_url`
+* **git_revision**:  SHA or branch
+  - instead of:         `deploy_revision`
+
+* **apt/{repo_name}**   Options for adding a cookbook's apt repo.
+  - Note that this is filed under *apt*, not the cookbook.
+  - Use the best name for the repo, which is not necessarily the cookbook's name: eg `apt/cloudera/{...}`, which is shared by hadoop, flume, pig, and so on.
+  - `apt/{repo_name}/url` -- eg `http://archive.cloudera.com/debian`
+  - `apt/{repo_name}/key` -- GPG key
+  - `apt/{repo_name}/force_distro` -- forces the distro (eg, you are on natty but the apt repo only has maverick)
 
 ### Ports 
 

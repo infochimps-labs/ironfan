@@ -60,10 +60,12 @@ end
 package_provider       = Chef::Provider::Package::Dpkg
 pid_file               = "/var/run/jenkins/jenkins.pid"
 install_starts_service = true
+
+# FIXME: apt provider-ize
 apt_key                = "/tmp/jenkins-ci.org.key"
 
 remote_file apt_key do
-  source "#{node[:jenkins][:apt_mirror]}/jenkins-ci.org.key"
+  source "#{node[:apt][:jenkins][:url]}/jenkins-ci.org.key"
   action :create
 end
 

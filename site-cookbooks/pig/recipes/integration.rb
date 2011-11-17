@@ -19,25 +19,36 @@
 # limitations under the License.
 #
 
-#
-# Link hbase, zookeeper, etc jars to $PIG_HOME/lib
-#
-node[:pig][:extra_jars].each do |jar|
-  link File.join(node[:pig][:home_dir], 'lib', File.basename(jar)) do
-    to        jar
-    action    :create
+# so that we can pull in their jars
+# FIXME: only do these things if they announce
+include_recipe 'hbase'
+include_recipe 'zookeeper'
+
+[:zookeeper, :hbase].each do |other_system|
+
+  #
+  # Link hbase, zookeeper, etc jars to $PIG_HOME/lib
+  #
+  [node[other_system][:export_jars]].flatten.compact.each do |jar|
+    link File.join(node[:pig][:home_dir], 'lib', File.basename(jar)) do
+      to        jar
+      action    :create
+    end
   end
+
+  #
+  # Link hbase configuration to $PIG_HOME/conf
+  #
+  [node[other_system][:exported_confs]].flatten.compact.each do |xml_conf|
+    link "#{node[:pig][:home_dir]}/conf/#{File.basename(xml_conf)}" do
+      to xml_conf
+      action :create
+    end
+  end
+
 end
 
-#
-# Link hbase configuration to $PIG_HOME/conf
-#
-node[:pig][:extra_confs].each do |xml_conf|
-  link "#{node[:pig][:home_dir]}/conf/#{File.basename(xml_conf)}" do
-    to xml_conf
-    action :create
-  end
-end
+Chef::Log.warn "FIXME: not overwriting pig files, just putting a .new file next to it -- verify these are a) needed and b) correct"
 
 #
 # Pig configuration, by default HBASE_CONF_DIR is set to garbage

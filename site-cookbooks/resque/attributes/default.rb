@@ -13,7 +13,7 @@ default[:resque][:namespace]             = node[:cluster_name]
 default[:resque][:user]                  = 'resque'
 default[:resque][:group]                 = 'resque'
 
-default[:resque][:queue_address]         = node[:cloud][:private_ips].first
+default[:resque][:queue_addr]         = node[:cloud][:private_ips].first
 default[:resque][:queue_port]            = "6388"
 default[:resque][:dashboard_port]        = "6389"
 

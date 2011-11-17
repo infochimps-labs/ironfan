@@ -6,7 +6,7 @@
 
 <configuration>
 
-<property> <name>mapred.job.tracker</name>                        <value><%= @jobtracker_address %>:8021</value></property>
+<property> <name>mapred.job.tracker</name>                        <value><%= @jobtracker_addr %>:8021</value></property>
 
 <property> <name>mapred.local.dir</name>                          <value><%= @mapred_local_dirs.join(",") %></value>                       <final>true</final></property>
 <property> <name>mapred.system.dir</name>                         <value>/hadoop/mapred/system</value></property>

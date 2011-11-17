@@ -51,7 +51,7 @@ java_home_dir_mapping = {
 
 template_parameters = {
   :os_arch          => java_home_dir_mapping[ node[:kernel][:machine] ],
-  :namenode_address => namenode_address
+  :namenode_addr => namenode_addr
 }
 Chef::Log.info template_parameters.inspect
 runit_service "hdfs_fuse" do

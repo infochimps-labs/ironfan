@@ -43,12 +43,13 @@ default[:hadoop][:compress_output_codec     ] = 'org.apache.hadoop.io.compress.D
 default[:hadoop][:compress_mapout           ] = 'true'
 default[:hadoop][:compress_mapout_codec     ] = 'org.apache.hadoop.io.compress.DefaultCodec' # try instead: 'org.apache.hadoop.io.compress.SnappyCodec'
 
-# uses /etc/default/hadoop-0.20 to set the hadoop daemon's heapsize
+# uses /etc/default/hadoop-0.20 to set the hadoop daemon's java_heap_size_max
 default[:hadoop][:java_heap_size_max]                      = 1000
-# these will be set to the daemon heapsize if nil
-default[:hadoop][:namenode][:java_heap_size_max]           = nil
-default[:hadoop][:secondarynamenode][:java_heap_size_max] = nil
-default[:hadoop][:jobtracker][:java_heap_size_max]        = nil
+default[:hadoop][:namenode          ][:java_heap_size_max]  = nil
+default[:hadoop][:secondarynamenode ][:java_heap_size_max]  = nil
+default[:hadoop][:jobtracker        ][:java_heap_size_max]  = nil
+default[:hadoop][:datanode          ][:java_heap_size_max]  = nil
+default[:hadoop][:tasktracker       ][:java_heap_size_max]  = nil
 
 default[:groups]['hadoop'    ][:gid] = 300
 default[:groups]['supergroup'][:gid] = 301

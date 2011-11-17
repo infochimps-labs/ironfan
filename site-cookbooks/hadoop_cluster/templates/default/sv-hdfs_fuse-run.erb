@@ -29,4 +29,4 @@ done
 
 export HADOOP_HOME=$HADOOP_HOME
 export PATH=$PATH:${HADOOP_HOME}/bin
-exec chpst -u hadoop $HADOOP_HOME/bin/fuse_dfs rw -odebug -oserver=<%= @options[:namenode_address] %> -oport=8020 /hdfs
+exec chpst -u hadoop $HADOOP_HOME/bin/fuse_dfs rw -odebug -oserver=<%= @options[:namenode_addr] %> -oport=8020 /hdfs

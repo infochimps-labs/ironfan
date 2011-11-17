@@ -26,7 +26,7 @@ port <%= node[:resque][:queue_port] %>
 # If you want you can bind a single interface, if the bind option is not
 # specified all the interfaces will listen for incoming connections.
 #
-bind <%= node[:resque][:queue_address] %>
+bind <%= node[:resque][:queue_addr] %>
 
 # Close the connection after a client is idle for N seconds (0 to disable)
 timeout <%= node[:resque][:redis_client_timeout] %>

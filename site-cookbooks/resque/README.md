@@ -19,7 +19,7 @@ Sets up [Resque](https://github.com/defunkt/resque), "a Redis-backed Ruby librar
 * `[:resque][:namespace]`             -  (default: "cluster_name")
 * `[:resque][:user]`                  -  (default: "resque")
 * `[:resque][:group]`                 -  (default: "resque")
-* `[:resque][:queue_address]`         -  (default: "10.20.30.40")
+* `[:resque][:queue_addr]`         -  (default: "10.20.30.40")
 * `[:resque][:queue_port]`            -  (default: "6388")
 * `[:resque][:dashboard_port]`        -  (default: "6389")
 * `[:resque][:redis_client_timeout]`  -  (default: "300")

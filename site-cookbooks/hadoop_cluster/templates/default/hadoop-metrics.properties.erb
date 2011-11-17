@@ -9,7 +9,7 @@
 # dfs.class=org.apache.hadoop.metrics.ganglia.GangliaContext
 dfs.class=org.apache.hadoop.metrics.ganglia.GangliaContext31
 dfs.period=10
-dfs.servers=<%= @ganglia_address %>:<%= @ganglia_port %>
+dfs.servers=<%= @ganglia_addr %>:<%= @ganglia_port %>
 
 <% else %>
 # Configuration of the "dfs" context for null
@@ -30,7 +30,7 @@ mapred.class=org.apache.hadoop.metrics.spi.NullContext
 # mapred.class=org.apache.hadoop.metrics.ganglia.GangliaContext
 mapred.class=org.apache.hadoop.metrics.ganglia.GangliaContext31
 mapred.period=10
-mapred.servers=<%= @ganglia_address %>:<%= @ganglia_port %>
+mapred.servers=<%= @ganglia_addr %>:<%= @ganglia_port %>
 <% end %>
 
 # Configuration of the "jvm" context for null
@@ -45,7 +45,7 @@ mapred.servers=<%= @ganglia_address %>:<%= @ganglia_port %>
 # Configuration of the "jvm" context for ganglia
 jvm.class=org.apache.hadoop.metrics.ganglia.GangliaContext31
 jvm.period=10
-jvm.servers=<%= @ganglia_address %>:<%= @ganglia_port %>
+jvm.servers=<%= @ganglia_addr %>:<%= @ganglia_port %>
 <% end %>
 
 # Configuration of the "ugi" context for null

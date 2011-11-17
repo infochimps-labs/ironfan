@@ -92,8 +92,8 @@ module HadoopCluster
 
   def hadoop_config_hash
     {
-      :namenode_address       => provider_private_ip("#{node[:cluster_name]}-namenode"),
-      :jobtracker_address     => provider_private_ip("#{node[:cluster_name]}-jobtracker"),
+      :namenode_addr       => provider_private_ip("#{node[:cluster_name]}-namenode"),
+      :jobtracker_addr     => provider_private_ip("#{node[:cluster_name]}-jobtracker"),
       #
       :dfs_name_dirs          => dfs_name_dirs,
       :dfs_data_dirs          => dfs_data_dirs,
@@ -107,7 +107,7 @@ module HadoopCluster
       :aws                    => (node[:aws] && node[:aws].to_hash),
       #
       :ganglia                => provider_for_service("#{node[:cluster_name]}-gmetad"),
-      :ganglia_address        => provider_private_ip("#{node[:cluster_name]}-gmetad"),
+      :ganglia_addr        => provider_private_ip("#{node[:cluster_name]}-gmetad"),
       :ganglia_port           => 8649,
     }
   end

@@ -72,12 +72,12 @@ end
 #
 template_variables = {
   :namenode_fqdn          => provider_fqdn("#{node[:hbase][:cluster_name]}-namenode"),
-  :jobtracker_address     => provider_private_ip("#{node[:hbase][:cluster_name]}-jobtracker"),
-  :zookeeper_address      => all_provider_private_ips("#{node[:hbase][:cluster_name]}-zookeeper").join(","),
+  :jobtracker_addr     => provider_private_ip("#{node[:hbase][:cluster_name]}-jobtracker"),
+  :zookeeper_addr      => all_provider_private_ips("#{node[:hbase][:cluster_name]}-zookeeper").join(","),
   :private_ip             => private_ip_of(node),
   :jmx_hostname           => public_ip_of(node),
   :ganglia                => provider_for_service("#{node[:hbase][:cluster_name]}-gmetad"),
-  :ganglia_address        => provider_fqdn("#{node[:hbase][:cluster_name]}-gmetad"),
+  :ganglia_addr        => provider_fqdn("#{node[:hbase][:cluster_name]}-gmetad"),
   :ganglia_port           => 8649,
   :period                 => 10
 }

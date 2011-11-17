@@ -16,8 +16,8 @@ depends          "ganglia"
 
 recipe           "hbase::backup_tables",               "Backup Tables"
 recipe           "hbase::default",                     "Base configuration for hbase"
-recipe           "hbase::hbase_master",                "Hbase Master"
-recipe           "hbase::hbase_regionserver",          "Hbase Regionserver"
+recipe           "hbase::master",                "Hbase Master"
+recipe           "hbase::regionserver",          "Hbase Regionserver"
 recipe           "hbase::master",                      "Master"
 recipe           "hbase::regionserver",                "Regionserver"
 recipe           "hbase::stargate",                    "Stargate"
@@ -47,7 +47,7 @@ attribute "hbase/tmp_dir",
   :description           => "",
   :default               => "/mnt/tmp/hbase"
 
-attribute "hbase/master_heap_size",
+attribute "hbase/master_java_heap_size_max",
   :display_name          => "",
   :description           => "",
   :default               => "1000m"
@@ -67,7 +67,7 @@ attribute "hbase/master_gc_log_opts",
   :description           => "",
   :default               => "-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -Xloggc:/var/log/hbase/hbase-master-gc.log"
 
-attribute "hbase/regionserver_heap_size",
+attribute "hbase/regionserver_java_heap_size_max",
   :display_name          => "",
   :description           => "",
   :default               => "2000m"

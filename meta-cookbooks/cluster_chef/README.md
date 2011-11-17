@@ -63,7 +63,7 @@ If things are simple, you get magic: declare `i_haz_a_service_itz(:jenkins, :nod
 
 * be generic when you're simple, descriptive when you're not: so, [:foosvc][:port] good, [:foosvc][:foosvc_port] (as the only one it serves) bad, [:foosvc][:dashboard_port] and [:foosvc][:client_port] good.
 
-* If you don't have exactly the semantics and datatype of the convention, don't use the convention.  That is, don't use `:port` and give it an array, or `:addr` and give it an email address.
+* If you don't have exactly the semantics and datatype of the convention, don't use the convention.  That is, don't use `:port` and give it an array, or `:addr` and give it an email addr.
 
 * use `foo_client` when you are a client of a service: so [:rails][:mysql_client][:host] to specify the hostname of your mysql server.
 

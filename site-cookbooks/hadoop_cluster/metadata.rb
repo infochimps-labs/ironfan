@@ -126,21 +126,6 @@ attribute "hadoop/java_heap_size_max",
   :description           => "",
   :default               => "1000"
 
-attribute "hadoop/namenode_heapsize",
-  :display_name          => "",
-  :description           => "",
-  :default               => ""
-
-attribute "hadoop/secondarynamenode_heapsize",
-  :display_name          => "",
-  :description           => "",
-  :default               => ""
-
-attribute "hadoop/jobtracker_heapsize",
-  :display_name          => "",
-  :description           => "",
-  :default               => ""
-
 attribute "hadoop/persistent_dirs",
   :display_name          => "",
   :description           => "",
@@ -164,13 +149,13 @@ attribute "hadoop/min_split_size",
   :default               => "134217728"
 
 attribute "hadoop/s3_block_size",
-  :display_name          => "",
-  :description           => "",
+  :display_name          => "fs.s3n.block.size",
+  :description           => "Block size to use when reading files using the native S3 filesystem (s3n: URIs).",
   :default               => "134217728"
 
 attribute "hadoop/hdfs_block_size",
-  :display_name          => "",
-  :description           => "",
+  :display_name          => "dfs.block.size",
+  :description           => "The default block size for new files",
   :default               => "134217728"
 
 attribute "hadoop/max_map_tasks",

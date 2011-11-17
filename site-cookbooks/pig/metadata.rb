@@ -46,18 +46,6 @@ attribute "pig/java_home",
   :description           => "JAVA_HOME environment variable to set for compilation. This should be the path to the 'jre' subdirectory of your Sun Java install (*not* OpenJDK).",
   :default               => "/usr/lib/jvm/java-6-sun/jre"
 
-attribute "pig/extra_jars",
-  :display_name          => "List of filenames for other jars to place within pig's purview",
-  :description           => "List of filenames for other jars to place within pig's purview. FIXME: integration cookbook",
-  :type                  => "array",
-  :default               => ["/usr/lib/hbase/hbase-0.90.1-cdh3u0.jar", "/usr/lib/hbase/hbase-0.90.1-cdh3u0-tests.jar", "/usr/lib/zookeeper/zookeeper.jar"]
-
-attribute "pig/extra_confs",
-  :display_name          => "List of filenames for other systems' conf files to place within pig's purview",
-  :description           => "List of filenames for other systems' conf files to place within pig's purview",
-  :type                  => "array",
-  :default               => ["/etc/hbase/conf/hbase-default.xml", "/etc/hbase/conf/hbase-site.xml"]
-
 attribute "pig/combine_splits",
   :display_name          => "tunable: combine small files to reduce the number of map tasks",
   :description           => "Processing input (either user input or intermediate input) from multiple small files can be inefficient because a separate map has to be created for each file. Pig can now combined small files so that they are processed as a single map. combine_splits turns this on or off.",

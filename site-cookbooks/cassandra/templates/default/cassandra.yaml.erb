@@ -38,7 +38,7 @@ hinted_handoff_enabled: <%= conf[:hinted_handoff_enabled] %> #true
 # generated.  After it has been dead this long, hints will be dropped.
 max_hint_window_in_ms: <%= conf[:max_hint_window_in_ms] %> # one hour
 # Sleep this long after delivering each row or row fragment
-hinted_handoff_throttle_delay_in_ms: <%= conf[:hinted_handoff_throttle_delay_in_ms] %>
+hinted_handoff_throttle_delay_in_ms: <%= conf[:hinted_handoff_delay_ms] %>
 
 # authentication backend, implementing IAuthenticator; used to identify users
 authenticator: <%=conf[:authenticator] %>  #org.apache.cassandra.auth.AllowAllAuthenticator
@@ -58,7 +58,7 @@ partitioner: <%= conf[:partitioner] %> #org.apache.cassandra.dht.RandomPartition
 
 # directories where Cassandra should store data on disk.
 data_file_directories:
-<%- conf[:data_file_dirs].each do |data_file_dir| -%>
+<%- conf[:data_dirs].each do |data_file_dir| -%>
     - <%= data_file_dir %>
 <%- end -%>
     #- /var/lib/cassandra/data

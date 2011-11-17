@@ -12,9 +12,5 @@ default[:pig][:extra_jars]        = [
   "/usr/lib/hbase/hbase-0.90.1-cdh3u0-tests.jar",
   "/usr/lib/zookeeper/zookeeper.jar",
 ]
-default[:pig][:extra_confs]     = [
-  "/etc/hbase/conf/hbase-default.xml",
-  "/etc/hbase/conf/hbase-site.xml",
-]
 
 default[:pig][:combine_splits]    = "true"

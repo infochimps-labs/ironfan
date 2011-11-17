@@ -33,7 +33,7 @@ EOCODE
   end
 
   # Link into our cassandra directory
-  link "#{node[:cassandra][:cassandra_home]}/lib/jna.jar" do
+  link "#{node[:cassandra][:home_dir]}/lib/jna.jar" do
     to "/usr/share/java/jna.jar"
     notifies :restart, resources(:service => "cassandra")
   end

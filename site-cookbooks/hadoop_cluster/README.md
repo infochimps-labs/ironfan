@@ -52,9 +52,6 @@ Copyright:: 2009, Opscode, Inc; 2010, 2011 Infochimps, In
   See [Hadoop Log Location and Retention](http://www.cloudera.com/blog/2010/11/hadoop-log-location-and-retention) for more.
 * `[:hadoop][:extra_classpaths]`      - 
 * `[:hadoop][:java_heap_size_max]`    -  (default: "1000")
-* `[:hadoop][:namenode_heapsize]`     - 
-* `[:hadoop][:secondarynamenode_heapsize]` - 
-* `[:hadoop][:jobtracker_heapsize]`   - 
 * `[:hadoop][:persistent_dirs]`       - 
 * `[:hadoop][:scratch_dirs]`          - 
 * `[:hadoop][:max_balancer_bandwidth]` -  (default: "1048576")

@@ -24,8 +24,8 @@
 :hadoop_tmp_dir:           <%= @hadoop_tmp_dir                      %>
 :hadoop_log_dir:           <%= @hadoop_log_dir                      %>
 
-:namenode_address:         <%= @namenode_address                    %>            
-:jobtracker_address:       <%= @jobtracker_address                  %>
+:namenode_addr:         <%= @namenode_addr                    %>            
+:jobtracker_addr:       <%= @jobtracker_addr                  %>
 
 <%- memory_in_bytes = node[:memory][:total].gsub(/kB$/, '').to_i * 1024 %>
 :n_cpus:                   <%= node[:cpu][:total] %>

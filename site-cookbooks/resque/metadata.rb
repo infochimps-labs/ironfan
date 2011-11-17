@@ -71,7 +71,7 @@ attribute "resque/group",
   :description           => "",
   :default               => "resque"
 
-attribute "resque/queue_address",
+attribute "resque/queue_addr",
   :display_name          => "",
   :description           => "",
   :default               => "10.20.30.40"

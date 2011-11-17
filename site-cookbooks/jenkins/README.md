@@ -48,7 +48,7 @@ Contributor:: Darko Fabijan <darko@renderedtext.com>
 
 ## Attributes
 
-* `[:jenkins][:apt_mirror]`           - URL of apt repo for downloading Jenkins (server) (default: "http://pkg.jenkins-ci.org/debian")
+* `[:apt][:jenkins][:url]`           - URL of apt repo for downloading Jenkins (server) (default: "http://pkg.jenkins-ci.org/debian")
 * `[:jenkins][:plugins_mirror]`       -  (default: "http://updates.jenkins-ci.org")
 * `[:jenkins][:java_home]`            - Java install path, used for for cli commands (default: "/System/Library/Frameworks/JavaVM.framework/Versions/1.6.0/Home")
 * `[:jenkins][:iptables_allow]`       - if iptables is enabled, add a rule passing 'jenkins[:server][:port]' (default: "enable")

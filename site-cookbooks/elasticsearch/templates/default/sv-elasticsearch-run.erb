@@ -24,8 +24,8 @@ ulimit -l <%= node[:elasticsearch][:ulimit_mlock] %>
 ulimit -a
 
 # Force the heap size
-export ES_MIN_MEM=<%= node[:elasticsearch][:heap_size] %>m
-export ES_MAX_MEM=<%= node[:elasticsearch][:heap_size] %>m
+export ES_MIN_MEM=<%= node[:elasticsearch][:java_heap_size_max] %>m
+export ES_MAX_MEM=<%= node[:elasticsearch][:java_heap_size_max] %>m
 
 # Run in non-daemonizing mode
 cd $ES_HOME
