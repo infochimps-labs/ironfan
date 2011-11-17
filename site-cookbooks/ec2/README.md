@@ -10,9 +10,9 @@ Has recipes to:
 
 ## Attributes
 
-* `[:ec2][:raid_level]`               -  (default: "0")
-* `[:ec2][:raid_read_ahead]`          -  (default: "65536")
-* `[:ec2][:raid_mount]`               -  (default: "/raid0")
+* `[:ec2][:raid][:level]`               -  (default: "0")
+* `[:ec2][:raid][:read_ahead]`          -  (default: "65536")
+* `[:ec2][:raid][:mount]`               -  (default: "/raid0")
 
 ## Recipes 
 

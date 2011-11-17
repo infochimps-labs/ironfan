@@ -74,7 +74,7 @@ ruby_block "create_raid" do
 
     args = ['--create /dev/md0',
             '--chunk=256',
-            "--level #{node[:ec2][:raid_level]}",
+            "--level #{node[:ec2][:raid][:level]}",
             "--raid-devices #{parts.length}"]
     r = system("mdadm #{args.join(' ')} #{parts.join(' ')}")
     raise "Failed to create raid" unless r
@@ -86,7 +86,7 @@ ruby_block "create_raid" do
     r = system("mdadm --examine --scan >> /etc/mdadm/mdadm.conf")
     raise "Failed to initialize raid device" unless r
 
-    r = system("blockdev --setra #{node[:ec2][:raid_read_ahead]} /dev/md0")
+    r = system("blockdev --setra #{node[:ec2][:raid][:read_ahead]} /dev/md0")
     raise "Failed to set read-ahead" unless r
 
     r = system("mkfs.xfs -f /dev/md0")
@@ -99,20 +99,20 @@ end
 ruby_block "add_raid_device_to_fstab" do
   block do
     File.open("/etc/fstab", "a") do |f|
-      fstab = ['/dev/md0', node[:ec2][:raid_mount], 'xfs',
+      fstab = ['/dev/md0', node[:ec2][:raid][:mount], 'xfs',
                'defaults,nobootwait,noatime', '0', '0']
       f << "#{fstab.join("\t")}\n"
     end
   end
 
-  not_if {File.read("/etc/fstab").include?(node[:ec2][:raid_mount])}
+  not_if {File.read("/etc/fstab").include?(node[:ec2][:raid][:mount])}
 end
 
 ruby_block "mount_raid" do
   block do
-    system("mkdir -p #{node[:ec2][:raid_mount]}")
-    system("mount #{node[:ec2][:raid_mount]}")
+    system("mkdir -p #{node[:ec2][:raid][:mount]}")
+    system("mount #{node[:ec2][:raid][:mount]}")
   end
 
-  not_if {File.read("/proc/mounts").include?(node[:ec2][:raid_mount])}
+  not_if {File.read("/proc/mounts").include?(node[:ec2][:raid][:mount])}
 end
