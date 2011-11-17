@@ -137,9 +137,9 @@ module ClusterChef
       #
       def defaults
         owner.volume(:root).reverse_merge!({
-            device      => '/dev/sda1',
-            mount_point => '/',
-            mountable   => false,
+            :device      => '/dev/sda1',
+            :mount_point => '/',
+            :mountable   => false,
           })
         self.reverse_merge!({
             :availability_zones => ['us-east-1d'],
