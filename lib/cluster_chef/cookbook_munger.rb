@@ -35,6 +35,12 @@ Settings.define :cookbook_paths,   :description => 'list of paths holding cookbo
 Settings.use(:commandline)
 Settings.resolve!
 
+String.class_eval do
+  def commentize
+    self.gsub(/\n/, "\n# ").gsub(/\n# \n/, "\n#\n")
+  end
+end
+
 module CookbookMunger
   TEMPLATE_ROOT  = File.expand_path('cookbook_munger', File.dirname(__FILE__))
 
@@ -274,13 +280,13 @@ module CookbookMunger
     def generate_header!
       new_header_lines = ['#']
       new_header_lines << "# Cookbook Name::       #{cookbook.name}"
-      new_header_lines << "# Description::         #{desc}"
+      new_header_lines << "# Description::         #{desc.commentize}"
       new_header_lines << "# Recipe::              #{name}"
       new_header_lines += author_lines
       new_header_lines << "#"
       new_header_lines += copyright_lines
       new_header_lines << "#"
-      new_header_lines << ("# "+cookbook.short_license_text.gsub(/\n/, "\n# ").gsub(/\n# \n/, "\n#\n")) << '#'
+      new_header_lines << ("# "+cookbook.short_license_text.commentize) << '#'
       self.header_lines = new_header_lines
     end
 

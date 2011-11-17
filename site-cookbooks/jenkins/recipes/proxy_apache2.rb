@@ -1,6 +1,6 @@
 #
 # Cookbook Name::       jenkins
-# Description::         Proxy Apache2
+# Description::         Uses the apache2 recipe from the apache2 cookbook to install an HTTP frontend proxy. To automatically activate this recipe set the `node[:jenkins][:http_proxy][:variant]` to `apache2`.
 # Recipe::              proxy_apache2
 # Author::              Fletcher Nichol <fnichol@nichol.ca>
 #

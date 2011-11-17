@@ -29,7 +29,7 @@ rpc.class=org.apache.hadoop.metrics.spi.NullContext
 <% if @ganglia %>
 hbase.class=org.apache.hadoop.metrics.ganglia.GangliaContext31
 hbase.period=<%= @period %>
-hbase.servers=<%= @ganglia_address %>:<%= @ganglia_port %>
+hbase.servers=<%= @ganglia_addr %>:<%= @ganglia_port %>
 <% end %>
 
 # Configuration of the "jvm" context for file
@@ -43,7 +43,7 @@ hbase.servers=<%= @ganglia_address %>:<%= @ganglia_port %>
 <% if @ganglia %>
 jvm.class=org.apache.hadoop.metrics.ganglia.GangliaContext31
 jvm.period=<%= @period %>
-jvm.servers=<%= @ganglia_address %>:<%= @ganglia_port %>
+jvm.servers=<%= @ganglia_addr %>:<%= @ganglia_port %>
 <% end %>
 
 # Configuration of the "rpc" context for file
@@ -57,5 +57,5 @@ jvm.servers=<%= @ganglia_address %>:<%= @ganglia_port %>
 <% if @ganglia %>
 rpc.class=org.apache.hadoop.metrics.ganglia.GangliaContext31
 rpc.period=<%= @period %>
-rpc.servers=<%= @ganglia_address %>:<%= @ganglia_port %>
+rpc.servers=<%= @ganglia_addr %>:<%= @ganglia_port %>
 <% end %>

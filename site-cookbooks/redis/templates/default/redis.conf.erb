@@ -11,15 +11,15 @@ daemonize yes
 pidfile <%= node[:redis][:pid_file] %>
 
 # Accept connections on the specified port, default is 6379
-port <%= node[:redis][:port] %>
+port <%= node[:redis][:server][:port] %>
 
 # If you want you can bind a single interface, if the bind option is not
 # specified all the interfaces will listen for connections.
 #
-bind <%= node[:redis][:addr] %>
+bind <%= node[:redis][:server][:addr] %>
 
 # Close the connection after a client is idle for N seconds (0 to disable)
-timeout <%= node[:redis][:client_timeout] %>
+timeout <%= node[:redis][:server][:timeout] %>
 
 # Save the DB on disk:
 #
@@ -130,5 +130,5 @@ glueoutputbuf <%= node[:redis][:glueoutputbuf] %>
 # your development environment so that we can test it better.
 # shareobjects <%= node[:redis][:shareobjects] %>
 <% if node[:redis][:shareobjects] == "yes" %>
-# shareobjectspoolsize <%= node[:redis][:shareobjectspoolsize] %>
+shareobjectspoolsize <%= node[:redis][:shareobjectspoolsize] %>
 <% end %>

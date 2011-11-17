@@ -34,14 +34,14 @@ class Chef::Recipe; include HadoopCluster ; end
     variables(hadoop_config_hash)
     source "#{conf_file}.erb"
     hadoop_services.each do |svc|
-      if node[:service_states][svc] && node[:service_states][svc].include?(:start)
-        notifies :restart, "service[#{node[:hadoop][:hadoop_handle]}-#{svc}]", :delayed
+      if node[:hadoop][svc][:service_state] && node[:hadoop][svc][:service_state].include?(:start)
+        notifies :restart, "service[#{node[:hadoop][:handle]}-#{svc}]", :delayed
       end
     end
   end
 end
 
-template "/etc/default/#{node[:hadoop][:hadoop_handle]}" do
+template "/etc/default/#{node[:hadoop][:handle]}" do
   owner "root"
   mode "0644"
   variables(hadoop_config_hash)
@@ -49,7 +49,7 @@ template "/etc/default/#{node[:hadoop][:hadoop_handle]}" do
 end
 
 # Fix the hadoop-env.sh to point to /var/run for pids
-hadoop_env_file = "/etc/#{node[:hadoop][:hadoop_handle]}/conf/hadoop-env.sh"
+hadoop_env_file = "/etc/#{node[:hadoop][:handle]}/conf/hadoop-env.sh"
 execute 'fix_hadoop_env-pid' do
   command %Q{sed -i -e 's|# export HADOOP_PID_DIR=.*|export HADOOP_PID_DIR=/var/run/hadoop|' #{hadoop_env_file}}
   not_if "grep 'HADOOP_PID_DIR=/var/run/hadoop' #{hadoop_env_file}"
@@ -77,6 +77,6 @@ munge_one_line('use node name in hadoop .out logs', '/usr/lib/hadoop/bin/hadoop-
   )
 
 # %w[namenode secondarynamenode jobtracker datanode tasktracker].each do |daemon|
-#   munge_one_line("bump sleep time on #{daemon} runner", "/etc/init.d/#{node[:hadoop][:hadoop_handle]}-#{daemon}",
+#   munge_one_line("bump sleep time on #{daemon} runner", "/etc/init.d/#{node[:hadoop][:handle]}-#{daemon}",
 #     %q{^SLEEP_TIME=.*}, %q{SLEEP_TIME=10 }, %q{^SLEEP_TIME=10 })
 # end

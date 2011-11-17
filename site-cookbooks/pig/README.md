@@ -12,6 +12,9 @@ This cookbook
 
 ## Attributes
 
+* `[:apt][:cloudera][:force_distro]`  - Override the distro name apt uses to look up repos
+  Typically, leave this blank. However if (as is the case in Nov 2011) you are on natty but Cloudera's repo only has packages up to maverick, use this to override.
+* `[:apt][:cloudera][:release_name]`  - Release identifier (eg cdh3u2) of the cloudera repo to use. See also hadoop/deb_version (default: "cdh3u2")
 * `[:pig][:home_dir]`                 - Location of pig code (default: "/usr/lib/pig")
 * `[:pig][:install_url]`              - URL of pig release tarball (default: "http://apache.mirrors.tds.net/pig/pig-0.9.1/pig-0.9.1.tar.gz")
 * `[:pig][:java_home]`                - JAVA_HOME environment variable to set for compilation (default: "/usr/lib/jvm/java-6-sun/jre")
@@ -24,6 +27,7 @@ This cookbook
 
 ## Recipes 
 
+* `add_cloudera_repo`        - Add Cloudera repo to package manager
 * `default`                  - Base configuration for pig
 * `install_from_package`     - Installs pig from the cloudera package -- verified compatible, but on a slow update schedule.
 * `install_from_release`     - Install From the release tarball.

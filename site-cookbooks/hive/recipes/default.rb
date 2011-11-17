@@ -20,6 +20,6 @@
 #
 
 include_recipe "java::sun"
-include_recipe "hadoop_cluster" # will add the cloudera apt repo
+include_recipe "hive::add_cloudera_repo"
 
 package "hadoop-hive"

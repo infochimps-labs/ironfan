@@ -25,25 +25,7 @@ include_recipe "apt"
 include_recipe "mountable_volumes"
 class Chef::Recipe; include HadoopCluster ; end
 
-#
-# Add Cloudera Apt Repo
-#
-
-# Get the archive key for cloudera package repo
-execute "curl -s http://archive.cloudera.com/debian/archive.key | apt-key add -" do
-  not_if "apt-key export 'Cloudera Apt Repository' | grep 'BEGIN PGP PUBLIC KEY'"
-  notifies :run, "execute[apt-get update]"
-end
-
-# Add cloudera package repo
-apt_repository 'cloudera' do
-  uri             'http://archive.cloudera.com/debian'
-  distro        = node[:lsb][:codename]
-  distribution    "#{distro}-#{node[:hadoop][:cdh_version]}"
-  components      ['contrib']
-  key             "http://archive.cloudera.com/debian/archive.key"
-  action          :add
-end
+include_recipe "hadoop_cluster::add_cloudera_repo"
 
 #
 # Hadoop users and group
@@ -110,7 +92,7 @@ mapred_local_dirs.each{  |dir| make_hadoop_dir(dir, 'mapred', "0755") }
 
 # Locate hadoop logs on scratch dirs
 force_link("/var/log/hadoop", hadoop_log_dir )
-force_link("/var/log/#{node[:hadoop][:hadoop_handle]}", hadoop_log_dir )
+force_link("/var/log/#{node[:hadoop][:handle]}", hadoop_log_dir )
 
 # Make hadoop point to /var/run for pids
 make_hadoop_dir('/var/run/hadoop-0.20', 'root', "0775")

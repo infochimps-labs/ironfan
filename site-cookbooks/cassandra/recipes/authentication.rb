@@ -57,8 +57,8 @@ if auth
     node[:cassandra][:passwd_use_md5] = true
   end
 
-  node[:cassandra][:passwd_properties] = "#{node[:cassandra][:cassandra_conf]}/passwd.properties"
-  template "#{node[:cassandra][:cassandra_conf]}/passwd.properties" do
+  node[:cassandra][:passwd_properties] = "#{node[:cassandra][:conf_dir]}/passwd.properties"
+  template "#{node[:cassandra][:conf_dir]}/passwd.properties" do
     source "passwd.properties.erb"
     owner node[:cassandra][:cassandra_user]
     mode 0600
@@ -71,8 +71,8 @@ access = cluster['authority']
 if access
   node[:cassandra][:authority] = "org.apache.cassandra.auth.SimpleAuthority"
 
-  node[:cassandra][:access_properties] = "#{node[:cassandra][:cassandra_conf]}/access.properties"
-  template "#{node[:cassandra][:cassandra_conf]}/access.properties" do
+  node[:cassandra][:access_properties] = "#{node[:cassandra][:conf_dir]}/access.properties"
+  template "#{node[:cassandra][:conf_dir]}/access.properties" do
     source "access.properties.erb"
     owner node[:cassandra][:cassandra_user]
     mode 0600

@@ -2,9 +2,9 @@ maintainer       "Philip (flip) Kromer - Infochimps, Inc"
 maintainer_email "coders@infochimps.com"
 license          "Apache 2.0"
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version          "3.0.0"
+version          "3.0.1"
 
-description      "Installs hadoop and sets up a high-performance cluster. Inspired by Tom White / Cloudera's hadoop-ec2 command line utilities"
+description      "Installs hadoop and sets up a high-performance cluster. Inspired by Tom White / Cloudera's hadoop-ec2 command line utilities."
 
 depends          "java"
 depends          "apt"
@@ -24,8 +24,8 @@ recipe           "hadoop_cluster::namenode",           "Namenode"
 recipe           "hadoop_cluster::pseudo_distributed", "Pseudo Distributed"
 recipe           "hadoop_cluster::secondarynamenode",  "Secondarynamenode"
 recipe           "hadoop_cluster::tasktracker",        "Tasktracker"
-recipe           "hadoop_cluster::update_apt",         "Update Apt"
-recipe           "hadoop_cluster::wait_on_hdfs_safemode", "Wait On Hdfs Safemode"
+recipe           "hadoop_cluster::wait_on_hdfs_safemode", "Wait On HDFS Safemode"
+recipe           "hadoop_cluster::add_cloudera_repo",  "Add Cloudera repo to package manager"
 
 %w[ debian ubuntu ].each do |os|
   supports os
@@ -33,32 +33,32 @@ end
 
 attribute "cluster_size",
   :display_name          => "Number of machines in the cluster",
-  :description           => "Number of machines in the cluster. This is used to size",
+  :description           => "Number of machines in the cluster. This is used to size things like handler counts, etc.",
   :default               => "5"
 
-attribute "hadoop/hadoop_handle",
-  :display_name          => "",
-  :description           => "",
-  :default               => "hadoop-0.20"
-
-attribute "hadoop/cdh_version",
-  :display_name          => "",
-  :description           => "",
-  :default               => "cdh3u2"
-
-attribute "hadoop/deb_version",
-  :display_name          => "",
-  :description           => "",
-  :default               => "0.20.2+923.142-1~maverick-cdh3"
-
-attribute "hadoop/cloudera_distro_name",
-  :display_name          => "",
-  :description           => "",
+attribute "apt/cloudera/force_distro",
+  :display_name          => "Override the distro name apt uses to look up repos",
+  :description           => "Typically, leave this blank. However if (as is the case in Nov 2011) you are on natty but Cloudera's repo only has packages up to maverick, use this to override.",
   :default               => ""
 
+attribute "apt/cloudera/release_name",
+  :display_name          => "Release identifier (eg cdh3u2) of the cloudera repo to use. See also hadoop/deb_version",
+  :description           => "Release identifier (eg cdh3u2) of the cloudera repo to use. See also hadoop/deb_version",
+  :default               => "cdh3u2"
+
+attribute "hadoop/handle",
+  :display_name          => "Version prefix for the daemons and other components",
+  :description           => "Cloudera distros have a prefix most (but not all) things with. This helps isolate the times they say 'hadoop-0.20' vs. 'hadoop'",
+  :default               => "hadoop-0.20"
+
+attribute "hadoop/deb_version",
+  :display_name          => "Apt revision identifier (eg 0.20.2+923.142-1~maverick-cdh3) of the specific cloudera apt to use. See also apt/release_name",
+  :description           => "Apt revision identifier (eg 0.20.2+923.142-1~maverick-cdh3) of the specific cloudera apt to use. See also apt/release_name",
+  :default               => "0.20.2+923.142-1~maverick-cdh3"
+
 attribute "hadoop/dfs_replication",
-  :display_name          => "",
-  :description           => "",
+  :display_name          => "Default HDFS replication factor",
+  :description           => "HDFS blocks are by default reproduced to this many machines.",
   :default               => "3"
 
 attribute "hadoop/reduce_parallel_copies",
@@ -89,7 +89,7 @@ attribute "hadoop/datanode_handler_count",
 attribute "hadoop/compress_output",
   :display_name          => "",
   :description           => "",
-  :default               => "true"
+  :default               => "false"
 
 attribute "hadoop/compress_output_type",
   :display_name          => "",
@@ -111,40 +111,20 @@ attribute "hadoop/compress_mapout_codec",
   :description           => "",
   :default               => "org.apache.hadoop.io.compress.DefaultCodec"
 
-attribute "hadoop/mapred_userlog_retain_hours",
+attribute "hadoop/log_retention_hours",
   :display_name          => "",
-  :description           => "",
+  :description           => "See [Hadoop Log Location and Retention](http://www.cloudera.com/blog/2010/11/hadoop-log-location-and-retention) for more.",
   :default               => "24"
-
-attribute "hadoop/mapred_jobtracker_completeuserjobs_maximum",
-  :display_name          => "",
-  :description           => "",
-  :default               => "100"
 
 attribute "hadoop/extra_classpaths",
   :display_name          => "",
   :description           => "",
   :default               => ""
 
-attribute "hadoop/daemon_heapsize",
+attribute "hadoop/java_heap_size_max",
   :display_name          => "",
   :description           => "",
   :default               => "1000"
-
-attribute "hadoop/namenode_heapsize",
-  :display_name          => "",
-  :description           => "",
-  :default               => ""
-
-attribute "hadoop/secondarynamenode_heapsize",
-  :display_name          => "",
-  :description           => "",
-  :default               => ""
-
-attribute "hadoop/jobtracker_heapsize",
-  :display_name          => "",
-  :description           => "",
-  :default               => ""
 
 attribute "hadoop/persistent_dirs",
   :display_name          => "",
@@ -169,13 +149,13 @@ attribute "hadoop/min_split_size",
   :default               => "134217728"
 
 attribute "hadoop/s3_block_size",
-  :display_name          => "",
-  :description           => "",
+  :display_name          => "fs.s3n.block.size",
+  :description           => "Block size to use when reading files using the native S3 filesystem (s3n: URIs).",
   :default               => "134217728"
 
 attribute "hadoop/hdfs_block_size",
-  :display_name          => "",
-  :description           => "",
+  :display_name          => "dfs.block.size",
+  :description           => "The default block size for new files",
   :default               => "134217728"
 
 attribute "hadoop/max_map_tasks",
@@ -206,30 +186,45 @@ attribute "hadoop/io_sort_factor",
 attribute "hadoop/io_sort_mb",
   :display_name          => "",
   :description           => "",
-  :default               => "256"
+  :default               => "250"
 
-attribute "service_states/hadoop_namenode",
+attribute "hadoop/namenode/service_state",
   :display_name          => "",
   :description           => "",
   :default               => ""
 
-attribute "service_states/hadoop_secondarynamenode",
+attribute "hadoop/namenode/java_heap_size_max",
   :display_name          => "",
   :description           => "",
   :default               => ""
 
-attribute "service_states/hadoop_jobtracker",
+attribute "hadoop/secondarynamenode/service_state",
   :display_name          => "",
   :description           => "",
   :default               => ""
 
-attribute "service_states/hadoop_datanode",
+attribute "hadoop/secondarynamenode/java_heap_size_max",
+  :display_name          => "",
+  :description           => "",
+  :default               => ""
+
+attribute "hadoop/jobtracker/service_state",
+  :display_name          => "",
+  :description           => "",
+  :default               => ""
+
+attribute "hadoop/jobtracker/java_heap_size_max",
+  :display_name          => "",
+  :description           => "",
+  :default               => ""
+
+attribute "hadoop/datanode/service_state",
   :display_name          => "",
   :description           => "",
   :type                  => "array",
   :default               => [:enable, :start]
 
-attribute "service_states/hadoop_tasktracker",
+attribute "hadoop/tasktracker/service_state",
   :display_name          => "",
   :description           => "",
   :type                  => "array",

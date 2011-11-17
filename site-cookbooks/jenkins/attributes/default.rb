@@ -23,7 +23,7 @@
 
 
 # default[:jenkins][:mirror]       = "http://updates.jenkins-ci.org"
-default[:jenkins][:apt_mirror]     = "http://pkg.jenkins-ci.org/debian"
+default[:apt][:jenkins][:url]     = "http://pkg.jenkins-ci.org/debian"
 default[:jenkins][:plugins_mirror] = "http://updates.jenkins-ci.org"
 default[:jenkins][:java_home] = ENV['JAVA_HOME']
 

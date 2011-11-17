@@ -25,8 +25,8 @@ include_recipe "hadoop_cluster"
 hadoop_package "namenode"
 
 # Set up service
-service "#{node[:hadoop][:hadoop_handle]}-namenode" do
-  action    node[:service_states][:hadoop_namenode]
+service "#{node[:hadoop][:handle]}-namenode" do
+  action    node[:hadoop][:namenode][:service_state]
   supports :status => true, :restart => true
   ignore_failure true
 end

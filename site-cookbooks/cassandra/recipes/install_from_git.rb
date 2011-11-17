@@ -19,10 +19,10 @@
 # limitations under the License.
 #
 
-cassandra_home        = node[:cassandra][:cassandra_home]
-cassandra_install_dir = cassandra_home + '-git'
+home_dir        = node[:cassandra][:home_dir]
+cassandra_install_dir = home_dir + '-git'
 
-directory File.dirname(cassandra_home) do
+directory File.dirname(home_dir) do
   mode         '0755'
   owner        'root'
   group        'admin'
@@ -50,14 +50,14 @@ EOF
   only_if{ Dir["#{cassandra_install_dir}/build/apache-cassandra-*.jar"].nil? }
 end
 
-link cassandra_home do
+link home_dir do
   to            cassandra_install_dir
   action        :create
 end
 
 %w[cassandra schematool cassandra-cli clustertool nodetool sstablekeys].each do |util|
   link "/usr/local/bin/#{util}" do
-    to          "#{cassandra_home}/bin/#{util}"
+    to          "#{home_dir}/bin/#{util}"
     action      :create
   end
 end

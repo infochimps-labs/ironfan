@@ -1,6 +1,6 @@
 #
 # Cookbook Name::       zookeeper
-# Description::         Client
+# Description::         Installs Zookeeper client libraries
 # Recipe::              client
 # Author::              Chris Howe - Infochimps, Inc
 #

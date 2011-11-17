@@ -31,10 +31,113 @@ recipe           "cassandra::server",                  "Server"
   supports os
 end
 
+
 attribute "cassandra/cluster_name",
   :display_name          => "Cassandra cluster name",
   :description           => "The name for the Cassandra cluster in which this node should participate.  The default is 'Test Cluster'.",
   :default               => "cluster_name"
+
+
+attribute "cassandra/home_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/usr/local/share/cassandra"
+
+attribute "cassandra/conf_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/etc/cassandra"
+
+attribute "cassandra/commitlog_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/mnt/cassandra/commitlog"
+
+attribute "cassandra/data_dirs",
+  :display_name          => "",
+  :description           => "",
+  :type                  => "array",
+  :default               => ["/data/db/cassandra"]
+
+attribute "cassandra/saved_caches_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/var/lib/cassandra/saved_caches"
+
+attribute "cassandra/cassandra_user",
+  :display_name          => "",
+  :description           => "",
+  :default               => "cassandra"
+
+
+attribute "cassandra/listen_addr",
+  :display_name          => "",
+  :description           => "",
+  :default               => "localhost"
+
+attribute "cassandra/seeds",
+  :display_name          => "",
+  :description           => "",
+  :type                  => "array",
+  :default               => ["127.0.0.1"]
+
+attribute "cassandra/rpc_addr",
+  :display_name          => "",
+  :description           => "",
+  :default               => "localhost"
+
+attribute "cassandra/rpc_port",
+  :display_name          => "",
+  :description           => "",
+  :default               => "9160"
+
+attribute "cassandra/storage_port",
+  :display_name          => "",
+  :description           => "",
+  :default               => "7000"
+
+attribute "cassandra/jmx_port",
+  :display_name          => "",
+  :description           => "",
+  :default               => "12345"
+
+attribute "cassandra/mx4j_listen_port",
+  :display_name          => "",
+  :description           => "",
+  :default               => "8081"
+
+attribute "cassandra/mx4j_listen_addr",
+  :display_name          => "",
+  :description           => "",
+  :default               => "127.0.0.1"
+
+
+attribute "cassandra/install_url",
+  :display_name          => "",
+  :description           => "",
+  :default               => "http://www.eng.lsu.edu/mirrors/apache/cassandra/0.7.7/apache-cassandra-0.7.7-bin.tar.gz"
+
+attribute "cassandra/git_repo",
+  :display_name          => "",
+  :description           => "",
+  :default               => "git://git.apache.org/cassandra.git"
+
+attribute "cassandra/git_revision",
+  :display_name          => "",
+  :description           => "",
+  :default               => "cdd239dcf82ab52cb840e070fc01135efb512799"
+
+attribute "cassandra/jna_deb_amd64_url",
+  :display_name          => "",
+  :description           => "",
+  :default               => "http://debian.riptano.com/maverick/pool/libjna-java_3.2.7-0~nmu.2_amd64.deb"
+
+attribute "cassandra/mx4j_url",
+  :display_name          => "",
+  :description           => "",
+  :default               => "http://downloads.sourceforge.net/project/mx4j/MX4J%20Binary/3.0.2/mx4j-3.0.2.zip?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fmx4j%2Ffiles%2F&ts=1303407638&use_mirror=iweb"
+
+
 
 attribute "cassandra/auto_bootstrap",
   :display_name          => "Cassandra automatic boostrap boolean",
@@ -62,62 +165,17 @@ attribute "cassandra/initial_token",
   :description           => "",
   :default               => ""
 
-attribute "cassandra/commitlog_dir",
-  :display_name          => "",
-  :description           => "",
-  :default               => "/mnt/cassandra/commitlog"
-
-attribute "cassandra/data_file_dirs",
-  :display_name          => "",
-  :description           => "",
-  :type                  => "array",
-  :default               => ["/data/db/cassandra"]
-
-attribute "cassandra/callout_location",
-  :display_name          => "",
-  :description           => "",
-  :default               => "/var/lib/cassandra/callouts"
-
-attribute "cassandra/staging_file_dir",
-  :display_name          => "",
-  :description           => "",
-  :default               => "/var/lib/cassandra/staging"
-
-attribute "cassandra/seeds",
-  :display_name          => "",
-  :description           => "",
-  :type                  => "array",
-  :default               => ["127.0.0.1"]
-
 attribute "cassandra/rpc_timeout",
   :display_name          => "",
   :description           => "",
   :default               => "5000"
 
+
+
 attribute "cassandra/commitlog_rotation_threshold",
   :display_name          => "",
   :description           => "",
   :default               => "128"
-
-attribute "cassandra/listen_addr",
-  :display_name          => "",
-  :description           => "",
-  :default               => "localhost"
-
-attribute "cassandra/storage_port",
-  :display_name          => "",
-  :description           => "",
-  :default               => "7000"
-
-attribute "cassandra/rpc_addr",
-  :display_name          => "",
-  :description           => "",
-  :default               => "localhost"
-
-attribute "cassandra/rpc_port",
-  :display_name          => "",
-  :description           => "",
-  :default               => "9160"
 
 attribute "cassandra/thrift_framed_transport",
   :display_name          => "",
@@ -149,6 +207,8 @@ attribute "cassandra/column_index_size",
   :description           => "",
   :default               => "64"
 
+
+
 attribute "cassandra/memtable_throughput",
   :display_name          => "",
   :description           => "",
@@ -174,6 +234,7 @@ attribute "cassandra/concurrent_reads",
   :description           => "",
   :default               => "8"
 
+
 attribute "cassandra/concurrent_writes",
   :display_name          => "",
   :description           => "",
@@ -194,36 +255,6 @@ attribute "cassandra/gc_grace",
   :description           => "",
   :default               => "864000"
 
-attribute "cassandra/public_access",
-  :display_name          => "Public access",
-  :description           => "If the node is on a cloud server with public and private IP addresses and public_access is true, then Thrift will be bound on the public IP address.  Disabled by default.",
-  :default               => ""
-
-attribute "cassandra/cassandra_home",
-  :display_name          => "",
-  :description           => "",
-  :default               => "/usr/local/share/cassandra"
-
-attribute "cassandra/cassandra_conf",
-  :display_name          => "",
-  :description           => "",
-  :default               => "/etc/cassandra"
-
-attribute "cassandra/cassandra_user",
-  :display_name          => "",
-  :description           => "",
-  :default               => "cassandra"
-
-attribute "cassandra/saved_caches_dir",
-  :display_name          => "",
-  :description           => "",
-  :default               => "/var/lib/cassandra/saved_caches"
-
-attribute "cassandra/jmx_port",
-  :display_name          => "",
-  :description           => "",
-  :default               => "12345"
-
 attribute "cassandra/authority",
   :display_name          => "",
   :description           => "",
@@ -239,7 +270,7 @@ attribute "cassandra/max_hint_window_in_ms",
   :description           => "",
   :default               => "3600000"
 
-attribute "cassandra/hinted_handoff_throttle_delay_in_ms",
+attribute "cassandra/hinted_handoff_delay_ms",
   :display_name          => "",
   :description           => "",
   :default               => "50"
@@ -254,17 +285,18 @@ attribute "cassandra/dynamic_snitch",
   :description           => "",
   :default               => "true"
 
-attribute "cassandra/java_min_heap",
+
+attribute "cassandra/java_heap_size_min",
   :display_name          => "",
   :description           => "",
   :default               => "128M"
 
-attribute "cassandra/java_max_heap",
+attribute "cassandra/java_heap_size_max",
   :display_name          => "",
   :description           => "",
   :default               => "1650M"
 
-attribute "cassandra/java_eden_heap",
+attribute "cassandra/java_heap_size_eden",
   :display_name          => "",
   :description           => "",
   :default               => "1500M"
@@ -343,38 +375,3 @@ attribute "cassandra/request_scheduler_id",
   :display_name          => "",
   :description           => "",
   :default               => "keyspace"
-
-attribute "cassandra/install_url",
-  :display_name          => "",
-  :description           => "",
-  :default               => "http://www.eng.lsu.edu/mirrors/apache/cassandra/0.7.7/apache-cassandra-0.7.7-bin.tar.gz"
-
-attribute "cassandra/git_repo",
-  :display_name          => "",
-  :description           => "",
-  :default               => "git://git.apache.org/cassandra.git"
-
-attribute "cassandra/git_revision",
-  :display_name          => "",
-  :description           => "",
-  :default               => "cdd239dcf82ab52cb840e070fc01135efb512799"
-
-attribute "cassandra/jna_deb_amd64_url",
-  :display_name          => "",
-  :description           => "",
-  :default               => "http://debian.riptano.com/maverick/pool/libjna-java_3.2.7-0~nmu.2_amd64.deb"
-
-attribute "cassandra/mx4j_url",
-  :display_name          => "",
-  :description           => "",
-  :default               => "http://downloads.sourceforge.net/project/mx4j/MX4J%20Binary/3.0.2/mx4j-3.0.2.zip?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fmx4j%2Ffiles%2F&ts=1303407638&use_mirror=iweb"
-
-attribute "cassandra/mx4j_listen_addr",
-  :display_name          => "",
-  :description           => "",
-  :default               => "127.0.0.1"
-
-attribute "cassandra/mx4j_listen_port",
-  :display_name          => "",
-  :description           => "",
-  :default               => "8081"

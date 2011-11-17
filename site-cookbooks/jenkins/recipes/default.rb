@@ -1,6 +1,6 @@
 #
 # Cookbook Name::       jenkins
-# Description::         Base configuration for jenkins
+# Description::         Installs a Jenkins CI server using the http://jenkins-ci.org/redhat RPM.  The recipe also generates an ssh private key and stores the ssh public key in the node 'jenkins[:pubkey]' attribute for use by the node recipes.
 # Recipe::              default
 # Author::              Doug MacEachern <dougm@vmware.com>
 # Author::              Fletcher Nichol <fnichol@nichol.ca>

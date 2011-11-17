@@ -48,4 +48,4 @@ template "/etc/redis/redis.conf" do
   notifies(:restart, resources(:service => "redis-server")) unless node[:platform_version].to_f < 9.0
 end
 
-provide_service("#{node[:cluster_name]}-redis", :port => node[:redis][:port] )
+provide_service("#{node[:cluster_name]}-redis", :port => node[:redis][:server][:port] )

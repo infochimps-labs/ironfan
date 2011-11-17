@@ -1,6 +1,6 @@
 #
 # Cookbook Name::       jenkins
-# Description::         Iptables
+# Description::         Set up ip_tables to allow access to the daemons
 # Recipe::              iptables
 # Author::              Fletcher Nichol <fnichol@nichol.ca>
 #

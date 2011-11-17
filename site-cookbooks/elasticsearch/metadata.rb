@@ -57,7 +57,7 @@ attribute "elasticsearch/git_repo",
   :description           => "",
   :default               => "https://github.com/elasticsearch/elasticsearch.git"
 
-attribute "elasticsearch/heap_size",
+attribute "elasticsearch/java_heap_size_max",
   :display_name          => "",
   :description           => "",
   :default               => "1000"

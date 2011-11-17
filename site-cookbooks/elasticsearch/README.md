@@ -25,7 +25,7 @@ Requires Opscode's runit and java cookbooks.
 It's a good idea to change the cluster_name attribute to something 
 meaningful, like "production".
 
-Production deployments should also increase the heap_size and fd_ulimit 
+Production deployments should also increase the java_heap_size_max and fd_ulimit 
 attributes.
 
 To use the s3 gateway, set the s3_gateway_bucket attribute to the name of an 
@@ -82,7 +82,7 @@ limitations under the License.
 * `[:elasticsearch][:data_root]`      -  (default: "/mnt/elasticsearch")
 * `[:elasticsearch][:java_home]`      -  (default: "/usr/lib/jvm/java-6-sun/jre")
 * `[:elasticsearch][:git_repo]`       -  (default: "https://github.com/elasticsearch/elasticsearch.git")
-* `[:elasticsearch][:heap_size]`      -  (default: "1000")
+* `[:elasticsearch][:java_heap_size_max]`      -  (default: "1000")
 * `[:elasticsearch][:ulimit_mlock]`   - 
 * `[:elasticsearch][:default_replicas]` -  (default: "1")
 * `[:elasticsearch][:default_shards]` -  (default: "6")

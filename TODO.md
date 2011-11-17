@@ -3,6 +3,45 @@
 - track global order of runlist additions, compile final list using that order
 - syntactic sugar for ```server(0).fullname('blah')```
 
+### Cookbook attribute refresh:
+
+                          | flip fixed | temujin9 checked |
+                          +------------+------------------+
+        cassandra	  |            |                  |
+        ec2               |            |                  |
+        elasticsearch	  |            |                  |
+        firewall	  |            |                  |
+        flume             |            |                  |
+        ganglia           |            |                  |
+        graphite	  |            |                  |
+        hadoop_cluster	  |            |                  |
+        hbase             |            |                  |
+        hive              |            |                  |
+        jenkins           |            |                  |
+        jruby             |            |                  |
+        nfs               |            |                  |
+        nodejs            |            |                  |
+        papertrail	  |            |                  |
+        pig               |            |                  |
+        redis             |            |                  |
+        resque            |            |                  |
+        Rstats            |            |                  |
+        statsd            |            |                  |
+        zookeeper	  |            |                  |
+        # meta:
+        install_from	  |            |                  |
+        motd              |            |                  |
+        mountable_volumes |            |                  |
+        provides_service  |            |                  |
+        # Need thinkin':
+        big_package	  |            |                  |
+        cluster_chef      |            |                  |
+
+
+### Cookbook Munger
+
+* update to-from comments in attributes.rb
+
 ### Concern Separation
 
 Split cluster chef repo (or brightline how they would split) into:

@@ -24,6 +24,9 @@ servers.
 
 ## Attributes
 
+* `[:apt][:cloudera][:force_distro]`  - Override the distro name apt uses to look up repos
+  Typically, leave this blank. However if (as is the case in Nov 2011) you are on natty but Cloudera's repo only has packages up to maverick, use this to override.
+* `[:apt][:cloudera][:release_name]`  - Release identifier (eg cdh3u2) of the cloudera repo to use. See also hadoop/deb_version (default: "cdh3u2")
 * `[:flume][:aws_access_key]`         - AWS access key used for writing to s3 buckets
 * `[:flume][:aws_secret_key]`         - AWS secret key used for writing to s3 buckets
 * `[:flume][:cluster_name]`           -  (default: "cluster_name")
@@ -60,6 +63,7 @@ servers.
 
 ## Recipes 
 
+* `add_cloudera_repo`        - Add Cloudera repo to package manager
 * `default`                  - Base configuration for flume
 * `hbase_sink_plugin`        - Hbase Sink Plugin
 * `jruby_plugin`             - Jruby Plugin

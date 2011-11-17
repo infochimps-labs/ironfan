@@ -21,8 +21,8 @@
 <property><name>dfs.datanode.socket.write.timeout</name> <value>0</value></property>
 <property><name>dfs.balance.bandwidthPerSec</name>       <value><%= node[:hadoop][:max_balancer_bandwidth] %></value></property>
 
-<property><name>dfs.hosts.exclude</name>                 <value>/etc/<%= node[:hadoop][:hadoop_handle] %>/conf/dfs.hosts.exclude</value><final>true</final></property>
-<!-- <property><name>dfs.hosts</name>                    <value>/etc/<%= node[:hadoop][:hadoop_handle] %>/conf/dfs.hosts</value><final>true</final></property> -->
+<property><name>dfs.hosts.exclude</name>                 <value>/etc/<%= node[:hadoop][:handle] %>/conf/dfs.hosts.exclude</value><final>true</final></property>
+<!-- <property><name>dfs.hosts</name>                    <value>/etc/<%= node[:hadoop][:handle] %>/conf/dfs.hosts</value><final>true</final></property> -->
 
 </configuration>
 

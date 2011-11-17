@@ -1,6 +1,6 @@
 #
 # Cookbook Name::       pig
-# Description::         Install From Release
+# Description::         Install From the release tarball.
 # Recipe::              install_from_release
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

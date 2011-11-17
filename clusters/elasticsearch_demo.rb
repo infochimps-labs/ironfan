@@ -59,21 +59,16 @@ ClusterChef.cluster 'elasticsearch_demo' do
       ])
 
       override_attributes({
+          :apt => { :cloudera => {
+              :force_distro => 'maverick', # no natty distro  yet
+              :release_name => 'cdh3u2',
+            }, },
           :hadoop => {
-            :hadoop_handle        => 'hadoop-0.20',
-            :cdh_version          => 'cdh3u1',
-            :deb_version          => "0.20.2+923.97-1~maverick-cdh3",
-            :cloudera_distro_name => 'maverick', # in case cloudera doesn't have your distro yet
+            :handle        => 'hadoop-0.20',
+            :deb_version   => "0.20.2+923.97-1~maverick-cdh3",
           },
           :elasticsearch => {
             :version              => '0.17.8',
-          },
-          :service_states => {
-            :hadoop_namenode           => [:enable],
-            :hadoop_secondarynamenode  => [:enable],
-            :hadoop_jobtracker         => [:enable],
-            :hadoop_datanode           => [:enable],
-            :hadoop_tasktracker        => [:enable],
           },
           :active_users => [ "flip"],
         })
@@ -103,28 +98,12 @@ ClusterChef.cluster 'elasticsearch_demo' do
       ])
 
       override_attributes({
-          :hadoop => {
-            :hadoop_handle        => 'hadoop-0.20',
-            :cdh_version          => 'cdh3u1',
-            :deb_version          => "0.20.2+923.97-1~maverick-cdh3",
-            :cloudera_distro_name => 'maverick', # in case cloudera doesn't have your distro yet
-          },
           :elasticsearch => {
             :version              => '0.17.8',
-          },
-          :service_states => {
-            :hadoop_namenode           => [:disable, :stop],
-            :hadoop_secondarynamenode  => [:disable, :stop],
-            :hadoop_jobtracker         => [:disable, :stop],
-            :hadoop_datanode           => [:enable],
-            :hadoop_tasktracker        => [:enable],
           },
           :active_users => [ "flip"],
         })
     end
   end
 
-  chef_attributes({
-      :cluster_size => facet('worker').instances,
-    })
 end

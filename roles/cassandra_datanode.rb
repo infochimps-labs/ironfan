@@ -24,7 +24,6 @@ default_attributes({
       :concurrent_reads  => 4,
       :concurrent_writes => 64,
       :commitlog_sync    => 'periodic',
-      :data_file_dirs    => ["/data/db/cassandra"],
+      :data_dirs    => ["/data/db/cassandra"],
     }
   })
-

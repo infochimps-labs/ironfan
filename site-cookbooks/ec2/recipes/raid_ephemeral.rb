@@ -1,6 +1,6 @@
 #
 # Cookbook Name::       ec2
-# Description::         Raid Ephemeral
+# Description::         Build a RAID volume out of the ephemeral drives
 # Recipe::              raid_ephemeral
 # Author::              Mike Heffner (<mike@librato.com>)
 #

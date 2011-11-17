@@ -1,5 +1,5 @@
 default[:elasticsearch][:version]                 = "0.13.1"
-# default[:elasticsearch][:checksum]              = '67a5b6240c27db666b5d2b48cdc26b91d64e8f2e950c6383273e47a6f4020da4'
+default[:elasticsearch][:checksum]                = nil
 
 default[:elasticsearch][:cluster_name]            = "default"
 
@@ -9,7 +9,7 @@ default[:elasticsearch][:java_home]               = "/usr/lib/jvm/java-6-sun/jre
 
 default[:elasticsearch][:git_repo]                = "https://github.com/elasticsearch/elasticsearch.git"
 
-default[:elasticsearch][:heap_size]               = 1000
+default[:elasticsearch][:java_heap_size_max]               = 1000
 default[:elasticsearch][:ulimit_mlock]            = nil  # locked memory limit -- set to unlimited to lock heap into memory on linux machines
 
 default[:elasticsearch][:default_replicas]        =  1   # replicas are in addition to the original, so 1 replica means 2 copies of each shard

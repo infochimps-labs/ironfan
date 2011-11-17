@@ -42,7 +42,7 @@ EOF
   not_if {system("ls -d /usr/local/share/mx4j-* > /dev/null")}
 end
 
-jarpath = "#{node[:cassandra][:cassandra_home]}/lib/mx4j-tools.jar"
+jarpath = "#{node[:cassandra][:home_dir]}/lib/mx4j-tools.jar"
 
 # We don't use the link resource since we're doing a wildcard
 bash "link_mx4j_tools_jar" do

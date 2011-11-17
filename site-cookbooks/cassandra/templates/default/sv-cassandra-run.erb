@@ -1,9 +1,9 @@
 #!/bin/sh
 export JAVA_HOME=/usr/lib/jvm/java-6-sun/jre CASSANDRA_CONF=/etc/cassandra/storage-conf.xml CASSANDRA_HOME=/usr/local/share/cassandra
 
-cassandra_home=<%= node[:cassandra][:cassandra_home] %>
+cassandra_home=<%= node[:cassandra][:home_dir] %>
 cassandra_bin=${cassandra_home}/build/classes
-CASSANDRA_CONF=<%= node[:cassandra][:cassandra_conf] %>
+CASSANDRA_CONF=<%= node[:cassandra][:conf_dir] %>
 CASSANDRA_USER=<%= node[:cassandra][:cassandra_user] %>
 CLASSPATH=$CASSANDRA_CONF:$cassandra_bin
 
@@ -27,7 +27,7 @@ exec chpst -u${CASSANDRA_USER} -e /etc/sv/cassandra/env -o 65535 \
       -XX:+UseConcMarkSweepGC                                   \
       -XX:+CMSParallelRemarkEnabled                             \
       -XX:+HeapDumpOnOutOfMemoryError                           \
-<%- [["ms", :java_min_heap], ["mx", :java_max_heap], ["mn", :java_eden_heap]].each do |opt| %>
+<%- [["ms", :java_heap_size_min], ["mx", :java_heap_size_max], ["mn", :java_heap_size_eden]].each do |opt| %>
 <%-   unless node[:cassandra][opt[1]].nil? %>
       -X<%= opt[0] %><%= node[:cassandra][opt[1]] %>            \
 <%-   end %>

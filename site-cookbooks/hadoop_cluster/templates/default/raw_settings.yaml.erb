@@ -5,7 +5,7 @@
 :facet_name:               <%= node[:facet_name]                    %>
 :facet_index:              <%= node[:facet_index]                   %>
 
-:hadoop_handle:            <%= node[:hadoop][:hadoop_handle]        %>
+:handle:            <%= node[:hadoop][:handle]        %>
 :cdh_version:              <%= node[:hadoop][:cdh_version]          %>
 :dfs_replication:          <%= node[:hadoop][:dfs_replication]      %>
 :max_map_tasks:            <%= node[:hadoop][:max_map_tasks]        %>
@@ -24,8 +24,8 @@
 :hadoop_tmp_dir:           <%= @hadoop_tmp_dir                      %>
 :hadoop_log_dir:           <%= @hadoop_log_dir                      %>
 
-:namenode_address:         <%= @namenode_address                    %>            
-:jobtracker_address:       <%= @jobtracker_address                  %>
+:namenode_addr:         <%= @namenode_addr                    %>            
+:jobtracker_addr:       <%= @jobtracker_addr                  %>
 
 <%- memory_in_bytes = node[:memory][:total].gsub(/kB$/, '').to_i * 1024 %>
 :n_cpus:                   <%= node[:cpu][:total] %>

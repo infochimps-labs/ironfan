@@ -16,8 +16,8 @@ dataDir=<%= @zookeeper_data_dir %>
 clientPort=2181
 
 <%- if @zookeeper_server_ips %>
-<%- @zookeeper_server_ips.each_with_index do |ip_address, idx| %>
-server.<%= idx %>=<%= ip_address %>:2888:3888
+<%- @zookeeper_server_ips.each_with_index do |zk_addr, idx| %>
+server.<%= idx %>=<%= zk_addr %>:2888:3888
 <%- end %>
 
 <%- end %>

@@ -26,25 +26,7 @@ include_recipe "hadoop_cluster"
 include_recipe "zookeeper::client"
 include_recipe "ganglia"
 
-#
-# Add Cloudera Apt Repo
-#
-
-# Get the archive key for cloudera package repo
-execute "curl -s http://archive.cloudera.com/debian/archive.key | apt-key add -" do
-  not_if "apt-key export 'Cloudera Apt Repository' | grep 'BEGIN PGP PUBLIC KEY'"
-  notifies :run, "execute[apt-get update]"
-end
-
-# Add cloudera package repo
-apt_repository 'cloudera' do
-  uri             'http://archive.cloudera.com/debian'
-  distro        = node[:lsb][:codename]
-  distribution    "#{distro}-#{node[:hadoop][:cdh_version]}"
-  components      ['contrib']
-  key             "http://archive.cloudera.com/debian/archive.key"
-  action          :add
-end
+include_recipe "hbase::add_cloudera_repo"
 
 #
 # Users
@@ -90,12 +72,12 @@ end
 #
 template_variables = {
   :namenode_fqdn          => provider_fqdn("#{node[:hbase][:cluster_name]}-namenode"),
-  :jobtracker_address     => provider_private_ip("#{node[:hbase][:cluster_name]}-jobtracker"),
-  :zookeeper_address      => all_provider_private_ips("#{node[:hbase][:cluster_name]}-zookeeper").join(","),
+  :jobtracker_addr     => provider_private_ip("#{node[:hbase][:cluster_name]}-jobtracker"),
+  :zookeeper_addr      => all_provider_private_ips("#{node[:hbase][:cluster_name]}-zookeeper").join(","),
   :private_ip             => private_ip_of(node),
   :jmx_hostname           => public_ip_of(node),
   :ganglia                => provider_for_service("#{node[:hbase][:cluster_name]}-gmetad"),
-  :ganglia_address        => provider_fqdn("#{node[:hbase][:cluster_name]}-gmetad"),
+  :ganglia_addr        => provider_fqdn("#{node[:hbase][:cluster_name]}-gmetad"),
   :ganglia_port           => 8649,
   :period                 => 10
 }
@@ -116,5 +98,5 @@ link "/etc/hadoop/conf/hbase-site.xml" do
 end
 
 # Stuff the HBase jars into the classpath
-node[:hadoop][:extra_classpaths][:hbase] = '/usr/lib/hbase/hbase.jar:/usr/lib/hbase/lib/zookeeper.jar:/usr/lib/hbase/conf' if node[:hadoop] and node[:hadoop_extra_classpaths]
+node[:hadoop][:extra_classpaths][:hbase] = '/usr/lib/hbase/hbase.jar:/usr/lib/hbase/lib/zookeeper.jar:/usr/lib/hbase/conf' if node[:hadoop] and node[:hadoop][:extra_classpaths]
 node.save

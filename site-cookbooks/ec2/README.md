@@ -10,14 +10,15 @@ Has recipes to:
 
 ## Attributes
 
-* `[:ec2][:raid][:level]`               -  (default: "0")
-* `[:ec2][:raid][:read_ahead]`          -  (default: "65536")
-* `[:ec2][:raid][:mount]`               -  (default: "/raid0")
+* `[:ec2][:raid][:level]`             - Raid level to apply to the volume. (default: "0")
+  Raid level to apply to the volume. See the mdadm documentation
+* `[:ec2][:raid][:read_ahead]`        -  (default: "65536")
+* `[:ec2][:raid][:mount]`             -  (default: "/raid0")
 
 ## Recipes 
 
-* `default`                  - Base configuration for ec2
-* `raid_ephemeral`           - Raid Ephemeral
+* `default`                  - Placeholder cookbook -- see ec2::raid_ephemeral
+* `raid_ephemeral`           - Build a RAID volume out of the ephemeral drives
 
 
 ## Integration
