@@ -1,6 +1,6 @@
 # contents of this file are set by chef (hadoop_cluster/recipes/cluster_conf)
 
-export HADOOP_HOME=/usr/lib/<%= node[:hadoop][:hadoop_handle] %>
+export HADOOP_HOME=/usr/lib/<%= node[:hadoop][:handle] %>
 export HADOOP_IDENT_STRING=hadoop
 export HADOOP_NODENAME="<%= node.name.gsub(/[^\w\-]+/, '') %>"
 
@@ -11,14 +11,16 @@ export HADOOP_JOBTRACKER_USER=mapred
 export HADOOP_TASKTRACKER_USER=mapred
 
 # The maximum amount of heap to use, in MB. Default is 1000.
-export HADOOP_HEAPSIZE=<%= node[:hadoop][:daemon_heapsize] %>
+export HADOOP_HEAPSIZE=1000
 
 # Ubuntu wants us to use IPv6. Hadoop doesn't support that, but nevertheless binds to :::50010. Let's tell it we don't agree.
 export HADOOP_OPTS="$HADOOP_OPTS -Djava.net.preferIPv4Stack=true"
 
-export HADOOP_NAMENODE_OPTS="$HADOOP_NAMENODE_OPTS -XX:+UseParallelGC -Xmx<%=                   node[:hadoop][:namenode_heapsize]          || node[:hadoop][:daemon_heapsize] %>m"
-export HADOOP_SECONDARYNAMENODE_OPTS="$HADOOP_SECONDARYNAMENODE_OPTS -XX:+UseParallelGC -Xmx<%= node[:hadoop][:secondarynamenode_heapsize] || node[:hadoop][:daemon_heapsize] %>m"
-export HADOOP_JOBTRACKER_OPTS="$HADOOP_JOBTRACKER_OPTS -XX:+UseParallelGC -Xmx<%=               node[:hadoop][:jobtracker_heapsize]        || node[:hadoop][:daemon_heapsize] %>m"
+export HADOOP_NAMENODE_OPTS="$HADOOP_NAMENODE_OPTS -XX:+UseParallelGC -Xmx<%=                   node[:hadoop][:namenode         ][:java_heap_size_max] %>m"
+export HADOOP_SECONDARYNAMENODE_OPTS="$HADOOP_SECONDARYNAMENODE_OPTS -XX:+UseParallelGC -Xmx<%= node[:hadoop][:secondarynamenode][:java_heap_size_max] %>m"
+export HADOOP_JOBTRACKER_OPTS="$HADOOP_JOBTRACKER_OPTS -XX:+UseParallelGC -Xmx<%=               node[:hadoop][:jobtracker       ][:java_heap_size_max] %>m"
+export HADOOP_TASKTRACKER_OPTS="$HADOOP_JOBTRACKER_OPTS -XX:+UseParallelGC -Xmx<%=              node[:hadoop][:tasktracker      ][:java_heap_size_max] %>m"
+export HADOOP_DATANODE_OPTS="$HADOOP_JOBTRACKER_OPTS -XX:+UseParallelGC -Xmx<%=                 node[:hadoop][:datanode         ][:java_heap_size_max] %>m"
 
 <%- unless node[:hadoop][:extra_classpaths].nil? %>
 # Extra classpaths for hadoop

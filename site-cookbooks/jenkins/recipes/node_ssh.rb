@@ -1,6 +1,10 @@
 #
 # Cookbook Name::       jenkins
-# Description::         Node Ssh
+# Description::         Creates the user and group for the Jenkins slave to run as and sets `.ssh/authorized_keys` to the 'jenkins[:pubkey]' attribute.  The 'jenkins-cli.jar'[1] is downloaded from the Jenkins server and used to manage the nodes via the 'groovy'[2] cli command.  Jenkins is configured to launch a slave agent on the node using its SSH slave plugin[3].
+
+[1] http://wiki.jenkins-ci.org/display/JENKINS/Jenkins+CLI
+[2] http://wiki.jenkins-ci.org/display/JENKINS/Jenkins+Script+Console
+[3] http://wiki.jenkins-ci.org/display/JENKINS/SSH+Slaves+plugin
 # Recipe::              node_ssh
 # Author::              Doug MacEachern <dougm@vmware.com>
 # Author::              Fletcher Nichol <fnichol@nichol.ca>

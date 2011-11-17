@@ -54,10 +54,12 @@
 <property> <name>mapred.submit.replication</name>                 <value>10</value></property>
 
 <property> <name>mapred.jobtracker.taskScheduler</name>           <value>org.apache.hadoop.mapred.FairScheduler</value></property>
-<property> <name>mapred.fairscheduler.allocation.file</name>      <value>/etc/<%= node[:hadoop][:hadoop_handle] %>/conf/fairscheduler.xml</value></property>
+<property> <name>mapred.fairscheduler.allocation.file</name>      <value>/etc/<%= node[:hadoop][:handle] %>/conf/fairscheduler.xml</value></property>
 
-<property> <name>mapred.userlog.retain.hours</name>               <value>240</value></property>
-<property> <name>mapred.jobtracker.completeuserjobs.maximum</name><value>20</value></property>
+<property> <name>mapred.userlog.retain.hours</name>               <value><%= node[:hadoop][:log_retention_hours] %></value></property>
+<property> <name>mapred.jobtracker.retirejob.interval</name>      <value><%= (node[:hadoop][:log_retention_hours].to_f * 60 * 60 * 1000).to_i></value></property>
+<property> <name>mapred.jobtracker.retirejob.check</name>         <value>300000</value></property>
+<property> <name>mapred.jobtracker.completeuserjobs.maximum</name><value>100</value></property>
 <!--  -->
 <!-- mapred.job.tracker.retiredjobs.cache.size -->
 <!-- mapred.jobtracker.restart.recover --><!-- "true" to enable (job) recovery upon restart, "false" to start afresh -->

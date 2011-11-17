@@ -1,28 +1,35 @@
 # -*- coding: utf-8 -*-
-default[:hadoop][:hadoop_handle] = 'hadoop-0.20'
+default[:hadoop][:handle] = 'hadoop-0.20'
 default[:hadoop][:cdh_version]   = 'cdh3u2'
 default[:hadoop][:deb_version]   = '0.20.2+923.142-1~maverick-cdh3'
-default[:hadoop][:cloudera_distro_name] = nil # override distro name if cloudera doesn't have yours yet
+default[:hadoop][:force_distro] = nil # override distro name if cloudera doesn't have yours yet
 
 # What states to set for services.
 #   :enable => enabled service to run at boot.
 #   :start  => ensure it's started and running.
 # You want to bring then big daemons up deliberately on initial start --
 # override in your cluster definition when things are stable.
-default[:service_states][:hadoop_namenode]           = []
-default[:service_states][:hadoop_secondarynamenode ] = []
-default[:service_states][:hadoop_jobtracker]         = []
+default[:hadoop][:namenode          ][:service_state]  = []
+default[:hadoop][:secondarynamenode ][:service_state]  = []
+default[:hadoop][:jobtracker        ][:service_state]  = []
 
 # These we can do [:enable,:start] -- though on a full-cluster stop/start (or
 #   any other time the main daemons' ip address changes) you may need to
 #   converge chef and then restart them all.
-default[:service_states][:hadoop_datanode]           = [:enable, :start]
-default[:service_states][:hadoop_tasktracker]        = [:enable, :start]
+default[:hadoop][:datanode          ][:service_state]  = [:enable, :start]
+default[:hadoop][:tasktracker       ][:service_state]  = [:enable, :start]
 
 # Make sure you define a cluster_size in roles/WHATEVER_cluster.rb
 default[:cluster_size] = 5
 
-default[:hadoop][:dfs_replication             ] =  3
+# You may wish to set the following to the same as your HDFS block size, esp if
+# you're seeing issues with s3:// turning 1TB files into 30_000+ map tasks
+#
+default[:hadoop][:min_split_size]  = (128 * 1024 * 1024)
+default[:hadoop][:s3_block_size]   = (128 * 1024 * 1024)
+default[:hadoop][:hdfs_block_size] = (128 * 1024 * 1024)
+default[:hadoop][:dfs_replication] =  3
+
 default[:hadoop][:reduce_parallel_copies      ] = 10
 default[:hadoop][:tasktracker_http_threads    ] = 32
 default[:hadoop][:jobtracker_handler_count    ] = 40
@@ -35,25 +42,22 @@ default[:hadoop][:compress_output_codec     ] = 'org.apache.hadoop.io.compress.D
 default[:hadoop][:compress_mapout           ] = 'true'
 default[:hadoop][:compress_mapout_codec     ] = 'org.apache.hadoop.io.compress.DefaultCodec' # try instead: 'org.apache.hadoop.io.compress.SnappyCodec'
 
-default[:hadoop][:mapred_userlog_retain_hours ] = 24
-default[:hadoop][:mapred_jobtracker_completeuserjobs_maximum ] = 100
-
-# Other recipes can add to this under their own special key, for instance
-#  node[:hadoop][:extra_classpaths][:hbase] = '/usr/lib/hbase/hbase.jar:/usr/lib/hbase/lib/zookeeper.jar:/usr/lib/hbase/conf'
-#
-default[:hadoop][:extra_classpaths]  = { }
-
 # uses /etc/default/hadoop-0.20 to set the hadoop daemon's heapsize
-default[:hadoop][:daemon_heapsize]       = 1000
+default[:hadoop][:java_heap_size_max]                      = 1000
 # these will be set to the daemon heapsize if nil
-default[:hadoop][:namenode_heapsize]          = nil
-default[:hadoop][:secondarynamenode_heapsize] = nil
-default[:hadoop][:jobtracker_heapsize]        = nil
+default[:hadoop][:namenode][:java_heap_size_max]           = nil
+default[:hadoop][:secondarynamenode][:java_heap_size_max] = nil
+default[:hadoop][:jobtracker][:java_heap_size_max]        = nil
 
 default[:groups]['hadoop'    ][:gid] = 300
 default[:groups]['supergroup'][:gid] = 301
 default[:groups]['hdfs'      ][:gid] = 302
 default[:groups]['mapred'    ][:gid] = 303
+
+# Other recipes can add to this under their own special key, for instance
+#  node[:hadoop][:extra_classpaths][:hbase] = '/usr/lib/hbase/hbase.jar:/usr/lib/hbase/lib/zookeeper.jar:/usr/lib/hbase/conf'
+#
+default[:hadoop][:extra_classpaths]  = { }
 
 # persistent dirs hold the HDFS, namenode metadata, and so forth.
 default[:hadoop][:persistent_dirs] = %w[ /mnt/hadoop ]
@@ -61,15 +65,11 @@ default[:hadoop][:persistent_dirs] = %w[ /mnt/hadoop ]
 default[:hadoop][:scratch_dirs]    = %w[ /mnt/hadoop ]
 
 # Other hadoop settings
-default[:hadoop][:max_balancer_bandwidth]     = 1048576  # bytes per second -- 1MB/s by default
-# fs.inmemory.size.mb  # default XX
 
-# You may wish to set the following to the same as your HDFS block size, esp if
-# you're seeing issues with s3:// turning 1TB files into 30_000+ map tasks
-#
-default[:hadoop][:min_split_size]  = (128 * 1024 * 1024)
-default[:hadoop][:s3_block_size]   = (128 * 1024 * 1024)
-default[:hadoop][:hdfs_block_size] = (128 * 1024 * 1024)
+# bytes per second -- 1MB/s by default
+default[:hadoop][:max_balancer_bandwidth] = 1048576
+
+default[:hadoop][:log_retention_hours ]   = 24
 
 #
 # Tune cluster settings for size of instance
@@ -106,12 +106,12 @@ default[:hadoop][:hdfs_block_size] = (128 * 1024 * 1024)
 hadoop_performance_settings =
   case node[:ec2][:instance_type]
   when 't1.micro'   then { :max_map_tasks =>  1, :max_reduce_tasks => 1, :java_child_opts =>  '-Xmx256m -Xss128k',                                                    :java_child_ulimit =>  2227200, :io_sort_factor => 10, :io_sort_mb => 100, }
-  when 'm1.small'   then { :max_map_tasks =>  2, :max_reduce_tasks => 1, :java_child_opts =>  '-Xmx870m -Xss128k',                                                    :java_child_ulimit =>  2227200, :io_sort_factor => 10, :io_sort_mb => 160, }
-  when 'c1.medium'  then { :max_map_tasks =>  3, :max_reduce_tasks => 2, :java_child_opts =>  '-Xmx870m -Xss128k',                                                    :java_child_ulimit =>  2227200, :io_sort_factor => 10, :io_sort_mb => 160, }
-  when 'm1.large'   then { :max_map_tasks =>  3, :max_reduce_tasks => 2, :java_child_opts => '-Xmx2432m -Xss128k -XX:+UseCompressedOops -XX:MaxNewSize=200m -server', :java_child_ulimit =>  7471104, :io_sort_factor => 25, :io_sort_mb => 256, }
-  when 'c1.xlarge'  then { :max_map_tasks => 10, :max_reduce_tasks => 4, :java_child_opts =>  '-Xmx870m -Xss128k',                                                    :java_child_ulimit =>  2227200, :io_sort_factor => 20, :io_sort_mb => 160, }
-  when 'm1.xlarge'  then { :max_map_tasks =>  6, :max_reduce_tasks => 4, :java_child_opts => '-Xmx1920m -Xss128k -XX:+UseCompressedOops -XX:MaxNewSize=200m -server', :java_child_ulimit =>  5898240, :io_sort_factor => 25, :io_sort_mb => 256, }
-  when 'm2.xlarge'  then { :max_map_tasks =>  4, :max_reduce_tasks => 2, :java_child_opts => '-Xmx4531m -Xss128k -XX:+UseCompressedOops -XX:MaxNewSize=200m -server', :java_child_ulimit => 13447987, :io_sort_factor => 32, :io_sort_mb => 256, }
+  when 'm1.small'   then { :max_map_tasks =>  2, :max_reduce_tasks => 1, :java_child_opts =>  '-Xmx870m -Xss128k',                                                    :java_child_ulimit =>  2227200, :io_sort_factor => 10, :io_sort_mb => 100, }
+  when 'c1.medium'  then { :max_map_tasks =>  3, :max_reduce_tasks => 2, :java_child_opts =>  '-Xmx870m -Xss128k',                                                    :java_child_ulimit =>  2227200, :io_sort_factor => 10, :io_sort_mb => 100, }
+  when 'm1.large'   then { :max_map_tasks =>  3, :max_reduce_tasks => 2, :java_child_opts => '-Xmx2432m -Xss128k -XX:+UseCompressedOops -XX:MaxNewSize=200m -server', :java_child_ulimit =>  7471104, :io_sort_factor => 25, :io_sort_mb => 250, }
+  when 'c1.xlarge'  then { :max_map_tasks => 10, :max_reduce_tasks => 4, :java_child_opts =>  '-Xmx870m -Xss128k',                                                    :java_child_ulimit =>  2227200, :io_sort_factor => 20, :io_sort_mb => 200, }
+  when 'm1.xlarge'  then { :max_map_tasks =>  6, :max_reduce_tasks => 4, :java_child_opts => '-Xmx1920m -Xss128k -XX:+UseCompressedOops -XX:MaxNewSize=200m -server', :java_child_ulimit =>  5898240, :io_sort_factor => 25, :io_sort_mb => 250, }
+  when 'm2.xlarge'  then { :max_map_tasks =>  4, :max_reduce_tasks => 2, :java_child_opts => '-Xmx4531m -Xss128k -XX:+UseCompressedOops -XX:MaxNewSize=200m -server', :java_child_ulimit => 13447987, :io_sort_factor => 32, :io_sort_mb => 250, }
   when 'm2.2xlarge' then { :max_map_tasks =>  6, :max_reduce_tasks => 4, :java_child_opts => '-Xmx4378m -Xss128k -XX:+UseCompressedOops -XX:MaxNewSize=200m -server', :java_child_ulimit => 13447987, :io_sort_factor => 32, :io_sort_mb => 256, }
   when 'm2.4xlarge' then { :max_map_tasks => 12, :max_reduce_tasks => 4, :java_child_opts => '-Xmx4378m -Xss128k -XX:+UseCompressedOops -XX:MaxNewSize=200m -server', :java_child_ulimit => 13447987, :io_sort_factor => 40, :io_sort_mb => 256, }
   else

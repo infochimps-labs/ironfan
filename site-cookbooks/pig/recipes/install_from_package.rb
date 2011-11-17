@@ -1,6 +1,6 @@
 #
 # Cookbook Name::       pig
-# Description::         Install From Package
+# Description::         Installs pig from the cloudera package -- verified compatible, but on a slow update schedule.
 # Recipe::              install_from_package
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

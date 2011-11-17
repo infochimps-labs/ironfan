@@ -1,6 +1,6 @@
 #
 # Cookbook Name::       pig
-# Description::         Piggybank
+# Description::         Compiles the Piggybank, a library of useful functions for pig
 # Recipe::              piggybank
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

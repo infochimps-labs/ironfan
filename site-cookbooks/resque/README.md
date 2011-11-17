@@ -14,7 +14,7 @@ Sets up [Resque](https://github.com/defunkt/resque), "a Redis-backed Ruby librar
 * `[:resque][:data_dir]`              -  (default: "/data/db/resque/data")
 * `[:resque][:swapdir]`               -  (default: "/data/db/resque/swap")
 * `[:resque][:conf_dir]`              -  (default: "/etc/resque")
-* `[:resque][:db_basename]`                -  (default: "resque_queue.rdb")
+* `[:resque][:db_basename]`           -  (default: "resque_queue.rdb")
 * `[:resque][:cluster_name]`          -  (default: "cluster_name")
 * `[:resque][:namespace]`             -  (default: "cluster_name")
 * `[:resque][:user]`                  -  (default: "resque")

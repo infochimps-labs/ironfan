@@ -1,6 +1,6 @@
 #
 # Cookbook Name::       flume
-# Description::         Master
+# Description::         Configures Flume Master, installs and starts service
 # Recipe::              master
 # Author::              Chris Howe - Infochimps, Inc
 #

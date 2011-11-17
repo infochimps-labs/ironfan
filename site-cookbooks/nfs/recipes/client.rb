@@ -1,6 +1,6 @@
 #
 # Cookbook Name::       nfs
-# Description::         Client
+# Description::         NFS client: uses provides_service to discover its server, and mounts the corresponding NFS directory
 # Recipe::              client
 # Author::              37signals
 #

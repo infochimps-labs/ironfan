@@ -2,9 +2,9 @@ maintainer       "Philip (flip) Kromer - Infochimps, Inc"
 maintainer_email "coders@infochimps.com"
 license          "Apache 2.0"
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version          "3.0.0"
+version          "3.0.1"
 
-description      "Installs hadoop and sets up a high-performance cluster. Inspired by Tom White / Cloudera's hadoop-ec2 command line utilities"
+description      "Installs hadoop and sets up a high-performance cluster. Inspired by Tom White / Cloudera's hadoop-ec2 command line utilities."
 
 depends          "java"
 depends          "apt"
@@ -33,32 +33,32 @@ end
 
 attribute "cluster_size",
   :display_name          => "Number of machines in the cluster",
-  :description           => "Number of machines in the cluster. This is used to size",
+  :description           => "Number of machines in the cluster. This is used to size things like handler counts, etc.",
   :default               => "5"
 
-attribute "hadoop/hadoop_handle",
-  :display_name          => "",
-  :description           => "",
+attribute "hadoop/handle",
+  :display_name          => "Version prefix for the daemons and other components",
+  :description           => "Cloudera distros have a prefix most (but not all) things with. This helps isolate the times they say 'hadoop-0.20' vs. 'hadoop'",
   :default               => "hadoop-0.20"
 
 attribute "hadoop/cdh_version",
-  :display_name          => "",
-  :description           => "",
+  :display_name          => "Version identifier (eg cdh3u2) of the cloudera repo to use. See also hadoop/deb_version",
+  :description           => "Version identifier (eg cdh3u2) of the cloudera repo to use. See also hadoop/deb_version",
   :default               => "cdh3u2"
 
 attribute "hadoop/deb_version",
-  :display_name          => "",
-  :description           => "",
+  :display_name          => "Apt revision identifier (eg 0.20.2+923.142-1~maverick-cdh3) of the specific cloudera apt to use. See also hadoop/cdh_version",
+  :description           => "Apt revision identifier (eg 0.20.2+923.142-1~maverick-cdh3) of the specific cloudera apt to use. See also hadoop/cdh_version",
   :default               => "0.20.2+923.142-1~maverick-cdh3"
 
-attribute "hadoop/cloudera_distro_name",
-  :display_name          => "",
-  :description           => "",
+attribute "hadoop/force_distro",
+  :display_name          => "Override the distro to pull repos from",
+  :description           => "Typically, leave this blank. However, (as is the case in Nov 2011), you are on natty but Cloudera's repo only has packages up to maverick, use this to override.",
   :default               => ""
 
 attribute "hadoop/dfs_replication",
-  :display_name          => "",
-  :description           => "",
+  :display_name          => "Default HDFS replication factor",
+  :description           => "HDFS blocks are by default reproduced to this many machines.",
   :default               => "3"
 
 attribute "hadoop/reduce_parallel_copies",
@@ -89,7 +89,7 @@ attribute "hadoop/datanode_handler_count",
 attribute "hadoop/compress_output",
   :display_name          => "",
   :description           => "",
-  :default               => "true"
+  :default               => "false"
 
 attribute "hadoop/compress_output_type",
   :display_name          => "",
@@ -111,22 +111,17 @@ attribute "hadoop/compress_mapout_codec",
   :description           => "",
   :default               => "org.apache.hadoop.io.compress.DefaultCodec"
 
-attribute "hadoop/mapred_userlog_retain_hours",
+attribute "hadoop/log_retention_hours",
   :display_name          => "",
-  :description           => "",
+  :description           => "See [Hadoop Log Location and Retention](http://www.cloudera.com/blog/2010/11/hadoop-log-location-and-retention) for more.",
   :default               => "24"
-
-attribute "hadoop/mapred_jobtracker_completeuserjobs_maximum",
-  :display_name          => "",
-  :description           => "",
-  :default               => "100"
 
 attribute "hadoop/extra_classpaths",
   :display_name          => "",
   :description           => "",
   :default               => ""
 
-attribute "hadoop/daemon_heapsize",
+attribute "hadoop/java_heap_size_max",
   :display_name          => "",
   :description           => "",
   :default               => "1000"
@@ -208,28 +203,43 @@ attribute "hadoop/io_sort_mb",
   :description           => "",
   :default               => "256"
 
-attribute "service_states/hadoop_namenode",
+attribute "hadoop/namenode/service_state",
   :display_name          => "",
   :description           => "",
   :default               => ""
 
-attribute "service_states/hadoop_secondarynamenode",
+attribute "hadoop/namenode/java_heap_size_max",
   :display_name          => "",
   :description           => "",
   :default               => ""
 
-attribute "service_states/hadoop_jobtracker",
+attribute "hadoop/secondarynamenode/service_state",
   :display_name          => "",
   :description           => "",
   :default               => ""
 
-attribute "service_states/hadoop_datanode",
+attribute "hadoop/secondarynamenode/java_heap_size_max",
+  :display_name          => "",
+  :description           => "",
+  :default               => ""
+
+attribute "hadoop/jobtracker/service_state",
+  :display_name          => "",
+  :description           => "",
+  :default               => ""
+
+attribute "hadoop/jobtracker/java_heap_size_max",
+  :display_name          => "",
+  :description           => "",
+  :default               => ""
+
+attribute "hadoop/datanode/service_state",
   :display_name          => "",
   :description           => "",
   :type                  => "array",
   :default               => [:enable, :start]
 
-attribute "service_states/hadoop_tasktracker",
+attribute "hadoop/tasktracker/service_state",
   :display_name          => "",
   :description           => "",
   :type                  => "array",

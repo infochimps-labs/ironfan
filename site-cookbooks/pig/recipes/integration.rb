@@ -1,7 +1,7 @@
 #
 # Cookbook Name::       pig
-# Description::         Link Extra Jars
-# Recipe::              link_extra_jars
+# Description::         Link in jars from hbase and zookeeper
+# Recipe::              integration
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #
 # Copyright 2011, Philip (flip) Kromer - Infochimps, Inc

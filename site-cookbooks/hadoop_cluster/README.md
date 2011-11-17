@@ -1,124 +1,57 @@
 # hadoop_cluster chef cookbook
 
-Installs hadoop and sets up a high-performance cluster. Inspired by Tom White / Cloudera's hadoop-ec2 command line utilities
+Installs hadoop and sets up a high-performance cluster. Inspired by Tom White / Cloudera's hadoop-ec2 command line utilities.
 
 ## Overview
 
-= DESCRIPTION:
+Installs Apache hadoop using the [Cloudera hadoop distribution (CDH)](http://archive.cloudera.com/docs/)
 
-Installs Apache hadoop and sets up a basic distributed cluster per the quick start documentation.
+It comes with hooks for the Amazon cloud using EBS-backed instances.
 
-= REQUIREMENTS:
+For more details on the so, so many config variables, see
 
-== Platform:
+* [Core Hadoop params](http://archive.cloudera.com/cdh/3/hadoop/hdfs-default.html) (which often actually has things you'd think were in one of the following)
+* [HDFS params](http://archive.cloudera.com/cdh/3/hadoop/hdfs-default.html) 
+* [Map-Reduce params](http://archive.cloudera.com/cdh/3/hadoop/hdfs-default.html) 
 
-Designed to work on the Amazon cloud using EBS-backed instances, though many parts of it will work elsewhere.
+### A couple helpful notes
 
-== Cookbooks:
-
-Opscode cookbooks, http://github.com/opscode/cookbooks/tree/master:
-
-* java
-
-= ATTRIBUTES: 
-
-* Hadoop package/version info:
-** hadoop[:hadoop_handle] - Specify the package version of hadoop to install. Default hadoop-0.20
-** hadoop[:cdh_version]   - Specify the cloudera distribution version. Default is cdh3 -- see http://archive.cloudera.com/docs/_apt.html
-* You'll need to grab your AWS credentials from somewhere and stuff them in: 
-** aws[:aws_access_key]
-** aws[:aws_secret_access_key]
-* See the corresponding entries in the hadoop documentation for the following:
-** hadoop[:dfs_replication]           
-** hadoop[:disks_to_prep].inspect     
-** hadoop[:mapred_local_dirs]         
-** hadoop[:max_map_tasks]             
-** hadoop[:max_reduce_tasks]          
-** hadoop[:cluster_reduce_tasks]      
-** hadoop[:java_child_opts]           
-** hadoop[:java_child_ulimit]         
-** hadoop[:dfs_name_dirs]             
-** hadoop[:fs_checkpoint_dirs]        
-** hadoop[:dfs_data_dirs]             
-
-You may wish to add more attributes for tuning the configuration file templates.
-
-= DATABAGS:
-
-You must construct a databag named "servers_info" containing the addresses
-for the various central nodes. If your hadoop cluster is named 'zaius'
-you'll set
-
-  {"id":"zaius_namenode",  "private_ip":"10.212.171.245"}
-  {"id":"zaius_jobtracker","private_ip":"10.212.171.245"}
-
-
-= USAGE:
-
-This cookbook installs hadoop from the cloudera CDH3 distribution[1] . You should copy this to a site-cookbook and modify the templates to meet your requirements. 
-
-The various hadoop processes are installed as services. Do NOT use the start-all.sh scripts.  
-
-The recipes correspond to different roles you'll probably assign: 
-* pseudo-conf       -- single machine pseudo-distributed mode
-* jobtracker        -- assigns and coordinates jobs
-* namenode          -- runs the namenode (coordinates the HDFS) and secondarynamenode (backs up the metadata file)
-* worker            -- runs the datanode and tasktracker
-* secondarynamenode -- additional secondarynamenode (backs up the metadata file).
-
-In the roles/ directory at http://github.com/mrflip/hadoop_cluster_chef there are defined chef roles for generic hadoop node, hadoop master (job, name, web, secondaryname services), and hadoop worker (data and task services)
-
-Assign node roles according to these rough guidelines:
-
-* For initial testing, use pseudo-conf mode.
-* For clusters of some to a dozen or so nodes, give the master node the jobtracker, namenode *and* worker roles.
-* For larger clusters, omit the worker role for the master node.
-* For huge clusters, run the jobtracker and namenode/secondarynamenode on different hosts.
+Inspired by Tom White / Cloudera's hadoop-ec2 command line utilities.
 
 Note that the secondarynamenode is NOT a redundant namenode. All it does is make periodic backups of the HDFS metadata.
 
-[1] http://archive.cloudera.com/docs/
-
-= LICENSE and AUTHOR:
+### Author:
       
 Author:: Joshua Timberman (<joshua@opscode.com>), Flip Kromer (<flip@infochimps.org>), much code taken from Tom White (<tom@cloudera.com>)'s hadoop-ec2 scripts and Robert Berger (http://blog.ibd.com)'s blog posts.
 
-Copyright:: 2009, Opscode, Inc
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+Copyright:: 2009, Opscode, Inc; 2010, 2011 Infochimps, In
 
 ## Attributes
 
-* `[:cluster_size]`                   -  (default: "5")
-* `[:hadoop][:hadoop_handle]`         -  (default: "hadoop-0.20")
-* `[:hadoop][:cdh_version]`           -  (default: "cdh3u2")
-* `[:hadoop][:deb_version]`           -  (default: "0.20.2+923.142-1~maverick-cdh3")
-* `[:hadoop][:cloudera_distro_name]`  - 
-* `[:hadoop][:dfs_replication]`       -  (default: "3")
+* `[:cluster_size]`                   - Number of machines in the cluster (default: "5")
+  Number of machines in the cluster. This is used to size things like handler counts, etc.
+* `[:hadoop][:handle]`                - Version prefix for the daemons and other components (default: "hadoop-0.20")
+  Cloudera distros have a prefix most (but not all) things with. This helps isolate the times they say 'hadoop-0.20' vs. 'hadoop'
+* `[:hadoop][:cdh_version]`           - Version identifier (eg cdh3u2) of the cloudera repo to use. See also hadoop/deb_version (default: "cdh3u2")
+* `[:hadoop][:deb_version]`           - Apt revision identifier (eg 0.20.2+923.142-1~maverick-cdh3) of the specific cloudera apt to use. See also hadoop/cdh_version (default: "0.20.2+923.142-1~maverick-cdh3")
+* `[:hadoop][:force_distro]`          - Override the distro to pull repos from
+  Typically, leave this blank. However, (as is the case in Nov 2011), you are on natty but Cloudera's repo only has packages up to maverick, use this to override.
+* `[:hadoop][:dfs_replication]`       - Default HDFS replication factor (default: "3")
+  HDFS blocks are by default reproduced to this many machines.
 * `[:hadoop][:reduce_parallel_copies]` -  (default: "10")
 * `[:hadoop][:tasktracker_http_threads]` -  (default: "32")
 * `[:hadoop][:jobtracker_handler_count]` -  (default: "40")
 * `[:hadoop][:namenode_handler_count]` -  (default: "40")
 * `[:hadoop][:datanode_handler_count]` -  (default: "8")
-* `[:hadoop][:compress_output]`       -  (default: "true")
+* `[:hadoop][:compress_output]`       -  (default: "false")
 * `[:hadoop][:compress_output_type]`  -  (default: "BLOCK")
 * `[:hadoop][:compress_output_codec]` -  (default: "org.apache.hadoop.io.compress.DefaultCodec")
 * `[:hadoop][:compress_mapout]`       -  (default: "true")
 * `[:hadoop][:compress_mapout_codec]` -  (default: "org.apache.hadoop.io.compress.DefaultCodec")
-* `[:hadoop][:mapred_userlog_retain_hours]` -  (default: "24")
-* `[:hadoop][:mapred_jobtracker_completeuserjobs_maximum]` -  (default: "100")
+* `[:hadoop][:log_retention_hours]`   -  (default: "24")
+  See [Hadoop Log Location and Retention](http://www.cloudera.com/blog/2010/11/hadoop-log-location-and-retention) for more.
 * `[:hadoop][:extra_classpaths]`      - 
-* `[:hadoop][:daemon_heapsize]`       -  (default: "1000")
+* `[:hadoop][:java_heap_size_max]`    -  (default: "1000")
 * `[:hadoop][:namenode_heapsize]`     - 
 * `[:hadoop][:secondarynamenode_heapsize]` - 
 * `[:hadoop][:jobtracker_heapsize]`   - 
@@ -134,11 +67,14 @@ limitations under the License.
 * `[:hadoop][:java_child_ulimit]`     -  (default: "7471104")
 * `[:hadoop][:io_sort_factor]`        -  (default: "25")
 * `[:hadoop][:io_sort_mb]`            -  (default: "256")
-* `[:service_states][:hadoop_namenode]` - 
-* `[:service_states][:hadoop_secondarynamenode]` - 
-* `[:service_states][:hadoop_jobtracker]` - 
-* `[:service_states][:hadoop_datanode]` - 
-* `[:service_states][:hadoop_tasktracker]` - 
+* `[:hadoop][:namenode][:service_state]` - 
+* `[:hadoop][:namenode][:java_heap_size_max]` - 
+* `[:hadoop][:secondarynamenode][:service_state]` - 
+* `[:hadoop][:secondarynamenode][:java_heap_size_max]` - 
+* `[:hadoop][:jobtracker][:service_state]` - 
+* `[:hadoop][:jobtracker][:java_heap_size_max]` - 
+* `[:hadoop][:datanode][:service_state]` - 
+* `[:hadoop][:tasktracker][:service_state]` - 
 * `[:groups][:hadoop][:gid]`          -  (default: "300")
 * `[:groups][:supergroup][:gid]`      -  (default: "301")
 * `[:groups][:hdfs][:gid]`            -  (default: "302")

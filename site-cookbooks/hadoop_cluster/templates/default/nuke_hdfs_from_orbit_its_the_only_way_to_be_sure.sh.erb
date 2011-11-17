@@ -36,9 +36,9 @@ sentinel="$hadoop_tmp_dir/made_initial_dirs"
 #
 echo "Stopping hadoop daemons"
 #
-echo -n "  "; sudo service <%= "#{node[:hadoop][:hadoop_handle]}-namenode"          %> stop || sleep 3 ; true
-echo -n "  "; sudo service <%= "#{node[:hadoop][:hadoop_handle]}-datanode"          %> stop || sleep 3 ; true
-echo -n "  "; sudo service <%= "#{node[:hadoop][:hadoop_handle]}-secondarynamenode" %> stop || sleep 3 ; true
+echo -n "  "; sudo service <%= "#{node[:hadoop][:handle]}-namenode"          %> stop || sleep 3 ; true
+echo -n "  "; sudo service <%= "#{node[:hadoop][:handle]}-datanode"          %> stop || sleep 3 ; true
+echo -n "  "; sudo service <%= "#{node[:hadoop][:handle]}-secondarynamenode" %> stop || sleep 3 ; true
 
 echo "WARNING:"
 echo ""

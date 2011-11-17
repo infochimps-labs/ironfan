@@ -25,8 +25,8 @@ include_recipe "hadoop_cluster"
 hadoop_package 'datanode'
 
 # Launch service
-service "#{node[:hadoop][:hadoop_handle]}-datanode" do
-  action    node[:service_states][:hadoop_datanode]
+service "#{node[:hadoop][:handle]}-datanode" do
+  action    node[:hadoop][:datanode][:service_state]
   supports :status => true, :restart => true
   ignore_failure true
 end

@@ -25,8 +25,8 @@ include_recipe "hadoop_cluster"
 hadoop_package "secondarynamenode"
 
 # launch service
-service "#{node[:hadoop][:hadoop_handle]}-secondarynamenode" do
-  action    node[:service_states][:hadoop_secondarynamenode]
+service "#{node[:hadoop][:handle]}-secondarynamenode" do
+  action    node[:hadoop][:secondarynamenode][:service_state]
   supports :status => true, :restart => true
   ignore_failure true
 end

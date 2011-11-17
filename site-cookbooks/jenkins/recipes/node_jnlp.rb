@@ -1,6 +1,6 @@
 #
 # Cookbook Name::       jenkins
-# Description::         Node Jnlp
+# Description::         Creates the user and group for the Jenkins slave to run as and '/jnlpJars/slave.jar' is downloaded from the Jenkins server.  Depends on runit_service from the runit cookbook.
 # Recipe::              node_jnlp
 # Author::              Doug MacEachern <dougm@vmware.com>
 # Author::              Fletcher Nichol <fnichol@nichol.ca>

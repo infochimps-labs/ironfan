@@ -110,7 +110,7 @@ mapred_local_dirs.each{  |dir| make_hadoop_dir(dir, 'mapred', "0755") }
 
 # Locate hadoop logs on scratch dirs
 force_link("/var/log/hadoop", hadoop_log_dir )
-force_link("/var/log/#{node[:hadoop][:hadoop_handle]}", hadoop_log_dir )
+force_link("/var/log/#{node[:hadoop][:handle]}", hadoop_log_dir )
 
 # Make hadoop point to /var/run for pids
 make_hadoop_dir('/var/run/hadoop-0.20', 'root', "0775")

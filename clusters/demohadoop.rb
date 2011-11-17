@@ -49,16 +49,16 @@ ClusterChef.cluster 'demohadoop' do
 
   cluster_role.override_attributes({
       :hadoop => {
-        :hadoop_handle        => 'hadoop-0.20',
+        :handle               => 'hadoop-0.20',
         :cdh_version          => 'cdh3u2',
         :deb_version          => '0.20.2+923.142-1~maverick-cdh3',
-        :cloudera_distro_name => 'maverick', # no natty distro  yet
+        :force_distro => 'maverick', # no natty distro  yet
         :persistent_dirs      => [], # will be auto-populated according to the volumes you attach
         :scratch_dirs         => ['/mnt/hadoop','/mnt2/hadoop','/mnt3/hadoop','/mnt4/hadoop'],
-        # :daemon_heapsize            => 1400, # turn these up when you move to larger nodes
-        # :namenode_heapsize          => 1000,
-        # :secondarynamenode_heapsize => 1000,
-        # :jobtracker_heapsize        => 3072,
+        # :java_heap_size_max            => 1400, # turn these up when you move to larger nodes
+        # :namenode          => { :java_heap_size_max => 1000 },
+        # :secondarynamenode => { :java_heap_size_max => 1000 },
+        # :jobtracker        => { :java_heap_size_max => 3072 },
         :compress_mapout_codec      => 'org.apache.hadoop.io.compress.SnappyCodec',
       },
       :mountable_volumes => {
@@ -77,25 +77,25 @@ ClusterChef.cluster 'demohadoop' do
   # (`knife cluster launch demohadoop`)
   #
   facet(:master).facet_role.override_attributes({
-      :service_states => {
-        :hadoop_namenode           => [:disable, :stop],
-        :hadoop_secondarynamenode  => [:disable, :stop],
-        :hadoop_jobtracker         => [:disable, :stop],
-        :hadoop_datanode           => [:disable, :stop],
-        :hadoop_tasktracker        => [:disable, :stop],
+      :hadoop => {
+        :namenode            => { :service_state => [:disable, :stop] },
+        :secondarynamenode   => { :service_state => [:disable, :stop] },
+        :jobtracker          => { :service_state => [:disable, :stop] },
+        :datanode            => { :service_state => [:disable, :stop] },
+        :tasktracker         => { :service_state => [:disable, :stop] },
         #
-        # :hadoop_namenode           => [:enable, :start],
-        # :hadoop_secondarynamenode  => [:enable, :start],
-        # :hadoop_jobtracker         => [:enable, :start],
-        # :hadoop_datanode           => [:enable, :start],
-        # :hadoop_tasktracker        => [:enable, :start],
+        # :namenode          => { :service_state => [:enable, :start], },
+        # :secondarynamenode => { :service_state => [:enable, :start], },
+        # :jobtracker        => { :service_state => [:enable, :start], },
+        # :datanode          => { :service_state => [:enable, :start], },
+        # :tasktracker       => { :service_state => [:enable, :start], },
       },
     })
 
   facet(:worker).facet_role.override_attributes({
-      :service_states => {
-        :hadoop_datanode           => [:enable, :start],
-        :hadoop_tasktracker        => [:enable, :start],
+      :hadoop => {
+        :datanode          => { :service_state => [:enable, :start], },
+        :tasktracker       => { :service_state => [:enable, :start], },
       },
     })
 end

@@ -1,6 +1,6 @@
 #
 # Cookbook Name::       zookeeper
-# Description::         Server
+# Description::         Installs Zookeeper server, sets up and starts service
 # Recipe::              server
 # Author::              Chris Howe - Infochimps, Inc
 #

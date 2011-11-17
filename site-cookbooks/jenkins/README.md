@@ -109,8 +109,6 @@ Contributor:: Darko Fabijan <darko@renderedtext.com>
 * `server`                   - Server
 * `user_key`                 - User Key
 
-## Resources / Providers
-
 
 ## Integration
 

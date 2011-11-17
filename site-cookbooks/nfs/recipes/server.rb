@@ -1,6 +1,6 @@
 #
 # Cookbook Name::       nfs
-# Description::         Server
+# Description::         NFS server: exports directories via NFS; announces using provides_service.
 # Recipe::              server
 # Author::              37signals
 #

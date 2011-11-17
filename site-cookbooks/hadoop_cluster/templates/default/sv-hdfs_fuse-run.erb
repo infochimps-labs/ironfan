@@ -2,10 +2,10 @@
 
 # pull in default env vars for hadoop
 
-. /etc/default/<%= node[:hadoop][:hadoop_handle] %>
+. /etc/default/<%= node[:hadoop][:handle] %>
 
-if [ -f /etc/default/<%= node[:hadoop][:hadoop_handle] %>-fuse ]; then
-  . /etc/default/<%= node[:hadoop][:hadoop_handle] %>-fuse
+if [ -f /etc/default/<%= node[:hadoop][:handle] %>-fuse ]; then
+  . /etc/default/<%= node[:hadoop][:handle] %>-fuse
 fi
 
 if [ -f $HADOOP_HOME/bin/hadoop-config.sh ]; then

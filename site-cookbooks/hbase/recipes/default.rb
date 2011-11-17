@@ -116,5 +116,5 @@ link "/etc/hadoop/conf/hbase-site.xml" do
 end
 
 # Stuff the HBase jars into the classpath
-node[:hadoop][:extra_classpaths][:hbase] = '/usr/lib/hbase/hbase.jar:/usr/lib/hbase/lib/zookeeper.jar:/usr/lib/hbase/conf' if node[:hadoop] and node[:hadoop_extra_classpaths]
+node[:hadoop][:extra_classpaths][:hbase] = '/usr/lib/hbase/hbase.jar:/usr/lib/hbase/lib/zookeeper.jar:/usr/lib/hbase/conf' if node[:hadoop] and node[:hadoop][:extra_classpaths]
 node.save

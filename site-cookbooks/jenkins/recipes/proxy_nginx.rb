@@ -1,6 +1,6 @@
 #
 # Cookbook Name::       jenkins
-# Description::         Proxy Nginx
+# Description::         Uses the nginx::source recipe from the nginx cookbook to install an HTTP frontend proxy. To automatically activate this recipe set the `node[:jenkins][:http_proxy][:variant]` to `nginx`.
 # Recipe::              proxy_nginx
 # Author::              Fletcher Nichol <fnichol@nichol.ca>
 #

@@ -25,8 +25,8 @@ include_recipe "hadoop_cluster"
 hadoop_package "jobtracker"
 
 # launch service
-service "#{node[:hadoop][:hadoop_handle]}-jobtracker" do
-  action    node[:service_states][:hadoop_jobtracker]
+service "#{node[:hadoop][:handle]}-jobtracker" do
+  action    node[:hadoop][:jobtracker][:service_state]
   supports :status => true, :restart => true
   ignore_failure true
 end

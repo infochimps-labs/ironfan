@@ -1,6 +1,6 @@
 #
 # Cookbook Name::       flume
-# Description::         Node
+# Description::         Configures Flume Node, installs and starts service
 # Recipe::              node
 # Author::              Chris Howe - Infochimps, Inc
 #
