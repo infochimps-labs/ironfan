@@ -1,4 +1,7 @@
 
+default[:apt][:cloudera][:force_distro] = nil # override distro name if cloudera doesn't have yours yet
+default[:apt][:cloudera][:release_name] = 'cdh3u2'
+
 #By default, flume plays as a part of the cluster the machine
 #belongs to.
 default[:flume][:cluster_name] = node[:cluster_name]

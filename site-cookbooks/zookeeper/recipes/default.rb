@@ -23,25 +23,7 @@ include_recipe "java::sun"
 include_recipe "apt"
 include_recipe "mountable_volumes"
 
-#
-# Add Cloudera Apt Repo
-#
-
-# Get the archive key for cloudera package repo
-execute "curl -s http://archive.cloudera.com/debian/archive.key | apt-key add -" do
-  not_if "apt-key export 'Cloudera Apt Repository' | grep 'BEGIN PGP PUBLIC KEY'"
-  notifies :run, "execute[apt-get update]"
-end
-
-# Add cloudera package repo
-apt_repository 'cloudera' do
-  uri             'http://archive.cloudera.com/debian'
-  distro        = node[:lsb][:codename]
-  distribution    "#{distro}-#{node[:hadoop][:cdh_version]}"
-  components      ['contrib']
-  key             "http://archive.cloudera.com/debian/archive.key"
-  action          :add
-end
+include_recipe "zookeeper::cloudera_apt_repo"
 
 #
 # Install package

@@ -48,11 +48,13 @@ ClusterChef.cluster 'demohadoop' do
   end
 
   cluster_role.override_attributes({
+      :apt => { :cloudera => {
+          :force_distro => 'maverick', # no natty distro  yet
+          :release_name => 'cdh3u2',
+        }, },
       :hadoop => {
         :handle               => 'hadoop-0.20',
-        :cdh_version          => 'cdh3u2',
         :deb_version          => '0.20.2+923.142-1~maverick-cdh3',
-        :force_distro => 'maverick', # no natty distro  yet
         :persistent_dirs      => [], # will be auto-populated according to the volumes you attach
         :scratch_dirs         => ['/mnt/hadoop','/mnt2/hadoop','/mnt3/hadoop','/mnt4/hadoop'],
         # :java_heap_size_max            => 1400, # turn these up when you move to larger nodes

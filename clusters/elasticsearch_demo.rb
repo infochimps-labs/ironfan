@@ -59,11 +59,13 @@ ClusterChef.cluster 'elasticsearch_demo' do
       ])
 
       override_attributes({
+          :apt => { :cloudera => {
+              :force_distro => 'maverick', # no natty distro  yet
+              :release_name => 'cdh3u2',
+            }, },
           :hadoop => {
             :handle        => 'hadoop-0.20',
-            :cdh_version          => 'cdh3u1',
-            :deb_version          => "0.20.2+923.97-1~maverick-cdh3",
-            :force_distro => 'maverick', # in case cloudera doesn't have your distro yet
+            :deb_version   => "0.20.2+923.97-1~maverick-cdh3",
           },
           :elasticsearch => {
             :version              => '0.17.8',
@@ -96,12 +98,6 @@ ClusterChef.cluster 'elasticsearch_demo' do
       ])
 
       override_attributes({
-          :hadoop => {
-            :handle        => 'hadoop-0.20',
-            :cdh_version          => 'cdh3u1',
-            :deb_version          => "0.20.2+923.97-1~maverick-cdh3",
-            :force_distro => 'maverick', # in case cloudera doesn't have your distro yet
-          },
           :elasticsearch => {
             :version              => '0.17.8',
           },

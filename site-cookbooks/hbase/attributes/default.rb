@@ -1,4 +1,7 @@
 
+default[:apt][:cloudera][:force_distro] = nil # override distro name if cloudera doesn't have yours yet
+default[:apt][:cloudera][:release_name] = 'cdh3u2'
+
 # GID to use for the hbase user
 default[:groups]['hbase'     ][:gid] = 304
 
@@ -16,4 +19,3 @@ default[:hbase][:regionserver_gc_tuning_opts] = "-XX:+UseConcMarkSweepGC -XX:+Ag
 default[:hbase][:regionserver_gc_log_opts]    = "-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -Xloggc:/var/log/hbase/hbase-regionserver-gc.log"
 default[:hbase][:cluster_name]                = node[:cluster_name]
 default[:hbase][:weekly_backup_tables] = []
-

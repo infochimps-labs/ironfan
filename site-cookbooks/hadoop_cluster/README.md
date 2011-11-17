@@ -32,10 +32,10 @@ Copyright:: 2009, Opscode, Inc; 2010, 2011 Infochimps, In
   Number of machines in the cluster. This is used to size things like handler counts, etc.
 * `[:hadoop][:handle]`                - Version prefix for the daemons and other components (default: "hadoop-0.20")
   Cloudera distros have a prefix most (but not all) things with. This helps isolate the times they say 'hadoop-0.20' vs. 'hadoop'
-* `[:hadoop][:cdh_version]`           - Version identifier (eg cdh3u2) of the cloudera repo to use. See also hadoop/deb_version (default: "cdh3u2")
+* `[:apt][:cloudera][:release_name]`           - Version identifier (eg cdh3u2) of the cloudera repo to use. See also hadoop/deb_version (default: "cdh3u2")
 * `[:hadoop][:deb_version]`           - Apt revision identifier (eg 0.20.2+923.142-1~maverick-cdh3) of the specific cloudera apt to use. See also hadoop/cdh_version (default: "0.20.2+923.142-1~maverick-cdh3")
-* `[:hadoop][:force_distro]`          - Override the distro to pull repos from
-  Typically, leave this blank. However, (as is the case in Nov 2011), you are on natty but Cloudera's repo only has packages up to maverick, use this to override.
+* `[:apt][:cloudera][:force_distro]`          - Override the distro to pull repos from
+  Typically, leave this blank. However if (as is the case in Nov 2011) you are on natty but Cloudera's repo only has packages up to maverick, use this to override.
 * `[:hadoop][:dfs_replication]`       - Default HDFS replication factor (default: "3")
   HDFS blocks are by default reproduced to this many machines.
 * `[:hadoop][:reduce_parallel_copies]` -  (default: "10")

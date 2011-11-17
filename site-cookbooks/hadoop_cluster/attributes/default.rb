@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 default[:hadoop][:handle] = 'hadoop-0.20'
-default[:hadoop][:cdh_version]   = 'cdh3u2'
 default[:hadoop][:deb_version]   = '0.20.2+923.142-1~maverick-cdh3'
-default[:hadoop][:force_distro] = nil # override distro name if cloudera doesn't have yours yet
+
+default[:apt][:cloudera][:force_distro] = nil # override distro name if cloudera doesn't have yours yet
+default[:apt][:cloudera][:release_name] = 'cdh3u2'
 
 # What states to set for services.
 #   :enable => enabled service to run at boot.
