@@ -6,7 +6,7 @@ gem 'right_aws',   "~> 2.1.0"
 gem 'highline',    "~> 1.6.2"
 gem 'fog',         "~> 0.8.2"
 #
-gem 'formatador',  "~> 0.1.4"
+gem 'formatador',  "~> 0.2.1"
 gem 'choice',      "~> 0.1.4"
 gem 'gorillib',    "~> 0.1.3"
 
