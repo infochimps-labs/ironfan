@@ -2,6 +2,9 @@
 - make ```knife cluster sync``` not create nodes/clients when cluster is down
 - track global order of runlist additions, compile final list using that order
 - syntactic sugar for ```server(0).fullname('blah')```
+- rename provides_service to announces_service
+    - backwards compatibility with WARNING (+ stacktrace on DEBUG)
+    - ERROR for provides_service if not 'mycluster-service'
 
 ### Cookbook attribute refresh:
 
