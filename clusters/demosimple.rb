@@ -5,6 +5,7 @@ ClusterChef.cluster 'demosimple' do
     image_name          'natty'
     bootstrap_distro    'ubuntu10.04-cluster_chef'
     chef_client_script  'client.rb'
+    mount_ephemerals
   end
 
   role                  :base_role

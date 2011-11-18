@@ -20,7 +20,7 @@
 #
 
 actions( :download, :unpack, :configure, :build, :install,
-  :configure_with_configure,
+  :configure_with_autoconf,
   :build_with_make, :build_with_ant,
   :install_with_make, :install_binaries, :install_python
   )
@@ -47,7 +47,8 @@ attribute :environment,   :kind_of => Hash, :default => {}
 # Binaries to install. Supply a path relative to install_dir, and it will be
 # symlinked to prefix_root
 attribute :has_binaries,   :kind_of => Array,  :default => []
-
+# options to pass to the ./configure command for the configure_with_autoconf action
+attribute :autoconf_opts, :kind_of => Array, :default => []
 
 def initialize(*args)
   super
@@ -56,7 +57,9 @@ end
 
 def assume_defaults!
   # eg 'pig-0.8.0' and 'tar.gz' given 'http://apache.org/pig/pig-0.8.0.tar.gz'
-  ::File.basename(release_url) =~ %r{^(.+?)(?:-bin)?\.(tar\.gz|tar\.bz2|zip)$}
+  release_basename = ::File.basename(release_url)
+  release_basename.gsub!(/-bin\b/, '')
+  release_basename =~ %r{^(.+?)\.(tar\.gz|tar\.bz2|zip)$}
   release_basename, release_ext = [$1, $2]
 
   Chef::Log.info( [self, release_basename, release_ext, self.to_hash, release_url, prefix_root ].inspect )

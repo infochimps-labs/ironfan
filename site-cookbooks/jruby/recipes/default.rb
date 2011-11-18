@@ -38,6 +38,13 @@ install_from_release('jruby') do
   not_if{ ::File.exists?("#{node[:jruby][:install_dir]}/jruby.jar") }
 end
 
+directory File.join(node[:jruby][:home_dir], 'bin') do
+  owner     'root'
+  group     'root'
+  mode      '0755'
+  action    :create
+end
+
 cookbook_file File.join(node[:jruby][:home_dir], 'bin/chef-jgem') do
   source        "chef-jgem"
   owner         "root"

@@ -28,24 +28,22 @@ ClusterChef.cluster 'el_ridiculoso' do
 
   facet :grande do
     instances           1
-  # role                :cassandra_datanode
+    role                :cassandra_datanode
+    # role                :statsd_server
+    # role                :jenkins_master
+    # recipe              'ganglia::server'
+    # role                :graphite_server
     role                :elasticsearch_data_esnode
     role                :elasticsearch_http_esnode
     role                :flume_master
-  # recipe              'ganglia::server'
-
-    #
-    role                :graphite_server
     role                :hadoop_datanode
     role                :hadoop_jobtracker
     role                :hadoop_namenode
     role                :hadoop_secondarynamenode
     role                :hadoop_tasktracker
     role                :hbase_master
-    role                :jenkins_master
     role                :redis_server
     role                :resque_server
-    role                :statsd_server
     role                :zookeeper_server
 
     recipe              'hadoop_cluster::cluster_conf'

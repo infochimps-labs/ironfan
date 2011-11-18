@@ -1,3 +1,5 @@
+require 'fileutils'
+
 module ClusterChef
   #
   # A private key -- chef client key, ssh key, etc.
@@ -27,7 +29,7 @@ module ClusterChef
     def save
       return unless @body
       ui.info( "    key #{name} - writing to #{filename}" )
-      File.mkdir_p(File.dirname(filename))
+      FileUtils.mkdir_p(File.dirname(filename))
       File.open(filename, "w", 0600){|f| f.print( @body ) }
     end
 

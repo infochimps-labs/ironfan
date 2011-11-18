@@ -3,8 +3,6 @@ description "[Infochimps internal] Data esnode (holds and indexes data) for elas
 
 # List of recipes and roles to apply
 run_list(*%w[
-  elasticsearch::build_raid
-
   elasticsearch::autoconf
   elasticsearch::default
   elasticsearch::install_from_release

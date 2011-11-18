@@ -93,12 +93,12 @@ action :build_with_ant do
   end
 end
 
-action :configure_with_configure do
+action :configure_with_autoconf do
   action_configure
   bash "configure #{new_resource.name} with configure" do
     user        new_resource.user
     cwd         new_resource.install_dir
-    code        "./configure"
+    code        "./configure #{new_resource.autoconf_opts.join(' ')}"
     environment new_resource.environment
   end
 end
@@ -129,6 +129,7 @@ action :install_python do
 end
 
 action :install_with_make do
+  action_build_with_make
   action_install
   bash "install #{new_resource.name} with make" do
     user        new_resource.user
