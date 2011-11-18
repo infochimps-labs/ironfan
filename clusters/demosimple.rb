@@ -3,6 +3,8 @@ ClusterChef.cluster 'demosimple' do
     defaults
     availability_zones ['us-east-1d']
     image_name          'natty'
+    bootstrap_distro    'ubuntu10.04-cluster_chef'
+    chef_client_script  'client.rb'
   end
 
   role                  :base_role
@@ -20,27 +22,49 @@ ClusterChef.cluster 'demosimple' do
     instances           1
     role                :nfs_server
 
-    # #
-    # # Follow the directions in the aws cookbook about an AWS credentials databag
-    # #
-    # volume(:home) do
-    #   defaults
-    #   size                15
-    #   device              '/dev/sdh'       # note: will appear as /dev/xvdi on natty
-    #   mount_point         '/home'
-    #   attachable          :ebs
-    #   # snapshot_id       ''               # create a snapshot and place its id here
-    #   create_at_launch    true             # if no volume is tagged for that node, it will be created
-    #   tags                :home => '/home'
-    # end
+    #
+    # Follow the directions in the aws cookbook about an AWS credentials databag
+    #
+    volume(:home) do
+      defaults
+      size                15
+      device              '/dev/sdh'       # note: will appear as /dev/xvdi on natty
+      mount_point         '/home'
+      attachable          :ebs
+      # snapshot_id       ''               # create a snapshot and place its id here
+      volume_id           'vol-cee531a3'
+      create_at_launch    true             # if no volume is tagged for that node, it will be created
+      tags                :home => '/home'
+    end
   end
 
   #
   # A throwaway facet for development.
   #
   facet :sandbox do
-    instances           2
+    instances           1
     role                :nfs_client
   end
+
+  cluster_role.override_attributes({
+      :apt => { :cloudera => {
+          :force_distro => 'maverick', # no natty distro  yet
+          :release_name => 'cdh3u2',
+        }, },
+      :hadoop => {
+        :hadoop_handle         => 'hadoop-0.20',
+        :deb_version           => '0.20.2+923.142-1~maverick-cdh3',
+        :persistent_dirs       => ['/mnt/hadoop','/mnt2/hadoop','/mnt3/hadoop','/mnt4/hadoop'],
+        :scratch_dirs          => ['/mnt/hadoop','/mnt2/hadoop','/mnt3/hadoop','/mnt4/hadoop'],
+        :java_heap_size_max    => 1400,
+        :namenode              => { :java_heap_size_max => 1000, },
+        :secondarynamenode     => { :java_heap_size_max => 1000, },
+        :jobtracker            => { :java_heap_size_max => 3072, },
+        :compress_mapout_codec => 'org.apache.hadoop.io.compress.SnappyCodec',
+      },
+      :mountable_volumes => {
+        :aws_credential_source => 'node_attributes',
+      }
+    })
 
 end

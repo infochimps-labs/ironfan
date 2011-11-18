@@ -36,7 +36,7 @@ attribute "pig/home_dir",
   :description           => "Location of pig code",
   :default               => "/usr/lib/pig"
 
-attribute "pig/install_url",
+attribute "pig/release_url",
   :display_name          => "URL of pig release tarball",
   :description           => "URL of pig release tarball",
   :default               => "http://apache.mirrors.tds.net/pig/pig-0.9.1/pig-0.9.1.tar.gz"

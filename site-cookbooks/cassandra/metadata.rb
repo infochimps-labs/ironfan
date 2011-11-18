@@ -108,7 +108,7 @@ attribute "cassandra/mx4j_listen_addr",
   :description           => "",
   :default               => "127.0.0.1"
 
-attribute "cassandra/install_url",
+attribute "cassandra/release_url",
   :display_name          => "",
   :description           => "",
   :default               => "http://www.eng.lsu.edu/mirrors/apache/cassandra/0.7.7/apache-cassandra-0.7.7-bin.tar.gz"

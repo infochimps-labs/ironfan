@@ -15,33 +15,43 @@ ClusterChef.cluster 'el_ridiculoso' do
   role                  :base_role
   role                  :chef_client
   role                  :ssh
-  role                  :nfs_client
+# role                  :nfs_client
   role                  :mountable_volumes
   role                  :hadoop
   role                  :hadoop_s3_keys
   role                  :pig
+  recipe                'jruby'
+  recipe                'jruby::gems'
+  recipe                'nodejs'
 
-  # role                 :infochimps_base
+# role                 :infochimps_base
 
-  facet :master do
+  facet :grande do
     instances           1
-    role                :hadoop_namenode
-    role                :hadoop_jobtracker
-    role                :hadoop_secondarynamenode
-    role                :hadoop_tasktracker
-    role                :hadoop_datanode
-    role                :jenkins_master
+  # role                :cassandra_datanode
     role                :elasticsearch_data_esnode
     role                :elasticsearch_http_esnode
     role                :flume_master
-    role                :zookeeper_server
-    role                :statsd_server
+  # recipe              'ganglia::server'
+
+    #
     role                :graphite_server
+    role                :hadoop_datanode
+    role                :hadoop_jobtracker
+    role                :hadoop_namenode
+    role                :hadoop_secondarynamenode
+    role                :hadoop_tasktracker
+    role                :hbase_master
+    role                :jenkins_master
+    role                :redis_server
+    role                :resque_server
+    role                :statsd_server
+    role                :zookeeper_server
 
     recipe              'hadoop_cluster::cluster_conf'
   end
 
-  facet :worker do
+  facet :mucho do
     instances           1
     role                :hadoop_tasktracker
     role                :hadoop_datanode

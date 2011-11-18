@@ -55,7 +55,7 @@ package "hadoop-hbase"
 package "hadoop-hbase-thrift"
 
 [:tmp_dir, :log_dir, :pid_dir].each do |dir|
-  directory dir do
+  directory node[:hbase][dir] do
     owner    'hbase'
     group    "hbase"
     mode     '0755'

@@ -35,7 +35,7 @@ end
 
 graphite_web_version = node[:graphite][:graphite_web][:version]
 
-remote_file "#{node[:graphite][:prefix_dir]}/src/graphite-web-#{graphite_web_version}/webapp/graphite/storage.py.patch" do
+remote_file "#{node[:graphite][:prefix_root]}/src/graphite-web-#{graphite_web_version}/webapp/graphite/storage.py.patch" do
   source        "http://launchpadlibrarian.net/65094495/storage.py.patch"
   checksum      "8bf57821"
 end

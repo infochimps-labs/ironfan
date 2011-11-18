@@ -27,22 +27,22 @@ package "build-essential"
 ## Replaced by git-specific invocation, below
 # execute "git clone nodejs" do
 #   cwd "/usr/src"
-#   command "git clone #{node.nodejs.git_repo}"
+#   command "git clone #{node[:nodejs][:git_repo]}"
 #   creates "/usr/src/node"
 # end
-git "#{node.nodejs.install_dir}" do
-  repository "#{node.nodejs.git_repo}"
+git "#{node[:nodejs][:install_dir]}" do
+  repository "#{node[:nodejs][:git_repo]}"
   reference "master"
   action :sync
 end
 
 bash "install nodejs" do
-  cwd "#{node.nodejs.install_dir}"
+  cwd "#{node[:nodejs][:install_dir]}"
   code <<-EOH
-  export JOBS=#{node.nodejs.jobs}
+  export JOBS=#{node[:nodejs][:jobs]}
   ./configure
   make
   make install
   EOH
-  creates "#{node.nodejs.bin_path}"
+  creates "#{node[:nodejs][:bin_path]}"
 end

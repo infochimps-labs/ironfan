@@ -17,7 +17,7 @@ Redis, a fast lightweight database
   - Path to the directory for database files.
 * `[:redis][:db_basename]`            - Redis database filename (default: "dump.rdb")
   - Filename for the database storage.
-* `[:redis][:install_url]`            - URL for redis release package (default: "http://redis.googlecode.com/files/redis-2.0.2.tar.gz")
+* `[:redis][:release_url]`            - URL for redis release package (default: "http://redis.googlecode.com/files/redis-2.0.2.tar.gz")
   - If using the install_from_release strategy, the URL for the release tarball
 * `[:redis][:master_server]`          - Redis replication master server name (default: "master-redis.domain")
   - The master server for this replication slave.

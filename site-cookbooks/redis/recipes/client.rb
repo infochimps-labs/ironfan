@@ -1,10 +1,10 @@
 #
-# Cookbook Name::       zookeeper
-# Description::         Installs Zookeeper client libraries
-# Recipe::              client
-# Author::              Chris Howe - Infochimps, Inc
+# Cookbook Name::       redis
+# Description::         Client support for Redis database
+# Recipe::              default
+# Author::              Benjamin Black (<b@b3k.us>)
 #
-# Copyright 2010, Infochimps, Inc.
+# Copyright 2009, Benjamin Black
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@
 # limitations under the License.
 #
 
-include_recipe "zookeeper::default"
-
-# Stuff the Zookeeper jars into the classpath
-node[:hadoop][:extra_classpaths][:zookeeper] = "#{node[:zookeeper][:home_dir]}/zookeeper.jar" if node[:hadoop] and node[:hadoop][:extra_classpaths]
+%w[
+  redis redis-namespace
+].each{|gem_name| gem_package gem_name }

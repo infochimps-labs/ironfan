@@ -20,7 +20,7 @@ attribute "jruby/home_dir",
   :description           => "",
   :default               => "/usr/lib/jruby"
 
-attribute "jruby/install_url",
+attribute "jruby/release_url",
   :display_name          => "",
   :description           => "",
   :default               => "http://jruby.org.s3.amazonaws.com/downloads/1.5.6/jruby-bin-1.5.6.tar.gz"

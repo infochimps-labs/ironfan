@@ -22,7 +22,7 @@
 include_recipe "graphite"
 include_recipe "ganglia::gmetad"
 
-target = "#{default[:graphite][:data_dir]}/rrd/#{node[:ganglia][:cluster_name]}"
+target = "#{node[:graphite][:data_dir]}/rrd/#{node[:ganglia][:cluster_name]}"
 
 directory target do
   mode "755"

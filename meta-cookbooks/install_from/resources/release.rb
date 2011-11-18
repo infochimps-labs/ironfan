@@ -29,10 +29,10 @@ attribute :name,          :name_attribute => true
 attribute :release_url,   :kind_of => String, :required => true
 
 # Prefix directory -- other _dir attributes hang off this by default
-attribute :prefix_dir,      :kind_of => String, :default  => '/usr/local'
-# Directory for the unreleased contents,   eg /usr/local/share/pig-0.8.0. Defaults to {prefix_dir}/share/{basename_of_release_url}
+attribute :prefix_root,      :kind_of => String, :default  => '/usr/local'
+# Directory for the unreleased contents,   eg /usr/local/share/pig-0.8.0. Defaults to {prefix_root}/share/{basename_of_release_url}
 attribute :install_dir,   :kind_of => String
-# Directory as the project is referred to, eg /usr/local/share/pig. Defaults to {prefix_dir}/{name}
+# Directory as the project is referred to, eg /usr/local/share/pig. Defaults to {prefix_root}/{name}
 attribute :home_dir,      :kind_of => String
 # Release file name, eg /usr/local/src/pig-0.8.0.tar.gz
 attribute :release_file,  :kind_of => String
@@ -59,11 +59,11 @@ def assume_defaults!
   ::File.basename(release_url) =~ %r{^(.+?)(?:-bin)?\.(tar\.gz|tar\.bz2|zip)$}
   release_basename, release_ext = [$1, $2]
 
-  Chef::Log.info( [self, release_basename, release_ext, self.to_hash, release_url, prefix_dir ].inspect )
+  Chef::Log.info( [self, release_basename, release_ext, self.to_hash, release_url, prefix_root ].inspect )
 
-  @install_dir   ||= ::File.join(prefix_dir, 'share', release_basename)
-  @home_dir      ||= ::File.join(prefix_dir, 'share', name)
-  @release_file  ||= ::File.join(prefix_dir, 'src', ::File.basename(release_url))
+  @install_dir   ||= ::File.join(prefix_root, 'share', release_basename)
+  @home_dir      ||= ::File.join(prefix_root, 'share', name)
+  @release_file  ||= ::File.join(prefix_root, 'src', ::File.basename(release_url))
   @expand_cmd ||=
     case release_ext
     when 'tar.gz'  then 'tar xzf'

@@ -29,7 +29,7 @@ end
 apt_repository 'cloudera' do
   uri             'http://archive.cloudera.com/debian'
   distro        = node[:apt][:cloudera][:force_distro] || node[:lsb][:codename]
-  distribution    "#{distro}-#{node[:hadoop][:cdh_version]}"
+  distribution    "#{distro}-#{node[:apt][:cloudera][:release_name]}"
   components      ['contrib']
   key             "http://archive.cloudera.com/debian/archive.key"
   action          :add

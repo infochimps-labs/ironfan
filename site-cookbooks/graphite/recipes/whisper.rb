@@ -24,5 +24,5 @@ install_from_release('whisper') do
   home_dir      node[:graphite][:whisper][:home_dir]
   checksum      node[:graphite][:whisper][:release_url_checksum]
   action        [:install_python]
-  not_if{ File.exists?("/usr/local/lib/python2.6/dist-packages/whisper-#{node.graphite.whisper.version}.egg-info") }
+  not_if{ File.exists?("/usr/local/lib/python2.6/dist-packages/whisper-#{node[:graphite][:whisper][:version]}.egg-info") }
 end

@@ -27,7 +27,7 @@ end
 remote_file "/tmp/elasticsearch-#{node[:elasticsearch][:version]}.zip" do
   source        "https://github.com/downloads/elasticsearch/elasticsearch/elasticsearch-#{node[:elasticsearch][:version]}.zip"
   mode          "0644"
-  # checksum      node[:elasticsearch][:release_url_checksum]
+  checksum      node[:elasticsearch][:release_url_checksum] if node[:elasticsearch][:release_url_checksum]
 end
 
 # install into eg. /usr/local/share/elasticsearch-0.x.x ...

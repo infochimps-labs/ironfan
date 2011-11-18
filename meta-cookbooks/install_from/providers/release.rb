@@ -21,7 +21,7 @@
 # Does the fetch-unpack-configure-build-install dance.
 #
 # Given a project 'pig', with url 'http://apache.org/pig/pig-0.8.0.tar.gz', and
-# the default :prefix_dir of '/usr/local', this provider will
+# the default :prefix_root of '/usr/local', this provider will
 #
 # * fetch  it to :release_file ('/usr/local/src/pig-0.8.0.tar.gz')
 # * unpack it to :install_dir  ('/usr/local/share/pig-0.8.0')
@@ -58,7 +58,7 @@ action :unpack do
   bash "unpack #{new_resource.name} release" do
     user        new_resource.user
     cwd         ::File.dirname(new_resource.install_dir)
-    code        "#{new_resource.unrelease_cmd} '#{new_resource.release_file}'"
+    code        "#{new_resource.expand_cmd} '#{new_resource.release_file}'"
     creates     new_resource.install_dir
     not_if{     ::File.directory?(new_resource.install_dir) }
     environment new_resource.environment

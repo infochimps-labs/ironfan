@@ -120,7 +120,7 @@ Side question: what are the tradeoffs to consider to choose between the same $$ 
 * `[:cassandra][:jmx_port]`           -  (default: "12345")
 * `[:cassandra][:mx4j_listen_port]`   -  (default: "8081")
 * `[:cassandra][:mx4j_listen_addr]`   -  (default: "127.0.0.1")
-* `[:cassandra][:install_url]`        -  (default: "http://www.eng.lsu.edu/mirrors/apache/cassandra/0.7.7/apache-cassandra-0.7.7-bin.tar.gz")
+* `[:cassandra][:release_url]`        -  (default: "http://www.eng.lsu.edu/mirrors/apache/cassandra/0.7.7/apache-cassandra-0.7.7-bin.tar.gz")
 * `[:cassandra][:git_repo]`           -  (default: "git://git.apache.org/cassandra.git")
 * `[:cassandra][:git_revision]`       -  (default: "cdd239dcf82ab52cb840e070fc01135efb512799")
 * `[:cassandra][:jna_deb_amd64_url]`  -  (default: "http://debian.riptano.com/maverick/pool/libjna-java_3.2.7-0~nmu.2_amd64.deb")

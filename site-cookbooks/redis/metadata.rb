@@ -43,7 +43,7 @@ attribute "redis/db_basename",
   :description           => "Filename for the database storage.",
   :default               => "dump.rdb"
 
-attribute "redis/install_url",
+attribute "redis/release_url",
   :display_name          => "URL for redis release package",
   :description           => "If using the install_from_release strategy, the URL for the release tarball",
   :default               => "http://redis.googlecode.com/files/redis-2.0.2.tar.gz"
