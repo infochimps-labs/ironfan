@@ -16,8 +16,8 @@ depends          "provides_service"
 
 recipe           "hbase::backup_tables",               "Cron job to backup tables to S3"
 recipe           "hbase::default",                     "Base configuration for hbase"
-recipe           "hbase::master",                "HBase Master"
-recipe           "hbase::regionserver",          "HBase Regionserver"
+recipe           "hbase::master",                      "HBase Master"
+recipe           "hbase::regionserver",                "HBase Regionserver"
 recipe           "hbase::stargate",                    "HBase Stargate: HTTP frontend to HBase"
 recipe           "hbase::add_cloudera_repo",           "Add Cloudera repo to package manager"
 
@@ -43,7 +43,49 @@ attribute "groups/hbase/gid",
 attribute "hbase/tmp_dir",
   :display_name          => "",
   :description           => "",
-  :default               => "/mnt/tmp/hbase"
+  :default               => "/mnt/hbase/tmp"
+
+attribute "hbase/cluster_name",
+  :display_name          => "",
+  :description           => "",
+  :default               => "cluster_name"
+
+attribute "hbase/weekly_backup_tables",
+  :display_name          => "",
+  :description           => "",
+  :default               => ""
+
+attribute "hbase/home_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/usr/lib/hbase"
+
+attribute "hbase/conf_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/etc/hbase/conf"
+
+attribute "hbase/log_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/var/log/hbase"
+
+attribute "hbase/pid_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/var/run/hadoop-0.20"
+
+attribute "hbase/exported_confs",
+  :display_name          => "",
+  :description           => "",
+  :type                  => "array",
+  :default               => ["/hbase-default.xml", "/hbase-site.xml"]
+
+attribute "hbase/export_jars",
+  :display_name          => "",
+  :description           => "",
+  :type                  => "array",
+  :default               => ["/usr/lib/hbase/hbase-0.90.1-cdh3u0.jar", "/usr/lib/hbase/hbase-0.90.1-cdh3u0-tests.jar"]
 
 attribute "hbase/master/java_heap_size_max",
   :display_name          => "",
@@ -65,6 +107,12 @@ attribute "hbase/master/gc_log_opts",
   :description           => "",
   :default               => "-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -Xloggc:/var/log/hbase/hbase-master-gc.log"
 
+attribute "hbase/master/service_state",
+  :display_name          => "",
+  :description           => "",
+  :type                  => "array",
+  :default               => [:enable, :start]
+
 attribute "hbase/regionserver/java_heap_size_max",
   :display_name          => "",
   :description           => "",
@@ -85,12 +133,14 @@ attribute "hbase/regionserver/gc_log_opts",
   :description           => "",
   :default               => "-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -Xloggc:/var/log/hbase/hbase-regionserver-gc.log"
 
-attribute "hbase/cluster_name",
+attribute "hbase/regionserver/service_state",
   :display_name          => "",
   :description           => "",
-  :default               => "cluster_name"
+  :type                  => "array",
+  :default               => [:enable, :start]
 
-attribute "hbase/weekly_backup_tables",
+attribute "hbase/stargate/service_state",
   :display_name          => "",
   :description           => "",
-  :default               => ""
+  :type                  => "array",
+  :default               => [:enable, :start]

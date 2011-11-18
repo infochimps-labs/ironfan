@@ -43,16 +43,6 @@ attribute "redis/db_basename",
   :description           => "Filename for the database storage.",
   :default               => "dump.rdb"
 
-attribute "redis/server/addr",
-  :display_name          => "IP address to bind.",
-  :description           => "IP address to bind.",
-  :default               => "0.0.0.0"
-
-attribute "redis/server/port",
-  :display_name          => "Redis server port",
-  :description           => "TCP port to bind.",
-  :default               => "6379"
-
 attribute "redis/install_url",
   :display_name          => "URL for redis release package",
   :description           => "If using the install_from_release strategy, the URL for the release tarball",
@@ -67,11 +57,6 @@ attribute "redis/master_port",
   :display_name          => "Redis replication master server port",
   :description           => "The master server port for this replication slave.",
   :default               => "6379"
-
-attribute "redis/server/timeout",
-  :display_name          => "Redis server timeout",
-  :description           => "Timeout, in seconds, for disconnection of idle clients.",
-  :default               => "300"
 
 attribute "redis/glueoutputbuf",
   :display_name          => "Redis output buffer coalescing",
@@ -98,3 +83,23 @@ attribute "redis/shareobjectspoolsize",
   :display_name          => "Redis shared object pool size",
   :description           => "The size of the pool for object sharing.",
   :default               => "1024"
+
+attribute "redis/release_url",
+  :display_name          => "",
+  :description           => "",
+  :default               => "http://redis.googlecode.com/files/redis-2.0.2.tar.gz"
+
+attribute "redis/server/addr",
+  :display_name          => "IP address to bind.",
+  :description           => "IP address to bind.",
+  :default               => "0.0.0.0"
+
+attribute "redis/server/port",
+  :display_name          => "Redis server port",
+  :description           => "TCP port to bind.",
+  :default               => "6379"
+
+attribute "redis/server/timeout",
+  :display_name          => "Redis server timeout",
+  :description           => "Timeout, in seconds, for disconnection of idle clients.",
+  :default               => "300"

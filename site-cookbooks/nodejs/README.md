@@ -8,17 +8,15 @@ Installs/Configures nodejs
 
 ## Attributes
 
-* `[:nodejs][:git_repo]`               -  (default: "https://github.com/joyent/node.git")
+* `[:nodejs][:git_repo]`              -  (default: "https://github.com/joyent/node.git")
 * `[:nodejs][:jobs]`                  -  (default: "2")
-* `[:nodejs][:install_dir]`              -  (default: "/usr/src/nodejs")
+* `[:nodejs][:install_dir]`           -  (default: "/usr/src/nodejs")
 * `[:nodejs][:bin_path]`              -  (default: "/usr/local/bin/node")
 
 ## Recipes 
 
 * `compile`                  - Compile
 * `default`                  - Base configuration for nodejs
-
-
 ## Integration
 
 Supports platforms: debian and ubuntu

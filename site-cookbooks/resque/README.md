@@ -12,14 +12,14 @@ Sets up [Resque](https://github.com/defunkt/resque), "a Redis-backed Ruby librar
 * `[:resque][:log_dir]`               -  (default: "/data/db/resque/log")
 * `[:resque][:tmp_dir]`               -  (default: "/data/db/resque/tmp")
 * `[:resque][:data_dir]`              -  (default: "/data/db/resque/data")
-* `[:resque][:journal_dir]`               -  (default: "/data/db/resque/swap")
+* `[:resque][:journal_dir]`           -  (default: "/data/db/resque/swap")
 * `[:resque][:conf_dir]`              -  (default: "/etc/resque")
 * `[:resque][:db_basename]`           -  (default: "resque_queue.rdb")
 * `[:resque][:cluster_name]`          -  (default: "cluster_name")
 * `[:resque][:namespace]`             -  (default: "cluster_name")
 * `[:resque][:user]`                  -  (default: "resque")
 * `[:resque][:group]`                 -  (default: "resque")
-* `[:resque][:queue_addr]`         -  (default: "10.20.30.40")
+* `[:resque][:queue_addr]`            -  (default: "10.20.30.40")
 * `[:resque][:queue_port]`            -  (default: "6388")
 * `[:resque][:dashboard_port]`        -  (default: "6389")
 * `[:resque][:redis_client_timeout]`  -  (default: "300")
@@ -34,10 +34,9 @@ Sets up [Resque](https://github.com/defunkt/resque), "a Redis-backed Ruby librar
 
 ## Recipes 
 
+* `dedicated_redis`          - Dedicated redis -- a redis solely for this resque
 * `default`                  - Base configuration for resque
 * `server`                   - Server
-
-
 ## Integration
 
 Supports platforms: debian and ubuntu

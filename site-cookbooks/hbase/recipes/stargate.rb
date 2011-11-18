@@ -1,6 +1,6 @@
 #
 # Cookbook Name::       hbase
-# Description::         Stargate
+# Description::         HBase Stargate: HTTP frontend to HBase
 # Recipe::              stargate
 # Author::              Chris Howe - Infochimps, Inc
 #

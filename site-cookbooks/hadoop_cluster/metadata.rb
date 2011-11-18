@@ -183,6 +183,11 @@ attribute "hadoop/io_sort_mb",
   :description           => "",
   :default               => "250"
 
+attribute "hadoop/extra_classpaths",
+  :display_name          => "",
+  :description           => "",
+  :default               => ""
+
 attribute "hadoop/namenode/service_state",
   :display_name          => "",
   :description           => "",
@@ -219,11 +224,21 @@ attribute "hadoop/datanode/service_state",
   :type                  => "array",
   :default               => [:enable, :start]
 
+attribute "hadoop/datanode/java_heap_size_max",
+  :display_name          => "",
+  :description           => "",
+  :default               => ""
+
 attribute "hadoop/tasktracker/service_state",
   :display_name          => "",
   :description           => "",
   :type                  => "array",
   :default               => [:enable, :start]
+
+attribute "hadoop/tasktracker/java_heap_size_max",
+  :display_name          => "",
+  :description           => "",
+  :default               => ""
 
 attribute "groups/hadoop/gid",
   :display_name          => "",

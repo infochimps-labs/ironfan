@@ -31,12 +31,10 @@ recipe           "cassandra::server",                  "Server"
   supports os
 end
 
-
 attribute "cassandra/cluster_name",
   :display_name          => "Cassandra cluster name",
   :description           => "The name for the Cassandra cluster in which this node should participate.  The default is 'Test Cluster'.",
   :default               => "cluster_name"
-
 
 attribute "cassandra/home_dir",
   :display_name          => "",
@@ -68,7 +66,6 @@ attribute "cassandra/cassandra_user",
   :display_name          => "",
   :description           => "",
   :default               => "cassandra"
-
 
 attribute "cassandra/listen_addr",
   :display_name          => "",
@@ -111,7 +108,6 @@ attribute "cassandra/mx4j_listen_addr",
   :description           => "",
   :default               => "127.0.0.1"
 
-
 attribute "cassandra/install_url",
   :display_name          => "",
   :description           => "",
@@ -136,8 +132,6 @@ attribute "cassandra/mx4j_url",
   :display_name          => "",
   :description           => "",
   :default               => "http://downloads.sourceforge.net/project/mx4j/MX4J%20Binary/3.0.2/mx4j-3.0.2.zip?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fmx4j%2Ffiles%2F&ts=1303407638&use_mirror=iweb"
-
-
 
 attribute "cassandra/auto_bootstrap",
   :display_name          => "Cassandra automatic boostrap boolean",
@@ -169,8 +163,6 @@ attribute "cassandra/rpc_timeout",
   :display_name          => "",
   :description           => "",
   :default               => "5000"
-
-
 
 attribute "cassandra/commitlog_rotation_threshold",
   :display_name          => "",
@@ -207,8 +199,6 @@ attribute "cassandra/column_index_size",
   :description           => "",
   :default               => "64"
 
-
-
 attribute "cassandra/memtable_throughput",
   :display_name          => "",
   :description           => "",
@@ -233,7 +223,6 @@ attribute "cassandra/concurrent_reads",
   :display_name          => "",
   :description           => "",
   :default               => "8"
-
 
 attribute "cassandra/concurrent_writes",
   :display_name          => "",
@@ -284,7 +273,6 @@ attribute "cassandra/dynamic_snitch",
   :display_name          => "",
   :description           => "",
   :default               => "true"
-
 
 attribute "cassandra/java_heap_size_min",
   :display_name          => "",
@@ -375,3 +363,8 @@ attribute "cassandra/request_scheduler_id",
   :display_name          => "",
   :description           => "",
   :default               => "keyspace"
+
+attribute "cassandra/release_url",
+  :display_name          => "",
+  :description           => "",
+  :default               => "http://www.eng.lsu.edu/mirrors/apache/cassandra/0.7.7/apache-cassandra-0.7.7-bin.tar.gz"

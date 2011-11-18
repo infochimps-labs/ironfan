@@ -8,34 +8,39 @@ Installs/Configures HBase
 
 ## Attributes
 
-* `[:apt][:cloudera][:force_distro]`              - Override the distro name apt uses to look up repos
-  Typically, leave this blank. However if (as is the case in Nov 2011) you are on natty but Cloudera's repo only has packages up to maverick, use this to override.
-* `[:apt][:cloudera][:release_name]`              - Release identifier (eg cdh3u2) of the cloudera repo to use. See also hadoop/deb_version (default: "cdh3u2")
-* `[:groups][:hbase][:gid]`                       -  (default: "304")
-* `[:hbase][:tmp_dir]`                            -  (default: "/mnt/tmp/hbase")
-* `[:hbase][:master][:java_heap_size_max]`        -  (default: "1000m")
-* `[:hbase][:master][:gc_new_size]`               -  (default: "256m")
-* `[:hbase][:master][:gc_tuning_opts]`            -  (default: "-XX:+UseConcMarkSweepGC -XX:+AggressiveOpts")
-* `[:hbase][:master][:gc_log_opts]`               -  (default: "-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -Xloggc:/var/log/hbase/hbase-master-gc.log")
-* `[:hbase][:regionserver][:java_heap_size_max]`  -  (default: "2000m")
-* `[:hbase][:regionserver][:gc_new_size]`         -  (default: "256m")
-* `[:hbase][:regionserver][:gc_tuning_opts]`      -  (default: "-XX:+UseConcMarkSweepGC -XX:+AggressiveOpts -XX:CMSInitiatingOccupancyFraction=88")
-* `[:hbase][:regionserver][:gc_log_opts]`         -  (default: "-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -Xloggc:/var/log/hbase/hbase-regionserver-gc.log")
-* `[:hbase][:cluster_name]`                       -  (default: "cluster_name")
-* `[:hbase][:weekly_backup_tables]`               - 
+* `[:apt][:cloudera][:force_distro]`  - Override the distro name apt uses to look up repos
+  - Typically, leave this blank. However if (as is the case in Nov 2011) you are on natty but Cloudera's repo only has packages up to maverick, use this to override.
+* `[:apt][:cloudera][:release_name]`  - Release identifier (eg cdh3u2) of the cloudera repo to use. See also hadoop/deb_version (default: "cdh3u2")
+* `[:groups][:hbase][:gid]`           -  (default: "304")
+* `[:hbase][:tmp_dir]`                -  (default: "/mnt/hbase/tmp")
+* `[:hbase][:cluster_name]`           -  (default: "cluster_name")
+* `[:hbase][:weekly_backup_tables]`   - 
+* `[:hbase][:home_dir]`               -  (default: "/usr/lib/hbase")
+* `[:hbase][:conf_dir]`               -  (default: "/etc/hbase/conf")
+* `[:hbase][:log_dir]`                -  (default: "/var/log/hbase")
+* `[:hbase][:pid_dir]`                -  (default: "/var/run/hadoop-0.20")
+* `[:hbase][:exported_confs]`         - 
+* `[:hbase][:export_jars]`            - 
+* `[:hbase][:master][:java_heap_size_max]` -  (default: "1000m")
+* `[:hbase][:master][:gc_new_size]`   -  (default: "256m")
+* `[:hbase][:master][:gc_tuning_opts]` -  (default: "-XX:+UseConcMarkSweepGC -XX:+AggressiveOpts")
+* `[:hbase][:master][:gc_log_opts]`   -  (default: "-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -Xloggc:/var/log/hbase/hbase-master-gc.log")
+* `[:hbase][:master][:service_state]` - 
+* `[:hbase][:regionserver][:java_heap_size_max]` -  (default: "2000m")
+* `[:hbase][:regionserver][:gc_new_size]` -  (default: "256m")
+* `[:hbase][:regionserver][:gc_tuning_opts]` -  (default: "-XX:+UseConcMarkSweepGC -XX:+AggressiveOpts -XX:CMSInitiatingOccupancyFraction=88")
+* `[:hbase][:regionserver][:gc_log_opts]` -  (default: "-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -Xloggc:/var/log/hbase/hbase-regionserver-gc.log")
+* `[:hbase][:regionserver][:service_state]` - 
+* `[:hbase][:stargate][:service_state]` - 
 
 ## Recipes 
 
-* `add_cloudera_repo`  - Add Cloudera repo to package manager
-* `backup_tables`      - Backup Tables
-* `default`            - Base configuration for hbase
-* `master`             - Hbase Master
-* `regionserver`       - Hbase Regionserver
-* `master`             - Master
-* `regionserver`       - Regionserver
-* `stargate`           - Stargate
-
-
+* `add_cloudera_repo`        - Add Cloudera repo to package manager
+* `backup_tables`            - Cron job to backup tables to S3
+* `default`                  - Base configuration for hbase
+* `master`                   - HBase Master
+* `regionserver`             - HBase Regionserver
+* `stargate`                 - HBase Stargate: HTTP frontend to HBase
 ## Integration
 
 Supports platforms: debian and ubuntu
@@ -43,11 +48,11 @@ Supports platforms: debian and ubuntu
 Cookbook dependencies:
 * java
 * apt
-* mountable_volumes
-* provides_service
 * hadoop_cluster
 * zookeeper
 * ganglia
+* mountable_volumes
+* provides_service
 
 
 ## License and Author

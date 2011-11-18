@@ -157,6 +157,11 @@ attribute "elasticsearch/jmx_port",
   :description           => "",
   :default               => "9400-9500"
 
+attribute "elasticsearch/release_url_checksum",
+  :display_name          => "",
+  :description           => "",
+  :default               => ""
+
 attribute "elasticsearch/log_level/default",
   :display_name          => "",
   :description           => "",

@@ -1,6 +1,6 @@
 #
 # Cookbook Name::       resque
-# Description::         Dedicated redis -- a redis solely for this resqueu
+# Description::         Dedicated redis -- a redis solely for this resque
 # Recipe::              dedicated_redis
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

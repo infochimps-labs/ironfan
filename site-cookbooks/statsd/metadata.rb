@@ -11,6 +11,7 @@ depends          "nodejs"
 depends          "graphite"
 
 recipe           "statsd::default",                    "Base configuration for statsd"
+recipe           "statsd::server",                     "Server"
 
 %w[ debian ubuntu ].each do |os|
   supports os
@@ -36,7 +37,7 @@ attribute "statsd/port",
   :description           => "",
   :default               => "8125"
 
-attribute "statsd/flushInterval",
+attribute "statsd/flush_interval",
   :display_name          => "",
   :description           => "",
   :default               => "10000"
@@ -50,3 +51,8 @@ attribute "statsd/graphite/addr",
   :display_name          => "",
   :description           => "",
   :default               => "localhost"
+
+attribute "groups/statsd/gid",
+  :display_name          => "",
+  :description           => "",
+  :default               => "310"

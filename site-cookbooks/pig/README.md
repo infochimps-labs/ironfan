@@ -13,17 +13,15 @@ This cookbook
 ## Attributes
 
 * `[:apt][:cloudera][:force_distro]`  - Override the distro name apt uses to look up repos
-  Typically, leave this blank. However if (as is the case in Nov 2011) you are on natty but Cloudera's repo only has packages up to maverick, use this to override.
+  - Typically, leave this blank. However if (as is the case in Nov 2011) you are on natty but Cloudera's repo only has packages up to maverick, use this to override.
 * `[:apt][:cloudera][:release_name]`  - Release identifier (eg cdh3u2) of the cloudera repo to use. See also hadoop/deb_version (default: "cdh3u2")
 * `[:pig][:home_dir]`                 - Location of pig code (default: "/usr/lib/pig")
-* `[:pig][:release_url]`              - URL of pig release tarball (default: "http://apache.mirrors.tds.net/pig/pig-0.9.1/pig-0.9.1.tar.gz")
-* `[:pig][:java_home]`                - JAVA_HOME environment variable to set for compilation (default: "/usr/lib/jvm/java-6-sun/jre")
-  JAVA_HOME environment variable to set for compilation. This should be the path to the 'jre' subdirectory of your Sun Java install (*not* OpenJDK).
-* `[:pig][:extra_jars]`               - List of filenames for other jars to place within pig's purview
-  List of filenames for other jars to place within pig's purview. FIXME: integration cookbook
-* `[:pig][:extra_confs]`              - List of filenames for other systems' conf files to place within pig's purview
+* `[:pig][:install_url]`              - URL of pig release tarball (default: "http://apache.mirrors.tds.net/pig/pig-0.9.1/pig-0.9.1.tar.gz")
 * `[:pig][:combine_splits]`           - tunable: combine small files to reduce the number of map tasks (default: "true")
-  Processing input (either user input or intermediate input) from multiple small files can be inefficient because a separate map has to be created for each file. Pig can now combined small files so that they are processed as a single map. combine_splits turns this on or off.
+  - Processing input (either user input or intermediate input) from multiple small files can be inefficient because a separate map has to be created for each file. Pig can now combined small files so that they are processed as a single map. combine_splits turns this on or off.
+* `[:pig][:release_url]`              -  (default: "http://apache.mirrors.tds.net/pig/pig-0.9.1/pig-0.9.1.tar.gz")
+* `[:java][:java_home]`               - JAVA_HOME environment variable to set for compilation (default: "/usr/lib/jvm/java-6-sun/jre")
+  - JAVA_HOME environment variable to set for compilation. This should be the path to the 'jre' subdirectory of your Sun Java install (*not* OpenJDK).
 
 ## Recipes 
 
@@ -33,8 +31,6 @@ This cookbook
 * `install_from_release`     - Install From the release tarball.
 * `integration`              - Link in jars from hbase and zookeeper
 * `piggybank`                - Compiles the Piggybank, a library of useful functions for pig
-
-
 ## Integration
 
 Supports platforms: debian and ubuntu

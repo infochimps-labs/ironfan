@@ -9,18 +9,16 @@ Configures NFS
 ## Attributes
 
 * `[:nfs][:exports]`                  - NFS Exports
-  Describes the volumes to export. Supply a list of pairs: <path-to-export, hash-of-NFS-options>. For example, 
+  - Describes the volumes to export. Supply a list of pairs: <path-to-export, hash-of-NFS-options>. For example, 
      default[:nfs][:exports] = [[ '/home', { :nfs_options => '*.internal(rw,no_root_squash,no_subtree_check)' }]]
 * `[:nfs][:mounts]`                   - NFS Mounts
-  The foreign volumes to mount. Uses provides_service to find the NFS server for that volume. Supply a list of pairs: <path-to-export, hash-of-NFS-options>.
+  - The foreign volumes to mount. Uses provides_service to find the NFS server for that volume. Supply a list of pairs: <path-to-export, hash-of-NFS-options>.
 
 ## Recipes 
 
 * `client`                   - NFS client: uses provides_service to discover its server, and mounts the corresponding NFS directory
 * `default`                  - Base configuration for nfs
 * `server`                   - NFS server: exports directories via NFS; announces using provides_service.
-
-
 ## Integration
 
 Supports platforms: debian and ubuntu

@@ -105,32 +105,36 @@ Side question: what are the tradeoffs to consider to choose between the same $$ 
 ## Attributes
 
 * `[:cassandra][:cluster_name]`       - Cassandra cluster name (default: "cluster_name")
-  The name for the Cassandra cluster in which this node should participate.  The default is 'Test Cluster'.
-
-* `[:cassandra][:home_dir]`     -  (default: "/usr/local/share/cassandra")
-* `[:cassandra][:conf_dir]`     -  (default: "/etc/cassandra")
-* `[:cassandra][:cassandra_user]`     -  (default: "cassandra")
+  - The name for the Cassandra cluster in which this node should participate.  The default is 'Test Cluster'.
+* `[:cassandra][:home_dir]`           -  (default: "/usr/local/share/cassandra")
+* `[:cassandra][:conf_dir]`           -  (default: "/etc/cassandra")
 * `[:cassandra][:commitlog_dir]`      -  (default: "/mnt/cassandra/commitlog")
-* `[:cassandra][:data_dirs]`     - 
-* `[:cassandra][:callout_location]`   -  (default: "/var/lib/cassandra/callouts")
-* `[:cassandra][:staging_dir]`   -  (default: "/var/lib/cassandra/staging")
-
-* `[:cassandra][:auto_bootstrap]`     - Cassandra automatic boostrap boolean (default: "false")
-  Boolean indicating whether a node should automatically boostrap on startup.
-* `[:cassandra][:keyspaces]`          - Cassandra keyspaces
-  Hash of keyspace definitions.
-* `[:cassandra][:authenticator]`      - Cassandra authenticator (default: "org.apache.cassandra.auth.AllowAllAuthenticator")
-  The IAuthenticator to be used for access control.
-* `[:cassandra][:partitioner]`        -  (default: "org.apache.cassandra.dht.RandomPartitioner")
-* `[:cassandra][:initial_token]`      - 
-
-* `[:cassandra][:seeds]`              - 
-* `[:cassandra][:rpc_timeout]`        -  (default: "5000")
-* `[:cassandra][:commitlog_rotation_threshold]` -  (default: "128")
+* `[:cassandra][:data_dirs]`          - 
+* `[:cassandra][:saved_caches_dir]`   -  (default: "/var/lib/cassandra/saved_caches")
+* `[:cassandra][:cassandra_user]`     -  (default: "cassandra")
 * `[:cassandra][:listen_addr]`        -  (default: "localhost")
-* `[:cassandra][:storage_port]`       -  (default: "7000")
+* `[:cassandra][:seeds]`              - 
 * `[:cassandra][:rpc_addr]`           -  (default: "localhost")
 * `[:cassandra][:rpc_port]`           -  (default: "9160")
+* `[:cassandra][:storage_port]`       -  (default: "7000")
+* `[:cassandra][:jmx_port]`           -  (default: "12345")
+* `[:cassandra][:mx4j_listen_port]`   -  (default: "8081")
+* `[:cassandra][:mx4j_listen_addr]`   -  (default: "127.0.0.1")
+* `[:cassandra][:install_url]`        -  (default: "http://www.eng.lsu.edu/mirrors/apache/cassandra/0.7.7/apache-cassandra-0.7.7-bin.tar.gz")
+* `[:cassandra][:git_repo]`           -  (default: "git://git.apache.org/cassandra.git")
+* `[:cassandra][:git_revision]`       -  (default: "cdd239dcf82ab52cb840e070fc01135efb512799")
+* `[:cassandra][:jna_deb_amd64_url]`  -  (default: "http://debian.riptano.com/maverick/pool/libjna-java_3.2.7-0~nmu.2_amd64.deb")
+* `[:cassandra][:mx4j_url]`           -  (default: "http://downloads.sourceforge.net/project/mx4j/MX4J%20Binary/3.0.2/mx4j-3.0.2.zip?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fmx4j%2Ffiles%2F&ts=1303407638&use_mirror=iweb")
+* `[:cassandra][:auto_bootstrap]`     - Cassandra automatic boostrap boolean (default: "false")
+  - Boolean indicating whether a node should automatically boostrap on startup.
+* `[:cassandra][:keyspaces]`          - Cassandra keyspaces
+  - Hash of keyspace definitions.
+* `[:cassandra][:authenticator]`      - Cassandra authenticator (default: "org.apache.cassandra.auth.AllowAllAuthenticator")
+  - The IAuthenticator to be used for access control.
+* `[:cassandra][:partitioner]`        -  (default: "org.apache.cassandra.dht.RandomPartitioner")
+* `[:cassandra][:initial_token]`      - 
+* `[:cassandra][:rpc_timeout]`        -  (default: "5000")
+* `[:cassandra][:commitlog_rotation_threshold]` -  (default: "128")
 * `[:cassandra][:thrift_framed_transport]` -  (default: "15")
 * `[:cassandra][:disk_access_mode]`   -  (default: "auto")
 * `[:cassandra][:sliced_buffer_size]` -  (default: "64")
@@ -146,20 +150,15 @@ Side question: what are the tradeoffs to consider to choose between the same $$ 
 * `[:cassandra][:commitlog_sync]`     -  (default: "periodic")
 * `[:cassandra][:commitlog_sync_period]` -  (default: "10000")
 * `[:cassandra][:gc_grace]`           -  (default: "864000")
-* `[:cassandra][:public_access]`      - Public access
-  If the node is on a cloud server with public and private IP addresses and public_access is true, then Thrift will be bound on the public IP address.  Disabled by default.
-
-* `[:cassandra][:saved_caches_dir]`   -  (default: "/var/lib/cassandra/saved_caches")
-* `[:cassandra][:jmx_port]`           -  (default: "12345")
 * `[:cassandra][:authority]`          -  (default: "org.apache.cassandra.auth.AllowAllAuthority")
 * `[:cassandra][:hinted_handoff_enabled]` -  (default: "true")
 * `[:cassandra][:max_hint_window_in_ms]` -  (default: "3600000")
 * `[:cassandra][:hinted_handoff_delay_ms]` -  (default: "50")
 * `[:cassandra][:endpoint_snitch]`    -  (default: "org.apache.cassandra.locator.SimpleSnitch")
 * `[:cassandra][:dynamic_snitch]`     -  (default: "true")
-* `[:cassandra][:java_heap_size_min]`      -  (default: "128M")
-* `[:cassandra][:java_heap_size_max]`      -  (default: "1650M")
-* `[:cassandra][:java_heap_size_eden]`     -  (default: "1500M")
+* `[:cassandra][:java_heap_size_min]` -  (default: "128M")
+* `[:cassandra][:java_heap_size_max]` -  (default: "1650M")
+* `[:cassandra][:java_heap_size_eden]` -  (default: "1500M")
 * `[:cassandra][:memtable_flush_writers]` -  (default: "1")
 * `[:cassandra][:thrift_max_message_length]` -  (default: "16")
 * `[:cassandra][:incremental_backups]` - 
@@ -176,12 +175,6 @@ Side question: what are the tradeoffs to consider to choose between the same $$ 
 * `[:cassandra][:throttle_limit]`     -  (default: "80")
 * `[:cassandra][:request_scheduler_id]` -  (default: "keyspace")
 * `[:cassandra][:release_url]`        -  (default: "http://www.eng.lsu.edu/mirrors/apache/cassandra/0.7.7/apache-cassandra-0.7.7-bin.tar.gz")
-* `[:cassandra][:git_repo]`           -  (default: "git://git.apache.org/cassandra.git")
-* `[:cassandra][:git_revision]`       -  (default: "cdd239dcf82ab52cb840e070fc01135efb512799")
-* `[:cassandra][:jna_deb_amd64_url]`  -  (default: "http://debian.riptano.com/maverick/pool/libjna-java_3.2.7-0~nmu.2_amd64.deb")
-* `[:cassandra][:mx4j_url]`           -  (default: "http://downloads.sourceforge.net/project/mx4j/MX4J%20Binary/3.0.2/mx4j-3.0.2.zip?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fmx4j%2Ffiles%2F&ts=1303407638&use_mirror=iweb")
-* `[:cassandra][:mx4j_listen_addr]`   -  (default: "127.0.0.1")
-* `[:cassandra][:mx4j_listen_port]`   -  (default: "8081")
 
 ## Recipes 
 
@@ -198,8 +191,6 @@ Side question: what are the tradeoffs to consider to choose between the same $$ 
 * `jna_support`              - Jna Support
 * `mx4j`                     - Mx4j
 * `server`                   - Server
-
-
 ## Integration
 
 Supports platforms: debian and ubuntu

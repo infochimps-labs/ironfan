@@ -23,4 +23,4 @@ default[:statsd][:git_repo]         = "https://github.com/etsy/statsd.git"
 # Tunables
 #
 
-default[:statsd][:flushInterval]   = 10000 #milliseconds between flushes
+default[:statsd][:flush_interval]   = 10000 #milliseconds between flushes

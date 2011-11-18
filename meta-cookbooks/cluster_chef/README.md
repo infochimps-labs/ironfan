@@ -134,8 +134,6 @@ default[:XXX][:aws_credential_source] = :data_bag
 * `burn_ami_prep`            - Burn Ami Prep
 * `cluster_webfront`         - Cluster Webfront
 * `dedicated_server_tuning`  - Dedicated Server Tuning
-
-
 ## Integration
 
 Supports platforms: debian and ubuntu

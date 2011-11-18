@@ -321,15 +321,17 @@ module CookbookMunger
     end
     def attribute?(key) node.has_key?(key.to_sym) ; end
     def node
-      { :platform     => 'ubuntu',   :platform_version => '10.4',
-        :hostname     => 'hostname',
-        :cpu          => {:total => 2 }, :memory => { :total => 2 },
-        :kernel       => {:os => '', :release => '', :machine => '' ,},
+      { :hostname     => 'hostname',
         :cluster_name => :cluster_name,
-        :ec2          => { :instance_type => 'm1.large', },
-        :jenkins      => { :server => { :user => 'jenkins' } },
+        :platform     => 'ubuntu',   :platform_version => '10.4',
+        :cloud        => { :private_ips => ['10.20.30.40']    },
+        :cpu          => { :total => 2 }, :memory => { :total => 2 },
+        :kernel       => { :os => '', :release => '', :machine => '' ,},
+        :ec2          => { :instance_type => 'm1.large',      },
+        :hbase        => { :home_dir => '/usr/lib/hbase',     },
+        :zookeeper    => { :home_dir => '/usr/lib/zookeeper', },
+        :jenkins      => { :server => { :user => 'jenkins' }  },
         :redis        => { :slave => 'no' },
-        :cloud        => { :private_ips => ['10.20.30.40'] },
         :ipaddress    => '10.20.30.40',
       }.merge(@all_attributes)
     end

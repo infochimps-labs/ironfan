@@ -20,8 +20,6 @@ Installs extra packages as directed. Use to install packages that don't warrant 
 * `ruby-datamapper`          - Ruby Datamapper
 * `ruby-fix_rubygems_version` - Ruby Fix Rubygems Version
 * `ruby`                     - Ruby
-
-
 ## Integration
 
 Supports platforms: debian and ubuntu

@@ -82,7 +82,7 @@ limitations under the License.
 * `[:elasticsearch][:data_root]`      -  (default: "/mnt/elasticsearch")
 * `[:elasticsearch][:java_home]`      -  (default: "/usr/lib/jvm/java-6-sun/jre")
 * `[:elasticsearch][:git_repo]`       -  (default: "https://github.com/elasticsearch/elasticsearch.git")
-* `[:elasticsearch][:java_heap_size_max]`      -  (default: "1000")
+* `[:elasticsearch][:java_heap_size_max]` -  (default: "1000")
 * `[:elasticsearch][:ulimit_mlock]`   - 
 * `[:elasticsearch][:default_replicas]` -  (default: "1")
 * `[:elasticsearch][:default_shards]` -  (default: "6")
@@ -102,6 +102,7 @@ limitations under the License.
 * `[:elasticsearch][:fd_ping_timeout]` -  (default: "30s")
 * `[:elasticsearch][:fd_ping_retries]` -  (default: "3")
 * `[:elasticsearch][:jmx_port]`       -  (default: "9400-9500")
+* `[:elasticsearch][:release_url_checksum]` - 
 * `[:elasticsearch][:log_level][:default]` -  (default: "DEBUG")
 * `[:elasticsearch][:log_level][:index_store]` -  (default: "INFO")
 * `[:elasticsearch][:log_level][:action_shard]` -  (default: "INFO")
@@ -120,8 +121,6 @@ limitations under the License.
 * `install_from_release`     - Install From Release
 * `install_plugins`          - Install Plugins
 * `server`                   - Server
-
-
 ## Integration
 
 Supports platforms: debian and ubuntu

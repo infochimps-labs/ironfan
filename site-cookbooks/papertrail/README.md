@@ -14,11 +14,11 @@ Connect syslog to papertrailapp.com.
 * `[:papertrail][:cert_file]`         - Location of papertrail certificate file (default: "/etc/papertrail.crt")
 * `[:papertrail][:cert_url]`          - URL to download certificate from (default: "https://papertrailapp.com/tools/syslog.papertrail.crt")
 * `[:papertrail][:hostname_name]`     - Explicit override of system's hostname
-  By default, this recipe will log to Papertrail using the system's hostname. If you want to set the hostname that will be used (think ephemeral cloud nodes) you can set `hostname_name` (preferred) or `hostname_cmd` (used if `hostname_name` is absent).
+  - By default, this recipe will log to Papertrail using the system's hostname. If you want to set the hostname that will be used (think ephemeral cloud nodes) you can set `hostname_name` (preferred) or `hostname_cmd` (used if `hostname_name` is absent).
 * `[:papertrail][:hostname_cmd]`      - Command to run to determine system's hostname
-  By default, this recipe will log to Papertrail using the system's hostname. If you want to set the hostname that will be used (think ephemeral cloud nodes) you can set `hostname_name` (preferred) or `hostname_cmd` (used if `hostname_name` is absent).
+  - By default, this recipe will log to Papertrail using the system's hostname. If you want to set the hostname that will be used (think ephemeral cloud nodes) you can set `hostname_name` (preferred) or `hostname_cmd` (used if `hostname_name` is absent).
 * `[:papertrail][:watch_files]`       - Command to run to determine system's hostname
-  A list of files that will be to watch and include in the papertrail logging -- useful for including output from applications that aren't configured to use syslog.
+  - A list of files that will be to watch and include in the papertrail logging -- useful for including output from applications that aren't configured to use syslog.
   
   Each entry in this list is a hash of:
   * [:filename] - Full path to the file.
@@ -31,8 +31,6 @@ Connect syslog to papertrailapp.com.
 ## Recipes 
 
 * `default`                  - Base configuration for papertrail
-
-
 ## Integration
 
 Supports platforms: debian and ubuntu

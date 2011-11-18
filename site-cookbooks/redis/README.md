@@ -8,35 +8,37 @@ Redis, a fast lightweight database
 
 ## Attributes
 
-  
 * `[:redis][:home_dir]`               -  (default: "/usr/local/share/redis")
-* `[:redis][:release_url]`            -  (default: "http://redis.googlecode.com/files/redis-2.0.2.tar.gz")
-* `[:redis][:server][:addr]`                   -  (default: "0.0.0.0")
-* `[:redis][:server][:port]`                   - Redis server port (default: "6379")
-  TCP port to bind.  The default is 6379.
 * `[:redis][:pid_file]`               - Redis PID file path (default: "/var/run/redis.pid")
-  Path to the PID file when daemonized.  The default is /var/run/redis.pid.
+  - Path to the PID file when daemonized.
 * `[:redis][:log_file]`               - Redis log file path (default: "/var/log/redis/redis.log")
-  Path to the log file when daemonized.  The default is /var/log/redis.log.
+  - Path to the log file when daemonized.
 * `[:redis][:data_dir]`               - Redis database directory (default: "/var/lib/redis")
-  Path to the directory for database files.  The default is /var/lib/redis.
+  - Path to the directory for database files.
 * `[:redis][:db_basename]`            - Redis database filename (default: "dump.rdb")
-  Filename for the database storage.  The default is dump.rdb.
-* `[:redis][:server][:timeout]`         - Redis client timeout (default: "300")
-  Timeout, in seconds, for disconnection of idle clients.  The default is 300 (5 minutes).
-* `[:redis][:glueoutputbuf]`          - Redis output buffer coalescing (default: "yes")
-  Glue small output buffers together into larger TCP packets.  The default is yes.
-* `[:redis][:saves]`                  - Redis disk persistence policies
-  An array of arrays of time, changed objects policies for persisting data to disk.  The default is [[900, 1], [300, 10], [60, 10000]].
-* `[:redis][:slave]`                  - Redis replication slave (default: "no")
-  Act as a replication slave to a master redis database.  The default is no.
+  - Filename for the database storage.
+* `[:redis][:install_url]`            - URL for redis release package (default: "http://redis.googlecode.com/files/redis-2.0.2.tar.gz")
+  - If using the install_from_release strategy, the URL for the release tarball
 * `[:redis][:master_server]`          - Redis replication master server name (default: "master-redis.domain")
-  The master server for this replication slave.  The default is master-redis.domain.
+  - The master server for this replication slave.
 * `[:redis][:master_port]`            - Redis replication master server port (default: "6379")
-  The master server port for this replication slave.  The default is 6379.
-* `[:redis][:shareobjects]`           -  (default: "no")
+  - The master server port for this replication slave.
+* `[:redis][:glueoutputbuf]`          - Redis output buffer coalescing (default: "yes")
+  - Glue small output buffers together into larger TCP packets.
+* `[:redis][:saves]`                  - Redis disk persistence policies
+  - An array of arrays of time, changed objects policies for persisting data to disk.
+* `[:redis][:slave]`                  - Redis replication slave (default: "no")
+  - Act as a replication slave to a master redis database.
+* `[:redis][:shareobjects]`           - Redis shared object compression (default: "no") (default: "no")
+  - Attempt to reduce memory use by sharing storage for substrings.
 * `[:redis][:shareobjectspoolsize]`   - Redis shared object pool size (default: "1024")
-  The size of the pool for object sharing.  The default is 1024.
+  - The size of the pool for object sharing.
+* `[:redis][:release_url]`            -  (default: "http://redis.googlecode.com/files/redis-2.0.2.tar.gz")
+* `[:redis][:server][:addr]`          - IP address to bind. (default: "0.0.0.0")
+* `[:redis][:server][:port]`          - Redis server port (default: "6379")
+  - TCP port to bind.
+* `[:redis][:server][:timeout]`       - Redis server timeout (default: "300")
+  - Timeout, in seconds, for disconnection of idle clients.
 
 ## Recipes 
 
@@ -44,8 +46,6 @@ Redis, a fast lightweight database
 * `install_from_package`     - Install From Package
 * `install_from_release`     - Install From Release
 * `server`                   - Server
-
-
 ## Integration
 
 Supports platforms: debian and ubuntu

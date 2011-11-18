@@ -11,6 +11,7 @@ depends          "redis"
 
 recipe           "resque::default",                    "Base configuration for resque"
 recipe           "resque::server",                     "Server"
+recipe           "resque::dedicated_redis",            "Dedicated redis -- a redis solely for this resque"
 
 %w[ debian ubuntu ].each do |os|
   supports os

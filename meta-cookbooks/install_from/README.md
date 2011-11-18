@@ -22,8 +22,6 @@ the default :prefix_dir of `/usr/local`, this provider will
 ## Recipes 
 
 * `default`                  - Base configuration for install_from
-
-
 ## Integration
 
 Supports platforms: debian and ubuntu
