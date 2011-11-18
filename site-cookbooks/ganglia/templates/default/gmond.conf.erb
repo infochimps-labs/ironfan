@@ -1,16 +1,16 @@
 /* This configuration is as close to 2.5.x default behavior as possible 
    The values closely match ./gmond/metric.h definitions in 2.5.x */ 
 globals {                    
-  daemonize = yes              
-  setuid = yes             
-  user = ganglia              
-  debug_level = 0               
-  max_udp_msg_len = 1472        
-  mute = no             
-  deaf = no             
-  host_dmax = 0 /*secs */ 
-  cleanup_threshold = 300 /*secs */ 
-  gexec = no             
+  daemonize              = yes              
+  setuid                 = yes             
+  user                   = ganglia              
+  debug_level            = 0               
+  max_udp_msg_len        = 1472        
+  mute                   = no             
+  deaf                   = no             
+  host_dmax              = 0 /*secs */ 
+  cleanup_threshold      = 300 /*secs */ 
+  gexec                  = no             
   send_metadata_interval = 300     
 } 
 
@@ -18,10 +18,10 @@ globals {
  * of a <CLUSTER> tag.  If you do not specify a cluster tag, then all <HOSTS> will 
  * NOT be wrapped inside of a <CLUSTER> tag. */ 
 cluster { 
-  name = "<%= @cluster[:name] || "unspecified" %>" 
-  owner = "<%= @cluster[:owner] || "unspecified" %>" 
+  name    = "<%= @cluster[:name]    || "unspecified" %>" 
+  owner   = "<%= @cluster[:owner]   || "unspecified" %>" 
   latlong = "<%= @cluster[:latlong] || "unspecified" %>" 
-  url = "<%= @cluster[:url] || "unspecified" %>" 
+  url     = "<%= @cluster[:url]     || "unspecified" %>" 
 } 
 
 /* The host section describes attributes of the host, like the location */ 
@@ -32,17 +32,17 @@ host {
 /* Feel free to specify as many udp_send_channels as you like.  Gmond 
    used to only support having a single channel */ 
 udp_send_channel { 
-  #mcast_join = 239.2.11.71
-  host = <%= @cluster[ :send_host ] || "localhost" %> 
-  port = <%= @cluster[ :send_port ] || 8649%>
-  ttl = 1 
+  # mcast_join = 239.2.11.71
+  host         = <%= @cluster[ :send_addr ] || "localhost" %> 
+  port         = <%= @cluster[ :send_port ] || 8649%>
+  ttl          = 1 
 } 
 
 /* You can specify as many udp_recv_channels as you like as well. */ 
 udp_recv_channel { 
-  #mcast_join = 239.2.11.71 
-  port = <%= @cluster[ :receive_port ] || 8649 %>
-  #bind = 239.2.11.71 
+  # mcast_join = 239.2.11.71 
+  # bind       = 239.2.11.71 
+  port         = <%= @cluster[ :receive_port ] || 8649 %>
 } 
 
 /* You can specify as many tcp_accept_channels as you like to share 

@@ -22,7 +22,7 @@ export HADOOP_JOBTRACKER_OPTS="$HADOOP_JOBTRACKER_OPTS -XX:+UseParallelGC -Xmx<%
 export HADOOP_TASKTRACKER_OPTS="$HADOOP_JOBTRACKER_OPTS -XX:+UseParallelGC -Xmx<%=              node[:hadoop][:tasktracker      ][:java_heap_size_max] %>m"
 export HADOOP_DATANODE_OPTS="$HADOOP_JOBTRACKER_OPTS -XX:+UseParallelGC -Xmx<%=                 node[:hadoop][:datanode         ][:java_heap_size_max] %>m"
 
-<%- unless node[:hadoop][:extra_classpaths].nil? %>
+<%- unless @extra_classpaths.nil? %>
 # Extra classpaths for hadoop
-export HADOOP_CLASSPATH="<%= node[:hadoop][:extra_classpaths].values.join(":") %>:$HADOOP_CLASSPATH"
+export HADOOP_CLASSPATH="<%= @extra_classpaths.values.join(":") %>:$HADOOP_CLASSPATH"
 <%- end %>

@@ -3,6 +3,12 @@
 - track global order of runlist additions, compile final list using that order
 - syntactic sugar for ```server(0).fullname('blah')```
 
+### Knife commands
+
+* knife cluster kick fails if service isn't running
+
+* make clear directions for installing `cluster_chef` and its initial use.
+
 ### Cookbook attribute refresh:
 
                           | flip fixed | temujin9 checked |

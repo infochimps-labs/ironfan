@@ -1,7 +1,7 @@
 #
 # Cookbook Name::       resque
-# Description::         Base configuration for resque
-# Recipe::              default
+# Description::         Dedicated redis -- a redis solely for this resqueu
+# Recipe::              dedicated_redis
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #
 # Copyright 2011, Philip (flip) Kromer - Infochimps, Inc
@@ -18,3 +18,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
+include_recipe 'redis'
+include_recipe 'resque'
+include_recipe "runit"
+
+
+#
+# Config
+#
+
+# Redis config
+template File.join(node[:resque][:conf_dir], 'resque_redis.conf') do
+  source        'resque_redis.conf.erb'
+  mode          "0644"
+  action        :create
+end
+
+#
+# Daemonize
+#
+
+runit_service 'resque_redis' do
+  run_restart false
+end
+provide_service('resque_redis', :port => node[:resque][:queue_port])

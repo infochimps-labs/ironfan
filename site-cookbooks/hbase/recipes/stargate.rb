@@ -22,16 +22,15 @@
 include_recipe "hbase"
 
 cookbook_file "/etc/init.d/hadoop-hbase-stargate" do
-  owner "root"
-  mode "0744"
-  source "hadoop-hbase-stargate"
+  owner         "root"
+  mode          "0744"
+  source        "hadoop-hbase-stargate"
 end
 
 # launch service
 service "hadoop-hbase-stargate" do
-  action [ :enable, :start ]
-  running true
-  supports :status => true, :restart => true
+  action        node[:hbase][:stargate][:service_state]
+  supports      :status => true, :restart => true
 end
 
 provide_service ("#{node[:hbase][:cluster_name]}-hbase-stargate")

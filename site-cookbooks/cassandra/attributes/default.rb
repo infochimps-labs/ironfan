@@ -57,7 +57,7 @@ default[:cassandra][:mx4j_listen_port] = "8081"
 # install_from_release: version
 cassversion = "0.7.7"
 # install_from_release: tarball url
-default[:cassandra][:install_url] = "http://www.eng.lsu.edu/mirrors/apache/cassandra/#{cassversion}/apache-cassandra-#{cassversion}-bin.tar.gz"
+default[:cassandra][:release_url] = "http://www.eng.lsu.edu/mirrors/apache/cassandra/#{cassversion}/apache-cassandra-#{cassversion}-bin.tar.gz"
 # For install_from_git
 default[:cassandra][:git_repo]                      = 'git://git.apache.org/cassandra.git'
 # until ruby gem is updated, use cdd239dcf82ab52cb840e070fc01135efb512799

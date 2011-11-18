@@ -111,7 +111,7 @@ data_source "<%= cluster %>" <%= @cluster_nodes[cluster] %>
 #
 #-------------------------------------------------------------------------------
 # Where gmetad stores its round-robin databases
-# default: "/var/lib/ganglia/rrds"
+# default: "#{node[:ganglia][:home_dir]}/rrds"
 # rrd_rootdir "/some/other/place"
 #
 #-------------------------------------------------------------------------------

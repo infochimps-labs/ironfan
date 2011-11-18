@@ -28,24 +28,22 @@ end
 
 cluster_nodes = {}
 search(:node, '*:*') do |node|
-  next unless node['ganglia'] && node['ganglia']['cluster_name']
+  next unless   node['ganglia']['cluster_name']
   cluster_nodes[node['ganglia']['cluster_name']] ||= []
   cluster_nodes[node['ganglia']['cluster_name']] << node['fqdn'].split('.').first
 end
 
-template "/etc/ganglia/gmetad.conf" do
-  source "gmetad.conf.erb"
-  backup false
-  owner "ganglia"
-  group "ganglia"
-  mode 0644
+template "#{node[:ganglia][:conf_dir]}/gmetad.conf" do
+  source        "gmetad.conf.erb"
+  backup        false
+  owner         "ganglia"
+  group         "ganglia"
+  mode          "0644"
   variables(:cluster_nodes => cluster_nodes, :clusters => search(:ganglia_clusters, "*:*"))
   notifies :restart, resources(:service => "gmetad")
 end
 
-directory "/var/lib/ganglia/rrds" do
-  owner "ganglia"
-  group "ganglia"
+directory "#{node[:ganglia][:home_dir]}/rrds" do
+  owner         "ganglia"
+  group         "ganglia"
 end
-
-

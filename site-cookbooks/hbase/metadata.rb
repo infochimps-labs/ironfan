@@ -8,19 +8,17 @@ description      "Installs/Configures HBase"
 
 depends          "java"
 depends          "apt"
-depends          "mountable_volumes"
-depends          "provides_service"
 depends          "hadoop_cluster"
 depends          "zookeeper"
 depends          "ganglia"
+depends          "mountable_volumes"
+depends          "provides_service"
 
-recipe           "hbase::backup_tables",               "Backup Tables"
+recipe           "hbase::backup_tables",               "Cron job to backup tables to S3"
 recipe           "hbase::default",                     "Base configuration for hbase"
-recipe           "hbase::master",                "Hbase Master"
-recipe           "hbase::regionserver",          "Hbase Regionserver"
-recipe           "hbase::master",                      "Master"
-recipe           "hbase::regionserver",                "Regionserver"
-recipe           "hbase::stargate",                    "Stargate"
+recipe           "hbase::master",                "HBase Master"
+recipe           "hbase::regionserver",          "HBase Regionserver"
+recipe           "hbase::stargate",                    "HBase Stargate: HTTP frontend to HBase"
 recipe           "hbase::add_cloudera_repo",           "Add Cloudera repo to package manager"
 
 %w[ debian ubuntu ].each do |os|
@@ -47,42 +45,42 @@ attribute "hbase/tmp_dir",
   :description           => "",
   :default               => "/mnt/tmp/hbase"
 
-attribute "hbase/master_java_heap_size_max",
+attribute "hbase/master/java_heap_size_max",
   :display_name          => "",
   :description           => "",
   :default               => "1000m"
 
-attribute "hbase/master_gc_new_size",
+attribute "hbase/master/gc_new_size",
   :display_name          => "",
   :description           => "",
   :default               => "256m"
 
-attribute "hbase/master_gc_tuning_opts",
+attribute "hbase/master/gc_tuning_opts",
   :display_name          => "",
   :description           => "",
   :default               => "-XX:+UseConcMarkSweepGC -XX:+AggressiveOpts"
 
-attribute "hbase/master_gc_log_opts",
+attribute "hbase/master/gc_log_opts",
   :display_name          => "",
   :description           => "",
   :default               => "-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -Xloggc:/var/log/hbase/hbase-master-gc.log"
 
-attribute "hbase/regionserver_java_heap_size_max",
+attribute "hbase/regionserver/java_heap_size_max",
   :display_name          => "",
   :description           => "",
   :default               => "2000m"
 
-attribute "hbase/regionserver_gc_new_size",
+attribute "hbase/regionserver/gc_new_size",
   :display_name          => "",
   :description           => "",
   :default               => "256m"
 
-attribute "hbase/regionserver_gc_tuning_opts",
+attribute "hbase/regionserver/gc_tuning_opts",
   :display_name          => "",
   :description           => "",
   :default               => "-XX:+UseConcMarkSweepGC -XX:+AggressiveOpts -XX:CMSInitiatingOccupancyFraction=88"
 
-attribute "hbase/regionserver_gc_log_opts",
+attribute "hbase/regionserver/gc_log_opts",
   :display_name          => "",
   :description           => "",
   :default               => "-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -Xloggc:/var/log/hbase/hbase-regionserver-gc.log"

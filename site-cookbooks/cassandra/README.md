@@ -175,7 +175,7 @@ Side question: what are the tradeoffs to consider to choose between the same $$ 
 * `[:cassandra][:request_scheduler]`  -  (default: "org.apache.cassandra.scheduler.NoScheduler")
 * `[:cassandra][:throttle_limit]`     -  (default: "80")
 * `[:cassandra][:request_scheduler_id]` -  (default: "keyspace")
-* `[:cassandra][:install_url]`        -  (default: "http://www.eng.lsu.edu/mirrors/apache/cassandra/0.7.7/apache-cassandra-0.7.7-bin.tar.gz")
+* `[:cassandra][:release_url]`        -  (default: "http://www.eng.lsu.edu/mirrors/apache/cassandra/0.7.7/apache-cassandra-0.7.7-bin.tar.gz")
 * `[:cassandra][:git_repo]`           -  (default: "git://git.apache.org/cassandra.git")
 * `[:cassandra][:git_revision]`       -  (default: "cdd239dcf82ab52cb840e070fc01135efb512799")
 * `[:cassandra][:jna_deb_amd64_url]`  -  (default: "http://debian.riptano.com/maverick/pool/libjna-java_3.2.7-0~nmu.2_amd64.deb")

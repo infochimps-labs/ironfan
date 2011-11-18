@@ -21,7 +21,7 @@
 # Does the fetch-unpack-configure-build-install dance.
 #
 # Given a project 'pig', with url 'http://apache.org/pig/pig-0.8.0.tar.gz', and
-# the default :root_dir of '/usr/local', this provider will
+# the default :prefix_dir of '/usr/local', this provider will
 #
 # * fetch  it to :release_file ('/usr/local/src/pig-0.8.0.tar.gz')
 # * unpack it to :install_dir  ('/usr/local/share/pig-0.8.0')
@@ -43,6 +43,7 @@ action :download do
     mode        "0644"
     action      :create
     not_if{     ::File.directory?(new_resource.install_dir) }
+    checksum    new_resource.checksum if new_resource.checksum
   end
 end
 
@@ -58,6 +59,7 @@ action :unpack do
     user        new_resource.user
     cwd         ::File.dirname(new_resource.install_dir)
     code        "#{new_resource.unrelease_cmd} '#{new_resource.release_file}'"
+    creates     new_resource.install_dir
     not_if{     ::File.directory?(new_resource.install_dir) }
     environment new_resource.environment
   end
@@ -78,10 +80,11 @@ end
 
 action :install do
   action_build
+  action_install_binaries
 end
 
-
 action :build_with_ant do
+  action_build
   bash "build #{new_resource.name} with ant" do
     user        new_resource.user
     cwd         new_resource.install_dir
@@ -91,6 +94,7 @@ action :build_with_ant do
 end
 
 action :configure_with_configure do
+  action_configure
   bash "configure #{new_resource.name} with configure" do
     user        new_resource.user
     cwd         new_resource.install_dir
@@ -100,6 +104,7 @@ action :configure_with_configure do
 end
 
 action :build_with_make do
+  action_build
   bash "build #{new_resource.name} with make" do
     user        new_resource.user
     cwd         new_resource.install_dir
@@ -108,7 +113,23 @@ action :build_with_make do
   end
 end
 
+action :install_binaries do
+  new_resource.has_binaries.each do |bin|
+    link ::File.join(new_resource.prefix_root, 'bin', ::File.basename(bin)) do
+      to        ::File.join(new_resource.home_dir, bin)
+      action    :create
+    end
+  end
+end
+
+action :install_python do
+  action_install
+  command       "python setup.py install"
+  cwd           new_resource.install_dir
+end
+
 action :install_with_make do
+  action_install
   bash "install #{new_resource.name} with make" do
     user        new_resource.user
     cwd         new_resource.install_dir

@@ -9,12 +9,12 @@ Installs statsd daemon for recording arbitrary information to graphite
 ## Attributes
 
 * `[:statsd][:cluster_name]`          -  (default: "cluster_name")
-* `[:statsd][:git_uri]`               -  (default: "https://github.com/etsy/statsd.git")
-* `[:statsd][:src_path]`              -  (default: "/usr/src/statsd")
+* `[:statsd][:git_repo]`              -  (default: "https://github.com/etsy/statsd.git")
+* `[:statsd][:install_dir]`              -  (default: "/usr/src/statsd")
 * `[:statsd][:port]`                  -  (default: "8125")
-* `[:statsd][:flushInterval]`         -  (default: "10000")
 * `[:statsd][:graphite][:port]`       -  (default: "2003")
-* `[:statsd][:graphite][:host]`       -  (default: "localhost")
+* `[:statsd][:graphite][:addr]`       -  (default: "localhost")
+* `[:statsd][:flushInterval]`         -  (default: "10000")
 
 ## Recipes 
 

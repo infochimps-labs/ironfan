@@ -26,9 +26,8 @@ package "hadoop-hbase-master"
 
 # launch service
 service "hadoop-hbase-master" do
-  action [ :enable, :start ]
-  running true
-  supports :status => true, :restart => true
+  action        node[:hbase][:master][:service_state]
+  supports      :status => true, :restart => true
 end
 
 provide_service ("#{node[:hbase][:cluster_name]}-hbase-master")

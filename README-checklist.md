@@ -184,6 +184,10 @@ use `deploy_{}` for anything that would be true whatever SCM you're using; use
 * **java_home** 
 * AVOID **java_opts** if possible: assemble it in your recipe from intelligible attribute names.
 
+### Nitpicks
+
+* Always put file modes in quote marks: `mode "0664"` not `mode 0664`.
+
 ## Integrations
 
 ### provides_service
@@ -224,3 +228,4 @@ roles shouldn't assemble systems. The contents of the infochimps_chef/roles/plat
 * Deprecated: 
   - Cluster and facet roles (`roles/gibbon_cluster.rb`, `roles/gibbon_namenode.rb`, etc) go away
   - roles should be service-oriented: `hadoop_master` considered harmful, you should explicitly enumerate the services
+

@@ -23,18 +23,18 @@ for a week, and every 10 minutes for 5 years.
 
 ## Attributes
 
-* `[:graphite][:carbon][:line_receiver_interface]` -  (default: "127.0.0.1")
+* `[:graphite][:carbon][:line_rcvr_addr]` -  (default: "127.0.0.1")
 * `[:graphite][:carbon][:pickle_receiver_interface]` -  (default: "127.0.0.1")
-* `[:graphite][:carbon][:cache_query_interface]` -  (default: "127.0.0.1")
+* `[:graphite][:carbon][:cache_query_addr]` -  (default: "127.0.0.1")
 * `[:graphite][:carbon][:version]`    -  (default: "0.9.7")
-* `[:graphite][:carbon][:uri]`        -  (default: "http://launchpadlibrarian.net/61904798/carbon-0.9.7.tar.gz")
-* `[:graphite][:carbon][:checksum]`   -  (default: "ba698aca")
+* `[:graphite][:carbon][:release_url]`        -  (default: "http://launchpadlibrarian.net/61904798/carbon-0.9.7.tar.gz")
+* `[:graphite][:carbon][:release_url_checksum]`   -  (default: "ba698aca")
 * `[:graphite][:whisper][:version]`   -  (default: "0.9.7")
-* `[:graphite][:whisper][:uri]`       -  (default: "http://launchpadlibrarian.net/61904764/whisper-0.9.7.tar.gz")
-* `[:graphite][:whisper][:checksum]`  -  (default: "c6272ad6")
+* `[:graphite][:whisper][:release_url]`       -  (default: "http://launchpadlibrarian.net/61904764/whisper-0.9.7.tar.gz")
+* `[:graphite][:whisper][:release_url_checksum]`  -  (default: "c6272ad6")
 * `[:graphite][:graphite_web][:version]` -  (default: "0.9.7c")
-* `[:graphite][:graphite_web][:uri]`  -  (default: "http://launchpadlibrarian.net/62379635/graphite-web-0.9.7c.tar.gz")
-* `[:graphite][:graphite_web][:checksum]` -  (default: "a3e16265")
+* `[:graphite][:graphite_web][:release_url]`  -  (default: "http://launchpadlibrarian.net/62379635/graphite-web-0.9.7c.tar.gz")
+* `[:graphite][:graphite_web][:release_url_checksum]` -  (default: "a3e16265")
 
 ## Recipes 
 

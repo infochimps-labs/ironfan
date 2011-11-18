@@ -20,17 +20,17 @@ recipe           "graphite::whisper",                  "Whisper"
   supports os
 end
 
-attribute "graphite/carbon/line_receiver_interface",
+attribute "graphite/carbon/line_rcvr_addr",
   :display_name          => "",
   :description           => "",
   :default               => "127.0.0.1"
 
-attribute "graphite/carbon/pickle_receiver_interface",
+attribute "graphite/carbon/pickle_rcvr_addr",
   :display_name          => "",
   :description           => "",
   :default               => "127.0.0.1"
 
-attribute "graphite/carbon/cache_query_interface",
+attribute "graphite/carbon/cache_query_addr",
   :display_name          => "",
   :description           => "",
   :default               => "127.0.0.1"

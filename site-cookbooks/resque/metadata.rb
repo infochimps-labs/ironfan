@@ -36,7 +36,7 @@ attribute "resque/data_dir",
   :description           => "",
   :default               => "/data/db/resque/data"
 
-attribute "resque/swapdir",
+attribute "resque/journal_dir",
   :display_name          => "",
   :description           => "",
   :default               => "/data/db/resque/swap"

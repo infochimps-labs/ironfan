@@ -26,56 +26,54 @@ package "python-django"
 package "python-memcache"
 package "python-rrdtool"
 
-remote_file "/usr/src/graphite-web-#{node.graphite.graphite_web.version}.tar.gz" do
-  source node.graphite.graphite_web.uri
-  checksum node.graphite.graphite_web.checksum
+install_from_release('graphite_web') do
+  release_url   node[:graphite][:graphite_web][:release_url]
+  home_dir      node[:graphite][:graphite_web][:home_dir]
+  checksum      node[:graphite][:graphite_web][:release_url_checksum]
+  action        [:install]
 end
 
-execute "untar graphite-web" do
-  command "tar xzf graphite-web-#{node.graphite.graphite_web.version}.tar.gz"
-  creates "/usr/src/graphite-web-#{node.graphite.graphite_web.version}"
-  cwd "/usr/src"
-end
+graphite_web_version = node[:graphite][:graphite_web][:version]
 
-remote_file "/usr/src/graphite-web-#{node.graphite.graphite_web.version}/webapp/graphite/storage.py.patch" do
-  source "http://launchpadlibrarian.net/65094495/storage.py.patch"
-  checksum "8bf57821"
+remote_file "#{node[:graphite][:prefix_dir]}/src/graphite-web-#{graphite_web_version}/webapp/graphite/storage.py.patch" do
+  source        "http://launchpadlibrarian.net/65094495/storage.py.patch"
+  checksum      "8bf57821"
 end
 
 execute "patch graphite-web" do
-  command "patch storage.py storage.py.patch"
-  creates "/opt/graphite/webapp/graphite_web-#{node.graphite.graphite_web.version}-py2.6.egg-info"
-  cwd "/usr/src/graphite-web-#{node.graphite.graphite_web.version}/webapp/graphite"
+  command       "patch storage.py storage.py.patch"
+  creates       "/opt/graphite/webapp/graphite_web-#{graphite_web_version}-py2.6.egg-info"
+  cwd           "/usr/src/graphite-web-#{graphite_web_version}/webapp/graphite"
 end
 
 execute "install graphite-web" do
-  command "python setup.py install"
-  creates "/opt/graphite/webapp/graphite_web-#{node.graphite.graphite_web.version}-py2.6.egg-info"
-  cwd "/usr/src/graphite-web-#{node.graphite.graphite_web.version}"
+  command       "python setup.py install"
+  creates       "/opt/graphite/webapp/graphite_web-#{graphite_web_version}-py2.6.egg-info"
+  cwd           "/usr/src/graphite-web-#{graphite_web_version}"
 end
 
-template "/etc/apache2/sites-available/graphite" do
-  source "graphite-vhost.conf.erb"
+template "#{node[:apache][:dir]}/sites-available/graphite.conf" do
+  source        "graphite-vhost.conf.erb"
 end
 
 apache_site "000-default" do
-  enable false
+  enable        false
 end
 
-apache_site "graphite"
+apache_site "graphite.conf"
 
-directory "/opt/graphite/storage/log/webapp" do
-  owner "www-data"
-  group "www-data"
+directory "#{node[:graphite][:log_dir]}" do
+  owner         node[:graphite][:graphite_web][:user]
+  group         node[:graphite][:graphite_web][:user]
 end
 
 directory "/opt/graphite/storage" do
-  owner "www-data"
-  group "www-data"
+  owner         node[:graphite][:graphite_web][:user]
+  group         node[:graphite][:graphite_web][:user]
 end
 
 cookbook_file "/opt/graphite/storage/graphite.db" do
-  owner "www-data"
-  group "www-data"
-  action :create_if_missing
+  owner         node[:graphite][:graphite_web][:user]
+  group         node[:graphite][:graphite_web][:user]
+  action        :create_if_missing
 end

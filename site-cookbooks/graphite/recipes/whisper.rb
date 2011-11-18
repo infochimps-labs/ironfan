@@ -19,19 +19,10 @@
 # limitations under the License.
 #
 
-remote_file "/usr/src/whisper-#{node.graphite.whisper.version}.tar.gz" do
-  source node.graphite.whisper.uri
-  checksum node.graphite.whisper.checksum
-end
-
-execute "untar whisper" do
-  command "tar xzf whisper-#{node.graphite.whisper.version}.tar.gz"
-  creates "/usr/src/whisper-#{node.graphite.whisper.version}"
-  cwd "/usr/src"
-end
-
-execute "install whisper" do
-  command "python setup.py install"
-  creates "/usr/local/lib/python2.6/dist-packages/whisper-#{node.graphite.whisper.version}.egg-info"
-  cwd "/usr/src/whisper-#{node.graphite.whisper.version}"
+install_from_release('whisper') do
+  release_url   node[:graphite][:whisper][:release_url]
+  home_dir      node[:graphite][:whisper][:home_dir]
+  checksum      node[:graphite][:whisper][:release_url_checksum]
+  action        [:install_python]
+  not_if{ File.exists?("/usr/local/lib/python2.6/dist-packages/whisper-#{node.graphite.whisper.version}.egg-info") }
 end

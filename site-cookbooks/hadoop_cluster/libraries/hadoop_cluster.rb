@@ -103,6 +103,7 @@ module HadoopCluster
       :hadoop_log_dir         => hadoop_log_dir,
       :hadoop_scratch_dirs    => hadoop_scratch_dirs,
       :hadoop_persistent_dirs => hadoop_persistent_dirs,
+      :extra_classpaths       => node[:hadoop][:extra_classpaths].map{|nm, classpath| classpath },
       #
       :aws                    => (node[:aws] && node[:aws].to_hash),
       #

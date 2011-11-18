@@ -90,7 +90,7 @@ attribute "redis/slave",
   :default               => "no"
 
 attribute "redis/shareobjects",
-  :display_name          => "Redis shared object compression (default: "no")",
+  :display_name          => "Redis shared object compression (default: \"no\")",
   :description           => "Attempt to reduce memory use by sharing storage for substrings.",
   :default               => "no"
 

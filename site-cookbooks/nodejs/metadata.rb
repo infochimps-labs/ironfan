@@ -15,7 +15,7 @@ recipe           "nodejs::default",                    "Base configuration for n
   supports os
 end
 
-attribute "nodejs/git_uri",
+attribute "nodejs/git_repo",
   :display_name          => "",
   :description           => "",
   :default               => "https://github.com/joyent/node.git"
@@ -25,7 +25,7 @@ attribute "nodejs/jobs",
   :description           => "",
   :default               => "2"
 
-attribute "nodejs/src_path",
+attribute "nodejs/install_dir",
   :display_name          => "",
   :description           => "",
   :default               => "/usr/src/nodejs"

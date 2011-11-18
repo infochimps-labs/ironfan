@@ -58,7 +58,6 @@ default[:groups]['mapred'    ][:gid] = 303
 
 # Other recipes can add to this under their own special key, for instance
 #  node[:hadoop][:extra_classpaths][:hbase] = '/usr/lib/hbase/hbase.jar:/usr/lib/hbase/lib/zookeeper.jar:/usr/lib/hbase/conf'
-#
 default[:hadoop][:extra_classpaths]  = { }
 
 # persistent dirs hold the HDFS, namenode metadata, and so forth.

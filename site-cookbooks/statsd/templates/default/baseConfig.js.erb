@@ -1,7 +1,7 @@
 {
-  graphitePort: <%= node[:statsd][:graphite][:port] %>
-, graphiteHost: "<%= node[:statsd][:graphite][:host] %>"
-, port: <%= node[:statsd][:port] %>
-, flushInterval: <%= node[:statsd][:flushInterval] %>
+  graphitePort:  <%= node[:statsd][:graphite][:port] %>,
+  graphiteHost: "<%= node[:statsd][:graphite][:addr] %>",
+  port:          <%= node[:statsd][:port]            %>,
+  flushInterval: <%= node[:statsd][:flushInterval]   %>
 }
 

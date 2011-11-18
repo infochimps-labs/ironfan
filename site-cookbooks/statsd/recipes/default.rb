@@ -4,7 +4,7 @@
 # Recipe::              default
 # Author::              Nathaniel Eliot - Infochimps, Inc
 #
-# Copyright 2011, InfoChimps, Inc.
+# Copyright 2011, Infochimps, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,27 +19,5 @@
 # limitations under the License.
 #
 
-# Graphite does not need to be runing on the same server for statsd
-# to work
-#include_recipe "graphite"
-
 include_recipe "nodejs"
 include_recipe "runit"
-
-git "#{node.statsd.src_path}" do
-  repository "#{node.statsd.git_uri}"
-  reference "master"
-  action :sync
-end
-
-template "#{node.statsd.src_path}/baseConfig.js" do
-  source "baseConfig.js.erb"
-  mode 0755
-  notifies :restart, "service[statsd]"
-end
-
-runit_service 'statsd' do
-end
-
-provide_service ("#{node[:statsd][:cluster_name]}-statsd")
-

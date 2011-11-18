@@ -21,29 +21,25 @@
 
 include_recipe "java::sun"
 
-bash "install_jruby_from_tarball" do
-user "root"
-  cwd "/tmp"
-  code <<-EOH
-  wget http://jruby.org.s3.amazonaws.com/downloads/1.5.6/jruby-bin-1.5.6.tar.gz
-  cd /usr/local/lib
-  tar -xzf /tmp/jruby-bin-1.5.6.tar.gz
-  EOH
-  not_if "test -d /usr/local/lib/jruby-1.5.6"
+#
+# Install jruby from latest release
+#
+#   puts jruby tarball into /usr/local/src/jruby-xxx
+#   expands it into /usr/local/share/jruby-xxx
+#   and links that to /usr/local/share/jruby
+#
+
+install_from_release('jruby') do
+  release_url   node[:jruby][:release_url]
+  home_dir      node[:jruby][:home_dir]
+  action        [:install]
+  has_binaries  %w[ bin/jruby bin/jrubyc bin/jruby.rb bin/jirb ]
+  environment('JAVA_HOME' => node[:java][:java_home]) if node[:java][:java_home]
+  not_if{ ::File.exists?("#{node[:jruby][:install_dir]}/jruby.jar") }
 end
 
-link "/usr/lib/jruby" do
-  to "/usr/local/lib/jruby-1.5.6"
-end
-
-%w[ jruby jrubyc jruby.rb jirb ].each do |file|
-  link "/usr/bin/#{file}" do
-    to "/usr/lib/jruby/bin/#{file}"
-  end
-end
-
-cookbook_file "/usr/lib/jruby/bin/chef-jgem" do
-  source "chef-jgem"
-  owner "root"
-  mode "0755"
+cookbook_file File.join(node[:jruby][:home_dir], 'bin/chef-jgem') do
+  source        "chef-jgem"
+  owner         "root"
+  mode          "0755"
 end

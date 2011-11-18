@@ -10,7 +10,7 @@ Redis, a fast lightweight database
 
   
 * `[:redis][:home_dir]`               -  (default: "/usr/local/share/redis")
-* `[:redis][:install_url]`            -  (default: "http://redis.googlecode.com/files/redis-2.0.2.tar.gz")
+* `[:redis][:release_url]`            -  (default: "http://redis.googlecode.com/files/redis-2.0.2.tar.gz")
 * `[:redis][:server][:addr]`                   -  (default: "0.0.0.0")
 * `[:redis][:server][:port]`                   - Redis server port (default: "6379")
   TCP port to bind.  The default is 6379.

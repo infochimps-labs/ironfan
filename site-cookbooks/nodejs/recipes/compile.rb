@@ -4,7 +4,7 @@
 # Recipe::              compile
 # Author::              Nathaniel Eliot - Infochimps, Inc
 #
-# Copyright 2011, InfoChimps
+# Copyright 2011, Infochimps
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,17 +27,17 @@ package "build-essential"
 ## Replaced by git-specific invocation, below
 # execute "git clone nodejs" do
 #   cwd "/usr/src"
-#   command "git clone #{node.nodejs.git_uri}"
+#   command "git clone #{node.nodejs.git_repo}"
 #   creates "/usr/src/node"
 # end
-git "#{node.nodejs.src_path}" do
-  repository "#{node.nodejs.git_uri}"
+git "#{node.nodejs.install_dir}" do
+  repository "#{node.nodejs.git_repo}"
   reference "master"
   action :sync
 end
 
 bash "install nodejs" do
-  cwd "#{node.nodejs.src_path}"
+  cwd "#{node.nodejs.install_dir}"
   code <<-EOH
   export JOBS=#{node.nodejs.jobs}
   ./configure

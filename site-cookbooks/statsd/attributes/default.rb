@@ -1,12 +1,26 @@
 
-default[:statsd][:cluster_name] = node[:cluster_name]
+#
+# Locations
+#
 
-default[:statsd][:git_uri] = "https://github.com/etsy/statsd.git"
-default[:statsd][:src_path] = "/usr/src/statsd"
+default[:statsd][:install_dir]        = "/usr/src/statsd"
+
+default[:groups]['statsd' ][:gid]  = 310
 
 default[:statsd][:graphite][:port] = 2003
-default[:statsd][:graphite][:host] = "localhost"
+default[:statsd][:graphite][:addr] = "localhost"
+default[:statsd][:port]            = 8125
 
-default[:statsd][:port] = 8125
+default[:statsd][:cluster_name]    = node[:cluster_name]
 
-default[:statsd][:flushInterval] = 10000 #milliseconds between flushes
+#
+# Install
+#
+
+default[:statsd][:git_repo]         = "https://github.com/etsy/statsd.git"
+
+#
+# Tunables
+#
+
+default[:statsd][:flushInterval]   = 10000 #milliseconds between flushes
