@@ -18,8 +18,6 @@ Heavily inspired by [Robert Berger's HOWTO](http://blog.ibd.com/scalable-deploym
 * `attach`                   - Attach
 * `default`                  - Base configuration for mountable_volumes
 * `mount`                    - Mount
-
-
 ## Integration
 
 Supports platforms: debian and ubuntu

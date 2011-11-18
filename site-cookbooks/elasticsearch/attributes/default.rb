@@ -1,5 +1,5 @@
 default[:elasticsearch][:version]                 = "0.13.1"
-default[:elasticsearch][:checksum]                = nil
+default[:elasticsearch][:release_url_checksum]                = nil
 
 default[:elasticsearch][:cluster_name]            = "default"
 

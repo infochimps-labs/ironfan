@@ -1,4 +1,4 @@
 #!/bin/bash
 exec 2>&1
-cd /usr/src/statsd
-exec node stats.js baseConfig.js
+cd <%= node[:statsd][:home_dir] %>
+exec chpst -u <%= node[:statsd][:user] %> node stats.js baseConfig.js

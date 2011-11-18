@@ -43,7 +43,8 @@ class Chef
         :description => "Where to find the pid file. Typically /var/run/chef/client.pid (init.d) or /etc/sv/chef-client/supervise/pid (runit)",
         :default     => "/etc/sv/chef-client/supervise/pid"
 
-      KICKSTART_SCRIPT = <<EOF
+      unless defined?(KICKSTART_SCRIPT)
+        KICKSTART_SCRIPT = <<EOF
 #!/bin/bash
 set -e
 <%= ((config[:verbosity].to_i > 1) ? "set -v" : "") %>
@@ -72,6 +73,7 @@ pid="$(sudo cat $pid_file)"
 sudo kill -USR1 "$pid"
 sed -r "/(ERROR: Sleeping for [0-9]+ seconds before trying again|INFO: Report handlers complete)\$/{q}" $pipe
 EOF
+      end
 
       def run
         @name_args = [ @name_args.join(' ') ]

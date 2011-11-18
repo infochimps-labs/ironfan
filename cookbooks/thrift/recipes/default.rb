@@ -27,17 +27,26 @@ include_recipe "python"
   package pkg
 end
 
-remote_file "#{Chef::Config[:file_cache_path]}/thrift-0.6.0.tar.gz" do
-  source "#{node['thrift']['mirror']}/thrift/#{version}/thrift-#{version}.tar.gz"
-  checksum node['thrift']['checksum']
+install_from_release('thrift') do
+  release_url   "#{node['thrift']['mirror']}/thrift/#{version}/thrift-#{version}.tar.gz"
+  home_dir      node[:thrift][:home_dir]
+  checksum      node[:thrift][:checksum]
+  action        [:configure_with_autoconf, :build_with_make, :install_with_make]
+  autoconf_opts node['thrift']['configure_options']
+  not_if { ::FileTest.exists?("/usr/local/bin/thrift") }
 end
 
-bash "install_thrift" do
-  cwd Chef::Config[:file_cache_path]
-  code <<-EOH
-    (tar -zxvf thrift-#{version}.tar.gz)
-    (cd thrift-#{version} && ./configure #{node['thrift']['configure_options'].join(' ')})
-    (cd thrift-#{version} && make install)
-  EOH
-  not_if { FileTest.exists?("/usr/local/bin/thrift") }
-end
+# remote_file "#{Chef::Config[:file_cache_path]}/thrift-0.6.0.tar.gz" do
+#   source "#{node['thrift']['mirror']}/thrift/#{version}/thrift-#{version}.tar.gz"
+#   checksum node['thrift']['checksum']
+# end
+#
+# bash "install_thrift" do
+#   cwd Chef::Config[:file_cache_path]
+#   code <<-EOH
+#     (tar -zxvf thrift-#{version}.tar.gz)
+#     (cd thrift-#{version} && ./configure #{node['thrift']['configure_options'].join(' ')})
+#     (cd thrift-#{version} && make install)
+#   EOH
+#   not_if { FileTest.exists?("/usr/local/bin/thrift") }
+# end

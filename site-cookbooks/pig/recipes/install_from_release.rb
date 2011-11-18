@@ -30,19 +30,15 @@ include_recipe "pig::default"
 #
 
 install_from_release('pig') do
-  release_url node[:pig][:install_url]
-  home_dir    node[:pig][:home_dir]
-  action      [:build_with_ant, :install]
-  environment('JAVA_HOME' => node[:pig][:java_home]) if node[:pig][:java_home]
-  not_if{ ::File.exists?("#{node[:pig][:home_dir]}/pig.jar") }
+  release_url   node[:pig][:release_url]
+  home_dir      node[:pig][:home_dir]
+  action        [:build_with_ant, :install]
+  has_binaries  [ 'bin/pig' ]
+  environment('JAVA_HOME' => node[:java][:java_home]) if node[:java][:java_home]
+  not_if{ ::File.exists?("#{node[:pig][:install_dir]}/pig.jar") }
 end
 
 link '/usr/local/share/pig' do
   to          node[:pig][:install_dir]
-  action      :create
-end
-
-link "/usr/local/bin/pig" do
-  to          File.join(node[:pig][:home_dir], 'bin', 'pig')
   action      :create
 end

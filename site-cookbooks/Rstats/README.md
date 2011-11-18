@@ -13,8 +13,6 @@ Installs Rstats, a statistical analysis program
 ## Recipes 
 
 * `default`                  - Installs the base R package, a ruby interface, and some basic R packages.
-
-
 ## Integration
 
 Supports platforms: debian and ubuntu

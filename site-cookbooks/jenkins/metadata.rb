@@ -35,7 +35,7 @@ recipe           "jenkins::manage_node",               "The script to generate g
   supports os
 end
 
-attribute "jenkins/apt_mirror",
+attribute "apt/jenkins/url",
   :display_name          => "URL of apt repo for downloading Jenkins (server)",
   :description           => "URL of apt repo for downloading Jenkins (server)",
   :default               => "http://pkg.jenkins-ci.org/debian"

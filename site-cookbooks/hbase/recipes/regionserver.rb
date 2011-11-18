@@ -1,6 +1,6 @@
 #
 # Cookbook Name::       hbase
-# Description::         Regionserver
+# Description::         HBase Regionserver
 # Recipe::              regionserver
 # Author::              Chris Howe - Infochimps, Inc
 #
@@ -26,8 +26,7 @@ package "hadoop-hbase-regionserver"
 
 # launch service
 service "hadoop-hbase-regionserver" do
-  action [ :enable, :start ]
-  running true
+  action        node[:hbase][:regionserver][:service_state]
   supports :status => true, :restart => true
 end
 

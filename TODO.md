@@ -6,6 +6,12 @@
     - backwards compatibility with WARNING (+ stacktrace on DEBUG)
     - ERROR for provides_service if not 'mycluster-service'
 
+### Knife commands
+
+* knife cluster kick fails if service isn't running
+
+* make clear directions for installing `cluster_chef` and its initial use.
+
 ### Cookbook attribute refresh:
 
                           | flip fixed | temujin9 checked |

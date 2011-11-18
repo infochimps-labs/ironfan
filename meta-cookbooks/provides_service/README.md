@@ -28,8 +28,6 @@ in.
 
 ## Attributes
 
-
-
 ## Integration
 
 Supports platforms: debian and ubuntu

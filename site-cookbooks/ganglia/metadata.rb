@@ -17,3 +17,18 @@ recipe           "ganglia::server",                    "Server"
 %w[ debian ubuntu ].each do |os|
   supports os
 end
+
+attribute "ganglia/home_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/var/lib/ganglia"
+
+attribute "ganglia/log_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/var/log/ganglia"
+
+attribute "ganglia/conf_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/etc/ganglia"

@@ -23,29 +23,29 @@ include_recipe "runit"
 
 group("redis"){ gid 335 }
 user "redis" do
-  comment   "Redis-server runner"
-  uid       335
-  gid       "redis"
-  shell     "/bin/false"
+  comment       "Redis-server runner"
+  uid           335
+  gid           "redis"
+  shell         "/bin/false"
 end
 
 template "/etc/init.d/redis-server" do
-  source "redis-server-init-d.erb"
-  owner "root"
-  group "root"
-  mode 0744
+  source        "redis-server-init-d.erb"
+  owner         "root"
+  group         "root"
+  mode          "0744"
 end
 
 runit_service "redis-server" do
-  action :enable
+  action        :enable
 end
 
-template "/etc/redis/redis.conf" do
-  source "redis.conf.erb"
-  owner "root"
-  group "root"
-  mode 0644
-  notifies(:restart, resources(:service => "redis-server")) unless node[:platform_version].to_f < 9.0
+template "#{node[:resque][:conf_dir]}/redis.conf" do
+  source        "redis.conf.erb"
+  owner         "root"
+  group         "root"
+  mode          "0644"
+  notifies(:restart, resources(:service => "redis-server"))
 end
 
-provide_service("#{node[:cluster_name]}-redis", :port => node[:redis][:server][:port] )
+provide_service("#{node[:cluster_name]}-redis", :port => node[:redis][:server][:port])

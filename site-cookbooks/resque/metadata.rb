@@ -11,6 +11,7 @@ depends          "redis"
 
 recipe           "resque::default",                    "Base configuration for resque"
 recipe           "resque::server",                     "Server"
+recipe           "resque::dedicated_redis",            "Dedicated redis -- a redis solely for this resque"
 
 %w[ debian ubuntu ].each do |os|
   supports os
@@ -36,7 +37,7 @@ attribute "resque/data_dir",
   :description           => "",
   :default               => "/data/db/resque/data"
 
-attribute "resque/swapdir",
+attribute "resque/journal_dir",
   :display_name          => "",
   :description           => "",
   :default               => "/data/db/resque/swap"

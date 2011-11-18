@@ -6,7 +6,7 @@
 :facet_index:              <%= node[:facet_index]                   %>
 
 :handle:            <%= node[:hadoop][:handle]        %>
-:cdh_version:              <%= node[:hadoop][:cdh_version]          %>
+:cdh_version:              <%= node[:apt][:cloudera][:release_name]          %>
 :dfs_replication:          <%= node[:hadoop][:dfs_replication]      %>
 :max_map_tasks:            <%= node[:hadoop][:max_map_tasks]        %>
 :max_reduce_tasks:         <%= node[:hadoop][:max_reduce_tasks]     %>

@@ -9,7 +9,6 @@ run_list(*%w[
   elasticsearch::install_from_release
   elasticsearch::install_plugins
 
-  nginx::prepare_for_source
-  nginx::source
+  nginx
   elasticsearch::http
 ])

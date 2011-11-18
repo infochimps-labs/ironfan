@@ -7,32 +7,32 @@ NameVirtualHost *:80
 # in this file to your chosen install location.
 
 <VirtualHost *:80>
-        ServerName graphite
-        DocumentRoot "/opt/graphite/webapp"
-        ErrorLog /opt/graphite/storage/log/webapp/error.log
-        CustomLog /opt/graphite/storage/log/webapp/access.log common
+  ServerName            graphite
+  DocumentRoot          "/opt/graphite/webapp"
+  ErrorLog              /opt/graphite/storage/log/webapp/error.log
+  CustomLog             /opt/graphite/storage/log/webapp/access.log common
 
-        <Location "/">
-                SetHandler python-program
-                PythonPath "['/opt/graphite/webapp'] + sys.path"
-                PythonHandler django.core.handlers.modpython
-                SetEnv DJANGO_SETTINGS_MODULE graphite.settings
-                PythonDebug Off
-                PythonAutoReload Off
-        </Location>
+  <Location "/">
+    SetHandler          python-program
+    PythonPath          "['/opt/graphite/webapp'] + sys.path"
+    PythonHandler       django.core.handlers.modpython
+    SetEnv              DJANGO_SETTINGS_MODULE graphite.settings
+    PythonDebug         Off
+    PythonAutoReload    Off
+  </Location>
 
-        <Location "/content/">
-                SetHandler None
-        </Location>
+  <Location "/content/">
+    SetHandler          None
+  </Location>
 
-        <Location "/media/">
-                SetHandler None
-        </Location>
+  <Location "/media/">
+    SetHandler          None
+  </Location>
 
-	# NOTE: In order for the django admin site media to work you
-	# must change @DJANGO_ROOT@ to be the path to your django
-	# installation, which is probably something like:
-	# /usr/lib/python2.6/site-packages/django
-        Alias /media/ "@DJANGO_ROOT@/contrib/admin/media/"
+  # NOTE: In order for the django admin site media to work you
+  # must change @DJANGO_ROOT@ to be the path to your django
+  # installation, which is probably something like:
+  # /usr/lib/python2.6/site-packages/django
+  Alias                 /media/ "@DJANGO_ROOT@/contrib/admin/media/"
 
 </VirtualHost>

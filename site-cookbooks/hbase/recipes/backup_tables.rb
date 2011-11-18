@@ -1,6 +1,6 @@
 #
 # Cookbook Name::       hbase
-# Description::         Backup Tables
+# Description::         Cron job to backup tables to S3
 # Recipe::              backup_tables
 # Author::              Chris Howe - Infochimps, Inc
 #

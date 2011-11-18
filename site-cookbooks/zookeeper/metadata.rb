@@ -54,3 +54,14 @@ attribute "zookeeper/max_client_connections",
   :display_name          => "",
   :description           => "",
   :default               => "30"
+
+attribute "zookeeper/home_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/usr/lib/zookeeper"
+
+attribute "zookeeper/export_jars",
+  :display_name          => "",
+  :description           => "",
+  :type                  => "array",
+  :default               => ["/usr/lib/zookeeper/zookeeper.jar"]

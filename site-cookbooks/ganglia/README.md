@@ -8,6 +8,9 @@ Installs/Configures ganglia
 
 ## Attributes
 
+* `[:ganglia][:home_dir]`             -  (default: "/var/lib/ganglia")
+* `[:ganglia][:log_dir]`              -  (default: "/var/log/ganglia")
+* `[:ganglia][:conf_dir]`             -  (default: "/etc/ganglia")
 
 ## Recipes 
 
@@ -15,8 +18,6 @@ Installs/Configures ganglia
 * `default`                  - Base configuration for ganglia
 * `gmetad`                   - Gmetad
 * `server`                   - Server
-
-
 ## Integration
 
 Supports platforms: debian and ubuntu

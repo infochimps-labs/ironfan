@@ -5,6 +5,7 @@ run_list *%w[
   java
 
   hadoop_cluster
+  hadoop_cluster::add_cloudera_repo
   hadoop_cluster::ec2_conf
   cluster_chef::dedicated_server_tuning
 

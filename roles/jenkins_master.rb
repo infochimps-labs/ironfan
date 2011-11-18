@@ -1,5 +1,5 @@
-name        'jenkins_server'
-description 'installs the jenkins server'
+name        'jenkins_master'
+description 'installs the jenkins master server'
 
 run_list *%w[
   jenkins

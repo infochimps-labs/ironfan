@@ -48,14 +48,14 @@ Contributor:: Darko Fabijan <darko@renderedtext.com>
 
 ## Attributes
 
-* `[:apt][:jenkins][:url]`           - URL of apt repo for downloading Jenkins (server) (default: "http://pkg.jenkins-ci.org/debian")
+* `[:apt][:jenkins][:url]`            - URL of apt repo for downloading Jenkins (server) (default: "http://pkg.jenkins-ci.org/debian")
 * `[:jenkins][:plugins_mirror]`       -  (default: "http://updates.jenkins-ci.org")
 * `[:jenkins][:java_home]`            - Java install path, used for for cli commands (default: "/System/Library/Frameworks/JavaVM.framework/Versions/1.6.0/Home")
 * `[:jenkins][:iptables_allow]`       - if iptables is enabled, add a rule passing 'jenkins[:server][:port]' (default: "enable")
 * `[:jenkins][:server][:home]`        - JENKINS_HOME directory (default: "/var/lib/jenkins")
 * `[:jenkins][:server][:user]`        - User the Jenkins server runs as (default: "jenkins")
 * `[:jenkins][:server][:group]`       -  (default: "nogroup")
-  Jenkins user primary group
+  - Jenkins user primary group
 * `[:jenkins][:server][:port]`        - TCP listen port for the Jenkins server (default: "8080")
 * `[:jenkins][:server][:host]`        - Host interface address for the Jenkins server
 * `[:jenkins][:server][:jvm_heap]`    - tunable: Java maximum heap size (default: "384")
@@ -108,8 +108,6 @@ Contributor:: Darko Fabijan <darko@renderedtext.com>
 * `proxy_nginx`              - Uses the nginx::source recipe from the nginx cookbook to install an HTTP frontend proxy. To automatically activate this recipe set the `node[:jenkins][:http_proxy][:variant]` to `nginx`.
 * `server`                   - Server
 * `user_key`                 - User Key
-
-
 ## Integration
 
 Supports platforms: debian and ubuntu

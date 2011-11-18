@@ -1,4 +1,4 @@
-name        'cassandra_node'
+name        'cassandra_datanode'
 description 'Part of a cassandra database'
 
 run_list *%w[

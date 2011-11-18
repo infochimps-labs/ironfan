@@ -19,7 +19,7 @@ default[:redis][:server][:port]     = "6379"
 # Install
 #
 
-default[:redis][:install_url]       = 'http://redis.googlecode.com/files/redis-2.0.2.tar.gz'
+default[:redis][:release_url]       = 'http://redis.googlecode.com/files/redis-2.0.2.tar.gz'
 
 #
 # Tunables

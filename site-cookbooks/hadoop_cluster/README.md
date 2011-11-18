@@ -29,15 +29,15 @@ Copyright:: 2009, Opscode, Inc; 2010, 2011 Infochimps, In
 ## Attributes
 
 * `[:cluster_size]`                   - Number of machines in the cluster (default: "5")
-  Number of machines in the cluster. This is used to size things like handler counts, etc.
+  - Number of machines in the cluster. This is used to size things like handler counts, etc.
 * `[:apt][:cloudera][:force_distro]`  - Override the distro name apt uses to look up repos
-  Typically, leave this blank. However if (as is the case in Nov 2011) you are on natty but Cloudera's repo only has packages up to maverick, use this to override.
+  - Typically, leave this blank. However if (as is the case in Nov 2011) you are on natty but Cloudera's repo only has packages up to maverick, use this to override.
 * `[:apt][:cloudera][:release_name]`  - Release identifier (eg cdh3u2) of the cloudera repo to use. See also hadoop/deb_version (default: "cdh3u2")
 * `[:hadoop][:handle]`                - Version prefix for the daemons and other components (default: "hadoop-0.20")
-  Cloudera distros have a prefix most (but not all) things with. This helps isolate the times they say 'hadoop-0.20' vs. 'hadoop'
+  - Cloudera distros have a prefix most (but not all) things with. This helps isolate the times they say 'hadoop-0.20' vs. 'hadoop'
 * `[:hadoop][:deb_version]`           - Apt revision identifier (eg 0.20.2+923.142-1~maverick-cdh3) of the specific cloudera apt to use. See also apt/release_name (default: "0.20.2+923.142-1~maverick-cdh3")
 * `[:hadoop][:dfs_replication]`       - Default HDFS replication factor (default: "3")
-  HDFS blocks are by default reproduced to this many machines.
+  - HDFS blocks are by default reproduced to this many machines.
 * `[:hadoop][:reduce_parallel_copies]` -  (default: "10")
 * `[:hadoop][:tasktracker_http_threads]` -  (default: "32")
 * `[:hadoop][:jobtracker_handler_count]` -  (default: "40")
@@ -49,21 +49,23 @@ Copyright:: 2009, Opscode, Inc; 2010, 2011 Infochimps, In
 * `[:hadoop][:compress_mapout]`       -  (default: "true")
 * `[:hadoop][:compress_mapout_codec]` -  (default: "org.apache.hadoop.io.compress.DefaultCodec")
 * `[:hadoop][:log_retention_hours]`   -  (default: "24")
-  See [Hadoop Log Location and Retention](http://www.cloudera.com/blog/2010/11/hadoop-log-location-and-retention) for more.
-* `[:hadoop][:extra_classpaths]`      - 
+  - See [Hadoop Log Location and Retention](http://www.cloudera.com/blog/2010/11/hadoop-log-location-and-retention) for more.
 * `[:hadoop][:java_heap_size_max]`    -  (default: "1000")
 * `[:hadoop][:persistent_dirs]`       - 
 * `[:hadoop][:scratch_dirs]`          - 
 * `[:hadoop][:max_balancer_bandwidth]` -  (default: "1048576")
 * `[:hadoop][:min_split_size]`        -  (default: "134217728")
-* `[:hadoop][:s3_block_size]`         -  (default: "134217728")
-* `[:hadoop][:hdfs_block_size]`       -  (default: "134217728")
+* `[:hadoop][:s3_block_size]`         - fs.s3n.block.size (default: "134217728")
+  - Block size to use when reading files using the native S3 filesystem (s3n: URIs).
+* `[:hadoop][:hdfs_block_size]`       - dfs.block.size (default: "134217728")
+  - The default block size for new files
 * `[:hadoop][:max_map_tasks]`         -  (default: "3")
 * `[:hadoop][:max_reduce_tasks]`      -  (default: "2")
 * `[:hadoop][:java_child_opts]`       -  (default: "-Xmx2432m -Xss128k -XX:+UseCompressedOops -XX:MaxNewSize=200m -server")
 * `[:hadoop][:java_child_ulimit]`     -  (default: "7471104")
 * `[:hadoop][:io_sort_factor]`        -  (default: "25")
 * `[:hadoop][:io_sort_mb]`            -  (default: "250")
+* `[:hadoop][:extra_classpaths]`      - 
 * `[:hadoop][:namenode][:service_state]` - 
 * `[:hadoop][:namenode][:java_heap_size_max]` - 
 * `[:hadoop][:secondarynamenode][:service_state]` - 
@@ -71,7 +73,9 @@ Copyright:: 2009, Opscode, Inc; 2010, 2011 Infochimps, In
 * `[:hadoop][:jobtracker][:service_state]` - 
 * `[:hadoop][:jobtracker][:java_heap_size_max]` - 
 * `[:hadoop][:datanode][:service_state]` - 
+* `[:hadoop][:datanode][:java_heap_size_max]` - 
 * `[:hadoop][:tasktracker][:service_state]` - 
+* `[:hadoop][:tasktracker][:java_heap_size_max]` - 
 * `[:groups][:hadoop][:gid]`          -  (default: "300")
 * `[:groups][:supergroup][:gid]`      -  (default: "301")
 * `[:groups][:hdfs][:gid]`            -  (default: "302")
@@ -96,8 +100,6 @@ Copyright:: 2009, Opscode, Inc; 2010, 2011 Infochimps, In
 * `secondarynamenode`        - Secondarynamenode
 * `tasktracker`              - Tasktracker
 * `wait_on_hdfs_safemode`    - Wait On HDFS Safemode
-
-
 ## Integration
 
 Supports platforms: debian and ubuntu
