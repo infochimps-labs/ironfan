@@ -61,10 +61,6 @@ class Chef
         target.sync_to_cloud
       end
 
-      def display(target, *args)
-        super(target, :expanded)
-      end
-
     end
   end
 end

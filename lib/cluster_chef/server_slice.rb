@@ -127,9 +127,9 @@ module ClusterChef
 
     # FIXME: this is a jumble. we need to pass it in some other way.
 
-    DEFAULT_HEADINGS = ["Name", "Chef?", "State", "InstanceID", "Public IP", "Private IP", "Created At"].to_set.freeze
-    DETAILED_HEADINGS = (DEFAULT_HEADINGS + ['Flavor', 'AZ', 'Env']).freeze
-    EXPANDED_HEADINGS = DETAILED_HEADINGS + ['Image', 'Volumes', 'Elastic IP', 'SSH Key']
+    MINIMAL_HEADINGS  = ["Name", "Chef?", "State", "InstanceID", "Public IP", "Private IP", "Created At"].to_set.freeze
+    DEFAULT_HEADINGS  = (MINIMAL_HEADINGS + ['Flavor', 'AZ', 'Env']).freeze
+    EXPANDED_HEADINGS = DEFAULT_HEADINGS + ['Image', 'Volumes', 'Elastic IP', 'SSH Key']
 
     MACHINE_STATE_COLORS  = {
       'running'       => :green,
@@ -148,13 +148,13 @@ module ClusterChef
     # headings displayed. If you also give it a block you can add your own logic
     # for generating content. The block is given a ClusterChef::Server instance
     # for each item in the collection and should return a hash of Name,Value
-    # pairs to merge into the default fields.
+    # pairs to merge into the minimal fields.
     #
     def display hh = :default
       headings =
         case hh
+        when :minimal  then MINIMAL_HEADINGS
         when :default  then DEFAULT_HEADINGS
-        when :detailed then DETAILED_HEADINGS
         when :expanded then EXPANDED_HEADINGS
         else hh.to_set end
       headings += ["Bogus"] if servers.any?(&:bogus?)

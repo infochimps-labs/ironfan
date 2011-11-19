@@ -36,7 +36,10 @@ class Chef
         # Load the cluster/facet/slice/whatever
         target = get_slice(* @name_args)
 
-        if config[:verbosity] > 1
+        #
+        # Dump entire contents of objects if -VV flag given
+        #
+        if config[:verbosity] >= 2
           target.each do |svr|
             Chef::Log.debug( "Server #{svr.name}: #{JSON.pretty_generate(svr.to_hash)}" )
             Chef::Log.debug( "- cloud: #{JSON.pretty_generate(svr.cloud.to_hash)}" )
@@ -45,7 +48,7 @@ class Chef
         end
 
         # Display same
-        display(target, :expanded)
+        display(target)
 
       end
     end

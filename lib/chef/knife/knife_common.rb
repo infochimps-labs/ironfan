@@ -73,9 +73,9 @@ module ClusterChef
     end
 
     # passes target to ClusterSlice#display, will show headings in server slice
-    # tables based on the --detailed flag
-    def display(target, display_style=nil, &block)
-      display_style ||= :detailed
+    # tables based on the --verbose flag
+    def display(target, &block)
+      display_style = (config[:verbosity] == 0 ? :default : :expanded)
       target.display(display_style, &block)
     end
 

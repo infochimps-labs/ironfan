@@ -201,8 +201,7 @@ module ClusterChef
     def chef_api_server_as_client
       return @chef_api_server_as_client if @chef_api_server_as_client
       unless File.exists?(client_key.filename)
-        ui.warn "Cannot create chef node #{fullname} -- no client key found in #{client_key.filename}."
-        raise(err_message)
+        raise("Cannot create chef node #{fullname} -- client #{@chef_client} exists but no client key found in #{client_key.filename}.")
       end
       @chef_api_server_as_client = Chef::REST.new(Chef::Config[:chef_server_url], fullname, client_key.filename)
     end

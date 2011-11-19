@@ -14,6 +14,8 @@ module ClusterChef
       return @chef_clients if @chef_clients
       @chef_clients = []
       Chef::Search::Query.new.search(:client, "clientname:#{cluster_name}-*") do |client_hsh|
+        # Return values from Chef::Search seem to be inconsistent across chef
+        # versions (sometimes a hash, sometimes an object). Fix if necessary.
         client_hsh = Chef::ApiClient.json_create(client_hsh) unless client_hsh.is_a?(Chef::ApiClient)
         @chef_clients.push( client_hsh )
       end
