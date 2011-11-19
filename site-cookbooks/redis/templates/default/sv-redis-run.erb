@@ -1,0 +1,6 @@
+#!/bin/bash
+
+cd <%= node[:redis][:data_dir] %>
+
+exec 2>&1
+exec chpst -u <%= node[:redis][:user] %> /usr/bin/redis-server <%= node[:redis][:conf_dir] %>/redis.conf

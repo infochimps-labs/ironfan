@@ -21,31 +21,23 @@
 
 include_recipe "runit"
 
-group("redis"){ gid 335 }
-user "redis" do
-  comment       "Redis-server runner"
-  uid           335
-  gid           "redis"
-  shell         "/bin/false"
+directory "/var/log/redis" do
+  owner     "redis"
+  group     "redis"
+  mode      "0755"
+  action    :create
 end
 
-template "/etc/init.d/redis-server" do
-  source        "redis-server-init-d.erb"
-  owner         "root"
-  group         "root"
-  mode          "0744"
+directory node[:redis][:data_dir] do
+  owner     "redis"
+  group     "redis"
+  mode      "0755"
+  action    :create
+  recursive true
 end
 
 runit_service "redis-server" do
   action        :enable
-end
-
-template "#{node[:resque][:conf_dir]}/redis.conf" do
-  source        "redis.conf.erb"
-  owner         "root"
-  group         "root"
-  mode          "0644"
-  notifies(:restart, resources(:service => "redis-server"))
 end
 
 provide_service("#{node[:cluster_name]}-redis", :port => node[:redis][:server][:port])

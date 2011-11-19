@@ -19,19 +19,12 @@
 # limitations under the License.
 #
 
-directory "/var/log/redis" do
-  owner     "redis"
-  group     "redis"
-  mode      "0755"
-  action    :create
-end
-
-directory node[:redis][:data_dir] do
-  owner     "redis"
-  group     "redis"
-  mode      "0755"
-  action    :create
-  recursive true
+group("redis"){ gid 335 }
+user "redis" do
+  comment       "Redis-server runner"
+  uid           335
+  gid           "redis"
+  shell         "/bin/false"
 end
 
 directory "/etc/redis" do
@@ -39,4 +32,12 @@ directory "/etc/redis" do
   group     "root"
   mode      "0755"
   action    :create
+end
+
+template "#{node[:resque][:conf_dir]}/redis.conf" do
+  source        "redis.conf.erb"
+  owner         "root"
+  group         "root"
+  mode          "0644"
+  notifies(:restart, resources(:service => "redis-server"))
 end
