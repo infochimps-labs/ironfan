@@ -19,48 +19,27 @@
 # limitations under the License.
 #
 
-directory "/usr/local/src" do
-  mode      '0775'
-  owner     'root'
-  group     'admin'
-  action    :create
-  recursive true
+install_from_release do
+  release_url     node[:cassandra][:release_url]
+  home_dir        node[:cassandra][:home_dir]
+  action          [:install]
+  has_binaries    [ 'bin/cassandra' ]
 end
 
-cassandra_install_pkg = File.basename(node[:cassandra][:release_url])
-cassandra_install_dir = cassandra_install_pkg.gsub(%r{(?:-bin)?\.tar\.gz}, '')
-# Chef::Log.info [cassandra_install_pkg, cassandra_install_dir].inspect
-
-remote_file "/usr/local/src/"+cassandra_install_pkg do
-  source    node[:cassandra][:release_url]
-  mode      "0644"
-  action :create
-end
-
-bash 'install from tarball' do
+bash 'move storage-conf out of the way' do
   user         'root'
-  cwd          '/usr/local/share'
-  code <<EOF
-  tar xzf /usr/local/src/#{cassandra_install_pkg}
-  cd  #{cassandra_install_dir}
-  mv                conf/storage-conf.xml conf/storage-conf.xml.orig
-  ln -nfs /etc/cassandra/storage-conf.xml conf/storage-conf.xml
-EOF
-  not_if {File.directory?("/usr/local/share/#{cassandra_install_dir}")}
+  cwd          node[:cassandra][:home_dir]
+  code         'mv conf/storage-conf.xml conf/storage-conf.xml.orig'
+  not_if {File.symlink?('/etc/cassandra/storage-conf.xml') }
 end
 
-link "/usr/local/share/cassandra" do
-  to "/usr/local/share/"+cassandra_install_dir
+link "#{node[:cassandra][:conf_dir]}/storage-conf.xml"
+  to "#{node[:cassandra][:home_dir]}/conf/storage-conf.xml"
   action :create
 end
 
-link "/usr/local/share/cassandra/cassandra.in.sh" do
-  to "/usr/local/share/cassandra/bin/cassandra.in.sh"
-  action :create
-end
-
-link "/usr/sbin/cassandra" do
-  to "/usr/local/share/cassandra/bin/cassandra"
+link "#{node[:cassandra][:home_dir]}/cassandra.in.sh" do
+  to "#{node[:cassandra][:home_dir]}/bin/cassandra.in.sh"
   action :create
 end
 
