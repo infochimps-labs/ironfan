@@ -42,7 +42,6 @@ action :download do
     source      new_resource.release_url
     mode        "0644"
     action      :create
-    not_if{     ::File.exists?(new_resource.release_file) || ::File.directory?(new_resource.install_dir) }
     checksum    new_resource.checksum if new_resource.checksum
   end
 end
