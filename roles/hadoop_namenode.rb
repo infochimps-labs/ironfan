@@ -4,5 +4,5 @@ description 'runs a namenode in fully-distributed mode. There should be exactly 
 run_list %w[
   role[hadoop]
   hadoop_cluster::namenode
-  cluster_chef::cluster_webfront
+  cluster_chef::dashboard
 ]

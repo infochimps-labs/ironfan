@@ -27,40 +27,38 @@ ClusterChef.cluster 'el_ridiculoso' do
   facet :grande do
     instances           1
 
-    # recipe              'rstats'
     recipe              'cluster_chef::dashboard'
 
     role                :elasticsearch_data_esnode
     role                :elasticsearch_http_esnode
 
-    # role              :cassandra_datanode
-    # role              :statsd_server
-    # role              :jenkins_master
-    # recipe            'ganglia::server'
-    # role              :graphite_server
-    # role              :flume_master
-    # role              :hadoop
-    # role              :hadoop_datanode
-    # role              :hadoop_jobtracker
-    # role              :hadoop_namenode
-    # role              :hadoop_secondarynamenode
-    # role              :hadoop_tasktracker
-    # role              :hbase_master
-    # recipe            'hadoop_cluster::cluster_conf'
-    # role              :redis_server
-    # role              :resque_server
-    # role              :zookeeper_server
-    # role              :pig
-    # recipe            'nodejs'
-    # recipe            'jruby'
-    # recipe            'jruby::gems'
+    role                :cassandra_datanode
+    role                :statsd_server
+    role                :graphite_server
+    role                :flume_master
+    role                :hadoop
+    role                :hadoop_datanode
+    role                :hadoop_jobtracker
+    role                :hadoop_namenode
+    role                :hadoop_secondarynamenode
+    role                :hadoop_tasktracker
+    role                :hbase_master
+    role                :redis_server
+    role                :resque_server
+    role                :zookeeper_server
+    role                :pig
+    recipe              'ganglia::server'
+    recipe              'rstats'
+    recipe              'nodejs'
+    recipe              'jruby'
+    recipe              'jruby::gems'
+    recipe              'hadoop_cluster::cluster_conf'
   end
 
   facet :mucho do
     instances           1
     # role                :hadoop_tasktracker
     # role                :hadoop_datanode
-    # role                :jenkins_node
     # recipe              'hadoop_cluster::cluster_conf'
   end
 
