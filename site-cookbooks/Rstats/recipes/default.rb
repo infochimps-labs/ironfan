@@ -19,14 +19,11 @@
 # limitations under the License.
 #
 
-%w[r-base r-base-dev].each do |pkg|
-  package pkg do
-    action :install
-  end
-end
+package 'r-base'
+package 'r-base-dev'
 
 gem_package "rsruby" do
-  options "-- --with-R-dir=/usr/share/R --with-R-lib=/usr/lib/R --with-R-include=/usr/share/R/include"
+  options "-- --with-R-dir=#{node[:rstats][:home_dir]} --with-R-lib=/usr/lib/R --with-R-include=/usr/share/R/include"
   action :install
 end
 
