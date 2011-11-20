@@ -35,6 +35,8 @@ default[:elasticsearch][:fd_ping_retries]         = 3
 
 default[:elasticsearch][:jmx_port]                = '9400-9500'
 
+default[:server_tuning][:ulimit]['@elasticsearch'] = { :nofile => { :both => 32768 }, :nproc => { :both => 50000 } }
+
 # most of the log lines are manageable at level 'DEBUG'
 # the voluminous ones are broken out separately
 default[:elasticsearch][:log_level][:default]         = 'DEBUG'

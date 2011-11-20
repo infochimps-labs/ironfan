@@ -4,7 +4,24 @@ Configures NFS
 
 ## Overview
 
-Configures NFS
+Configures NFS.
+
+### Troubleshooting
+
+
+* On maverick, you have to patch your kernel.
+
+    $ sudo showmount -e localhost
+    Export list for localhost:
+    /home *.internal
+
+
+From the client machine, 
+
+    rpcinfo -p 10.220.177.58 | grep nfs
+
+* [How to configure NFS on linux](http://how-to.linuxcareer.com/how-to-configure-nfs-on-linux)
+
 
 ## Attributes
 

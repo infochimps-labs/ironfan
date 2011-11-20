@@ -6,14 +6,12 @@ run_list *%w[
   ]
 
 
-# Attributes applied if the node doesn't have it set already.
+#
+# Note: you must explicitly include the firewall recipe
+#
 default_attributes(
   {
-    :firewall => {
-      :port_scan_ssh => {
-        :window => 20,
-        :max_conns => 15,
-        :port => 22
-      }
-    }
+    :firewall => { :port_scan => {
+        :ssh => { :port => 111, :window => 20, :max_conns => 15 },
+    } }
   })

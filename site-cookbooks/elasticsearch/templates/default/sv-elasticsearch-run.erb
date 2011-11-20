@@ -27,6 +27,8 @@ ulimit -a
 export ES_MIN_MEM=<%= node[:elasticsearch][:java_heap_size_max] %>m
 export ES_MAX_MEM=<%= node[:elasticsearch][:java_heap_size_max] %>m
 
+sleep 2 # ES will flap flap flap if it crashes on start. Slightly reduces chance that it fills your log dir.
+
 # Run in non-daemonizing mode
 cd $ES_HOME
 exec chpst -u elasticsearch $ES_HOME/bin/elasticsearch \

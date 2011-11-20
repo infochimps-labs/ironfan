@@ -11,11 +11,17 @@
 
 package "nfs-common"
 
+bash "modprobe nfs" do
+  user          'root'
+  code          "modprobe nfs"
+  not_if("cat /proc/filesystems | grep -q nfs")
+end
+
 nfs_server_ip = provider_private_ip('nfs_server')
 
 if nfs_server_ip.nil?
   Chef::Log.error("***************")
-  Chef::Log.error("Can't find the NFS server: check that chef ran successfully on that machine")
+  Chef::Log.error("Can't find the NFS server: check that chef ran successfully on that machine. You may need to restart it after initial install.")
   Chef::Log.error("***************")
 else
 

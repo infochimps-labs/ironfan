@@ -2,7 +2,7 @@ ClusterChef.cluster 'demosimple' do
   cloud(:ec2) do
     defaults
     availability_zones ['us-east-1d']
-    image_name          'natty'
+    image_name          'infochimps-natty'
     bootstrap_distro    'ubuntu10.04-cluster_chef'
     chef_client_script  'client.rb'
     mount_ephemerals
@@ -23,8 +23,15 @@ ClusterChef.cluster 'demosimple' do
     instances           1
     role                :nfs_server
 
+    # recipe              'aws'
+    # recipe              'xfs'
+    # recipe              'ec2::attach'
+    role                'mrflip_base'
+
     #
     # Follow the directions in the aws cookbook about an AWS credentials databag
+    #
+    # You will also need to format the volume -- something like `sudo mkfs.xfs -f /dev/xvdh`
     #
     volume(:home) do
       defaults
@@ -37,6 +44,33 @@ ClusterChef.cluster 'demosimple' do
       create_at_launch    true             # if no volume is tagged for that node, it will be created
       tags                :home => '/home'
     end
+  end
+
+  facet :homefoo do
+    instances 1
+    role :nfs_server
+    cloud.image_name 'natty'
+
+    role                'big_package'
+    role                'elasticsearch_client'
+    role                'hadoop'
+    role                'pig'
+    role                'web_server'
+
+    recipe              'boost'
+    recipe              'build-essential'
+    recipe              'git'
+    recipe              'java::sun'
+    recipe              'jpackage'
+    recipe              'jruby'
+    recipe              'nodejs'
+    recipe              'ntp'
+    recipe              'openssl'
+    recipe              'runit'
+    recipe              'thrift'
+    recipe              'xfs'
+    recipe              'xml'
+    recipe              'zlib'
   end
 
   #

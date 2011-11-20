@@ -48,7 +48,7 @@ ClusterChef.cluster 'demoweb' do
       device        '/dev/sdi'
       mount_point   '/data/db'
       mount_options 'defaults,nouuid,noatime'
-      fs_type       'xfs'
+      fstype       'xfs'
       snapshot_id   'snap-d9c1edb1'
     end
   end

@@ -22,7 +22,7 @@ ClusterChef.cluster 'elasticsearch_demo' do
     device            '/dev/sdi' # note: will appear as /dev/xvdi on natty
     mount_point       '/data/db'
     mount_options     'defaults,nouuid,noatime'
-    fs_type           'xfs'
+    fstype           'xfs'
     snapshot_id       'snap-a6e0bec5'
   end
 

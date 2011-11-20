@@ -9,6 +9,11 @@
 # (no license specified)
 #
 
+
+unless File.exists?('/etc/init.d/nfs-kernel-server')
+  Chef::Log.warn "\n\n****\nYou may have to restart the machine after nfs-kernel-server is installed\n****\n"
+end
+
 package "nfs-kernel-server"
 
 if node[:nfs][:exports]

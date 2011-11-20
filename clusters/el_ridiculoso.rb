@@ -4,7 +4,7 @@ ClusterChef.cluster 'el_ridiculoso' do
     availability_zones ['us-east-1d']
     flavor              'c1.xlarge'
     backing             'ebs'
-    image_name          'natty'
+    image_name          'infochimps-natty'
     bootstrap_distro    'ubuntu10.04-cluster_chef'
     chef_client_script  'client.rb'
     mount_ephemerals(:tags => { :hadoop_scratch => true })
@@ -15,46 +15,50 @@ ClusterChef.cluster 'el_ridiculoso' do
   role                  :base_role
   role                  :chef_client
   role                  :ssh
-# role                  :nfs_client
-  role                  :mountable_volumes
-  role                  :hadoop
-  role                  :hadoop_s3_keys
-  role                  :pig
-  recipe                'jruby'
-  recipe                'jruby::gems'
-  recipe                'nodejs'
 
-# role                 :infochimps_base
+  role                  :mountable_volumes
+  role                  :mrflip_base
+  role                  :nfs_client
+  recipe                :cluster_chef
+  recipe                'big_package::default'
+
+  role                  :hadoop_s3_keys
 
   facet :grande do
     instances           1
-    role                :cassandra_datanode
-    # role                :statsd_server
-    # role                :jenkins_master
-    # recipe              'ganglia::server'
-    # role                :graphite_server
+
     role                :elasticsearch_data_esnode
     role                :elasticsearch_http_esnode
-    role                :flume_master
-    role                :hadoop_datanode
-    role                :hadoop_jobtracker
-    role                :hadoop_namenode
-    role                :hadoop_secondarynamenode
-    role                :hadoop_tasktracker
-    role                :hbase_master
-    role                :redis_server
-    role                :resque_server
-    role                :zookeeper_server
 
-    recipe              'hadoop_cluster::cluster_conf'
+    # role              :cassandra_datanode
+    # role              :statsd_server
+    # role              :jenkins_master
+    # recipe            'ganglia::server'
+    # role              :graphite_server
+    # role              :flume_master
+    # role              :hadoop
+    # role              :hadoop_datanode
+    # role              :hadoop_jobtracker
+    # role              :hadoop_namenode
+    # role              :hadoop_secondarynamenode
+    # role              :hadoop_tasktracker
+    # role              :hbase_master
+    # recipe            'hadoop_cluster::cluster_conf'
+    # role              :redis_server
+    # role              :resque_server
+    # role              :zookeeper_server
+    # role              :pig
+    # recipe            'nodejs'
+    # recipe            'jruby'
+    # recipe            'jruby::gems'
   end
 
   facet :mucho do
     instances           1
-    role                :hadoop_tasktracker
-    role                :hadoop_datanode
-    role                :jenkins_node
-    recipe              'hadoop_cluster::cluster_conf'
+    # role                :hadoop_tasktracker
+    # role                :hadoop_datanode
+    # role                :jenkins_node
+    # recipe              'hadoop_cluster::cluster_conf'
   end
 
   cluster_role.override_attributes({

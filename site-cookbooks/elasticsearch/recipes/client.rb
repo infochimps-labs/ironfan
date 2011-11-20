@@ -19,10 +19,10 @@
 # limitations under the License.
 #
 
-%w[libcurl4-openssl-dev wamerican-large].each do |pkg|
+%w[libcurl4-openssl-dev].each do |pkg|
   package pkg
 end
 
-%w[rubberband].each do |gem_pkg|
+%w[rubberband tire].each do |gem_pkg|
   gem_package gem_pkg
 end
