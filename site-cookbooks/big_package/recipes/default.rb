@@ -27,6 +27,7 @@
   s3cmd
   tidy
   ifstat
+  nmap chkconfig tree emacs23-nox elinks
 ].each do |pkg|
   package pkg
 end
@@ -34,6 +35,7 @@ end
 %w[
    extlib rails fastercsv json yajl-ruby
    addressable fog cheat configliere wukong gorillib
+   pry
 ].each do |gem_pkg|
   gem_package gem_pkg do
     action :install
