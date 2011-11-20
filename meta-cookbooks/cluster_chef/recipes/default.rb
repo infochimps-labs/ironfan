@@ -18,3 +18,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
+
+directory node[:cluster_chef][:home_dir] do
+  owner     'root'
+  group     'root'
+  mode      '0755'
+  action    :create
+end
+
+directory node[:cluster_chef][:conf_dir] do
+  owner     'root'
+  group     'root'
+  mode      '0755'
+  action    :create
+end

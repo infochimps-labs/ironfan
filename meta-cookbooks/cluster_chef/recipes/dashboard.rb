@@ -1,7 +1,7 @@
 #
 # Cookbook Name::       cluster_chef
-# Description::         Cluster Webfront
-# Recipe::              cluster_webfront
+# Description::         Creates a dashboard for this machine
+# Recipe::              dashboard
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #
 # Copyright 2011, Philip (flip) Kromer - Infochimps, Inc
@@ -25,23 +25,20 @@
 #
 
 package 'thttpd'
+package 'thttpd-util'
 
-case node[:platform]
-when 'debian', 'ubuntu'    then www_base = '/var/www'             # debian-ish
-else                            www_base = '/var/www/thttpd/html' # redhat-ish
+template "#{node[:cluster_chef][:home_dir]}/dashboard/index.html" do
+  owner         "root"
+  mode          "0644"
+  source        "dashboard_index.html.erb"
 end
 
-template "#{www_base}/index.html" do
-  owner "root"
-  mode "0644"
-  source "webfront_index.html.erb"
+template "#{node[:cluster_chef][:home_dir]}/dashboard-thttpd.conf" do
+  owner         "root"
+  mode          "0644"
+  source        "dashboard-thttpd.conf.erb"
 end
 
-execute "Enable thttpd" do
-  command %Q{sed -i -e 's|ENABLED=no|ENABLED=yes|' /etc/default/thttpd}
-  not_if "grep 'ENABLED=yes' '/etc/default/thttpd'"
-end
-
-service "thttpd" do
+runit_service "cluster_chef_dashboard" do
   action [ :start, :enable ]
 end

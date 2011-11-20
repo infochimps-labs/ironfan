@@ -27,6 +27,9 @@ ClusterChef.cluster 'el_ridiculoso' do
   facet :grande do
     instances           1
 
+    # recipe              'rstats'
+    recipe              'cluster_chef::dashboard'
+
     role                :elasticsearch_data_esnode
     role                :elasticsearch_http_esnode
 

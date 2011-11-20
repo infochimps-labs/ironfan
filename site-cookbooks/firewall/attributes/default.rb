@@ -1,1 +1,1 @@
-defaults[:firewall][:port_scan] = {}
+default[:firewall][:port_scan] = {}

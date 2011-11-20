@@ -1,4 +1,4 @@
-## Rprofile.site placed here by chef -- modify the Rstats cookbook, not this file
+## Rprofile.site placed here by chef -- modify the rstats cookbook, not this file
 ##
 ## see help(Startup) for documentation on ~/.Rprofile and Rprofile.site
 

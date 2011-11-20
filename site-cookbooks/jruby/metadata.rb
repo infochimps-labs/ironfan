@@ -16,25 +16,14 @@ recipe           "jruby::gems",                        "Gems"
 end
 
 attribute "jruby/home_dir",
-  :display_name          => "",
+  :display_name          => "Installed location of jruby",
   :description           => "",
   :default               => "/usr/lib/jruby"
 
 attribute "jruby/release_url",
-  :display_name          => "",
+  :display_name          => "JRuby release tarball to install",
   :description           => "",
-  :default               => "http://jruby.org.s3.amazonaws.com/downloads/1.5.6/jruby-bin-1.5.6.tar.gz"
-
-attribute "jruby/extra_jars",
-  :display_name          => "",
-  :description           => "",
-  :type                  => "array",
-  :default               => ["/usr/lib/hbase/hbase-0.90.1-cdh3u0.jar", "/usr/lib/hbase/hbase-0.90.1-cdh3u0-tests.jar", "/usr/lib/zookeeper/zookeeper.jar"]
-
-attribute "jruby/combine_splits",
-  :display_name          => "",
-  :description           => "",
-  :default               => "true"
+  :default               => "http://jruby.org.s3.amazonaws.com/downloads/1.6.5/jruby-bin-1.6.5.tar.gz"
 
 attribute "java/java_home",
   :display_name          => "",

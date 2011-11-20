@@ -12,10 +12,14 @@ apt-get clean ;
 updatedb ;
 
 # move away anything tied to the identity of this machine
-mv /etc/hostname /etc/node*name /var/www/index.html "$away_dir"
+mv /etc/hostname /etc/node*name /etc/cluster_chef/dashboard "$away_dir"
 # move away chef junk
 mv /var/chef /etc/chef/*.json /etc/chef/*.pem /etc/chef/*~ "$away_dir"
 
+# remove org-specific info from top of /etc/chef/client.rb
+cp /etc/chef/client.rb  "$away_dir"
+perl -pi -e 's!^(node_name|chef_server_url|validation_client_name)\s+"[^"]+"\n!!' /etc/chef/client.rb 
+ 
 # make a nice bland motd
 . /etc/lsb-release 
 img_info="  infochimps-$DISTRIB_CODENAME-`uname -i`-`ruby --version | cut -d' '  -f2`-`date +"%Y%m%d-%H"`"
@@ -36,8 +40,8 @@ ls -l /etc/service/
 
 echo "Done!"
 echo ""
-echo "Go to the console; hit 'stop' on the machine, count to a hundred,"
-echo "then hit 'Create Image (EBS AMI)'. Name the AMI something like"
+echo "Go to the console; hit 'stop' on the machine, count in prime numbers up to"
+echo "one hundred, then hit 'Create Image (EBS AMI)'. Name the AMI something like"
 echo ""
 echo "  $img_info"
 echo ""

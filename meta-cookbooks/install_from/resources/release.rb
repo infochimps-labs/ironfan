@@ -62,8 +62,6 @@ def assume_defaults!
   release_basename =~ %r{^(.+?)\.(tar\.gz|tar\.bz2|zip)$}
   release_basename, release_ext = [$1, $2]
 
-  Chef::Log.info( [self, release_basename, release_ext, self.to_hash, release_url, prefix_root ].inspect )
-
   @install_dir   ||= ::File.join(prefix_root, 'share', release_basename)
   @home_dir      ||= ::File.join(prefix_root, 'share', name)
   @release_file  ||= ::File.join(prefix_root, 'src', ::File.basename(release_url))
@@ -74,4 +72,6 @@ def assume_defaults!
     when 'zip' then 'unzip'
     else raise "Don't know how to expand #{release_url} which has extension '#{release_ext}'"
     end
+
+  # Chef::Log.debug( [self, install_dir, home_dir, release_file, release_basename, release_ext, release_url, prefix_root ].inspect )
 end

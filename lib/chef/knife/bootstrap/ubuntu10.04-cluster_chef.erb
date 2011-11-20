@@ -105,7 +105,7 @@ EOP
 ) > /etc/chef/first-boot.json
 
 echo -e "`date` \n\n**** \n**** Adding chef client runit scripts:\n****\n"
-service chef-client stop 2>/dev/null ; sleep 1 ; killall chef-client 2>/dev/null ; true
+service chef-client stop >/dev/null 2>&1 ; sleep 1 ; killall chef-client 2>/dev/null ; true
 mkdir -p /var/log/chef /var/chef /etc/service /etc/sv/chef-client/{log/main,supervise} 
 cat > /etc/sv/chef-client/log/run <<EOF
 #!/bin/bash

@@ -1,0 +1,14 @@
+<html>
+  <head>
+    <title>Cluster Dashboard</title>
+  </head>
+  <body>
+
+<ul>
+  <%- Dir["#{node[:cluster_chef][:home_dir]}/dashboard/*.html"].sort.each do |filename| %>
+  <li><a href="<%= File.basename(filename) %>"><%= File.basename(filename) %></a></li>
+  <%- end %>
+</ul>
+    
+  </body>
+</html>

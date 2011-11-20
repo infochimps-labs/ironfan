@@ -33,7 +33,6 @@ ClusterChef.cluster 'burninator' do
     recipe              'cluster_chef::burn_ami_prep'
 
     role                'big_package'
-    role                'elasticsearch_client'
     role                'hadoop'
     role                'pig'
     role                'web_server'

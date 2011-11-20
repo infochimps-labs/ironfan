@@ -17,6 +17,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-default[:Rstats][:home_dir]  = '/usr/lo'
+default[:rstats][:home_dir]  = '/usr/lo'
 
-default[:Rstats][:cran_mirror_url] = "http://cran.us.r-project.org"
+default[:rstats][:cran_mirror_url] = "http://cran.us.r-project.org"
