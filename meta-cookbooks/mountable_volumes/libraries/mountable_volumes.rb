@@ -1,21 +1,20 @@
-module ClusterEbsVolumes
+module MountableVolumes
 
   # mountable volume mapping for this node
   #
   # @example
   #   # all three listed volumes will be mounted.
-  #   node[:mountable_volumes] = {
-  #     :volumes => {
-  #       :hdfs1 => { "device": "/dev/sdj",  "volume_id": "vol-cf0ed8a6", "mount_point": "/data/hdfs1", :attachable => :ebs },
-  #       :hdfs2 => { "device": "/dev/sdk",  "volume_id": "vol-c10ed8a8", "mount_point": "/data/hdfs2", :attachable => :ebs },
-  #       :mnt2  => { "device": "/dev/sdc",  "volume_id": "ephemeral1",   "mount_point": "/mnt2", },
-  #     }
-  #   }
+  #   node[:mountable_volumes] = { :volumes => {
+  #     :root     => {                         :mount_point => "/",     :scratch => true, },
+  #     :scratch1 => { :device => "/dev/sdb",  :mount_point => "/mnt",  :scratch => true, },
+  #     :scratch2 => { :device => "/dev/sdc",  :mount_point => "/mnt2", :scratch => true, },
+  #     :hdfs1    => { :device => "/dev/sdj",  :mount_point => "/data/hdfs1", :persistent => true, :attachable => :ebs },
+  #     :hdfs2    => { :device => "/dev/sdk",  :mount_point => "/data/hdfs2", :persistent => true, :attachable => :ebs },
+  #     } }
   def mountable_volumes
     vols = node[:mountable_volumes][:volumes].to_hash || {}
     vols.reject!{|vol_name, vol| vol['mount_point'].to_s.empty? || (vol['mountable'].to_s == 'false') }
     fix_for_xen!(vols)
-    # Chef::Log.info( JSON.pretty_generate(vols) )
     vols
   end
 
@@ -34,7 +33,7 @@ module ClusterEbsVolumes
   #   }
   def attachable_volumes(type)
     return({}) unless mountable_volumes
-    mountable_volumes.select{|vol_name, vol| vol['attachable'].to_s == type.to_s && (! vol['volume_id'].to_s.empty?) }
+    mountable_volumes.select{|vol_name, vol| vol['attachable'].to_s == type.to_s && (not vol['volume_id'].to_s.empty?) }
   end
 
   def mounted_volumes
@@ -45,44 +44,16 @@ module ClusterEbsVolumes
     mounted_volumes.select{|vol_name, vol| vol['tags'] && vol['tags'][tag] }
   end
 
-  # Loads AWS credentials, from either databag or node metadata.
-  # node metadata is supported, but is much less secure.
-  #
-  # @example
-  #   # in your node definition
-  #   default[:mountable_volumes][:aws_credential_source] = :node_attributes
-  #   mountable_volumes_aws_credentials
-  #   # { 'aws_access_key_id' => 'XXX', 'aws_secret_access_key' => 'XXX', ... }
-  #
-  def mntvol_aws_credentials
-    if    node[:mountable_volumes][:aws_credential_source].to_s == 'data_bag'
-      begin
-        aws = data_bag_item("aws", node[:mountable_volumes][:aws_credential_handle])
-      rescue Net::HTTPServerException => e
-        Chef::Log.warn("Can't load data bag for AWS credentials #{node[:mountable_volumes][:aws_credential_handle]}: #{e}")
-        return nil
-      end
-    elsif node[:mountable_volumes][:aws_credential_source].to_s == 'node_attributes'
-      aws = node[:aws]
-    end
-    if aws.nil? || aws.empty? || aws['aws_access_key_id'].nil?
-      Chef::Log.warn("You must set AWS permissions in your aws #{node[:mountable_volumes][:aws_credential_source]} for ebs::attach_volumes to work")
-    else
-      Chef::Log.info(aws.to_hash.inspect)
-    end
-    aws
-  end
-
   # Use `file -s` to identify volume type: ohai doesn't seem to want to do so.
-  def fstype_from_file_magic(dev)
-    return 'ext3' unless File.exists?(dev)
-    dev_type_str = `file -s '#{dev}'`
+  def volume_fstype(vol)
+    return vol['fstype'] if vol['fstype']
+    return 'ext3' unless File.exists?(vol['device'])
+    dev_type_str = `file -s '#{vol['device']}'`.chomp
     case
     when dev_type_str =~ /SGI XFS/           then 'xfs'
-    when dev_type_str =~ /Linux.*ext3/       then 'ext3'
+    when dev_type_str =~ /Linux.*(ext[2-4])/ then $1
     else
-      Chef::Log.info("Can't determine filesystem type of #{dev} -- consider setting it explicitly in node[:mountable_volumes]")
-      'ext3'
+      raise "Can't determine filesystem type of #{vol['device']} -- set it explicitly in node[:mountable_volumes]"
     end
   end
 
@@ -101,9 +72,9 @@ module ClusterEbsVolumes
       vol['device'].gsub!(%r{^/dev/sd}, '/dev/xvd')
     end
   end
-  
+
 end
 
-class Chef::Recipe              ; include ClusterEbsVolumes ; end
-class Chef::Resource::Directory ; include ClusterEbsVolumes ; end
-class Chef::Resource            ; include ClusterEbsVolumes ; end
+class Chef::Recipe              ; include MountableVolumes ; end
+class Chef::Resource::Directory ; include MountableVolumes ; end
+class Chef::Resource            ; include MountableVolumes ; end

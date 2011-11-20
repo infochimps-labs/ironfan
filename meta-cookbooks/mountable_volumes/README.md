@@ -1,23 +1,26 @@
 # mountable_volumes chef cookbook
 
-Mounts volumes  as directed by node metadata. Can attach external cloud drives, such as ebs volumes.
+Mount volumes as directed by node metadata, and coordinate use of those volumes by other cookbooks.
 
 ## Overview
 
-Mounts volumes  as directed by node metadata. Can attach external cloud drives, such as ebs volumes.
+Cookbooks want to know not just what volumes are available, but their logical purpose: 'scratch space', 'persistent', 'super-fast flash-drive storage'. The details of that mapping shouldn't be their concern, only to request those resources and use them responsibly.
 
-Heavily inspired by [Robert Berger's HOWTO](http://blog.ibd.com/scalable-deployment/using-the-opscode-aws-cookbook-to-attach-an-ec2-ebs-volume/)
+This meta-cookbook coordinates the machine's aspect of having various volumes and various systems cookbooks' concern of allocating storage on them.
+
+
 
 ## Attributes
 
+* `[:mountable_volumes][:aws_credential_source]` -  (default: "data_bag")
 * `[:mountable_volumes][:aws_credential_source]` -  (default: "data_bag")
 * `[:mountable_volumes][:aws_credential_handle]` -  (default: "main")
 
 ## Recipes 
 
-* `attach`                   - Attach
 * `default`                  - Base configuration for mountable_volumes
 * `mount`                    - Mount
+
 ## Integration
 
 Supports platforms: debian and ubuntu
