@@ -20,6 +20,7 @@
 #
 
 include_recipe "runit"
+include_recipe 'redis::default'
 
 directory "/var/log/redis" do
   owner     "redis"
@@ -36,8 +37,8 @@ directory node[:redis][:data_dir] do
   recursive true
 end
 
-runit_service "redis-server" do
+runit_service "redis_server" do
   action        :enable
 end
 
-provide_service("#{node[:cluster_name]}-redis", :port => node[:redis][:server][:port])
+provide_service("#{node[:cluster_name]}-redis_server", :port => node[:redis][:server][:port])

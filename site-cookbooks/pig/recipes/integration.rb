@@ -19,12 +19,8 @@
 # limitations under the License.
 #
 
-# so that we can pull in their jars
-# FIXME: only do these things if they announce
-include_recipe 'hbase'
-include_recipe 'zookeeper'
-
 [:zookeeper, :hbase].each do |other_system|
+  next unless node[other_system]
 
   #
   # Link hbase, zookeeper, etc jars to $PIG_HOME/lib

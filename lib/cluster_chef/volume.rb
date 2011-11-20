@@ -7,26 +7,29 @@ module ClusterChef
     attr_accessor :fog_volume
     has_keys(
       :name,
-      :volume_id, :snapshot_id, :size,
-      :device, :mount_point, :mount_options, :fs_type,
-      :availability_zone, :mountable,
-      :keep, :attachable, :create_at_launch,
+      # mountable volume attributes
+      :device, :mount_point, :mount_options, :fstype, :mount_dump, :mount_pass,
+      # cloud volume attributes
+      :attachable, :create_at_launch, :volume_id, :snapshot_id, :size, :keep, :availability_zone,
+      # arbitrary tags
       :tags
       )
 
     VOLUME_DEFAULTS = {
-      :fs_type          => 'xfs',
+      :fstype          => 'xfs',
       :mount_options    => 'defaults,nouuid,noatime',
       :attachable       => :ebs,
       :create_at_launch => false,
       :keep             => true,
     }
 
+    # Describes a volume
     #
-    # ClusterChef::Volume.new(
-    #   :device => '/dev/sdj', :mount_point => '/ebs1', :fs_type => 'xfs', :mount_options => 'defaults,nouuid,noatime'
-    #   :size => 1024, :snapshot_id => 'snap-66494a08', :volume_id => 'vol-12312',
-    #   :tags => {}, :keep => false )
+    # @example
+    #   ClusterChef::Volume.new( :name => 'redis',
+    #     :device => '/dev/sdp', :mount_point => '/data/redis', :fstype => 'xfs', :mount_options => 'defaults,nouuid,noatime'
+    #     :size => 1024, :snapshot_id => 'snap-66494a08', :volume_id => 'vol-12312',
+    #     :tags => {}, :keep => true )
     #
     def initialize attrs={}
       @parent = attrs.delete(:parent)

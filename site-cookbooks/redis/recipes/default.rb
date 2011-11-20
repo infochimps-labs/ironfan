@@ -34,10 +34,9 @@ directory "/etc/redis" do
   action    :create
 end
 
-template "#{node[:resque][:conf_dir]}/redis.conf" do
+template "#{node[:redis][:conf_dir]}/redis.conf" do
   source        "redis.conf.erb"
   owner         "root"
   group         "root"
   mode          "0644"
-  notifies(:restart, resources(:service => "redis-server"))
 end

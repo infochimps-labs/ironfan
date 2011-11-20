@@ -1,1 +1,3 @@
-export HBASE_CONF_DIR=<%= node[:hbase][:conf_dir] %>
+<%- if node[:hbase] && node[:hbase][:conf_dir] %>
+export HBASE_CONF_DIR="<%= node[:hbase][:conf_dir] %>"
+<%- end %>
