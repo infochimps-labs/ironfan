@@ -22,12 +22,8 @@
 home_dir        = node[:cassandra][:home_dir]
 cassandra_install_dir = home_dir + '-git'
 
-directory File.dirname(home_dir) do
-  mode         '0755'
-  owner        'root'
-  group        'admin'
-  action       :create
-  recursive true
+standard_directories('cassandra') do
+  directories   :home_dir
 end
 
 git cassandra_install_dir do

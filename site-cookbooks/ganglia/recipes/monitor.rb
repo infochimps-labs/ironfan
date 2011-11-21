@@ -21,27 +21,23 @@
 
 include_recipe 'ganglia'
 
+daemon_user('ganglia.monitor')
+
 package "ganglia-monitor"
-
-
-# kill apt's service
-bash 'stop old ganglia-monitor service' do
-  command %Q{service ganglia-monitor stop; true}
-  only_if{ File.exists?('/etc/init.d/ganglia-monitor') }
-end
-file('/etc/init.d/ganglia-monitor'){ action :delete }
 
 #
 # Create service
 #
 
-daemon_user('ganglia.monitor')
-
 standard_directories('ganglia.monitor') do
   directories [:home_dir, :log_dir, :conf_dir, :pid_dir, :data_dir]
 end
 
-runit_service "ganglia_monitor" 
+kill_old_service('ganglia-monitor'){ pattern 'gmond' }
+
+runit_service "ganglia_monitor" do
+  options       node[:ganglia]
+end
 
 service("ganglia_monitor"){ action node[:ganglia][:monitor][:service_state] }
 

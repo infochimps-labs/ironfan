@@ -93,11 +93,11 @@ task :create_runit, :cookbook, :template_name do |t, args|
   sv_run_script_file = File.join(template_dir, "sv-#{template_name}-run.erb")
   sv_log_script_file = File.join(template_dir, "sv-#{template_name}-log-run.erb")
   #
-  sv_log_script_text = %Q{\#!/bin/sh\nexec svlogd -tt <%= node[:#{cookbook}][:log_dir] || './main' %>}
+  sv_log_script_text = %Q{\#!/bin/sh\nexec svlogd -tt @options[:log_dir]}
   sv_run_script_text = %Q{#!/bin/bash
 exec 2>&1
-cd   <%= node[:#{cookbook}][:pid_dir] %>
-exec chpst -u <%= node[:#{cookbook}][:user] %> /usr/bin/#{template_name}
+cd   <%= @options[:pid_dir] %>
+exec chpst -u <%= @options[:user] %> /usr/sbin/#{template_name}
 }
   FileUtils.mkdir_p(template_dir)
   if File.exists?(sv_run_script_file) || File.exists?(sv_log_script_file)

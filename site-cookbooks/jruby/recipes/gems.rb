@@ -22,6 +22,6 @@
 # hbase-stargate
 %w[json configliere gorillib erubis extlib chimps net-http-persistent i18n wukong activesupport].each do |rubygem|
   gem_package rubygem do
-    gem_binary "/usr/lib/jruby/bin/chef-jgem"
+    gem_binary File.join(node[:jruby][:home_dir], 'bin/chef-jgem')
   end
 end

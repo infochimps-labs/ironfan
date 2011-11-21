@@ -25,44 +25,39 @@ include_recipe "runit"
 include_recipe "mountable_volumes"
 include_recipe "cluster_chef"
 
-%w[ sun-java6-jdk  sun-java6-bin ].each{|pkg| package(pkg) }
+package 'sun-java6-jdk'
+package 'sun-java6-bin'
 
-%w[ cassandra avro
-].each{|pkg| gem_package(pkg){ action :install } }
-
-#%w[ simplejson avro
-#].each{|pkg| easy_install_package(pkg){ action :install } }
+gem_package 'cassandra'
+gem_package 'avro'
 
 daemon_user(:cassandra) do
   create_group  false
 end
 
-# user "cassandra" do
-#   uid           '330'
-#   shell         '/bin/false'
-#   action        :create
-#   supports      :manage_home => false
-#   not_if{ node[:etc][:passwd] && node[:etc][:passwd]['cassandra'] }
+standard_directories(:cassandra) do
+  directories   [:conf_dir, :log_dir, :lib_dir, :pid_dir, :data_dirs, :commitlog_dir, :saved_caches_dir]
+  group         'root'
+end
+
+# [ # node[:cassandra][:lib_dir],
+#   node[:cassandra][:data_dirs],
+#   node[:cassandra][:log_dir],
+#   node[:cassandra][:commitlog_dir],
+#   node[:cassandra][:saved_caches_dir]
+# ].flatten.each do |cassandra_dir|
+#   directory cassandra_dir do
+#     owner    "cassandra"
+#     group    "root"
+#     mode     "0755"
+#     action   :create
+#     recursive true
+#   end
 # end
 
-[ # node[:cassandra][:lib_dir],
-  node[:cassandra][:data_dirs],
-  node[:cassandra][:log_dir],
-  node[:cassandra][:commitlog_dir],
-  node[:cassandra][:saved_caches_dir]
-].flatten.each do |cassandra_dir|
-  directory cassandra_dir do
-    owner    "cassandra"
-    group    "root"
-    mode     "0755"
-    action   :create
-    recursive true
-  end
-end
-
-directory "/etc/cassandra" do
-  owner     "root"
-  group     "root"
-  mode      "0755"
-  action    :create
-end
+# directory "/etc/cassandra" do
+#   owner     "root"
+#   group     "root"
+#   mode      "0755"
+#   action    :create
+# end

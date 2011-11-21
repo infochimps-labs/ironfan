@@ -6,6 +6,7 @@ STANDARD_DIRS = Mash.new({
   :pid_dir   => { :uid => :user,  :gid => :group, },
   :tmp_dir   => { :uid => :user,  :gid => :group, },
   :data_dir  => { :uid => :user,  :gid => :group, },
+  :data_dirs => { :uid => :user,  :gid => :group, },
   :cache_dir => { :uid => :user,  :gid => :group, },
 }) unless defined?(STANDARD_DIRS)
 
@@ -34,20 +35,22 @@ define(:standard_directories,
   params[:group]      ||= scoped_default(params, :group,    params[:user])
 
   [params[:directories]].flatten.each do |dir_type|
-    dir_path = scoped_default(params, dir_type)
-    unless dir_path
-      Chef::Log.warn "Missing definition of #{dir_type} for #{params[:name]}.#{params[:component]} -- #{node[name].to_hash.inspect}"
+    dir_paths = scoped_default(params, dir_type)
+    unless dir_paths
+      Chef::Log.warn "Missing definition of #{dir_type} for #{params[:name]}.#{params[:component]} -- #{node[params[:name]].to_hash.inspect}"
       next
     end
     hsh = (STANDARD_DIRS.include?(dir_type) ? STANDARD_DIRS[dir_type].dup : Mash.new)
     hsh[:uid] = params[:user]  if (hsh[:uid] == :user )
     hsh[:gid] = params[:group] if (hsh[:gid] == :group)
-    directory dir_path do
-      owner       hsh[:uid]
-      group       hsh[:gid]
-      mode        hsh[:mode] || '0755'
-      action      :create
-      recursive   true
+    [dir_paths].flatten.each do |dir_path|
+      directory dir_path do
+        owner       hsh[:uid]
+        group       hsh[:gid]
+        mode        hsh[:mode] || '0755'
+        action      :create
+        recursive   true
+      end
     end
   end
 

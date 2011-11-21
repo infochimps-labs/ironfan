@@ -25,16 +25,18 @@
 
 directory('/etc/sv/cassandra/env'){ owner 'root' ; action :create ; recursive true }
 
-template "/etc/cassandra/cassandra.yaml" do
-  source    "cassandra.yaml.erb"
-  owner     "root"
-  group     "root"
-  mode      0644
+template "#{node[:cassandra][:conf_dir]}/cassandra.yaml" do
+  source        "cassandra.yaml.erb"
+  owner         "root"
+  group         "root"
+  mode          "0644"
+  variables     :cassandra => node[:cassandra]
 end
 
-template "/etc/cassandra/log4j-server.properties" do
-  source    "log4j-server.properties.erb"
-  owner     "root"
-  group     "root"
-  mode      0644
+template "#{node[:cassandra][:conf_dir]}/log4j-server.properties" do
+  source        "log4j-server.properties.erb"
+  owner         "root"
+  group         "root"
+  mode          "0644"
+  variables     :cassandra => node[:cassandra]
 end

@@ -1,75 +1,69 @@
 #!/bin/sh
-export JAVA_HOME=/usr/lib/jvm/java-6-sun/jre CASSANDRA_CONF=/etc/cassandra/storage-conf.xml CASSANDRA_HOME=/usr/local/share/cassandra
-
-cassandra_home=<%= node[:cassandra][:home_dir] %>
-cassandra_bin=${cassandra_home}/build/classes
-CASSANDRA_CONF=<%= node[:cassandra][:conf_dir] %>
-CASSANDRA_USER=<%= node[:cassandra][:user] %>
+<%- @cassandra ||= @options %>
+export JAVA_HOME=/usr/lib/jvm/java-6-sun/jre 
+export CASSANDRA_CONF=<%= @cassandra[:conf_dir] %>
+export CASSANDRA_HOME=<%= @cassandra[:home_dir] %>
+CASSANDRA_USER=<%= @cassandra[:user] %>
+cassandra_bin=${CASSANDRA_HOME}/build/classes
 CLASSPATH=$CASSANDRA_CONF:$cassandra_bin
 
-for jar in $cassandra_home/lib/*.jar; do
+for jar in $CASSANDRA_HOME/lib/*.jar; do
   CLASSPATH=$CLASSPATH:$jar
 done
+
+source ${CASSANDRA_HOME}/conf/cassandra-env.sh
+
+JMX_PORT=<%= @cassandra[:jmx_port] %>
 
 # bump number of open files allowed way way up
 ulimit -n 65535
 # allow cassandra to lock itself into memory if JNA is installed
 ulimit -l unlimited
 
-exec chpst -u${CASSANDRA_USER} -e /etc/sv/cassandra/env -o 65535 \
-  /usr/bin/java                                                 \
-<%- if false %>
-      -ea                                                       \
-<%- end %>
-      -XX:+UseThreadPriorities                                  \
-      -XX:ThreadPriorityPolicy=42                               \
-      -XX:+UseParNewGC                                          \
-      -XX:+UseConcMarkSweepGC                                   \
-      -XX:+CMSParallelRemarkEnabled                             \
-      -XX:+HeapDumpOnOutOfMemoryError                           \
-<%- [["ms", :java_heap_size_min], ["mx", :java_heap_size_max], ["mn", :java_heap_size_eden]].each do |opt| %>
-<%-   unless node[:cassandra][opt[1]].nil? %>
-      -X<%= opt[0] %><%= node[:cassandra][opt[1]] %>            \
+echo $JVM_OPTS
+
+exec chpst -u${CASSANDRA_USER} -e /etc/sv/cassandra/env -o 65535       \
+  /usr/bin/java                                                        \
+  $JVM_OPTS                                                            \
+<%- [["ms", :java_heap_size_min], ["mx", :java_heap_size_max]].each do |opt| %>
+<%-   unless @cassandra[opt[1]].nil? %>
+      -X<%= opt[0] %><%= @cassandra[opt[1]] %>                         \
 <%-   end %>
 <%- end %>
-      -Xss128k                                                  \
-      -XX:SurvivorRatio=4                                       \
-      -XX:MaxTenuringThreshold=8                                \
-      -XX:TargetSurvivorRatio=70                                \
-      -XX:CMSInitiatingOccupancyFraction=65                     \
-      -Dcassandra.compaction.priority=1                         \
-<%- if node[:cassandra][:passwd_use_md5] %>
-      -Dpasswd.mode=MD5                                         \
+<%- if @cassandra[:passwd_use_md5] %>
+      -Dpasswd.mode=MD5                                                \
 <%- end %>
-<%- if node[:cassandra][:passwd_properties] %>
-      -Dpasswd.properties=<%= node[:cassandra][:passwd_properties] %>  \
+<%- if @cassandra[:passwd_properties] %>
+      -Dpasswd.properties=<%= @cassandra[:passwd_properties] %>        \
 <%- end %>
-<%- if node[:cassandra][:access_properties] %>
-      -Daccess.properties=<%= node[:cassandra][:access_properties] %>  \
+<%- if @cassandra[:access_properties] %>
+      -Daccess.properties=<%= @cassandra[:access_properties] %>        \
 <%- end %>
-<%- if node[:cassandra][:enable_mx4j] %>
-      -Dmx4jaddress=<%= node[:cassandra][:mx4j_listen_addr] %>  \
-      -Dmx4jport=<%= node[:cassandra][:mx4j_listen_port] %>     \
+<%- if @cassandra[:enable_mx4j] %>
+      -Dmx4jaddress=<%= @cassandra[:mx4j_listen_addr] %>               \
+      -Dmx4jport=<%= @cassandra[:mx4j_listen_port] %>                  \
 <%- end %>
 <%- if true %>
-      -XX:+PrintGCTimeStamps                                    \
-      -XX:+PrintTenuringDistribution                            \
-      -XX:+TraceClassUnloading                                  \
-      -XX:+PrintGCDetails                                       \
-      -verbose:gc                                               \
-      -Xloggc:/var/log/cassandra/cassandra-gc.log               \
+      -XX:+PrintGCDetails                                              \
+      -XX:+PrintGCTimeStamps                                           \
+      -XX:+PrintTenuringDistribution                                   \
+      -XX:+TraceClassUnloading                                         \
+      -XX:+PrintClassHistogram                                         \
+      -XX:+PrintGCApplicationStoppedTime                               \
+      -Xloggc:/var/log/cassandra/cassandra-gc-`date +%s`.log           \
+      -verbose:gc                                                      \
 <%- end %>
-      -Djava.rmi.server.hostname=<%= node[:ec2][:public_hostname] %> \
-      -Dcom.sun.management.jmxremote.port=<%= node[:cassandra][:jmx_port] %> \
-      -Dcom.sun.management.jmxremote.ssl=false                  \
-      -Dcom.sun.management.jmxremote.authenticate=false         \
-      -Dcassandra-config=${CASSANDRA_CONF}                      \
-      -Dcassandra-foreground=yes                                \
+      -Djava.rmi.server.hostname=<%= node[:ec2][:public_hostname] %>   \
+      -Dcom.sun.management.jmxremote.port=<%= @cassandra[:jmx_port] %> \
+      -Dcom.sun.management.jmxremote.ssl=false                         \
+      -Dcom.sun.management.jmxremote.authenticate=false                \
+      -Dcassandra-config=${CASSANDRA_CONF}                             \
+      -Dcassandra-foreground=yes                                       \
 <%- if node[:kernel][:machine] == "x86_64" %>
-      -XX:+UseCompressedOops                                    \
+      -XX:+UseCompressedOops                                           \
 <%- end %>
-      -Dlog4j.configuration=log4j-server.properties             \
-      -cp ${CLASSPATH}                                          \
+      -Dlog4j.configuration=log4j-server.properties                    \
+      -cp ${CLASSPATH}                                                 \
 org.apache.cassandra.thrift.CassandraDaemon 2>&1
       
 

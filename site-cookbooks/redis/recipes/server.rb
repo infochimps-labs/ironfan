@@ -32,6 +32,8 @@ standard_directories('redis.server') do
   directories   :log_dir, :data_dir, :conf_dir
 end
 
+kill_old_service('redis-server'){ pattern 'gmond' ; not_if{ File.exists?("/etc/init.d/redis-server") } }
+
 runit_service "redis_server" do
   action        :enable
   options       node[:redis]

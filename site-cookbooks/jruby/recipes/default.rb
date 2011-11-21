@@ -38,8 +38,9 @@ directory File.join(node[:jruby][:home_dir], 'bin') do
   action    :create
 end
 
-cookbook_file File.join(node[:jruby][:home_dir], 'bin/chef-jgem') do
-  source        "chef-jgem"
+template File.join(node[:jruby][:home_dir], 'bin/chef-jgem') do
+  source        "chef-jgem.erb"
+  variables     :jruby => node[:jruby]
   owner         "root"
   mode          "0755"
 end

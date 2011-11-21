@@ -32,12 +32,14 @@ bash 'move storage-conf out of the way' do
   user         'root'
   cwd          node[:cassandra][:home_dir]
   code         'mv conf/storage-conf.xml conf/storage-conf.xml.orig'
-  not_if{ File.symlink?('/etc/cassandra/storage-conf.xml') }
+  not_if{  File.symlink?("#{node[:cassandra][:home_dir]}/storage-conf.xml") }
+  only_if{ File.exists?( "#{node[:cassandra][:home_dir]}/storage-conf.xml") }
 end
 
 link "#{node[:cassandra][:conf_dir]}/storage-conf.xml" do
   to "#{node[:cassandra][:home_dir]}/conf/storage-conf.xml"
   action        :create
+  only_if{ File.exists?( "#{node[:cassandra][:conf_dir]}/storage-conf.xml") }
 end
 
 link "#{node[:cassandra][:home_dir]}/cassandra.in.sh" do

@@ -28,6 +28,6 @@ if node[:elasticsearch][:seeds].nil?
 end
 
 runit_service "elasticsearch" do
-  run_restart false               # don't automatically start or restart daemons
-  action      []
+  run_restart   false   # don't automatically start or restart daemons
+  options       node[:elasticsearch]
 end

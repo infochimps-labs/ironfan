@@ -20,31 +20,33 @@
 #
 
 directory('/etc/sv/cassandra/env'){ owner 'root' ; action :create ; recursive true }
-runit_service "cassandra"
+runit_service "cassandra" do
+  options       node[:cassandra]
+end
 
 include_recipe("cassandra::authentication")
 
-template "/etc/cassandra/cassandra.yaml" do
-  source    "cassandra.yaml.erb"
-  owner     "root"
-  group     "root"
-  mode      0644
-  notifies  :restart, resources(:service => "cassandra")
+template "#{node[:cassandra][:conf_dir]}/cassandra.yaml" do
+  source        "cassandra.yaml.erb"
+  owner         "root"
+  group         "root"
+  mode          "0644"
+  variables     :cassandra => node[:cassandra]
+  notifies      :restart, resources(:service => "cassandra")
 end
 
-template "/etc/cassandra/log4j-server.properties" do
-  source    "log4j-server.properties.erb"
-  owner     "root"
-  group     "root"
-  mode      0644
-  notifies  :restart, resources(:service => "cassandra")
+template "#{node[:cassandra][:conf_dir]}/log4j-server.properties" do
+  source        "log4j-server.properties.erb"
+  owner         "root"
+  group         "root"
+  mode          "0644"
+  variables     :cassandra => node[:cassandra]
+  notifies      :restart, resources(:service => "cassandra")
 end
 
 # have some fraction of the nodes register as a seed with
 # provides_service
-if node[:facet_index].nil? ||
-    (node[:facet_index].to_i % 3 == 0) ||
-    node[:cassandra][:seed_node]
+if (node[:cassandra][:seed_node] || (node[:facet_index].to_i % 3 == 0) )
   provide_service(node[:cassandra][:cluster_name] + '-cassandra-seed')
 end
 provide_service(node[:cassandra][:cluster_name] + '-cassandra')

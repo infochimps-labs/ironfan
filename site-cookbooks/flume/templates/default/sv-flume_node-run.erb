@@ -1,0 +1,4 @@
+#!/bin/bash
+exec 2>&1
+cd   <%= @options[:pid_dir] %>
+exec chpst -u <%= @options[:user] %> /usr/sbin/flume_node

@@ -1,5 +1,5 @@
 #!/bin/bash
+
 exec 2>&1
-echo Running $0 with conf <%= node[:ganglia][:conf_dir] %> as <%= node[:ganglia][:user] %>
-cd   <%= node[:ganglia][:pid_dir] %>
-exec chpst -u <%= node[:ganglia][:user] %> /usr/sbin/gmond --debug=1 --foreground --conf=<%= node[:ganglia][:conf_dir] %>/gmond.conf
+cd   <%= @options[:pid_dir] %>
+exec chpst -u <%= @options[:user] %> /usr/sbin/gmond  --conf=<%= @options[:conf_dir] %>/gmond.conf  --debug=1 --foreground

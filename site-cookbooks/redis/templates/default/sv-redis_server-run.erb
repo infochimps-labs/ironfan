@@ -1,5 +1,5 @@
 #!/bin/bash
-<%- @redis = @options %>
+<%- @redis ||= @options %>
 
 cd <%= @redis[:data_dir] %>
 

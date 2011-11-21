@@ -1,4 +1,5 @@
 #!/bin/bash
+
 exec 2>&1
-cd   <%= node[:ganglia][:pid_dir] %>
-exec chpst -u <%= node[:ganglia][:user] %> /usr/sbin/gmetad --conf=<%= node[:ganglia][:conf_dir] %>/gmetad.conf --debug=1
+cd   <%= @options[:pid_dir] %>
+exec chpst -u <%= @options[:user] %> /usr/sbin/gmetad --conf=<%= @options[:conf_dir] %>/gmetad.conf --debug=1

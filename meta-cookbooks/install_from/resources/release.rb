@@ -103,5 +103,5 @@ def assume_defaults!
     else raise "Don't know how to expand #{release_url} which has extension '#{release_ext}'"
     end
 
-  Chef::Log.info( [self, install_dir, home_dir, release_file, release_basename, release_ext, release_url, prefix_root ].inspect )
+  # Chef::Log.debug( [install_dir, home_dir, release_file, release_basename, release_ext, release_url, prefix_root ].inspect )
 end

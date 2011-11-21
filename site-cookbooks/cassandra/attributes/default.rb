@@ -39,8 +39,8 @@ default[:cassandra][:log_dir]           = '/var/log/cassandra'
 default[:cassandra][:lib_dir]           = '/var/lib/cassandra'
 default[:cassandra][:pid_dir]           = '/var/run/cassandra'
 
-default[:cassandra][:commitlog_dir]     = "/mnt/cassandra/commitlog"
 default[:cassandra][:data_dirs]         = ["/data/db/cassandra"]
+default[:cassandra][:commitlog_dir]     = "/mnt/cassandra/commitlog"
 default[:cassandra][:saved_caches_dir]  = "/var/lib/cassandra/saved_caches"
 
 default[:cassandra][:user]              = 'cassandra'
@@ -76,8 +76,10 @@ default[:cassandra][:git_repo]          = 'git://git.apache.org/cassandra.git'
 default[:cassandra][:git_revision]      = 'cdd239dcf82ab52cb840e070fc01135efb512799' # 'HEAD'
 # JNA deb location
 default[:cassandra][:jna_deb_amd64_url] = "http://debian.riptano.com/maverick/pool/libjna-java_3.2.7-0~nmu.2_amd64.deb"
-# MX4J Location (Version 3.0.2)
-default[:cassandra][:mx4j_url]          = "http://downloads.sourceforge.net/project/mx4j/MX4J%20Binary/3.0.2/mx4j-3.0.2.zip?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fmx4j%2Ffiles%2F&ts=1303407638&use_mirror=iweb"
+# MX4J Version
+default[:cassandra][:mx4j_version]      = "3.0.2"
+# MX4J location (at least as of Version 3.0.2)
+default[:cassandra][:mx4j_release_url]  = "http://downloads.sourceforge.net/project/mx4j/MX4J%20Binary/#{node[:cassandra][:mx4j_version]}/mx4j-#{node[:cassandra][:mx4j_version]}.zip?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fmx4j%2Ffiles%2F&ts=1303407638&use_mirror=iweb"
 
 #
 # Tunables - Partitioning

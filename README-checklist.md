@@ -31,6 +31,10 @@ You should also separate system configuration from multi-system integration. Coo
 * `include_recipe` statements should only appear in recipes that are entry points. Recipes that are not meant to be called directly should assume their dependencies have been met.
 * If a recipe is meant to be the primary entrypoint, it *should* include default, and it should do so explicitly: `include_recipe 'foo::default'` (not just 'foo'). 
 
+### Templates
+
+* *DO NOT* use node[:foo] in your recipes except in rare circumstances. Instead, say `variables :foo => node[:foo]`; this lets folks use that cookbook from elsewhere.
+
 ### Attributes
  
 * Scope concerns by *cookbook* or *cookbook and component*. `node[:hadoop]` holds cookbook-wide concerns, `node[:hadoop][:namenode]` holds component-specific concerns.

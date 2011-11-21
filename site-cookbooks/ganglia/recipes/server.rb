@@ -21,15 +21,10 @@
 
 include_recipe 'ganglia'
 
+daemon_user('ganglia.server')
+
 package "ganglia-webfrontend"
 package "gmetad"
-
-# kill apt's service
-bash 'stop old gmetad service' do
-  command %Q{service gmetad stop; true}
-  only_if{ File.exists?('/etc/init.d/gmetad') }
-end
-file('/etc/init.d/gmetad'){ action :delete }
 
 Chef::Log.info( [node[:ganglia].to_hash] )
 
@@ -37,13 +32,15 @@ Chef::Log.info( [node[:ganglia].to_hash] )
 # Create service
 #
 
-daemon_user('ganglia.server')
-
 standard_directories('ganglia.server') do
   directories [:home_dir, :log_dir, :conf_dir, :pid_dir, :data_dir]
 end
 
-runit_service "ganglia_server"
+kill_old_service('gmetad')
+
+runit_service "ganglia_server" do
+  options       node[:ganglia]
+end
 
 provide_service("#{node[:cluster_name]}-ganglia_server")
 

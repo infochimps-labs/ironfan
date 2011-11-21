@@ -32,22 +32,22 @@ ClusterChef.cluster 'el_ridiculoso' do
     recipe              'ganglia::server'
     recipe              'ganglia::monitor'
 
-    # role                :flume_master
-    # role                :zookeeper_server
+    role                :flume_master
+    role                :zookeeper_server
 
-    role                  :redis_server
-    # role                :resque_server
-    # role                :hbase_master
-    # role                :statsd_server
-    # role                :graphite_server
+    role                :redis_server
+    role                :resque_server
+    role                :hbase_master
+    role                :statsd_server
+    role                :graphite_server
 
-    # role                :hadoop
-    # role                :hadoop_datanode
-    # role                :hadoop_jobtracker
-    # role                :hadoop_namenode
-    # role                :hadoop_secondarynamenode
-    # role                :hadoop_tasktracker
-    # recipe              'hadoop_cluster::cluster_conf'
+    role                :hadoop
+    role                :hadoop_datanode
+    role                :hadoop_jobtracker
+    role                :hadoop_namenode
+    role                :hadoop_secondarynamenode
+    role                :hadoop_tasktracker
+    recipe              'hadoop_cluster::cluster_conf'
 
     role                :pig
     recipe              'rstats'
