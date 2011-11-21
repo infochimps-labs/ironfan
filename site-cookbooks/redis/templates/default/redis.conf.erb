@@ -4,22 +4,24 @@
 
 # By default Redis does not run as a daemon. Use 'yes' if you need it.
 # Note that Redis will write a pid file in /var/run/redis.pid when daemonized.
-daemonize yes
+#
+# Set to no because we're using runit
+daemonize no
 
 # When run as a daemon, Redis write a pid file in /var/run/redis.pid by default.
 # You can specify a custom pid file location here.
-pidfile <%= node[:redis][:pid_file] %>
+pidfile <%= @redis[:pid_file] %>
 
 # Accept connections on the specified port, default is 6379
-port <%= node[:redis][:server][:port] %>
+port <%= @redis_server[:port] %>
 
 # If you want you can bind a single interface, if the bind option is not
 # specified all the interfaces will listen for connections.
 #
-bind <%= node[:redis][:server][:addr] %>
+bind <%= @redis_server[:addr] %>
 
 # Close the connection after a client is idle for N seconds (0 to disable)
-timeout <%= node[:redis][:server][:timeout] %>
+timeout <%= @redis_server[:timeout] %>
 
 # Save the DB on disk:
 #
@@ -28,16 +30,16 @@ timeout <%= node[:redis][:server][:timeout] %>
 #   Will save the DB if both the given number of seconds and the given
 #   number of write operations against the DB occurred.
 #
-<% node[:redis][:saves].each do |save| %>
+<% @redis[:saves].each do |save| %>
   <%= "save #{save[0]} #{save[1]}" %>
 <% end %>
 
 # The filename where to dump the DB
-dbfilename <%= node[:redis][:db_basename] %>
+dbfilename <%= @redis[:db_basename] %>
 
 # For default save/load DB in/from the working directory
 # Note that you must specify a directory not a file name.
-dir <%= node[:redis][:data_dir] %>
+dir <%= @redis[:data_dir] %>
 
 # Set server verbosity to 'debug'
 # it can be one of:
@@ -49,14 +51,14 @@ loglevel notice
 # Specify the log file name. Also 'stdout' can be used to force
 # the demon to log on the standard output. Note that if you use standard
 # output for logging but daemonize, logs will be sent to /dev/null
-logfile <%= node[:redis][:log_file] %>
+logfile <%= @redis[:log_dir] %>/redis.log
 
 # Set the number of databases. The default database is DB 0, you can select
 # a different one on a per-connection basis using SELECT <dbid> where
 # dbid is a number between 0 and 'databases'-1
 databases 16
 
-<% if node[:redis][:slave] == "yes" %>
+<% if @redis[:slave] == "yes" %>
 ################################# REPLICATION #################################
 
 # Master-Slave replication. Use slaveof to make a Redis instance a copy of
@@ -64,7 +66,7 @@ databases 16
 # so for example it is possible to configure the slave to save the DB with a
 # different interval, or to listen to another port, and so on.
 
-slaveof <%= node[:redis][:master_server] %> <%= node[:redis][:master_port] %>
+slaveof <%= @redis[:master_server] %> <%= @redis[:master_port] %>
 <% end %>
 
 ################################## SECURITY ###################################
@@ -112,7 +114,7 @@ slaveof <%= node[:redis][:master_server] %> <%= node[:redis][:master_port] %>
 # Glue small output buffers together in order to send small replies in a
 # single TCP packet. Uses a bit more CPU but most of the times it is a win
 # in terms of number of queries per second. Use 'yes' if unsure.
-glueoutputbuf <%= node[:redis][:glueoutputbuf] %>
+glueoutputbuf <%= @redis[:glueoutputbuf] %>
 
 # Use object sharing. Can save a lot of memory if you have many common
 # string in your dataset, but performs lookups against the share objects
@@ -128,7 +130,7 @@ glueoutputbuf <%= node[:redis][:glueoutputbuf] %>
 # WARNING: object sharing is experimental, don't enable this feature
 # in production before of Redis 1.0-stable. Still please try this feature in
 # your development environment so that we can test it better.
-# shareobjects <%= node[:redis][:shareobjects] %>
-<% if node[:redis][:shareobjects] == "yes" %>
-shareobjectspoolsize <%= node[:redis][:shareobjectspoolsize] %>
+# shareobjects <%= @redis[:shareobjects] %>
+<% if @redis[:shareobjects] == "yes" %>
+shareobjectspoolsize <%= @redis[:shareobjectspoolsize] %>
 <% end %>

@@ -19,19 +19,10 @@
 # limitations under the License.
 #
 
-group("redis"){ gid 335 }
-user "redis" do
-  comment       "Redis-server runner"
-  uid           335
-  gid           "redis"
-  shell         "/bin/false"
-end
+include_recipe 'cluster_chef'
 
-directory "/etc/redis" do
-  owner     "root"
-  group     "root"
-  mode      "0755"
-  action    :create
+standard_directories('redis.server') do
+  directories   :conf_dir
 end
 
 template "#{node[:redis][:conf_dir]}/redis.conf" do
@@ -39,4 +30,5 @@ template "#{node[:redis][:conf_dir]}/redis.conf" do
   owner         "root"
   group         "root"
   mode          "0644"
+  variables     :redis => node[:redis], :redis_server => node[:redis][:server]
 end

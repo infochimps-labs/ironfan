@@ -1,6 +1,7 @@
 #!/bin/bash
+<%- @redis = @options %>
 
-cd <%= node[:redis][:data_dir] %>
+cd <%= @redis[:data_dir] %>
 
 exec 2>&1
-exec chpst -u <%= node[:redis][:user] %> /usr/bin/redis-server <%= node[:redis][:conf_dir] %>/redis.conf
+exec chpst -u <%= @redis[:user] %> <%= @redis[:home_dir] %>/redis-server <%= @redis[:conf_dir] %>/redis.conf

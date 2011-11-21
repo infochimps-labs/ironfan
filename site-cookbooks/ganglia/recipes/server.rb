@@ -19,19 +19,37 @@
 # limitations under the License.
 #
 
+include_recipe 'ganglia'
+
 package "ganglia-webfrontend"
 package "gmetad"
 
-service "gmetad" do
-  enabled true
+# kill apt's service
+bash 'stop old gmetad service' do
+  command %Q{service gmetad stop; true}
+  only_if{ File.exists?('/etc/init.d/gmetad') }
+end
+file('/etc/init.d/gmetad'){ action :delete }
+
+Chef::Log.info( [node[:ganglia].to_hash] )
+
+#
+# Create service
+#
+
+daemon_user('ganglia.server')
+
+standard_directories('ganglia.server') do
+  directories [:home_dir, :log_dir, :conf_dir, :pid_dir, :data_dir]
 end
 
-cluster_nodes = {}
-search(:node, '*:*') do |node|
-  next unless   node['ganglia'] && node['ganglia']['cluster_name']
-  cluster_nodes[node['ganglia']['cluster_name']] ||= []
-  cluster_nodes[node['ganglia']['cluster_name']] << node['fqdn'].split('.').first
-end
+runit_service "ganglia_server"
+
+provide_service("#{node[:cluster_name]}-ganglia_server")
+
+#
+# Conf file -- auto-discovers ganglia monitors
+#
 
 template "#{node[:ganglia][:conf_dir]}/gmetad.conf" do
   source        "gmetad.conf.erb"
@@ -39,13 +57,15 @@ template "#{node[:ganglia][:conf_dir]}/gmetad.conf" do
   owner         "ganglia"
   group         "ganglia"
   mode          "0644"
-  variables(:cluster_nodes => cluster_nodes,
-    :clusters => [], # search(:ganglia_clusters, "*:*")
-    )
-  notifies :restart, resources(:service => "gmetad")
+  notifies :restart, "service[ganglia_server]", :delayed if Array(node[:ganglia][:server][:service_state]).flatten.map(&:to_s).include?('start')
 end
 
-directory "#{node[:ganglia][:home_dir]}/rrds" do
-  owner         "ganglia"
-  group         "ganglia"
+#
+# Finalize
+#
+
+service 'ganglia_server' do
+  Array(node[:ganglia][:server][:service_state]).each do |state|
+    notifies state, 'service[ganglia_server]', :delayed
+  end
 end

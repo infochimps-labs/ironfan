@@ -330,7 +330,6 @@ module CookbookMunger
         :ec2          => { :instance_type => 'm1.large',      },
         :hbase        => { :home_dir => '/usr/lib/hbase',     },
         :zookeeper    => { :home_dir => '/usr/lib/zookeeper', },
-        :jenkins      => { :server => { :user => 'jenkins' }  },
         :redis        => { :slave => 'no' },
         :ipaddress    => '10.20.30.40',
       }.merge(@all_attributes)

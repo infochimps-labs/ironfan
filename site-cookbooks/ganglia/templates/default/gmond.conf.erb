@@ -34,7 +34,7 @@ host {
 udp_send_channel { 
   # mcast_join = 239.2.11.71
   host         = <%= @cluster[ :send_addr ] || "localhost" %> 
-  port         = <%= @cluster[ :send_port ] || 8649%>
+  port         = <%= @cluster[ :send_port ] || 8649 %>
   ttl          = 1 
 } 
 
@@ -42,7 +42,7 @@ udp_send_channel {
 udp_recv_channel { 
   # mcast_join = 239.2.11.71 
   # bind       = 239.2.11.71 
-  port         = <%= @cluster[ :receive_port ] || 8649 %>
+  port         = <%= @cluster[ :rcv_port ] || 8649 %>
 } 
 
 /* You can specify as many tcp_accept_channels as you like to share 

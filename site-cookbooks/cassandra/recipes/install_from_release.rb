@@ -19,28 +19,30 @@
 # limitations under the License.
 #
 
-install_from_release do
-  release_url     node[:cassandra][:release_url]
-  home_dir        node[:cassandra][:home_dir]
-  action          [:install]
-  has_binaries    [ 'bin/cassandra' ]
+install_from_release(:cassandra) do
+  release_url   node[:cassandra][:release_url]
+  home_dir      node[:cassandra][:home_dir]
+  version       node[:cassandra][:version]
+  action        [:install]
+  has_binaries  [ 'bin/cassandra' ]
+  not_if{ ::File.exists?("#{node[:cassandra][:install_dir]}/bin/cassandra") }
 end
 
 bash 'move storage-conf out of the way' do
   user         'root'
   cwd          node[:cassandra][:home_dir]
   code         'mv conf/storage-conf.xml conf/storage-conf.xml.orig'
-  not_if {File.symlink?('/etc/cassandra/storage-conf.xml') }
+  not_if{ File.symlink?('/etc/cassandra/storage-conf.xml') }
 end
 
 link "#{node[:cassandra][:conf_dir]}/storage-conf.xml" do
   to "#{node[:cassandra][:home_dir]}/conf/storage-conf.xml"
-  action :create
+  action        :create
 end
 
 link "#{node[:cassandra][:home_dir]}/cassandra.in.sh" do
   to "#{node[:cassandra][:home_dir]}/bin/cassandra.in.sh"
-  action :create
+  action        :create
 end
 
 include_recipe "cassandra::bintools"

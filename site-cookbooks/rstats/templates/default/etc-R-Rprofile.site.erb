@@ -1,5 +1,7 @@
+## -*- R -*-
+
 ## Rprofile.site placed here by chef -- modify the rstats cookbook, not this file
 ##
 ## see help(Startup) for documentation on ~/.Rprofile and Rprofile.site
 
-options(repos=c(CRAN="<%= node[:Rstats][:cran_mirror_url] %>")) 
+options(repos=c(CRAN="<%= node[:rstats][:cran_mirror_url] %>"))

@@ -36,9 +36,13 @@
 # data_source "my grid" 50 1.3.4.7:8655 grid.org:8651 grid-backup.org:8651
 # data_source "another source" 1.3.4.7:8655  1.3.4.8
 
-<% @clusters.each do |cluster| %>
-data_source "<%= cluster %>" <%= @cluster_nodes[cluster] %>
+<%- monitor_groups = Hash.new{|h,k| h[k] = [] } %>
+<%- all_service_info("#{node[:cluster_name]}-ganglia_monitor").each{|svr| monitor_groups[svr[:name]] << svr } %>
+  
+<% monitor_groups.each do |monitor_group, servers| %>
+data_source "<%= monitor_group %>" <%= servers.map{|svr| "#{svr[:private_ip]}:#{svr[:rcv_port]}" }.join(' ') %>
 <% end %>
+
 #
 # Round-Robin Archives
 # You can specify custom Round-Robin archives here (defaults are listed below)
@@ -86,7 +90,8 @@ data_source "<%= cluster %>" <%= @cluster_nodes[cluster] %>
 #-------------------------------------------------------------------------------
 # If you don't want gmetad to setuid then set this to off
 # default: on
-# setuid off
+# -- chef: runit already fences us in as ganglia
+setuid off
 #
 #-------------------------------------------------------------------------------
 # User gmetad will setuid to (defaults to "nobody")

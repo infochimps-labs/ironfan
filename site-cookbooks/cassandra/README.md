@@ -111,7 +111,7 @@ Side question: what are the tradeoffs to consider to choose between the same $$ 
 * `[:cassandra][:commitlog_dir]`      -  (default: "/mnt/cassandra/commitlog")
 * `[:cassandra][:data_dirs]`          - 
 * `[:cassandra][:saved_caches_dir]`   -  (default: "/var/lib/cassandra/saved_caches")
-* `[:cassandra][:cassandra_user]`     -  (default: "cassandra")
+* `[:cassandra][:user]`     -  (default: "cassandra")
 * `[:cassandra][:listen_addr]`        -  (default: "localhost")
 * `[:cassandra][:seeds]`              - 
 * `[:cassandra][:rpc_addr]`           -  (default: "localhost")

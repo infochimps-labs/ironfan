@@ -24,27 +24,29 @@ include_recipe "java::sun"
 include_recipe "runit"
 include_recipe "mountable_volumes"
 
-group "elasticsearch" do
-  group_name 'elasticsearch'
-  gid         61021
-  action      [:create, :manage]
+daemon_user(:elasticsearch) do
+  create_group  true
 end
 
-user "elasticsearch" do
-  uid         61021
-  gid         "elasticsearch"
-end
+# group "elasticsearch" do
+#   group_name 'elasticsearch'
+#   gid         61021
+#   action      [:create, :manage]
+# end
+#
+# user "elasticsearch" do
+#   uid         61021
+#   gid         "elasticsearch"
+# end
 
 #
 # Set up Config directory and files
 #
 
-["/etc/elasticsearch"].each do |dir|
-  directory dir do
-    owner         "root"
-    group         "root"
-    mode          0755
-  end
+directory node[:elasticsearch][:conf_dir] do
+  owner         "root"
+  group         "root"
+  mode          0755
 end
 
 template "/etc/elasticsearch/logging.yml" do

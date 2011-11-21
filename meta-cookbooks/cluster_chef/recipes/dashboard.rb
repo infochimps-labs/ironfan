@@ -24,8 +24,9 @@
 # let you easily jump to the namenode, jobtracker or cloudera_desktop
 #
 
-package 'thttpd'
-package 'thttpd-util'
+include_recipe  'cluster_chef'
+package         'thttpd'
+package         'thttpd-util'
 
 template "#{node[:cluster_chef][:home_dir]}/dashboard/index.html" do
   owner         "root"

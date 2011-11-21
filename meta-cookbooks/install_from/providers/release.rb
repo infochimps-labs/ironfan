@@ -43,6 +43,7 @@ action :download do
     mode        "0644"
     action      :create
     checksum    new_resource.checksum if new_resource.checksum
+    not_if{     ::File.exists?(new_resource.release_file) }
   end
 end
 
@@ -57,9 +58,9 @@ action :unpack do
   bash "unpack #{new_resource.name} release" do
     user        new_resource.user
     cwd         ::File.dirname(new_resource.install_dir)
-    code        "#{new_resource.expand_cmd} '#{new_resource.release_file}'"
+    code        new_resource.expand_cmd
     creates     new_resource.install_dir
-    not_if{     ::File.directory?(new_resource.install_dir) }
+    # not_if{     ::File.directory?(new_resource.install_dir) }
     environment new_resource.environment
   end
 
@@ -123,8 +124,11 @@ end
 
 action :install_python do
   action_install
-  command       "python setup.py install"
-  cwd           new_resource.install_dir
+
+  bash "install #{new_resource.name} with python" do
+    command "python setup.py install"
+    cwd           new_resource.install_dir
+  end
 end
 
 action :install_with_make do

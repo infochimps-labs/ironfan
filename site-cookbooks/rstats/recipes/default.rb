@@ -1,5 +1,5 @@
 #
-# Cookbook Name::       Rstats
+# Cookbook Name::       rstats
 # Description::         Installs the base R package, a ruby interface, and some basic R packages.
 # Recipe::              default
 # Author::              Philip (flip) Kromer - Infochimps, Inc
@@ -27,8 +27,19 @@ gem_package "rsruby" do
   action :install
 end
 
+template "#{node[:rstats][:conf_dir]}/repositories" do
+  source        'etc-R-repositories.erb'
+  action        :create
+  mode          "0644"
+end
+
+template "#{node[:rstats][:conf_dir]}/Rprofile.site" do
+  source        'etc-R-Rprofile.site.erb'
+  action        :create
+  mode          "0644"
+end
 
 # Once R is installed you'll want to install some essential packages like VGAM and ggplot, ie. install.packages('VGAM')
-bash "Installing r packages" do
-  code %Q{ export R_HOME=/usr/lib/R ; echo 'install.packages(c("VGAM", "ggplot2"))' | Rscript --verbose - }
+node[:rstats][:r_packages].each do |pkg|
+  package(pkg.downcase)
 end

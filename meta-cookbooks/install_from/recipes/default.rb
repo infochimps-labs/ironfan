@@ -19,4 +19,8 @@
 # limitations under the License.
 #
 
+# FIXME -- these need to be done immediately
 
+package "unzip"
+
+package "tar"

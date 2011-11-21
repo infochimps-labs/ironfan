@@ -31,29 +31,38 @@ include_recipe "hadoop_cluster::add_cloudera_repo"
 # Hadoop users and group
 #
 
-group 'hdfs' do gid(node[:groups]['hdfs'][:gid]) ; action [:create] ; end
-user  'hdfs' do
-  comment    'Hadoop HDFS User'
-  uid        302
-  group      'hdfs'
-  home       "/var/run/hadoop-0.20"
-  shell      "/bin/false"
-  password   nil
-  supports   :manage_home => true
-  action     [:create, :manage]
+daemon_user(:hadoop) do
+  user         :hdfs
 end
 
-group 'mapred' do gid(node[:groups]['mapred'][:gid]) ; action [:create] ; end
-user  'mapred' do
-  comment    'Hadoop Mapred Runner'
-  uid        303
-  group      'mapred'
-  home       "/var/run/hadoop-0.20"
-  shell      "/bin/false"
-  password   nil
-  supports   :manage_home => true
-  action     [:create, :manage]
+daemon_user(:hadoop) do
+  user         :mapred
 end
+
+# group 'hdfs' do gid(node[:groups]['hdfs'][:gid]) ; action [:create] ; end
+# user  'hdfs' do
+#   comment    'Hadoop HDFS User'
+#   uid        302
+#   group      'hdfs'
+#   home       "/var/run/hadoop-0.20"
+#   shell      "/bin/false"
+#   password   nil
+#   supports   :manage_home => false
+#   action     [:create, :manage]
+# end
+#
+# group 'mapred' do gid(node[:groups]['mapred'][:gid]) ; action [:create] ; end
+# user  'mapred' do
+#   comment    'Hadoop Mapred Runner'
+#   uid        303
+#   group      'mapred'
+#   home       "/var/run/hadoop-0.20"
+#   shell      "/bin/false"
+#   password   nil
+#   supports   :manage_home => false
+#   action     [:create, :manage]
+# end
+#
 
 group 'hadoop' do
   group_name 'hadoop'

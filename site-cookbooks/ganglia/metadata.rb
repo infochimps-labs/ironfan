@@ -7,6 +7,7 @@ version          "3.0.0"
 description      "Installs/Configures ganglia"
 
 depends          "java"
+depends          "runit"
 depends          "provides_service"
 
 recipe           "ganglia::client",                    "Client"

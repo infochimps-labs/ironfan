@@ -21,18 +21,11 @@
 
 include_recipe "java::sun"
 
-#
-# Install jruby from latest release
-#
-#   puts jruby tarball into /usr/local/src/jruby-xxx
-#   expands it into /usr/local/share/jruby-xxx
-#   and links that to /usr/local/share/jruby
-#
-
 install_from_release('jruby') do
   release_url   node[:jruby][:release_url]
   home_dir      node[:jruby][:home_dir]
-  action        [:install]
+  version       node[:jruby][:version]
+  action        [ :install ]
   has_binaries  %w[ bin/jruby bin/jrubyc bin/jruby.rb bin/jirb ]
   environment('JAVA_HOME' => node[:java][:java_home]) if node[:java][:java_home]
   not_if{ ::File.exists?("#{node[:jruby][:install_dir]}/jruby.jar") }

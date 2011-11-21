@@ -80,3 +80,6 @@ munge_one_line('use node name in hadoop .out logs', '/usr/lib/hadoop/bin/hadoop-
 #   munge_one_line("bump sleep time on #{daemon} runner", "/etc/init.d/#{node[:hadoop][:handle]}-#{daemon}",
 #     %q{^SLEEP_TIME=.*}, %q{SLEEP_TIME=10 }, %q{^SLEEP_TIME=10 })
 # end
+
+include_recipe 'cluster_chef'
+cluster_chef_dashboard(:hadoop_cluster)

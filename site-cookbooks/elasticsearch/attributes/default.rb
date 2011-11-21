@@ -1,15 +1,26 @@
 default[:elasticsearch][:version]                 = "0.13.1"
-default[:elasticsearch][:release_url_checksum]                = nil
+default[:elasticsearch][:release_url_checksum]    = nil
+default[:elasticsearch][:release_url]             = "https://github.com/downloads/elasticsearch/elasticsearch/elasticsearch-#{node[:elasticsearch][:version]}.tar.gz"
 
 default[:elasticsearch][:cluster_name]            = "default"
 
+default[:elasticsearch][:home_dir]                = "/usr/local/share/elasticsearch"
+default[:elasticsearch][:conf_dir]                = "/etc/elasticsearch"
 default[:elasticsearch][:install_dir]             = "/usr/local/share/elasticsearch"
+default[:elasticsearch][:lib_dir]                 = "/var/lib/elasticsearch"
+default[:elasticsearch][:pid_dir]                 = "/var/run/elasticsearch"
+default[:elasticsearch][:log_dir]                 = "/var/log/elasticsearch"
+#
 default[:elasticsearch][:data_root]               = "/mnt/elasticsearch"
-default[:elasticsearch][:java_home]               = "/usr/lib/jvm/java-6-sun/jre"     # sun java works way better for ES
+
+default[:elasticsearch ][:user]                   = 'elasticsearch'
+default[:users ]['elasticsearch'][:uid]           = 61021
+default[:groups]['elasticsearch'][:gid]           = 61021
 
 default[:elasticsearch][:git_repo]                = "https://github.com/elasticsearch/elasticsearch.git"
 
-default[:elasticsearch][:java_heap_size_max]               = 1000
+default[:elasticsearch][:java_home]               = "/usr/lib/jvm/java-6-sun/jre"     # sun java works way better for ES
+default[:elasticsearch][:java_heap_size_max]      = 1000
 default[:elasticsearch][:ulimit_mlock]            = nil  # locked memory limit -- set to unlimited to lock heap into memory on linux machines
 
 default[:elasticsearch][:default_replicas]        =  1   # replicas are in addition to the original, so 1 replica means 2 copies of each shard

@@ -5,51 +5,26 @@
   
   <body>
     <h1>Hadoop EC2 Cluster</h1>
-    To browse the cluster you need to have a proxy configured.
-    Start the proxy with
-    <pre>
-      ssh -N -D 6666
-    </pre>
-    and point your browser to
-    <a href="http://github.com/infochimps/cluster_chef/raw/master/config/proxy.pac">this Proxy
-      Auto-Configuration (PAC)</a> file.  To manage multiple proxy configurations,
-    you may wish to use
-    <a href="https://addons.mozilla.org/en-US/firefox/addon/2464">FoxyProxy</a> along with a persistent tunnel to the hadoop master node. See below.
+
     <ul>
       <!-- FIXME: this is incorrect if the webfront isn't the jobtracker and namenode. Or if you're not on ec2 -->
-      <li><a href="http://<%= node[:ec2][:public_hostname] %>:50070/">NameNode</a></li>
-      <li><a href="http://<%= node[:ec2][:public_hostname] %>:50030/">JobTracker</a></li>
+      <li><a href="http://<%= @namenode_address   %>:50070/">NameNode</a></li>
+      <li><a href="http://<%= @jobtracker_address %>:50030/">JobTracker</a></li>
       <!-- Uncomment if you use cloudera Desktop -->
       <!-- <li><a href="http://<%= node[:ec2][:public_hostname] %>:8088/">Cloudera Desktop</a></li> -->
       <li><a href="http://<%= node[:ec2][:public_hostname] %>:60010/">HBase Master</a> (if any)</li>
     </ul>
 
     <hr/>
+
     <h3>How to set up a tunneling proxy to your cluster</h3>
-    <p>Create a tunnel from your local machine to this one:</p>
-    <pre style="font-size:10px"><code>
-        ssh -i ~/.chef/keypairs/<%= node[:cluster_name] %>.pem -f -N -D 6666 -o StrictHostKeyChecking=no -o "ConnectTimeout=10" -o "ServerAliveInterval=60" -o "ControlPath=none" ubuntu@<%= node[:fqdn] %>
-    </code></pre>
-    <p>Setup Foxy Proxy:</p>
-    <ol>
-      <li>Set it to 'Use Proxies based on their pre-defined patterns and priorities'</li>
-      <li>Create a new proxy, called 'EC2 Socks Proxy' or something</li>
-      <li>Automatic proxy configuration URL: <a href="http://github.com/infochimps/cluster_chef/raw/master/config/proxy.pac">http://github.com/infochimps/cluster_chef/raw/master/config/proxy.pac</a></li>
-      <li>Under 'General', check yes for 'Perform remote DNS lookups on host'</li>
-      <li>Add the following URL patterns as 'whitelist' using 'Wildcards' (not regular expression):
-        <ul>
-          <li><code>*.compute.internal*</code></li>
-          <li><code>*ec2.internal*</code></li>
-          <li><code>*domu*.internal*</code></li>
-          <li><code>*ec2*.amazonaws.com*</code></li>
-          <li><code>*://10.*</code></li>
-        </ul>
-        And this one as blacklist:
-        <ul>
-          <li><code>https://us-*st-1.ec2.amazonaws.com/*</code></li>
-        </ul>
-      </li>
-    </ol>
+
+    <p>
+      You should configure a proxy to browse the cluster. Run
+      <pre>knife cluster proxy <%= node.name %></pre>
+      and point your browser to
+      <a href="http://github.com/infochimps/cluster_chef/raw/master/config/proxy.pac">this Proxy Auto-Configuration (PAC)</a> file.
+    </p>
     
   </body>
   

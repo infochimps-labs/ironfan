@@ -46,7 +46,7 @@ user 'hbase' do
   home          node[:hbase][:pid_dir]
   shell         "/bin/false"
   password      nil
-  supports      :manage_home => true
+  supports      :manage_home => false
   action        [:create, :manage]
 end
 

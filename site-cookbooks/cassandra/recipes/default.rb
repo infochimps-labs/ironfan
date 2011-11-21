@@ -23,6 +23,7 @@ include_recipe "java::sun"
 include_recipe "thrift"
 include_recipe "runit"
 include_recipe "mountable_volumes"
+include_recipe "cluster_chef"
 
 %w[ sun-java6-jdk  sun-java6-bin ].each{|pkg| package(pkg) }
 
@@ -32,17 +33,21 @@ include_recipe "mountable_volumes"
 #%w[ simplejson avro
 #].each{|pkg| easy_install_package(pkg){ action :install } }
 
-user "cassandra" do
-  uid       '330'
-  gid       "nogroup"
-  shell     "/bin/false"
-  action    :create
-  not_if{ node[:etc][:passwd] && node[:etc][:passwd]['cassandra'] }
+daemon_user(:cassandra) do
+  create_group  false
 end
 
+# user "cassandra" do
+#   uid           '330'
+#   shell         '/bin/false'
+#   action        :create
+#   supports      :manage_home => false
+#   not_if{ node[:etc][:passwd] && node[:etc][:passwd]['cassandra'] }
+# end
 
-[ "/var/lib/cassandra", "/var/log/cassandra",
+[ # node[:cassandra][:lib_dir],
   node[:cassandra][:data_dirs],
+  node[:cassandra][:log_dir],
   node[:cassandra][:commitlog_dir],
   node[:cassandra][:saved_caches_dir]
 ].flatten.each do |cassandra_dir|

@@ -19,38 +19,12 @@
 # limitations under the License.
 #
 
-# FIXME -- this needs to be done immediately
-package "unzip" do
-  action :install
-end
-
-remote_file "/tmp/elasticsearch-#{node[:elasticsearch][:version]}.zip" do
-  source        "https://github.com/downloads/elasticsearch/elasticsearch/elasticsearch-#{node[:elasticsearch][:version]}.zip"
-  mode          "0644"
-  checksum      node[:elasticsearch][:release_url_checksum] if node[:elasticsearch][:release_url_checksum]
-end
-
-# install into eg. /usr/local/share/elasticsearch-0.x.x ...
-directory "#{node[:elasticsearch][:install_dir]}-#{node[:elasticsearch][:version]}" do
-  owner       "root"
-  group       "root"
-  mode        0755
-end
-# ... and then force /usr/lib/elasticsearch to link to the versioned dir
-link node[:elasticsearch][:install_dir] do
-  to "#{node[:elasticsearch][:install_dir]}-#{node[:elasticsearch][:version]}"
-end
-
-bash "unzip elasticsearch" do
-  user          "root"
-  cwd           "/tmp"
-  code           %(unzip /tmp/elasticsearch-#{node[:elasticsearch][:version]}.zip)
-  not_if{ File.exists? "/tmp/elasticsearch-#{node[:elasticsearch][:version]}" }
-end
-
-bash "copy elasticsearch root" do
-  user          "root"
-  cwd           "/tmp"
-  code          %(cp -r /tmp/elasticsearch-#{node[:elasticsearch][:version]}/* #{node[:elasticsearch][:install_dir]})
-  not_if{ File.exists? "#{node[:elasticsearch][:install_dir]}/lib" }
+install_from_release(:elasticsearch) do
+  release_url   node[:elasticsearch][:release_url]
+  home_dir      node[:elasticsearch][:home_dir]
+  version       node[:elasticsearch][:version]
+  checksum      node[:elasticsearch][:checksum]
+  action        [ :install ]
+  has_binaries  [ 'bin/elasticsearch' ]
+  not_if{ ::File.exists?("#{node[:elasticsearch][:install_dir]}/bin/elasticsearch") }
 end

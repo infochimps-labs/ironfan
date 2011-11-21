@@ -51,7 +51,10 @@ module ClusterServiceDiscovery
   # in descending order of when they registered.
   #
   def all_providers_for_service service_name
-    search(:node, "provides_service:#{service_name}" ).
+    all_nodes = search(:node, "provides_service:#{service_name}" ) rescue []
+    all_nodes.reject!{|server| server.name == node.name}       # remove this node...
+    all_nodes << node if node[:provides_service][service_name] # & use a fresh version
+    all_nodes.
       find_all{|server| server[:provides_service][service_name] && server[:provides_service][service_name]['timestamp'] }.
       sort_by{|server| server[:provides_service][service_name]['timestamp'] } rescue []
   end
@@ -64,14 +67,22 @@ module ClusterServiceDiscovery
   # Find all service info for a given service name
   def all_service_info service_name
     all_providers_for_service(service_name).map do |server|
-      server[:provides_service][service_name]
+      Mash.new({
+        :service    => service_name.to_sym,
+        :name       => server.name,
+        :cluster    => server[:cluster_name],
+        :facet      => server[:facet_name],
+        :index      => server[:facet_index],
+        :private_ip => private_ip_of(server),
+        :public_ip  => public_ip_of(server),
+        :server     => server,
+      }).merge(server[:provides_service][service_name])
     end
   end
 
   # Find the most recent associated service info for a given service name
-  def service_info service_name
-    server = provider_for_service service_name
-    server[:provides_service][service_name]
+  def service_info(service_name)
+    all_service_info(service_name).last
   end
 
   # Register to provide the given service.
@@ -146,3 +157,5 @@ end
 class Chef::Recipe              ; include ClusterServiceDiscovery ; end
 class Chef::Resource::Directory ; include ClusterServiceDiscovery ; end
 class Chef::Resource            ; include ClusterServiceDiscovery ; end
+class Chef::Resource::Template  ; include ClusterServiceDiscovery ; end
+class Erubis::Context           ; include ClusterServiceDiscovery ; end

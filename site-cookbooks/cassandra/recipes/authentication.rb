@@ -60,7 +60,7 @@ if auth
   node[:cassandra][:passwd_properties] = "#{node[:cassandra][:conf_dir]}/passwd.properties"
   template "#{node[:cassandra][:conf_dir]}/passwd.properties" do
     source "passwd.properties.erb"
-    owner node[:cassandra][:cassandra_user]
+    owner node[:cassandra][:user]
     mode 0600
     variables({:users => auth['users']})
     notifies  :restart, resources(:service => "cassandra")
@@ -74,7 +74,7 @@ if access
   node[:cassandra][:access_properties] = "#{node[:cassandra][:conf_dir]}/access.properties"
   template "#{node[:cassandra][:conf_dir]}/access.properties" do
     source "access.properties.erb"
-    owner node[:cassandra][:cassandra_user]
+    owner node[:cassandra][:user]
     mode 0600
     variables({:acls => access})
     notifies  :restart, resources(:service => "cassandra")

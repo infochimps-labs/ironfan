@@ -8,6 +8,7 @@ description      "Installs/Configures graphite"
 
 depends          "python"
 depends          "apache2"
+depends          "runit"
 depends          "ganglia"
 
 recipe           "graphite::carbon",                   "Carbon"

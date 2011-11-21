@@ -11,6 +11,7 @@ depends          "apt"
 depends          "runit"
 depends          "mountable_volumes"
 depends          "provides_service"
+depends          "cluster_chef"
 
 recipe           "hadoop_cluster::cluster_conf",       "Cluster Conf"
 recipe           "hadoop_cluster::datanode",           "Datanode"

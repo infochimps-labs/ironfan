@@ -8,6 +8,7 @@ description      "Installs/Configures HBase"
 
 depends          "java"
 depends          "apt"
+depends          "runit"
 depends          "hadoop_cluster"
 depends          "zookeeper"
 depends          "ganglia"

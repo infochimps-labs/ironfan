@@ -19,26 +19,22 @@
 # limitations under the License.
 #
 
-include_recipe "runit"
+include_recipe 'runit'
+include_recipe 'cluster_chef'
 include_recipe 'redis::default'
 
-directory "/var/log/redis" do
-  owner     "redis"
-  group     "redis"
-  mode      "0755"
-  action    :create
+daemon_user(:redis) do
+  home          node[:redis][:data_dir]
+  create_group  true
 end
 
-directory node[:redis][:data_dir] do
-  owner     "redis"
-  group     "redis"
-  mode      "0755"
-  action    :create
-  recursive true
+standard_directories('redis.server') do
+  directories   :log_dir, :data_dir, :conf_dir
 end
 
 runit_service "redis_server" do
   action        :enable
+  options       node[:redis]
 end
 
 provide_service("#{node[:cluster_name]}-redis_server", :port => node[:redis][:server][:port])

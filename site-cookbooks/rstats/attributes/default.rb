@@ -1,6 +1,6 @@
 #
 # Author:: Philip (flip) Kromer (<flip@infochimps.com>)
-# Cookbook Name:: Rstats
+# Cookbook Name:: rstats
 # Attribute::     default
 #
 # Copyright 2011, Infochimps, Inc
@@ -17,6 +17,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-default[:rstats][:home_dir]  = '/usr/lo'
+default[:rstats][:home_dir]  = '/usr/lib/R'
+default[:rstats][:conf_dir]  = '/etc/R'
 
-default[:rstats][:cran_mirror_url] = "http://cran.us.r-project.org"
+default[:rstats][:r_packages] = %w[ r-cran-VGAM r-cran-rggobi  ] # r-cran-ggplot2
+
+default[:rstats][:cran_mirror_url] = "http://cran.stat.ucla.edu"
+# default[:rstats][:cran_mirror_url] = "http://watson.nci.nih.gov/cran_mirror/"
+# default[:rstats][:cran_mirror_url] = "http://cran.us.r-project.org"

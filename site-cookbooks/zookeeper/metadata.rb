@@ -8,6 +8,7 @@ description      "Installs/Configures zookeeper"
 
 depends          "java"
 depends          "apt"
+depends          "runit"
 depends          "mountable_volumes"
 depends          "provides_service"
 

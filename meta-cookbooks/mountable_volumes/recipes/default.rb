@@ -19,30 +19,6 @@
 # limitations under the License.
 #
 
-# cluster_chef_dashboard('mountable_volumes') do
-#
-# end
-
 include_recipe 'cluster_chef'
 
-# define(:cluster_chef_dashboard, :template_name => nil, :cookbook => nil, :variables => nil)
-params = { :name => :mountable_volumes}
-params[:template_name] ||= params[:name]
-
-directory ::File.join(node[:cluster_chef][:conf_dir], 'dashboard') do
-  owner         "root"
-  group         "root"
-  mode          "0755"
-  action        :create
-  recursive     true
-end
-
-template ::File.join(node[:cluster_chef][:conf_dir], 'dashboard', "#{params[:template_name]}.html") do
-  source        "dashboard_snippet-#{params[:template_name]}.html.erb"
-  owner         "root"
-  group         "root"
-  mode          "0644"
-  cookbook      params[:cookbook]  if params[:cookbook]
-  variables     params[:variables] ? params[:variables] : node[ params[:name] ]
-  action        :create
-end
+cluster_chef_dashboard('mountable_volumes')

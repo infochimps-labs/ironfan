@@ -5,6 +5,9 @@ default[:hadoop][:deb_version]   = '0.20.2+923.142-1~maverick-cdh3'
 default[:apt][:cloudera][:force_distro] = nil # override distro name if cloudera doesn't have yours yet
 default[:apt][:cloudera][:release_name] = 'cdh3u2'
 
+default[:hadoop][:home_dir] = "/usr/lib/hadoop"
+default[:hadoop][:pid_dir]  = "/var/run/hadoop-0.20"
+
 # What states to set for services.
 #   :enable => enabled service to run at boot.
 #   :start  => ensure it's started and running.
@@ -50,6 +53,9 @@ default[:hadoop][:secondarynamenode ][:java_heap_size_max]  = nil
 default[:hadoop][:jobtracker        ][:java_heap_size_max]  = nil
 default[:hadoop][:datanode          ][:java_heap_size_max]  = nil
 default[:hadoop][:tasktracker       ][:java_heap_size_max]  = nil
+
+default[:users ]['hdfs'      ][:uid] = 302
+default[:users ]['mapred'    ][:uid] = 303
 
 default[:groups]['hadoop'    ][:gid] = 300
 default[:groups]['supergroup'][:gid] = 301

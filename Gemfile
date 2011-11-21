@@ -11,8 +11,6 @@ gem 'formatador',  "~> 0.2.1"
 gem 'choice',      "~> 0.1.4"
 gem 'gorillib',    "~> 0.1.3"
 
-gem 'net-ssh-socks', :git => 'git://github.com/mrflip/net-ssh-socks.git', :require => 'net/ssh/socks'
-
 # Add dependencies to develop your gem here.
 # Include everything needed to run rake, tests, features, etc.
 group :development do

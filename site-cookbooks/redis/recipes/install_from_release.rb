@@ -22,13 +22,7 @@
 install_from_release('redis') do
   release_url  node[:redis][:release_url]
   home_dir     node[:redis][:home_dir]
+  version      node[:redis][:version]
   action       [ :install, :install_with_make ]
-  not_if{      File.exists?(File.join(node[:redis][:home_dir], "redis-server")) }
-end
-
-%w[ redis-benchmark redis-cli redis-server ].each do |redis_cmd|
-  link File.join("/usr/local/bin", redis_cmd) do
-    to File.join(node[:redis][:home_dir], redis_cmd)
-    action :create
-  end
+  not_if{ File.exists?(File.join(node[:redis][:home_dir], 'redis-server')) }
 end

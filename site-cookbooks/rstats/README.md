@@ -1,14 +1,14 @@
-# Rstats chef cookbook
+# rstats chef cookbook
 
 Installs and configures the R stats analysis language
 
 ## Overview
 
-Installs Rstats, a statistical analysis program
+Installs rstats, a statistical analysis program
 
 ## Attributes
 
-* `[:Rstats][:cran_mirror_url]`       -  (default: "http://cran.us.r-project.org")
+* `[:rstats][:cran_mirror_url]`       -  (default: "http://cran.us.r-project.org")
 
 ## Recipes 
 

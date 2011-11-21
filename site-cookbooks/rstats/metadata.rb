@@ -7,13 +7,13 @@ version          "3.0.0"
 description      "Installs and configures the R stats analysis language"
 
 
-recipe           "Rstats::default",                    "Installs the base R package, a ruby interface, and some basic R packages."
+recipe           "rstats::default",                    "Installs the base R package, a ruby interface, and some basic R packages."
 
 %w[ debian ubuntu ].each do |os|
   supports os
 end
 
-attribute "Rstats/cran_mirror_url",
+attribute "rstats/cran_mirror_url",
   :display_name          => "",
   :description           => "",
   :default               => "http://cran.us.r-project.org"

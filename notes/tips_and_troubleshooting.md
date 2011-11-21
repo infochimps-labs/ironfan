@@ -69,3 +69,35 @@ For problems starting NFS server on ubuntu maverick systems, read, understand an
 Suppose you are using the @git@ resource to deploy a recipe (@george@ for sake of example). If @/var/chef/cache/revision_deploys/var/www/george@ exists then *nothing* will get deployed, even if /var/www/george/{release_sha} is empty or screwy.  If git deploy is acting up in any way, nuke that cache from orbit -- it's the only way to be sure.
 
  $ sudo rm -rf /var/www/george/{release_sha} /var/chef/cache/revision_deploys/var/www/george
+
+### Runit services : 'fail: XXX: unable to change to service directory: file does not exist'
+
+Your service is probably installed but removed from runit's purview; check the `/etc/service` symlink. All of the following should be true: 
+
+* directory `/etc/sv/foo`, containing file `run` and dirs `log` and `supervise`
+* `/etc/init.d/foo`  is symlinked to `/usr/bin/sv`
+* `/etc/servics/foo` is symlinked tp `/etc/sv/foo`
+
+
+### Nuke it from orbit, it's the only way to be sure
+
+These are likely to clobber way more than their base services.
+
+    sudo service cassandra      stop ; 
+    sudo service redis_server   stop ; 
+    sudo service ganglia_server stop ; sudo service ganglia_monitor stop 
+    for foo in hadoop-0.20-{namenode,secondarynamenode,jobtracker,tasktracker,datanode} ; do sudo service $foo stop ; done
+    for foo in hadoop-{zookeeper,hbase-master,hbase-regionserver} ; do sudo service $foo stop ; done
+
+    for foo in statsd graphite_web graphite_whisper graphite_carbon resque_dashboard ; do sudo service $foo stop ; done
+    
+    svc=cassandra    ; sudo rm -f /etc/service/$svc          ; sudo rm -rf /var/*/$svc /etc/$svc     /etc/sv/${svc}*  /etc/init.d/#{svc}* /usr/local/{share,src}/${svc}* ; sudo userdel $svc ; sudo groupdel $svc 
+    svc=redis        ; sudo rm -f /etc/service/${svc}_server ; sudo rm -rf /var/*/$svc /etc/$svc     /etc/sv/${svc}_* /etc/init.d/#{svc}* /usr/local/{share,src}/${svc}* ; sudo userdel $svc ; sudo groupdel $svc ; sudo apt-get -y remove --purge redis-server
+    svc=ganglia      ; sudo rm -f /etc/service/${svc}_*      ; sudo rm -rf /var/*/$svc /etc/$svc     /etc/sv/${svc}_* /etc/init.d/#{svc}* ; sudo userdel $svc ; sudo groupdel $svc ; sudo apt-get -y remove --purge gmetad ganglia-monitor 
+    svc=hadoop       ; sudo rm -f /etc/service/${svc}*       ; sudo rm -rf /var/*/$svc /etc/${svc}*  /etc/sv/${svc}*  /etc/init.d/#{svc}* ; sudo userdel hdfs ; sudo userdel mapred ; sudo groupdel hdfs ; sudo groupdel mapred ; sudo groupdel hadoop ; sudo apt-get -y remove --purge hadoop-0.20 hadoop-0.20-{namenode,secondarynamenode,jobtracker,tasktracker,datanode,doc,native}
+
+    svc=statsd       ; sudo rm -f /etc/service/${svc}        ; sudo rm -rf /var/*/$svc /etc/$svc     /etc/sv/${svc}   /etc/init.d/#{svc}* /usr/local/{share,src}/${svc}* ; sudo userdel $svc ; sudo groupdel $svc 
+    svc=resque       ; sudo rm -f /etc/service/${svc}_*      ; sudo rm -rf /var/*/$svc /etc/$svc     /etc/sv/${svc}_* /etc/init.d/#{svc}* /usr/local/{share,src}/${svc}* ; sudo userdel $svc ; sudo groupdel $svc 
+
+    svc=jruby         ; sudo rm -rf /etc/$svc /usr/local/{share,src}/${svc}* 
+    svc=elasticsearch ; sudo rm -rf /etc/$svc /usr/local/{share,src}/${svc}* 

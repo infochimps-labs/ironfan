@@ -32,6 +32,7 @@ include_recipe "pig::default"
 install_from_release('pig') do
   release_url   node[:pig][:release_url]
   home_dir      node[:pig][:home_dir]
+  version       node[:pig][:version]
   action        [:build_with_ant, :install]
   has_binaries  [ 'bin/pig' ]
   environment('JAVA_HOME' => node[:java][:java_home]) if node[:java][:java_home]

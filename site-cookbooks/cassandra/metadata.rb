@@ -62,7 +62,7 @@ attribute "cassandra/saved_caches_dir",
   :description           => "",
   :default               => "/var/lib/cassandra/saved_caches"
 
-attribute "cassandra/cassandra_user",
+attribute "cassandra/user",
   :display_name          => "",
   :description           => "",
   :default               => "cassandra"

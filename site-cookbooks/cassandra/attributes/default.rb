@@ -2,7 +2,7 @@
 # default[:cluster_size] = 5
 
 # The "cassandra" data bag "clusters" item defines keyspaces for the cluster named here:
-default[:cassandra][:cluster_name]                  = node[:cluster_name] || "Test"
+default[:cassandra][:cluster_name]      = node[:cluster_name] || "Test"
 
 #
 # Make a databag called 'cassandra', with an element 'clusters'.
@@ -30,61 +30,69 @@ default[:cassandra][:cluster_name]                  = node[:cluster_name] || "Te
 #   collecting tombstones (deletion markers). defaults to 864000 (10
 #   days). See http://wiki.apache.org/cassandra/DistributedDeletes
 #
-default[:cassandra][:keyspaces]                     = {}
+default[:cassandra][:keyspaces]         = {}
 
-# Directories, hosts and ports
-default[:cassandra][:home_dir]                     = '/usr/local/share/cassandra'
-default[:cassandra][:conf_dir]                     = '/etc/cassandra'
-default[:cassandra][:commitlog_dir]                = "/mnt/cassandra/commitlog"
-default[:cassandra][:data_dirs]                    = ["/data/db/cassandra"]
-default[:cassandra][:saved_caches_dir]             = "/var/lib/cassandra/saved_caches"
+# Directories, hosts and ports        # =
+default[:cassandra][:home_dir]          = '/usr/local/share/cassandra'
+default[:cassandra][:conf_dir]          = '/etc/cassandra'
+default[:cassandra][:log_dir]           = '/var/log/cassandra'
+default[:cassandra][:lib_dir]           = '/var/lib/cassandra'
+default[:cassandra][:pid_dir]           = '/var/run/cassandra'
 
-default[:cassandra][:cassandra_user]               = 'cassandra'
+default[:cassandra][:commitlog_dir]     = "/mnt/cassandra/commitlog"
+default[:cassandra][:data_dirs]         = ["/data/db/cassandra"]
+default[:cassandra][:saved_caches_dir]  = "/var/lib/cassandra/saved_caches"
 
-default[:cassandra][:listen_addr]                  = "localhost"
-default[:cassandra][:seeds]                        = ["127.0.0.1"]
-default[:cassandra][:rpc_addr]                     = "localhost"
-default[:cassandra][:rpc_port]                     = 9160
-default[:cassandra][:storage_port]                 = 7000
-default[:cassandra][:jmx_port]                     = 12345         # moved from default of 8080 (conflicts with hadoop)
-default[:cassandra][:mx4j_listen_addr]             = "127.0.0.1"
-default[:cassandra][:mx4j_listen_port]             = "8081"
+default[:cassandra][:user]              = 'cassandra'
+default[:cassandra][:group]             = 'nogroup'
+default[:users]['cassandra'][:uid]      = 330
+default[:users]['cassandra'][:gid]      = 330
+
+
+default[:cassandra][:listen_addr]       = "localhost"
+default[:cassandra][:seeds]             = ["127.0.0.1"]
+default[:cassandra][:rpc_addr]          = "localhost"
+default[:cassandra][:rpc_port]          = 9160
+default[:cassandra][:storage_port]      = 7000
+default[:cassandra][:jmx_port]          = 12345         # moved from default of 8080 (conflicts with hadoop)
+default[:cassandra][:mx4j_listen_addr]  = "127.0.0.1"
+default[:cassandra][:mx4j_listen_port]  = "8081"
 
 #
 # Install
 #
 
 # install_from_release
-cassversion                                        = "0.7.10"
-release_url_base                                   = "http://apache.cs.utah.edu/" # if not working: http://www.apache.org/dist
+default[:cassandra][:version]           = "0.7.10"
+release_url_base                        = "http://apache.cs.utah.edu/" # if not working: http://www.apache.org/dist
 # install_from_release: tarball url
-default[:cassandra][:release_url]                  = "#{release_url_base}/cassandra/#{cassversion}/apache-cassandra-#{cassversion}-bin.tar.gz"
+default[:cassandra][:release_url]       = "#{release_url_base}/cassandra/#{node[:cassandra][:version]}/apache-cassandra-#{node[:cassandra][:version]}-bin.tar.gz"
 
 # Git install
 
 # Git repo location
-default[:cassandra][:git_repo]                     = 'git://git.apache.org/cassandra.git'
+default[:cassandra][:git_repo]          = 'git://git.apache.org/cassandra.git'
 # until ruby gem is updated, use cdd239dcf82ab52cb840e070fc01135efb512799
-default[:cassandra][:git_revision]                 = 'cdd239dcf82ab52cb840e070fc01135efb512799' # 'HEAD'
+default[:cassandra][:git_revision]      = 'cdd239dcf82ab52cb840e070fc01135efb512799' # 'HEAD'
 # JNA deb location
-default[:cassandra][:jna_deb_amd64_url]            = "http://debian.riptano.com/maverick/pool/libjna-java_3.2.7-0~nmu.2_amd64.deb"
+default[:cassandra][:jna_deb_amd64_url] = "http://debian.riptano.com/maverick/pool/libjna-java_3.2.7-0~nmu.2_amd64.deb"
 # MX4J Location (Version 3.0.2)
-default[:cassandra][:mx4j_url]                     = "http://downloads.sourceforge.net/project/mx4j/MX4J%20Binary/3.0.2/mx4j-3.0.2.zip?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fmx4j%2Ffiles%2F&ts=1303407638&use_mirror=iweb"
+default[:cassandra][:mx4j_url]          = "http://downloads.sourceforge.net/project/mx4j/MX4J%20Binary/3.0.2/mx4j-3.0.2.zip?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fmx4j%2Ffiles%2F&ts=1303407638&use_mirror=iweb"
 
 #
 # Tunables - Partitioning
 #
 
-default[:cassandra][:auto_bootstrap]               = 'false'
-default[:cassandra][:authenticator]                = "org.apache.cassandra.auth.AllowAllAuthenticator"
-default[:cassandra][:authority]                    = "org.apache.cassandra.auth.AllowAllAuthority"
+default[:cassandra][:auto_bootstrap]    = 'false'
+default[:cassandra][:authenticator]     = "org.apache.cassandra.auth.AllowAllAuthenticator"
+default[:cassandra][:authority]         = "org.apache.cassandra.auth.AllowAllAuthority"
+default[:cassandra][:partitioner]       = "org.apache.cassandra.dht.RandomPartitioner"       # "org.apache.cassandra.dht.OrderPreservingPartitioner"
+default[:cassandra][:endpoint_snitch]   = "org.apache.cassandra.locator.SimpleSnitch"
+default[:cassandra][:dynamic_snitch]    = 'true'
+default[:cassandra][:initial_token]     = ""
 default[:cassandra][:hinted_handoff_enabled]       = 'true'
 default[:cassandra][:max_hint_window_in_ms]        = 3600000
 default[:cassandra][:hinted_handoff_delay_ms]      = 50
-default[:cassandra][:partitioner]                  = "org.apache.cassandra.dht.RandomPartitioner"       # "org.apache.cassandra.dht.OrderPreservingPartitioner"
-default[:cassandra][:endpoint_snitch]              = "org.apache.cassandra.locator.SimpleSnitch"
-default[:cassandra][:dynamic_snitch]               = 'true'
-default[:cassandra][:initial_token]                = ""
 
 #
 # Tunables -- Memory, Disk and Performance

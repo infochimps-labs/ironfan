@@ -10,49 +10,55 @@ ClusterChef.cluster 'el_ridiculoso' do
     mount_ephemerals(:tags => { :hadoop_scratch => true })
   end
 
-  environment           :prod
+  environment           :dev
 
   role                  :base_role
   role                  :chef_client
   role                  :ssh
 
   role                  :mountable_volumes
-  role                  :mrflip_base
   role                  :nfs_client
   recipe                :cluster_chef
-  recipe                'big_package::default'
-
   role                  :hadoop_s3_keys
+
+  # role                  :mrflip_base
+  # recipe                'big_package::default'
 
   facet :grande do
     instances           1
 
     recipe              'cluster_chef::dashboard'
 
-    role                :elasticsearch_data_esnode
-    role                :elasticsearch_http_esnode
-
-    role                :cassandra_datanode
-    role                :statsd_server
-    role                :graphite_server
-    role                :flume_master
-    role                :hadoop
-    role                :hadoop_datanode
-    role                :hadoop_jobtracker
-    role                :hadoop_namenode
-    role                :hadoop_secondarynamenode
-    role                :hadoop_tasktracker
-    role                :hbase_master
-    role                :redis_server
-    role                :resque_server
-    role                :zookeeper_server
-    role                :pig
     recipe              'ganglia::server'
+    recipe              'ganglia::monitor'
+
+    # role                :flume_master
+    # role                :zookeeper_server
+
+    role                  :redis_server
+    # role                :resque_server
+    # role                :hbase_master
+    # role                :statsd_server
+    # role                :graphite_server
+
+    # role                :hadoop
+    # role                :hadoop_datanode
+    # role                :hadoop_jobtracker
+    # role                :hadoop_namenode
+    # role                :hadoop_secondarynamenode
+    # role                :hadoop_tasktracker
+    # recipe              'hadoop_cluster::cluster_conf'
+
+    role                :pig
     recipe              'rstats'
     recipe              'nodejs'
     recipe              'jruby'
     recipe              'jruby::gems'
-    recipe              'hadoop_cluster::cluster_conf'
+
+    role                :elasticsearch_data_esnode
+    role                :elasticsearch_http_esnode
+    role                :cassandra_datanode
+
   end
 
   facet :mucho do
@@ -93,27 +99,23 @@ ClusterChef.cluster 'el_ridiculoso' do
   # namenode (host:50070) control panels, you're good to launch the rest
   # of the cluster (`knife cluster launch gibbon`)
   #
-  facet(:master).facet_role.override_attributes({
-      :hadoop => {
-        :namenode            => { :service_state => [:disable, :stop] },
-        :secondarynamenode   => { :service_state => [:disable, :stop] },
-        :jobtracker          => { :service_state => [:disable, :stop] },
-        :datanode            => { :service_state => [:disable, :stop] },
-        :tasktracker         => { :service_state => [:disable, :stop] },
-        #
-        # :namenode          => { :service_state => [:enable, :start], },
-        # :secondarynamenode => { :service_state => [:enable, :start], },
-        # :jobtracker        => { :service_state => [:enable, :start], },
-        # :datanode          => { :service_state => [:enable, :start], },
-        # :tasktracker       => { :service_state => [:enable, :start], },
-        :namenode_service_state => [:disable, :stop],
+  facet(:grande).facet_role.override_attributes({
+      :ganglia => {
+        :server              => { :service_state => :start },
+        :monitor             => { :service_state => :start },
       },
-    })
-
-  facet(:worker).facet_role.override_attributes({
       :hadoop => {
-        :datanode          => { :service_state => [:enable, :start], },
-        :tasktracker       => { :service_state => [:enable, :start], },
+        :namenode            => { :service_state => :stop },
+        :secondarynamenode   => { :service_state => :stop },
+        :jobtracker          => { :service_state => :stop },
+        :datanode            => { :service_state => :stop },
+        :tasktracker         => { :service_state => :stop },
+        #
+        # :namenode          => { :service_state => :start, },
+        # :secondarynamenode => { :service_state => :start, },
+        # :jobtracker        => { :service_state => :start, },
+        # :datanode          => { :service_state => :start, },
+        # :tasktracker       => { :service_state => :start, },
       },
     })
 end
