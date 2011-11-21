@@ -4,9 +4,12 @@
 #
 
 default[:zookeeper][:home_dir]               = '/usr/lib/zookeeper'
-default[:zookeeper][:data_dir]               = '/var/zookeeper'
+default[:zookeeper][:conf_dir]               = '/etc/zookeeper'
 default[:zookeeper][:log_dir]                = '/var/log/zookeeper'
+default[:zookeeper][:data_dir]               = '/var/zookeeper'
 
+default[:zookeeper][:user]                   = 'zookeeper'
+default[:users ]['zookeeper' ][:uid]         = 305
 default[:groups]['zookeeper' ][:gid]         = 305
 
 default[:zookeeper][:cluster_name]           = node[:cluster_name]

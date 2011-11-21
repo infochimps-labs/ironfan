@@ -34,7 +34,7 @@ class Chef::Recipe; include HadoopCluster ; end
     variables(hadoop_config_hash)
     source "#{conf_file}.erb"
     hadoop_services.each do |svc|
-      if node[:hadoop][svc][:service_state] && node[:hadoop][svc][:service_state].include?(:start)
+      if node[:hadoop][svc][:service_state] && Array(node[:hadoop][svc][:service_state]).map(&:to_s).include?('start')
         notifies :restart, "service[#{node[:hadoop][:handle]}-#{svc}]", :delayed
       end
     end

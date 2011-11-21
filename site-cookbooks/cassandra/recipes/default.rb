@@ -35,7 +35,7 @@ daemon_user(:cassandra) do
   create_group  false
 end
 
-standard_directories(:cassandra) do
+standard_directories('cassandra') do
   directories   [:conf_dir, :log_dir, :lib_dir, :pid_dir, :data_dirs, :commitlog_dir, :saved_caches_dir]
   group         'root'
 end

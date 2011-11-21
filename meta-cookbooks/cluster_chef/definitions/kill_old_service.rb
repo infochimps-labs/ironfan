@@ -17,20 +17,7 @@ define(:kill_old_service,
     only_if{ File.exists?(params[:script]) }
   end
 
-  # file(params[:script]) do
-  #   action :delete
-  # end
+  file(params[:script]) do
+    action :delete
+  end
 end
-
-# # kill apt's service
-# bash 'stop old gmetad service' do
-#   command %Q{service gmetad stop; true}
-#   only_if{ File.exists?('/etc/init.d/gmetad') }
-# end
-# file('/etc/init.d/gmetad'){ action :delete }
-
-# # kill apt's service
-# bash 'stop old ganglia-monitor service' do
-#   command %Q{service ganglia-monitor stop; true}
-#   only_if{ File.exists?('/etc/init.d/ganglia-monitor') }
-# end

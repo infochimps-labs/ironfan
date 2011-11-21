@@ -34,8 +34,8 @@ install_from_release(:mx4j) do
   action        [:download, :unpack]
 end
 
-link "/usr/local/share/mx4j/lib/mx4j-tools.jar" do
-  to            "#{node[:cassandra][:home_dir]}/lib/mx4j-tools.jar"
+link "#{node[:cassandra][:home_dir]}/lib/mx4j-tools.jar" do
+  to            "/usr/local/share/mx4j/lib/mx4j-tools.jar"
   notifies      :restart, resources(:service => "cassandra")
 end
 

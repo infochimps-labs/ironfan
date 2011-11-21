@@ -19,21 +19,32 @@
 # limitations under the License.
 #
 
+include_recipe "runit"
+include_recipe "cluster_chef"
 include_recipe "statsd::default"
 
-git node[:statsd][:install_dir] do
-  repository    node[:statsd][:git_repo]
-  reference     "master"
-  action        :sync
+daemon_user(:statsd)
+
+standard_directories('statsd') do
+  directories   :conf_dir, :log_dir, :pid_dir
 end
 
-template "#{node[:statsd][:install_dir]}/baseConfig.js" do
-  source        "baseConfig.js.erb"
-  mode          "0755"
+runit_service "statsd" do
+  options       node[:statsd]
+end
+
+provide_service("#{node[:cluster_name]}-statsd", :port => node[:statsd][:port])
+
+git node[:statsd][:home_dir] do
+  repository    node[:statsd][:git_repo]
+  reference     "master"
+  action        :checkout
   notifies      :restart, "service[statsd]"
 end
 
-runit_service 'statsd' do
+template "#{node[:statsd][:home_dir]}/baseConfig.js" do
+  source        "baseConfig.js.erb"
+  mode          "0755"
+  variables     :statsd => node[:statsd]
+  notifies      :restart, "service[statsd]"
 end
-
-provide_service ("#{node[:statsd][:cluster_name]}-statsd")

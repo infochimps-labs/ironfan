@@ -18,11 +18,11 @@ ClusterChef.cluster 'el_ridiculoso' do
 
   role                  :mountable_volumes
   role                  :nfs_client
-  recipe                :cluster_chef
   role                  :hadoop_s3_keys
+  recipe                'cluster_chef'
 
-  # role                  :mrflip_base
-  # recipe                'big_package::default'
+  role                  :mrflip_base
+  recipe                'big_package::default'
 
   facet :grande do
     instances           1
@@ -33,13 +33,11 @@ ClusterChef.cluster 'el_ridiculoso' do
     recipe              'ganglia::monitor'
 
     role                :flume_master
+    role                :flume_node
     role                :zookeeper_server
 
     role                :redis_server
     role                :resque_server
-    role                :hbase_master
-    role                :statsd_server
-    role                :graphite_server
 
     role                :hadoop
     role                :hadoop_datanode
@@ -48,6 +46,13 @@ ClusterChef.cluster 'el_ridiculoso' do
     role                :hadoop_secondarynamenode
     role                :hadoop_tasktracker
     recipe              'hadoop_cluster::cluster_conf'
+
+    role                :hbase_master
+    role                :hbase_regionserver
+
+    role                :statsd_server
+
+    # role                :graphite_server
 
     role                :pig
     recipe              'rstats'

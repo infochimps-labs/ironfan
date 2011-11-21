@@ -23,16 +23,17 @@ include_recipe 'redis'
 include_recipe 'resque'
 include_recipe "runit"
 
-
 #
 # Config
 #
 
 # Redis config
 template File.join(node[:resque][:conf_dir], 'resque_redis.conf') do
-  source        'resque_redis.conf.erb'
+  source        'redis.conf.erb'
+  cookbook      'redis'
   mode          "0644"
   action        :create
+  variables     :redis => node[:redis].to_hash.merge(node[:resque].to_hash).merge(node[:resque][:redis].to_hash)
 end
 
 #
@@ -40,6 +41,10 @@ end
 #
 
 runit_service 'resque_redis' do
-  run_restart false
+  run_restart   false
+  options       node[:resque]
+  cookbook      'redis'
+  template_name 'redis_server'
 end
+
 provide_service('resque_redis', :port => node[:resque][:queue_port])

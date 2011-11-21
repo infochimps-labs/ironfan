@@ -22,44 +22,21 @@
 include_recipe 'redis::client'
 include_recipe 'runit'
 
-%w[
-  thin rack resque redis redis-namespace yajl-ruby
-].each{|gem_name| gem_package gem_name }
+#
+# Install
+#
 
-directory ::File.dirname(node[:resque][:home_dir]) do
-  owner     'root'
-  group     'root'
-  mode      "0775"
-  recursive true
-  action    :create
-end
+gem_package 'thin'
+gem_package 'rack'
+gem_package 'resque'
+gem_package 'redis'
+gem_package 'redis-namespace'
+gem_package 'yajl-ruby'
 
-#
-# User
-#
-group 'resque' do gid 336 ; action [:create] ; end
-user 'resque' do
-  comment       'Resque queue user'
-  uid           336
-  group         'resque'
-  home          node[:resque][:home_dir]
-  shell         "/bin/false"
-  password      nil
-  supports      :manage_home => true
-  action        [:create, :manage]
-end
+daemon_user('resque')
 
-#
-# Directories
-#
-[ :log_dir, :tmp_dir, :data_dir, :journal_dir, :conf_dir ].each do |dirname|
-  directory node[:resque][dirname] do
-    owner       node[:resque][:user]
-    group       node[:resque][:group]
-    mode        "0775"
-    recursive   true
-    action      :create
-  end
+standard_directories('resque') do
+  directories :home_dir, :log_dir, :tmp_dir, :data_dir, :journal_dir, :conf_dir
 end
 
 #
@@ -78,6 +55,6 @@ end
 #
 
 runit_service 'resque_dashboard' do
-  run_restart false
+  options       node[:resque]
 end
 provide_service('resque_dashboard', :port => node[:resque][:dashboard_port])

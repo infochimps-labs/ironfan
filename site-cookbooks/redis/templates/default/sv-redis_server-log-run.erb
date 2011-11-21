@@ -1,4 +1,2 @@
 #!/bin/sh
-<%- @redis ||= @options %>
-
-exec svlogd -tt <%= @redis[:log_dir] %>
+exec svlogd -tt <%= @options[:log_dir] %>

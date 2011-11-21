@@ -41,5 +41,5 @@ template "#{node[:cluster_chef][:home_dir]}/dashboard-thttpd.conf" do
 end
 
 runit_service "cluster_chef_dashboard" do
-  action [ :start, :enable ]
+  options       node[:cluster_chef]
 end

@@ -87,14 +87,18 @@ These are likely to clobber way more than their base services.
     sudo service redis_server   stop ; 
     sudo service ganglia_server stop ; sudo service ganglia_monitor stop 
     for foo in hadoop-0.20-{namenode,secondarynamenode,jobtracker,tasktracker,datanode} ; do sudo service $foo stop ; done
-    for foo in hadoop-{zookeeper,hbase-master,hbase-regionserver} ; do sudo service $foo stop ; done
+    for foo in hadoop-{zookeeper-server,hbase-master,hbase-regionserver} ; do sudo service $foo stop ; done
     for foo in statsd graphite_web graphite_whisper graphite_carbon resque_dashboard ; do sudo service $foo stop ; done
     sudo killall nginx
     
+    sudo apt-get -y remove --purge redis-server
+    sudo apt-get -y remove --purge hadoop-0.20 hadoop-0.20-{namenode,secondarynamenode,jobtracker,tasktracker,datanode,doc,native}
+    sudo apt-get -y remove --purge hadoop-zookeeper-server hadoop-pig 
+    
     svc=cassandra    ; sudo rm -f /etc/service/$svc          ; sudo rm -rf /var/*/$svc /etc/$svc     /etc/sv/${svc}*  /etc/init.d/${svc}* /usr/local/{share,src}/${svc}* ; sudo userdel $svc ; sudo groupdel $svc 
-    svc=redis        ; sudo rm -f /etc/service/${svc}_server ; sudo rm -rf /var/*/$svc /etc/$svc     /etc/sv/${svc}_* /etc/init.d/${svc}* /usr/local/{share,src}/${svc}* ; sudo userdel $svc ; sudo groupdel $svc ; sudo apt-get -y remove --purge redis-server
+    svc=redis        ; sudo rm -f /etc/service/${svc}_server ; sudo rm -rf /var/*/$svc /etc/$svc     /etc/sv/${svc}_* /etc/init.d/${svc}* /usr/local/{share,src}/${svc}* ; sudo userdel $svc ; sudo groupdel $svc ; 
     svc=ganglia      ; sudo rm -f /etc/service/${svc}_*      ; sudo rm -rf /var/*/$svc /etc/$svc     /etc/sv/${svc}_* /etc/init.d/${svc}* ; sudo userdel $svc ; sudo groupdel $svc ; sudo apt-get -y remove --purge gmetad ganglia-monitor 
-    svc=hadoop       ; sudo rm -f /etc/service/${svc}*       ; sudo rm -rf /var/*/$svc /etc/${svc}*  /etc/sv/${svc}*  /etc/init.d/${svc}* ; sudo userdel hdfs ; sudo userdel mapred ; sudo groupdel hdfs ; sudo groupdel mapred ; sudo groupdel hadoop ; sudo apt-get -y remove --purge hadoop-0.20 hadoop-0.20-{namenode,secondarynamenode,jobtracker,tasktracker,datanode,doc,native}
+    svc=hadoop       ; sudo rm -f /etc/service/${svc}*       ; sudo rm -rf /var/*/$svc /etc/${svc}*  /etc/sv/${svc}*  /etc/init.d/${svc}* ; sudo userdel hdfs ; sudo userdel mapred ; sudo groupdel hdfs ; sudo groupdel mapred ; sudo groupdel hadoop ; 
 
     svc=elasticsearch; sudo rm -f /etc/service/${svc}        ; sudo rm -rf /var/*/$svc /etc/$svc     /etc/sv/${svc}   /etc/init.d/${svc}* /usr/local/{share,src}/${svc}* ; sudo userdel $svc ; sudo groupdel $svc
 

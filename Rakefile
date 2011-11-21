@@ -93,7 +93,7 @@ task :create_runit, :cookbook, :template_name do |t, args|
   sv_run_script_file = File.join(template_dir, "sv-#{template_name}-run.erb")
   sv_log_script_file = File.join(template_dir, "sv-#{template_name}-log-run.erb")
   #
-  sv_log_script_text = %Q{\#!/bin/sh\nexec svlogd -tt @options[:log_dir]}
+  sv_log_script_text = %Q{\#!/bin/sh\nexec svlogd -tt <%= @options[:log_dir] %>}
   sv_run_script_text = %Q{#!/bin/bash
 exec 2>&1
 cd   <%= @options[:pid_dir] %>
