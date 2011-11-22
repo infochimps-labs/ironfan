@@ -43,6 +43,8 @@ define(:scratch_volume_dirs
 
 
   # Look for (in order)
+  #
+  # * the set of paths memoized from earlier (or defined explicitly)
   # * volumes tagged 'foo-xx'
   # * volumes tagged 'foo-scratch'
   # * volumes tagged 'foo'
@@ -51,7 +53,7 @@ define(:scratch_volume_dirs
   #
   # If even one volume matches, nothing else is pulled in.
   #
-  # A volume may get used, even if it doesn't announce:
+  # A volume may get used, even if it doesn't announce.
   #
   volumes = mounted_volumes_tagged(params[:type])
 
