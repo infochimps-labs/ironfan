@@ -41,7 +41,7 @@ module ClusterChef
       die(banner) if @name_args.empty?
       configure_dry_run
 
-      target = get_slice_where(slice_criterion, *@name_args)
+      target = get_relevant_slice(* @name_args)
 
       die("No nodes to #{sub_command}, exiting", 1) if target.empty?
 

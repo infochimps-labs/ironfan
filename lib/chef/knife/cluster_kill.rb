@@ -39,8 +39,8 @@ class Chef
         :boolean     => true,
         :default     => true
 
-      def slice_criterion
-        :killable?
+      def relevant?(server)
+        server.killable?
       end
 
       # Execute every last mf'ing one of em

@@ -26,6 +26,18 @@
 #
 
 module ClusterChef
+  module DryRunnable
+    # Run given block unless in dry_run mode (ClusterChef.chef_config[:dry_run]
+    # is true)
+    def unless_dry_run
+      if ClusterChef.chef_config[:dry_run]
+        ui.info("      ... but not really (#{ui.color("dry run", :bold, :yellow)} for server #{name})")
+      else
+        yield
+      end
+    end
+  end
+
   ComputeBuilder.class_eval do
     def new_chef_role(role_name, cluster, facet=nil)
       chef_role = Chef::Role.new
@@ -37,10 +49,21 @@ module ClusterChef
     end
   end
 
+  ServerSlice.class_eval do
+    include DryRunnable
+    def sync_roles
+      step("  syncing cluster and facet roles")
+      unless_dry_run do
+        chef_roles.each(&:save)
+      end
+    end
+  end
+
   #
   # ClusterChef::Server methods that handle chef actions
   #
   Server.class_eval do
+    include DryRunnable
 
     # The chef client, if it already exists in the server.
     # Use the 'ensure' method to create/update it.
@@ -69,12 +92,16 @@ module ClusterChef
     def delete_chef
       if chef_node   then
         step("  deleting chef node", :red)
-        chef_node.destroy
+        unless_dry_run do
+          chef_node.destroy
+        end
         @chef_node   = nil
       end
       if chef_client
         step("  deleting chef client", :red)
-        chef_client.destroy
+        unless_dry_run do
+          chef_client.destroy
+        end
         @chef_client = nil
       end
     end
@@ -140,7 +167,9 @@ module ClusterChef
       @chef_node.name(fullname)
       set_chef_node_attributes
       sync_volume_attributes
-      chef_api_server_as_client.post_rest('nodes', @chef_node)
+      unless_dry_run do
+        chef_api_server_as_client.post_rest('nodes', @chef_node)
+      end
     end
 
     # Update the chef client on the server. Do not call this directly -- go
@@ -155,7 +184,9 @@ module ClusterChef
       set_chef_node_attributes
       set_chef_node_environment
       sync_volume_attributes
-      chef_api_server_as_admin.put_rest("nodes/#{@chef_node.name}", @chef_node)
+      unless_dry_run do
+        chef_api_server_as_admin.put_rest("nodes/#{@chef_node.name}", @chef_node)
+      end
     end
 
 
@@ -192,8 +223,10 @@ module ClusterChef
       # ApiClient#create sends extra params that fail -- we'll do it ourselves
       # purposefully *not* catching the 'but it already exists' error: if it
       # didn't show up in the discovery process, we're in an inconsistent state
-      response = chef_api_server_as_admin.post_rest("clients", { 'name' => fullname, 'admin' => false, 'private_key' => true })
-      client_key.body = response['private_key']
+      unless_dry_run do
+        response = chef_api_server_as_admin.post_rest("clients", { 'name' => fullname, 'admin' => false, 'private_key' => true })
+        client_key.body = response['private_key']
+      end
       client_key.save
       @chef_client
     end
@@ -259,6 +292,5 @@ module ClusterChef
     #     end
     #   end
     # end
-
   end
 end

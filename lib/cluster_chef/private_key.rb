@@ -28,19 +28,21 @@ module ClusterChef
 
     def save
       return unless @body
+      if ClusterChef.chef_config[:dry_run]
+        Chef::Log.debug("    key #{name} - dry run, not writing out key")
+        return
+      end
       ui.info( "    key #{name} - writing to #{filename}" )
       FileUtils.mkdir_p(File.dirname(filename))
       File.open(filename, "w", 0600){|f| f.print( @body ) }
     end
 
     def load
-      # Chef::Log.debug("Loading #{filename}")
       return unless File.exists?(filename)
       self.body = File.read(filename).chomp
     end
 
     def body=(content)
-      # Chef::Log.debug("Setting key #{content[0..50]}; #{on_update}")
       @body = content
       on_update.call(content) if on_update
       content
@@ -53,7 +55,7 @@ module ClusterChef
     end
 
     def to_s
-      [super[0..-2], @name, @proxy, @body.to_s[0..30], @body.to_s[-60..-30]].join(" ") + '>'
+      [super[0..-2], @name, @proxy, @body.to_s[32..64], '...', @body.to_s[-60..-30]].join(" ").gsub(/[\r\n\t]+/,'') + '>'
     end
   end
 
@@ -70,7 +72,6 @@ module ClusterChef
   end
 
   class Ec2Keypair < PrivateKey
-
     def body
       return @body if @body
       if proxy && proxy.private_key && (not proxy.private_key.empty?)
@@ -81,20 +82,15 @@ module ClusterChef
       @body
     end
 
-    def save
-      (Chef::Log.debug("    key #{name} - dry run, not writing out key"); return) if ClusterChef.chef_config[:dry_run]
-      super
-    end
-
     def create_proxy!
       safely do
-        ui.info(ui.color("    key #{name} - creating"))
-        @proxy = ClusterChef.fog_connection.key_pairs.create(:name => name)
+        step("    key #{name} - creating", :green)
+        @proxy = ClusterChef.fog_connection.key_pairs.create(:name => name.to_s)
       end
       ClusterChef.fog_keypairs[name] = proxy
       self.body = proxy.private_key
       save
     end
-
   end
+
 end

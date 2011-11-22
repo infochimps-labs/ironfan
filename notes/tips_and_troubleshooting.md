@@ -94,10 +94,11 @@ These are likely to clobber way more than their base services.
     sudo apt-get -y remove --purge redis-server
     sudo apt-get -y remove --purge hadoop-0.20 hadoop-0.20-{namenode,secondarynamenode,jobtracker,tasktracker,datanode,doc,native}
     sudo apt-get -y remove --purge hadoop-zookeeper-server hadoop-pig 
+    sudo apt-get -y remove --purge gmetad ganglia-monitor 
     
     svc=cassandra    ; sudo rm -f /etc/service/$svc          ; sudo rm -rf /var/*/$svc /etc/$svc     /etc/sv/${svc}*  /etc/init.d/${svc}* /usr/local/{share,src}/${svc}* ; sudo userdel $svc ; sudo groupdel $svc 
     svc=redis        ; sudo rm -f /etc/service/${svc}_server ; sudo rm -rf /var/*/$svc /etc/$svc     /etc/sv/${svc}_* /etc/init.d/${svc}* /usr/local/{share,src}/${svc}* ; sudo userdel $svc ; sudo groupdel $svc ; 
-    svc=ganglia      ; sudo rm -f /etc/service/${svc}_*      ; sudo rm -rf /var/*/$svc /etc/$svc     /etc/sv/${svc}_* /etc/init.d/${svc}* ; sudo userdel $svc ; sudo groupdel $svc ; sudo apt-get -y remove --purge gmetad ganglia-monitor 
+    svc=ganglia      ; sudo rm -f /etc/service/${svc}_*      ; sudo rm -rf /var/*/$svc /etc/$svc     /etc/sv/${svc}_* /etc/init.d/${svc}* ; sudo userdel $svc ; sudo groupdel $svc ; 
     svc=hadoop       ; sudo rm -f /etc/service/${svc}*       ; sudo rm -rf /var/*/$svc /etc/${svc}*  /etc/sv/${svc}*  /etc/init.d/${svc}* ; sudo userdel hdfs ; sudo userdel mapred ; sudo groupdel hdfs ; sudo groupdel mapred ; sudo groupdel hadoop ; 
 
     svc=elasticsearch; sudo rm -f /etc/service/${svc}        ; sudo rm -rf /var/*/$svc /etc/$svc     /etc/sv/${svc}   /etc/init.d/${svc}* /usr/local/{share,src}/${svc}* ; sudo userdel $svc ; sudo groupdel $svc

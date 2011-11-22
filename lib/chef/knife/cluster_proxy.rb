@@ -47,11 +47,11 @@ class Chef
         :short       => '-D',
         :description => 'Port to listen on for SOCKS5 proxy',
         :default     => '6666'
-      
-      def slice_criterion
-        :sshable?
+
+      def relevant?(server)
+        server.sshable?
       end
-      
+
       def perform_execution(target)
         svr = target.first
         cmd = command_for_target(svr)
@@ -60,7 +60,7 @@ class Chef
         exec(*cmd)
       end
 
-      def command_for_target(svr) 
+      def command_for_target(svr)
         config[:attribute]     ||= Chef::Config[:knife][:ssh_address_attribute] || "fqdn"
         config[:ssh_user]      ||= Chef::Config[:knife][:ssh_user]
         config[:identity_file] ||= svr.cloud.ssh_identity_file
@@ -103,7 +103,7 @@ class Chef
       (shExpMatch(host, "*compute-*.amazonaws.com" )) ||
       (shExpMatch(host, "*compute-*.internal*"     )) ||
       (shExpMatch(host, "*domu*.internal*"         )) ||
-      (shExpMatch(host, "10.*"                     )) 
+      (shExpMatch(host, "10.*"                     ))
       ) {
     return "SOCKS5 localhost:#{config[:socks_port]}";
   }
@@ -128,23 +128,23 @@ end
 #
 # def session_from_list(addresses)
 #   item = addresses.first
-#   
+#
 #   hostspec = config[:ssh_user] ? "#{config[:ssh_user]}@#{item}" : item
 #   session_opts = {}
 #   session_opts[:keys]     = File.expand_path(config[:identity_file]) if config[:identity_file]
 #   session_opts[:password] = config[:ssh_password]                    if config[:ssh_password]
 #   # session_opts[:logger]   = Chef::Log.logger                         if Chef::Log.level == :debug
 #   session_opts[:port]     = Chef::Config[:knife][:ssh_port] || config[:ssh_port]
-# 
+#
 #   if config[:no_host_key_verify]
 #     session_opts[:paranoid]              = false
 #     session_opts[:user_known_hosts_file] = "/dev/null"
 #   end
-# 
+#
 #   session_opts[:username] = 'flip' # config[:ssh_user] if config[:ssh_user]
 #   session_opts.delete :keys
 #   Chef::Log.info( [addresses, hostspec, session_opts, @action_nodes ].inspect )
-#   
+#
 #   @session = Net::SSH.start(item, session_opts)
 #   # do |ssh|
 #   #   ssh.forward.socks(6666)

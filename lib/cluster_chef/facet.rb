@@ -119,7 +119,7 @@ module ClusterChef
     def create_facet_role
       @facet_role_name = "#{cluster_name}_#{facet_name}"
       @facet_role      = new_chef_role(@facet_role_name, cluster, self)
-      role(@facet_role_name)
+      role(@facet_role_name, :last)
     end
 
     #

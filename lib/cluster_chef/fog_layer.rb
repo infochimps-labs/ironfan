@@ -19,7 +19,7 @@ module ClusterChef
         :flavor_id         => cloud.flavor,
         #
         :groups            => cloud.security_groups.keys,
-        :key_name          => cloud.keypair,
+        :key_name          => cloud.keypair.to_s,
         # Fog does not actually create tags when it creates a server.
         :tags              => {
           :cluster => cluster_name,

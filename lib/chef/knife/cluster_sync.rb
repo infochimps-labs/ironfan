@@ -33,9 +33,19 @@ class Chef
         :description => "Sync to the chef server (default syncs chef; use --no-chef to skip)",
         :default     => true,
         :boolean     => true
+      option :sync_all,
+        :long        => "--[no-]sync-all",
+        :description => "Sync, as best as possible, any defined node (even if it is missing from cloud or chef)",
+        :default     => false,
+        :boolean     => true
 
-      def slice_criterion
-        :syncable?
+
+      def relevant?(server)
+        if config[:sync_all]
+          not server.bogus?
+        else
+          server.created? && server.in_chef?
+        end
       end
 
       def perform_execution(target)

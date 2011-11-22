@@ -64,11 +64,6 @@ module ClusterChef
       created? || in_chef?
     end
 
-    # Server is syncable if it is not bogus (exists in cluster definition)
-    def syncable?
-      not bogus?
-    end
-
     def created?
       in_cloud? && (not ['terminated', 'shutting-down'].include?(fog_server.state))
     end
@@ -112,7 +107,7 @@ module ClusterChef
     def resolve!
       reverse_merge!(facet)
       reverse_merge!(cluster)
-      @settings[:run_list] = (@cluster.run_list + @facet.run_list + self.run_list).uniq
+      @settings[:run_list] = combined_run_list
       #
       cloud.reverse_merge!(facet.cloud)
       cloud.reverse_merge!(cluster.cloud)
@@ -134,6 +129,46 @@ module ClusterChef
       cloud.keypair(cluster_name) if cloud.keypair.nil?
       #
       self
+    end
+
+    #
+    # Assembles the combined runlist.
+    #
+    # * run_list :first  items -- cluster then facet then server
+    # * run_list :normal items -- cluster then facet then server
+    # * run_list :last   items -- cluster then facet then server
+    #
+    #    ClusterChef.cluster(:my_cluster) do
+    #      role('f',  :last)
+    #      role('c')
+    #      facet(:my_facet) do
+    #        role('d')
+    #        role('e')
+    #        role('b', :first)
+    #        role('h',  :last)
+    #      end
+    #      role('a', :first)
+    #      role('g', :last)
+    #    end
+    #
+    # produces
+    #    cluster list  [a] [c] [fg]
+    #    facet list    [b] [de] [h]
+    #
+    # yielding run_list
+    #     ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+    #
+    # Avoid duplicate conflicting declarations. If you say define things more
+    # than once, the *earliest encountered* one wins, even if it is elsewhere
+    # marked :last.
+    #
+    def combined_run_list
+      cg = @cluster.run_list_groups
+      fg = @facet.run_list_groups
+      sg = self.run_list_groups
+      [ cg[:first],  fg[:first],  sg[:first],
+        cg[:normal], fg[:normal], sg[:normal],
+        cg[:last],   fg[:last],   sg[:last], ].flatten.compact.uniq
     end
 
     #

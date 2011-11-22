@@ -23,8 +23,8 @@ class Chef
     class ClusterStop < ClusterChef::Script
       import_banner_and_options(ClusterChef::Script)
 
-      def slice_criterion
-        :running?
+      def relevant?(server)
+        server.running?
       end
 
       def confirm_execution(target)

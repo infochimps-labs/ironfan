@@ -111,7 +111,7 @@ module ClusterChef
     def create_cluster_role
       @cluster_role_name = "#{name}_cluster"
       @cluster_role      = new_chef_role(@cluster_role_name, cluster)
-      role(@cluster_role_name)
+      role(@cluster_role_name, :last)
     end
 
   end

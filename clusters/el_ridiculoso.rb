@@ -12,22 +12,21 @@ ClusterChef.cluster 'el_ridiculoso' do
 
   environment           :dev
 
-  role                  :base_role
-  role                  :chef_client
-  role                  :ssh
+  role                  :base_role,   :first
+  role                  :chef_client, :first
+  role                  :ssh,         :first
 
   role                  :mountable_volumes
   role                  :nfs_client
-  role                  :hadoop_s3_keys
+  role                  :hadoop_s3_keys, :first
   recipe                'cluster_chef'
 
   role                  :mrflip_base
-  recipe                'big_package::default'
+  recipe                'big_package::default',         :last
+  recipe                'cluster_chef::dashboard',      :last
 
   facet :grande do
     instances           1
-
-    recipe              'cluster_chef::dashboard'
 
     recipe              'ganglia::server'
     recipe              'ganglia::monitor'
@@ -39,13 +38,13 @@ ClusterChef.cluster 'el_ridiculoso' do
     role                :redis_server
     role                :resque_server
 
-    role                :hadoop
+    role                :hadoop,                        :first
     role                :hadoop_datanode
     role                :hadoop_jobtracker
     role                :hadoop_namenode
     role                :hadoop_secondarynamenode
     role                :hadoop_tasktracker
-    recipe              'hadoop_cluster::cluster_conf'
+    recipe              'hadoop_cluster::cluster_conf', :last
 
     role                :hbase_master
     role                :hbase_regionserver
@@ -63,7 +62,6 @@ ClusterChef.cluster 'el_ridiculoso' do
     role                :elasticsearch_data_esnode
     role                :elasticsearch_http_esnode
     role                :cassandra_datanode
-
   end
 
   facet :mucho do

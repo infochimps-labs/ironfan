@@ -48,8 +48,8 @@ module ClusterChef
     end
 
     # method to nodes should be filtered on
-    def slice_criterion
-      :exists?
+    def relevant?(server)
+      server.exists?
     end
 
     # override in subclass to confirm risky actions
@@ -61,15 +61,15 @@ module ClusterChef
     # Get a slice of nodes matching the given filter
     #
     # @example
-    #    target = get_slice_where(:created?, *@name_args)
+    #    target = get_relevant_slice(* @name_args)
     #
-    def get_slice_where(meth, *predicate)
-      full_target = get_slice(*predicate)
+    def get_relevant_slice( *predicate )
+      full_target = get_slice( *predicate )
       display(full_target) do |svr|
-        result = svr.send(meth)
-        { meth.to_s => (result ? "[blue]#{result}[reset]" : '-' ) }
+        rel = relevant?(svr)
+        { :relevant? => (rel ? "[blue]#{rel}[reset]" : '-' ) }
       end
-      full_target.select(&meth.to_sym)
+      full_target.select{|svr| relevant?(svr) }
     end
 
     # passes target to ClusterSlice#display, will show headings in server slice

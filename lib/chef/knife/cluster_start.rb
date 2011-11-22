@@ -24,8 +24,8 @@ class Chef
     class ClusterStart < ClusterChef::Script
       import_banner_and_options(ClusterChef::Script)
 
-      def slice_criterion
-        :startable?
+      def relevant?(server)
+        server.startable?
       end
     end
   end
