@@ -25,13 +25,16 @@
 #
 
 include_recipe  'cluster_chef'
+
 package         'thttpd'
 package         'thttpd-util'
 
-template "#{node[:cluster_chef][:home_dir]}/dashboard/index.html" do
-  owner         "root"
-  mode          "0644"
-  source        "dashboard_index.html.erb"
+standard_directories(:cluster_chef) do
+  directories  :home_dir, :log_dir, :conf_dir
+end
+
+cluster_chef_dashboard(:cluster_chef) do
+  template_name 'index'
 end
 
 template "#{node[:cluster_chef][:home_dir]}/dashboard-thttpd.conf" do

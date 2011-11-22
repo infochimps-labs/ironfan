@@ -11,6 +11,9 @@ depends          "apt"
 depends          "runit"
 depends          "mountable_volumes"
 depends          "provides_service"
+#
+recommends       "jruby"
+recommends       "hadoop_cluster"
 
 recipe           "flume::default",                     "Base configuration for flume"
 recipe           "flume::hbase_sink_plugin",           "Hbase Sink Plugin"

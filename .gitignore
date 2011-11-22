@@ -47,3 +47,4 @@ Gemfile.lock
 metadata.json
 .chef
 *.pem
+.rvmrc

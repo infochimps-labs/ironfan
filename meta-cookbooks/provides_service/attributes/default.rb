@@ -1,0 +1,2 @@
+
+default[:provides_service] = {}
