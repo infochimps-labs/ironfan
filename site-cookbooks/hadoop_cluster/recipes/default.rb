@@ -115,4 +115,4 @@ end
 # and /var/run/hadoop point to the actual pid dir
 force_link("/var/log/hadoop",                    node[:hadoop][:log_dir] )
 force_link("/var/log/#{node[:hadoop][:handle]}", node[:hadoop][:log_dir] )
-force_link('/var/run/hadoop',                    node[:hadoop][:pid_dir] )
+force_link("/var/run/#{node[:hadoop][:handle]}", node[:hadoop][:pid_dir] )

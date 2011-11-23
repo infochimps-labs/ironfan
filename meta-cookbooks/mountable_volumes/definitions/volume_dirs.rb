@@ -32,7 +32,7 @@
 #       selects     :all
 #       path        'hadoop/hdfs/data'
 #       owner       'hdfs'
-#       group       'hadoop'    
+#       group       'hadoop'
 #       mode        "0700"
 #     end
 #
@@ -50,19 +50,19 @@ define(:volume_dirs,
   name      = params[:name]
   component = params[:component]
   aspect    = params[:aspect]
-  if    name.to_s =~ /^\w+\.\w+$/
+  if    name.to_s =~ /^\w+\.\w+\.\w+$/
     name, component, aspect = name.split(".", 3).map(&:to_sym)
   elsif name.to_s =~ /^\w+\.\w+$/
     name, aspect            = name.split(".", 2).map(&:to_sym)
   end
-  raise "Please provide a system and an aspect (eg 'redis.log', or 'mysql.data')" unless aspect
-  raise "Please select either :all or :single" unless ['all', 'first', nil].include?(params[:selects].to_s)
+  raise "Please provide a system and an aspect (eg 'redis.log', or 'mysql.data'): got #{params[:name]} #{params[:component]}" unless aspect
+  raise "Please select either :all or :single" unless ['all', 'single', nil].include?(params[:selects].to_s)
 
-  aspect_attr = (selects == :all) ? "#{name}_dirs" : "#{name}_dir"
-  
+  aspect_attr = (params[:selects] == :all) ? "#{aspect}_dirs" : "#{aspect}_dir"
+
   params[:selects] ||= :all
   params[:user]    ||= scoped_default(name, component, :user, :required )
-  params[:group]   ||= scoped_default(name, component, :group) || params[:group]
+  params[:group]   ||= scoped_default(name, component, :group) || params[:user]
 
   #
   # Once we've chosen a path, we need to use it forever.
@@ -71,8 +71,9 @@ define(:volume_dirs,
   if paths.empty?
     sub_path = params[:path] || [name, component, aspect].compact.join('/')
 
-    volumes = mounted_volumes_tagged(params[:type])
-    volumes = [volumes.first] if (selects == :single)
+    volumes = volumes_tagged(
+      "#{name}.#{component}.#{aspect}", "#{name}.#{aspect}", params[:type], :scratch)
+    volumes = [volumes.first] if (params[:selects] == :single)
     paths  = volumes.map{|vol, vol_info| ::File.expand_path(sub_path, vol_info[:mount_point]) }
   end
 
@@ -80,8 +81,8 @@ define(:volume_dirs,
     directory(path) do
       owner     params[:owner] if owner
       group     params[:group] if group
-      mode      params[:mode ] if params[:mode ] 
-      recursive :true
+      mode      params[:mode ] if params[:mode ]
+      recursive true
     end
   end
 
@@ -97,9 +98,11 @@ define(:volume_dirs,
   #     node[:redis][:data_dir] = "/ebs1/redis/data"
   #
   if component
-    node[name][component][aspect_attr] = (selects == :all) ? actual_paths : actual_paths.first 
+    Chef::Log.info("setting node[#{name}][#{component}][#{aspect_attr}] to #{paths.inspect}")
+    node[name][component][aspect_attr] = (params[:selects] == :all) ? paths : paths.first
   else
-    node[name][aspect_attr]            = (selects == :all) ? actual_paths : actual_paths.first
+    Chef::Log.info("setting node[#{name}][#{aspect_attr}] to #{paths.inspect}")
+    node[name][aspect_attr]            = (params[:selects] == :all) ? paths : paths.first
   end
 end
 

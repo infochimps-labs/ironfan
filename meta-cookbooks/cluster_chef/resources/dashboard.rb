@@ -16,7 +16,7 @@ attribute :template_name, :kind_of => String, :default => nil
 # if not explicitly set, use the node variables matching the given name: so,
 # `cluster_chef_dashboard(:redis){ ... }` gives node[:redis][:home_dir] as
 # @home_dir, node[:redis][:server][:port] as @server[:port], and so on.
-attribute :variables,     :kind_of => String, :default => nil
+attribute :variables,     :kind_of => Hash, :default => nil
 
 # override the cookbook to source from
 attribute :cookbook,      :kind_of => String, :default => nil

@@ -25,7 +25,7 @@ ClusterChef.cluster 'el_ridiculoso' do
   recipe                'big_package::default',         :last
   recipe                'cluster_chef::dashboard',      :last
 
-  facet :grande do
+  facet :vagrante do
     instances           1
 
     recipe              'ganglia::server'
@@ -44,14 +44,13 @@ ClusterChef.cluster 'el_ridiculoso' do
     role                :hadoop_namenode
     role                :hadoop_secondarynn
     role                :hadoop_tasktracker
-    recipe              'hadoop_cluster::cluster_conf', :last
+    recipe              'hadoop_cluster::cluster_conf',     :last
+    recipe              'hadoop_cluster::simple_dashboard', :last
 
     role                :hbase_master
     role                :hbase_regionserver
 
     role                :statsd_server
-
-    # role                :graphite_server
 
     role                :pig
     recipe              'rstats'
@@ -62,6 +61,58 @@ ClusterChef.cluster 'el_ridiculoso' do
     role                :elasticsearch_data_esnode
     role                :elasticsearch_http_esnode
     role                :cassandra_datanode
+
+    # role                :graphite_server
+
+    volume("ephemeral0"){ tags( 'scratch' => true  ) }
+    volume("ephemeral1"){ tags( 'scratch' => true  ) }
+    volume("ephemeral2"){ tags( 'scratch' => true  ) }
+    volume("ephemeral3"){ tags( 'scratch' => false ) }
+  end
+
+  facet :grande do
+    instances           1
+
+    # recipe              'ganglia::server'
+    # recipe              'ganglia::monitor'
+    #
+    # role                :flume_master
+    # role                :flume_node
+    # role                :zookeeper_server
+    #
+    # role                :redis_server
+    # role                :resque_server
+
+    role                :hadoop,                        :first
+    role                :hadoop_datanode
+    role                :hadoop_jobtracker
+    role                :hadoop_namenode
+    role                :hadoop_secondarynn
+    role                :hadoop_tasktracker
+    recipe              'hadoop_cluster::cluster_conf',     :last
+    recipe              'hadoop_cluster::simple_dashboard', :last
+
+    # role                :hbase_master
+    # role                :hbase_regionserver
+    #
+    # role                :statsd_server
+    #
+    # # role                :graphite_server
+    #
+    # role                :pig
+    # recipe              'rstats'
+    # recipe              'nodejs'
+    # recipe              'jruby'
+    # recipe              'jruby::gems'
+    #
+    # role                :elasticsearch_data_esnode
+    # role                :elasticsearch_http_esnode
+    # role                :cassandra_datanode
+
+    volume("ephemeral0"){ tags( 'scratch' => true  ) }
+    volume("ephemeral1"){ tags( 'scratch' => true  ) }
+    volume("ephemeral2"){ tags( 'scratch' => true  ) }
+    volume("ephemeral3"){ tags( 'scratch' => false ) }
   end
 
   facet :mucho do
@@ -83,7 +134,7 @@ ClusterChef.cluster 'el_ridiculoso' do
         :scratch_dirs          => ['/mnt/hadoop','/mnt2/hadoop','/mnt3/hadoop','/mnt4/hadoop'],
         :java_heap_size_max    => 1400,
         :namenode              => { :java_heap_size_max => 1000, },
-        :secondarynn     => { :java_heap_size_max => 1000, },
+        :secondarynn           => { :java_heap_size_max => 1000, },
         :jobtracker            => { :java_heap_size_max => 3072, },
         :compress_mapout_codec => 'org.apache.hadoop.io.compress.SnappyCodec',
       },

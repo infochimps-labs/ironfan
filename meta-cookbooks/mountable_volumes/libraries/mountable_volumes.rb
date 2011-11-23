@@ -13,7 +13,6 @@ module MountableVolumes
   #     } }
   def mountable_volumes
     vols = node[:mountable_volumes][:volumes].to_hash || {}
-    vols.reject!{|vol_name, vol| vol['mount_point'].to_s.empty? || (vol['mountable'].to_s == 'false') }
     fix_for_xen!(vols)
     vols
   end
@@ -22,8 +21,18 @@ module MountableVolumes
     mountable_volumes.select{|vol_name, vol| File.exists?(vol['device']) }
   end
 
-  def mounted_volumes_tagged(tag)
-    mounted_volumes.select{|vol_name, vol| vol['tags'] && vol['tags'][tag] }
+  #
+  # Using each of the tags in order,
+  #
+  def volumes_tagged(*tags)
+    mvols = mounted_volumes
+    Chef::Log.info(mvols)
+    tags.each do |tag|
+      result = mvols.select{|vol_name, vol| vol['tags'] && vol['tags'][tag] }
+      Chef::Log.info( [tag, result] )
+      return result unless result.empty?
+    end
+    mvols
   end
 
   # Use `file -s` to identify volume type: ohai doesn't seem to want to do so.

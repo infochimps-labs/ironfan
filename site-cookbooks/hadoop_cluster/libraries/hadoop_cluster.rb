@@ -14,11 +14,6 @@ module HadoopCluster
     end
   end
 
-  def discover_components
-    node[:hadoop][:namenode  ][:addr] = provider_private_ip("#{node[:cluster_name]}-namenode")
-    node[:hadoop][:jobtracker][:addr] = provider_private_ip("#{node[:cluster_name]}-jobtracker")
-  end
-
   # {
   #   :namenode   => { ,  },
   #   :jobtracker => { :addr => provider_private_ip("#{node[:cluster_name]}-jobtracker") },
@@ -36,10 +31,10 @@ module HadoopCluster
   #   :aws                    => (node[:aws] && node[:aws].to_hash),
   # }
   def hadoop_config_hash
-    node[:hadoop].to_hash.merge(
+    Mash.new(
       :aws              => (node[:aws] && node[:aws].to_hash),
       :extra_classpaths => node[:hadoop][:extra_classpaths].map{|nm, classpath| classpath }.flatten,
-      )
+      ).merge(node[:hadoop])
   end
 
   # # Make a hadoop-owned directory
@@ -91,12 +86,12 @@ module HadoopCluster
   #
   # def hadoop_scratch_dirs
   #   [ node[:hadoop][:scratch_dirs],
-  #     mounted_volumes_tagged(:hadoop_scratch).map{|vol_name, vol| vol[:mount_point]+"/hadoop" } ].flatten.uniq.compact
+  #     volumes_tagged(:hadoop_scratch).map{|vol_name, vol| vol[:mount_point]+"/hadoop" } ].flatten.uniq.compact
   # end
   #
   # def hadoop_persistent_dirs
   #   [ node[:hadoop][:persistent_dirs],
-  #     mounted_volumes_tagged(:hdfs).map{|vol_name, vol| vol[:mount_point]+"/hadoop" } ].flatten.uniq.compact
+  #     volumes_tagged(:hdfs).map{|vol_name, vol| vol[:mount_point]+"/hadoop" } ].flatten.uniq.compact
   # end
 
   # Create a symlink to a directory, wiping away any existing dir that's in the way

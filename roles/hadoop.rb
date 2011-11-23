@@ -7,7 +7,6 @@ run_list *%w[
   hadoop_cluster
   hadoop_cluster::add_cloudera_repo
   cluster_chef::dedicated_server_tuning
-  hadoop_cluster::simple_dashboard
   ]
 
 default_attributes({

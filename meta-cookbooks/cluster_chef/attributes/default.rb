@@ -14,7 +14,7 @@ default[:cluster_chef][:user]     = 'root'
 #
 
 default[:cluster_chef][:thttpd][:port] = 6789
-
+default[:cluster_chef][:dashboard][:links] = {}  # hash of name => app dashboard url
 #
 # Server Tuning
 #

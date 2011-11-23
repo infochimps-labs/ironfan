@@ -21,6 +21,7 @@
 
 # defined in mountable_volumes/libraries/mountable_volumes.rb
 mountable_volumes.each do |vol_name, vol|
+  next if vol['mount_point'].to_s.empty? || (vol['mountable'].to_s == 'false')
 
   if not File.exists?(vol['device'])
     Chef::Log.info "Before mounting, you must attach the #{vol_name} volume at #{vol['device']}"

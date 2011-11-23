@@ -6,9 +6,9 @@ include_recipe 'cluster_chef'
 #
 
 hadoop_services.each do |component|
-  next unless node[component][:dash_port]
-  hsh = { :addr => node[:fqdn] }.merge(node[component])
-  cluster_chef_dashboard_link("hadoop.#{component}", hsh)
+  next unless node[:hadoop][component] && node[:hadoop][component][:dash_port]
+  hsh = { :addr => node[:fqdn] }.merge(node[:hadoop][component])
+  add_dashboard_link("hadoop.#{component}", hsh)
 end
 
 #

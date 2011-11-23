@@ -25,14 +25,10 @@ include_recipe "hadoop_cluster"
 hadoop_package "secondarynamenode"
 
 # launch service
-service "#{node[:hadoop][:handle]}-secondarynn" do
+service "#{node[:hadoop][:handle]}-secondarynamenode" do
   action    node[:hadoop][:secondarynn][:service_state]
   supports :status => true, :restart => true
   ignore_failure true
 end
 
 provide_service ("#{node[:cluster_name]}-secondarynn")
-
-dfs_2nn_dirs.each do |dir|
-  make_hadoop_dir(dir, 'hdfs',   "0700")
-end

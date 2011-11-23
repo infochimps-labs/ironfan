@@ -9,7 +9,7 @@ module ClusterChef
         when (node[name] && node[name][key])
           return node[name][key]
         when required
-          Chef::Log.warn "daemon_user definition can't find default for #{key} in node[#{name}][#{component}] or node[#{name}]"
+          Chef::Log.warn "daemon_user definition can't find default for #{key} in node[:#{name}][:#{component}] or node[:#{name}]"
           return nil
         end
       end

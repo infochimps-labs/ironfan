@@ -1,3 +1,4 @@
+require 'cgi'
 
 module ClusterChef
   module DashboardUtils

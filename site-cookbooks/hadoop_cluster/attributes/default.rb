@@ -27,8 +27,6 @@ default[:hadoop][:tasktracker ][:service_state]  = [:enable, :start]
 # Locations
 #
 
-default[:hadoop][:home_dir] = "/usr/lib/hadoop"
-default[:hadoop][:pid_dir]  = "/var/run/hadoop-0.20"
 #
 # These are handled by mountable_volumes, which imprints them on the node.
 # If you set an explicit value it will be used and no discovery is done.
@@ -50,6 +48,13 @@ default[:hadoop][:jobtracker ][:staging_hdfsdir] = '/hadoop/mapred/system' # not
 default[:hadoop][:datanode   ][:data_dir]        = nil
 default[:hadoop][:tasktracker][:scratch_dir]     = nil
 
+default[:hadoop][:home_dir] = "/usr/lib/hadoop"
+default[:hadoop][:conf_dir] = "/etc/hadoop/conf"
+default[:hadoop][:pid_dir]  = "/var/run/hadoop"
+default[:hadoop][:log_dir]  = nil
+default[:hadoop][:tmp_dir]  = nil
+
+
 default[:hadoop][:namenode   ][:port]      =  8020
 default[:hadoop][:jobtracker ][:port]      =  8021
 default[:hadoop][:datanode   ][:port]      = 50010
@@ -60,7 +65,6 @@ default[:hadoop][:secondarynn][:dash_port] = 50090
 default[:hadoop][:jobtracker ][:dash_port] = 50030
 default[:hadoop][:datanode   ][:dash_port] = 50075
 default[:hadoop][:tasktracker][:dash_port] = 50060
-
 
 default[:java][:java_home] = '/usr/lib/jvm/java-6-sun/jre'
 
@@ -77,6 +81,7 @@ default[:groups]['hdfs'       ][:gid]   = 302
 default[:users ]['mapred'     ][:uid]   = 303
 default[:groups]['mapred'     ][:gid]   = 303
 
+default[:hadoop][:user]  = 'hdfs'
 default[:hadoop][:namenode    ][:user]  = 'hdfs'
 default[:hadoop][:secondarynn ][:user]  = 'hdfs'
 default[:hadoop][:jobtracker  ][:user]  = 'mapred'

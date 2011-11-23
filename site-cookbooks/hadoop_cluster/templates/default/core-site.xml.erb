@@ -20,13 +20,13 @@
 <property> <name>hadoop.rpc.socket.factory.class.ClientProtocol</name>        <value></value> <final>true</final></property>
 <property> <name>hadoop.rpc.socket.factory.class.JobSubmissionProtocol</name> <value></value> <final>true</final></property>
 
-<%- unless @aws.nil? %>
+<%- unless @hadoop[:aws].nil? %>
 <property> <name>fs.s3.awsAccessKeyId</name>         <value><%= @hadoop[:aws][:aws_access_key_id] %></value></property>
 <property> <name>fs.s3n.awsAccessKeyId</name>        <value><%= @hadoop[:aws][:aws_access_key_id] %></value></property>
 <property> <name>fs.s3.awsSecretAccessKey</name>     <value><%= @hadoop[:aws][:aws_secret_access_key] %></value></property>
 <property> <name>fs.s3n.awsSecretAccessKey</name>    <value><%= @hadoop[:aws][:aws_secret_access_key] %></value></property>
-<property> <name>fs.s3.block.size</name>             <value><%= @hadoop[:aws][:s3_block_size] %></value></property>
-<property> <name>fs.s3n.block.size</name>            <value><%= @hadoop[:aws][:s3_block_size] %></value></property>
+<property> <name>fs.s3.block.size</name>             <value><%= @hadoop[:s3_block_size] %></value></property>
+<property> <name>fs.s3n.block.size</name>            <value><%= @hadoop[:s3_block_size] %></value></property>
 <%- end %>
 
 </configuration>

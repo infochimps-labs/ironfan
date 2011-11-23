@@ -21,4 +21,4 @@ module ClusterChef
   end
 end
 
-class ::Chef::Recipe ; include MungeOneLine ; end
+class ::Chef::Recipe ; include ClusterChef::MungeOneLine ; end

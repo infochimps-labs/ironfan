@@ -24,5 +24,5 @@ export HADOOP_DATANODE_OPTS="$HADOOP_JOBTRACKER_OPTS -XX:+UseParallelGC -Xmx<%= 
 
 <%- unless @hadoop[:extra_classpaths].nil? %>
 # Extra classpaths for hadoop
-export HADOOP_CLASSPATH="<%= @hadoop[:extra_classpaths].join(":") %>:$HADOOP_CLASSPATH"
+export HADOOP_CLASSPATH="<%= @hadoop[:extra_classpaths].values.flatten.join(":") %>:$HADOOP_CLASSPATH"
 <%- end %>
