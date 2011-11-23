@@ -29,30 +29,31 @@
 script_dir=`dirname $0`
 slug=`date "+%Y%m%d%H%M%S"`
 
-hadoop_root_dirs="<%= @hadoop_persistent_dirs.map{|dir| File.join(dir, 'hdfs') }.join(" ") %>"
-hadoop_log_dir="<%=    @hadoop_log_dir %>"
-sentinel="$hadoop_tmp_dir/made_initial_dirs"
+<%- hadoop_persistent_dirs = @hadoop[:namenode][:data_dirs].map{|dir| dir.gsub(%r{hadoop/hdfs.*?$},'hadoop') } %>
+hadoop_root_dirs="<%= hadoop_persistent_dirs.join(" ") %>"
+hadoop_log_dir="<%=   @hadoop[:log_dir] %>"
+sentinel="$hadoop_tmp_dir/made_initial_dirs.log"
 
 #
 echo "Stopping hadoop daemons"
 #
-echo -n "  "; sudo service <%= "#{node[:hadoop][:handle]}-namenode"          %> stop || sleep 3 ; true
-echo -n "  "; sudo service <%= "#{node[:hadoop][:handle]}-datanode"          %> stop || sleep 3 ; true
-echo -n "  "; sudo service <%= "#{node[:hadoop][:handle]}-secondarynamenode" %> stop || sleep 3 ; true
+echo -n "  "; sudo service <%= "#{@hadoop[:handle]}-namenode"          %> stop || sleep 3 ; true
+echo -n "  "; sudo service <%= "#{@hadoop[:handle]}-datanode"          %> stop || sleep 3 ; true
+echo -n "  "; sudo service <%= "#{@hadoop[:handle]}-secondarynamenode" %> stop || sleep 3 ; true
 
 echo "WARNING:"
 echo ""
 echo "You are about to destroy this machine's HDFS."
 echo 
-echo "The directories that hold the namenode, datanode and secondarynamenode:"
-echo "  <%= @hadoop_persistent_dirs.map{|dir| File.join(dir, 'hdfs') }.join(' ') %>"
+echo "The directories that hold the namenode, datanode and secondarynn data:"
+echo "  <%= hadoop_persistent_dirs.map{|dir| File.join(dir, 'hdfs') }.join(' ') %>"
 echo "will each be relocated to a directory under"
-echo "  <%= @hadoop_persistent_dirs.map{|dir| File.join(dir, 'away') }.join(' ') %>"
+echo "  <%= hadoop_persistent_dirs.map{|dir| File.join(dir, 'away') }.join(' ') %>"
 echo
 read -p "Type 'YES' in all caps to do this: " doit ;
 
 if [ "$doit" = "YES" ] ; then
-  for root in <%= @hadoop_persistent_dirs.join(' ') %> ; do
+  for root in <%= hadoop_persistent_dirs.join(' ') %> ; do
     if [ -d "$root/hdfs" ] ; then
       echo  "  moving $root/hdfs" to "$root/away/hdfs-$slug"
       sudo  mkdir -p "$root/away"

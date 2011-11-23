@@ -46,7 +46,7 @@ ClusterChef.cluster 'elasticsearch_demo' do
 
         hadoop_cluster
         role[hadoop_namenode]
-        role[hadoop_secondarynamenode]
+        role[hadoop_secondarynn]
         role[hadoop_datanode]
         role[hadoop_jobtracker]
         role[hadoop]

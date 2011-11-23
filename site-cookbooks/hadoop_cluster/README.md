@@ -39,10 +39,10 @@ Copyright:: 2009, Opscode, Inc; 2010, 2011 Infochimps, In
 * `[:hadoop][:dfs_replication]`       - Default HDFS replication factor (default: "3")
   - HDFS blocks are by default reproduced to this many machines.
 * `[:hadoop][:reduce_parallel_copies]` -  (default: "10")
-* `[:hadoop][:tasktracker_http_threads]` -  (default: "32")
-* `[:hadoop][:jobtracker_handler_count]` -  (default: "40")
-* `[:hadoop][:namenode_handler_count]` -  (default: "40")
-* `[:hadoop][:datanode_handler_count]` -  (default: "8")
+* `[:hadoop][:tasktracker][:http_threads]` -  (default: "32")
+* `[:hadoop][:jobtracker][:handler_count]` -  (default: "40")
+* `[:hadoop][:namenode][:handler_count]` -  (default: "40")
+* `[:hadoop][:datanode][:handler_count]` -  (default: "8")
 * `[:hadoop][:compress_output]`       -  (default: "false")
 * `[:hadoop][:compress_output_type]`  -  (default: "BLOCK")
 * `[:hadoop][:compress_output_codec]` -  (default: "org.apache.hadoop.io.compress.DefaultCodec")
@@ -68,8 +68,8 @@ Copyright:: 2009, Opscode, Inc; 2010, 2011 Infochimps, In
 * `[:hadoop][:extra_classpaths]`      - 
 * `[:hadoop][:namenode][:service_state]` - 
 * `[:hadoop][:namenode][:java_heap_size_max]` - 
-* `[:hadoop][:secondarynamenode][:service_state]` - 
-* `[:hadoop][:secondarynamenode][:java_heap_size_max]` - 
+* `[:hadoop][:secondarynn][:service_state]` - 
+* `[:hadoop][:secondarynn][:java_heap_size_max]` - 
 * `[:hadoop][:jobtracker][:service_state]` - 
 * `[:hadoop][:jobtracker][:java_heap_size_max]` - 
 * `[:hadoop][:datanode][:service_state]` - 
@@ -97,7 +97,7 @@ Copyright:: 2009, Opscode, Inc; 2010, 2011 Infochimps, In
 * `jobtracker`               - Jobtracker
 * `namenode`                 - Namenode
 * `pseudo_distributed`       - Pseudo Distributed
-* `secondarynamenode`        - Secondarynamenode
+* `secondarynn`        - Secondarynn
 * `tasktracker`              - Tasktracker
 * `wait_on_hdfs_safemode`    - Wait On HDFS Safemode
 ## Integration

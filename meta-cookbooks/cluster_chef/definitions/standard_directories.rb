@@ -30,12 +30,13 @@ define(:standard_directories,
   if params[:name].to_s =~ /^\w+\.\w+$/
     params[:name], params[:component] = params[:name].split(".", 2).map(&:to_sym)
   end
+  name, component = params[:name], params[:component]
 
-  params[:user]       ||= scoped_default(params, :user)
-  params[:group]      ||= scoped_default(params, :group,    params[:user])
+  params[:user]       ||= scoped_default(name, component, :user, :required)
+  params[:group]      ||= scoped_default(name, component, :group) || params[:user]
 
   [params[:directories]].flatten.each do |dir_type|
-    dir_paths = scoped_default(params, dir_type)
+    dir_paths = scoped_default(name, component, dir_type)
     unless dir_paths
       Chef::Log.warn "Missing definition of #{dir_type} for #{params[:name]}.#{params[:component]} -- #{node[params[:name]].to_hash.inspect}"
       next

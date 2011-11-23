@@ -19,5 +19,7 @@
 # limitations under the License.
 #
 
-include_recipe "java"
+include_recipe "hadoop_cluster"
+
+# Install
 hadoop_package doc

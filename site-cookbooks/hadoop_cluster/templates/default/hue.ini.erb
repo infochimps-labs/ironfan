@@ -1,7 +1,7 @@
 [hadoop]
 [[hdfs_clusters]]
 [[[default]]]
-namenode_host=<%= @namenode_addr %>
+namenode_host=<%= @hadoop[:namenode][:addr] %>
 [[mapred_clusters]]
 [[[default]]]
-jobtracker_host=<%= @jobtracker_addr %>
+jobtracker_host=<%= @hadoop[:jobtracker][:addr] %>

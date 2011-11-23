@@ -31,38 +31,8 @@ include_recipe "hadoop_cluster::add_cloudera_repo"
 # Hadoop users and group
 #
 
-daemon_user(:hadoop) do
-  user         :hdfs
-end
-
-daemon_user(:hadoop) do
-  user         :mapred
-end
-
-# group 'hdfs' do gid(node[:groups]['hdfs'][:gid]) ; action [:create] ; end
-# user  'hdfs' do
-#   comment    'Hadoop HDFS User'
-#   uid        302
-#   group      'hdfs'
-#   home       "/var/run/hadoop-0.20"
-#   shell      "/bin/false"
-#   password   nil
-#   supports   :manage_home => false
-#   action     [:create, :manage]
-# end
-#
-# group 'mapred' do gid(node[:groups]['mapred'][:gid]) ; action [:create] ; end
-# user  'mapred' do
-#   comment    'Hadoop Mapred Runner'
-#   uid        303
-#   group      'mapred'
-#   home       "/var/run/hadoop-0.20"
-#   shell      "/bin/false"
-#   password   nil
-#   supports   :manage_home => false
-#   action     [:create, :manage]
-# end
-#
+daemon_user(:hadoop){ user(:hdfs)   }
+daemon_user(:hadoop){ user(:mapred) }
 
 group 'hadoop' do
   group_name 'hadoop'
@@ -80,37 +50,69 @@ group 'supergroup' do
 end
 
 #
-# Hadoop directories
-#
-
-# Important: In CDH3 Beta 3, the mapred.system.dir directory must be located inside a directory that is owned by mapred. For example, if mapred.system.dir is specified as /mapred/system, then /mapred must be owned by mapred. Don't, for example, specify /mrsystem as mapred.system.dir because you don't want / owned by mapred.
-#
-# Directory             Owner           Permissions
-# dfs.name.dir          hdfs:hadoop     drwx------
-# dfs.data.dir          hdfs:hadoop     drwxr-xr-x
-# mapred.local.dir      mapred:hadoop   drwxr-xr-x
-# mapred.system.dir     mapred:hadoop   drwxr-xr-x
-
-#
-# Physical directories for HDFS files and metadata
-# (dfs_name_dirs/dfs_2nn_dirs are in namenode/secondarynamenode recipes)
-dfs_data_dirs.each{      |dir| make_hadoop_dir(dir, 'hdfs',   "0700") }
-mapred_local_dirs.each{  |dir| make_hadoop_dir(dir, 'mapred', "0755") }
-[hadoop_tmp_dir].each{   |dir| make_hadoop_dir(dir, 'hdfs',   "0777") }
-[hadoop_log_dir].each{   |dir| make_hadoop_dir(dir, 'hdfs',   "0775") }
-
-# Locate hadoop logs on scratch dirs
-force_link("/var/log/hadoop", hadoop_log_dir )
-force_link("/var/log/#{node[:hadoop][:handle]}", hadoop_log_dir )
-
-# Make hadoop point to /var/run for pids
-make_hadoop_dir('/var/run/hadoop-0.20', 'root', "0775")
-force_link('/var/run/hadoop', '/var/run/hadoop-0.20')
-
-#
 # Primary hadoop packages
 #
+# (do this *after* creating the users)
 
 hadoop_package nil
 hadoop_package "native"
 hadoop_package "sbin"
+
+#
+# Hadoop directories
+#
+#
+
+# Namenode metadata striped across all persistent dirs
+volume_dirs('hadoop.namenode.data') do
+  type          :persistent
+  selects       :all
+  path          'hadoop/hdfs/name'
+  mode          "0700"
+end
+
+# Secondary Namenode metadata striped across all persistent dirs
+volume_dirs('hadoop.secondarynn.data') do
+  type          :persistent
+  selects       :all
+  path          'hadoop/hdfs/secondary'
+  mode          "0700"
+end
+
+# Datanode data striped across all persistent dirs
+volume_dirs('hadoop.datanode.data') do
+  type          :persistent
+  selects       :all
+  path          'hadoop/hdfs/data'
+  mode          "0700"
+end
+
+# Mapred job scratch space striped across all scratch dirs
+volume_dirs('hadoop.tasktracker.scratch') do
+  type          :scratch
+  selects       :all
+  path          'hadoop/mapred/local'
+  mode          "0755"
+end
+
+# Hadoop tmp storage on a single scratch dir
+volume_dirs('hadoop.tmp') do
+  type          :scratch
+  selects       :single
+  path          'hadoop/tmp'
+  mode          "0777"
+end
+
+# Hadoop log storage on a single scratch dir
+volume_dirs('hadoop.log') do
+  type          :scratch
+  selects       :single
+  path          'hadoop/log'
+  mode          "0775"
+end
+
+# Make /var/log/hadoop point to the logs (which is on the first scratch dir),
+# and /var/run/hadoop point to the actual pid dir
+force_link("/var/log/hadoop",                    node[:hadoop][:log_dir] )
+force_link("/var/log/#{node[:hadoop][:handle]}", node[:hadoop][:log_dir] )
+force_link('/var/run/hadoop',                    node[:hadoop][:pid_dir] )

@@ -42,7 +42,7 @@ ClusterChef.cluster 'el_ridiculoso' do
     role                :hadoop_datanode
     role                :hadoop_jobtracker
     role                :hadoop_namenode
-    role                :hadoop_secondarynamenode
+    role                :hadoop_secondarynn
     role                :hadoop_tasktracker
     recipe              'hadoop_cluster::cluster_conf', :last
 
@@ -83,7 +83,7 @@ ClusterChef.cluster 'el_ridiculoso' do
         :scratch_dirs          => ['/mnt/hadoop','/mnt2/hadoop','/mnt3/hadoop','/mnt4/hadoop'],
         :java_heap_size_max    => 1400,
         :namenode              => { :java_heap_size_max => 1000, },
-        :secondarynamenode     => { :java_heap_size_max => 1000, },
+        :secondarynn     => { :java_heap_size_max => 1000, },
         :jobtracker            => { :java_heap_size_max => 3072, },
         :compress_mapout_codec => 'org.apache.hadoop.io.compress.SnappyCodec',
       },
@@ -109,13 +109,13 @@ ClusterChef.cluster 'el_ridiculoso' do
       },
       :hadoop => {
         :namenode            => { :service_state => :stop },
-        :secondarynamenode   => { :service_state => :stop },
+        :secondarynn   => { :service_state => :stop },
         :jobtracker          => { :service_state => :stop },
         :datanode            => { :service_state => :stop },
         :tasktracker         => { :service_state => :stop },
         #
         # :namenode          => { :service_state => :start, },
-        # :secondarynamenode => { :service_state => :start, },
+        # :secondarynn => { :service_state => :start, },
         # :jobtracker        => { :service_state => :start, },
         # :datanode          => { :service_state => :start, },
         # :tasktracker       => { :service_state => :start, },

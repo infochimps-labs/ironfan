@@ -66,7 +66,7 @@ ClusterChef.cluster 'demosimple' do
         :scratch_dirs          => ['/mnt/hadoop','/mnt2/hadoop','/mnt3/hadoop','/mnt4/hadoop'],
         :java_heap_size_max    => 1400,
         :namenode              => { :java_heap_size_max => 1000, },
-        :secondarynamenode     => { :java_heap_size_max => 1000, },
+        :secondarynn     => { :java_heap_size_max => 1000, },
         :jobtracker            => { :java_heap_size_max => 3072, },
         :compress_mapout_codec => 'org.apache.hadoop.io.compress.SnappyCodec',
       },

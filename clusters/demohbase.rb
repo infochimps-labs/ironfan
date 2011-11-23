@@ -13,7 +13,7 @@ ClusterChef.cluster 'demohbase' do
     facet_index         0
     role                "nfs_server"
     role                "hadoop_namenode"
-    role                "hadoop_secondarynamenode"
+    role                "hadoop_secondarynn"
     role                "hadoop_jobtracker"
     role                "hbase_master"
     role                "zookeeper_server"

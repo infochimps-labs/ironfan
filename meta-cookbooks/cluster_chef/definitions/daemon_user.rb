@@ -20,11 +20,12 @@ define(:daemon_user,
   if params[:name].to_s =~ /^\w+\.\w+$/
     params[:name], params[:component] = params[:name].split(".", 2).map(&:to_sym)
   end
+  name, component = params[:name], params[:component]
   #
-  params[:user]         ||= scoped_default(params, :user)
-  params[:group]        ||= scoped_default(params, :group,    params[:user])
-  params[:home]         ||= scoped_default(params, :pid_dir)
-  params[:comment]      ||= "#{[params[:name], params[:component]].join(" ")} daemon"
+  params[:user]         ||= scoped_default(name, component, :user,    :required)
+  params[:group]        ||= scoped_default(name, component, :group) || params[:user]
+  params[:home]         ||= scoped_default(name, component, :pid_dir, :required)
+  params[:comment]      ||= "#{[name, component].join(" ")} daemon"
   #
   user_val                = params[:user].to_s
   group_val               = params[:group].to_s

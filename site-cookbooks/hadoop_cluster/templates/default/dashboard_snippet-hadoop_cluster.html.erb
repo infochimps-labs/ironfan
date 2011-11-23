@@ -1,31 +1,23 @@
 <html>
-  <head>
-    <title>Hadoop EC2 Cluster</title>
-  </head>
+<head>
+  <title><%= node.name %> Hadoop Cluster</title>
+</head>
   
-  <body>
-    <h1>Hadoop EC2 Cluster</h1>
+<body>
+  <h2>Hadoop Cluster for <%= node.name %></h2>
 
-    <ul>
-      <!-- FIXME: this is incorrect if the webfront isn't the jobtracker and namenode. Or if you're not on ec2 -->
-      <li><a href="http://<%= @namenode_address   %>:50070/">NameNode</a></li>
-      <li><a href="http://<%= @jobtracker_address %>:50030/">JobTracker</a></li>
-      <!-- Uncomment if you use cloudera Desktop -->
-      <!-- <li><a href="http://<%= node[:ec2][:public_hostname] %>:8088/">Cloudera Desktop</a></li> -->
-      <li><a href="http://<%= node[:ec2][:public_hostname] %>:60010/">HBase Master</a> (if any)</li>
-    </ul>
+  <h3>Service Dashboards:</h3>
+  <ul>
+  <%- hadoop_services.select{|c| node[:cluster_chef][:dashboard][:links][component] rescue nil }.each do |component| %>
+    <li><a href="<%= node[:cluster_chef][:dashboard][:links][component] %>">hadoop-<%= component %></a></li>
+  <%- end %>
+  </ul>
 
-    <hr/>
+  <hr/>
+  <h3>Interesting facts about my hadoop installation:</h3>
 
-    <h3>How to set up a tunneling proxy to your cluster</h3>
-
-    <p>
-      You should configure a proxy to browse the cluster. Run
-      <pre>knife cluster proxy <%= node.name %></pre>
-      and point your browser to
-      <a href="http://github.com/infochimps/cluster_chef/raw/master/config/proxy.pac">this Proxy Auto-Configuration (PAC)</a> file.
-    </p>
-    
-  </body>
+  <table class="interesting_facts">
+    <%= summary_rows(node, @summary_keys) %>
+  </table>
   
-</html>
+</body></html>

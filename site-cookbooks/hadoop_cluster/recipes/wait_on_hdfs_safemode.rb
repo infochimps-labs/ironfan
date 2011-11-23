@@ -28,9 +28,9 @@
 #
 
 execute 'wait until the HDFS is out of safemode' do
-  only_if "service hadoop-0.20-namenode status"
-  user 'hdfs'
-  command %Q{hadoop dfsadmin -safemode wait}
+  only_if       "service hadoop-0.20-namenode status"
+  user          'hdfs'
+  command       %Q{hadoop dfsadmin -safemode wait}
 
   ignore_failure true
 end

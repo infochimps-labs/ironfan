@@ -23,7 +23,7 @@ ClusterChef.cluster 'demohadoop' do
     instances           1
     role                :hadoop_namenode
     role                :hadoop_jobtracker
-    role                :hadoop_secondarynamenode
+    role                :hadoop_secondarynn
     role                :hadoop_tasktracker
     role                :hadoop_datanode
     recipe              'hadoop_cluster::cluster_conf'
@@ -59,7 +59,7 @@ ClusterChef.cluster 'demohadoop' do
         :scratch_dirs         => ['/mnt/hadoop','/mnt2/hadoop','/mnt3/hadoop','/mnt4/hadoop'],
         # :java_heap_size_max            => 1400, # turn these up when you move to larger nodes
         # :namenode          => { :java_heap_size_max => 1000 },
-        # :secondarynamenode => { :java_heap_size_max => 1000 },
+        # :secondarynn => { :java_heap_size_max => 1000 },
         # :jobtracker        => { :java_heap_size_max => 3072 },
         :compress_mapout_codec      => 'org.apache.hadoop.io.compress.SnappyCodec',
       },
@@ -81,13 +81,13 @@ ClusterChef.cluster 'demohadoop' do
   facet(:master).facet_role.override_attributes({
       :hadoop => {
         :namenode            => { :service_state => [:disable, :stop] },
-        :secondarynamenode   => { :service_state => [:disable, :stop] },
+        :secondarynn   => { :service_state => [:disable, :stop] },
         :jobtracker          => { :service_state => [:disable, :stop] },
         :datanode            => { :service_state => [:disable, :stop] },
         :tasktracker         => { :service_state => [:disable, :stop] },
         #
         # :namenode          => { :service_state => [:enable, :start], },
-        # :secondarynamenode => { :service_state => [:enable, :start], },
+        # :secondarynn => { :service_state => [:enable, :start], },
         # :jobtracker        => { :service_state => [:enable, :start], },
         # :datanode          => { :service_state => [:enable, :start], },
         # :tasktracker       => { :service_state => [:enable, :start], },

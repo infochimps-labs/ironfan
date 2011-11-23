@@ -1,10 +1,10 @@
 #
 # Cookbook Name::       hadoop_cluster
-# Description::         Ec2 Conf
-# Recipe::              ec2_conf
+# Description::         Secondarynn
+# Recipe::              secondarynn
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #
-# Copyright 2011, Philip (flip) Kromer - Infochimps, Inc
+# Copyright 2009, Opscode, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,8 +19,20 @@
 # limitations under the License.
 #
 
-#
-# Mounting things is now done in mountable_volumes::mount
-#
+include_recipe "hadoop_cluster"
 
-# FIXME: move the EC2-specific stuff out of attributes/hadoop_cluster into here
+# Install
+hadoop_package "secondarynamenode"
+
+# launch service
+service "#{node[:hadoop][:handle]}-secondarynn" do
+  action    node[:hadoop][:secondarynn][:service_state]
+  supports :status => true, :restart => true
+  ignore_failure true
+end
+
+provide_service ("#{node[:cluster_name]}-secondarynn")
+
+dfs_2nn_dirs.each do |dir|
+  make_hadoop_dir(dir, 'hdfs',   "0700")
+end

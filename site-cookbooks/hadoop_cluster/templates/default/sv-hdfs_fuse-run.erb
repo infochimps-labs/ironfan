@@ -2,21 +2,20 @@
 
 # pull in default env vars for hadoop
 
-. /etc/default/<%= node[:hadoop][:handle] %>
+. /etc/default/<%= @hadoop][:handle] %>
 
-if [ -f /etc/default/<%= node[:hadoop][:handle] %>-fuse ]; then
-  . /etc/default/<%= node[:hadoop][:handle] %>-fuse
+if [ -f /etc/default/<%= @hadoop[:handle] %>-fuse ]; then
+  . /etc/default/<%= @hadoop[:handle] %>-fuse
 fi
 
 if [ -f $HADOOP_HOME/bin/hadoop-config.sh ]; then
   . $HADOOP_HOME/bin/hadoop-config.sh  
 fi
 
-# is this already set as a node[:something] ?
-export JAVA_HOME=/usr/lib/jvm/java-6-sun/jre
+export JAVA_HOME=<%= node[:java][:java_home] %>
 
 if [ "$OS_ARCH" = "" ]; then
-export OS_ARCH=<%= @options[:os_arch] %>
+export OS_ARCH=<%= (node[:kernel][:machine] == 'x86_64' ? 'amd64' : 'i386' ) %>
 fi
 
 if [ "$LD_LIBRARY_PATH" = "" ]; then
@@ -29,4 +28,4 @@ done
 
 export HADOOP_HOME=$HADOOP_HOME
 export PATH=$PATH:${HADOOP_HOME}/bin
-exec chpst -u hadoop $HADOOP_HOME/bin/fuse_dfs rw -odebug -oserver=<%= @options[:namenode_addr] %> -oport=8020 /hdfs
+exec chpst -u hadoop $HADOOP_HOME/bin/fuse_dfs rw -odebug -oserver=<%= @hadoop[:namenode][:addr] %> -oport=<%= @hadoop[:namenode][:port] %> /hdfs

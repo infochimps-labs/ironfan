@@ -33,19 +33,18 @@ end
 
 provide_service ("#{node[:cluster_name]}-namenode")
 
-dfs_name_dirs.each do |dir|
-  make_hadoop_dir(dir, 'hdfs',   "0700")
-end
-
-# lay in a script to boostrap the namenode (initial format, important HDFS dirs, etc
-template "/etc/hadoop/conf/bootstrap_hadoop_namenode.sh" do
+# Script to boostrap the namenode (initial format, important HDFS dirs, etc)
+# purposefully not marked executable -- run with bash (script_name)
+template "#{node[:hadoop][:conf_dir]}/bootstrap_hadoop_namenode.sh" do
   owner "root"
   mode "0744"
   variables(hadoop_config_hash)
   source "bootstrap_hadoop_namenode.sh.erb"
 end
 
-template "/etc/hadoop/conf/nuke_hdfs_from_orbit_its_the_only_way_to_be_sure.sh" do
+# Script to boostrap the namenode (initial format, important HDFS dirs, etc)
+# purposefully not marked executable -- run with bash (script_name)
+template "#{node[:hadoop][:conf_dir]}/nuke_hdfs_from_orbit_its_the_only_way_to_be_sure.sh" do
   owner "root"
   mode "0744"
   variables(hadoop_config_hash)

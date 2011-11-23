@@ -42,18 +42,7 @@ execute 'fix fuse configuration to allow hadoop' do
   not_if        "egrep '^user_allow_other' /etc/fuse.conf"
 end
 
-# this is clearly garbage, why isn't this a node[:os_arch] something?
-java_home_dir_mapping = {
-  'x86_64' => 'amd64',
-  'i686'   => 'i386'
-}
-
-template_parameters = {
-  :os_arch       => java_home_dir_mapping[ node[:kernel][:machine] ],
-  :namenode_addr => namenode_addr
-}.merge(node[:hadoop])
-Chef::Log.info template_parameters.inspect
 runit_service "hdfs_fuse" do
   finish_script true
-  options       template_parameters
+  options       node[:hadoop]
 end

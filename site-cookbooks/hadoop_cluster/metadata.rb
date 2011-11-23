@@ -13,20 +13,19 @@ depends          "mountable_volumes"
 depends          "provides_service"
 depends          "cluster_chef"
 
-recipe           "hadoop_cluster::cluster_conf",       "Cluster Conf"
-recipe           "hadoop_cluster::datanode",           "Datanode"
 recipe           "hadoop_cluster::default",            "Base configuration for hadoop_cluster"
-recipe           "hadoop_cluster::doc",                "Doc"
-recipe           "hadoop_cluster::ec2_conf",           "Ec2 Conf"
-recipe           "hadoop_cluster::hadoop_webfront",    "Hadoop Webfront"
-recipe           "hadoop_cluster::hdfs_fuse",          "Hdfs Fuse"
-recipe           "hadoop_cluster::jobtracker",         "Jobtracker"
-recipe           "hadoop_cluster::namenode",           "Namenode"
-recipe           "hadoop_cluster::pseudo_distributed", "Pseudo Distributed"
-recipe           "hadoop_cluster::secondarynamenode",  "Secondarynamenode"
-recipe           "hadoop_cluster::tasktracker",        "Tasktracker"
-recipe           "hadoop_cluster::wait_on_hdfs_safemode", "Wait On HDFS Safemode"
 recipe           "hadoop_cluster::add_cloudera_repo",  "Add Cloudera repo to package manager"
+recipe           "hadoop_cluster::cluster_conf",       "Configure cluster"
+
+recipe           "hadoop_cluster::datanode",           "Installs Datanode service"
+recipe           "hadoop_cluster::secondarynn",        "Installs Secondary Namenode service"
+recipe           "hadoop_cluster::tasktracker",        "Installs Tasktracker service"
+recipe           "hadoop_cluster::jobtracker",         "Installs Jobtracker service"
+recipe           "hadoop_cluster::namenode",           "Installs Namenode service"
+recipe           "hadoop_cluster::doc",                "Installs Hadoop documentation"
+recipe           "hadoop_cluster::hdfs_fuse",          "Installs HDFS Fuse service"
+
+recipe           "hadoop_cluster::wait_on_hdfs_safemode", "Wait on HDFS Safemode -- insert between cookbooks to ensure HDFS is available"
 
 %w[ debian ubuntu ].each do |os|
   supports os
@@ -57,35 +56,38 @@ attribute "hadoop/deb_version",
   :description           => "Apt revision identifier (eg 0.20.2+923.142-1~maverick-cdh3) of the specific cloudera apt to use. See also apt/release_name",
   :default               => "0.20.2+923.142-1~maverick-cdh3"
 
+
+
 attribute "hadoop/dfs_replication",
   :display_name          => "Default HDFS replication factor",
   :description           => "HDFS blocks are by default reproduced to this many machines.",
   :default               => "3"
 
-attribute "hadoop/reduce_parallel_copies",
+
+attribute "hadoop/jobtracker/handler_count",
+  :display_name          => "",
+  :description           => "",
+  :default               => "40"
+
+attribute "hadoop/namenode/handler_count",
+  :display_name          => "",
+  :description           => "",
+  :default               => "40"
+
+attribute "hadoop/datanode/handler_count",
+  :display_name          => "",
+  :description           => "",
+  :default               => "8"
+
+attribute "hadoop/reducer_parallel_copies",
   :display_name          => "",
   :description           => "",
   :default               => "10"
 
-attribute "hadoop/tasktracker_http_threads",
+attribute "hadoop/tasktracker/http_threads",
   :display_name          => "",
   :description           => "",
   :default               => "32"
-
-attribute "hadoop/jobtracker_handler_count",
-  :display_name          => "",
-  :description           => "",
-  :default               => "40"
-
-attribute "hadoop/namenode_handler_count",
-  :display_name          => "",
-  :description           => "",
-  :default               => "40"
-
-attribute "hadoop/datanode_handler_count",
-  :display_name          => "",
-  :description           => "",
-  :default               => "8"
 
 attribute "hadoop/compress_output",
   :display_name          => "",
@@ -121,18 +123,6 @@ attribute "hadoop/java_heap_size_max",
   :display_name          => "",
   :description           => "",
   :default               => "1000"
-
-attribute "hadoop/persistent_dirs",
-  :display_name          => "",
-  :description           => "",
-  :type                  => "array",
-  :default               => ["/mnt/hadoop"]
-
-attribute "hadoop/scratch_dirs",
-  :display_name          => "",
-  :description           => "",
-  :type                  => "array",
-  :default               => ["/mnt/hadoop"]
 
 attribute "hadoop/max_balancer_bandwidth",
   :display_name          => "",
@@ -194,27 +184,12 @@ attribute "hadoop/namenode/service_state",
   :description           => "",
   :default               => ""
 
-attribute "hadoop/namenode/java_heap_size_max",
-  :display_name          => "",
-  :description           => "",
-  :default               => ""
-
-attribute "hadoop/secondarynamenode/service_state",
-  :display_name          => "",
-  :description           => "",
-  :default               => ""
-
-attribute "hadoop/secondarynamenode/java_heap_size_max",
+attribute "hadoop/secondarynn/service_state",
   :display_name          => "",
   :description           => "",
   :default               => ""
 
 attribute "hadoop/jobtracker/service_state",
-  :display_name          => "",
-  :description           => "",
-  :default               => ""
-
-attribute "hadoop/jobtracker/java_heap_size_max",
   :display_name          => "",
   :description           => "",
   :default               => ""
@@ -225,16 +200,31 @@ attribute "hadoop/datanode/service_state",
   :type                  => "array",
   :default               => [:enable, :start]
 
-attribute "hadoop/datanode/java_heap_size_max",
-  :display_name          => "",
-  :description           => "",
-  :default               => ""
-
 attribute "hadoop/tasktracker/service_state",
   :display_name          => "",
   :description           => "",
   :type                  => "array",
   :default               => [:enable, :start]
+
+attribute "hadoop/namenode/java_heap_size_max",
+  :display_name          => "",
+  :description           => "",
+  :default               => ""
+
+attribute "hadoop/secondarynn/java_heap_size_max",
+  :display_name          => "",
+  :description           => "",
+  :default               => ""
+
+attribute "hadoop/jobtracker/java_heap_size_max",
+  :display_name          => "",
+  :description           => "",
+  :default               => ""
+
+attribute "hadoop/datanode/java_heap_size_max",
+  :display_name          => "",
+  :description           => "",
+  :default               => ""
 
 attribute "hadoop/tasktracker/java_heap_size_max",
   :display_name          => "",

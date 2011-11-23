@@ -192,17 +192,29 @@ use `deploy_{}` for anything that would be true whatever SCM you're using; use
 
 * Always put file modes in quote marks: `mode "0664"` not `mode 0664`.
 
-## Integrations
+## Announcing Aspects 
 
-### provides_service
+If your app does any of the following, 
 
-### i_haz_a_log '/var/log/foo.log', :itz => :http
+* **services**    -- Any interesting long-running process.
+* **ports**       -- Any reserved open application port
+  - *http*:          HTTP application port
+  - *https*:         HTTPS application port
+  - *internal*:      port is on private IP, should *not* be visible through public IP
+  - *external*:      port *is* available through public IP
+* metric_ports:
+  - **jmx_ports** -- JMX diagnostic port (announced by many Java apps)
+* **dashboards**  -- Web interface to look inside a system; typically internal-facing only, and probably not performance-monitored by default.
+* **logs**        -- um, logs. You can also announce the logs' flavor: `:apache`, `log4j`, etc.
+* **scheduleds**  -- regularly-occurring events that leave a trace
+* **exports**     -- jars or libs that other programs may wish to incorporate
+* **consumes**    -- placed there by any call to `discover`.
 
-### i_haz_a_port '8080', :itz => :http
+### Dummy aspects
 
-#### Jars
+Integration cookbooks that announce as
 
-`i_can_haz_jars '/usr/lib/pig/pig.jar', '/usr/lib/pig/pig-nohadoop.jar'`
+* Elastic Load Balancers
 
 
 ## Clusters

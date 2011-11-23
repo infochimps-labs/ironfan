@@ -46,12 +46,12 @@ We will look as follows:
 
 topline
                                                                                                 
-    hadoop      	dfs_name       	perm	hdfs/name      	hdfs:hadoop  	0700	all	[:hadoop][:dfs_name_dirs]      	dfs.name.dir
-    hadoop      	dfs_2nn        	perm	hdfs/secondary 	hdfs:hadoop  	0700	all	[:hadoop][:dfs_2nn_dirs ]      	dfs.name.dir
-    hadoop      	dfs_data       	perm	hdfs/data      	hdfs:hadoop  	0755	all	[:hadoop][:dfs_data_dirs]      	dfs.data.dir
-    hadoop      	mapred_local   	scratch	mapred/local   	mapred:hadoop	0775	all	[:hadoop][:mapred_local_dirs]  	mapred.local.dir
-    hadoop      	log      	scratch	log      	hdfs:hadoop	0775	first	[:hadoop][:log_dir]      	mapred.local.dir
-    hadoop      	tmp      	scratch	tmp      	hdfs:hadoop	0777	first	[:hadoop][:tmp_dir]      	mapred.local.dir
+    hadoop      	dfs_name       	perm	hdfs/name      	hdfs:hadoop  	0700	all	[:hadoop][:namenode   ][:data_dirs]
+    hadoop      	dfs_2nn        	perm	hdfs/secondary 	hdfs:hadoop  	0700	all	[:hadoop][:secondarynn][:data_dirs]    	dfs.name.dir
+    hadoop      	dfs_data       	perm	hdfs/data      	hdfs:hadoop  	0755	all	[:hadoop][:datanode   ][:data_dirs]    	dfs.data.dir
+    hadoop      	mapred_local   	scratch	mapred/local   	mapred:hadoop	0775	all	[:hadoop][:tasktracker][:scratch_dirs] 	mapred.local.dir
+    hadoop      	log      	scratch	log      	hdfs:hadoop	0775	first	[:hadoop][:log_dir]                	mapred.local.dir
+    hadoop      	tmp      	scratch	tmp      	hdfs:hadoop	0777	first	[:hadoop][:tmp_dir]              	mapred.local.dir
 
     hbase       	zk_data  	perm	zk/data  	hbase    	0755	first	[:hbase][:zk_data_dir]  	.
     hbase          	tmp      	scratch	tmp      	hbase    	0755	first	[:hbase][:tmp_dir]       	.
