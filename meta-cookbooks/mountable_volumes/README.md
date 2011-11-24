@@ -4,6 +4,59 @@ Mount volumes as directed by node metadata, and coordinate use of those volumes 
 
 ## Overview
 
+Write your recipes to request volumes
+
+* **system-specific**: eg `mysql.data` or `nginx.log`.
+
+
+* **persistent**: offer the best reliability.
+* **local**:      low-latency bulk storage
+* **fast**:       
+* **bulk**:       largest pool of
+* **reserved**:   
+
+All of the above are positive rules: a volume is only `:fast` if it is labelled
+`:fast`, and a volume is only `[:bulk, :persistent]` if it is 
+
+The `fallback` tag has additional rules
+* if any volumes are tagged `fallback`, return the full set of `fallback`s; otherwise,
+* if any are *not* tagged `reserved`, return the full set of *non*-`reserved` volumes;
+* raise an error if there are no un-reserved and no fallback 
+
+### assigning labels
+
+Labels are assigned by a human using (we hope) good taste -- there's no effort,
+nor will there be, to presuppose that flash drives are `fast` or large drives
+are `bulk`.  However, the cluster_chef provisioning tools do lend a couple
+helpers: 
+
+* `cloud(:ec2).defaults` describes a `:root`
+  - tags it as `fallback`
+  - if it is ebs, tags it 
+  - does *not* marks it as `mountable`
+
+* `cloud(:ec2).mount_ephemerals` knows (from the instance type) what ephemeral
+  drives will be present. It:
+  - populates volumes `ephemeral0` through (up to) `ephemeral3`
+  - marks them as `mountable`
+  - tags them as `local`, `bulk` and `fallback`
+  - *removes* the `fallback` tag from the `:root` volume. (So be sure to call it *after*
+    calling `defaults`.
+    
+You can explicitly override any of the above.
+
+
+### examples
+
+
+* Hadoop namenode metadata:
+  - `:hadoop_namenode`
+  - `:hadoop`
+  - `[:persistent, :bulk]`
+  - `:bulk`
+  - `:fallback`
+
+
 Cookbooks want to know not just what volumes are available, but their logical purpose: 'scratch space', 'persistent', 'super-fast flash-drive storage'. The details of that mapping shouldn't be their concern, only to request those resources and use them responsibly.
 
 This meta-cookbook coordinates the machine's aspect of having various volumes and various systems cookbooks' concern of allocating storage on them.
