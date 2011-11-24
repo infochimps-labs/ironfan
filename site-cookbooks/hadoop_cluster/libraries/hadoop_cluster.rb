@@ -31,10 +31,10 @@ module HadoopCluster
   #   :aws                    => (node[:aws] && node[:aws].to_hash),
   # }
   def hadoop_config_hash
-    Mash.new(
-      :aws              => (node[:aws] && node[:aws].to_hash),
-      :extra_classpaths => node[:hadoop][:extra_classpaths].map{|nm, classpath| classpath }.flatten,
-      ).merge(node[:hadoop])
+    Mash.new({
+        :aws              => (node[:aws] && node[:aws].to_hash),
+        :extra_classpaths => node[:hadoop][:extra_classpaths].map{|nm, classpath| classpath }.flatten,
+      }).merge(node[:hadoop])
   end
 
   # # Make a hadoop-owned directory

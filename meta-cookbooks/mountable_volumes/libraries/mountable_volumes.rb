@@ -18,14 +18,14 @@ module MountableVolumes
   end
 
   def mounted_volumes
-    mountable_volumes.select{|vol_name, vol| File.exists?(vol['device']) }
+    mountable_volumes.select{|vol_name, vol| vol['device'] && File.exists?(vol['device']) }
   end
 
   #
   # Using each of the tags in order,
   #
   def volumes_tagged(*tags)
-    mvols = mounted_volumes
+    mvols = mountable_volumes
     Chef::Log.info(mvols)
     tags.each do |tag|
       result = mvols.select{|vol_name, vol| vol['tags'] && vol['tags'][tag] }

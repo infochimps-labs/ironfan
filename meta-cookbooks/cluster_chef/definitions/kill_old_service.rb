@@ -1,6 +1,6 @@
 
 define(:kill_old_service,
-  :script       => nil,
+  :script       => nil
   ) do
   params[:script] ||= "/etc/init.d/#{params[:name]}"
 

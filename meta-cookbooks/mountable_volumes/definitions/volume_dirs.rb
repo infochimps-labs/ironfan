@@ -74,6 +74,9 @@ define(:volume_dirs,
     volumes = volumes_tagged(
       "#{name}.#{component}.#{aspect}", "#{name}.#{aspect}", params[:type], :scratch)
     volumes = [volumes.first] if (params[:selects] == :single)
+
+    Chef::Log.info( [name, component, aspect, volumes] )
+
     paths  = volumes.map{|vol, vol_info| ::File.expand_path(sub_path, vol_info[:mount_point]) }
   end
 
