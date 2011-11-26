@@ -26,8 +26,7 @@ default[:redis][:server][:port]     = "6379"
 #
 
 default[:redis][:version]           = "2.0.2"
-
-default[:redis][:release_url]       = "http://redis.googlecode.com/files/redis-#{node[:redis][:version]}.tar.gz"
+default[:redis][:release_url]       = "http://redis.googlecode.com/files/redis-:version:.tar.gz"
 
 #
 # Tunables

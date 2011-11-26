@@ -18,6 +18,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+include_recipe 'cluster_chef'
 
 cookbook_file "/usr/lib/flume/plugins/hbase-sink.jar" do
   source "hbase-sink.jar"
@@ -31,8 +32,8 @@ node[:flume][:plugins][:hbase_sink][:classes] =  [ "com.cloudera.flume.hbase.Att
 
 # Make sure that hbase-sink.jar and hbase-site.xml can be located on the
 # classpath
-node[:flume][:plugins][:hbase_sink][:classpath]  =  [ "/usr/lib/flume/plugins/hbase-sink.jar", "/etc/hbase/conf" ] 
+node[:flume][:plugins][:hbase_sink][:classpath]  =  [ "/usr/lib/flume/plugins/hbase-sink.jar", "/etc/hbase/conf" ]
 
 node[:flume][:plugins][:hbase_sink][:java_opts] =  []
 
-node.save
+node_changed!

@@ -10,9 +10,6 @@ default[:hbase][:conf_dir]              = '/etc/hbase/conf'
 default[:hbase][:log_dir]               = "/var/log/hbase"
 default[:hbase][:pid_dir]               = "/var/run/hbase" ## FIXME: was "/var/run/hadoop-0.20", verify this doesn't screw things up
 
-default[:hbase][:exported_confs]        = [ "#{node[:hbase][:conf_dir]}/hbase-default.xml", "#{node[:hbase][:conf_dir]}/hbase-site.xml",]
-default[:hbase][:export_jars]           = [ "#{node[:hbase][:home_dir]}/hbase-0.90.1-cdh3u0.jar", "#{node[:hbase][:home_dir]}/hbase-0.90.1-cdh3u0-tests.jar", ]
-
 #
 # Install
 #

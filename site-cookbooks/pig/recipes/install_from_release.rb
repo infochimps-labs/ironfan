@@ -36,10 +36,7 @@ install_from_release('pig') do
   action        [:build_with_ant, :install]
   has_binaries  [ 'bin/pig' ]
   environment('JAVA_HOME' => node[:java][:java_home]) if node[:java][:java_home]
-  not_if{ ::File.exists?("#{node[:pig][:install_dir]}/pig.jar") }
-end
 
-link '/usr/local/share/pig' do
-  to          node[:pig][:install_dir]
-  action      :create
+  not_if{ ::File.exists?("#{node[:pig][:home_dir]}/pig.jar") }
+  # not_if_exists './pig.jar'
 end

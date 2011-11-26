@@ -63,6 +63,11 @@ hadoop_package "sbin"
 #
 #
 
+
+standard_directories('hadoop') do
+  directories   :conf_dir, :pid_dir
+end
+
 # Namenode metadata striped across all persistent dirs
 volume_dirs('hadoop.namenode.data') do
   type          :persistent

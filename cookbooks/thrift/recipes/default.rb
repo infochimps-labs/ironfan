@@ -27,7 +27,8 @@ include_recipe "python"
   package pkg
 end
 
-install_from_apache(:thrift) do
+install_from_release(:thrift) do
+  install_dir   node[:thrift][:release_url]
   version       node[:thrift][:version]
   checksum      node[:thrift][:checksum]
   home_dir      node[:thrift][:home_dir]

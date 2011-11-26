@@ -37,6 +37,11 @@ attribute :name,          :name_attribute => true
 
 # URL for the tarball/zip file to install from. If it is named something like
 # pig-0.8.0.tar.gz and unpacks to ./pig-0.8.0 we can take it from there
+# You may use the following recognized patterns:
+#   :name:          -- value of resource's name
+#   :version:       -- value of resource's version
+#   :apache_mirror: -- node[:install_from][:apache_mirror]
+#
 attribute :release_url,   :kind_of => String, :required => true
 
 # Prefix directory -- other _dir attributes hang off this by default
@@ -85,7 +90,15 @@ def untar_cmd(sub_cmd, release_file, install_dir)
   %Q{mkdir -p '#{install_dir}' ; tar #{sub_cmd} '#{release_file}' --strip-components=1 -C '#{install_dir}'}
 end
 
+def set_release_url
+  @release_url.gsub!(/:name:/,          name)
+  @release_url.gsub!(/:version:/,       version)
+  @release_url.gsub!(/:apache_mirror:/, node['install_from']['apache_mirror'])
+end
+
 def assume_defaults!
+  set_release_url
+
   # the release_url 'http://apache.org/pig/pig-0.8.0.tar.gz' has
   # release_basename 'pig-0.8.0' and release_ext 'tar.gz'
   release_basename = ::File.basename(release_url.gsub(/\?.*\z/, '')).gsub(/-bin\b/, '')
@@ -103,5 +116,5 @@ def assume_defaults!
     else raise "Don't know how to expand #{release_url} which has extension '#{release_ext}'"
     end
 
-  # Chef::Log.debug( [install_dir, home_dir, release_file, release_basename, release_ext, release_url, prefix_root ].inspect )
+  Chef::Log.info( [environment, install_dir, home_dir, release_file, release_basename, release_ext, release_url, prefix_root ].inspect )
 end

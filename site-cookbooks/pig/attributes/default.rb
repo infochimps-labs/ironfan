@@ -5,7 +5,7 @@ default[:apt][:cloudera][:release_name] = 'cdh3u2'
 default[:pig][:home_dir]          = '/usr/lib/pig'
 
 default[:pig][:version]           = "0.9.1"
-default[:pig][:release_url]       = "http://apache.mirrors.tds.net/pig/pig-#{node[:pig][:version]}/pig-#{node[:pig][:version]}.tar.gz"
+default[:pig][:release_url]       = ":apache_mirror:/pig/pig-:version:/pig-:version:.tar.gz"
 default[:java][:java_home]        = '/usr/lib/jvm/java-6-sun/jre'
 
 default[:pig][:combine_splits]    = "true"

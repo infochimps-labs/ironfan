@@ -60,7 +60,6 @@ action :unpack do
     cwd         ::File.dirname(new_resource.install_dir)
     code        new_resource.expand_cmd
     creates     new_resource.install_dir
-    # not_if{     ::File.directory?(new_resource.install_dir) }
     environment new_resource.environment
   end
 
@@ -100,6 +99,7 @@ action :configure_with_autoconf do
     cwd         new_resource.install_dir
     code        "./configure #{new_resource.autoconf_opts.join(' ')}"
     environment new_resource.environment
+    not_if{     ::File.exists?(::File.join(new_resource.install_dir, 'config.status')) }
   end
 end
 

@@ -93,12 +93,7 @@ module ClusterServiceDiscovery
     node.set[:provides_service][service_name] = {
       :timestamp  => ClusterServiceDiscovery.timestamp,
     }.merge(service_info)
-
-    unless Chef::Config[:solo]
-      node.save
-    else
-      warn "\n*******\nNot saving becaus I think you in chef solo\n\n"
-    end
+    node_changed!
   end
 
   # given service, get most recent address

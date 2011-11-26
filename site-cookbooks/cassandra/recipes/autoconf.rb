@@ -55,7 +55,6 @@ unless clusters.nil? || clusters[node[:cassandra][:cluster_name]].nil?
   clusters[node[:cassandra][:cluster_name]].each_pair do |k, v|
     node[:cassandra][k] = v
   end
-  node.save
 end
 
 # We want to find all nodes in our cluster that rock the cassandra.
@@ -76,4 +75,4 @@ end
 # If there is an initial token, force auto_bootstrap to false.
 node[:cassandra][:auto_bootstrap] = false if node[:cassandra][:initial_token]
 
-node.save
+node_changed!

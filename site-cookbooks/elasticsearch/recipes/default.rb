@@ -91,15 +91,14 @@ directory "/var/log/elasticsearch" do
   recursive     true
 end
 
-if node[:ec2]
-  node[:elasticsearch][:local_disks].each do |mnt, dev|
-    ["elasticsearch/data","elasticsearch/work"].each do |dir|
-      directory "#{mnt}/#{dir}" do
-        owner       "elasticsearch"
-        group       "elasticsearch"
-        mode        0755
-        recursive   true
-      end
-    end
-  end
+volume_dirs('elasticsearch.data') do
+  type          :local
+  selects       :single
+  mode          "0700"
+end
+
+volume_dirs('elasticsearch.work') do
+  type          :local
+  selects       :single
+  mode          "0700"
 end

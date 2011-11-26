@@ -64,9 +64,8 @@ default[:cassandra][:mx4j_listen_port]  = "8081"
 
 # install_from_release
 default[:cassandra][:version]           = "0.7.10"
-release_url_base                        = "http://apache.cs.utah.edu/" # if not working: http://www.apache.org/dist
 # install_from_release: tarball url
-default[:cassandra][:release_url]       = "#{release_url_base}/cassandra/#{node[:cassandra][:version]}/apache-cassandra-#{node[:cassandra][:version]}-bin.tar.gz"
+default[:cassandra][:release_url]       = ":apache_mirror:/cassandra/:version:/apache-cassandra-:version:-bin.tar.gz"
 
 # Git install
 
@@ -130,20 +129,3 @@ default[:cassandra][:phi_convict_threshold]        = 8
 default[:cassandra][:request_scheduler]            = 'org.apache.cassandra.scheduler.NoScheduler'
 default[:cassandra][:throttle_limit]               = 80           # 2x (concurrent_reads + concurrent_writes)
 default[:cassandra][:request_scheduler_id]         = 'keyspace'
-
-# see http://www.mail-archive.com/user@cassandra.apache.org/msg04447.html
-
-# if node[:ec2] && node[:ec2][:instance_type]
-#   cassandra_settings =
-#     case node[:ec2][:instance_type]
-#     when 'm1.small'   then { :java_heap_size_max =>  '-Xmx1024m' }
-#     when 'c1.medium'  then { :java_heap_size_max =>  '-Xmx1024m' }
-#     when 'm1.large'   then { :java_heap_size_max =>  '-Xmx5500m' }
-#     when 'm2.xlarge'  then { :java_heap_size_max => '-Xmx15000m' }
-#     when 'c1.xlarge'  then { :java_heap_size_max =>  '-Xmx5500m' }
-#     when 'm1.xlarge'  then { :java_heap_size_max => '-Xmx12000m' }
-#     when 'm2.2xlarge' then { :java_heap_size_max => '-Xmx30000m' }
-#     when 'm2.4xlarge' then { :java_heap_size_max => '-Xmx60000m' }
-#     else {}
-#     end
-# end

@@ -19,6 +19,10 @@
 # limitations under the License.
 #
 
+node_metadata('chef') do
+  Chef::Log.info('Defining node saver!!')
+  action :save
+end
 
 directory node[:cluster_chef][:home_dir] do
   owner     'root'
