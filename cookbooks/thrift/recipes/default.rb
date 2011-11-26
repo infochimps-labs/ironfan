@@ -28,11 +28,11 @@ include_recipe "python"
 end
 
 install_from_release(:thrift) do
-  install_dir   node[:thrift][:release_url]
+  release_url   node[:thrift][:release_url]
   version       node[:thrift][:version]
   checksum      node[:thrift][:checksum]
   home_dir      node[:thrift][:home_dir]
   action        [:configure_with_autoconf, :install_with_make]
   autoconf_opts node[:thrift]['configure_options']
-  # not_if{ ::File.exists?("#{node[:thrift][:home_dir]}/thrift") }
+  not_if{ ::File.exists?("#{node[:thrift][:home_dir]}/thrift") }
 end

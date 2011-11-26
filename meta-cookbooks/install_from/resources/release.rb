@@ -91,14 +91,15 @@ def untar_cmd(sub_cmd, release_file, install_dir)
 end
 
 def set_release_url
-  @release_url.gsub!(/:name:/,          name)
-  @release_url.gsub!(/:version:/,       version)
+  raise "Missing required resource attribute release_url" unless @release_url
+  @release_url.gsub!(/:name:/,          name.to_s)
+  @release_url.gsub!(/:version:/,       version.to_s)
   @release_url.gsub!(/:apache_mirror:/, node['install_from']['apache_mirror'])
 end
 
 def assume_defaults!
+  #
   set_release_url
-
   # the release_url 'http://apache.org/pig/pig-0.8.0.tar.gz' has
   # release_basename 'pig-0.8.0' and release_ext 'tar.gz'
   release_basename = ::File.basename(release_url.gsub(/\?.*\z/, '')).gsub(/-bin\b/, '')
