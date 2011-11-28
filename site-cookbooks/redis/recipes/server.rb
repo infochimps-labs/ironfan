@@ -35,6 +35,7 @@ kill_old_service('redis-server'){ pattern 'gmond' ; not_if{ File.exists?("/etc/i
 
 runit_service "redis_server" do
   options       node[:redis]
+  action        node[:redis][:server][:service_state]
 end
 
 provide_service("#{node[:cluster_name]}-redis_server", :port => node[:redis][:server][:port])

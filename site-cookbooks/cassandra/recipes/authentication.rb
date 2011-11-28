@@ -63,7 +63,7 @@ if auth
     owner node[:cassandra][:user]
     mode 0600
     variables({:users => auth['users']})
-    notifies  :restart, resources(:service => "cassandra")
+    notifies :restart, "service[cassandra]", :delayed if startable?(node[:cassandra])
   end
 end
 
@@ -77,6 +77,6 @@ if access
     owner node[:cassandra][:user]
     mode 0600
     variables({:acls => access})
-    notifies  :restart, resources(:service => "cassandra")
+    notifies :restart, "service[cassandra]", :delayed if startable?(node[:cassandra])
   end
 end

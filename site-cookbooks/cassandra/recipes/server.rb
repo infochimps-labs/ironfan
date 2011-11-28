@@ -32,7 +32,7 @@ template "#{node[:cassandra][:conf_dir]}/cassandra.yaml" do
   group         "root"
   mode          "0644"
   variables     :cassandra => node[:cassandra]
-  notifies      :restart, resources(:service => "cassandra")
+  notifies      :restart, "service[cassandra]", :delayed if startable?(node[:cassandra])
 end
 
 template "#{node[:cassandra][:conf_dir]}/log4j-server.properties" do
@@ -41,7 +41,7 @@ template "#{node[:cassandra][:conf_dir]}/log4j-server.properties" do
   group         "root"
   mode          "0644"
   variables     :cassandra => node[:cassandra]
-  notifies      :restart, resources(:service => "cassandra")
+  notifies      :restart, "service[cassandra]", :delayed if startable?(node[:cassandra])
 end
 
 # have some fraction of the nodes register as a seed with

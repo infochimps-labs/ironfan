@@ -1,8 +1,9 @@
-default[:elasticsearch][:version]                 = "0.13.1"
-default[:elasticsearch][:release_url_checksum]    = nil
-default[:elasticsearch][:release_url]             = "https://github.com/downloads/elasticsearch/elasticsearch/elasticsearch-#{node[:elasticsearch][:version]}.tar.gz"
 
 default[:elasticsearch][:cluster_name]            = "default"
+
+#
+# Locations
+#
 
 default[:elasticsearch][:home_dir]                = "/usr/local/share/elasticsearch"
 default[:elasticsearch][:conf_dir]                = "/etc/elasticsearch"
@@ -13,11 +14,35 @@ default[:elasticsearch][:log_dir]                 = "/var/log/elasticsearch"
 #
 default[:elasticsearch][:data_root]               = "/mnt/elasticsearch"
 
+default[:elasticsearch][:raid][:devices]          = [ '/dev/sdb', '/dev/sdc', '/dev/sdd', '/dev/sde' ]
+default[:elasticsearch][:raid][:use_raid]         = true
+
+#
+# User
+#
+
 default[:elasticsearch ][:user]                   = 'elasticsearch'
 default[:users ]['elasticsearch'][:uid]           = 61021
 default[:groups]['elasticsearch'][:gid]           = 61021
 
+#
+# Install
+#
+
+default[:elasticsearch][:version]                 = "0.13.1"
+default[:elasticsearch][:release_url_checksum]    = nil
+default[:elasticsearch][:release_url]             = "https://github.com/downloads/elasticsearch/elasticsearch/elasticsearch-#{node[:elasticsearch][:version]}.tar.gz"
 default[:elasticsearch][:git_repo]                = "https://github.com/elasticsearch/elasticsearch.git"
+
+#
+# Services
+#
+
+default[:elasticsearch][:master][:service_state] = :stop
+
+#
+# Tunables
+#
 
 default[:elasticsearch][:java_home]               = "/usr/lib/jvm/java-6-sun/jre"     # sun java works way better for ES
 default[:elasticsearch][:java_heap_size_max]      = 1000
@@ -54,6 +79,3 @@ default[:elasticsearch][:log_level][:default]         = 'DEBUG'
 default[:elasticsearch][:log_level][:index_store]     = 'INFO'  # lots of output but might be useful
 default[:elasticsearch][:log_level][:action_shard]    = 'INFO'  # lots of output but might be useful
 default[:elasticsearch][:log_level][:cluster_service] = 'INFO'  # lots of output but might be useful
-
-default[:elasticsearch][:raid][:devices] = [ '/dev/sdb', '/dev/sdc', '/dev/sdd', '/dev/sde' ]
-default[:elasticsearch][:raid][:use_raid] = true

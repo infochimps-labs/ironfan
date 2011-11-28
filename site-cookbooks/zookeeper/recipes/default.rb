@@ -32,39 +32,11 @@ include_recipe "zookeeper::add_cloudera_repo"
 package "hadoop-zookeeper"
 
 #
-# User and Groups
-#
-
-group 'zookeeper' do gid 305 ; action [:create] ; end
-user 'zookeeper' do
-  comment    'Hadoop Zookeeper Daemon'
-  uid        305
-  group      node[:groups]['zookeeper' ][:gid]
-  home       "/var/zookeeper"
-  shell      "/bin/false"
-  password   nil
-  supports   :manage_home => true
-  action     [:create, :manage]
-end
-
-#
 # Configuration files
 #
 
-directory node[:zookeeper][:data_dir] do
-  owner      "zookeeper"
-  group      "zookeeper"
-  mode       "0755"
-  action     :create
-  recursive  true
-end
-
-directory node[:zookeeper][:log_dir] do
-  owner      "zookeeper"
-  group      "zookeeper"
-  mode       "0755"
-  action     :create
-  recursive  true
+standard_directories('zookeeper.server') do
+  directories   :conf_dir, :log_dir
 end
 
 #

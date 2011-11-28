@@ -63,7 +63,7 @@ template "#{node[:ganglia][:conf_dir]}/gmond.conf" do
       :send_port => node[:ganglia][:send_port],
       :rcv_port  => node[:ganglia][:rcv_port ],
     })
-  notifies :restart, 'service[ganglia_monitor]' if Array(node[:ganglia][:monitor][:service_state]).map(&:to_s).include?('start')
+  notifies      :restart, 'service[ganglia_monitor]' if startable?(node[:ganglia][:monitor])
 end
 
 #

@@ -61,8 +61,8 @@ define(:volume_dirs,
   aspect_attr = (params[:selects] == :all) ? "#{aspect}_dirs" : "#{aspect}_dir"
 
   params[:selects] ||= :all
-  params[:user]    ||= scoped_default(name, component, :user, :required )
-  params[:group]   ||= scoped_default(name, component, :group) || params[:user]
+  params[:owner]   ||= scoped_default(name, component, :user, :required )
+  params[:group]   ||= scoped_default(name, component, :group) || params[:owner]
 
   #
   # Once we've chosen a path, we need to use it forever.
@@ -75,16 +75,15 @@ define(:volume_dirs,
       "#{name}.#{component}.#{aspect}", "#{name}.#{aspect}", params[:type], :scratch)
     volumes = [volumes.first] if (params[:selects] == :single)
 
-    Chef::Log.info( [name, component, aspect, volumes] )
-
     paths  = volumes.map{|vol, vol_info| ::File.expand_path(sub_path, vol_info[:mount_point]) }
   end
 
   paths.each do |path|
     directory(path) do
-      owner     params[:owner] if owner
-      group     params[:group] if group
+      owner     params[:owner] if params[:owner]
+      group     params[:group] if params[:group]
       mode      params[:mode ] if params[:mode ]
+      action    :create
       recursive true
     end
   end
@@ -101,11 +100,17 @@ define(:volume_dirs,
   #     node[:redis][:data_dir] = "/ebs1/redis/data"
   #
   if component
-    Chef::Log.info("setting node[#{name}][#{component}][#{aspect_attr}] to #{paths.inspect}")
-    node[name][component][aspect_attr] = (params[:selects] == :all) ? paths : paths.first
+    val = (params[:selects] == :all) ? paths : paths.first
+    unless node[name][component][aspect_attr] == val
+      Chef::Log.info("setting %-40s to %s" % ["node[#{name}][#{component}][#{aspect_attr}]", paths.inspect])
+      node[name][component][aspect_attr] = val
+    end
   else
-    Chef::Log.info("setting node[#{name}][#{aspect_attr}] to #{paths.inspect}")
-    node[name][aspect_attr]            = (params[:selects] == :all) ? paths : paths.first
+    val = (params[:selects] == :all) ? paths : paths.first
+    unless node[name][aspect_attr] == val
+      Chef::Log.info("setting %-40s to %s" % ["node[#{name}][#{aspect_attr}]", paths.inspect])
+      node[name][aspect_attr] = val
+    end
   end
 end
 
@@ -122,3 +127,6 @@ end
 #
 # A volume may get used, even if it doesn't announce.
 #
+
+#Sun, 27 Nov 2011 22:36:10 +0000] INFO: setting node[hadoop][tasktracker][scratch_dirs] to ["/hadoop/mapred/local"]
+#       |       |       |       |       |       |       |       |       |       |       |

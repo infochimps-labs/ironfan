@@ -12,6 +12,8 @@
 
 * make clear directions for installing `cluster_chef` and its initial use.
 
+
+
 ### Cookbook attribute refresh:
 
                           | flip fixed | temujin9 checked |
@@ -45,6 +47,13 @@
         # Need thinkin':
         big_package	  |            |                  |
         cluster_chef      |            |                  |
+
+
+### std cookbooks
+
+#### integration
+
+* apt: has a dashboard at http://{hostname}:3142/report
 
 
 ### Cookbook Munger

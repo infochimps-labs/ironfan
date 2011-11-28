@@ -1,10 +1,10 @@
 #
-# Cookbook Name::       hadoop_cluster
+# Cookbook Name::       flume
 # Description::         Add Cloudera repo to package manager
 # Recipe::              add_cloudera_repo
-# Author::              Philip (flip) Kromer - Infochimps, Inc
+# Author::              Chris Howe - Infochimps, Inc
 #
-# Copyright 2011, Philip (flip) Kromer - Infochimps, Inc
+# Copyright 2011, Chris Howe - Infochimps, Inc
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,12 +18,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-# Get the archive key for cloudera package repo
-execute "curl -s http://archive.cloudera.com/debian/archive.key | apt-key add -" do
-  not_if "apt-key export 'Cloudera Apt Repository' | grep 'BEGIN PGP PUBLIC KEY'"
-  notifies :run, "execute[apt-get update]"
-end
 
 # Add cloudera package repo
 apt_repository 'cloudera' do

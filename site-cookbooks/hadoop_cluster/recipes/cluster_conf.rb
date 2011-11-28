@@ -36,7 +36,7 @@ node[:hadoop][:secondarynn][:addr] = provider_private_ip("#{node[:cluster_name]}
     variables(:hadoop => hadoop_config_hash)
     source "#{conf_file}.erb"
     hadoop_services.each do |svc|
-      if node[:hadoop][svc][:service_state] && Array(node[:hadoop][svc][:service_state]).map(&:to_s).include?('start')
+      if startable?(node[:hadoop][svc])
         notifies :restart, "service[#{node[:hadoop][:handle]}-#{svc}]", :delayed
       end
     end
@@ -52,21 +52,21 @@ end
 
 # Fix the hadoop-env.sh to point to /var/run for pids
 munge_one_line('fix_hadoop_env-pid',      "#{node[:hadoop][:conf_dir]}/hadoop-env.sh",
-  %q{^export HADOOP_PID_DIR=.*$},
-  %Q{^export HADOOP_PID_DIR=#{node[:hadoop][:pid_dir]}$},
-  %q{HADOOP_PID_DIR=#{node[:hadoop][:pid_dir]}})
+  %q{.*export HADOOP_PID_DIR=.*$},
+   %Q{export HADOOP_PID_DIR=#{node[:hadoop][:pid_dir]}},
+  %q{^export.HADOOP_PID_DIR=#{node[:hadoop][:pid_dir]}})
 
 # Set SSH options within the cluster
 munge_one_line('fix hadoop ssh options', "#{node[:hadoop][:conf_dir]}/hadoop-env.sh",
-  %q{\# export HADOOP_SSH_OPTS=.*},
-  %q{export HADOOP_SSH_OPTS="-o StrictHostKeyChecking=no"},
-  %q{export HADOOP_SSH_OPTS="-o StrictHostKeyChecking=no"}
+  %q{.*export HADOOP_SSH_OPTS=.*},
+   %q{export HADOOP_SSH_OPTS="-o StrictHostKeyChecking=no"},
+  %q{^export.HADOOP_SSH_OPTS=.-o StrictHostKeyChecking=no.}
   )
 
 # $HADOOP_NODENAME is set in /etc/default/hadoop
 munge_one_line('use node name in hadoop .log logs', "#{node[:hadoop][:home_dir]}/bin/hadoop-daemon.sh",
   %q{export HADOOP_LOGFILE=hadoop-.HADOOP_IDENT_STRING-.command-.HOSTNAME.log},
-  %q{export HADOOP_LOGFILE=hadoop-$HADOOP_IDENT_STRING-$command-$HADOOP_NODENAME.log},
+   %q{export HADOOP_LOGFILE=hadoop-$HADOOP_IDENT_STRING-$command-$HADOOP_NODENAME.log},
   %q{^export HADOOP_LOGFILE.*HADOOP_NODENAME}
   )
 

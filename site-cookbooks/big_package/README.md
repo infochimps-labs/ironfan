@@ -25,7 +25,6 @@ Installs extra packages as directed. Use to install packages that don't warrant 
 Supports platforms: debian and ubuntu
 
 
-
 ## License and Author
 
 Author::                Philip (flip) Kromer - Infochimps, Inc (<coders@infochimps.com>)

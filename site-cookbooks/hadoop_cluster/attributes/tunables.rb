@@ -72,7 +72,7 @@ default[:hadoop][:log_retention_hours ]              = 24
 #
 hadoop_performance_settings =
   case node[:ec2] && node[:ec2][:instance_type]
-  when 't1.micro'   then { :max_map_tasks =>  1, :max_reduce_tasks => 1, :java_child_opts =>  '-Xmx256m -Xss128k',                                                    :java_child_ulimit =>  2227200, :io_sort_factor => 10, :io_sort_mb => 100, }
+  when 't1.micro'   then { :max_map_tasks =>  1, :max_reduce_tasks => 1, :java_child_opts =>  '-Xmx256m -Xss128k',                                                    :java_child_ulimit =>  2227200, :io_sort_factor => 10, :io_sort_mb =>  64, }
   when 'm1.small'   then { :max_map_tasks =>  2, :max_reduce_tasks => 1, :java_child_opts =>  '-Xmx870m -Xss128k',                                                    :java_child_ulimit =>  2227200, :io_sort_factor => 10, :io_sort_mb => 100, }
   when 'c1.medium'  then { :max_map_tasks =>  3, :max_reduce_tasks => 2, :java_child_opts =>  '-Xmx870m -Xss128k',                                                    :java_child_ulimit =>  2227200, :io_sort_factor => 10, :io_sort_mb => 100, }
   when 'm1.large'   then { :max_map_tasks =>  3, :max_reduce_tasks => 2, :java_child_opts => '-Xmx2432m -Xss128k -XX:+UseCompressedOops -XX:MaxNewSize=200m -server', :java_child_ulimit =>  7471104, :io_sort_factor => 25, :io_sort_mb => 250, }
@@ -84,14 +84,21 @@ hadoop_performance_settings =
   else
     cores        = node[:cpu   ][:total].to_i
     ram          = node[:memory][:total].to_i
+    if node[:memory][:swap] && node[:memory][:swap][:total]
+      ram -= node[:memory][:swap][:total].to_i
+    end
     Chef::Log.info("Couldn't set performance parameters from instance type, estimating from #{cores} cores and #{ram} ram")
-    n_mappers    = (cores >= 8 ? cores : cores * 2)
-    n_reducers   = cores
-    heap_size    = 0.75 * (ram.to_f / 1000) / (n_mappers + n_reducers)
-    heap_size    = [550, heap_size.to_i].max
-    child_ulimit = 2 * heap_size * 1024
-    { :max_map_tasks => n_mappers, :max_reduce_tasks => n_reducers, :java_child_opts => "-Xmx#{heap_size}m", :java_child_ulimit => child_ulimit, :io_sort_factor => 10, :io_sort_mb => 100, }
+    n_mappers      = (cores >= 6 ? (cores * 1.25) : (cores * 2)).to_i
+    n_reducers     = cores
+    heap_size      = 0.75 * (ram.to_f / 1000) / (n_mappers + n_reducers)
+    heap_size      = [256, heap_size.to_i].max
+    child_ulimit   = 2 * heap_size * 1024
+    io_sort_factor = 10
+    io_sort_mb     = 100
+    { :max_map_tasks => n_mappers, :max_reduce_tasks => n_reducers, :java_child_opts => "-Xmx#{heap_size}m", :java_child_ulimit => child_ulimit, :io_sort_factor => io_sort_factor, :io_sort_mb => io_sort_mb, }
   end
+
+Chef::Log.info("Hadoop tunables: #{hadoop_performance_settings.inspect}")
 
 # (Mappers+Reducers)*ChildTaskHeap + DNheap + TTheap + 3GB + RSheap + OtherServices'
 

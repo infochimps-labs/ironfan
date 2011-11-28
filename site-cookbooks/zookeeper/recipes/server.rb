@@ -31,20 +31,14 @@ daemon_user(:zookeeper) do
 end
 
 standard_directories('zookeeper.server') do
-  directories   :conf_dir, :log_dir, :data_dir
+  directories   :data_dir
 end
 
 kill_old_service('hadoop-zookeeper-server'){ pattern 'zookeeper' ; not_if{ File.exists?("/etc/init.d/hadoop-zookeeper-server") } }
 
+provide_service("#{node[:zookeeper][:cluster_name]}-zookeeper")
+
 runit_service "zookeeper" do
   options       node[:zookeeper]
+  action        node[:zookeeper][:server][:service_state]
 end
-
-# # launch service
-# service "hadoop-zookeeper-server" do
-#   action [ :enable, :start ]
-#   running true
-#   supports :status => true, :restart => true
-# end
-
-provide_service("#{node[:zookeeper][:cluster_name]}-zookeeper")

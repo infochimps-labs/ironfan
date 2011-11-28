@@ -34,7 +34,7 @@ end
 
 %w[
    extlib rails fastercsv json yajl-ruby
-   addressable fog cheat configliere wukong gorillib
+   addressable cheat configliere wukong gorillib
    pry
 ].each do |gem_pkg|
   gem_package gem_pkg do
@@ -42,12 +42,14 @@ end
   end
 end
 
+#  fog
+
 # override_attributes({
 #     :package_sets => {
 #       :install => %w[ base dev sysadmin ec2 text ],
 #       :sets => {
 #         :base      => {
-#           :pkgs      => %w[ tree git-core zip openssl libbz2-dev libpcre3-dev libevent-dev ], },
+#           :pkgs      => %w[ tree git zip openssl libbz2-dev libpcre3-dev libevent-dev ], },
 #         :dev       => {
 #           :pkgs      => %w[ emacs23-nox elinks colordiff ack exuberant-ctags ],
 #           :gems      => %w[ rails extlib json yajl-ruby addressable cheat configliere wukong gorillib pry ] },
@@ -81,7 +83,7 @@ end
 #       :install    => %w[ base dev sysadmin ec2 text ],
 #       #
 #       :pkgs => {
-#         :base     => %w[ tree git-core zip openssl libbz2-dev libpcre3-dev libevent-dev ],
+#         :base     => %w[ tree git zip openssl libbz2-dev libpcre3-dev libevent-dev ],
 #         :dev      => %w[ emacs23-nox elinks colordiff ack exuberant-ctags ],
 #         :sysadmin => %w[ ifstat htop tree chkconfig sysstat htop nmap ],
 #         :ec2      => %w[ s3cmd ec2-ami-tools ec2-api-tools ],
@@ -89,8 +91,8 @@ end
 #       },
 #       #
 #       :gems => {
-#         :dev      => %w[ rails extlib json yajl-ruby addressable cheat configliere wukong gorillib pry ] },
-#       :ec2        => %w[ fog  right_aws ],
+#         :dev      => %w[ rails extlib json yajl-ruby addressable cheat configliere wukong gorillib pry watchr cool.io rev ] },
+#         :ec2        => %w[ fog  right_aws ],
 #     },
 #   })
 #

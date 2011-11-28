@@ -40,5 +40,5 @@ template "/etc/cassandra/rack.properties" do
   owner "root"
   group "root"
   mode 0644
-  notifies :restart, resources(:service => "cassandra")
+  notifies :restart, "service[cassandra]", :delayed if startable?(node[:cassandra])
 end

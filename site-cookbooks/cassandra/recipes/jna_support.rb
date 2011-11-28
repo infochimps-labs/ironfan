@@ -31,8 +31,8 @@ if node[:platform].downcase == "ubuntu" && node[:kernel][:machine] == "x86_64"
 
   # Link into our cassandra directory
   link "#{node[:cassandra][:home_dir]}/lib/jna.jar" do
-    to "/usr/share/java/jna.jar"
-    notifies    :restart, resources(:service => "cassandra")
+    to          "/usr/share/java/jna.jar"
+    notifies    :restart, "service[cassandra]", :delayed if startable?(node[:cassandra])
   end
 else
   Chef::Log.warn("JNA cookbook not supported on this platform")

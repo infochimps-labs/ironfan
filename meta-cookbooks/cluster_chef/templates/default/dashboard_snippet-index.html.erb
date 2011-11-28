@@ -5,13 +5,18 @@
 <body>
   <h1>Cluster Chef Dashboard for <%= node.name %></h1>
 
-  <p>Hello, I'm <%= node.name %> (cluster <%= node[:cluster_name] %> facet <%= node[:facet_name] %> index <%= node[:facet_index] %>).</p>
+  <p>Hello, I'm <%= node.name %>
+   (cluster <code><%= node[:cluster_name] %></code>
+    facet   <code><%= node[:facet_name]   %></code>
+    index   <code><%= node[:facet_index]  %></code>).</p>
   
   <p>Here are some interesting facts about me.</p>
 
+  <%- if @summary_attributes %>
   <table class="interesting_facts">
     <%= summary_rows(node, @summary_attributes) %>
   </table>
+  <%- end %>
 
   <hr/>
   <h2>Service Dashboards</h2>

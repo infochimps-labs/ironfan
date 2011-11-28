@@ -19,14 +19,13 @@ default[:resque][:group]                = 'resque'
 default[:users ]['resque' ][:uid]       = 336
 default[:groups]['resque' ][:gid]       = 336
 
-default[:resque][:cluster_name]         = node[:cluster_name]
 default[:resque][:namespace]            = node[:cluster_name]
 
-default[:resque][:queue_addr]           = node[:cloud] ? node[:cloud][:private_ips].first : node[:fqdn]
-default[:resque][:queue_port]           = '6388'
-default[:resque][:dashboard_port]       = '6389'
-
 default[:resque][:redis][:server][:addr] = '0.0.0.0'
-default[:resque][:redis][:server][:port] = '6400'
+default[:resque][:redis][:server][:port] = '6388'
+default[:resque][:dashboard][:port]      = '6389'
+
+default[:resque][:redis    ][:service_state] = :start
+default[:resque][:dashboard][:service_state] = :start
 
 default[:resque][:app_env]              = 'production'

@@ -59,7 +59,7 @@
 <property> <name>mapred.fairscheduler.allocation.file</name>      <value><%= @hadoop[:conf_dir] %>/fairscheduler.xml</value></property>
 
 <property> <name>mapred.userlog.retain.hours</name>               <value><%= @hadoop[:log_retention_hours] %></value></property>
-<property> <name>mapred.jobtracker.retirejob.interval</name>      <value><%= (@hadoop[:log_retention_hours].to_f * 60 * 60 * 1000).to_i></value></property>
+<property> <name>mapred.jobtracker.retirejob.interval</name>      <value><%= (@hadoop[:log_retention_hours].to_f * 60 * 60 * 1000).to_i %></value></property>
 <property> <name>mapred.jobtracker.retirejob.check</name>         <value>300000</value></property>
 <property> <name>mapred.jobtracker.completeuserjobs.maximum</name><value>100</value></property>
 <!--  -->

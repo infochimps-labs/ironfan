@@ -12,3 +12,4 @@ supports "ubuntu"
 depends 'build-essential'
 depends 'boost'
 depends 'python'
+depends 'install_from'

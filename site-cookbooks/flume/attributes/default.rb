@@ -1,10 +1,39 @@
 
-default[:apt][:cloudera][:force_distro] = nil # override distro name if cloudera doesn't have yours yet
-default[:apt][:cloudera][:release_name] = 'cdh3u2'
 
 #By default, flume plays as a part of the cluster the machine
 #belongs to.
 default[:flume][:cluster_name] = node[:cluster_name]
+
+default[:flume][:data_dir] = "/data/db/flume"
+
+#
+# Locations
+#
+
+default[:flume][:home_dir]              = '/usr/lib/flume'
+# default[:flume][:tmp_dir]               = '/mnt/flume/tmp'
+default[:flume][:conf_dir]              = '/etc/flume/conf'
+default[:flume][:log_dir]               = "/var/log/flume"
+default[:flume][:pid_dir]               = "/var/run/flume"
+
+#
+# Install
+#
+
+default[:apt][:cloudera][:force_distro] = nil # override distro name if cloudera doesn't have yours yet
+default[:apt][:cloudera][:release_name] = 'cdh3u2'
+
+#
+# Services
+#
+
+default[:flume][:master  ][:service_state] = :stop
+default[:flume][:node    ][:service_state] = :stop
+
+
+#
+# Tunables
+#
 
 # By default, flume installs its own zookeeper instance.
 # Set :external_zookeeper to "true". The recipe will
@@ -30,8 +59,6 @@ default[:flume][:classpath] = []
 default[:flume][:java_opts] = []
 
 default[:flume][:collector] = {}
-default[:flume][:data_dir] = "/data/db/flume"
-
 
 # Set the following two attributes to allow writing to s3 buckets:
 default[:flume][:aws_access_key] = nil

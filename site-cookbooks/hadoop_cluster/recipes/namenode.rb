@@ -25,10 +25,9 @@ include_recipe "hadoop_cluster"
 hadoop_package "namenode"
 
 # Set up service
-service "#{node[:hadoop][:handle]}-namenode" do
-  action    node[:hadoop][:namenode][:service_state]
-  supports :status => true, :restart => true
-  ignore_failure true
+runit_service "#{node[:hadoop][:handle]}-namenode" do
+  options       node[:hadoop]
+  action        node[:hadoop][:namenode][:service_state]
 end
 
 provide_service ("#{node[:cluster_name]}-namenode")
@@ -36,17 +35,17 @@ provide_service ("#{node[:cluster_name]}-namenode")
 # Script to boostrap the namenode (initial format, important HDFS dirs, etc)
 # purposefully not marked executable -- run with bash (script_name)
 template "#{node[:hadoop][:conf_dir]}/bootstrap_hadoop_namenode.sh" do
-  owner "root"
-  mode "0744"
-  variables(:hadoop => hadoop_config_hash)
-  source "bootstrap_hadoop_namenode.sh.erb"
+  owner         "root"
+  mode          "0744"
+  variables     :hadoop => hadoop_config_hash
+  source        "bootstrap_hadoop_namenode.sh.erb"
 end
 
 # Script to boostrap the namenode (initial format, important HDFS dirs, etc)
 # purposefully not marked executable -- run with bash (script_name)
 template "#{node[:hadoop][:conf_dir]}/nuke_hdfs_from_orbit_its_the_only_way_to_be_sure.sh" do
-  owner "root"
-  mode "0744"
-  variables(:hadoop => hadoop_config_hash)
-  source "nuke_hdfs_from_orbit_its_the_only_way_to_be_sure.sh.erb"
+  owner         "root"
+  mode          "0744"
+  variables     :hadoop => hadoop_config_hash
+  source        "nuke_hdfs_from_orbit_its_the_only_way_to_be_sure.sh.erb"
 end

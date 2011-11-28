@@ -45,6 +45,7 @@ runit_service 'resque_redis' do
   options       node[:resque]
   cookbook      'redis'
   template_name 'redis_server'
+  action        node[:resque][:redis][:service_state]
 end
 
-provide_service('resque_redis', :port => node[:resque][:queue_port])
+provide_service('resque_redis', :port => node[:resque][:redis][:port])

@@ -38,7 +38,7 @@ JAVA_OPTS="$JAVA_OPTS -XX:+UseCompressedOops"
 # ensures JMX accessible from outside world
 JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote.ssl=false"
 JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote.authenticate=false"
-JAVA_OPTS="$JAVA_OPTS -Djava.rmi.server.hostname=<%= node[:ec2][:public_hostname] %>"
+JAVA_OPTS="$JAVA_OPTS -Djava.rmi.server.hostname=<%= public_ip_of(node) %>"
 
 # More options to consider LATER
 # java.net.preferIPv4Stack=true: Better OOTB experience, especially with jgroups

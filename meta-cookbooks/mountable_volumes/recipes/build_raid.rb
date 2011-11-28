@@ -32,10 +32,10 @@ if node[:mountable_volumes][:raid_groups]
       :from_volumes => %w[ ephemeral0 ]
     }
   }
-  
+
   node[:mountable_volumes][:raid_groups].each do |raid_group, raid_info|
 
-    FIXME: pull from mountable volumes
+    # FIXME: pull from mountable volumes
     lone_volumes = { :ephemeral0 => { :device => "/dev/sdb", :mount_point => "/mnt" }}
 
     #
@@ -49,13 +49,13 @@ if node[:mountable_volumes][:raid_groups]
     end
 
     # FIXME: "create a raid of all devices tagged for that raid group
-    
+
     mdadm(raid_info[:device]) do
-      devices   
+      devices
       level 0
       action [:create, :assemble]
     end
-    
+
     script "format #{raid_group}" do
       interpreter "bash"
       user      "root"
@@ -63,7 +63,7 @@ if node[:mountable_volumes][:raid_groups]
       code      %Q{ mkfs.xfs -f /dev/md0 ; file -s /dev/md0 | grep XFS }
       not_if("file -s /dev/md0 | grep XFS")
     end
-    
+
     mount raid_info[:mount_point] do
       device     raid_info[:device]
       fstype     raid_info[:fstype]
@@ -72,5 +72,5 @@ if node[:mountable_volumes][:raid_groups]
     end
 
   end
-    
+
 end

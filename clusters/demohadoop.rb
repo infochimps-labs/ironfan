@@ -80,24 +80,24 @@ ClusterChef.cluster 'demohadoop' do
   #
   facet(:master).facet_role.override_attributes({
       :hadoop => {
-        :namenode            => { :service_state => [:disable, :stop] },
-        :secondarynn   => { :service_state => [:disable, :stop] },
-        :jobtracker          => { :service_state => [:disable, :stop] },
-        :datanode            => { :service_state => [:disable, :stop] },
-        :tasktracker         => { :service_state => [:disable, :stop] },
-        #
-        # :namenode          => { :service_state => [:enable, :start], },
-        # :secondarynn => { :service_state => [:enable, :start], },
-        # :jobtracker        => { :service_state => [:enable, :start], },
-        # :datanode          => { :service_state => [:enable, :start], },
-        # :tasktracker       => { :service_state => [:enable, :start], },
+        :namenode      => { :service_state => :stop },
+        :secondarynn   => { :service_state => :stop },
+        :jobtracker    => { :service_state => :stop },
+        :datanode      => { :service_state => :stop },
+        :tasktracker   => { :service_state => :stop },
+
+        # :namenode    => { :service_state => :start, },
+        # :secondarynn => { :service_state => :start, },
+        # :jobtracker  => { :service_state => :start, },
+        # :datanode    => { :service_state => :start, },
+        # :tasktracker => { :service_state => :start, },
       },
     })
 
   facet(:worker).facet_role.override_attributes({
       :hadoop => {
-        :datanode          => { :service_state => [:enable, :start], },
-        :tasktracker       => { :service_state => [:enable, :start], },
+        :datanode          => { :service_state => :start, },
+        :tasktracker       => { :service_state => :start, },
       },
     })
 end

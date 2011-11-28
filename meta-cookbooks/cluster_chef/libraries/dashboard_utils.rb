@@ -67,3 +67,4 @@ class Chef::Recipe              ; include ClusterChef::DashboardUtils ; end
 class Chef::Resource::Directory ; include ClusterChef::DashboardUtils ; end
 class Chef::Resource::Execute   ; include ClusterChef::DashboardUtils ; end
 class Chef::Resource::Template  ; include ClusterChef::DashboardUtils ; end
+class Erubis::Context           ; include ClusterChef::DashboardUtils ; end

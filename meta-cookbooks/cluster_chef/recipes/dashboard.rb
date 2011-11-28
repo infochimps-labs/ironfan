@@ -25,6 +25,7 @@
 #
 
 include_recipe  'cluster_chef'
+include_recipe  'runit'
 
 package         'thttpd'
 package         'thttpd-util'
@@ -32,9 +33,11 @@ package         'thttpd-util'
 standard_directories(:cluster_chef) do
   directories  :home_dir, :log_dir, :conf_dir
 end
+directory("#{node[:cluster_chef][:home_dir]}/dashboard"){ mode '0755' ; }
 
 cluster_chef_dashboard(:cluster_chef) do
   template_name 'index'
+  action        :install
 end
 
 template "#{node[:cluster_chef][:home_dir]}/dashboard-thttpd.conf" do
@@ -45,4 +48,5 @@ end
 
 runit_service "cluster_chef_dashboard" do
   options       node[:cluster_chef]
+  action        node[:cluster_chef][:dashboard][:service_state]
 end

@@ -2,7 +2,7 @@
 
 # pull in default env vars for hadoop
 
-. /etc/default/<%= @hadoop][:handle] %>
+. /etc/default/<%= @hadoop[:handle] %>
 
 if [ -f /etc/default/<%= @hadoop[:handle] %>-fuse ]; then
   . /etc/default/<%= @hadoop[:handle] %>-fuse

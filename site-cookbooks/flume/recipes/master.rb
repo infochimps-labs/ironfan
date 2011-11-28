@@ -26,8 +26,9 @@ include_recipe "flume::default"
 package "flume-master"
 
 service "flume-master" do
-  supports :restart => true, :start=>true, :stop => true
-  subscribes :restart,resources( :template => ["/usr/lib/flume/conf/flume-site.xml","/usr/lib/flume/bin/flume-env.sh"] )
+  supports      :restart => true, :start=>true, :stop => true
+  subscribes    :restart, resources( :template => ["/usr/lib/flume/conf/flume-site.xml","/usr/lib/flume/bin/flume-env.sh"] )
+  action        node[:flume][:master][:service_state]
 end
 
 provide_service ("#{node[:flume][:cluster_name]}-flume-master")

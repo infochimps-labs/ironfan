@@ -1,17 +1,25 @@
 # contents of this file are set by chef (hadoop_cluster/recipes/cluster_conf)
 
-export HADOOP_HOME=<%= @hadoop[:home_dir] %>
+#
+# Environment Variables
+#
+
+export HADOOP_HOME=<%=     @hadoop[:home_dir] %>
+export HADOOP_CONF_DIR=<%= @hadoop[:conf_dir] %>
+export HADOOP_LOG_DIR=<%=  @hadoop[:log_dir] %>
+export HADOOP_PID_DIR=<%=  @hadoop[:pid_dir] %>
+
 export HADOOP_IDENT_STRING=hadoop
 export HADOOP_NODENAME="<%= node.name.gsub(/[^\w\-]+/, '') %>"
 
 export HADOOP_NAMENODE_USER=hdfs
 export HADOOP_SECONDARYNAMENODE_USER=hdfs
-export HADOOP_DATANODE_USER=hdfs
 export HADOOP_JOBTRACKER_USER=mapred
+export HADOOP_DATANODE_USER=hdfs
 export HADOOP_TASKTRACKER_USER=mapred
 
 # The maximum amount of heap to use, in MB. Default is 1000.
-export HADOOP_HEAPSIZE=1000
+export HADOOP_HEAPSIZE=<%= @hadoop[:java_heap_size_max] %>
 
 # Ubuntu wants us to use IPv6. Hadoop doesn't support that, but nevertheless binds to :::50010. Let's tell it we don't agree.
 export HADOOP_OPTS="$HADOOP_OPTS -Djava.net.preferIPv4Stack=true"
@@ -19,8 +27,12 @@ export HADOOP_OPTS="$HADOOP_OPTS -Djava.net.preferIPv4Stack=true"
 export HADOOP_NAMENODE_OPTS="$HADOOP_NAMENODE_OPTS -XX:+UseParallelGC -Xmx<%=                   @hadoop[:namenode   ][:java_heap_size_max] %>m"
 export HADOOP_SECONDARYNAMENODE_OPTS="$HADOOP_SECONDARYNAMENODE_OPTS -XX:+UseParallelGC -Xmx<%= @hadoop[:secondarynn][:java_heap_size_max] %>m"
 export HADOOP_JOBTRACKER_OPTS="$HADOOP_JOBTRACKER_OPTS -XX:+UseParallelGC -Xmx<%=               @hadoop[:jobtracker ][:java_heap_size_max] %>m"
-export HADOOP_TASKTRACKER_OPTS="$HADOOP_JOBTRACKER_OPTS -XX:+UseParallelGC -Xmx<%=              @hadoop[:tasktracker][:java_heap_size_max] %>m"
-export HADOOP_DATANODE_OPTS="$HADOOP_JOBTRACKER_OPTS -XX:+UseParallelGC -Xmx<%=                 @hadoop[:datanode   ][:java_heap_size_max] %>m"
+export HADOOP_DATANODE_OPTS="$HADOOP_DATANODE_OPTS -XX:+UseParallelGC -Xmx<%=                   @hadoop[:datanode   ][:java_heap_size_max] %>m"
+export HADOOP_TASKTRACKER_OPTS="$HADOOP_TASKTRACKER_OPTS -XX:+UseParallelGC -Xmx<%=             @hadoop[:tasktracker][:java_heap_size_max] %>m"
+
+export HADOOP_LOGFILE=hadoop-$HADOOP_IDENT_STRING-$command-$HADOOP_NODENAME.log
+export HADOOP_ROOT_LOGGER="INFO,DRFA"
+export HADOOP_SECURITY_LOGGER="INFO,DRFAS"
 
 <%- unless @hadoop[:extra_classpaths].nil? %>
 # Extra classpaths for hadoop

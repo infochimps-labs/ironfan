@@ -13,15 +13,16 @@
 #
 # You want to bring the big daemons up deliberately on initial start.
 #   Override in your cluster definition when things are stable.
-default[:hadoop][:namenode    ][:service_state]  = []
-default[:hadoop][:secondarynn ][:service_state]  = []
-default[:hadoop][:jobtracker  ][:service_state]  = []
+default[:hadoop][:namenode    ][:service_state]  = :stop
+default[:hadoop][:secondarynn ][:service_state]  = :stop
+default[:hadoop][:jobtracker  ][:service_state]  = :stop
+default[:hadoop][:hdfs_fuse   ][:service_state]  = :stop
 #
 # You can just kick off the worker daemons, they'll retry. On a full-cluster
 #   stop/start (or any other time the main daemons' ip address changes) however
 #   you will need to converge chef and then restart them all.
-default[:hadoop][:datanode    ][:service_state]  = [:enable, :start]
-default[:hadoop][:tasktracker ][:service_state]  = [:enable, :start]
+default[:hadoop][:datanode    ][:service_state]  = :start
+default[:hadoop][:tasktracker ][:service_state]  = :start
 
 #
 # Locations

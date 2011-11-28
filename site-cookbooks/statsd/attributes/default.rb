@@ -12,6 +12,8 @@ default[:statsd][:user]            = "statsd"
 default[:users ]['statsd' ][:uid]  = 310
 default[:groups]['statsd' ][:gid]  = 310
 
+default[:statsd][:service_state]   = :start
+
 default[:statsd][:graphite][:port] = 2003
 default[:statsd][:graphite][:addr] = "localhost"
 default[:statsd][:port]            = 8125

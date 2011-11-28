@@ -27,7 +27,7 @@ package "hadoop-hbase-regionserver"
 # launch service
 service "hadoop-hbase-regionserver" do
   action        node[:hbase][:regionserver][:service_state]
-  supports :status => true, :restart => true
+  supports      :status => true, :restart => true
 end
 
 provide_service ("#{node[:hbase][:cluster_name]}-hbase-regionserver")

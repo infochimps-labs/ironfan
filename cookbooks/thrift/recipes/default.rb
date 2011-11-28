@@ -22,6 +22,7 @@ version = node['thrift']['version']
 include_recipe "build-essential"
 include_recipe "boost"
 include_recipe "python"
+include_recipe "install_from"
 
 %w{ flex bison libtool autoconf pkg-config }.each do |pkg|
   package pkg

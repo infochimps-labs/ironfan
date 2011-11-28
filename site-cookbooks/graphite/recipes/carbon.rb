@@ -39,10 +39,10 @@ execute "install carbon" do
 end
 
 template "/opt/graphite/conf/carbon.conf" do
-  variables( :line_rcvr_addr => node[:graphite][:carbon][:line_rcvr_addr],
+  variables( :line_rcvr_addr   => node[:graphite][:carbon][:line_rcvr_addr],
              :pickle_rcvr_addr => node[:graphite][:carbon][:pickle_rcvr_addr],
              :cache_query_addr => node[:graphite][:carbon][:cache_query_addr] )
-  notifies :restart, "service[carbon-cache]"
+  notifies :restart, "service[carbon-cache]", :delayed if startable?(node[:graphite][:carbon])
 end
 
 template "/opt/graphite/conf/storage-schemas.conf"

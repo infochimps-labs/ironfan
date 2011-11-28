@@ -1,5 +1,5 @@
 action :install do
-  assume_defaults!
+  new_resource.assume_defaults!
 
   directory new_resource.dashboard_dir do
     owner       "root"

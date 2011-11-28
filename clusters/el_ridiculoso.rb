@@ -155,21 +155,21 @@ ClusterChef.cluster 'el_ridiculoso' do
   #
   facet(:grande).facet_role.override_attributes({
       :ganglia => {
-        :server              => { :service_state => :start },
-        :monitor             => { :service_state => :start },
+        :server        => { :service_state => :start },
+        :monitor       => { :service_state => :start },
       },
-      :hadoop => {
-        :namenode            => { :service_state => :stop },
+      :hadoop          => {
+        :namenode      => { :service_state => :stop },
         :secondarynn   => { :service_state => :stop },
-        :jobtracker          => { :service_state => :stop },
-        :datanode            => { :service_state => :stop },
-        :tasktracker         => { :service_state => :stop },
+        :jobtracker    => { :service_state => :stop },
+        :datanode      => { :service_state => :stop },
+        :tasktracker   => { :service_state => :stop },
         #
-        # :namenode          => { :service_state => :start, },
+        # :namenode    => { :service_state => :start, },
         # :secondarynn => { :service_state => :start, },
-        # :jobtracker        => { :service_state => :start, },
-        # :datanode          => { :service_state => :start, },
-        # :tasktracker       => { :service_state => :start, },
+        # :jobtracker  => { :service_state => :start, },
+        # :datanode    => { :service_state => :start, },
+        # :tasktracker => { :service_state => :start, },
       },
     })
 end

@@ -45,4 +45,5 @@ end
 runit_service "hdfs_fuse" do
   finish_script true
   options       node[:hadoop]
+  action        node[:hadoop][:hdfs_fuse][:service_state]
 end

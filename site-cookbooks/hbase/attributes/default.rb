@@ -24,10 +24,10 @@ default[:groups]['hbase'     ][:gid]    = 304
 # Services
 #
 
-default[:hbase][:master      ][:service_state] = [:enable, :start]
-default[:hbase][:regionserver][:service_state] = [:enable, :start]
-default[:hbase][:stargate    ][:service_state] = [:enable, :start]
-
+default[:hbase][:master      ][:service_state] = :start
+default[:hbase][:regionserver][:service_state] = :start
+default[:hbase][:thrift      ][:service_state] = :start
+default[:hbase][:stargate    ][:service_state] = :start
 
 #
 # Tunables

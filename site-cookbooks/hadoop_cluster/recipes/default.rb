@@ -27,6 +27,11 @@ class Chef::Recipe; include HadoopCluster ; end
 
 include_recipe "hadoop_cluster::add_cloudera_repo"
 
+Chef::Log.info( node[:hadoop].to_hash )
+Chef::Log.info( node[:zookeeper].to_hash )
+Chef::Log.info( node[:flume].to_hash )
+Chef::Log.info( node[:hbase].to_hash )
+
 #
 # Hadoop users and group
 #
@@ -62,7 +67,6 @@ hadoop_package "sbin"
 # Hadoop directories
 #
 #
-
 
 standard_directories('hadoop') do
   directories   :conf_dir, :pid_dir
@@ -120,4 +124,4 @@ end
 # and /var/run/hadoop point to the actual pid dir
 force_link("/var/log/hadoop",                    node[:hadoop][:log_dir] )
 force_link("/var/log/#{node[:hadoop][:handle]}", node[:hadoop][:log_dir] )
-force_link("/var/run/#{node[:hadoop][:handle]}", node[:hadoop][:pid_dir] )
+# force_link("/var/run/#{node[:hadoop][:handle]}", node[:hadoop][:pid_dir] )

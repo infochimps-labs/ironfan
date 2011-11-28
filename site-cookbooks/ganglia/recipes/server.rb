@@ -54,7 +54,7 @@ template "#{node[:ganglia][:conf_dir]}/gmetad.conf" do
   owner         "ganglia"
   group         "ganglia"
   mode          "0644"
-  notifies :restart, "service[ganglia_server]", :delayed if Array(node[:ganglia][:server][:service_state]).flatten.map(&:to_s).include?('start')
+  notifies :restart, "service[ganglia_server]", :delayed if startable?(node[:ganglia][:server])
 end
 
 #

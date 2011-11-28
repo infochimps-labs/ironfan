@@ -19,20 +19,17 @@
 # limitations under the License.
 #
 
-overcommit_memory  =     1
-overcommit_ratio   =   100
-ulimit_hard_nofile = 32768
-ulimit_soft_nofile = 32768
-
 def set_proc_sys_limit desc, proc_path, limit
-  bash desc do
-    not_if{ File.exists?(proc_path) && (File.read(proc_path).chomp.strip == limit.to_s) }
-    code  "echo #{limit} > #{proc_path}"
+  bash "set #{desc} to #{limit}" do
+    only_if{ File.exists?(proc_path) }
+    not_if{  File.read(proc_path).chomp.strip == limit.to_s }
+    code     "echo #{limit} > #{proc_path}"
   end
 end
 
-set_proc_sys_limit "VM overcommit ratio", '/proc/sys/vm/overcommit_memory', overcommit_memory
-set_proc_sys_limit "VM overcommit memory", '/proc/sys/vm/overcommit_ratio',  overcommit_ratio
+set_proc_sys_limit "VM overcommit ratio",  '/proc/sys/vm/overcommit_memory', node[:server_tuning][:overcommit_memory]
+set_proc_sys_limit "VM overcommit memory", '/proc/sys/vm/overcommit_ratio',  node[:server_tuning][:overcommit_ratio]
+set_proc_sys_limit "VM swappiness",        '/proc/sys/vm/swappiness',        node[:server_tuning][:swappiness]
 
 node[:server_tuning][:ulimit].each do |user, ulimits|
   conf_file = user.gsub(/^@/, 'group_')

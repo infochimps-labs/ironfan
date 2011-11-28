@@ -36,7 +36,7 @@ end
 
 link "#{node[:cassandra][:home_dir]}/lib/mx4j-tools.jar" do
   to            "/usr/local/share/mx4j/lib/mx4j-tools.jar"
-  notifies      :restart, resources(:service => "cassandra")
+    notifies    :restart, "service[cassandra]", :delayed if startable?(node[:cassandra])
 end
 
 # FIXME: How to conditionally set this after the jarfile link has been  put in place?
