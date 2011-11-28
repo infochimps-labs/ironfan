@@ -48,5 +48,5 @@ end
 
 runit_service "cluster_chef_dashboard" do
   options       node[:cluster_chef]
-  action        node[:cluster_chef][:dashboard][:service_state]
+  action        node[:cluster_chef][:dashboard][:run_state]
 end

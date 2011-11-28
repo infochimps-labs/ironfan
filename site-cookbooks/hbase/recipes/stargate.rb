@@ -29,7 +29,7 @@ end
 
 # launch service
 service "hadoop-hbase-stargate" do
-  action        node[:hbase][:stargate][:service_state]
+  action        node[:hbase][:stargate][:run_state]
   supports      :status => true, :restart => true
 end
 

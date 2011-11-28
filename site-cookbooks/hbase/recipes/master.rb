@@ -31,7 +31,7 @@ Chef::Log.info( node[:hbase].to_hash )
 
 # launch service
 service "hadoop-hbase-master" do
-  action        node[:hbase][:master][:service_state]
+  action        node[:hbase][:master][:run_state]
   supports      :status => true, :restart => true
 end
 

@@ -25,7 +25,7 @@ default[:resque][:redis][:server][:addr] = '0.0.0.0'
 default[:resque][:redis][:server][:port] = '6388'
 default[:resque][:dashboard][:port]      = '6389'
 
-default[:resque][:redis    ][:service_state] = :start
-default[:resque][:dashboard][:service_state] = :start
+default[:resque][:redis    ][:run_state] = :start
+default[:resque][:dashboard][:run_state] = :start
 
 default[:resque][:app_env]              = 'production'

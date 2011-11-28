@@ -31,7 +31,7 @@ end
 
 runit_service "statsd" do
   options       node[:statsd]
-  action        node[:statsd][:service_state]
+  action        node[:statsd][:run_state]
 end
 
 provide_service("#{node[:cluster_name]}-statsd", :port => node[:statsd][:port])

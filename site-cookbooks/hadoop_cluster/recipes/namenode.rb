@@ -27,7 +27,7 @@ hadoop_package "namenode"
 # Set up service
 runit_service "#{node[:hadoop][:handle]}-namenode" do
   options       node[:hadoop]
-  action        node[:hadoop][:namenode][:service_state]
+  action        node[:hadoop][:namenode][:run_state]
 end
 
 provide_service ("#{node[:cluster_name]}-namenode")

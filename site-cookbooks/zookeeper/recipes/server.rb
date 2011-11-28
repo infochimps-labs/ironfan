@@ -40,5 +40,5 @@ provide_service("#{node[:zookeeper][:cluster_name]}-zookeeper")
 
 runit_service "zookeeper" do
   options       node[:zookeeper]
-  action        node[:zookeeper][:server][:service_state]
+  action        node[:zookeeper][:server][:run_state]
 end

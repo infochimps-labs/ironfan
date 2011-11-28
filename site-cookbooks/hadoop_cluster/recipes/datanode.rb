@@ -26,7 +26,7 @@ hadoop_package 'datanode'
 
 # Launch service
 service "#{node[:hadoop][:handle]}-datanode" do
-  action        node[:hadoop][:datanode][:service_state]
+  action        node[:hadoop][:datanode][:run_state]
   supports      :status => true, :restart => true
   ignore_failure true
 end

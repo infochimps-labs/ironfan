@@ -27,8 +27,8 @@ default[:apt][:cloudera][:release_name] = 'cdh3u2'
 # Services
 #
 
-default[:flume][:master  ][:service_state] = :stop
-default[:flume][:node    ][:service_state] = :stop
+default[:flume][:master  ][:run_state] = :stop
+default[:flume][:node    ][:run_state] = :stop
 
 
 #

@@ -22,11 +22,11 @@ cluster_chef_dashboard(:hadoop_cluster) do
     namenode.addr   namenode.port jobtracker.addr jobtracker.port
     public_ip fqdn cloud.private_ips cloud.public_ips
     ----
-       namenode.service_state
-    secondarynn.service_state
-     jobtracker.service_state
-       datanode.service_state
-    tasktracker.service_state
+       namenode.run_state
+    secondarynn.run_state
+     jobtracker.run_state
+       datanode.run_state
+    tasktracker.run_state
   ==Tuning
     max_map_tasks max_reduce_tasks
     java_child_opts java_child_ulimit io_sort_factor io_sort_mb

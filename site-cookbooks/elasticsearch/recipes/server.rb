@@ -30,5 +30,5 @@ end
 runit_service "elasticsearch" do
   run_restart   false   # don't automatically start or restart daemons
   options       node[:elasticsearch]
-  action        node[:elasticsearch][:server][:service_state]
+  action        node[:elasticsearch][:server][:run_state]
 end

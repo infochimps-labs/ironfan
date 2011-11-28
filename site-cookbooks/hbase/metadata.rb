@@ -108,7 +108,7 @@ attribute "hbase/master/gc_log_opts",
   :description           => "",
   :default               => "-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -Xloggc:/var/log/hbase/hbase-master-gc.log"
 
-attribute "hbase/master/service_state",
+attribute "hbase/master/run_state",
   :display_name          => "",
   :description           => "",
   :type                  => "array",
@@ -134,13 +134,13 @@ attribute "hbase/regionserver/gc_log_opts",
   :description           => "",
   :default               => "-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -Xloggc:/var/log/hbase/hbase-regionserver-gc.log"
 
-attribute "hbase/regionserver/service_state",
+attribute "hbase/regionserver/run_state",
   :display_name          => "",
   :description           => "",
   :type                  => "array",
   :default               => [:enable, :start]
 
-attribute "hbase/stargate/service_state",
+attribute "hbase/stargate/run_state",
   :display_name          => "",
   :description           => "",
   :type                  => "array",

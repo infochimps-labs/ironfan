@@ -11,5 +11,5 @@ default[:groups]['ganglia'][:gid] = 320
 default[:ganglia][:send_port]     = 8649
 default[:ganglia][:rcv_port ]     = 8649
 
-default[:ganglia][:monitor][:service_state] = :start
-default[:ganglia][:server ][:service_state] = :start
+default[:ganglia][:monitor][:run_state] = :start
+default[:ganglia][:server ][:run_state] = :start

@@ -179,28 +179,28 @@ attribute "hadoop/extra_classpaths",
   :description           => "",
   :default               => ""
 
-attribute "hadoop/namenode/service_state",
+attribute "hadoop/namenode/run_state",
   :display_name          => "",
   :description           => "",
   :default               => ""
 
-attribute "hadoop/secondarynn/service_state",
+attribute "hadoop/secondarynn/run_state",
   :display_name          => "",
   :description           => "",
   :default               => ""
 
-attribute "hadoop/jobtracker/service_state",
+attribute "hadoop/jobtracker/run_state",
   :display_name          => "",
   :description           => "",
   :default               => ""
 
-attribute "hadoop/datanode/service_state",
+attribute "hadoop/datanode/run_state",
   :display_name          => "",
   :description           => "",
   :type                  => "array",
   :default               => [:enable, :start]
 
-attribute "hadoop/tasktracker/service_state",
+attribute "hadoop/tasktracker/run_state",
   :display_name          => "",
   :description           => "",
   :type                  => "array",

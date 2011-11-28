@@ -33,12 +33,12 @@ module ClusterChef
       end
     end
 
-    def service_state_includes?(hsh, state)
-      Array(hsh[:service_state]).map(&:to_s).include?('start')
+    def run_state_includes?(hsh, state)
+      Array(hsh[:run_state]).map(&:to_s).include?('start')
     end
 
     def startable?(hsh)
-      service_state_includes?(hsh, :start)
+      run_state_includes?(hsh, :start)
     end
 
   end

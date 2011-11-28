@@ -39,7 +39,7 @@ runit_service "ganglia_monitor" do
   options       node[:ganglia]
 end
 
-service("ganglia_monitor"){ action node[:ganglia][:monitor][:service_state] }
+service("ganglia_monitor"){ action node[:ganglia][:monitor][:run_state] }
 
 provide_service("#{node[:cluster_name]}-ganglia_monitor",
   :monitor_group => node[:cluster_name],
@@ -71,7 +71,7 @@ end
 #
 
 service 'ganglia_monitor' do
-  Array(node[:ganglia][:monitor][:service_state]).each do |state|
+  Array(node[:ganglia][:monitor][:run_state]).each do |state|
     notifies state, 'service[ganglia_monitor]', :delayed
   end
 end

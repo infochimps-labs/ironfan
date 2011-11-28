@@ -26,7 +26,7 @@ hadoop_package "secondarynamenode"
 
 # launch service
 service "#{node[:hadoop][:handle]}-secondarynamenode" do
-  action        node[:hadoop][:secondarynn][:service_state]
+  action        node[:hadoop][:secondarynn][:run_state]
   supports      :status => true, :restart => true
   ignore_failure true
 end

@@ -62,7 +62,7 @@ end
 #
 
 service 'ganglia_server' do
-  Array(node[:ganglia][:server][:service_state]).each do |state|
+  Array(node[:ganglia][:server][:run_state]).each do |state|
     notifies state, 'service[ganglia_server]', :delayed
   end
 end

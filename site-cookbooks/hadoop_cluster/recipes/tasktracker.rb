@@ -26,7 +26,7 @@ hadoop_package 'tasktracker'
 
 # Launch
 service "#{node[:hadoop][:handle]}-tasktracker" do
-  action        node[:hadoop][:tasktracker][:service_state]
+  action        node[:hadoop][:tasktracker][:run_state]
   supports      :status => true, :restart => true
   ignore_failure true
 end

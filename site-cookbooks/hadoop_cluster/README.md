@@ -66,15 +66,15 @@ Copyright:: 2009, Opscode, Inc; 2010, 2011 Infochimps, In
 * `[:hadoop][:io_sort_factor]`        -  (default: "25")
 * `[:hadoop][:io_sort_mb]`            -  (default: "250")
 * `[:hadoop][:extra_classpaths]`      - 
-* `[:hadoop][:namenode][:service_state]` - 
+* `[:hadoop][:namenode][:run_state]` - 
 * `[:hadoop][:namenode][:java_heap_size_max]` - 
-* `[:hadoop][:secondarynn][:service_state]` - 
+* `[:hadoop][:secondarynn][:run_state]` - 
 * `[:hadoop][:secondarynn][:java_heap_size_max]` - 
-* `[:hadoop][:jobtracker][:service_state]` - 
+* `[:hadoop][:jobtracker][:run_state]` - 
 * `[:hadoop][:jobtracker][:java_heap_size_max]` - 
-* `[:hadoop][:datanode][:service_state]` - 
+* `[:hadoop][:datanode][:run_state]` - 
 * `[:hadoop][:datanode][:java_heap_size_max]` - 
-* `[:hadoop][:tasktracker][:service_state]` - 
+* `[:hadoop][:tasktracker][:run_state]` - 
 * `[:hadoop][:tasktracker][:java_heap_size_max]` - 
 * `[:groups][:hadoop][:gid]`          -  (default: "300")
 * `[:groups][:supergroup][:gid]`      -  (default: "301")
