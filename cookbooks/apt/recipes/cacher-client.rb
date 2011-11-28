@@ -27,7 +27,15 @@ end
 servers = search(:node, 'recipes:apt\:\:cacher') || []
 if servers.length > 0
   Chef::Log.info("apt-cacher server found on #{servers[0]}.")
-  proxy = "Acquire::http::Proxy \"http://#{servers[0].ipaddress}:3142\";\n"
+  if servers[0][:apt_cacher]
+    ipaddress = servers[0][:apt_cacher][:addr]
+    port      = servers[0][:apt_cacher][:port]
+  else
+    ipaddress = servers[0][:ipaddress]
+    port      = node[:apt_cacher][:port]
+  end
+
+  proxy = "Acquire::http::Proxy \"http://#{ipaddress}:#{port}\";\n"
   file "/etc/apt/apt.conf.d/01proxy" do
     owner "root"
     group "root"

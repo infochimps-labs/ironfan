@@ -25,6 +25,9 @@ service "apt-cacher" do
   action [ :enable, :start ]
 end
 
+node[:apt_cacher] ||= Mash.new
+node[:apt_cacher][:addr] = node[:cloud] ? node[:cloud][:local_ipv4] : node[:ipaddress]
+
 cookbook_file "/etc/apt-cacher/apt-cacher.conf" do
   source "apt-cacher.conf"
   owner "root"
