@@ -27,11 +27,6 @@ class Chef::Recipe; include HadoopCluster ; end
 
 include_recipe "hadoop_cluster::add_cloudera_repo"
 
-Chef::Log.info( node[:hadoop].to_hash )
-Chef::Log.info( node[:zookeeper].to_hash )
-Chef::Log.info( node[:flume].to_hash )
-Chef::Log.info( node[:hbase].to_hash )
-
 #
 # Hadoop users and group
 #

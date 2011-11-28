@@ -21,16 +21,7 @@
 
 include_recipe "hadoop_cluster"
 
-# Install
-hadoop_package "namenode"
-
-# Set up service
-runit_service "hadoop_namenode" do
-  options       Mash.new(:service_name => 'namenode').merge(node[:hadoop]).merge(node[:hadoop][:namenode])
-  action        node[:hadoop][:namenode][:run_state]
-end
-
-provide_service ("#{node[:cluster_name]}-namenode")
+hadoop_service(:namenode)
 
 # Script to boostrap the namenode (initial format, important HDFS dirs, etc)
 # purposefully not marked executable -- run with bash (script_name)

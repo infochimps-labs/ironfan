@@ -8,7 +8,6 @@ include_recipe 'cluster_chef'
 hadoop_services.each do |component|
   next unless node[:hadoop][component] && node[:hadoop][component][:dash_port]
   hsh = { "addr" => private_ip_of(node) }.merge(node[:hadoop][component])
-  Chef::Log.info([:add_dashboard_link, "hadoop.#{component}", hsh])
   add_dashboard_link("hadoop.#{component}", hsh)
 end
 

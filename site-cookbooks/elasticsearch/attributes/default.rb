@@ -38,7 +38,7 @@ default[:elasticsearch][:git_repo]                = "https://github.com/elastics
 # Services
 #
 
-default[:elasticsearch][:master][:run_state] = :stop
+default[:elasticsearch][:server][:run_state] = :stop
 
 #
 # Tunables

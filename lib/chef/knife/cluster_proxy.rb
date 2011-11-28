@@ -116,38 +116,3 @@ class Chef
     end
   end
 end
-
-
-#
-# Does not work. sad.
-#
-
-# deps do
-#   require 'net/ssh/socks'
-# end
-#
-# def session_from_list(addresses)
-#   item = addresses.first
-#
-#   hostspec = config[:ssh_user] ? "#{config[:ssh_user]}@#{item}" : item
-#   session_opts = {}
-#   session_opts[:keys]     = File.expand_path(config[:identity_file]) if config[:identity_file]
-#   session_opts[:password] = config[:ssh_password]                    if config[:ssh_password]
-#   # session_opts[:logger]   = Chef::Log.logger                         if Chef::Log.level == :debug
-#   session_opts[:port]     = Chef::Config[:knife][:ssh_port] || config[:ssh_port]
-#
-#   if config[:no_host_key_verify]
-#     session_opts[:paranoid]              = false
-#     session_opts[:user_known_hosts_file] = "/dev/null"
-#   end
-#
-#   session_opts[:username] = 'flip' # config[:ssh_user] if config[:ssh_user]
-#   session_opts.delete :keys
-#   Chef::Log.info( [addresses, hostspec, session_opts, @action_nodes ].inspect )
-#
-#   @session = Net::SSH.start(item, session_opts)
-#   # do |ssh|
-#   #   ssh.forward.socks(6666)
-#   #   ssh.loop { true }
-#   # end
-# end

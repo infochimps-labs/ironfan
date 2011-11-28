@@ -30,8 +30,8 @@ standard_directories('statsd') do
 end
 
 runit_service "statsd" do
+  run_state     node[:statsd][:run_state]
   options       node[:statsd]
-  action        node[:statsd][:run_state]
 end
 
 provide_service("#{node[:cluster_name]}-statsd", :port => node[:statsd][:port])

@@ -26,8 +26,6 @@ daemon_user('ganglia.server')
 package "ganglia-webfrontend"
 package "gmetad"
 
-Chef::Log.info( [node[:ganglia].to_hash] )
-
 #
 # Create service
 #
@@ -37,12 +35,6 @@ standard_directories('ganglia.server') do
 end
 
 kill_old_service('gmetad')
-
-runit_service "ganglia_server" do
-  options       node[:ganglia]
-end
-
-provide_service("#{node[:cluster_name]}-ganglia_server")
 
 #
 # Conf file -- auto-discovers ganglia monitors
@@ -57,12 +49,9 @@ template "#{node[:ganglia][:conf_dir]}/gmetad.conf" do
   notifies :restart, "service[ganglia_server]", :delayed if startable?(node[:ganglia][:server])
 end
 
-#
-# Finalize
-#
-
-service 'ganglia_server' do
-  Array(node[:ganglia][:server][:run_state]).each do |state|
-    notifies state, 'service[ganglia_server]', :delayed
-  end
+runit_service "ganglia_server" do
+  run_state     node[:ganglia][:server][:run_state]
+  options       node[:ganglia]
 end
+
+provide_service("#{node[:cluster_name]}-ganglia_server")

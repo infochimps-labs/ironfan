@@ -50,7 +50,6 @@ template_variables = {
   :zookeeper_data_dir     => node[:zookeeper][:data_dir],
   :zookeeper_max_client_connections => node[:zookeeper][:max_client_connections],
 }
-Chef::Log.debug template_variables.inspect
 
 %w[ zoo.cfg log4j.properties].each do |conf_file|
   template "/etc/zookeeper/#{conf_file}" do

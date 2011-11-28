@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 
-define :runit_service, :directory => nil, :only_if => false, :finish_script => false, :control => [], :run_restart => true, :active_directory => nil, :owner => "root", :group => "root", :template_name => nil, :start_command => "start", :stop_command => "stop", :restart_command => "restart", :status_command => "status", :options => Hash.new, :env => Hash.new do
+define :runit_service, :directory => nil, :only_if => false, :finish_script => false, :control => [], :run_restart => true, :active_directory => nil, :owner => "root", :group => "root", :template_name => nil, :start_command => "start", :stop_command => "stop", :restart_command => "restart", :status_command => "status", :options => Hash.new, :env => Hash.new, :run_state => :nothing do
   include_recipe "runit"
 
   params[:directory] ||= node[:runit][:sv_dir]
@@ -164,4 +164,7 @@ define :runit_service, :directory => nil, :only_if => false, :finish_script => f
     action :nothing
   end
 
+  service params[:name] do
+    notifies params[:run_state], "service[#{params[:name]}]", :delayed
+  end
 end

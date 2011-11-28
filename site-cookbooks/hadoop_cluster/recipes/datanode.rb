@@ -21,13 +21,4 @@
 
 include_recipe "hadoop_cluster"
 
-# Install
-hadoop_package 'datanode'
-
-# Set up service
-runit_service "hadoop_datanode" do
-  options       Mash.new(:service_name => 'datanode').merge(node[:hadoop]).merge(node[:hadoop][:datanode])
-  action        node[:hadoop][:datanode][:run_state]
-end
-
-provide_service ("#{node[:cluster_name]}-datanode")
+hadoop_service(:datanode)

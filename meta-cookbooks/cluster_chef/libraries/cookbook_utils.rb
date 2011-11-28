@@ -20,12 +20,11 @@ module ClusterChef
 
     # Save the node, unless we're in chef-solo mode (or an ancient version)
     def save_node!(node)
-      Chef::Log.info('Saving Node!!!!')
-
       return unless node_changed?
       # taken from ebs_volume cookbook
       if Chef::VERSION !~ /^0\.[1-8]\b/
         if not Chef::Config.solo
+          Chef::Log.info('Saving Node!!!!')
           node.save
         else
           Chef::Log.warn("Skipping node save since we are running under chef-solo.  Node attributes will not be persisted.")

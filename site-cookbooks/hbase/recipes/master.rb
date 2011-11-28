@@ -24,11 +24,6 @@ include_recipe "hbase"
 # Install
 package "hadoop-hbase-master"
 
-Chef::Log.info( node[:hadoop].to_hash )
-Chef::Log.info( node[:zookeeper].to_hash )
-Chef::Log.info( node[:flume].to_hash )
-Chef::Log.info( node[:hbase].to_hash )
-
 # launch service
 service "hadoop-hbase-master" do
   action        node[:hbase][:master][:run_state]

@@ -21,13 +21,7 @@
 
 include_recipe "hadoop_cluster"
 
-# Install
-hadoop_package "secondarynamenode"
-
-# Set up service
-runit_service "hadoop_secondarynn" do
-  options       Mash.new(:service_name => 'secondarynamenode').merge(node[:hadoop]).merge(node[:hadoop][:secondarynn])
-  action        node[:hadoop][:secondarynn][:run_state]
+hadoop_service(:secondarynn) do
+  service_name :secondarynamenode
+  package_name :secondarynamenode
 end
-
-provide_service ("#{node[:cluster_name]}-secondarynn")

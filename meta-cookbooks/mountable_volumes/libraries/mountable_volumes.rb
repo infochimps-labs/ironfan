@@ -26,10 +26,8 @@ module MountableVolumes
   #
   def volumes_tagged(*tags)
     mvols = mountable_volumes
-    Chef::Log.info(mvols)
     tags.each do |tag|
       result = mvols.select{|vol_name, vol| vol['tags'] && vol['tags'][tag] }
-      Chef::Log.info( [tag, result] )
       return result unless result.empty?
     end
     mvols

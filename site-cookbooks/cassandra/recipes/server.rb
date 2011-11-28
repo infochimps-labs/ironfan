@@ -22,6 +22,7 @@
 directory('/etc/sv/cassandra/env'){ owner 'root' ; action :create ; recursive true }
 runit_service "cassandra" do
   options       node[:cassandra]
+  run_state     node[:cassandra][:run_state]
 end
 
 include_recipe("cassandra::authentication")

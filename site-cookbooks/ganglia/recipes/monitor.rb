@@ -35,16 +35,6 @@ end
 
 kill_old_service('ganglia-monitor'){ pattern 'gmond' }
 
-runit_service "ganglia_monitor" do
-  options       node[:ganglia]
-end
-
-service("ganglia_monitor"){ action node[:ganglia][:monitor][:run_state] }
-
-provide_service("#{node[:cluster_name]}-ganglia_monitor",
-  :monitor_group => node[:cluster_name],
-  :rcv_port      => node[:ganglia][:rcv_port ])
-
 #
 # Discover ganglia server, construct conf file
 #
@@ -66,12 +56,11 @@ template "#{node[:ganglia][:conf_dir]}/gmond.conf" do
   notifies      :restart, 'service[ganglia_monitor]' if startable?(node[:ganglia][:monitor])
 end
 
-#
-# Finalize
-#
-
-service 'ganglia_monitor' do
-  Array(node[:ganglia][:monitor][:run_state]).each do |state|
-    notifies state, 'service[ganglia_monitor]', :delayed
-  end
+runit_service "ganglia_monitor" do
+  run_state     node[:ganglia][:monitor][:run_state]
+  options       node[:ganglia]
 end
+
+provide_service("#{node[:cluster_name]}-ganglia_monitor",
+  :monitor_group => node[:cluster_name],
+  :rcv_port      => node[:ganglia][:rcv_port ])

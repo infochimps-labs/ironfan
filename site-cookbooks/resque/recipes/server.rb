@@ -55,7 +55,8 @@ end
 #
 
 runit_service 'resque_dashboard' do
+  run_state     node[:resque][:dashboard][:run_state]
   options       node[:resque]
-  action        node[:redis][:dashboard][:run_state]
 end
+
 provide_service('resque_dashboard', :port => node[:resque][:dashboard_port])

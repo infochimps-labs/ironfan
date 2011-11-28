@@ -21,13 +21,4 @@
 
 include_recipe "hadoop_cluster"
 
-# Install
-hadoop_package 'tasktracker'
-
-# Set up service
-runit_service "hadoop_tasktracker" do
-  options       Mash.new(:service_name => 'tasktracker').merge(node[:hadoop]).merge(node[:hadoop][:tasktracker])
-  action        node[:hadoop][:tasktracker][:run_state]
-end
-
-provide_service ("#{node[:cluster_name]}-tasktracker")
+hadoop_service(:tasktracker)

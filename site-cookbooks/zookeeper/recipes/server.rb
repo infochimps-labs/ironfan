@@ -39,6 +39,6 @@ kill_old_service('hadoop-zookeeper-server'){ pattern 'zookeeper' ; not_if{ File.
 provide_service("#{node[:zookeeper][:cluster_name]}-zookeeper")
 
 runit_service "zookeeper" do
+  run_state     node[:zookeeper][:server][:run_state]
   options       node[:zookeeper]
-  action        node[:zookeeper][:server][:run_state]
 end

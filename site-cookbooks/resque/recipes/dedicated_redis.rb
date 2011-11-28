@@ -42,10 +42,10 @@ end
 
 runit_service 'resque_redis' do
   run_restart   false
-  options       node[:resque]
+  run_state     node[:resque][:redis][:run_state]
   cookbook      'redis'
   template_name 'redis_server'
-  action        node[:resque][:redis][:run_state]
+  options       node[:resque]
 end
 
 provide_service('resque_redis', :port => node[:resque][:redis][:port])

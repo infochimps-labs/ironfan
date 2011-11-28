@@ -43,7 +43,7 @@ execute 'fix fuse configuration to allow hadoop' do
 end
 
 runit_service "hdfs_fuse" do
+  run_state     node[:hadoop][:hdfs_fuse][:run_state]
   finish_script true
   options       node[:hadoop]
-  action        node[:hadoop][:hdfs_fuse][:run_state]
 end

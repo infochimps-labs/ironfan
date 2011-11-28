@@ -20,7 +20,6 @@
 #
 
 node_metadata(node) do
-  Chef::Log.info('Defining node saver!!')
   action :save
 end
 
