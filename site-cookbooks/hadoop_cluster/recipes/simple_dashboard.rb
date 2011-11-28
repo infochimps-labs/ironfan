@@ -16,7 +16,6 @@ end
 #
 
 cluster_chef_dashboard(:hadoop_cluster) do
-
   summary_keys = %w[
   ==Daemons
     hadoop.namenode.addr   hadoop.namenode.port hadoop.jobtracker.addr hadoop.jobtracker.port

@@ -35,6 +35,12 @@ module ClusterChef
       hsh[last_key]
     end
 
+    def summary_row(key, val)
+      val = val.to_hash if val.respond_to?(:to_hash)
+      val = val.inspect
+      %Q{<tr><th>#{CGI::escapeHTML(key.to_s)}</th><td><code>#{CGI::escapeHTML(val)}</code></td></tr>}
+    end
+
     # Given a hash, and keys
     #
     #   hsh = { 'a1' => { 'b2' => { 'c3' => 'hi', }, 'd2' => 'there' } }
@@ -54,7 +60,9 @@ module ClusterChef
         case key
         when /^==(.*)/ then str << %Q{<tr><th colspan="2"><h3>#{$1}</h3></th></tr>}
         when '----'    then str << %Q{<tr><td colspan="2"><hr/></td></tr>}
-        else                str << %Q{<tr><th>#{CGI::escapeHTML(key.to_s)}</th><td>#{CGI::escapeHTML(deep_deref(node, key).to_s)}</td></tr>}
+        else
+          val = deep_deref(node, key)
+          str << summary_row(key, val)
         end
       end
       str.join("\n      ")

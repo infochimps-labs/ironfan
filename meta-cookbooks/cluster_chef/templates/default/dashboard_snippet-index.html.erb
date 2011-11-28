@@ -6,17 +6,12 @@
   <h1>Cluster Chef Dashboard for <%= node.name %></h1>
 
   <p>Hello, I'm <%= node.name %>
-   (cluster <code><%= node[:cluster_name] %></code>
-    facet   <code><%= node[:facet_name]   %></code>
-    index   <code><%= node[:facet_index]  %></code>).</p>
-  
-  <p>Here are some interesting facts about me.</p>
+   (cluster <code><%= node[:cluster_name] %></code>,
+    facet   <code><%= node[:facet_name]   %></code>,
+    index   <code><%= node[:facet_index]  %></code>).
 
-  <%- if @summary_attributes %>
-  <table class="interesting_facts">
-    <%= summary_rows(node, @summary_attributes) %>
-  </table>
-  <%- end %>
+    I announce services <%= node[:provides_service].keys.join(", ") %>.
+  </p>
 
   <hr/>
   <h2>Service Dashboards</h2>
@@ -35,6 +30,19 @@
     <%- end %>
   </ul>
 
+  <%- if @summary_keys %>
+  <hr/>
+  <h2>Interesting Facts</h2>
+  <p>Here are some interesting facts about me:</p>
+  <table class="interesting_facts">
+    <tr><th colspan="2"><h3>Chef</h3></th></tr>
+    <%= summary_row('name',             node.name) %>
+    <tr><th>announces</th><td><ul style="max-height:200px; overflow: scroll"><%- node[:provides_service].each do |svc, info| %><li><%= svc %>: <%= CGI::escapeHTML(info.to_hash.inspect) %></li><%- end %></ul></td></tr>
+    <tr><th>run list</th><td><ul style="max-height:200px; overflow: scroll"><%- node.run_list.each do |rl| %><li><%= rl %></li><%- end %></ul></td></tr>
+    <%= summary_rows(node, @summary_keys) %>
+  </table>
+  <%- end %>
+  
   <hr/>
   <h2>How to set up a tunneling proxy to your cluster</h2>
   <p>

@@ -26,6 +26,7 @@
 
 include_recipe  'cluster_chef'
 include_recipe  'runit'
+include_recipe  'provides_service'
 
 package         'thttpd'
 package         'thttpd-util'
@@ -38,6 +39,14 @@ directory("#{node[:cluster_chef][:home_dir]}/dashboard"){ mode '0755' ; }
 cluster_chef_dashboard(:cluster_chef) do
   template_name 'index'
   action        :create
+
+  summary_keys = %w[
+  ==Hardware
+    cpu.total memory.total memory.swap
+  ==Volumes
+    mountable_volumes
+  ]
+  variables     Mash.new({:summary_keys => summary_keys})
 end
 
 template "#{node[:cluster_chef][:home_dir]}/dashboard-thttpd.conf" do

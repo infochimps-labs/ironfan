@@ -7,6 +7,7 @@ version          "3.0.0"
 description      "Installs/Configures cluster_chef"
 
 depends          'runit'
+depends          'provides_service'
 
 recipe           "cluster_chef::burn_ami_prep",           "Burn Ami Prep"
 recipe           "cluster_chef::dashboard",               "Lightweight dashboard for this machine: index of services and their dashboard snippets"
