@@ -20,7 +20,13 @@
 #
 
 # hbase-stargate
-%w[json configliere gorillib erubis extlib chimps net-http-persistent i18n wukong activesupport].each do |rubygem|
+%w[ bundler
+    activesupport activemodel extlib
+    json addressable cheat
+    configliere gorillib
+    pry watchr jeweler
+    erubis i18n wukong chimps net-http-persistent
+].each do |rubygem|
   gem_package rubygem do
     gem_binary File.join(node[:jruby][:home_dir], 'bin/chef-jgem')
   end

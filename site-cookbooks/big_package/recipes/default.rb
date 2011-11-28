@@ -19,101 +19,30 @@
 # limitations under the License.
 #
 
-%w[
-  git-core cvs subversion exuberant-ctags tree zip liblzo2-dev
-  libpcre3-dev libbz2-dev libidn11-dev libxml2-dev libxml2-utils libxslt1-dev libevent-dev
-  ant openssl colordiff ack htop makepasswd sysstat
-  g++ python-setuptools python-dev
-  s3cmd
-  tidy
-  ifstat
-  nmap chkconfig tree emacs23-nox elinks
-].each do |pkg|
-  package pkg
-end
+node[:pkg_sets][:install].map!(&:to_s)
 
-%w[
-   extlib rails fastercsv json yajl-ruby
-   addressable cheat configliere wukong gorillib
-   pry
-].each do |gem_pkg|
-  gem_package gem_pkg do
-    action :install
+node[:pkg_sets][:pkgs].each do |set_name, pkgs|
+  next unless node[:pkg_sets][:install].include?(set_name.to_s)
+  pkgs.each do |pkg|
+    pkg = { :name => pkg } if pkg.is_a?(String)
+    package pkg[:name] do
+      version   pkg[:version] if pkg[:version]
+      source    pkg[:source]  if pkg[:source]
+      options   pkg[:options] if pkg[:options]
+      action    pkg[:action] || :install
+    end
   end
 end
 
-#  fog
-
-# override_attributes({
-#     :package_sets => {
-#       :install => %w[ base dev sysadmin ec2 text ],
-#       :sets => {
-#         :base      => {
-#           :pkgs      => %w[ tree git zip openssl libbz2-dev libpcre3-dev libevent-dev ], },
-#         :dev       => {
-#           :pkgs      => %w[ emacs23-nox elinks colordiff ack exuberant-ctags ],
-#           :gems      => %w[ rails extlib json yajl-ruby addressable cheat configliere wukong gorillib pry ] },
-#         :sysadmin  => {
-#           :pkgs      => %w[ ifstat htop tree chkconfig sysstat htop nmap ], },
-#         :ec2       => {
-#           :pkgs      => %w[ s3cmd ],
-#           :gems      => %w[ fog   ], },
-#         :text      => {
-#           :pkgs      => %w[ libidn11-dev libxml2-dev libxml2-utils libxslt1-dev tidy ], },
-#       }
-#     }
-#   })
-#
-# node[:package_sets][:install]           = [:base, :dev, :sysadmin, :ec2, :text]
-# node[:package_sets][:sets][:ec2][:pkgs] = [
-#   's3cmd',
-#   { :name => 'ec2-ami-tools', :version => '1.3.49953-0ubuntu3' },
-#   { :name => 'ec2-ami-tools', :version => '1.3.57419-0ubuntu3' },  ]
-# node[:package_sets][:sets][:ec2]        = {
-#   :gems => %w[ fog right_aws ],
-#   :pkgs => [
-#     's3cmd',
-#     { :name => 'ec2-ami-tools', :version => '1.3.49953-0ubuntu3' },
-#     { :name => 'ec2-ami-tools', :version => '1.3.57419-0ubuntu3' }, ]
-#   }
-#
-#
-# override_attributes({
-#     :package_sets => {
-#       :install    => %w[ base dev sysadmin ec2 text ],
-#       #
-#       :pkgs => {
-#         :base     => %w[ tree git zip openssl libbz2-dev libpcre3-dev libevent-dev ],
-#         :dev      => %w[ emacs23-nox elinks colordiff ack exuberant-ctags ],
-#         :sysadmin => %w[ ifstat htop tree chkconfig sysstat htop nmap ],
-#         :ec2      => %w[ s3cmd ec2-ami-tools ec2-api-tools ],
-#         :text     => %w[ libidn11-dev libxml2-dev libxml2-utils libxslt1-dev tidy ],
-#       },
-#       #
-#       :gems => {
-#         :dev      => %w[ rails extlib json yajl-ruby addressable cheat configliere wukong gorillib pry watchr cool.io rev ] },
-#         :ec2        => %w[ fog  right_aws ],
-#     },
-#   })
-#
-# node[:package_sets][:install]    = [:base, :dev, :sysadmin, :ec2, :text]
-# node[:package_sets][:pkgs][:ec2] = [
-#   's3cmd',
-#   { :name => 'ec2-ami-tools', :version => '1.3.49953-0ubuntu3' },
-#   { :name => 'ec2-ami-tools', :version => '1.3.57419-0ubuntu3' },  ]
-# node[:package_sets][:gems][:ec2] = %w[ fog ]
-
-
-# node['big_package']['pkg_sets'].each do |pkg_set_name, pkgs|
-#
-#   pkgs.each do |pkg|
-#     pkg = { :name => pkg } if pkg.is_a?(String)
-#     package pkg[:name] do
-#       version   pkg[:version] if pkg[:version]
-#       source    pkg[:source]  if pkg[:source]
-#       options   pkg[:options] if pkg[:options]
-#       action    pkg[:action] || :install
-#     end
-#   end
-#
-# end
+node[:pkg_sets][:gems].each do |set_name, gems|
+  next unless node[:pkg_sets][:install].include?(set_name.to_s)
+  gems.each do |gem|
+    gem = { :name => gem } if gem.is_a?(String)
+    gem_package gem[:name] do
+      version   gem[:version] if gem[:version]
+      source    gem[:source]  if gem[:source]
+      options   gem[:options] if gem[:options]
+      action    gem[:action] || :install
+    end
+  end
+end

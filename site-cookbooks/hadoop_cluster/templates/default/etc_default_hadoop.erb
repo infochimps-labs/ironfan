@@ -30,10 +30,6 @@ export HADOOP_JOBTRACKER_OPTS="$HADOOP_JOBTRACKER_OPTS -XX:+UseParallelGC -Xmx<%
 export HADOOP_DATANODE_OPTS="$HADOOP_DATANODE_OPTS -XX:+UseParallelGC -Xmx<%=                   @hadoop[:datanode   ][:java_heap_size_max] %>m"
 export HADOOP_TASKTRACKER_OPTS="$HADOOP_TASKTRACKER_OPTS -XX:+UseParallelGC -Xmx<%=             @hadoop[:tasktracker][:java_heap_size_max] %>m"
 
-export HADOOP_LOGFILE=hadoop-$HADOOP_IDENT_STRING-$command-$HADOOP_NODENAME.log
-export HADOOP_ROOT_LOGGER="INFO,DRFA"
-export HADOOP_SECURITY_LOGGER="INFO,DRFAS"
-
 <%- unless @hadoop[:extra_classpaths].nil? %>
 # Extra classpaths for hadoop
 export HADOOP_CLASSPATH="<%= @hadoop[:extra_classpaths].values.flatten.join(":") %>:$HADOOP_CLASSPATH"

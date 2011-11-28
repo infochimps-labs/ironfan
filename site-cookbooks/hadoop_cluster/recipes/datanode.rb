@@ -24,11 +24,10 @@ include_recipe "hadoop_cluster"
 # Install
 hadoop_package 'datanode'
 
-# Launch service
-service "#{node[:hadoop][:handle]}-datanode" do
+# Set up service
+runit_service "hadoop_datanode" do
+  options       Mash.new(:service_name => 'datanode').merge(node[:hadoop]).merge(node[:hadoop][:datanode])
   action        node[:hadoop][:datanode][:run_state]
-  supports      :status => true, :restart => true
-  ignore_failure true
 end
 
 provide_service ("#{node[:cluster_name]}-datanode")

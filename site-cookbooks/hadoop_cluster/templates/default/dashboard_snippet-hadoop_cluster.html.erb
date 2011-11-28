@@ -8,8 +8,10 @@
 
   <h3>Service Dashboards:</h3>
   <ul>
-  <%- hadoop_services.select{|c| node[:cluster_chef][:dashboard][:links][component] rescue nil }.each do |component| %>
-    <li><a href="<%= node[:cluster_chef][:dashboard][:links][component] %>">hadoop-<%= component %></a></li>
+  <%- hadoop_services.each do |component| %>
+    <%- Chef::Log.info([node[:cluster_chef][:dashboard][:links]["hadoop.#{component}"], "hadoop.#{component}"]) %>
+    <%- next unless node[:cluster_chef][:dashboard][:links]["hadoop.#{component}"] %>
+    <li><a href="<%= node[:cluster_chef][:dashboard][:links]["hadoop.#{component}"] %>">hadoop-<%= component %></a></li>
   <%- end %>
   </ul>
 

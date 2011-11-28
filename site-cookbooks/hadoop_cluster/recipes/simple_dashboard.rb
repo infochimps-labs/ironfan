@@ -7,7 +7,8 @@ include_recipe 'cluster_chef'
 
 hadoop_services.each do |component|
   next unless node[:hadoop][component] && node[:hadoop][component][:dash_port]
-  hsh = { :addr => node[:fqdn] }.merge(node[:hadoop][component])
+  hsh = { "addr" => private_ip_of(node) }.merge(node[:hadoop][component])
+  Chef::Log.info([:add_dashboard_link, "hadoop.#{component}", hsh])
   add_dashboard_link("hadoop.#{component}", hsh)
 end
 
@@ -19,47 +20,48 @@ cluster_chef_dashboard(:hadoop_cluster) do
 
   summary_keys = %w[
   ==Daemons
-    namenode.addr   namenode.port jobtracker.addr jobtracker.port
+    hadoop.namenode.addr   hadoop.namenode.port hadoop.jobtracker.addr hadoop.jobtracker.port
     public_ip fqdn cloud.private_ips cloud.public_ips
     ----
-       namenode.run_state
-    secondarynn.run_state
-     jobtracker.run_state
-       datanode.run_state
-    tasktracker.run_state
+       hadoop.namenode.run_state
+    hadoop.secondarynn.run_state
+     hadoop.jobtracker.run_state
+       hadoop.datanode.run_state
+    hadoop.tasktracker.run_state
   ==Tuning
-    max_map_tasks max_reduce_tasks
-    java_child_opts java_child_ulimit io_sort_factor io_sort_mb
+    hadoop.max_map_tasks hadoop.max_reduce_tasks
+    hadoop.java_child_opts hadoop.java_child_ulimit hadoop.io_sort_factor hadoop.io_sort_mb
     cpu.total memory.total ec2.instance_type
     ----
-       namenode.handler_count
-     jobtracker.handler_count
-       datanode.handler_count
-    tasktracker.http_threads
-         reducer_parallel_copies
+       hadoop.namenode.handler_count
+     hadoop.jobtracker.handler_count
+       hadoop.datanode.handler_count
+    hadoop.tasktracker.http_threads
+         hadoop.reducer_parallel_copies
     ----
-       namenode.java_heap_size_max
-    secondarynn.java_heap_size_max
-     jobtracker.java_heap_size_max
-       datanode.java_heap_size_max
-    tasktracker.java_heap_size_max
+       hadoop.namenode.java_heap_size_max
+    hadoop.secondarynn.java_heap_size_max
+     hadoop.jobtracker.java_heap_size_max
+       hadoop.datanode.java_heap_size_max
+    hadoop.tasktracker.java_heap_size_max
   ==MapReduce
-    compress_output
-    compress_output_type
-    compress_output_codec
-    compress_mapout
-    compress_mapout_codec
+    hadoop.compress_output
+    hadoop.compress_output_type
+    hadoop.compress_output_codec
+    hadoop.compress_mapout
+    hadoop.compress_mapout_codec
   ==HDFS
-    min_split_size s3_block_size hdfs_block_size dfs_replication
+    hadoop.min_split_size hadoop.s3_block_size hadoop.hdfs_block_size hadoop.dfs_replication
   ==Install
-    home_dir pid_dir tmp_dir log_dir
-       namenode.data_dirs
-    secondarynn.data_dirs
-       datanode.data_dirs
-    tasktracker.scratch_dirs
+    hadoop.home_dir hadoop.pid_dir hadoop.tmp_dir hadoop.log_dir
+       hadoop.namenode.data_dirs
+    hadoop.secondarynn.data_dirs
+       hadoop.datanode.data_dirs
+    hadoop.tasktracker.scratch_dirs
     ----
-    apt.cloudera.release_name deb_version
+    apt.cloudera.release_name hadoop.deb_version
   ]
 
+  action        :create
   variables     node[:hadoop].merge(:summary_keys => summary_keys)
 end

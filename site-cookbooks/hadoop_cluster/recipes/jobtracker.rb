@@ -24,11 +24,10 @@ include_recipe "hadoop_cluster"
 # Install
 hadoop_package "jobtracker"
 
-# launch service
-service "#{node[:hadoop][:handle]}-jobtracker" do
+# Set up service
+runit_service "hadoop_jobtracker" do
+  options       Mash.new(:service_name => 'jobtracker').merge(node[:hadoop]).merge(node[:hadoop][:jobtracker])
   action        node[:hadoop][:jobtracker][:run_state]
-  supports      :status => true, :restart => true
-  ignore_failure true
 end
 
 provide_service ("#{node[:cluster_name]}-jobtracker")

@@ -37,7 +37,7 @@ node[:hadoop][:secondarynn][:addr] = provider_private_ip("#{node[:cluster_name]}
     source "#{conf_file}.erb"
     hadoop_services.each do |svc|
       if startable?(node[:hadoop][svc])
-        notifies :restart, "service[#{node[:hadoop][:handle]}-#{svc}]", :delayed
+        notifies :restart, "service[hadoop_#{svc}]", :delayed
       end
     end
   end
@@ -54,7 +54,7 @@ end
 munge_one_line('fix_hadoop_env-pid',      "#{node[:hadoop][:conf_dir]}/hadoop-env.sh",
   %q{.*export HADOOP_PID_DIR=.*$},
    %Q{export HADOOP_PID_DIR=#{node[:hadoop][:pid_dir]}},
-  %q{^export.HADOOP_PID_DIR=#{node[:hadoop][:pid_dir]}})
+  %Q{^export.HADOOP_PID_DIR=#{node[:hadoop][:pid_dir]}})
 
 # Set SSH options within the cluster
 munge_one_line('fix hadoop ssh options', "#{node[:hadoop][:conf_dir]}/hadoop-env.sh",

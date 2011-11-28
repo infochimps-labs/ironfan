@@ -24,11 +24,10 @@ include_recipe "hadoop_cluster"
 # Install
 hadoop_package 'tasktracker'
 
-# Launch
-service "#{node[:hadoop][:handle]}-tasktracker" do
+# Set up service
+runit_service "hadoop_tasktracker" do
+  options       Mash.new(:service_name => 'tasktracker').merge(node[:hadoop]).merge(node[:hadoop][:tasktracker])
   action        node[:hadoop][:tasktracker][:run_state]
-  supports      :status => true, :restart => true
-  ignore_failure true
 end
 
 provide_service ("#{node[:cluster_name]}-tasktracker")

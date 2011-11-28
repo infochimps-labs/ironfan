@@ -39,3 +39,4 @@ class Chef::Recipe              ; include HadoopCluster ; end
 class Chef::Resource::Directory ; include HadoopCluster ; end
 class Chef::Resource::Execute   ; include HadoopCluster ; end
 class Chef::Resource::Template  ; include HadoopCluster ; end
+class Erubis::Context           ; include HadoopCluster ; end

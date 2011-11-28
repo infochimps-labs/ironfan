@@ -6,7 +6,7 @@
 
 <configuration>
 
-<property> <name>dfs.secondary.http.address</name>       <value><%= @hadoop[:secondarynn][:addr] %>:<%= @hadoop[:secondarynn][:port] %></value></property>
+<property> <name>dfs.secondary.http.address</name>       <value><%= @hadoop[:secondarynn][:addr] %>:<%= @hadoop[:secondarynn][:dash_port] %></value></property>
 <property> <name>dfs.datanode.address</name>             <value>0.0.0.0:<%= @hadoop[:datanode][:port]      %></value></property>
 <property> <name>dfs.datanode.http.address</name>        <value>0.0.0.0:<%= @hadoop[:datanode][:dash_port] %></value></property>
 <property> <name>dfs.datanode.ipc.address</name>         <value>0.0.0.0:<%= @hadoop[:datanode][:ipc_port]  %></value></property>

@@ -25,8 +25,8 @@ include_recipe "hadoop_cluster"
 hadoop_package "namenode"
 
 # Set up service
-runit_service "#{node[:hadoop][:handle]}-namenode" do
-  options       node[:hadoop]
+runit_service "hadoop_namenode" do
+  options       Mash.new(:service_name => 'namenode').merge(node[:hadoop]).merge(node[:hadoop][:namenode])
   action        node[:hadoop][:namenode][:run_state]
 end
 
