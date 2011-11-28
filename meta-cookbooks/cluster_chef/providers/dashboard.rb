@@ -1,4 +1,4 @@
-action :install do
+action :create do
   new_resource.assume_defaults!
 
   directory new_resource.dashboard_dir do

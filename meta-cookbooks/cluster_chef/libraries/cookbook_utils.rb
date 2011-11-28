@@ -2,6 +2,10 @@
 module ClusterChef
   module CookbookUtils
 
+    #
+    # Helpers for saving node metadata
+    #
+
     def self.node_changed!
       @node_changed = true
     end
@@ -14,10 +18,8 @@ module ClusterChef
 
     class ::Chef ; MIN_VERSION_FOR_SAVE = "0.8.0" ; end
 
-    #
     # Save the node, unless we're in chef-solo mode (or an ancient version)
-    #
-    def save_node!
+    def save_node!(node)
       Chef::Log.info('Saving Node!!!!')
 
       return unless node_changed?
@@ -33,6 +35,10 @@ module ClusterChef
       end
     end
 
+    #
+    # Run state helpers
+    #
+
     def run_state_includes?(hsh, state)
       Array(hsh[:run_state]).map(&:to_s).include?('start')
     end
@@ -41,6 +47,10 @@ module ClusterChef
       run_state_includes?(hsh, :start)
     end
 
+    #
+    # Best public or private IP
+    #
+
   end
 end
 
@@ -48,4 +58,4 @@ end
 class Chef::ResourceDefinition ; include ClusterChef::CookbookUtils ; end
 class Chef::Resource           ; include ClusterChef::CookbookUtils ; end
 class Chef::Recipe             ; include ClusterChef::CookbookUtils ; end
-class Chef::Provider::NodeMetadata ; include ClusterChef::CookbookUtils ; end
+class Chef::Provider::NodeMetadata < Chef::Provider ; include ClusterChef::CookbookUtils ; end

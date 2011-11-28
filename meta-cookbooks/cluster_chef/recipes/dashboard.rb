@@ -37,7 +37,7 @@ directory("#{node[:cluster_chef][:home_dir]}/dashboard"){ mode '0755' ; }
 
 cluster_chef_dashboard(:cluster_chef) do
   template_name 'index'
-  action        :install
+  action        :create
 end
 
 template "#{node[:cluster_chef][:home_dir]}/dashboard-thttpd.conf" do

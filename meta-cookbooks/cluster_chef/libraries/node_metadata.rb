@@ -5,8 +5,9 @@ class Chef
   class Resource
     class NodeMetadata < Chef::Resource
 
-      def initialize(name, run_context=nil)
-        super(name, run_context)
+      def initialize(node, run_context=nil)
+        super(node, run_context)
+        @node          = node
         @resource_name = :update_node
         @action        = "nothing"
         @allowed_actions.push(:save)
@@ -15,13 +16,14 @@ class Chef
   end
 
   class Provider
-    class NodeMetadata
+    class NodeMetadata < Chef::Provider
       def action_save
-        save_node!
+        save_node!(@new_resource.name)
+        @new_resource.updated_by_last_action(false)
       end
 
       def load_current_resource
-        @current_resource = Chef::Resource::NodeMetadata.new('node')
+        true
       end
     end
   end

@@ -1,5 +1,5 @@
 actions(
-  :install # create dashboard file in "#{dashboard_dir}/#{template_name}.html"
+  :create # create dashboard file in "#{dashboard_dir}/#{template_name}.html"
   )
 
 # name of this dashboard

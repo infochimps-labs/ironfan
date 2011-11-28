@@ -4,15 +4,15 @@ module ClusterChef
   module DashboardUtils
 
     def add_dashboard_link(component, url_parts)
-      if    url_parts.respond_to?(:each_pair) && url_parts[:url]
-        url = url_parts[:url]
-      elsif url_parts.respond_to?(:each_pair) && url_parts[:addr]
-        port = url_parts[:dash_port] || url_parts[:port] || 80
-        url = "http://#{CGI::escape(url_parts[:addr])}:#{port.to_i}"
+      if    url_parts.respond_to?(:each_pair) && url_parts["url"]
+        url = url_parts["url"]
+      elsif url_parts.respond_to?(:each_pair) && url_parts["addr"]
+        port = url_parts["dash_port"] || url_parts["port"] || 80
+        url = "http://#{CGI::escape(url_parts["addr"])}:#{port.to_i}"
       elsif url_parts.to_s =~ %r{^https?://}
         url = url_parts.to_s
       else
-        return nil
+        url = nil
       end
       node[:cluster_chef][:dashboard][:links][component] = url
     end
@@ -52,9 +52,9 @@ module ClusterChef
       str = []
       deep_keys.each do |key|
         case key
-        when /^==(.*)/ then str << %Q{<tr><th colspan="2"><h3>#{$1}</h3></td></tr>}
+        when /^==(.*)/ then str << %Q{<tr><th colspan="2"><h3>#{$1}</h3></th></tr>}
         when '----'    then str << %Q{<tr><td colspan="2"><hr/></td></tr>}
-        else                str << %Q{<tr><th>#{CGI::escapeHTML(key)}</th><td>#{CGI::escapeHTML(deep_deref(node, key))}</td></tr>}
+        else                str << %Q{<tr><th>#{CGI::escapeHTML(key.to_s)}</th><td>#{CGI::escapeHTML(deep_deref(node, key).to_s)}</td></tr>}
         end
       end
       str.join("\n      ")

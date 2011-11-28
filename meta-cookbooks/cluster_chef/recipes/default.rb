@@ -19,7 +19,7 @@
 # limitations under the License.
 #
 
-node_metadata('chef') do
+node_metadata(node) do
   Chef::Log.info('Defining node saver!!')
   action :save
 end
