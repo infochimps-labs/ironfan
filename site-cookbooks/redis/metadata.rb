@@ -2,7 +2,7 @@ maintainer       "Benjamin Black"
 maintainer_email "b@b3k.us"
 license          "Apache 2.0"
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version          "3.0.0"
+version          "3.0.2"
 
 description      "Installs and configures Redis server"
 

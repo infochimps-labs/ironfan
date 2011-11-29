@@ -2,7 +2,7 @@ maintainer       "37signals"
 maintainer_email "sysadmins@37signals.com"
 license          ""
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version          "3.0.0"
+version          "3.0.2"
 
 description      "Configures NFS"
 
