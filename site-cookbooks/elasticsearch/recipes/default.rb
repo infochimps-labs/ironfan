@@ -20,34 +20,22 @@
 #
 
 include_recipe "aws"
-include_recipe "java::sun"
-include_recipe "runit"
 include_recipe "mountable_volumes"
+include_recipe "cluster_chef"
+include_recipe "java" ; complain_if_not_sun_java(:elasticsearch)
 
 daemon_user(:elasticsearch) do
   create_group  true
 end
 
-# group "elasticsearch" do
-#   group_name 'elasticsearch'
-#   gid         61021
-#   action      [:create, :manage]
-# end
-#
-# user "elasticsearch" do
-#   uid         61021
-#   gid         "elasticsearch"
-# end
-
-#
-# Set up Config directory and files
-#
-
-directory node[:elasticsearch][:conf_dir] do
-  owner         "root"
-  group         "root"
-  mode          0755
+standard_directories('elasticsearch') do
+  directories   [:conf_dir, :log_dir, :lib_dir, :pid_dir]
+  group         'root'
 end
+
+#
+# Config files
+#
 
 template "/etc/elasticsearch/logging.yml" do
   source        "logging.yml.erb"
@@ -69,36 +57,4 @@ template "/etc/elasticsearch/elasticsearch.yml" do
   variables(
     :elasticsearch_seeds => elasticsearch_seeds.flatten.reject(&:nil?).uniq
     )
-end
-
-#
-# Set up ancilliary directories
-#
-
-["/var/lib/elasticsearch", "/var/run/elasticsearch"].each do |dir|
-  directory dir do
-    owner       "elasticsearch"
-    group       "elasticsearch"
-    mode        0755
-  end
-end
-
-directory "/var/log/elasticsearch" do
-  owner         "elasticsearch"
-  group         "www-data"
-  mode          0775
-  action        :create
-  recursive     true
-end
-
-volume_dirs('elasticsearch.data') do
-  type          :local
-  selects       :single
-  mode          "0700"
-end
-
-volume_dirs('elasticsearch.work') do
-  type          :local
-  selects       :single
-  mode          "0700"
 end

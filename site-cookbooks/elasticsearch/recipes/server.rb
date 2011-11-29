@@ -19,16 +19,38 @@
 # limitations under the License.
 #
 
+include_recipe "runit"
+
+#
+# Locations
+#
+
+volume_dirs('elasticsearch.data') do
+  type          :local
+  selects       :single
+  mode          "0700"
+end
+
+volume_dirs('elasticsearch.work') do
+  type          :local
+  selects       :single
+  mode          "0700"
+end
+
+#
+# Service
+#
+
+runit_service "elasticsearch" do
+  run_restart   false   # don't automatically start or restart daemons
+  run_state     node[:elasticsearch][:server][:run_state]
+  options       node[:elasticsearch]
+end
+
 provide_service("#{node[:elasticsearch][:cluster_name]}-data_esnode")
 
 # Tell ElasticSearch where to find its other nodes
 provide_service "#{node[:cluster_name]}-elasticsearch"
 if node[:elasticsearch][:seeds].nil?
   node[:elasticsearch][:seeds] = all_provider_private_ips("#{node[:cluster_name]}-elasticsearch").sort().map { |ip| ip+':9300' }
-end
-
-runit_service "elasticsearch" do
-  run_restart   false   # don't automatically start or restart daemons
-  run_state     node[:elasticsearch][:server][:run_state]
-  options       node[:elasticsearch]
 end

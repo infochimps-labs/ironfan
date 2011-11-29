@@ -22,6 +22,10 @@
 include_recipe "java"
 package 'unzip'
 
+#
+# FIXME: integrate with install_from recipe
+#
+
 es_dist_name = "elasticsearch-#{node[:elasticsearch][:version]}-SNAPSHOT"
 es_zip_file  = "/usr/local/share/elasticsearch-git/build/distributions/#{es_dist_name}.zip"
 

@@ -13,8 +13,6 @@ depends          "mountable_volumes"
 depends          "provides_service"
 depends          "nginx"
 
-recipe           "elasticsearch::autoconf",            "Autoconf"
-recipe           "elasticsearch::build_raid",          "Build Raid"
 recipe           "elasticsearch::client",              "Client"
 recipe           "elasticsearch::default",             "Base configuration for elasticsearch"
 recipe           "elasticsearch::http",                "Http"

@@ -7,10 +7,9 @@ default[:elasticsearch][:cluster_name]            = "default"
 
 default[:elasticsearch][:home_dir]                = "/usr/local/share/elasticsearch"
 default[:elasticsearch][:conf_dir]                = "/etc/elasticsearch"
-default[:elasticsearch][:install_dir]             = "/usr/local/share/elasticsearch"
+default[:elasticsearch][:log_dir]                 = "/var/log/elasticsearch"
 default[:elasticsearch][:lib_dir]                 = "/var/lib/elasticsearch"
 default[:elasticsearch][:pid_dir]                 = "/var/run/elasticsearch"
-default[:elasticsearch][:log_dir]                 = "/var/log/elasticsearch"
 #
 default[:elasticsearch][:data_root]               = "/mnt/elasticsearch"
 
@@ -31,9 +30,9 @@ default[:groups]['elasticsearch'][:gid]           = 61021
 
 default[:elasticsearch][:version]                 = "0.13.1"
 default[:elasticsearch][:release_url_checksum]    = nil
-default[:elasticsearch][:release_url]             = "https://github.com/downloads/elasticsearch/elasticsearch/elasticsearch-#{node[:elasticsearch][:version]}.tar.gz"
+default[:elasticsearch][:release_url]             = "https://github.com/downloads/elasticsearch/elasticsearch/elasticsearch-:version:.tar.gz"
 default[:elasticsearch][:git_repo]                = "https://github.com/elasticsearch/elasticsearch.git"
-
+default[:elasticsearch][:plugins]                 = ["cloud-aws"]
 #
 # Services
 #
