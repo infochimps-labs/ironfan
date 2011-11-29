@@ -18,6 +18,8 @@ the default :prefix_root of `/usr/local`, this provider will
 
 ## Attributes
 
+* `[:install_from][:apache_mirror]`   - Default Apache mirror to use (default: "http://apache.mirrors.tds.net")
+  - Choose one of the [Apache project mirrors](http://www.apache.org/dyn/closer.cgi) -- omit the trailing '/'s. The token `:apache_mirror:` (note : at end of token) in a `release_url` attribute will be replaced by this base; see the pig recipe for an example.
 
 ## Recipes 
 

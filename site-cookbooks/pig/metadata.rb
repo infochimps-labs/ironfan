@@ -39,12 +39,17 @@ attribute "pig/home_dir",
 attribute "pig/release_url",
   :display_name          => "URL of pig release tarball",
   :description           => "URL of pig release tarball",
-  :default               => "http://apache.mirrors.tds.net/pig/pig-0.9.1/pig-0.9.1.tar.gz"
+  :default               => ":apache_mirror:/pig/pig-:version:/pig-:version:.tar.gz"
 
 attribute "pig/combine_splits",
   :display_name          => "tunable: combine small files to reduce the number of map tasks",
   :description           => "Processing input (either user input or intermediate input) from multiple small files can be inefficient because a separate map has to be created for each file. Pig can now combined small files so that they are processed as a single map. combine_splits turns this on or off.",
   :default               => "true"
+
+attribute "pig/version",
+  :display_name          => "",
+  :description           => "",
+  :default               => "0.9.1"
 
 attribute "java/java_home",
   :display_name          => "JAVA_HOME environment variable to set for compilation",

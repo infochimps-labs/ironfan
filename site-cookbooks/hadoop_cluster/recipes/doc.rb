@@ -1,6 +1,6 @@
 #
 # Cookbook Name::       hadoop_cluster
-# Description::         Doc
+# Description::         Installs Hadoop documentation
 # Recipe::              doc
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

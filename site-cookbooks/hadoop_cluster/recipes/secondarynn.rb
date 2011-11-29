@@ -1,6 +1,6 @@
 #
 # Cookbook Name::       hadoop_cluster
-# Description::         Secondarynn
+# Description::         Installs Hadoop Secondary Namenode service
 # Recipe::              secondarynn
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

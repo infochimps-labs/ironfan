@@ -1,6 +1,6 @@
 #
 # Cookbook Name::       mountable_volumes
-# Description::         Placeholder recipe for mountable volumes integration
+# Description::         Placeholder -- see other recipes in ec2 cookbook
 # Recipe::              default
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

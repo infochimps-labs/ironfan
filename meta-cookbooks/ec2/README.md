@@ -17,12 +17,17 @@ Has recipes to:
 
 ## Recipes 
 
+* `attach_ebs`               - Attach EBS volumes as directed by node[:mountable_volumes]
 * `default`                  - Placeholder cookbook -- see ec2::raid_ephemeral
 * `raid_ephemeral`           - Build a RAID volume out of the ephemeral drives
 ## Integration
 
 Supports platforms: debian and ubuntu
 
+Cookbook dependencies:
+* aws
+* mountable_volumes
+* cluster_chef
 
 
 ## License and Author

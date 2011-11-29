@@ -22,7 +22,6 @@ From the client machine,
 
 * [How to configure NFS on linux](http://how-to.linuxcareer.com/how-to-configure-nfs-on-linux)
 
-
 ## Attributes
 
 * `[:nfs][:exports]`                  - NFS Exports
@@ -30,6 +29,10 @@ From the client machine,
      default[:nfs][:exports] = [[ '/home', { :nfs_options => '*.internal(rw,no_root_squash,no_subtree_check)' }]]
 * `[:nfs][:mounts]`                   - NFS Mounts
   - The foreign volumes to mount. Uses provides_service to find the NFS server for that volume. Supply a list of pairs: <path-to-export, hash-of-NFS-options>.
+* `[:firewall][:port_scan][:portmap]` - 
+* `[:firewall][:port_scan][:nfsd]`    - 
+* `[:firewall][:port_scan][:mountd]`  - 
+* `[:firewall][:port_scan][:statd]`   - 
 
 ## Recipes 
 

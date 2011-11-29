@@ -28,6 +28,10 @@ in.
 
 ## Attributes
 
+
+## Recipes 
+
+* `default`                  - Base configuration for provides_service
 ## Integration
 
 Supports platforms: debian and ubuntu

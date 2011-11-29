@@ -1,6 +1,6 @@
 #
 # Cookbook Name::       redis
-# Description::         Server
+# Description::         Redis server with runit service
 # Recipe::              server
 # Author::              Benjamin Black
 #

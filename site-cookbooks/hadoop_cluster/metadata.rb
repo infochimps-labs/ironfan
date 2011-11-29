@@ -16,7 +16,6 @@ depends          "cluster_chef"
 recipe           "hadoop_cluster::default",            "Base configuration for hadoop_cluster"
 recipe           "hadoop_cluster::add_cloudera_repo",  "Add Cloudera repo to package manager"
 recipe           "hadoop_cluster::cluster_conf",       "Configure cluster"
-
 recipe           "hadoop_cluster::datanode",           "Installs Hadoop Datanode service"
 recipe           "hadoop_cluster::secondarynn",        "Installs Hadoop Secondary Namenode service"
 recipe           "hadoop_cluster::tasktracker",        "Installs Hadoop Tasktracker service"
@@ -24,8 +23,8 @@ recipe           "hadoop_cluster::jobtracker",         "Installs Hadoop Jobtrack
 recipe           "hadoop_cluster::namenode",           "Installs Hadoop Namenode service"
 recipe           "hadoop_cluster::doc",                "Installs Hadoop documentation"
 recipe           "hadoop_cluster::hdfs_fuse",          "Installs Hadoop HDFS Fuse service (regular filesystem access to HDFS files)"
-
 recipe           "hadoop_cluster::wait_on_hdfs_safemode", "Wait on HDFS Safemode -- insert between cookbooks to ensure HDFS is available"
+recipe           "hadoop_cluster::simple_dashboard",   "Simple Dashboard"
 
 %w[ debian ubuntu ].each do |os|
   supports os
@@ -56,38 +55,15 @@ attribute "hadoop/deb_version",
   :description           => "Apt revision identifier (eg 0.20.2+923.142-1~maverick-cdh3) of the specific cloudera apt to use. See also apt/release_name",
   :default               => "0.20.2+923.142-1~maverick-cdh3"
 
-
-
 attribute "hadoop/dfs_replication",
   :display_name          => "Default HDFS replication factor",
   :description           => "HDFS blocks are by default reproduced to this many machines.",
   :default               => "3"
 
-
-attribute "hadoop/jobtracker/handler_count",
-  :display_name          => "",
-  :description           => "",
-  :default               => "40"
-
-attribute "hadoop/namenode/handler_count",
-  :display_name          => "",
-  :description           => "",
-  :default               => "40"
-
-attribute "hadoop/datanode/handler_count",
-  :display_name          => "",
-  :description           => "",
-  :default               => "8"
-
 attribute "hadoop/reducer_parallel_copies",
   :display_name          => "",
   :description           => "",
   :default               => "10"
-
-attribute "hadoop/tasktracker/http_threads",
-  :display_name          => "",
-  :description           => "",
-  :default               => "32"
 
 attribute "hadoop/compress_output",
   :display_name          => "",
@@ -179,57 +155,212 @@ attribute "hadoop/extra_classpaths",
   :description           => "",
   :default               => ""
 
-attribute "hadoop/namenode/run_state",
+attribute "hadoop/home_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/usr/lib/hadoop"
+
+attribute "hadoop/conf_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/etc/hadoop/conf"
+
+attribute "hadoop/pid_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/var/run/hadoop"
+
+attribute "hadoop/log_dir",
   :display_name          => "",
   :description           => "",
   :default               => ""
 
-attribute "hadoop/secondarynn/run_state",
+attribute "hadoop/tmp_dir",
   :display_name          => "",
   :description           => "",
   :default               => ""
+
+attribute "hadoop/user",
+  :display_name          => "",
+  :description           => "",
+  :default               => "hdfs"
+
+attribute "hadoop/jobtracker/handler_count",
+  :display_name          => "",
+  :description           => "",
+  :default               => "40"
 
 attribute "hadoop/jobtracker/run_state",
   :display_name          => "",
   :description           => "",
-  :default               => ""
-
-attribute "hadoop/datanode/run_state",
-  :display_name          => "",
-  :description           => "",
-  :type                  => "array",
-  :default               => [:enable, :start]
-
-attribute "hadoop/tasktracker/run_state",
-  :display_name          => "",
-  :description           => "",
-  :type                  => "array",
-  :default               => [:enable, :start]
-
-attribute "hadoop/namenode/java_heap_size_max",
-  :display_name          => "",
-  :description           => "",
-  :default               => ""
-
-attribute "hadoop/secondarynn/java_heap_size_max",
-  :display_name          => "",
-  :description           => "",
-  :default               => ""
+  :default               => "stop"
 
 attribute "hadoop/jobtracker/java_heap_size_max",
   :display_name          => "",
   :description           => "",
   :default               => ""
 
+attribute "hadoop/jobtracker/system_hdfsdir",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/hadoop/mapred/system"
+
+attribute "hadoop/jobtracker/staging_hdfsdir",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/hadoop/mapred/system"
+
+attribute "hadoop/jobtracker/port",
+  :display_name          => "",
+  :description           => "",
+  :default               => "8021"
+
+attribute "hadoop/jobtracker/dash_port",
+  :display_name          => "",
+  :description           => "",
+  :default               => "50030"
+
+attribute "hadoop/jobtracker/user",
+  :display_name          => "",
+  :description           => "",
+  :default               => "mapred"
+
+attribute "hadoop/namenode/handler_count",
+  :display_name          => "",
+  :description           => "",
+  :default               => "40"
+
+attribute "hadoop/namenode/run_state",
+  :display_name          => "",
+  :description           => "",
+  :default               => "stop"
+
+attribute "hadoop/namenode/java_heap_size_max",
+  :display_name          => "",
+  :description           => "",
+  :default               => ""
+
+attribute "hadoop/namenode/data_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => ""
+
+attribute "hadoop/namenode/port",
+  :display_name          => "",
+  :description           => "",
+  :default               => "8020"
+
+attribute "hadoop/namenode/dash_port",
+  :display_name          => "",
+  :description           => "",
+  :default               => "50070"
+
+attribute "hadoop/namenode/user",
+  :display_name          => "",
+  :description           => "",
+  :default               => "hdfs"
+
+attribute "hadoop/datanode/handler_count",
+  :display_name          => "",
+  :description           => "",
+  :default               => "8"
+
+attribute "hadoop/datanode/run_state",
+  :display_name          => "",
+  :description           => "",
+  :type                  => "array",
+  :default               => "start"
+
 attribute "hadoop/datanode/java_heap_size_max",
   :display_name          => "",
   :description           => "",
   :default               => ""
 
+attribute "hadoop/datanode/data_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => ""
+
+attribute "hadoop/datanode/port",
+  :display_name          => "",
+  :description           => "",
+  :default               => "50010"
+
+attribute "hadoop/datanode/ipc_port",
+  :display_name          => "",
+  :description           => "",
+  :default               => "50020"
+
+attribute "hadoop/datanode/dash_port",
+  :display_name          => "",
+  :description           => "",
+  :default               => "50075"
+
+attribute "hadoop/datanode/user",
+  :display_name          => "",
+  :description           => "",
+  :default               => "hdfs"
+
+attribute "hadoop/tasktracker/http_threads",
+  :display_name          => "",
+  :description           => "",
+  :default               => "32"
+
+attribute "hadoop/tasktracker/run_state",
+  :display_name          => "",
+  :description           => "",
+  :type                  => "array",
+  :default               => "start"
+
 attribute "hadoop/tasktracker/java_heap_size_max",
   :display_name          => "",
   :description           => "",
   :default               => ""
+
+attribute "hadoop/tasktracker/scratch_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => ""
+
+attribute "hadoop/tasktracker/dash_port",
+  :display_name          => "",
+  :description           => "",
+  :default               => "50060"
+
+attribute "hadoop/tasktracker/user",
+  :display_name          => "",
+  :description           => "",
+  :default               => "mapred"
+
+attribute "hadoop/secondarynn/run_state",
+  :display_name          => "",
+  :description           => "",
+  :default               => "stop"
+
+attribute "hadoop/secondarynn/java_heap_size_max",
+  :display_name          => "",
+  :description           => "",
+  :default               => ""
+
+attribute "hadoop/secondarynn/data_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => ""
+
+attribute "hadoop/secondarynn/dash_port",
+  :display_name          => "",
+  :description           => "",
+  :default               => "50090"
+
+attribute "hadoop/secondarynn/user",
+  :display_name          => "",
+  :description           => "",
+  :default               => "hdfs"
+
+attribute "hadoop/hdfs_fuse/run_state",
+  :display_name          => "",
+  :description           => "",
+  :default               => "stop"
 
 attribute "groups/hadoop/gid",
   :display_name          => "",
@@ -247,6 +378,21 @@ attribute "groups/hdfs/gid",
   :default               => "302"
 
 attribute "groups/mapred/gid",
+  :display_name          => "",
+  :description           => "",
+  :default               => "303"
+
+attribute "java/java_home",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/usr/lib/jvm/java-6-sun/jre"
+
+attribute "users/hdfs/uid",
+  :display_name          => "",
+  :description           => "",
+  :default               => "302"
+
+attribute "users/mapred/uid",
   :display_name          => "",
   :description           => "",
   :default               => "303"

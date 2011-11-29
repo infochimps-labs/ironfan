@@ -33,3 +33,48 @@ attribute "ganglia/conf_dir",
   :display_name          => "",
   :description           => "",
   :default               => "/etc/ganglia"
+
+attribute "ganglia/pid_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/var/run/ganglia"
+
+attribute "ganglia/data_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/var/lib/ganglia/rrds"
+
+attribute "ganglia/user",
+  :display_name          => "",
+  :description           => "",
+  :default               => "ganglia"
+
+attribute "ganglia/send_port",
+  :display_name          => "",
+  :description           => "",
+  :default               => "8649"
+
+attribute "ganglia/rcv_port",
+  :display_name          => "",
+  :description           => "",
+  :default               => "8649"
+
+attribute "ganglia/monitor/run_state",
+  :display_name          => "",
+  :description           => "",
+  :default               => "start"
+
+attribute "ganglia/server/run_state",
+  :display_name          => "",
+  :description           => "",
+  :default               => "start"
+
+attribute "users/ganglia/uid",
+  :display_name          => "",
+  :description           => "",
+  :default               => "320"
+
+attribute "groups/ganglia/gid",
+  :display_name          => "",
+  :description           => "",
+  :default               => "320"

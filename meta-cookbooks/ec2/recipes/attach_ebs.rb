@@ -1,7 +1,7 @@
 #
-# Cookbook Name::       mountable_volumes
-# Description::         Attach
-# Recipe::              attach
+# Cookbook Name::       ec2
+# Description::         Attach EBS volumes as directed by node[:mountable_volumes]
+# Recipe::              attach_ebs
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #
 # Copyright 2011, Philip (flip) Kromer - Infochimps, Inc

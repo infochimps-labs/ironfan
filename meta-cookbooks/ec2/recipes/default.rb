@@ -1,6 +1,6 @@
 #
 # Cookbook Name::       ec2
-# Description::         Placeholder -- see other recipes in ec2 cookbook
+# Description::         Placeholder cookbook -- see ec2::raid_ephemeral
 # Recipe::              default
 # Author::              Mike Heffner
 #

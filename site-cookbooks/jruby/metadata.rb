@@ -17,13 +17,18 @@ end
 
 attribute "jruby/home_dir",
   :display_name          => "Installed location of jruby",
-  :description           => "",
-  :default               => "/usr/lib/jruby"
+  :description           => "Installed location of jruby",
+  :default               => "/usr/local/share/jruby"
 
 attribute "jruby/release_url",
   :display_name          => "JRuby release tarball to install",
+  :description           => "JRuby release tarball to install",
+  :default               => "http://jruby.org.s3.amazonaws.com/downloads/:version:/jruby-bin-:version:.tar.gz"
+
+attribute "jruby/version",
+  :display_name          => "",
   :description           => "",
-  :default               => "http://jruby.org.s3.amazonaws.com/downloads/1.6.5/jruby-bin-1.6.5.tar.gz"
+  :default               => "1.6.5"
 
 attribute "java/java_home",
   :display_name          => "",

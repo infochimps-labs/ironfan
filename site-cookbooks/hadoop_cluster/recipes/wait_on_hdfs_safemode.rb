@@ -1,6 +1,6 @@
 #
 # Cookbook Name::       hadoop_cluster
-# Description::         Wait On HDFS Safemode
+# Description::         Wait on HDFS Safemode -- insert between cookbooks to ensure HDFS is available
 # Recipe::              wait_on_hdfs_safemode
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

@@ -1,6 +1,6 @@
 #
 # Cookbook Name::       hadoop_cluster
-# Description::         Tasktracker
+# Description::         Installs Hadoop Tasktracker service
 # Recipe::              tasktracker
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

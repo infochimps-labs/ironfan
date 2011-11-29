@@ -74,7 +74,7 @@ attribute "hbase/log_dir",
 attribute "hbase/pid_dir",
   :display_name          => "",
   :description           => "",
-  :default               => "/var/run/hadoop-0.20"
+  :default               => "/var/run/hbase"
 
 attribute "hbase/exported_confs",
   :display_name          => "",
@@ -112,7 +112,7 @@ attribute "hbase/master/run_state",
   :display_name          => "",
   :description           => "",
   :type                  => "array",
-  :default               => [:enable, :start]
+  :default               => "start"
 
 attribute "hbase/regionserver/java_heap_size_max",
   :display_name          => "",
@@ -138,10 +138,15 @@ attribute "hbase/regionserver/run_state",
   :display_name          => "",
   :description           => "",
   :type                  => "array",
-  :default               => [:enable, :start]
+  :default               => "start"
 
 attribute "hbase/stargate/run_state",
   :display_name          => "",
   :description           => "",
   :type                  => "array",
-  :default               => [:enable, :start]
+  :default               => "start"
+
+attribute "hbase/thrift/run_state",
+  :display_name          => "",
+  :description           => "",
+  :default               => "start"

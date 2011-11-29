@@ -26,3 +26,27 @@ attribute "nfs/mounts",
   :description           => "The foreign volumes to mount. Uses provides_service to find the NFS server for that volume. Supply a list of pairs: <path-to-export, hash-of-NFS-options>.",
   :type                  => "array",
   :default               => [["/home", {:owner=>"root", :remote_path=>"/home"}]]
+
+attribute "firewall/port_scan/portmap",
+  :display_name          => "",
+  :description           => "",
+  :type                  => "hash",
+  :default               => {:port=>111, :window=>20, :max_conns=>15}
+
+attribute "firewall/port_scan/nfsd",
+  :display_name          => "",
+  :description           => "",
+  :type                  => "hash",
+  :default               => {:port=>2049, :window=>20, :max_conns=>15}
+
+attribute "firewall/port_scan/mountd",
+  :display_name          => "",
+  :description           => "",
+  :type                  => "hash",
+  :default               => {:port=>45560, :window=>20, :max_conns=>15}
+
+attribute "firewall/port_scan/statd",
+  :display_name          => "",
+  :description           => "",
+  :type                  => "hash",
+  :default               => {:port=>56785, :window=>20, :max_conns=>15}

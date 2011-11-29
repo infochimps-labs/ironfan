@@ -112,7 +112,7 @@ attribute "cassandra/mx4j_listen_addr",
 attribute "cassandra/release_url",
   :display_name          => "",
   :description           => "",
-  :default               => "http://www.eng.lsu.edu/mirrors/apache/cassandra/0.7.7/apache-cassandra-0.7.7-bin.tar.gz"
+  :default               => ":apache_mirror:/cassandra/:version:/apache-cassandra-:version:-bin.tar.gz"
 
 attribute "cassandra/git_repo",
   :display_name          => "",
@@ -365,7 +365,47 @@ attribute "cassandra/request_scheduler_id",
   :description           => "",
   :default               => "keyspace"
 
-attribute "cassandra/release_url",
+attribute "cassandra/log_dir",
   :display_name          => "",
   :description           => "",
-  :default               => "http://www.eng.lsu.edu/mirrors/apache/cassandra/0.7.7/apache-cassandra-0.7.7-bin.tar.gz"
+  :default               => "/var/log/cassandra"
+
+attribute "cassandra/lib_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/var/lib/cassandra"
+
+attribute "cassandra/pid_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/var/run/cassandra"
+
+attribute "cassandra/group",
+  :display_name          => "",
+  :description           => "",
+  :default               => "nogroup"
+
+attribute "cassandra/version",
+  :display_name          => "",
+  :description           => "",
+  :default               => "0.7.10"
+
+attribute "cassandra/mx4j_version",
+  :display_name          => "",
+  :description           => "",
+  :default               => "3.0.2"
+
+attribute "cassandra/mx4j_release_url",
+  :display_name          => "",
+  :description           => "",
+  :default               => "http://downloads.sourceforge.net/project/mx4j/MX4J%20Binary/x.x/mx4j-x.x.zip?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fmx4j%2Ffiles%2F&ts=1303407638&use_mirror=iweb"
+
+attribute "users/cassandra/uid",
+  :display_name          => "",
+  :description           => "",
+  :default               => "330"
+
+attribute "users/cassandra/gid",
+  :display_name          => "",
+  :description           => "",
+  :default               => "330"

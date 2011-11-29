@@ -1,6 +1,6 @@
 #
 # Cookbook Name::       hadoop_cluster
-# Description::         Namenode
+# Description::         Installs Hadoop Namenode service
 # Recipe::              namenode
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

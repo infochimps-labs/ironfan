@@ -1,6 +1,6 @@
 #
 # Cookbook Name::       hadoop_cluster
-# Description::         Hdfs Fuse
+# Description::         Installs Hadoop HDFS Fuse service (regular filesystem access to HDFS files)
 # Recipe::              hdfs_fuse
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

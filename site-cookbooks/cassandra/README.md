@@ -111,7 +111,7 @@ Side question: what are the tradeoffs to consider to choose between the same $$ 
 * `[:cassandra][:commitlog_dir]`      -  (default: "/mnt/cassandra/commitlog")
 * `[:cassandra][:data_dirs]`          - 
 * `[:cassandra][:saved_caches_dir]`   -  (default: "/var/lib/cassandra/saved_caches")
-* `[:cassandra][:user]`     -  (default: "cassandra")
+* `[:cassandra][:user]`               -  (default: "cassandra")
 * `[:cassandra][:listen_addr]`        -  (default: "localhost")
 * `[:cassandra][:seeds]`              - 
 * `[:cassandra][:rpc_addr]`           -  (default: "localhost")
@@ -120,7 +120,7 @@ Side question: what are the tradeoffs to consider to choose between the same $$ 
 * `[:cassandra][:jmx_port]`           -  (default: "12345")
 * `[:cassandra][:mx4j_listen_port]`   -  (default: "8081")
 * `[:cassandra][:mx4j_listen_addr]`   -  (default: "127.0.0.1")
-* `[:cassandra][:release_url]`        -  (default: "http://www.eng.lsu.edu/mirrors/apache/cassandra/0.7.7/apache-cassandra-0.7.7-bin.tar.gz")
+* `[:cassandra][:release_url]`        -  (default: ":apache_mirror:/cassandra/:version:/apache-cassandra-:version:-bin.tar.gz")
 * `[:cassandra][:git_repo]`           -  (default: "git://git.apache.org/cassandra.git")
 * `[:cassandra][:git_revision]`       -  (default: "cdd239dcf82ab52cb840e070fc01135efb512799")
 * `[:cassandra][:jna_deb_amd64_url]`  -  (default: "http://debian.riptano.com/maverick/pool/libjna-java_3.2.7-0~nmu.2_amd64.deb")
@@ -174,7 +174,15 @@ Side question: what are the tradeoffs to consider to choose between the same $$ 
 * `[:cassandra][:request_scheduler]`  -  (default: "org.apache.cassandra.scheduler.NoScheduler")
 * `[:cassandra][:throttle_limit]`     -  (default: "80")
 * `[:cassandra][:request_scheduler_id]` -  (default: "keyspace")
-* `[:cassandra][:release_url]`        -  (default: "http://www.eng.lsu.edu/mirrors/apache/cassandra/0.7.7/apache-cassandra-0.7.7-bin.tar.gz")
+* `[:cassandra][:log_dir]`            -  (default: "/var/log/cassandra")
+* `[:cassandra][:lib_dir]`            -  (default: "/var/lib/cassandra")
+* `[:cassandra][:pid_dir]`            -  (default: "/var/run/cassandra")
+* `[:cassandra][:group]`              -  (default: "nogroup")
+* `[:cassandra][:version]`            -  (default: "0.7.10")
+* `[:cassandra][:mx4j_version]`       -  (default: "3.0.2")
+* `[:cassandra][:mx4j_release_url]`   -  (default: "http://downloads.sourceforge.net/project/mx4j/MX4J%20Binary/x.x/mx4j-x.x.zip?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fmx4j%2Ffiles%2F&ts=1303407638&use_mirror=iweb")
+* `[:users][:cassandra][:uid]`        -  (default: "330")
+* `[:users][:cassandra][:gid]`        -  (default: "330")
 
 ## Recipes 
 
@@ -201,6 +209,7 @@ Cookbook dependencies:
 * thrift
 * mountable_volumes
 * provides_service
+* cluster_chef
 * iptables
 
 

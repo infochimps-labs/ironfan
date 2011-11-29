@@ -43,6 +43,36 @@ attribute "statsd/flush_interval",
   :description           => "",
   :default               => "10000"
 
+attribute "statsd/home_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/usr/local/share/statsd"
+
+attribute "statsd/conf_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/etc/statsd"
+
+attribute "statsd/log_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/var/log/statsd"
+
+attribute "statsd/pid_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/var/run/statsd"
+
+attribute "statsd/user",
+  :display_name          => "",
+  :description           => "",
+  :default               => "statsd"
+
+attribute "statsd/run_state",
+  :display_name          => "",
+  :description           => "",
+  :default               => "start"
+
 attribute "statsd/graphite/port",
   :display_name          => "",
   :description           => "",
@@ -54,6 +84,11 @@ attribute "statsd/graphite/addr",
   :default               => "localhost"
 
 attribute "groups/statsd/gid",
+  :display_name          => "",
+  :description           => "",
+  :default               => "310"
+
+attribute "users/statsd/uid",
   :display_name          => "",
   :description           => "",
   :default               => "310"

@@ -161,6 +161,47 @@ attribute "elasticsearch/release_url_checksum",
   :description           => "",
   :default               => ""
 
+attribute "elasticsearch/home_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/usr/local/share/elasticsearch"
+
+attribute "elasticsearch/conf_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/etc/elasticsearch"
+
+attribute "elasticsearch/log_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/var/log/elasticsearch"
+
+attribute "elasticsearch/lib_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/var/lib/elasticsearch"
+
+attribute "elasticsearch/pid_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/var/run/elasticsearch"
+
+attribute "elasticsearch/user",
+  :display_name          => "",
+  :description           => "",
+  :default               => "elasticsearch"
+
+attribute "elasticsearch/release_url",
+  :display_name          => "",
+  :description           => "",
+  :default               => "https://github.com/downloads/elasticsearch/elasticsearch/elasticsearch-:version:.tar.gz"
+
+attribute "elasticsearch/plugins",
+  :display_name          => "",
+  :description           => "",
+  :type                  => "array",
+  :default               => ["cloud-aws"]
+
 attribute "elasticsearch/log_level/default",
   :display_name          => "",
   :description           => "",
@@ -191,3 +232,24 @@ attribute "elasticsearch/raid/use_raid",
   :display_name          => "",
   :description           => "",
   :default               => "true"
+
+attribute "elasticsearch/server/run_state",
+  :display_name          => "",
+  :description           => "",
+  :default               => "stop"
+
+attribute "users/elasticsearch/uid",
+  :display_name          => "",
+  :description           => "",
+  :default               => "61021"
+
+attribute "groups/elasticsearch/gid",
+  :display_name          => "",
+  :description           => "",
+  :default               => "61021"
+
+attribute "server_tuning/ulimit/@elasticsearch",
+  :display_name          => "",
+  :description           => "",
+  :type                  => "hash",
+  :default               => {:nofile=>{:both=>32768}, :nproc=>{:both=>50000}}

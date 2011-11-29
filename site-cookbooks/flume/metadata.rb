@@ -12,9 +12,6 @@ depends          "runit"
 depends          "mountable_volumes"
 depends          "cluster_chef"
 depends          "provides_service"
-#
-recommends       "jruby"
-recommends       "hadoop_cluster"
 
 recipe           "flume::default",                     "Base configuration for flume"
 recipe           "flume::hbase_sink_plugin",           "Hbase Sink Plugin"
@@ -83,6 +80,26 @@ attribute "flume/data_dir",
   :description           => "Directory for local in-transit files",
   :default               => "/data/db/flume"
 
+attribute "flume/home_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/usr/lib/flume"
+
+attribute "flume/conf_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/etc/flume/conf"
+
+attribute "flume/log_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/var/log/flume"
+
+attribute "flume/pid_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/var/run/flume"
+
 attribute "flume/master/external_zookeeper",
   :display_name          => "Use External Zookeeper?",
   :description           => "false to use flume's zookeeper. True to attach to an external zookeeper.",
@@ -92,3 +109,13 @@ attribute "flume/master/zookeeper_port",
   :display_name          => "port to talk to zookeeper on (for external zookeeper)",
   :description           => "port to talk to zookeeper on (for external zookeeper)",
   :default               => "2181"
+
+attribute "flume/master/run_state",
+  :display_name          => "",
+  :description           => "",
+  :default               => "stop"
+
+attribute "flume/node/run_state",
+  :display_name          => "",
+  :description           => "",
+  :default               => "stop"

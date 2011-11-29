@@ -16,4 +16,20 @@ end
 attribute "rstats/cran_mirror_url",
   :display_name          => "",
   :description           => "",
-  :default               => "http://cran.us.r-project.org"
+  :default               => "http://cran.stat.ucla.edu"
+
+attribute "rstats/home_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/usr/lib/R"
+
+attribute "rstats/conf_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/etc/R"
+
+attribute "rstats/r_packages",
+  :display_name          => "",
+  :description           => "",
+  :type                  => "array",
+  :default               => ["r-cran-VGAM", "r-cran-rggobi"]

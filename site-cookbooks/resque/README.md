@@ -9,7 +9,7 @@ Sets up [Resque](https://github.com/defunkt/resque), "a Redis-backed Ruby librar
 ## Attributes
 
 * `[:resque][:dir]`                   -  (default: "/data/db/resque")
-* `[:resque][:log_dir]`               -  (default: "/data/db/resque/log")
+* `[:resque][:log_dir]`               -  (default: "/var/log/resque")
 * `[:resque][:tmp_dir]`               -  (default: "/data/db/resque/tmp")
 * `[:resque][:data_dir]`              -  (default: "/data/db/resque/data")
 * `[:resque][:journal_dir]`           -  (default: "/data/db/resque/swap")
@@ -31,6 +31,14 @@ Sets up [Resque](https://github.com/defunkt/resque), "a Redis-backed Ruby librar
 * `[:resque][:redis_slave]`           -  (default: "no")
 * `[:resque][:app_env]`               -  (default: "production")
 * `[:resque][:home_dir]`              -  (default: "/data/db/resque")
+* `[:resque][:pid_dir]`               -  (default: "/var/run/resque")
+* `[:resque][:redis][:run_state]`     -  (default: "start")
+* `[:resque][:redis][:server][:addr]` -  (default: "0.0.0.0")
+* `[:resque][:redis][:server][:port]` -  (default: "6388")
+* `[:resque][:dashboard][:port]`      -  (default: "6389")
+* `[:resque][:dashboard][:run_state]` -  (default: "start")
+* `[:users][:resque][:uid]`           -  (default: "336")
+* `[:groups][:resque][:gid]`          -  (default: "336")
 
 ## Recipes 
 

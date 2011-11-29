@@ -1,5 +1,5 @@
 #
-# Cookbook Name::       flume
+# Cookbook Name::       pig
 # Description::         Add Cloudera repo to package manager
 # Recipe::              add_cloudera_repo
 # Author::              Chris Howe - Infochimps, Inc

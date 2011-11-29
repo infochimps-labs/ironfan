@@ -13,9 +13,16 @@ Installs statsd daemon for recording arbitrary information to graphite
 * `[:statsd][:install_dir]`           -  (default: "/usr/src/statsd")
 * `[:statsd][:port]`                  -  (default: "8125")
 * `[:statsd][:flush_interval]`        -  (default: "10000")
+* `[:statsd][:home_dir]`              -  (default: "/usr/local/share/statsd")
+* `[:statsd][:conf_dir]`              -  (default: "/etc/statsd")
+* `[:statsd][:log_dir]`               -  (default: "/var/log/statsd")
+* `[:statsd][:pid_dir]`               -  (default: "/var/run/statsd")
+* `[:statsd][:user]`                  -  (default: "statsd")
+* `[:statsd][:run_state]`             -  (default: "start")
 * `[:statsd][:graphite][:port]`       -  (default: "2003")
 * `[:statsd][:graphite][:addr]`       -  (default: "localhost")
 * `[:groups][:statsd][:gid]`          -  (default: "310")
+* `[:users][:statsd][:uid]`           -  (default: "310")
 
 ## Recipes 
 
@@ -29,6 +36,7 @@ Cookbook dependencies:
 * runit
 * nodejs
 * graphite
+* cluster_chef
 
 
 ## License and Author

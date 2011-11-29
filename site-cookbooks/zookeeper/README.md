@@ -22,6 +22,10 @@ The server recipe additionally
 * `[:zookeeper][:max_client_connections]` -  (default: "30")
 * `[:zookeeper][:home_dir]`           -  (default: "/usr/lib/zookeeper")
 * `[:zookeeper][:export_jars]`        - 
+* `[:zookeeper][:conf_dir]`           -  (default: "/etc/zookeeper")
+* `[:zookeeper][:user]`               -  (default: "zookeeper")
+* `[:zookeeper][:server][:run_state]` -  (default: "stop")
+* `[:users][:zookeeper][:uid]`        -  (default: "305")
 
 ## Recipes 
 
@@ -36,8 +40,10 @@ Supports platforms: debian and ubuntu
 Cookbook dependencies:
 * java
 * apt
+* runit
 * mountable_volumes
 * provides_service
+* cluster_chef
 
 
 ## License and Author

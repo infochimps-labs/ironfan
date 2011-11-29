@@ -48,7 +48,7 @@ attribute "redis/db_basename",
 attribute "redis/release_url",
   :display_name          => "URL for redis release package",
   :description           => "If using the install_from_release strategy, the URL for the release tarball",
-  :default               => "http://redis.googlecode.com/files/redis-2.0.2.tar.gz"
+  :default               => "http://redis.googlecode.com/files/redis-:version:.tar.gz"
 
 attribute "redis/master_server",
   :display_name          => "Redis replication master server name",
@@ -86,6 +86,26 @@ attribute "redis/shareobjectspoolsize",
   :description           => "The size of the pool for object sharing.",
   :default               => "1024"
 
+attribute "redis/conf_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/etc/redis"
+
+attribute "redis/log_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/var/log/redis"
+
+attribute "redis/user",
+  :display_name          => "",
+  :description           => "",
+  :default               => "redis"
+
+attribute "redis/version",
+  :display_name          => "",
+  :description           => "",
+  :default               => "2.0.2"
+
 attribute "redis/server/addr",
   :display_name          => "IP address to bind.",
   :description           => "IP address to bind.",
@@ -100,3 +120,13 @@ attribute "redis/server/timeout",
   :display_name          => "Redis server timeout",
   :description           => "Timeout, in seconds, for disconnection of idle clients.",
   :default               => "300"
+
+attribute "users/redis/uid",
+  :display_name          => "",
+  :description           => "",
+  :default               => "335"
+
+attribute "groups/redis/gid",
+  :display_name          => "",
+  :description           => "",
+  :default               => "335"

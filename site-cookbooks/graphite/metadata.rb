@@ -51,18 +51,7 @@ attribute "graphite/carbon/cache_query_addr",
   :description           => "",
   :default               => "127.0.0.1"
 
-
 attribute "graphite/carbon/user",
-  :display_name          => "",
-  :description           => "",
-  :default               => "www-data"
-
-attribute "graphite/whisper/user",
-  :display_name          => "",
-  :description           => "",
-  :default               => "www-data"
-
-attribute "graphite/graphite_web/user",
   :display_name          => "",
   :description           => "",
   :default               => "www-data"
@@ -82,6 +71,11 @@ attribute "graphite/carbon/release_url_checksum",
   :description           => "",
   :default               => "ba698aca"
 
+attribute "graphite/whisper/user",
+  :display_name          => "",
+  :description           => "",
+  :default               => "www-data"
+
 attribute "graphite/whisper/version",
   :display_name          => "",
   :description           => "",
@@ -96,6 +90,11 @@ attribute "graphite/whisper/release_url_checksum",
   :display_name          => "",
   :description           => "",
   :default               => "c6272ad6"
+
+attribute "graphite/graphite_web/user",
+  :display_name          => "",
+  :description           => "",
+  :default               => "www-data"
 
 attribute "graphite/graphite_web/version",
   :display_name          => "",

@@ -1,6 +1,6 @@
 #
 # Cookbook Name::       hadoop_cluster
-# Description::         Datanode
+# Description::         Installs Hadoop Datanode service
 # Recipe::              datanode
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

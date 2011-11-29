@@ -67,3 +67,23 @@ attribute "zookeeper/export_jars",
   :description           => "",
   :type                  => "array",
   :default               => ["/usr/lib/zookeeper/zookeeper.jar"]
+
+attribute "zookeeper/conf_dir",
+  :display_name          => "",
+  :description           => "",
+  :default               => "/etc/zookeeper"
+
+attribute "zookeeper/user",
+  :display_name          => "",
+  :description           => "",
+  :default               => "zookeeper"
+
+attribute "zookeeper/server/run_state",
+  :display_name          => "",
+  :description           => "",
+  :default               => "stop"
+
+attribute "users/zookeeper/uid",
+  :display_name          => "",
+  :description           => "",
+  :default               => "305"

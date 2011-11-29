@@ -17,7 +17,7 @@ Redis, a fast lightweight database
   - Path to the directory for database files.
 * `[:redis][:db_basename]`            - Redis database filename (default: "dump.rdb")
   - Filename for the database storage.
-* `[:redis][:release_url]`            - URL for redis release package (default: "http://redis.googlecode.com/files/redis-2.0.2.tar.gz")
+* `[:redis][:release_url]`            - URL for redis release package (default: "http://redis.googlecode.com/files/redis-:version:.tar.gz")
   - If using the install_from_release strategy, the URL for the release tarball
 * `[:redis][:master_server]`          - Redis replication master server name (default: "master-redis.domain")
   - The master server for this replication slave.
@@ -33,19 +33,25 @@ Redis, a fast lightweight database
   - Attempt to reduce memory use by sharing storage for substrings.
 * `[:redis][:shareobjectspoolsize]`   - Redis shared object pool size (default: "1024")
   - The size of the pool for object sharing.
-* `[:redis][:release_url]`            -  (default: "http://redis.googlecode.com/files/redis-2.0.2.tar.gz")
+* `[:redis][:conf_dir]`               -  (default: "/etc/redis")
+* `[:redis][:log_dir]`                -  (default: "/var/log/redis")
+* `[:redis][:user]`                   -  (default: "redis")
+* `[:redis][:version]`                -  (default: "2.0.2")
 * `[:redis][:server][:addr]`          - IP address to bind. (default: "0.0.0.0")
 * `[:redis][:server][:port]`          - Redis server port (default: "6379")
   - TCP port to bind.
 * `[:redis][:server][:timeout]`       - Redis server timeout (default: "300")
   - Timeout, in seconds, for disconnection of idle clients.
+* `[:users][:redis][:uid]`            -  (default: "335")
+* `[:groups][:redis][:gid]`           -  (default: "335")
 
 ## Recipes 
 
+* `client`                   - Client support for Redis database
 * `default`                  - Base configuration for redis
-* `install_from_package`     - Install From Package
+* `install_from_package`     - Install From Ubuntu Package -- easy but lags in version
 * `install_from_release`     - Install From Release
-* `server`                   - Server
+* `server`                   - Redis server with runit service
 ## Integration
 
 Supports platforms: debian and ubuntu
@@ -53,6 +59,7 @@ Supports platforms: debian and ubuntu
 Cookbook dependencies:
 * runit
 * install_from
+* cluster_chef
 
 
 ## License and Author

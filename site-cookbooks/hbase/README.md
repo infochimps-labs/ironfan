@@ -18,20 +18,21 @@ Installs/Configures HBase
 * `[:hbase][:home_dir]`               -  (default: "/usr/lib/hbase")
 * `[:hbase][:conf_dir]`               -  (default: "/etc/hbase/conf")
 * `[:hbase][:log_dir]`                -  (default: "/var/log/hbase")
-* `[:hbase][:pid_dir]`                -  (default: "/var/run/hadoop-0.20")
+* `[:hbase][:pid_dir]`                -  (default: "/var/run/hbase")
 * `[:hbase][:exported_confs]`         - 
 * `[:hbase][:export_jars]`            - 
 * `[:hbase][:master][:java_heap_size_max]` -  (default: "1000m")
 * `[:hbase][:master][:gc_new_size]`   -  (default: "256m")
 * `[:hbase][:master][:gc_tuning_opts]` -  (default: "-XX:+UseConcMarkSweepGC -XX:+AggressiveOpts")
 * `[:hbase][:master][:gc_log_opts]`   -  (default: "-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -Xloggc:/var/log/hbase/hbase-master-gc.log")
-* `[:hbase][:master][:run_state]` - 
+* `[:hbase][:master][:run_state]`     -  (default: "start")
 * `[:hbase][:regionserver][:java_heap_size_max]` -  (default: "2000m")
 * `[:hbase][:regionserver][:gc_new_size]` -  (default: "256m")
 * `[:hbase][:regionserver][:gc_tuning_opts]` -  (default: "-XX:+UseConcMarkSweepGC -XX:+AggressiveOpts -XX:CMSInitiatingOccupancyFraction=88")
 * `[:hbase][:regionserver][:gc_log_opts]` -  (default: "-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -Xloggc:/var/log/hbase/hbase-regionserver-gc.log")
-* `[:hbase][:regionserver][:run_state]` - 
-* `[:hbase][:stargate][:run_state]` - 
+* `[:hbase][:regionserver][:run_state]` -  (default: "start")
+* `[:hbase][:stargate][:run_state]`   -  (default: "start")
+* `[:hbase][:thrift][:run_state]`     -  (default: "start")
 
 ## Recipes 
 
@@ -48,6 +49,7 @@ Supports platforms: debian and ubuntu
 Cookbook dependencies:
 * java
 * apt
+* runit
 * hadoop_cluster
 * zookeeper
 * ganglia

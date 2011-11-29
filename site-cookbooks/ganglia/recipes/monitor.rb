@@ -1,7 +1,7 @@
 #
 # Cookbook Name::       ganglia
-# Description::         Client
-# Recipe::              client
+# Description::         Ganglia monitor -- discovers and sends to its ganglia_server
+# Recipe::              monitor
 # Author::              Chris Howe - Infochimps, Inc
 #
 # Copyright 2011, Chris Howe - Infochimps, Inc

@@ -1,6 +1,6 @@
 #
 # Cookbook Name::       cluster_chef
-# Description::         Placeholder -- see other recipes in cluster_chef cookbook
+# Description::         Base configuration for cluster_chef
 # Recipe::              default
 # Author::              Philip (flip) Kromer
 #

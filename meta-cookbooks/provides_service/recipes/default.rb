@@ -1,6 +1,6 @@
 #
 # Cookbook Name::       provides_service
-# Description::         Placeholder -- see other recipes in cluster_chef cookbook
+# Description::         Base configuration for provides_service
 # Recipe::              default
 # Author::              Philip (flip) Kromer
 #

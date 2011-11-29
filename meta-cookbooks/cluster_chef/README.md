@@ -126,18 +126,32 @@ default[:XXX][:aws_credential_source] = :data_bag
 
 ## Attributes
 
-* `[:server_tuning][:ulimit][:default]` - 
-* `[:server_tuning][:ulimit][:@elasticsearch]` - 
+* `[:server_tuning][:ulimit]`         - 
+* `[:server_tuning][:overcommit_memory]` -  (default: "1")
+* `[:server_tuning][:overcommit_ratio]` -  (default: "100")
+* `[:server_tuning][:swappiness]`     -  (default: "5")
+* `[:cluster_chef][:conf_dir]`        -  (default: "/etc/cluster_chef")
+* `[:cluster_chef][:log_dir]`         -  (default: "/var/log/cluster_chef")
+* `[:cluster_chef][:home_dir]`        -  (default: "/etc/cluster_chef")
+* `[:cluster_chef][:user]`            -  (default: "root")
+* `[:cluster_chef][:thttpd][:port]`   -  (default: "6789")
+* `[:cluster_chef][:dashboard][:run_state]` -  (default: "start")
+* `[:users][:root][:primary_group]`   -  (default: "root")
 
 ## Recipes 
 
 * `burn_ami_prep`            - Burn Ami Prep
-* `cluster_webfront`         - Cluster Webfront
+* `dashboard`                - Lightweight dashboard for this machine: index of services and their dashboard snippets
 * `dedicated_server_tuning`  - Dedicated Server Tuning
+* `default`                  - Base configuration for cluster_chef
+* `virtualbox_metadata`      - Virtualbox Metadata
 ## Integration
 
 Supports platforms: debian and ubuntu
 
+Cookbook dependencies:
+* runit
+* provides_service
 
 
 ## License and Author

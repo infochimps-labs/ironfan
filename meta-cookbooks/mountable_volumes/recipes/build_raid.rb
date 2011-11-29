@@ -1,6 +1,6 @@
 #
 # Cookbook Name::       mountable_volumes
-# Description::         Build Raid
+# Description::         Build a raid array of volumes as directed by node[:mountable_volumes]
 # Recipe::              build_raid
 # Author::              Chris Howe
 #

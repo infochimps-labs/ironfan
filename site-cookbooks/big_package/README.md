@@ -9,20 +9,30 @@ Installs extra packages as directed. Use to install packages that don't warrant 
 ## Attributes
 
 * `[:ruby][:version]`                 -  (default: "1.8")
+* `[:pkg_sets][:install]`             - 
+* `[:pkg_sets][:pkgs][:base]`         - 
+* `[:pkg_sets][:pkgs][:dev]`          - 
+* `[:pkg_sets][:pkgs][:sysadmin]`     - 
+* `[:pkg_sets][:pkgs][:text]`         - 
+* `[:pkg_sets][:pkgs][:ec2]`          - 
+* `[:pkg_sets][:pkgs][:vagrant]`      - 
+* `[:pkg_sets][:pkgs][:python]`       - 
+* `[:pkg_sets][:pkgs][:datatools]`    - 
+* `[:pkg_sets][:pkgs][:emacs]`        - 
+* `[:pkg_sets][:gems][:base]`         - 
+* `[:pkg_sets][:gems][:dev]`          - 
+* `[:pkg_sets][:gems][:sysadmin]`     - 
+* `[:pkg_sets][:gems][:text]`         - 
+* `[:pkg_sets][:gems][:ec2]`          - 
+* `[:pkg_sets][:gems][:vagrant]`      - 
 
 ## Recipes 
 
-* `data_analysis_tools`      - Data Analysis Tools
 * `default`                  - Base configuration for big_package
-* `emacs`                    - Emacs
-* `other`                    - Other
-* `python`                   - Python
-* `ruby-datamapper`          - Ruby Datamapper
-* `ruby-fix_rubygems_version` - Ruby Fix Rubygems Version
-* `ruby`                     - Ruby
 ## Integration
 
 Supports platforms: debian and ubuntu
+
 
 
 ## License and Author

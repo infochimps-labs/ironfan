@@ -103,17 +103,27 @@ limitations under the License.
 * `[:elasticsearch][:fd_ping_retries]` -  (default: "3")
 * `[:elasticsearch][:jmx_port]`       -  (default: "9400-9500")
 * `[:elasticsearch][:release_url_checksum]` - 
+* `[:elasticsearch][:home_dir]`       -  (default: "/usr/local/share/elasticsearch")
+* `[:elasticsearch][:conf_dir]`       -  (default: "/etc/elasticsearch")
+* `[:elasticsearch][:log_dir]`        -  (default: "/var/log/elasticsearch")
+* `[:elasticsearch][:lib_dir]`        -  (default: "/var/lib/elasticsearch")
+* `[:elasticsearch][:pid_dir]`        -  (default: "/var/run/elasticsearch")
+* `[:elasticsearch][:user]`           -  (default: "elasticsearch")
+* `[:elasticsearch][:release_url]`    -  (default: "https://github.com/downloads/elasticsearch/elasticsearch/elasticsearch-:version:.tar.gz")
+* `[:elasticsearch][:plugins]`        - 
 * `[:elasticsearch][:log_level][:default]` -  (default: "DEBUG")
 * `[:elasticsearch][:log_level][:index_store]` -  (default: "INFO")
 * `[:elasticsearch][:log_level][:action_shard]` -  (default: "INFO")
 * `[:elasticsearch][:log_level][:cluster_service]` -  (default: "INFO")
 * `[:elasticsearch][:raid][:devices]` - 
 * `[:elasticsearch][:raid][:use_raid]` -  (default: "true")
+* `[:elasticsearch][:server][:run_state]` -  (default: "stop")
+* `[:users][:elasticsearch][:uid]`    -  (default: "61021")
+* `[:groups][:elasticsearch][:gid]`   -  (default: "61021")
+* `[:server_tuning][:ulimit][:@elasticsearch]` - 
 
 ## Recipes 
 
-* `autoconf`                 - Autoconf
-* `build_raid`               - Build Raid
 * `client`                   - Client
 * `default`                  - Base configuration for elasticsearch
 * `http`                     - Http
@@ -131,6 +141,7 @@ Cookbook dependencies:
 * runit
 * mountable_volumes
 * provides_service
+* cluster_chef
 * nginx
 
 

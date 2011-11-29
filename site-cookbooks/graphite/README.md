@@ -29,18 +29,18 @@ for a week, and every 10 minutes for 5 years.
 * `[:graphite][:carbon][:line_rcvr_addr]` -  (default: "127.0.0.1")
 * `[:graphite][:carbon][:pickle_rcvr_addr]` -  (default: "127.0.0.1")
 * `[:graphite][:carbon][:cache_query_addr]` -  (default: "127.0.0.1")
-* `[:graphite][:carbon][:release_url]`        -  (default: "http://launchpadlibrarian.net/61904798/carbon-0.9.7.tar.gz")
-* `[:graphite][:carbon][:release_url_checksum]` -  (default: "ba698aca")
 * `[:graphite][:carbon][:user]`       -  (default: "www-data")
 * `[:graphite][:carbon][:version]`    -  (default: "0.9.7")
-* `[:graphite][:graphite_web][:release_url]` -  (default: "http://launchpadlibrarian.net/62379635/graphite-web-0.9.7c.tar.gz")
-* `[:graphite][:graphite_web][:release_url_checksum]` -  (default: "a3e16265")
-* `[:graphite][:graphite_web][:user]` -  (default: "www-data")
-* `[:graphite][:graphite_web][:version]` -  (default: "0.9.7c")
-* `[:graphite][:whisper][:release_url]` -  (default: "http://launchpadlibrarian.net/61904764/whisper-0.9.7.tar.gz")
-* `[:graphite][:whisper][:release_url_checksum]` -  (default: "c6272ad6")
+* `[:graphite][:carbon][:release_url]` -  (default: "http://launchpadlibrarian.net/61904798/carbon-0.9.7.tar.gz")
+* `[:graphite][:carbon][:release_url_checksum]` -  (default: "ba698aca")
 * `[:graphite][:whisper][:user]`      -  (default: "www-data")
 * `[:graphite][:whisper][:version]`   -  (default: "0.9.7")
+* `[:graphite][:whisper][:release_url]` -  (default: "http://launchpadlibrarian.net/61904764/whisper-0.9.7.tar.gz")
+* `[:graphite][:whisper][:release_url_checksum]` -  (default: "c6272ad6")
+* `[:graphite][:graphite_web][:user]` -  (default: "www-data")
+* `[:graphite][:graphite_web][:version]` -  (default: "0.9.7c")
+* `[:graphite][:graphite_web][:release_url]` -  (default: "http://launchpadlibrarian.net/62379635/graphite-web-0.9.7c.tar.gz")
+* `[:graphite][:graphite_web][:release_url_checksum]` -  (default: "a3e16265")
 
 ## Recipes 
 
@@ -56,6 +56,7 @@ Supports platforms: debian and ubuntu
 Cookbook dependencies:
 * python
 * apache2
+* runit
 * ganglia
 
 

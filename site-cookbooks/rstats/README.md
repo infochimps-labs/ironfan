@@ -8,7 +8,10 @@ Installs rstats, a statistical analysis program
 
 ## Attributes
 
-* `[:rstats][:cran_mirror_url]`       -  (default: "http://cran.us.r-project.org")
+* `[:rstats][:cran_mirror_url]`       -  (default: "http://cran.stat.ucla.edu")
+* `[:rstats][:home_dir]`              -  (default: "/usr/lib/R")
+* `[:rstats][:conf_dir]`              -  (default: "/etc/R")
+* `[:rstats][:r_packages]`            - 
 
 ## Recipes 
 

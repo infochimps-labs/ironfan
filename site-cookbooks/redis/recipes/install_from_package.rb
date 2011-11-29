@@ -1,6 +1,6 @@
 #
 # Cookbook Name::       redis
-# Description::         Install From Package
+# Description::         Install From Ubuntu Package -- easy but lags in version
 # Recipe::              install_from_package
 # Author::              Benjamin Black
 #

@@ -57,9 +57,15 @@ servers.
    * BZip2Codec
   
 * `[:flume][:data_dir]`               - Directory for local in-transit files (default: "/data/db/flume")
+* `[:flume][:home_dir]`               -  (default: "/usr/lib/flume")
+* `[:flume][:conf_dir]`               -  (default: "/etc/flume/conf")
+* `[:flume][:log_dir]`                -  (default: "/var/log/flume")
+* `[:flume][:pid_dir]`                -  (default: "/var/run/flume")
 * `[:flume][:master][:external_zookeeper]` - Use External Zookeeper?
   - false to use flume's zookeeper. True to attach to an external zookeeper.
 * `[:flume][:master][:zookeeper_port]` - port to talk to zookeeper on (for external zookeeper) (default: "2181")
+* `[:flume][:master][:run_state]`     -  (default: "stop")
+* `[:flume][:node][:run_state]`       -  (default: "stop")
 
 ## Recipes 
 
@@ -77,7 +83,9 @@ Supports platforms: debian and ubuntu
 Cookbook dependencies:
 * java
 * apt
+* runit
 * mountable_volumes
+* cluster_chef
 * provides_service
 
 

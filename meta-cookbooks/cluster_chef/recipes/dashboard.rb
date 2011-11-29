@@ -1,6 +1,6 @@
 #
 # Cookbook Name::       cluster_chef
-# Description::         Creates a dashboard for this machine
+# Description::         Lightweight dashboard for this machine: index of services and their dashboard snippets
 # Recipe::              dashboard
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #

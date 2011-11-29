@@ -1,7 +1,7 @@
 #
 # Cookbook Name::       redis
 # Description::         Client support for Redis database
-# Recipe::              default
+# Recipe::              client
 # Author::              Benjamin Black (<b@b3k.us>)
 #
 # Copyright 2009, Benjamin Black

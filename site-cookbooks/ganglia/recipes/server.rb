@@ -1,6 +1,6 @@
 #
 # Cookbook Name::       ganglia
-# Description::         Server
+# Description::         Ganglia server -- contact point for all ganglia_monitors
 # Recipe::              server
 # Author::              Chris Howe - Infochimps, Inc
 #
