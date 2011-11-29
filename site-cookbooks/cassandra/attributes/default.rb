@@ -48,7 +48,6 @@ default[:cassandra][:group]             = 'nogroup'
 default[:users]['cassandra'][:uid]      = 330
 default[:users]['cassandra'][:gid]      = 330
 
-
 default[:cassandra][:listen_addr]       = "localhost"
 default[:cassandra][:seeds]             = ["127.0.0.1"]
 default[:cassandra][:rpc_addr]          = "localhost"

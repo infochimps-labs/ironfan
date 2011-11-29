@@ -11,6 +11,7 @@ depends          "runit"
 depends          "thrift"
 depends          "mountable_volumes"
 depends          "provides_service"
+depends          "cluster_chef"
 depends          "iptables"
 
 recipe           "cassandra::autoconf",                "Automatically configure nodes from chef-server information."

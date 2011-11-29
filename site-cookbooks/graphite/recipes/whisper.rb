@@ -19,6 +19,8 @@
 # limitations under the License.
 #
 
+include_recipe "runit"
+
 install_from_release('whisper') do
   release_url   node[:graphite][:whisper][:release_url]
   home_dir      node[:graphite][:whisper][:home_dir]

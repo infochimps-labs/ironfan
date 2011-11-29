@@ -20,6 +20,7 @@
 #
 
 include_recipe "hbase"
+include_recipe "runit"
 
 # Install
 package "hadoop-hbase-master"

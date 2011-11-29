@@ -40,12 +40,7 @@ cluster_chef_dashboard(:cluster_chef) do
   template_name 'index'
   action        :create
 
-  summary_keys = %w[
-  ==Hardware
-    cpu.total memory.total memory.swap
-  ==Volumes
-    mountable_volumes
-  ]
+  summary_keys = %w[]
   variables     Mash.new({:summary_keys => summary_keys})
 end
 

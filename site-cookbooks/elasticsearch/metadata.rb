@@ -11,6 +11,7 @@ depends          "aws"
 depends          "runit"
 depends          "mountable_volumes"
 depends          "provides_service"
+depends          "cluster_chef"
 depends          "nginx"
 
 recipe           "elasticsearch::client",              "Client"

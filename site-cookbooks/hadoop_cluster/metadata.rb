@@ -17,13 +17,13 @@ recipe           "hadoop_cluster::default",            "Base configuration for h
 recipe           "hadoop_cluster::add_cloudera_repo",  "Add Cloudera repo to package manager"
 recipe           "hadoop_cluster::cluster_conf",       "Configure cluster"
 
-recipe           "hadoop_cluster::datanode",           "Installs Datanode service"
-recipe           "hadoop_cluster::secondarynn",        "Installs Secondary Namenode service"
-recipe           "hadoop_cluster::tasktracker",        "Installs Tasktracker service"
-recipe           "hadoop_cluster::jobtracker",         "Installs Jobtracker service"
-recipe           "hadoop_cluster::namenode",           "Installs Namenode service"
+recipe           "hadoop_cluster::datanode",           "Installs Hadoop Datanode service"
+recipe           "hadoop_cluster::secondarynn",        "Installs Hadoop Secondary Namenode service"
+recipe           "hadoop_cluster::tasktracker",        "Installs Hadoop Tasktracker service"
+recipe           "hadoop_cluster::jobtracker",         "Installs Hadoop Jobtracker service"
+recipe           "hadoop_cluster::namenode",           "Installs Hadoop Namenode service"
 recipe           "hadoop_cluster::doc",                "Installs Hadoop documentation"
-recipe           "hadoop_cluster::hdfs_fuse",          "Installs HDFS Fuse service"
+recipe           "hadoop_cluster::hdfs_fuse",          "Installs Hadoop HDFS Fuse service (regular filesystem access to HDFS files)"
 
 recipe           "hadoop_cluster::wait_on_hdfs_safemode", "Wait on HDFS Safemode -- insert between cookbooks to ensure HDFS is available"
 

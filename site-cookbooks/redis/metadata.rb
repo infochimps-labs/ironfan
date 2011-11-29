@@ -11,9 +11,10 @@ depends          "install_from"
 depends          "cluster_chef"
 
 recipe           "redis::default",                     "Base configuration for redis"
-recipe           "redis::install_from_package",        "Install From Package"
+recipe           "redis::install_from_package",        "Install From Ubuntu Package -- easy but lags in version"
 recipe           "redis::install_from_release",        "Install From Release"
-recipe           "redis::server",                      "Server"
+recipe           "redis::server",                      "Redis server with runit service"
+recipe           "redis::client",                      "Client support for Redis database"
 
 %w[ debian ubuntu ].each do |os|
   supports os
@@ -84,11 +85,6 @@ attribute "redis/shareobjectspoolsize",
   :display_name          => "Redis shared object pool size",
   :description           => "The size of the pool for object sharing.",
   :default               => "1024"
-
-attribute "redis/release_url",
-  :display_name          => "",
-  :description           => "",
-  :default               => "http://redis.googlecode.com/files/redis-2.0.2.tar.gz"
 
 attribute "redis/server/addr",
   :display_name          => "IP address to bind.",

@@ -20,3 +20,4 @@
 #
 
 include_recipe "java::sun"
+include_recipe "cluster_chef"

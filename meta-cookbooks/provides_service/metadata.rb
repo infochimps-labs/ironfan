@@ -6,8 +6,6 @@ version          "3.0.0"
 
 description      "Allow nodes to discover the location for a given service at runtime, adapting when new services register."
 
-
-
 %w[ debian ubuntu ].each do |os|
   supports os
 end

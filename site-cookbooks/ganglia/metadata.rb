@@ -8,12 +8,12 @@ description      "Installs/Configures ganglia"
 
 depends          "java"
 depends          "runit"
+depends          "cluster_chef"
 depends          "provides_service"
 
-recipe           "ganglia::client",                    "Client"
 recipe           "ganglia::default",                   "Base configuration for ganglia"
-recipe           "ganglia::gmetad",                    "Gmetad"
-recipe           "ganglia::server",                    "Server"
+recipe           "ganglia::server",                    "Ganglia server -- contact point for all ganglia_monitors"
+recipe           "ganglia::monitor",                   "Ganglia monitor -- discovers and sends to its ganglia_server"
 
 %w[ debian ubuntu ].each do |os|
   supports os

@@ -9,6 +9,7 @@ description      "Installs/Configures statsd"
 depends          "runit"
 depends          "nodejs"
 depends          "graphite"
+depends          "cluster_chef"
 
 recipe           "statsd::default",                    "Base configuration for statsd"
 recipe           "statsd::server",                     "Server"

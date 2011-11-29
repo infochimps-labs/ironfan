@@ -22,6 +22,7 @@
 include_recipe "runit"
 include_recipe "cluster_chef"
 include_recipe "statsd::default"
+include_recipe "graphite"
 
 daemon_user(:statsd)
 

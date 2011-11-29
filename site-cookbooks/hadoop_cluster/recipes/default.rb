@@ -20,7 +20,6 @@
 #
 
 include_recipe "java::sun"
-include_recipe "runit"
 include_recipe "apt"
 include_recipe "mountable_volumes"
 class Chef::Recipe; include HadoopCluster ; end

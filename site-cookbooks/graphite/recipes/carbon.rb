@@ -19,6 +19,8 @@
 # limitations under the License.
 #
 
+include_recipe "runit"
+
 package "python-twisted"
 
 remote_file "/usr/src/carbon-#{node[:graphite][:carbon][:version]}.tar.gz" do

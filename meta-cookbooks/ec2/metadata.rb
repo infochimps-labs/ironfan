@@ -11,6 +11,7 @@ depends          "mountable_volumes"
 depends          "cluster_chef"
 
 recipe           "ec2::default",                       "Placeholder cookbook -- see ec2::raid_ephemeral"
+recipe           "ec2::attach_ebs",                    "Attach EBS volumes as directed by node[:mountable_volumes]"
 recipe           "ec2::raid_ephemeral",                "Build a RAID volume out of the ephemeral drives"
 
 %w[ debian ubuntu ].each do |os|

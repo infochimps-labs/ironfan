@@ -46,11 +46,6 @@ attribute "pig/combine_splits",
   :description           => "Processing input (either user input or intermediate input) from multiple small files can be inefficient because a separate map has to be created for each file. Pig can now combined small files so that they are processed as a single map. combine_splits turns this on or off.",
   :default               => "true"
 
-attribute "pig/release_url",
-  :display_name          => "",
-  :description           => "",
-  :default               => "http://apache.mirrors.tds.net/pig/pig-0.9.1/pig-0.9.1.tar.gz"
-
 attribute "java/java_home",
   :display_name          => "JAVA_HOME environment variable to set for compilation",
   :description           => "JAVA_HOME environment variable to set for compilation. This should be the path to the 'jre' subdirectory of your Sun Java install (*not* OpenJDK).",

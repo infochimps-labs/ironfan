@@ -8,9 +8,9 @@ description      "Mounts volumes  as directed by node metadata. Can attach exter
 
 depends          "cluster_chef"
 
-recipe           "mountable_volumes::attach",          "Attach"
-recipe           "mountable_volumes::default",         "Base configuration for mountable_volumes"
-recipe           "mountable_volumes::mount",           "Mount"
+recipe           "mountable_volumes::default",         "Placeholder -- see other recipes in ec2 cookbook"
+recipe           "mountable_volumes::mount",           "Mount the volumes listed in node[:mountable_volumes]"
+recipe           "mountable_volumes::build_raid",      "Build a raid array of volumes as directed by node[:mountable_volumes]"
 
 %w[ debian ubuntu ].each do |os|
   supports os

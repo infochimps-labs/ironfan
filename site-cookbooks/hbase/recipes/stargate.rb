@@ -20,6 +20,7 @@
 #
 
 include_recipe "hbase"
+include_recipe "runit"
 
 cookbook_file "/etc/init.d/hadoop-hbase-stargate" do
   owner         "root"

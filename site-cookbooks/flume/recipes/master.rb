@@ -19,9 +19,8 @@
 # limitations under the License.
 #
 
-# We need to explicitly include the default recipe, because we need access
-# to the templates.
 include_recipe "flume::default"
+include_recipe "runit"
 
 package "flume-master"
 

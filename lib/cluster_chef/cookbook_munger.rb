@@ -26,6 +26,9 @@ require 'chef/mixin/from_file'
 $:.unshift File.expand_path('..', File.dirname(__FILE__))
 require 'cluster_chef/dsl_object'
 
+require 'gorillib/logger/log'
+class Chef ; class Log ; def self.info(*args) ; end ; def self.debug(*args) ; end ; end ; end
+
 Settings.define :maintainer,       :default => 'default mantainer name', :default => "Philip (flip) Kromer - Infochimps, Inc"
 Settings.define :maintainer_email, :default => 'default email to add to cookbook headers', :default => "coders@infochimps.com"
 Settings.define :license,          :default => 'default license to apply to cookbooks', :default => "Apache 2.0"
@@ -246,12 +249,13 @@ module CookbookMunger
   # RecipeFile -- a chef recipe
   #
   class RecipeFile
-    attr_accessor :copyright_lines, :author_lines, :include_recipes
+    attr_accessor :copyright_lines, :author_lines, :include_recipes, :include_cookbooks
     include       CookbookComponent
 
     def initialize(*args, &block)
       super
-      @include_recipes = []
+      @include_recipes   = []
+      @include_cookbooks = []
     end
 
     def process_header_line(line)
@@ -260,8 +264,11 @@ module CookbookMunger
     end
 
     def process_body_line(line)
-      if line =~ /include_recipe\(?\s*[\"\']([^\"\'\:]*?)(::.*?)?[\"\']\s*\)?(?:#.*)?$/
-        self.include_recipes << $1
+      if line =~ /include_recipe\(?\s*[\"\']([^\"\'\:]*?)(::.*?)?[\"\']\s*\)?(?:[#;].*)?$/
+        i_cb, i_rp = [$1, $2]
+        i_rp = nil if i_rp == "default"
+        self.include_cookbooks << i_cb
+        self.include_recipes   << [i_cb, i_rp].compact.join("::")
       end
     end
 
@@ -275,6 +282,13 @@ module CookbookMunger
 
     def dump
       super
+    end
+
+    def lint
+      if self.name == 'default'
+        sketchy = (include_recipes & %w[ runit::default java::sun ])
+        if sketchy.present? then warn "Recipe #{cookbook.name}::#{name} includes #{sketchy.inspect} -- put these in component cookbooks, not the default." ; end
+      end
     end
 
     def generate_header!
@@ -321,7 +335,8 @@ module CookbookMunger
     end
     def attribute?(key) node.has_key?(key.to_sym) ; end
     def node
-      { :hostname     => 'hostname',
+      {
+        :hostname     => 'hostname',
         :cluster_name => :cluster_name,
         :platform     => 'ubuntu',   :platform_version => '10.4',
         :cloud        => { :private_ips => ['10.20.30.40']    },
@@ -332,6 +347,9 @@ module CookbookMunger
         :zookeeper    => { :home_dir => '/usr/lib/zookeeper', },
         :redis        => { :slave => 'no' },
         :ipaddress    => '10.20.30.40',
+        :languages    => { :ruby => { :version => "1.9" } },
+        :cassandra    => { :mx4j_version => 'x.x' },
+        :ganglia      => { :home_dir => '/var/lib/ganglia' },
       }.merge(@all_attributes)
     end
     def method_missing(meth, *args)
@@ -340,6 +358,10 @@ module CookbookMunger
       else
         super(meth, *args)
       end
+    end
+
+    def value_for_platform(hsh)
+      hsh["default"] || hsh[hsh.keys.first]
     end
 
   end
@@ -478,16 +500,17 @@ module CookbookMunger
       # end
       lint_dependencies
       lint_presence
+      components[:recipes].each(&:lint)
     end
 
     def lint_dependencies
-      include_recipes = []
+      include_cookbooks = []
       components[:recipes].each do |recipe|
-        include_recipes += recipe.include_recipes
+        include_cookbooks += recipe.include_cookbooks
       end
-      include_recipes = include_recipes.sort.uniq
-      missing_dependencies = (include_recipes  - all_depends.keys - [name])
-      missing_includes     = (all_depends.keys - include_recipes  - [name, 'provides_service', 'install_from'])
+      include_cookbooks = include_cookbooks.sort.uniq
+      missing_dependencies = (include_cookbooks  - all_depends.keys - [name])
+      missing_includes     = (all_depends.keys - include_cookbooks  - [name, "provides_service"])
       warn "Coookbook #{name} doesn't declare dependency on #{missing_dependencies.join(", ")}, but has an include_recipe that refers to it" if missing_dependencies.present?
       warn "Coookbook #{name} declares dependency on #{missing_includes.join(", ")}, but never calls include_recipe with it"             if missing_includes.present?
     end

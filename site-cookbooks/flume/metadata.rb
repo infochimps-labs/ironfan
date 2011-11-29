@@ -10,6 +10,7 @@ depends          "java"
 depends          "apt"
 depends          "runit"
 depends          "mountable_volumes"
+depends          "cluster_chef"
 depends          "provides_service"
 #
 recommends       "jruby"

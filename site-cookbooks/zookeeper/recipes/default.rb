@@ -19,9 +19,10 @@
 # limitations under the License.
 #
 
-include_recipe "java::sun"
 include_recipe "apt"
 include_recipe "mountable_volumes"
+include_recipe "cluster_chef"
+include_recipe "java" ; complain_if_not_sun_java(:cassandra)
 
 include_recipe "zookeeper::add_cloudera_repo"
 

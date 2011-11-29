@@ -19,4 +19,5 @@
 # limitations under the License.
 #
 
+include_recipe 'cluster_chef'
 include_recipe 'mountable_volumes'

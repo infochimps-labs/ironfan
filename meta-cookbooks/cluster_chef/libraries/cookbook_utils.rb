@@ -47,8 +47,18 @@ module ClusterChef
     end
 
     #
+    # Assert node state
+    #
+    def complain_if_not_sun_java(program)
+      unless( node['java']['install_flavor'] == 'sun')
+        warn "Warning!! You are *strongly* recommended to use Sun Java for #{program}. Set node['java']['install_flavor'] = 'sun' in a role -- right now it's '#{node['java']['install_flavor']}'"
+      end
+    end
+
+    #
     # Best public or private IP
     #
+
 
   end
 end

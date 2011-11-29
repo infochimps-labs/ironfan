@@ -20,6 +20,7 @@
 #
 
 include_recipe 'ganglia'
+include_recipe "runit"
 
 daemon_user('ganglia.monitor')
 
