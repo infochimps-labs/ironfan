@@ -43,7 +43,7 @@ echo -e "`date` \n\n**** \n**** Chef is present -- skipping apt/ruby/chef instal
 fi 
 
 # fix a bug in chef that prevents debugging template errors
-bad_template_file='/usr/lib/ruby/gems/1.9.2-p290/gems/chef-0.10.4/lib/chef/mixin/template.rb'
+bad_template_file='/usr/lib/ruby/gems/1.9.1/gems/chef-0.10.4/lib/chef/mixin/template.rb'
 if  echo "0505c482b8b0b333ac71bbc8a1795d19  $bad_template_file" | md5sum -c - 2>/dev/null ; then
   curl https://github.com/mrflip/chef/commit/655a1967253a8759afb54f30b818bbcb7c309198.patch | sudo patch $bad_template_file
 fi
