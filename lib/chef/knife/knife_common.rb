@@ -116,7 +116,7 @@ module ClusterChef
 
       bootstrap.name_args               = [ hostname ]
       bootstrap.config[:node]           = server
-      bootstrap.config[:run_list]       = server.run_list
+      bootstrap.config[:run_list]       = server.combined_run_list
       bootstrap.config[:ssh_user]       = config[:ssh_user]       || server.cloud.ssh_user
       bootstrap.config[:attribute]      = config[:attribute]
       bootstrap.config[:identity_file]  = config[:identity_file]  || server.cloud.ssh_identity_file
