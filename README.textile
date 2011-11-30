@@ -1,3 +1,56 @@
+
+h1. "Version 3 alpha":https://github.com/infochimps/cluster_chef/tree/version_3 now available!
+
+See the "version_3 branch":https://github.com/infochimps/cluster_chef/tree/version_3 for a major upgrade.
+
+If you are a new or prospective adopter of cluster_chef we strongly recommend you begin with the version_3 branch. If you are an existing user, you should hold back until the official release. Our firm target release date is Dec 14.
+
+h3. Version 3 Improvements:
+
+h4. @knife cluster@ toolset
+
+* from @howech, cluster files directly manipulate their cluster/facet role.
+* cluster files are now dramatically cleaner and yet more powerful.
+* cluster_chef is now a gem (thanks @arp!) -- no more clunky symlinking to get started
+* node discovery and synchronization of cloud, cluster and server are both rock-solid
+* ec2 cloud now supports EBS volume creation, attachment and tagging; elastic IP association; keypair creation
+
+h4. New Superpowers
+
+* Rundeck integration -- temujin9 can lift small cities with his mind now. Ridiculously awesome.
+* (initial) support for Vagrant/Virtualbox -- test all your clusters on your laptop, deploy them to the cloud.
+
+h4. Cookbook cleanup
+
+* all cookbooks have uniform attribute names, directory structure, and shared conventions -- @log_dir@ is always spelled @log_dir@, is always referred to via node attribute (and never sometimes-hardcoded-sometimes-configurable), and always handled uniformly.
+* cookbooks are assertive and (adaptably) opinionated: a @conf_dir@ is by default be in @/etc/{service_name}@, with permissions @root:root 755@, and all config files live there.
+* cookbooks are entirely free of references
+* all cookbooks bear complete and accurate @metadata.rb@ and @README.md@ files
+
+h4. Aspects / Discovery and Integration Cookbooks
+
+The most important changes are the development of **aspects** and **integration cookbooks**. Cookbooks repeatably express these and other aspects:
+* "I launch these daemons: ..."
+* "I haz a bukkit, itz naem '/var/log/lol'"
+* "I have a dashboard at 'http://....:...'"
+* ... and much more.
+
+Wouldn't it be nice if announcing a log directory caused...
+  - my log rotation system to start rotating my logs?
+  - a 'disk free space' gauge to be added to the monitoring dashboard for that service?
+  - flume (or whatever) began picking up my logs and archiving them to a predictable location?
+  - in the case of standard apache logs, a listener to start counting the rate of requests, 200s, 404s and so forth?
+Similarly, announcing ports should mean
+  - the firewall and security groups configure themselves correspondingly
+  - the monitor system starts regularly pinging the port for uptime and latency 
+  - and pings the interfaces that it should *not* appear on to ensure the firewall is in place?
+
+The version_3 cookbooks make those aspects standardized and predictable, and provides integration and discovery hooks. The key is to make integration *inevitable*: No more forgetting to rotate or monitor a service, or having a config change over here screw up a dependent system over there.
+
+Joe Bob says check it out.
+
+------------------------------------------------------
+
 h1. cluster_chef
 
 Chef is a powerful tool for maintaining and describing the software and configurations that let a machine provide its services.
