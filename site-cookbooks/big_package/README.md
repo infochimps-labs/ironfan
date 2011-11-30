@@ -1,14 +1,52 @@
 # big_package chef cookbook
 
-A bunch of fun packages
+Installs extra packages that don't warrant their own cookbook (tree, htop,
+colordiff and so on), yet still provides visibility, dev-vs-production
+tradeoffs, and fine-grained version control where necessary.
 
 ## Overview
 
-Installs extra packages as directed. Use to install packages that don't warrant their own cookbook: emacs, htop, colordiff and so on
+All but the most hermetic production machines benefit from certain base
+packages -- git, htop, libxml, etc -- be present. Creating a stupid one-line
+cookbook for each is overkill and clutters your runlist. Having a fixed
+'big_dumping_ground_for_packages' is a proven disaster -- one coder's
+convenience gems is anothers' bundler hell.
+
+Package sets provide
+* visibility: I know *exactly* which miscellaneous packages are installed
+* package sets are repeatable and match the machine's purpose: dev boxes get a
+  variety of kitchen sinks, production boxes get only bare essentials.
+* Fine-grained control over versions, and ability to knock out a conflicting
+  package.
+  
+### Choosing package sets
+
+The pkg_sets attribute group defines what package sets to install, and the
+contents of those package sets.
+
+Choose the package sets to install by setting `node[:pkg_sets][:install]`. The
+default is
+
+    default[:pkg_sets][:install] = %w[ base dev sysadmin ]
+
+Targets for `package` resource go in `node[:pkg_sets][:pkgs][{set_name}]`,
+targets for `gem_package` go in `node[:pkg_sets][:gems][{set_name}]`, and so
+forth. For instance, the 'base' group is defined as
+
+    default[:pkg_sets][:pkgs][:base] = %w[ tree git zip openssl ]
+    default[:pkg_sets][:gems][:base] = %w[ bundler rake ]
+
+In your clusters file or a role, you can both specify which sets (if any) the
+machine installs, and modify (for that node or role only) what packages are
+in any given group.
+
+Defining pkg_sets is distributed -- anything can define a 'foo' group by
+setting `node[:pkg_sets][:pkgs][:foo]`, no need to modify this
+cookbook. Selecting *which* packages to install is however unambiguous -- you
+must expressly add the set 'foo' to your node[:pkg_sets][:install] attribute.
 
 ## Attributes
 
-* `[:ruby][:version]`                 -  (default: "1.8")
 * `[:pkg_sets][:install]`             - 
 * `[:pkg_sets][:pkgs][:base]`         - 
 * `[:pkg_sets][:pkgs][:dev]`          - 

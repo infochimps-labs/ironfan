@@ -143,6 +143,8 @@ Ignore the temptation to make a one-true-home-for-my-system, or to fight the pac
   - instead of:         `whatever_checksum`, `whatever_fingerprint`
 * **version**:          if it's a simply-versioned resource that uses the `major.minor.patch-cruft` convention. Do not use unless this is true, and do not use the source control revision ID.
 
+* **plugins**:          array of system-specific plugins
+
 use `deploy_{}` for anything that would be true whatever SCM you're using; use
 `git_{}` (and so forth) where specific to that repo.
 

@@ -4,8 +4,7 @@ license          "Apache 2.0"
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 version          "3.0.2"
 
-description      "A bunch of fun packages"
-
+description      "Installs extra packages that don't warrant their own cookbook (tree, htop, colordiff and so on), yet still provides visibility, dev-vs-production tradeoffs, and fine-grained version control where necessary."
 
 recipe           "big_package::default",               "Base configuration for big_package"
 
@@ -13,19 +12,14 @@ recipe           "big_package::default",               "Base configuration for b
   supports os
 end
 
-attribute "ruby/version",
-  :display_name          => "",
-  :description           => "",
-  :default               => "1.8"
-
 attribute "pkg_sets/install",
-  :display_name          => "",
-  :description           => "",
+  :display_name          => "Package sets to install",
+  :description           => "Choose the package sets to install. See pkg_sets/pkgs and pkg_sets/gems for their contents.",
   :type                  => "array",
   :default               => ["base", "dev", "sysadmin"]
 
 attribute "pkg_sets/pkgs/base",
-  :display_name          => "",
+  :display_name          => "Base set of packages, suitable for all machines",
   :description           => "",
   :type                  => "array",
   :default               => ["tree", "git", "zip", "openssl"]
