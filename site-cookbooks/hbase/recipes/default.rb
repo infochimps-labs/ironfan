@@ -99,4 +99,4 @@ end
 # Stuff the HBase jars into the classpath
 node[:hadoop][:extra_classpaths][:hbase] = '/usr/lib/hbase/hbase.jar:/usr/lib/hbase/conf'
 node[:hbase][:exported_confs]  = [ "#{node[:hbase][:conf_dir]}/hbase-default.xml", "#{node[:hbase][:conf_dir]}/hbase-site.xml",]
-node[:hbase][:export_jars]     = [ "#{node[:hbase][:home_dir]}/hbase-0.90.1-cdh3u0.jar", "#{node[:hbase][:home_dir]}/hbase-0.90.1-cdh3u0-tests.jar", ]
+node[:hbase][:exported_jars]   = [ "#{node[:hbase][:home_dir]}/hbase-0.90.1-cdh3u0.jar", "#{node[:hbase][:home_dir]}/hbase-0.90.1-cdh3u0-tests.jar", ]

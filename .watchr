@@ -32,7 +32,7 @@ watch("spec/.*/discovery_spec\.rb") do |match|
   run_spec match[0]
 end
 
-watch("meta-cookbooks/provides_service/discovery\.rb") do |match|
+watch("meta-cookbooks/provides_service/libraries/discovery\.rb") do |match|
   file = %{spec/cluster_chef/discovery_spec.rb}
   run_spec file if File.exists?(file)
 end

@@ -240,11 +240,6 @@ attribute "hadoop/namenode/java_heap_size_max",
   :description           => "",
   :default               => ""
 
-attribute "hadoop/namenode/data_dir",
-  :display_name          => "",
-  :description           => "",
-  :default               => ""
-
 attribute "hadoop/namenode/port",
   :display_name          => "",
   :description           => "",
@@ -272,11 +267,6 @@ attribute "hadoop/datanode/run_state",
   :default               => "start"
 
 attribute "hadoop/datanode/java_heap_size_max",
-  :display_name          => "",
-  :description           => "",
-  :default               => ""
-
-attribute "hadoop/datanode/data_dir",
   :display_name          => "",
   :description           => "",
   :default               => ""
@@ -338,11 +328,6 @@ attribute "hadoop/secondarynn/run_state",
   :default               => "stop"
 
 attribute "hadoop/secondarynn/java_heap_size_max",
-  :display_name          => "",
-  :description           => "",
-  :default               => ""
-
-attribute "hadoop/secondarynn/data_dir",
   :display_name          => "",
   :description           => "",
   :default               => ""

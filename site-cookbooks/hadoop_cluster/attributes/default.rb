@@ -42,12 +42,12 @@ default[:hadoop][:tasktracker ][:run_state]  = :start
 #
 # Important: In CDH3, the mapred.system.dir directory must be located inside a directory that is owned by mapred. For example, if mapred.system.dir is specified as /mapred/system, then /mapred must be owned by mapred. Don't, for example, specify /mrsystem as mapred.system.dir because you don't want / owned by mapred.
 #
-default[:hadoop][:namenode   ][:data_dir]        = nil
-default[:hadoop][:secondarynn][:data_dir]        = nil
+default[:hadoop][:namenode   ][:data_dirs]       = []
+default[:hadoop][:secondarynn][:data_dirs]       = []
 default[:hadoop][:jobtracker ][:system_hdfsdir]  = '/hadoop/mapred/system' # note: on the HDFS
 default[:hadoop][:jobtracker ][:staging_hdfsdir] = '/hadoop/mapred/system' # note: on the HDFS
-default[:hadoop][:datanode   ][:data_dir]        = nil
-default[:hadoop][:tasktracker][:scratch_dir]     = nil
+default[:hadoop][:datanode   ][:data_dirs]       = []
+default[:hadoop][:tasktracker][:scratch_dirs]    = []
 
 default[:hadoop][:home_dir] = "/usr/lib/hadoop"
 default[:hadoop][:conf_dir] = "/etc/hadoop/conf"

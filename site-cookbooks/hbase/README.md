@@ -20,7 +20,7 @@ Installs/Configures HBase
 * `[:hbase][:log_dir]`                -  (default: "/var/log/hbase")
 * `[:hbase][:pid_dir]`                -  (default: "/var/run/hbase")
 * `[:hbase][:exported_confs]`         - 
-* `[:hbase][:export_jars]`            - 
+* `[:hbase][:exported_jars]`            - 
 * `[:hbase][:master][:java_heap_size_max]` -  (default: "1000m")
 * `[:hbase][:master][:gc_new_size]`   -  (default: "256m")
 * `[:hbase][:master][:gc_tuning_opts]` -  (default: "-XX:+UseConcMarkSweepGC -XX:+AggressiveOpts")

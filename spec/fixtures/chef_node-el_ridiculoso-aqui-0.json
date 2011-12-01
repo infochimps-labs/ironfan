@@ -1670,7 +1670,6 @@
   "hadoop": {
     "namenode": {
       "run_state": "start",
-      "data_dir": null,
       "port": 8020,
       "dash_port": 50070,
       "user": "hdfs",
@@ -1683,7 +1682,6 @@
     },
     "secondarynn": {
       "run_state": "start",
-      "data_dir": null,
       "dash_port": 50090,
       "user": "hdfs",
       "java_heap_size_max": 384,
@@ -1708,7 +1706,6 @@
     },
     "datanode": {
       "run_state": "start",
-      "data_dir": null,
       "port": 50010,
       "ipc_port": 50020,
       "dash_port": 50075,
@@ -1837,7 +1834,15 @@
     "thrift": {
       "run_state": "stop",
       "java_heap_size_max": 384
-    }
+    },
+    "exported_confs": [
+      "/etc/hbase/conf/hbase-default.xml",
+      "/etc/hbase/conf/hbase-site.xml"
+    ],
+    "exported_jars": [
+      "/usr/lib/hbase/hbase-0.90.1-cdh3u0.jar",
+      "/usr/lib/hbase/hbase-0.90.1-cdh3u0-tests.jar"
+    ]
   },
   "zookeeper": {
     "cluster_name": "el_ridiculoso",
@@ -1846,7 +1851,7 @@
     "log_dir": "/var/log/zookeeper",
     "data_dir": "/var/zookeeper",
     "user": "zookeeper",
-    "export_jars": [
+    "exported_jars": [
       "/usr/lib/zookeeper/zookeeper.jar"
     ],
     "server": {

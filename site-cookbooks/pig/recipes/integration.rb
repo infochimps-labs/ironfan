@@ -25,7 +25,7 @@
   #
   # Link hbase, zookeeper, etc jars to $PIG_HOME/lib
   #
-  [node[other_system][:export_jars]].flatten.compact.each do |jar|
+  [node[other_system][:exported_jars]].flatten.compact.each do |jar|
     link File.join(node[:pig][:home_dir], 'lib', File.basename(jar)) do
       to        jar
       action    :create

@@ -62,7 +62,7 @@ attribute "zookeeper/home_dir",
   :description           => "",
   :default               => "/usr/lib/zookeeper"
 
-attribute "zookeeper/export_jars",
+attribute "zookeeper/exported_jars",
   :display_name          => "",
   :description           => "",
   :type                  => "array",

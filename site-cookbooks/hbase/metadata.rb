@@ -82,7 +82,7 @@ attribute "hbase/exported_confs",
   :type                  => "array",
   :default               => ["/hbase-default.xml", "/hbase-site.xml"]
 
-attribute "hbase/export_jars",
+attribute "hbase/exported_jars",
   :display_name          => "",
   :description           => "",
   :type                  => "array",

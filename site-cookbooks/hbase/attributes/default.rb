@@ -29,6 +29,9 @@ default[:hbase][:regionserver][:run_state] = :start
 default[:hbase][:thrift      ][:run_state] = :start
 default[:hbase][:stargate    ][:run_state] = :start
 
+node[:hbase][:exported_confs]  ||= [] # set in recipe
+node[:hbase][:exported_jars]   ||= [] # set in recipe
+
 #
 # Tunables
 #

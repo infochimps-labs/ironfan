@@ -21,7 +21,7 @@ The server recipe additionally
 * `[:zookeeper][:log_dir]`            -  (default: "/var/log/zookeeper")
 * `[:zookeeper][:max_client_connections]` -  (default: "30")
 * `[:zookeeper][:home_dir]`           -  (default: "/usr/lib/zookeeper")
-* `[:zookeeper][:export_jars]`        - 
+* `[:zookeeper][:exported_jars]`        - 
 * `[:zookeeper][:conf_dir]`           -  (default: "/etc/zookeeper")
 * `[:zookeeper][:user]`               -  (default: "zookeeper")
 * `[:zookeeper][:server][:run_state]` -  (default: "stop")
