@@ -51,80 +51,61 @@
     "machine": "x86_64",
     "modules": {
       "nfs": {
-        "size": "330371",
-        "refcount": "1"
+        "size": "330371"
       },
       "lockd": {
-        "size": "85732",
-        "refcount": "1"
+        "size": "85732"
       },
       "fscache": {
-        "size": "57123",
-        "refcount": "1"
+        "size": "57123"
       },
       "nfs_acl": {
-        "size": "12883",
-        "refcount": "1"
+        "size": "12883"
       },
       "auth_rpcgss": {
-        "size": "52881",
-        "refcount": "1"
+        "size": "52881"
       },
       "sunrpc": {
-        "size": "234297",
-        "refcount": "12"
+        "size": "234297"
       },
       "vboxsf": {
-        "size": "39343",
-        "refcount": "2"
+        "size": "39343"
       },
       "vesafb": {
-        "size": "13761",
-        "refcount": "1"
+        "size": "13761"
       },
       "ppdev": {
-        "size": "17113",
-        "refcount": "0"
+        "size": "17113"
       },
       "psmouse": {
-        "size": "73535",
-        "refcount": "0"
+        "size": "73535"
       },
       "serio_raw": {
-        "size": "13166",
-        "refcount": "0"
+        "size": "13166"
       },
       "parport_pc": {
-        "size": "36959",
-        "refcount": "0"
+        "size": "36959"
       },
       "vboxguest": {
-        "size": "232904",
-        "refcount": "2"
+        "size": "232904"
       },
       "i2c_piix4": {
-        "size": "13303",
-        "refcount": "0"
+        "size": "13303"
       },
       "lp": {
-        "size": "17789",
-        "refcount": "0"
+        "size": "17789"
       },
       "parport": {
-        "size": "46458",
-        "refcount": "3"
+        "size": "46458"
       },
       "ahci": {
-        "size": "25951",
-        "refcount": "2"
+        "size": "25951"
       },
       "libahci": {
-        "size": "26642",
-        "refcount": "1"
+        "size": "26642"
       },
       "e1000": {
-        "size": "111862",
-        "refcount": "0"
+        "size": "111862"
       }
     },
     "os": "GNU/Linux"
@@ -165,7 +146,11 @@
           "RUNNING",
           "MULTICAST"
         ],
-        "mtu": "1500"
+        "mtu": "1500",
+        "arp": {
+          "10.0.2.3": "52:54:00:12:35:03",
+          "10.0.2.2": "52:54:00:12:35:02"
+        }
       },
       "eth1": {
         "type": "eth",
@@ -221,72 +206,6 @@
     },
     "default_gateway": "10.0.2.2",
     "default_interface": "eth0"
-  },
-  "counters": {
-    "network": {
-      "interfaces": {
-        "eth0": {
-          "rx": {
-            "packets": "1207",
-            "errors": "0",
-            "drop": "0",
-            "overrun": "0",
-            "frame": "0",
-            "bytes": "184398"
-          },
-          "tx": {
-            "packets": "1104",
-            "errors": "0",
-            "drop": "0",
-            "overrun": "0",
-            "carrier": "0",
-            "collisions": "0",
-            "queuelen": "1000",
-            "bytes": "130515"
-          }
-        },
-        "eth1": {
-          "rx": {
-            "packets": "19124",
-            "errors": "0",
-            "drop": "0",
-            "overrun": "0",
-            "frame": "0",
-            "bytes": "13330313"
-          },
-          "tx": {
-            "packets": "9755",
-            "errors": "0",
-            "drop": "0",
-            "overrun": "0",
-            "carrier": "0",
-            "collisions": "0",
-            "queuelen": "1000",
-            "bytes": "3724591"
-          }
-        },
-        "lo": {
-          "rx": {
-            "packets": "8751103",
-            "errors": "0",
-            "drop": "0",
-            "overrun": "0",
-            "frame": "0",
-            "bytes": "741285651"
-          },
-          "tx": {
-            "packets": "8751103",
-            "errors": "0",
-            "drop": "0",
-            "overrun": "0",
-            "carrier": "0",
-            "collisions": "0",
-            "queuelen": "0",
-            "bytes": "741285651"
-          }
-        }
-      }
-    }
   },
   "ipaddress": "10.0.2.15",
   "macaddress": "08:00:27:60:82:6e",
@@ -1139,13 +1058,6 @@
     "local_hostname": null,
     "provider": "virtualbox"
   },
-  "keys": {
-    "ssh": {
-      "host_dsa_public": "AAAAB3Nzaasdklfasjdflewoiuqweporiuqwepoiruqwepoiruqwpeoiruqpwoeiruqwpoeiruqpoweiurqpwoeirupqwoeiurqpwoeiurpqwoeiurpqoweiurpqoweirupqoweiurqpwoeituqpwortuywriutywqoieuyezxcmvnzxmnzxbcvmnzxbvnsdbvamnsbdfvamsndbfvasmndbfvasmndbfvasdmnbfvamsndbfvasmndbfvasmndbfvasmdnbfvasmdnbfvasdmnbfavsdmnfbasvdmnfbavsdmfnbasdvfmnasbdfvmasndbfvasmdnbfvasmdnbfvasmdnbfvasmdnbfvasmdnbfvamsndbfvamsndbfvasmndbfvasdmnbfavsdmnbfavsdfmnbasdvfmnasbdvfmansdbfvasmndbfvamsndbfvasmdnbfvasmndbfvasmdnbfvasmdnbfvasmndbfvasmdnfbvasmndbfvasdmnbfvasmndbfvasdmnbfvasdmnbfvasdmnbfvasmndbfvasmndbfvasmndbfvsadnmbfv==",
-      "host_rsa_public": "AAAAB3NzaC1yc2EAAAAD234908572304958723049587230498572309485723049857230498572340957sfdiguoysdfiogusydfioguysdfoigusydfgoiusdfygoisudfygosdifugysdofiugysdofiugysdofiugysdfoiugysdfoiguysdfoigusdfygsdofiguysdfoiguysdfoiguysdfogiusdfygoisdufgysodifugyosdifugysdofiguysdfoigusydfgoiusdfygosdifugysdoifugysdoifugysdfoiugysdfoiguysdfoiguysdfogiusdfygoiusdfgyosidfuygsdoifugyfsgdf"
-    }
-  },
-  "ohai_time": 1322691776.0966473,
   "command": {
     "ps": "ps -ef"
   },
@@ -1157,10 +1069,6 @@
   },
   "platform": "ubuntu",
   "platform_version": "11.04",
-  "uptime_seconds": 90853,
-  "uptime": "1 day 01 hours 14 minutes 13 seconds",
-  "idletime_seconds": 70580,
-  "idletime": "19 hours 36 minutes 20 seconds",
   "memory": {
     "swap": {
       "cached": "9988kB",
@@ -1670,24 +1578,26 @@
   "hadoop": {
     "namenode": {
       "run_state": "start",
-      "port": 8020,
-      "dash_port": 50070,
-      "user": "hdfs",
-      "handler_count": 40,
-      "java_heap_size_max": 384,
       "data_dirs": [
         "/hadoop/hdfs/name"
       ],
+      "port": 8020,
+      "dash_port": 50070,
+      "jmx_dash_port": 8004,
+      "user": "hdfs",
+      "handler_count": 40,
+      "java_heap_size_max": 384,
       "addr": "33.33.33.12"
     },
     "secondarynn": {
       "run_state": "start",
-      "dash_port": 50090,
-      "user": "hdfs",
-      "java_heap_size_max": 384,
       "data_dirs": [
         "/hadoop/hdfs/secondary"
       ],
+      "dash_port": 50090,
+      "jmx_dash_port": 8005,
+      "user": "hdfs",
+      "java_heap_size_max": 384,
       "addr": "33.33.33.12"
     },
     "jobtracker": {
@@ -1696,6 +1606,7 @@
       "staging_hdfsdir": "/hadoop/mapred/system",
       "port": 8021,
       "dash_port": 50030,
+      "jmx_dash_port": 8008,
       "user": "mapred",
       "handler_count": 40,
       "java_heap_size_max": 384,
@@ -1706,36 +1617,42 @@
     },
     "datanode": {
       "run_state": "start",
+      "data_dirs": [
+        "/hadoop/hdfs/data"
+      ],
       "port": 50010,
       "ipc_port": 50020,
       "dash_port": 50075,
+      "jmx_dash_port": 8006,
       "user": "hdfs",
       "handler_count": 8,
-      "java_heap_size_max": 384,
-      "data_dirs": [
-        "/hadoop/hdfs/data"
-      ]
+      "java_heap_size_max": 384
     },
     "tasktracker": {
       "run_state": "start",
-      "scratch_dir": null,
-      "dash_port": 50060,
-      "user": "mapred",
-      "http_threads": 32,
-      "java_heap_size_max": 384,
       "scratch_dirs": [
         "/hadoop/mapred/local"
-      ]
+      ],
+      "dash_port": 50060,
+      "jmx_dash_port": 8009,
+      "user": "mapred",
+      "http_threads": 32,
+      "java_heap_size_max": 384
     },
     "home_dir": "/usr/lib/hadoop",
     "conf_dir": "/etc/hadoop/conf",
     "pid_dir": "/var/run/hadoop",
     "log_dir": "/hadoop/log",
     "tmp_dir": "/hadoop/tmp",
+    "balancer": {
+      "jmx_dash_port": 8007
+    },
     "user": "hdfs",
     "handle": "hadoop-0.20",
     "deb_version": "0.20.2+923.142-1~maverick-cdh3",
     "extra_classpaths": {
+      "zookeeper": "/usr/lib/zookeeper/zookeeper.jar",
+      "hbase": "/usr/lib/hbase/hbase.jar:/usr/lib/hbase/conf"
     },
     "min_split_size": 134217728,
     "s3_block_size": 134217728,
@@ -1819,11 +1736,27 @@
     }
   },
   "hbase": {
+    "cluster_name": "el_ridiculoso",
+    "home_dir": "/usr/lib/hbase",
+    "tmp_dir": "/mnt/hbase/tmp",
+    "conf_dir": "/etc/hbase/conf",
+    "log_dir": "/var/log/hbase",
+    "pid_dir": "/var/run/hbase",
     "master": {
       "run_state": "stop",
-      "java_heap_size_max": 384
+      "java_heap_size_max": 384,
+      "gc_new_size": "256m",
+      "gc_tuning_opts": "-XX:+UseConcMarkSweepGC -XX:+AggressiveOpts",
+      "gc_log_opts": "-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -Xloggc:/var/log/hbase/hbase-master-gc.log"
     },
     "regionserver": {
+      "run_state": "stop",
+      "java_heap_size_max": 384,
+      "gc_new_size": "256m",
+      "gc_tuning_opts": "-XX:+UseConcMarkSweepGC -XX:+AggressiveOpts -XX:CMSInitiatingOccupancyFraction=88",
+      "gc_log_opts": "-verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -Xloggc:/var/log/hbase/hbase-regionserver-gc.log"
+    },
+    "thrift": {
       "run_state": "stop",
       "java_heap_size_max": 384
     },
@@ -1831,10 +1764,9 @@
       "run_state": "stop",
       "java_heap_size_max": 384
     },
-    "thrift": {
-      "run_state": "stop",
-      "java_heap_size_max": 384
-    },
+    "weekly_backup_tables": [
+
+    ],
     "exported_confs": [
       "/etc/hbase/conf/hbase-default.xml",
       "/etc/hbase/conf/hbase-site.xml"
@@ -1850,6 +1782,10 @@
     "conf_dir": "/etc/zookeeper",
     "log_dir": "/var/log/zookeeper",
     "data_dir": "/var/zookeeper",
+    "client_port": "2181",
+    "jmx_dash_port": "2182",
+    "leader_port": "2888",
+    "election_port": "3888",
     "user": "zookeeper",
     "exported_jars": [
       "/usr/lib/zookeeper/zookeeper.jar"
@@ -1917,44 +1853,36 @@
   },
   "provides_service": {
     "el_ridiculoso-flume-master": {
-      "timestamp": "20111130222205Z"
     },
     "el_ridiculoso-flume-node": {
-      "timestamp": "20111130222205Z"
     },
     "el_ridiculoso-zookeeper": {
-      "timestamp": "20111130222205Z"
     },
     "el_ridiculoso-datanode": {
-      "timestamp": "20111130222205Z"
     },
     "el_ridiculoso-jobtracker": {
-      "timestamp": "20111130222205Z"
     },
     "el_ridiculoso-namenode": {
-      "timestamp": "20111130222205Z"
     },
     "el_ridiculoso-secondarynn": {
-      "timestamp": "20111130222205Z"
     },
     "el_ridiculoso-tasktracker": {
-      "timestamp": "20111130222205Z"
     },
     "el_ridiculoso-ganglia_server": {
-      "timestamp": "20111130222205Z"
     },
     "el_ridiculoso-ganglia_monitor": {
-      "timestamp": "20111130222205Z",
       "monitor_group": "el_ridiculoso",
       "rcv_port": 8649
     },
     "el_ridiculoso-redis_server": {
-      "timestamp": "20111130222205Z",
       "port": "6379"
     },
     "resque_dashboard": {
-      "timestamp": "20111130222205Z",
       "port": null
+    },
+    "el_ridiculoso-hbase-master": {
+    },
+    "el_ridiculoso-hbase-regionserver": {
     }
   },
   "cluster_chef": {
@@ -2173,45 +2101,37 @@
     },
     "app_env": "production"
   },
+  "pig": {
+    "home_dir": "/usr/lib/pig",
+    "version": "0.9.1",
+    "release_url": ":apache_mirror:/pig/pig-:version:/pig-:version:.tar.gz",
+    "combine_splits": "true"
+  },
+  "rstats": {
+    "home_dir": "/usr/lib/R",
+    "conf_dir": "/etc/R",
+    "r_packages": [
+      "r-cran-VGAM",
+      "r-cran-rggobi"
+    ],
+    "cran_mirror_url": "http://cran.stat.ucla.edu"
+  },
+  "nodejs": {
+    "git_repo": "https://github.com/joyent/node.git",
+    "jobs": "2",
+    "install_dir": "/usr/src/nodejs",
+    "bin_path": "/usr/local/bin/node"
+  },
+  "jruby": {
+    "home_dir": "/usr/local/share/jruby",
+    "version": "1.6.5",
+    "release_url": "http://jruby.org.s3.amazonaws.com/downloads/:version:/jruby-bin-:version:.tar.gz"
+  },
   "aws": {
     "aws_access_key": null,
     "aws_access_key_id": null,
     "aws_secret_access_key": null
   },
-  "recipe": [
-    "motd",
-    "cluster_chef::virtualbox_metadata",
-    "cluster_chef::pickle_node",
-    "git",
-    "big_package::default",
-    "cluster_chef",
-    "cluster_chef::dedicated_server_tuning",
-    "thrift",
-    "flume::master",
-    "flume::node",
-    "hadoop_cluster::cluster_conf",
-    "hadoop_cluster::simple_dashboard",
-    "ganglia::server",
-    "ganglia::monitor",
-    "cluster_chef::dashboard"
-  ],
-  "role": [
-    "base_role",
-    "chef_client",
-    "ssh",
-    "nfs_client",
-    "mountable_volumes",
-    "hadoop_s3_keys",
-    "zookeeper_server",
-    "hadoop",
-    "hadoop_datanode",
-    "hadoop_jobtracker",
-    "hadoop_namenode",
-    "hadoop_secondarynn",
-    "hadoop_tasktracker",
-    "redis_server",
-    "resque_server"
-  ],
   "run_list": [
     "role[base_role]",
     "role[chef_client]",
@@ -2242,6 +2162,12 @@
     "recipe[ganglia::monitor]",
     "role[redis_server]",
     "role[resque_server]",
+    "role[hbase_master]",
+    "role[hbase_regionserver]",
+    "role[pig]",
+    "recipe[rstats]",
+    "recipe[nodejs]",
+    "recipe[jruby]",
     "recipe[cluster_chef::dashboard]"
   ]
 }

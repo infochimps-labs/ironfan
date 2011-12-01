@@ -1,8 +1,11 @@
+require File.expand_path('node_info.rb', File.dirname(__FILE__))
+
 module ClusterChef
 
   #
   #
   module Discovery
+
 
     def announces(sys_name, aspects={})
       sys = System.new(sys_name, aspects)
@@ -240,6 +243,7 @@ module ClusterChef
 
     module ClassMethods
       include StructAttr::ClassMethods
+      include ClusterChef::NodeInfo
 
       # Identify aspects from the given hash
       #
@@ -302,12 +306,20 @@ module ClusterChef
     def self.allowed_flavors() ALLOWED_FLAVORS ; end
   end
 
-
-  class DashboardAspect < Struct.new(:name,
+  class DashboardAspect < Struct.new(:name, :flavor,
       :url)
     include Aspect; register!
     ALLOWED_FLAVORS = [ :http, :jmx ]
     def self.allowed_flavors() ALLOWED_FLAVORS ; end
+
+    def self.harvest(node, info)
+      attr_matches(info, /(.*dash)_port/) do |key, val, match|
+        name   = match[1]
+        flavor = (name == 'dash') ? :http_dash : name.to_sym
+        url    = "http://#{private_ip_of(node)}:#{val}/"
+        self.new(name, flavor, url)
+      end
+    end
   end
 
   #

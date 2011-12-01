@@ -65,6 +65,19 @@ describe ClusterChef do
   end
 
   describe :DashboardAspect do
+    it 'is harvested by Aspects.harvest_all' do
+      aspects = ClusterChef::Aspect.harvest_all(chef_node, chef_node[:hadoop][:namenode])
+      aspects[:dashboard].should_not be_empty
+      aspects[:dashboard].each{|asp| asp.should be_a(ClusterChef::DashboardAspect) }
+    end
+    it 'harvests any "dash_port" attributes' do
+      p chef_node[:hadoop][:namenode]
+      dashboard_aspects = ClusterChef::DashboardAspect.harvest(chef_node, chef_node[:hadoop][:namenode])
+      dashboard_aspects.sort_by{|asp| asp.name }.should == [
+        ClusterChef::DashboardAspect.new("dash",     :http_dash, "http://33.33.33.12:50070/"),
+        ClusterChef::DashboardAspect.new("jmx_dash", :jmx_dash,  "http://33.33.33.12:8004/"),
+      ]
+    end
     it 'by default harvests the url from the private_ip and dash_port'
     it 'lets me set the URL with an explicit template'
   end
@@ -91,7 +104,6 @@ describe ClusterChef do
       it 'harvests the :limits hash'
     end
   end
-
 
   describe :LogAspect do
     it 'is harvested by Aspects.harvest_all' do

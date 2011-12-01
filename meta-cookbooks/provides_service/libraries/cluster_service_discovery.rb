@@ -22,6 +22,8 @@
 # Benjamin Black (<b@b3k.us>)'s cassandra cookbooks
 #
 
+require File.expand_path('node_info.rb', File.dirname(__FILE__))
+
 #
 # ClusterServiceDiscovery --
 #
@@ -46,6 +48,7 @@
 # in.
 #
 module ClusterServiceDiscovery
+  include ClusterChef::NodeInfo
 
   # Find all nodes that have indicated they provide the given service,
   # in descending order of when they registered.
@@ -129,28 +132,6 @@ module ClusterServiceDiscovery
   def all_provider_public_ips service_name
     servers = all_providers_for_service(service_name)
     servers.map{ |server| public_ip_of(server) }
-  end
-
-  # given server, get address
-
-  # The local-only ip address for the given server
-  def private_ip_of server
-    server[:cloud][:private_ips].first rescue server[:ipaddress]
-  end
-
-  # The local-only ip address for the given server
-  def fqdn_of server
-    server[:fqdn]
-  end
-
-  # The globally-accessable ip address for the given server
-  def public_ip_of server
-    server[:cloud][:public_ips].first  rescue server[:ipaddress]
-  end
-
-  # A compact timestamp, to record when services are registered
-  def self.timestamp
-    Time.now.utc.strftime("%Y%m%d%H%M%SZ")
   end
 
 end
