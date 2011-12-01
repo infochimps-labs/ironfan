@@ -29,7 +29,7 @@ node[:hadoop][:namenode   ][:addr] = provider_private_ip("#{node[:cluster_name]}
 node[:hadoop][:jobtracker ][:addr] = provider_private_ip("#{node[:cluster_name]}-jobtracker")
 node[:hadoop][:secondarynn][:addr] = provider_private_ip("#{node[:cluster_name]}-secondarynn")
 
-%w[core-site.xml hdfs-site.xml mapred-site.xml fairscheduler.xml hadoop-metrics.properties].each do |conf_file|
+%w[core-site.xml hdfs-site.xml mapred-site.xml hadoop-env.sh fairscheduler.xml hadoop-metrics.properties].each do |conf_file|
   template "#{node[:hadoop][:conf_dir]}/#{conf_file}" do
     owner "root"
     mode "0644"
@@ -49,19 +49,6 @@ template "/etc/default/#{node[:hadoop][:handle]}" do
   variables(:hadoop => hadoop_config_hash)
   source "etc_default_hadoop.erb"
 end
-
-# Fix the hadoop-env.sh to point to /var/run for pids
-munge_one_line('fix_hadoop_env-pid',      "#{node[:hadoop][:conf_dir]}/hadoop-env.sh",
-  %q{.*export HADOOP_PID_DIR=.*$},
-   %Q{export HADOOP_PID_DIR=#{node[:hadoop][:pid_dir]}},
-  %Q{^export.HADOOP_PID_DIR=#{node[:hadoop][:pid_dir]}})
-
-# Set SSH options within the cluster
-munge_one_line('fix hadoop ssh options', "#{node[:hadoop][:conf_dir]}/hadoop-env.sh",
-  %q{.*export HADOOP_SSH_OPTS=.*},
-   %q{export HADOOP_SSH_OPTS="-o StrictHostKeyChecking=no"},
-  %q{^export.HADOOP_SSH_OPTS=.-o StrictHostKeyChecking=no.}
-  )
 
 # $HADOOP_NODENAME is set in /etc/default/hadoop
 munge_one_line('use node name in hadoop .log logs', "#{node[:hadoop][:home_dir]}/bin/hadoop-daemon.sh",
