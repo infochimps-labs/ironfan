@@ -46,10 +46,9 @@ end
 zookeeper_server_ips =  all_provider_private_ips("#{node[:zookeeper][:cluster_name]}-zookeeper").sort
 myid = zookeeper_server_ips.find_index( private_ip_of node )
 template_variables = {
+  :zookeeper              => node[:zookeeper],
   :zookeeper_server_ips   => zookeeper_server_ips,
   :myid                   => myid,
-  :zookeeper_data_dir     => node[:zookeeper][:data_dir],
-  :zookeeper_max_client_connections => node[:zookeeper][:max_client_connections],
 }
 
 %w[ zoo.cfg log4j.properties].each do |conf_file|

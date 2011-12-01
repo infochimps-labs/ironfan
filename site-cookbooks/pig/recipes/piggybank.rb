@@ -23,6 +23,8 @@ package "sun-java6-jdk"
 package "sun-java6-bin"
 package "sun-java6-jre"
 
+package "ivy"
+
 bash 'build piggybank' do
   user        'root'
   cwd         "#{node[:pig][:home_dir]}/contrib/piggybank/java"

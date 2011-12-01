@@ -10,6 +10,11 @@ default[:zookeeper][:conf_dir]               = '/etc/zookeeper'
 default[:zookeeper][:log_dir]                = '/var/log/zookeeper'
 default[:zookeeper][:data_dir]               = '/var/zookeeper'
 
+default[:zookeeper][:client_port]            = '2181'
+default[:zookeeper][:jmx_dash_port]          = '2182'
+default[:zookeeper][:leader_port]            = '2888'
+default[:zookeeper][:election_port]          = '3888'
+
 #
 # User
 #

@@ -10,16 +10,15 @@ initLimit=10
 syncLimit=5
 
 # the directory where the snapshot is stored.
-dataDir=<%= @zookeeper_data_dir %>
+dataDir=<%= @zookeeper[:data_dir] %>
 
 # the port at which the clients will connect
-clientPort=2181
+clientPort=<%= @zookeeper[:client_port] %>
 
 <%- if @zookeeper_server_ips %>
 <%- @zookeeper_server_ips.each_with_index do |zk_addr, idx| %>
-server.<%= idx %>=<%= zk_addr %>:2888:3888
+server.<%= idx %>=<%= zk_addr %>:<%= @zookeeper[:leader_port] %>:<%= @zookeeper[:election_port] %>
+<%- end %>
 <%- end %>
 
-<%- end %>
-
-maxClientCnxns=<%= @zookeeper_max_client_connections || 1000 %>
+maxClientCnxns=<%= @zookeeper[:max_client_connections] || 1000 %>

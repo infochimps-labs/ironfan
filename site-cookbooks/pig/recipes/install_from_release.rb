@@ -21,6 +21,12 @@
 
 include_recipe "pig::default"
 
+package "sun-java6-jdk"
+package "sun-java6-bin"
+package "sun-java6-jre"
+
+package "ivy"
+
 #
 # Install pig from latest release
 #
