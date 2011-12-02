@@ -1,12 +1,12 @@
 require 'spork'
 require 'rspec'
 
-
 Spork.prefork do
   # This code is run only once when the spork server is started
   CLUSTER_CHEF_DIR = File.expand_path(File.dirname(__FILE__)+'/..') unless defined?(CLUSTER_CHEF_DIR)
   def CLUSTER_CHEF_DIR(*paths) File.join(CLUSTER_CHEF_DIR, *paths); end
 
+  $:.unshift('/Users/flip/ics/repos/chef/chef/lib')
   require 'chef'
   require 'fog'
 

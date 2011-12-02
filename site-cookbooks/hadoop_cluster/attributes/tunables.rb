@@ -33,7 +33,7 @@ default[:hadoop][:datanode    ][:java_heap_size_max] = nil
 default[:hadoop][:tasktracker ][:java_heap_size_max] = nil
 
 # bytes per second -- 1MB/s by default
-default[:hadoop][:max_balancer_bandwidth]            = 1048576
+default[:hadoop][:balancer][:max_bandwidth]          = 1048576
 
 # how long to keep jobtracker logs around
 default[:hadoop][:log_retention_hours ]              = 24

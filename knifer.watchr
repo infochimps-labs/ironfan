@@ -1,7 +1,7 @@
 # -*- ruby -*-
 
-COOKBOOK_PATHS = %w[cookbooks meta-cookbooks site-cookbooks] unless defined?(COOKBOOK_PATHS) 
-ROLES_PATH     = 'roles'                                     unless defined?(ROLES_PATH) 
+COOKBOOK_PATHS = %w[cookbooks meta-cookbooks site-cookbooks] unless defined?(COOKBOOK_PATHS)
+ROLES_PATH     = 'roles'                                     unless defined?(ROLES_PATH)
 
 def upload_cookbook(cookbook)
   puts   "uploading cookbook #{cookbook}"
@@ -26,7 +26,7 @@ end
 
 watch("#{ROLES_PATH}/.*\.rb") do |match|
   upload_role(match[0])
-end 
+end
 
 # p Dir["#{ROLES_PATH}/*.rb"]
 # p Dir["#{COOKBOOK_PATHS.first}/*"]

@@ -15,3 +15,42 @@ file "#{node[:cluster_chef][:conf_dir]}/chef_node-#{node.name}.json" do
   group         'root'
   mode          "0600" # only readable by root
 end
+
+require 'set'
+
+file "#{node[:cluster_chef][:conf_dir]}/chef_resources-#{node.name}.json" do
+  all_keys = Set.new
+  rcolxn = Chef::ResourceCollection.new
+  run_context.resource_collection.each do |r|
+    next if r.class.to_s == 'Chef::Resource::NodeMetadata'
+    r = r.dup
+    r.instance_eval do
+      content('')   if respond_to?(:content)
+      variables({}) if respond_to?(:variables)
+      remove_instance_variable('@options') rescue nil
+      params.delete(:options) if respond_to?(:params)
+      # if respond_to?(:options)
+      #   begin ; options({})  ; rescue options('') ; end
+      # end
+      @delayed_notifications = []
+      @immediate_notifications = []
+    end
+    if r.to_json.length > 1400
+      puts r.to_json
+    end
+    rcolxn << r
+  end
+  content       rcolxn.to_json(JSON::PRETTY_STATE_PROTOTYPE)+"\n"
+  action        :create
+  owner         'root'
+  group         'root'
+  mode          "0600" # only readable by root
+end
+
+# require 'pry'
+# binding.pry
+#
+# rr = run_context.resource_collection.select{|r| r.is_a?(Chef::Resource::File) }.map(&:dup).each{|r| r.content '' }
+#
+# Chef::Log.info( [collection.class, collection.inspect] )
+# Chef::Log.info( [collection.each{|r| r.inspect }] )

@@ -1,194 +1,210 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
-require CLUSTER_CHEF_DIR("meta-cookbooks/provides_service/libraries/discovery.rb")
 require 'chef/node'
+require 'chef/resource_collection'
+require CLUSTER_CHEF_DIR("meta-cookbooks/provides_service/libraries/discovery.rb")
 
 describe ClusterChef do
 
-  let(:node_json){ nd_json = JSON.parse(File.read(CLUSTER_CHEF_DIR('spec/fixtures/chef_node-el_ridiculoso-aqui-0.json'))) }
+  let(:node_json){ JSON.parse(File.read(CLUSTER_CHEF_DIR('spec/fixtures/chef_node-el_ridiculoso-aqui-0.json'))) }
   let(:chef_node) do
     nd = Chef::Node.new ; nd.consume_attributes(node_json)
     nd.name(node_json["name"]) ; nd.chef_environment(node_json["chef_environment"])
     nd
   end
 
-  describe ClusterChef::Aspect do
-    let(:foo_aspect){ Struct.new('FooAspect', :name, :description){ include ClusterChef::Aspect } }
-    after(:each) do
-      Struct.send(:remove_const, :FooAspect) if defined?(Struct::FooAspect)
-      ClusterChef::Aspect.registered.delete(:foo)
-      ClusterChef::Aspect.registered.should_not include(:foo)
-    end
-
-    it 'can register itself' do
-      ClusterChef::Aspect.registered.should_not include(foo_aspect)
-      foo_aspect.register!
-      ClusterChef::Aspect.registered.should include(:foo)
-      ClusterChef::Aspect.registered.values.should include(foo_aspect)
-    end
-
-    it 'enumerates all registered aspects' do
-      ClusterChef::Aspect.registered.should == Mash.new({
-        :port => ClusterChef::PortAspect, :dashboard => ClusterChef::DashboardAspect, :daemon => ClusterChef::DaemonAspect,
-        :log => ClusterChef::LogAspect, :directory => ClusterChef::DirectoryAspect,
-        :exported => ClusterChef::ExportedAspect, :volume => ClusterChef::VolumeAspect
-      })
-    end
-
-    it 'knows its handle' do
-      foo_aspect.klass_handle.should == :foo
-    end
-
-    context '.harvest_all' do
-      it 'passes the node to each aspect in turn' do
-        foo_aspect.register!
-        billy = Chef::Node.new() ; bob = Mash.new
-        foo_aspect.should_receive(:harvest).with(billy, bob)
-        ClusterChef::Aspect.harvest_all(billy, bob)
-      end
-    end
+  let(:chef_rclxn) do
+    JSON.parse(File.read(CLUSTER_CHEF_DIR('spec/fixtures/chef_resources-el_ridiculoso-aqui-0.json')))
   end
 
-  describe :PortAspect do
-    context '#addrs' do
-      it 'can be set explicitly'
-      it 'can be marked :critical, :open, :closed or :ignore'
-      it 'marks first private interface open by default'
-      it 'marks other interfaces closed by default'
-    end
-    context '#flavor' do
-      it 'accepts a defined flavor'
-    end
-    context '#monitors' do
-      it 'accepts an arbitrary hash'
-    end
-  end
+  # describe ClusterChef::Aspect do
+  #   let(:foo_aspect){ Struct.new('FooAspect', :name, :description){ include ClusterChef::Aspect } }
+  #   after(:each) do
+  #     Struct.send(:remove_const, :FooAspect) if defined?(Struct::FooAspect)
+  #     ClusterChef::Aspect.registered.delete(:foo)
+  #     ClusterChef::Aspect.registered.should_not include(:foo)
+  #   end
+  #
+  #   it 'can register itself' do
+  #     ClusterChef::Aspect.registered.should_not include(foo_aspect)
+  #     foo_aspect.register!
+  #     ClusterChef::Aspect.registered.should include(:foo)
+  #     ClusterChef::Aspect.registered.values.should include(foo_aspect)
+  #   end
+  #
+  #   it 'enumerates all registered aspects' do
+  #     ClusterChef::Aspect.registered.should == Mash.new({
+  #       :port => ClusterChef::PortAspect, :dashboard => ClusterChef::DashboardAspect, :daemon => ClusterChef::DaemonAspect,
+  #       :log => ClusterChef::LogAspect, :directory => ClusterChef::DirectoryAspect,
+  #       :exported => ClusterChef::ExportedAspect, :volume => ClusterChef::VolumeAspect
+  #     })
+  #   end
+  #
+  #   it 'knows its handle' do
+  #     foo_aspect.klass_handle.should == :foo
+  #   end
+  #
+  #   context '.harvest_all' do
+  #     it 'passes the node to each aspect in turn' do
+  #       foo_aspect.register!
+  #       bob = Mash.new ; billy = Chef::Node.new() ; frank = Chef::ResourceCollection.new()
+  #       foo_aspect.should_receive(:harvest).with(billy, bob, frank)
+  #       ClusterChef::Aspect.harvest_all(billy, bob, frank)
+  #     end
+  #   end
+  # end
+  #
+  # describe :PortAspect do
+  #   context '#addrs' do
+  #     it 'can be set explicitly'
+  #     it 'can be marked :critical, :open, :closed or :ignore'
+  #     it 'marks first private interface open by default'
+  #     it 'marks other interfaces closed by default'
+  #   end
+  #   context '#flavor' do
+  #     it 'accepts a defined flavor'
+  #   end
+  #   context '#monitors' do
+  #     it 'accepts an arbitrary hash'
+  #   end
+  # end
 
-  describe :DashboardAspect do
-    it 'is harvested by Aspects.harvest_all' do
-      aspects = ClusterChef::Aspect.harvest_all(chef_node, chef_node[:hadoop][:namenode])
-      aspects[:dashboard].should_not be_empty
-      aspects[:dashboard].each{|asp| asp.should be_a(ClusterChef::DashboardAspect) }
-    end
-    it 'harvests any "dash_port" attributes' do
-      p chef_node[:hadoop][:namenode]
-      dashboard_aspects = ClusterChef::DashboardAspect.harvest(chef_node, chef_node[:hadoop][:namenode])
-      dashboard_aspects.sort_by{|asp| asp.name }.should == [
-        ClusterChef::DashboardAspect.new("dash",     :http_dash, "http://33.33.33.12:50070/"),
-        ClusterChef::DashboardAspect.new("jmx_dash", :jmx_dash,  "http://33.33.33.12:8004/"),
-      ]
-    end
-    it 'by default harvests the url from the private_ip and dash_port'
-    it 'lets me set the URL with an explicit template'
-  end
+  # describe :DashboardAspect do
+  #   it 'is harvested by Aspects.harvest_all' do
+  #     aspects = ClusterChef::Aspect.harvest_all(chef_node[:hadoop][:namenode], chef_node, chef_rclxn)
+  #     aspects[:dashboard].should_not be_empty
+  #     aspects[:dashboard].each{|asp| asp.should be_a(ClusterChef::DashboardAspect) }
+  #   end
+  #   it 'harvests any "dash_port" attributes' do
+  #     p chef_node[:hadoop][:namenode]
+  #     dashboard_aspects = ClusterChef::DashboardAspect.harvest(chef_node[:hadoop][:namenode], chef_node, chef_rclxn)
+  #     dashboard_aspects.sort_by{|asp| asp.name }.should == [
+  #       ClusterChef::DashboardAspect.new("dash",     :http_dash, "http://33.33.33.12:50070/"),
+  #       ClusterChef::DashboardAspect.new("jmx_dash", :jmx_dash,  "http://33.33.33.12:8004/"),
+  #     ]
+  #   end
+  #   it 'by default harvests the url from the private_ip and dash_port'
+  #   it 'lets me set the URL with an explicit template'
+  # end
 
   describe :DaemonAspect do
-    it 'finds its associated service resource' do
-    end
-    context '#run_state' do
-      it 'harvests the :run_state attribute'
-      it 'can be set explicitly'
-      it 'only accepts :start, :stop or :nothing'
-    end
-    context '#boot_state' do
-      it 'harvests the :boot_state attribute'
-      it 'can be set explicitly'
-      it 'only accepts :enable, :disable or nil'
-    end
-    context '#pattern' do
-      it 'harvests the :pattern attribute from the associated service resource'
-      it 'is not settable explicitly'
-    end
-    context '#limits' do
-      it 'accepts an arbitrary hash'
-      it 'harvests the :limits hash'
-    end
-  end
-
-  describe :LogAspect do
-    it 'is harvested by Aspects.harvest_all' do
-      aspects = ClusterChef::Aspect.harvest_all(chef_node, chef_node[:flume])
-      aspects[:log].should_not be_empty
-      aspects[:log].each{|asp| asp.should be_a(ClusterChef::LogAspect) }
-    end
-    it 'harvests any "log_dir" attributes' do
-      log_aspects = ClusterChef::LogAspect.harvest(chef_node, chef_node[:flume])
-      log_aspects.sort_by{|asp| asp.name }.should == [
-        ClusterChef::LogAspect.new("log", :log, "/var/log/flume"),
-      ]
-    end
-    # context '#flavor' do
-    #   it 'accepts :http, :log4j, or :rails'
+    # it 'is harvested by Aspects.harvest_all' do
+    #   aspects = ClusterChef::Aspect.harvest_all(chef_node[:hadoop][:namenode], chef_node, chef_rclxn)
+    #   aspects[:daemon].should_not be_empty
+    #   aspects[:daemon].each{|asp| asp.should be_a(ClusterChef::DaemonAspect) }
     # end
-  end
+    it 'harvests its associated service resource' do
 
-  describe :DirectoryAspect do
-    it 'is harvested by Aspects.harvest_all' do
-      aspects = ClusterChef::Aspect.harvest_all(chef_node, chef_node[:zookeeper])
-      aspects[:directory].should_not be_empty
-      aspects[:directory].each{|asp| asp.should be_a(ClusterChef::DirectoryAspect) }
-    end
-    it 'harvests attributes ending with "_dir"' do
-      directory_aspects = ClusterChef::DirectoryAspect.harvest(chef_node, chef_node[:flume])
-      directory_aspects.sort_by{|asp| asp.name }.should == [
-        ClusterChef::DirectoryAspect.new("conf", :conf, "/etc/flume/conf"),
-        ClusterChef::DirectoryAspect.new("data", :data, "/data/db/flume"),
-        ClusterChef::DirectoryAspect.new("home", :home, "/usr/lib/flume"),
-        ClusterChef::DirectoryAspect.new("log",  :log,  "/var/log/flume"),
-        ClusterChef::DirectoryAspect.new("pid",  :pid,  "/var/run/flume"),
+      daemon_aspects = ClusterChef::DaemonAspect.harvest(chef_node[:hadoop][:namenode], chef_node, chef_rclxn)
+      daemon_aspects.sort_by{|asp| asp.name }.should == [
+        ClusterChef::DaemonAspect.new("dash",     :http_dash, "http://33.33.33.12:50070/"),
+        ClusterChef::DaemonAspect.new("jmx_dash", :jmx_dash,  "http://33.33.33.12:8004/"),
       ]
     end
-    it 'harvests non-standard dirs' do
-      chef_node[:flume][:foo_dirs] = ['/var/foo/flume', '/var/bar/flume']
-      directory_aspects = ClusterChef::DirectoryAspect.harvest(chef_node, chef_node[:flume])
-      directory_aspects.sort_by{|asp| asp.name }.should == [
-        ClusterChef::DirectoryAspect.new("conf", :conf, "/etc/flume/conf"),
-        ClusterChef::DirectoryAspect.new("data", :data, "/data/db/flume"),
-        ClusterChef::DirectoryAspect.new("foo",  :foo, ["/var/foo/flume", "/var/bar/flume"]),
-        ClusterChef::DirectoryAspect.new("home", :home, "/usr/lib/flume"),
-        ClusterChef::DirectoryAspect.new("log",  :log,  "/var/log/flume"),
-        ClusterChef::DirectoryAspect.new("pid",  :pid,  "/var/run/flume"),
-      ]
-    end
-
-
-    it 'finds its associated service resource' do
-    end
-    context 'permissions' do
-      it 'finds its mode / owner / group from the associated respo'
-    end
-
-    # context '#flavor' do
-    #   def good_flavors() [:home, :conf, :log, :tmp, :pid, :data, :lib, :journal, :cache] ; end
-    #   it "accepts #{good_flavors}"
+    # context '#run_state' do
+    #   it 'harvests the :run_state attribute'
+    #   it 'can be set explicitly'
+    #   it 'only accepts :start, :stop or :nothing'
+    # end
+    # context '#boot_state' do
+    #   it 'harvests the :boot_state attribute'
+    #   it 'can be set explicitly'
+    #   it 'only accepts :enable, :disable or nil'
+    # end
+    # context '#pattern' do
+    #   it 'harvests the :pattern attribute from the associated service resource'
+    #   it 'is not settable explicitly'
     # end
     # context '#limits' do
     #   it 'accepts an arbitrary hash'
+    #   it 'harvests the :limits hash'
     # end
   end
 
-  describe :ExportedAspect do
-    context '#files' do
-      it 'is harvested by Aspects.harvest_all' do
-        aspects = ClusterChef::Aspect.harvest_all(chef_node, chef_node[:zookeeper])
-        aspects[:exported].should_not be_empty
-        aspects[:exported].each{|asp| asp.should be_a(ClusterChef::ExportedAspect) }
-      end
-      it 'harvests attributes beginning with "exported_"' do
-        exported_aspects = ClusterChef::ExportedAspect.harvest(chef_node, chef_node[:zookeeper])
-        exported_aspects.sort_by{|asp| asp.name }.should == [
-          ClusterChef::ExportedAspect.new("jars", :jars, ["/usr/lib/zookeeper/zookeeper.jar"])
-        ]
-      end
-      it 'harvests multiple examples' do
-        exported_aspects = ClusterChef::ExportedAspect.harvest(chef_node, chef_node[:hbase])
-        exported_aspects.sort_by{|asp| asp.name }.should == [
-          ClusterChef::ExportedAspect.new("confs", :confs, ["/etc/hbase/conf/hbase-default.xml", "/etc/hbase/conf/hbase-site.xml"]),
-          ClusterChef::ExportedAspect.new("jars",  :jars,  ["/usr/lib/hbase/hbase-0.90.1-cdh3u0.jar", "/usr/lib/hbase/hbase-0.90.1-cdh3u0-tests.jar"])
-        ]
-      end
-    end
-  end
+  # describe :LogAspect do
+  #   it 'is harvested by Aspects.harvest_all' do
+  #     aspects = ClusterChef::Aspect.harvest_all(chef_node[:flume], chef_node, chef_rclxn)
+  #     aspects[:log].should_not be_empty
+  #     aspects[:log].each{|asp| asp.should be_a(ClusterChef::LogAspect) }
+  #   end
+  #   it 'harvests any "log_dir" attributes' do
+  #     log_aspects = ClusterChef::LogAspect.harvest(chef_node[:flume], chef_node, chef_rclxn)
+  #     log_aspects.sort_by{|asp| asp.name }.should == [
+  #       ClusterChef::LogAspect.new("log", :log, "/var/log/flume"),
+  #     ]
+  #   end
+  #   # context '#flavor' do
+  #   #   it 'accepts :http, :log4j, or :rails'
+  #   # end
+  # end
+  #
+  # describe :DirectoryAspect do
+  #   it 'is harvested by Aspects.harvest_all' do
+  #     aspects = ClusterChef::Aspect.harvest_all(chef_node[:zookeeper], chef_node, chef_rclxn)
+  #     aspects[:directory].should_not be_empty
+  #     aspects[:directory].each{|asp| asp.should be_a(ClusterChef::DirectoryAspect) }
+  #   end
+  #   it 'harvests attributes ending with "_dir"' do
+  #     directory_aspects = ClusterChef::DirectoryAspect.harvest(chef_node[:flume], chef_node, chef_rclxn)
+  #     directory_aspects.sort_by{|asp| asp.name }.should == [
+  #       ClusterChef::DirectoryAspect.new("conf", :conf, "/etc/flume/conf"),
+  #       ClusterChef::DirectoryAspect.new("data", :data, "/data/db/flume"),
+  #       ClusterChef::DirectoryAspect.new("home", :home, "/usr/lib/flume"),
+  #       ClusterChef::DirectoryAspect.new("log",  :log,  "/var/log/flume"),
+  #       ClusterChef::DirectoryAspect.new("pid",  :pid,  "/var/run/flume"),
+  #     ]
+  #   end
+  #   it 'harvests non-standard dirs' do
+  #     chef_node[:flume][:foo_dirs] = ['/var/foo/flume', '/var/bar/flume']
+  #     directory_aspects = ClusterChef::DirectoryAspect.harvest(chef_node[:flume], chef_node, chef_rclxn)
+  #     directory_aspects.sort_by{|asp| asp.name }.should == [
+  #       ClusterChef::DirectoryAspect.new("conf", :conf, "/etc/flume/conf"),
+  #       ClusterChef::DirectoryAspect.new("data", :data, "/data/db/flume"),
+  #       ClusterChef::DirectoryAspect.new("foo",  :foo, ["/var/foo/flume", "/var/bar/flume"]),
+  #       ClusterChef::DirectoryAspect.new("home", :home, "/usr/lib/flume"),
+  #       ClusterChef::DirectoryAspect.new("log",  :log,  "/var/log/flume"),
+  #       ClusterChef::DirectoryAspect.new("pid",  :pid,  "/var/run/flume"),
+  #     ]
+  #   end
+  #
+  #
+  #   it 'finds its associated service resource' do
+  #   end
+  #   context 'permissions' do
+  #     it 'finds its mode / owner / group from the associated respo'
+  #   end
+  #
+  #   # context '#flavor' do
+  #   #   def good_flavors() [:home, :conf, :log, :tmp, :pid, :data, :lib, :journal, :cache] ; end
+  #   #   it "accepts #{good_flavors}"
+  #   # end
+  #   # context '#limits' do
+  #   #   it 'accepts an arbitrary hash'
+  #   # end
+  # end
+  #
+  # describe :ExportedAspect do
+  #   context '#files' do
+  #     it 'is harvested by Aspects.harvest_all' do
+  #       aspects = ClusterChef::Aspect.harvest_all(chef_node[:zookeeper], chef_node, chef_rclxn)
+  #       aspects[:exported].should_not be_empty
+  #       aspects[:exported].each{|asp| asp.should be_a(ClusterChef::ExportedAspect) }
+  #     end
+  #     it 'harvests attributes beginning with "exported_"' do
+  #       exported_aspects = ClusterChef::ExportedAspect.harvest(chef_node[:zookeeper], chef_node, chef_rclxn)
+  #       exported_aspects.sort_by{|asp| asp.name }.should == [
+  #         ClusterChef::ExportedAspect.new("jars", :jars, ["/usr/lib/zookeeper/zookeeper.jar"])
+  #       ]
+  #     end
+  #     it 'harvests multiple examples' do
+  #       exported_aspects = ClusterChef::ExportedAspect.harvest(chef_node[:hbase], chef_node, chef_rclxn)
+  #       exported_aspects.sort_by{|asp| asp.name }.should == [
+  #         ClusterChef::ExportedAspect.new("confs", :confs, ["/etc/hbase/conf/hbase-default.xml", "/etc/hbase/conf/hbase-site.xml"]),
+  #         ClusterChef::ExportedAspect.new("jars",  :jars,  ["/usr/lib/hbase/hbase-0.90.1-cdh3u0.jar", "/usr/lib/hbase/hbase-0.90.1-cdh3u0-tests.jar"])
+  #       ]
+  #     end
+  #   end
+  # end
 
   # describe :CookbookAspect do
   # end

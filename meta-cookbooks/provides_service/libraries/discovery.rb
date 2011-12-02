@@ -201,11 +201,11 @@ module ClusterChef
     #   #   <DashboardAspect url="http://10.x.x.x:9387/">,
     #   #   <PortAspect port=9387 addr="10.x.x.x"> ]
     #
-    def self.harvest_all(node, hsh)
-      hsh = hsh.to_hash
+    def self.harvest_all(info, node, resource_collection)
+      info = info.to_hash
       aspects = Mash.new
       registered.each do |aspect_name, aspect_klass|
-        res = aspect_klass.harvest(node, hsh)
+        res = aspect_klass.harvest(info, node, resource_collection)
         aspects[aspect_name] = res
       end
       aspects
@@ -256,7 +256,7 @@ module ClusterChef
       #   # [ <LogAspect @name="access_log" @files=['/var/log/nginx/foo-access.log'] >,
       #   #   <LogAspect @name="error_log"  @files=['/var/log/nginx/foo-error.log']  > ]
       #
-      def harvest(node, hsh)
+      def harvest(info, node, resource_collection)
         []
       end
 
@@ -312,7 +312,7 @@ module ClusterChef
     ALLOWED_FLAVORS = [ :http, :jmx ]
     def self.allowed_flavors() ALLOWED_FLAVORS ; end
 
-    def self.harvest(node, info)
+    def self.harvest(info, node, resource_collection)
       attr_matches(info, /(.*dash)_port/) do |key, val, match|
         name   = match[1]
         flavor = (name == 'dash') ? :http_dash : name.to_sym
@@ -338,6 +338,10 @@ module ClusterChef
       :user,
       :group )
     include Aspect; register!
+
+    def self.harvest(info, node, resource_collection)
+      []
+    end
   end
 
   #
@@ -351,7 +355,7 @@ module ClusterChef
     include Aspect; register!
     ALLOWED_FLAVORS = [ :http, :log4j, :rails ]
 
-    def self.harvest(node, info)
+    def self.harvest(info, node, resource_collection)
       attr_matches(info, /log_dir/) do |key, val, match|
         name = 'log'
         self.new(name, name.to_sym, val)
@@ -370,7 +374,7 @@ module ClusterChef
     ALLOWED_FLAVORS = [ :home, :conf, :log, :tmp, :pid, :data, :lib, :journal, :cache, ]
     def self.allowed_flavors() ALLOWED_FLAVORS ; end
 
-    def self.harvest(node, info)
+    def self.harvest(info, node, resource_collection)
       attr_matches(info, /(.*)_dir/) do |key, val, match|
         name = match[1]
         self.new(name, name.to_sym, val)
@@ -401,7 +405,7 @@ module ClusterChef
       errors + super()
     end
 
-    def self.harvest(node, info)
+    def self.harvest(info, node, resource_collection)
       attr_matches(info, /exported_(.*)/) do |key, val, match|
         name = match[1]
         self.new(name, name.to_sym, val)

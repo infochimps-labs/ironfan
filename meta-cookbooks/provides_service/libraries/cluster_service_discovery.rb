@@ -134,6 +134,11 @@ module ClusterServiceDiscovery
     servers.map{ |server| public_ip_of(server) }
   end
 
+  # A compact timestamp, to record when services are registered
+  def self.timestamp
+    Time.now.utc.strftime("%Y%m%d%H%M%SZ")
+  end
+
 end
 class Chef::Recipe              ; include ClusterServiceDiscovery ; end
 class Chef::Resource::Directory ; include ClusterServiceDiscovery ; end

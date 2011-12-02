@@ -38,10 +38,5 @@ module ClusterChef
       server[:cloud][:public_ips].first  rescue server[:ipaddress]
     end
 
-    # A compact timestamp, to record when services are registered
-    def self.timestamp
-      Time.now.utc.strftime("%Y%m%d%H%M%SZ")
-    end
   end
-
 end

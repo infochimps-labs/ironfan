@@ -31,28 +31,28 @@ define :runit_service, :directory => nil, :only_if => false, :finish_script => f
   directory sv_dir_name do
     owner params[:owner]
     group params[:group]
-    mode 0755
+    mode '0755'
     action :create
   end
 
   directory "#{sv_dir_name}/log" do
     owner params[:owner]
     group params[:group]
-    mode 0755
+    mode '0755'
     action :create
   end
 
   directory "#{sv_dir_name}/log/main" do
     owner params[:owner]
     group params[:group]
-    mode 0755
+    mode '0755'
     action :create
   end
 
   template "#{sv_dir_name}/run" do
     owner params[:owner]
     group params[:group]
-    mode 0755
+    mode '0755'
     source "sv-#{params[:template_name]}-run.erb"
     cookbook params[:cookbook] if params[:cookbook]
     if params[:options].respond_to?(:has_key?)
@@ -63,7 +63,7 @@ define :runit_service, :directory => nil, :only_if => false, :finish_script => f
   template "#{sv_dir_name}/log/run" do
     owner params[:owner]
     group params[:group]
-    mode 0755
+    mode '0755'
     source "sv-#{params[:template_name]}-log-run.erb"
     cookbook params[:cookbook] if params[:cookbook]
     if params[:options].respond_to?(:has_key?)
@@ -73,7 +73,7 @@ define :runit_service, :directory => nil, :only_if => false, :finish_script => f
 
   unless params[:env].empty?
     directory "#{sv_dir_name}/env" do
-      mode 0755
+      mode '0755'
       action :create
     end
 
@@ -88,7 +88,7 @@ define :runit_service, :directory => nil, :only_if => false, :finish_script => f
     template "#{sv_dir_name}/finish" do
       owner params[:owner]
       group params[:group]
-      mode 0755
+      mode '0755'
       source "sv-#{params[:template_name]}-finish.erb"
       cookbook params[:cookbook] if params[:cookbook]
       if params[:options].respond_to?(:has_key?)
@@ -101,7 +101,7 @@ define :runit_service, :directory => nil, :only_if => false, :finish_script => f
     directory "#{sv_dir_name}/control" do
       owner params[:owner]
       group params[:group]
-      mode 0755
+      mode '0755'
       action :create
     end
 
@@ -109,7 +109,7 @@ define :runit_service, :directory => nil, :only_if => false, :finish_script => f
       template "#{sv_dir_name}/control/#{signal}" do
         owner params[:owner]
         group params[:group]
-        mode 0755
+        mode '0755'
         source "sv-#{params[:template_name]}-control-#{signal}.erb"
         cookbook params[:cookbook] if params[:cookbook]
         if params[:options].respond_to?(:has_key?)

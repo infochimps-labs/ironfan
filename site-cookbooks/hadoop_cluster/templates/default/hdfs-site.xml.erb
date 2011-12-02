@@ -24,7 +24,7 @@
 <property><name>dfs.datanode.max.xcievers</name>         <value>4096</value><final>true</final></property>
 <property><name>dfs.datanode.max.xceivers</name>         <value>4096</value><final>true</final></property>
 <property><name>dfs.datanode.socket.write.timeout</name> <value>0</value></property>
-<property><name>dfs.balance.bandwidthPerSec</name>       <value><%= @hadoop[:max_balancer_bandwidth] %></value></property>
+<property><name>dfs.balance.bandwidthPerSec</name>       <value><%= @hadoop[:balancer][:max_bandwidth] %></value></property>
 
 <property><name>dfs.hosts.exclude</name>                 <value><%= @hadoop[:conf_dir] %>/dfs.hosts.exclude</value><final>true</final></property>
 <!-- <property><name>dfs.hosts</name>                    <value><%= @hadoop[:conf_dir] %>/dfs.hosts</value><final>true</final></property> -->
