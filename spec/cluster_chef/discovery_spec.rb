@@ -4,6 +4,9 @@ require 'chef/node'
 require 'chef/resource_collection'
 require CLUSTER_CHEF_DIR("meta-cookbooks/provides_service/libraries/discovery.rb")
 
+# $: << '/Users/flip/ics/repos/awesome_print/lib'
+require 'ap' # FIXME: remove
+
 CHEF_RESOURCE_CLXN = JSON.parse(File.read(CLUSTER_CHEF_DIR('spec/fixtures/chef_resources-el_ridiculoso-aqui-0.json')))
 
 describe ClusterChef do
@@ -102,14 +105,13 @@ describe ClusterChef do
       info = Mash.new(chef_node[:zookeeper].to_hash).merge(chef_node[:zookeeper][:server])
       daemon_aspects = ClusterChef::DaemonAspect.harvest(:zookeeper, info, run_context)
       daemon_aspects.sort_by{|asp| asp.name }.should == [
-        ClusterChef::DaemonAspect.new("zookeeper", "zookeeper", :stop),
+        ClusterChef::DaemonAspect.new("zookeeper", "zookeeper", 'stop'),
       ]
     end
 
     it 'harvesting many' do
       # rl = chef_node.run_list.map{|s| s.to_s.gsub(/(?:\Arecipe|role)\[([^:]+?)(?:::(.+))?\]\z/, '\1') }.compact.uniq.map(&:to_sym)
-      run_context.node.recipes.each do |sys_name|
-        p sys_name
+      run_context.node.recipes.map{|x| x.gsub(/::.*/, '') }.uniq.each do |sys_name|
         info = Mash.new(chef_node[sys_name])
         daemon_aspects = ClusterChef::DaemonAspect.harvest(sys_name, info, run_context)
       end
@@ -167,6 +169,19 @@ describe ClusterChef do
         ClusterChef::DirectoryAspect.new("pid",  :pid,  "/var/run/flume"),
       ]
     end
+    it 'harvests plural directory sets ending with "_dirs"' do
+      hadoop_namenode = Mash.new(chef_node[:hadoop].to_hash).merge(chef_node[:hadoop][:namenode])
+      ap hadoop_namenode
+      directory_aspects = ClusterChef::DirectoryAspect.harvest(:hadoop, hadoop_namenode, run_context)
+      directory_aspects.sort_by{|asp| asp.name }.should == [
+        ClusterChef::DirectoryAspect.new("conf", :conf, "/etc/hadoop/conf"),
+        ClusterChef::DirectoryAspect.new("data", :data, ["/mnt1/hadoop/hdfs/name", "/mnt2/hadoop/hdfs/name"]),
+        ClusterChef::DirectoryAspect.new("home", :home, "/usr/lib/hadoop"),
+        ClusterChef::DirectoryAspect.new("log",  :log,  "/hadoop/log"),
+        ClusterChef::DirectoryAspect.new("pid",  :pid,  "/var/run/hadoop"),
+        ClusterChef::DirectoryAspect.new("tmp",  :tmp,  "/hadoop/tmp"),
+      ]
+    end
     it 'harvests non-standard dirs' do
       chef_node[:flume][:foo_dirs] = ['/var/foo/flume', '/var/bar/flume']
       directory_aspects = ClusterChef::DirectoryAspect.harvest(:flume, chef_node[:flume], run_context)
@@ -179,9 +194,7 @@ describe ClusterChef do
         ClusterChef::DirectoryAspect.new("pid",  :pid,  "/var/run/flume"),
       ]
     end
-
-
-    it 'finds its associated service resource' do
+    it 'finds its associated resource' do
     end
     context 'permissions' do
       it 'finds its mode / owner / group from the associated respo'
@@ -256,7 +269,7 @@ describe ClusterChef do
 
     context 'stores into node' do
       it 'loads the node from its fixture' do
-        node_json.keys.should == ["chef_type", "name", "chef_environment", "languages", "kernel", "os", "os_version", "virtualization", "hostname", "fqdn", "domain", "network", "ipaddress", "macaddress", "virtualbox", "chef_packages", "etc", "current_user", "dmi", "cloud", "command", "lsb", "platform", "platform_version", "memory", "block_device", "filesystem", "cpu", "node_name", "cluster_name", "facet_name", "facet_index", "chef_server", "nfs", "pkg_sets", "server_tuning", "java", "apt", "mountable_volumes", "hadoop", "hbase", "zookeeper", "flume", "end", "tags", "value_for_platform", "runit", "provides_service", "cluster_chef", "apt_cacher", "ntp", "users", "firewall", "thrift", "python", "install_from", "groups", "cluster_size", "ganglia", "redis", "resque", "pig", "rstats", "nodejs", "jruby", "aws", "run_list"]
+        node_json.keys.should == ["chef_type", "name", "chef_environment", "languages", "kernel", "os", "os_version", "virtualization", "hostname", "fqdn", "domain", "network", "ipaddress", "macaddress", "virtualbox", "chef_packages", "etc", "current_user", "dmi", "cloud", "command", "lsb", "platform", "platform_version", "memory", "block_device", "filesystem", "cpu", "node_name", "cluster_name", "facet_name", "facet_index", "chef_server", "nfs", "recipes", "pkg_sets", "server_tuning", "java", "apt", "mountable_volumes", "hadoop", "hbase", "zookeeper", "flume", "end", "tags", "value_for_platform", "runit", "provides_service", "cluster_chef", "apt_cacher", "ntp", "users", "firewall", "thrift", "python", "install_from", "groups", "cluster_size", "ganglia", "redis", "resque", "pig", "rstats", "nodejs", "jruby", "aws", "run_list"]
         chef_node.name.should == 'el_ridiculoso-aqui-0'
         chef_node[:cloud][:public_ipv4].should == "10.0.2.15"
       end

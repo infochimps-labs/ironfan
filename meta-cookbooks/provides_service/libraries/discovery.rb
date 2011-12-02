@@ -294,15 +294,16 @@ module ClusterChef
         @klass_handle ||= self.name.to_s.gsub(/.*::(\w+)Aspect\z/,'\1').gsub(/([a-z\d])([A-Z])/,'\1_\2').downcase.to_sym
       end
 
-      def match_resource(rsrc_clxn, resource_name, cookbook_name)
+      def rsrc_matches(rsrc_clxn, resource_name, cookbook_name)
         results = []
+        # p [resource_name, cookbook_name]
         rsrc_clxn.each do |rsrc|
           next unless rsrc.resource_name == resource_name.to_s
           next unless rsrc.cookbook_name == cookbook_name.to_s
-          result = yield(rsrc)
+          result = block_given? ? yield(rsrc) : rsrc
           results << result
         end
-        results
+        results.uniq
       end
     end
     def self.included(base) ; base.extend(ClassMethods) ; end
@@ -323,10 +324,9 @@ module ClusterChef
 
     include Aspect; register!
     def self.harvest(sys_name, info, run_context)
-      match_resource(run_context.resource_collection, :service, sys_name) do |rsrc|
+      rsrc_matches(run_context.resource_collection, :service, sys_name) do |rsrc|
         svc = self.new(rsrc.name, rsrc.pattern)
         svc.run_state = info[:run_state].to_s if info[:run_state]
-        p svc
         svc
       end
     end
@@ -347,7 +347,7 @@ module ClusterChef
     def self.allowed_flavors() ALLOWED_FLAVORS ; end
 
     def self.harvest(sys_name, info, run_context)
-      attr_matches(info, /(.*dash)_port/) do |key, val, match|
+      attr_aspects = attr_matches(info, /^(.*dash)_port(s)?$/) do |key, val, match|
         name   = match[1]
         flavor = (name == 'dash') ? :http_dash : name.to_sym
         url    = "http://#{private_ip_of(run_context.node)}:#{val}/"
@@ -368,7 +368,7 @@ module ClusterChef
     ALLOWED_FLAVORS = [ :http, :log4j, :rails ]
 
     def self.harvest(sys_name, info, run_context)
-      attr_matches(info, /log_dir/) do |key, val, match|
+      attr_matches(info, /^log_dir(s?)$/) do |key, val, match|
         name = 'log'
         self.new(name, name.to_sym, val)
       end
@@ -387,10 +387,15 @@ module ClusterChef
     def self.allowed_flavors() ALLOWED_FLAVORS ; end
 
     def self.harvest(sys_name, info, run_context)
-      attr_matches(info, /(.*)_dir/) do |key, val, match|
+      attr_aspects = attr_matches(info, /(.*)_dir(s?)$/) do |key, val, match|
         name = match[1]
         self.new(name, name.to_sym, val)
       end
+      rsrc_aspects = rsrc_matches(run_context.resource_collection, :directory, sys_name) do |rsrc|
+        rsrc
+      end
+      [attr_aspects, rsrc_aspects].flatten.each{|x| p x }
+      attr_aspects
     end
   end
 
@@ -418,7 +423,7 @@ module ClusterChef
     end
 
     def self.harvest(sys_name, info, run_context)
-      attr_matches(info, /exported_(.*)/) do |key, val, match|
+      attr_matches(info, /^exported_(.*)$/) do |key, val, match|
         name = match[1]
         self.new(name, name.to_sym, val)
       end

@@ -81,5 +81,5 @@ cluster_chef_dashboard(:hadoop_cluster) do
   ]
 
   action        :create
-  variables     node[:hadoop].merge(:summary_keys => summary_keys)
+  variables     Mash.new(:summary_keys => summary_keys).merge(node[:hadoop])
 end
