@@ -5,7 +5,8 @@
 
 file "#{node[:cluster_chef][:conf_dir]}/chef_node-#{node.name}.json" do
   hsh = Mash.new(node.to_hash)
-  %w[ role recipe roles recipes keys ohai_time uptime_seconds uptime idletime_seconds idletime counters run_away ].each{|key| hsh.delete(key)}
+  # role recipe roles recipes
+  %w[ keys ohai_time uptime_seconds uptime idletime_seconds idletime counters run_away ].each{|key| hsh.delete(key)}
   hsh[:provides_service].each{|k,v| v.delete("timestamp") } # ; hsh[:provides_service][k] = v }
   hsh[:kernel][:modules].each{|nm,mod| mod.delete(:refcount) }
   # hsh[:network][:interfaces].each{|nm,i| Chef::Log.info(i) ; next unless i[:rx] ; i[:rx].delete(:packets); i[:rx].delete(:bytes); }
@@ -20,7 +21,7 @@ require 'set'
 
 file "#{node[:cluster_chef][:conf_dir]}/chef_resources-#{node.name}.json" do
   all_keys = Set.new
-  rcolxn = Chef::ResourceCollection.new
+  resource_clxn = Chef::ResourceCollection.new
   run_context.resource_collection.each do |r|
     next if r.class.to_s == 'Chef::Resource::NodeMetadata'
     r = r.dup
@@ -38,9 +39,9 @@ file "#{node[:cluster_chef][:conf_dir]}/chef_resources-#{node.name}.json" do
     if r.to_json.length > 1400
       puts r.to_json
     end
-    rcolxn << r
+    resource_clxn << r
   end
-  content       rcolxn.to_json(JSON::PRETTY_STATE_PROTOTYPE)+"\n"
+  content       resource_clxn.to_json(JSON::PRETTY_STATE_PROTOTYPE)+"\n"
   action        :create
   owner         'root'
   group         'root'

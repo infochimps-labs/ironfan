@@ -105,7 +105,6 @@ module ClusterChef
     # @return [Hash] a new Hash instance, with each key set to its associated value.
     #
     def to_mash
-      p self
       Mash.new.tap do |hsh|
         each_pair do |key, val|
           case
@@ -201,11 +200,11 @@ module ClusterChef
     #   #   <DashboardAspect url="http://10.x.x.x:9387/">,
     #   #   <PortAspect port=9387 addr="10.x.x.x"> ]
     #
-    def self.harvest_all(info, node, resource_collection)
+    def self.harvest_all(sys_name, info, run_context)
       info = info.to_hash
       aspects = Mash.new
       registered.each do |aspect_name, aspect_klass|
-        res = aspect_klass.harvest(info, node, resource_collection)
+        res = aspect_klass.harvest(sys_name, info, run_context)
         aspects[aspect_name] = res
       end
       aspects
@@ -256,7 +255,7 @@ module ClusterChef
       #   # [ <LogAspect @name="access_log" @files=['/var/log/nginx/foo-access.log'] >,
       #   #   <LogAspect @name="error_log"  @files=['/var/log/nginx/foo-error.log']  > ]
       #
-      def harvest(info, node, resource_collection)
+      def harvest(sys_name, info, run_context)
         []
       end
 
@@ -294,8 +293,43 @@ module ClusterChef
       def klass_handle
         @klass_handle ||= self.name.to_s.gsub(/.*::(\w+)Aspect\z/,'\1').gsub(/([a-z\d])([A-Z])/,'\1_\2').downcase.to_sym
       end
+
+      def match_resource(rsrc_clxn, resource_name, cookbook_name)
+        results = []
+        rsrc_clxn.each do |rsrc|
+          next unless rsrc.resource_name == resource_name.to_s
+          next unless rsrc.cookbook_name == cookbook_name.to_s
+          result = yield(rsrc)
+          results << result
+        end
+        results
+      end
     end
     def self.included(base) ; base.extend(ClassMethods) ; end
+  end
+
+  #
+  # * scope[:run_state]
+  #
+  # from the eponymous service resource,
+  # * service.path
+  # * service.pattern
+  # * service.user
+  # * service.group
+  #
+  class DaemonAspect < Struct.new(:name,
+      :pattern,    # pattern to detect process
+      :run_state ) # desired run state
+
+    include Aspect; register!
+    def self.harvest(sys_name, info, run_context)
+      match_resource(run_context.resource_collection, :service, sys_name) do |rsrc|
+        svc = self.new(rsrc.name, rsrc.pattern)
+        svc.run_state = info[:run_state].to_s if info[:run_state]
+        p svc
+        svc
+      end
+    end
   end
 
   class PortAspect < Struct.new(:name,
@@ -312,35 +346,13 @@ module ClusterChef
     ALLOWED_FLAVORS = [ :http, :jmx ]
     def self.allowed_flavors() ALLOWED_FLAVORS ; end
 
-    def self.harvest(info, node, resource_collection)
+    def self.harvest(sys_name, info, run_context)
       attr_matches(info, /(.*dash)_port/) do |key, val, match|
         name   = match[1]
         flavor = (name == 'dash') ? :http_dash : name.to_sym
-        url    = "http://#{private_ip_of(node)}:#{val}/"
+        url    = "http://#{private_ip_of(run_context.node)}:#{val}/"
         self.new(name, flavor, url)
       end
-    end
-  end
-
-  #
-  # * scope[:run_state]
-  #
-  # from the eponymous service resource,
-  # * service.path
-  # * service.pattern
-  # * service.user
-  # * service.group
-  #
-  class DaemonAspect < Struct.new(:name,
-      :file,      # daemon runner path
-      :pattern,   # pattern to detect process
-      :run_state, # desired run state
-      :user,
-      :group )
-    include Aspect; register!
-
-    def self.harvest(info, node, resource_collection)
-      []
     end
   end
 
@@ -355,7 +367,7 @@ module ClusterChef
     include Aspect; register!
     ALLOWED_FLAVORS = [ :http, :log4j, :rails ]
 
-    def self.harvest(info, node, resource_collection)
+    def self.harvest(sys_name, info, run_context)
       attr_matches(info, /log_dir/) do |key, val, match|
         name = 'log'
         self.new(name, name.to_sym, val)
@@ -374,7 +386,7 @@ module ClusterChef
     ALLOWED_FLAVORS = [ :home, :conf, :log, :tmp, :pid, :data, :lib, :journal, :cache, ]
     def self.allowed_flavors() ALLOWED_FLAVORS ; end
 
-    def self.harvest(info, node, resource_collection)
+    def self.harvest(sys_name, info, run_context)
       attr_matches(info, /(.*)_dir/) do |key, val, match|
         name = match[1]
         self.new(name, name.to_sym, val)
@@ -405,7 +417,7 @@ module ClusterChef
       errors + super()
     end
 
-    def self.harvest(info, node, resource_collection)
+    def self.harvest(sys_name, info, run_context)
       attr_matches(info, /exported_(.*)/) do |key, val, match|
         name = match[1]
         self.new(name, name.to_sym, val)
