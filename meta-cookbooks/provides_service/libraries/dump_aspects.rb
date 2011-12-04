@@ -4,9 +4,10 @@ module ClusterChef
 
     def dump_aspects(run_context)
       [
-        [:apache,         :server],
         [:cassandra,      :server],
-        [:chef,           :client],
+        [:chef_client,    :client],
+        # [:dash_dash,    :dashboard],
+        [:cluster_chef,   :dashboard],
         [:cron,           :daemon],
         [:elasticsearch,  :datanode],
         [:elasticsearch,  :httpnode],
@@ -26,9 +27,6 @@ module ClusterChef
         [:hbase,          :master],
         [:hbase,          :regionserver],
         [:hbase,          :stargate],
-        [:mongodb,        :server],
-        [:mysql,          :server],
-        [:nfs,            :client],
         [:nfs,            :server],
         [:nginx,          :server],
         [:ntp,            :server],
@@ -36,17 +34,18 @@ module ClusterChef
         [:resque,         :dashboard],
         [:ssh,            :daemon],
         [:statsd,         :server],
-        [:zabbix,         :monitor],
-        [:zabbix,         :server],
         [:zookeeper,      :server],
-        [:goliath,        :app],
-        [:unicorn,        :app],
-        [:apt_cacher,     :server],
-        [:bluepill,       :monitor],
-        [:resque,         :worker],
 
-        [:cluster_chef,   :dashboard],
-        # [:dash_dash,    :dashboard],
+        # [:apache,         :server],
+        # [:mongodb,        :server],
+        # [:mysql,          :server],
+        # [:zabbix,         :monitor],
+        # [:zabbix,         :server],
+        # [:goliath,        :app],
+        # [:unicorn,        :app],
+        # [:apt_cacher,     :server],
+        # [:bluepill,       :monitor],
+        # [:resque,         :worker],
 
       ].each do |sys, component|
         aspects = announce(run_context, sys, component)

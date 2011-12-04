@@ -18,5 +18,9 @@
 #
 
 package "cron" do
-  action :upgrade
+  action        :upgrade
+end
+
+service "cron" do
+  action        :nothing
 end

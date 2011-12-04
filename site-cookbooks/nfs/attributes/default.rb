@@ -1,5 +1,10 @@
 default[:nfs][:exports] = Mash.new
 
+default[:nfs][:portmap_port] =   111
+default[:nfs][:nfsd_port]    =  2049
+default[:nfs][:mountd_port]  = 45560
+default[:nfs][:statd_port]   = 56785
+
 default[:nfs][:mounts] = [
   ['/home', { :owner => 'root', :remote_path => "/home" } ],
 ]

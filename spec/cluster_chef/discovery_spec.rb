@@ -46,7 +46,7 @@ describe ClusterChef do
 
         it('daemon') do
           subject[:daemon].should == [
-            ClusterChef::DaemonAspect.new("hadoop_datanode",  'datanode',  'stop') ]
+            ClusterChef::DaemonAspect.new("hadoop_datanode",  'hadoop_datanode',  'start') ]
         end
         it('port') do
           subject[:port].should == [
@@ -118,21 +118,21 @@ describe ClusterChef do
     context '.harvest_all' do
       it 'passes the node to each aspect in turn' do
         foo_aspect.register!
-        bob = Chef::RunContext.new(Chef::Node.new, [])
-        foo_aspect.should_receive(:harvest).with(:billy, {}, bob)
-        ClusterChef::Aspect.harvest_all(:billy, {}, bob)
+        rc = Chef::RunContext.new(Chef::Node.new, [])
+        foo_aspect.should_receive(:harvest).with(rc, :billy, :bob, {})
+        ClusterChef::Aspect.harvest_all(rc, :billy, :bob, {})
       end
     end
   end
 
   describe :PortAspect do
     it 'is harvested by Aspects.harvest_all' do
-      aspects = ClusterChef::Aspect.harvest_all(:hadoop, chef_node[:hadoop][:namenode], run_context)
+      aspects = ClusterChef::Aspect.harvest_all(run_context, :hadoop, :namenode, chef_node[:hadoop][:namenode])
       aspects[:port].should_not be_empty
       aspects[:port].each{|asp| asp.should be_a(ClusterChef::PortAspect) }
     end
     it 'harvests any "*_port" attributes' do
-      port_aspects = ClusterChef::PortAspect.harvest(:hadoop, chef_node[:hadoop][:datanode], run_context)
+      port_aspects = ClusterChef::PortAspect.harvest(run_context, :hadoop, :datanode, chef_node[:hadoop][:datanode])
       port_aspects.should == [
         ClusterChef::PortAspect.new("dash_port",      :dash,     "50075"),
         ClusterChef::PortAspect.new("ipc_port",       :ipc,      "50020"),
@@ -155,12 +155,12 @@ describe ClusterChef do
 
   describe :DashboardAspect do
     it 'is harvested by Aspects.harvest_all' do
-      aspects = ClusterChef::Aspect.harvest_all(:hadoop, chef_node[:hadoop][:namenode], run_context)
+      aspects = ClusterChef::Aspect.harvest_all(run_context, :hadoop, :namenode, chef_node[:hadoop][:namenode])
       aspects[:dashboard].should_not be_empty
       aspects[:dashboard].each{|asp| asp.should be_a(ClusterChef::DashboardAspect) }
     end
     it 'harvests any "dash_port" attributes' do
-      dashboard_aspects = ClusterChef::DashboardAspect.harvest(:hadoop, chef_node[:hadoop][:namenode], run_context)
+      dashboard_aspects = ClusterChef::DashboardAspect.harvest(run_context, :hadoop, :namenode, chef_node[:hadoop][:namenode])
       dashboard_aspects.should == [
         ClusterChef::DashboardAspect.new("dash",     :http_dash, "http://33.33.33.12:50070/"),
         ClusterChef::DashboardAspect.new("jmx_dash", :jmx_dash,  "http://33.33.33.12:8004/"),
@@ -171,14 +171,14 @@ describe ClusterChef do
   end
 
   describe :DaemonAspect do
-    # it 'is harvested by Aspects.harvest_all' do
-    #   aspects = ClusterChef::Aspect.harvest_all(:hadoop, chef_node[:hadoop][:namenode], run_context)
-    #   aspects[:daemon].should_not be_empty
-    #   aspects[:daemon].each{|asp| asp.should be_a(ClusterChef::DaemonAspect) }
-    # end
+    it 'is harvested by Aspects.harvest_all' do
+      aspects = ClusterChef::Aspect.harvest_all(run_context, :hadoop, :namenode, chef_node[:hadoop][:namenode])
+      aspects[:daemon].should_not be_empty
+      aspects[:daemon].each{|asp| asp.should be_a(ClusterChef::DaemonAspect) }
+    end
     it 'harvests its associated service resource' do
       info = Mash.new(chef_node[:zookeeper].to_hash).merge(chef_node[:zookeeper][:server])
-      daemon_aspects = ClusterChef::DaemonAspect.harvest(:zookeeper, info, run_context)
+      daemon_aspects = ClusterChef::DaemonAspect.harvest(run_context, :zookeeper, :server, info)
       daemon_aspects.should == [
         ClusterChef::DaemonAspect.new("zookeeper", "zookeeper", 'stop'),
       ]
@@ -186,9 +186,9 @@ describe ClusterChef do
 
     it 'harvesting many' do
       # rl = chef_node.run_list.map{|s| s.to_s.gsub(/(?:\Arecipe|role)\[([^:]+?)(?:::(.+))?\]\z/, '\1') }.compact.uniq.map(&:to_sym)
-      run_context.node.recipes.map{|x| x.gsub(/::.*/, '') }.uniq.each do |sys_name|
+      run_context.node.recipes.map{|x| x.split(/::/) }.uniq.each do |sys_name, component|
         info = Mash.new(chef_node[sys_name])
-        daemon_aspects = ClusterChef::DaemonAspect.harvest(sys_name, info, run_context)
+        daemon_aspects = ClusterChef::DaemonAspect.harvest(run_context, sys_name, component, info)
       end
     end
     # context '#run_state' do
@@ -213,12 +213,12 @@ describe ClusterChef do
 
   describe :LogAspect do
     it 'is harvested by Aspects.harvest_all' do
-      aspects = ClusterChef::Aspect.harvest_all(:flume, chef_node[:flume], run_context)
+      aspects = ClusterChef::Aspect.harvest_all(run_context, :flume, :node, chef_node[:flume])
       aspects[:log].should_not be_empty
       aspects[:log].each{|asp| asp.should be_a(ClusterChef::LogAspect) }
     end
     it 'harvests any "log_dir" attributes' do
-      log_aspects = ClusterChef::LogAspect.harvest(:flume, chef_node[:flume], run_context)
+      log_aspects = ClusterChef::LogAspect.harvest(run_context, :flume, :node, chef_node[:flume])
       log_aspects.should == [
         ClusterChef::LogAspect.new("log", :log, "/var/log/flume"),
       ]
@@ -230,12 +230,12 @@ describe ClusterChef do
 
   describe :DirectoryAspect do
     it 'is harvested by Aspects.harvest_all' do
-      aspects = ClusterChef::Aspect.harvest_all(:zookeeper, chef_node[:zookeeper], run_context)
+      aspects = ClusterChef::Aspect.harvest_all(run_context, :zookeeper, :server, chef_node[:zookeeper])
       aspects[:directory].should_not be_empty
       aspects[:directory].each{|asp| asp.should be_a(ClusterChef::DirectoryAspect) }
     end
     it 'harvests attributes ending with "_dir"' do
-      directory_aspects = ClusterChef::DirectoryAspect.harvest(:flume, chef_node[:flume], run_context)
+      directory_aspects = ClusterChef::DirectoryAspect.harvest(run_context, :flume, :node, chef_node[:flume])
       directory_aspects.should == [
         ClusterChef::DirectoryAspect.new("conf", :conf, "/etc/flume/conf"),
         ClusterChef::DirectoryAspect.new("data", :data, "/data/db/flume"),
@@ -246,8 +246,7 @@ describe ClusterChef do
     end
     it 'harvests plural directory sets ending with "_dirs"' do
       hadoop_namenode = Mash.new(chef_node[:hadoop].to_hash).merge(chef_node[:hadoop][:namenode])
-      ap hadoop_namenode
-      directory_aspects = ClusterChef::DirectoryAspect.harvest(:hadoop, hadoop_namenode, run_context)
+      directory_aspects = ClusterChef::DirectoryAspect.harvest(run_context, :hadoop, :namenode, hadoop_namenode)
       directory_aspects.should == [
         ClusterChef::DirectoryAspect.new("conf", :conf, "/etc/hadoop/conf"),
         ClusterChef::DirectoryAspect.new("data", :data, ["/mnt1/hadoop/hdfs/name", "/mnt2/hadoop/hdfs/name"]),
@@ -259,7 +258,7 @@ describe ClusterChef do
     end
     it 'harvests non-standard dirs' do
       chef_node[:flume][:foo_dirs] = ['/var/foo/flume', '/var/bar/flume']
-      directory_aspects = ClusterChef::DirectoryAspect.harvest(:flume, chef_node[:flume], run_context)
+      directory_aspects = ClusterChef::DirectoryAspect.harvest(run_context, :flume, :node, chef_node[:flume])
       directory_aspects.should == [
         ClusterChef::DirectoryAspect.new("conf", :conf, "/etc/flume/conf"),
         ClusterChef::DirectoryAspect.new("data", :data, "/data/db/flume"),
@@ -287,18 +286,18 @@ describe ClusterChef do
   describe :ExportedAspect do
     context '#files' do
       it 'is harvested by Aspects.harvest_all' do
-        aspects = ClusterChef::Aspect.harvest_all(:zookeeper, chef_node[:zookeeper], run_context)
+        aspects = ClusterChef::Aspect.harvest_all(run_context, :zookeeper, :server, chef_node[:zookeeper])
         aspects[:exported].should_not be_empty
         aspects[:exported].each{|asp| asp.should be_a(ClusterChef::ExportedAspect) }
       end
       it 'harvests attributes beginning with "exported_"' do
-        exported_aspects = ClusterChef::ExportedAspect.harvest(:zookeeper, chef_node[:zookeeper], run_context)
+        exported_aspects = ClusterChef::ExportedAspect.harvest(run_context, :zookeeper, :server, chef_node[:zookeeper])
         exported_aspects.should == [
           ClusterChef::ExportedAspect.new("jars", :jars, ["/usr/lib/zookeeper/zookeeper.jar"])
         ]
       end
       it 'harvests multiple examples' do
-        exported_aspects = ClusterChef::ExportedAspect.harvest(:zookeeper, chef_node[:hbase], run_context)
+        exported_aspects = ClusterChef::ExportedAspect.harvest(run_context, :hbase, :master, chef_node[:hbase])
         exported_aspects.should == [
           ClusterChef::ExportedAspect.new("confs", :confs, ["/etc/hbase/conf/hbase-default.xml", "/etc/hbase/conf/hbase-site.xml"]),
           ClusterChef::ExportedAspect.new("jars",  :jars,  ["/usr/lib/hbase/hbase-0.90.1-cdh3u0.jar", "/usr/lib/hbase/hbase-0.90.1-cdh3u0-tests.jar"])

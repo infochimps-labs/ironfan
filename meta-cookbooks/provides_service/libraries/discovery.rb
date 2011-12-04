@@ -14,7 +14,7 @@ module ClusterChef
         return {} ; end
       hsh = Mash.new(node[sys_name].to_hash)
       hsh.merge!(node[sys_name][component]) if component && node[sys_name][component]
-      aspects = Aspect.harvest_all(sys_name, hsh, run_context)
+      aspects = Aspect.harvest_all(run_context, sys_name, component, hsh)
       # node[:discovery][sys_name] = aspects
       aspects
     end
@@ -98,11 +98,11 @@ module ClusterChef
     #   #   <DashboardAspect url="http://10.x.x.x:9387/">,
     #   #   <PortAspect port=9387 addr="10.x.x.x"> ]
     #
-    def self.harvest_all(sys_name, info, run_context)
-      info = info.to_hash
+    def self.harvest_all(run_context, sys_name, component, info)
+      info = Mash.new(info.to_hash)
       aspects = Mash.new
       registered.each do |aspect_name, aspect_klass|
-        res = aspect_klass.harvest(sys_name, info, run_context)
+        res = aspect_klass.harvest(run_context, sys_name, component, info)
         aspects[aspect_name] = res
       end
       aspects
@@ -153,7 +153,7 @@ module ClusterChef
       #   # [ <LogAspect @name="access_log" @files=['/var/log/nginx/foo-access.log'] >,
       #   #   <LogAspect @name="error_log"  @files=['/var/log/nginx/foo-error.log']  > ]
       #
-      def harvest(sys_name, info, run_context)
+      def harvest(run_context, sys_name, component, info)
         []
       end
 
@@ -196,9 +196,9 @@ module ClusterChef
         results = []
         rsrc_clxn.each do |rsrc|
           next unless rsrc.resource_name == resource_name.to_s
-          next unless rsrc.cookbook_name == cookbook_name.to_s
+          next unless rsrc.cookbook_name =~ /#{cookbook_name}/
           result = block_given? ? yield(rsrc) : rsrc
-          results << result
+          results << result if result
         end
         results.uniq
       end
@@ -220,8 +220,9 @@ module ClusterChef
       :run_state ) # desired run state
 
     include Aspect; register!
-    def self.harvest(sys_name, info, run_context)
+    def self.harvest(run_context, sys_name, component, info)
       rsrc_matches(run_context.resource_collection, :service, sys_name) do |rsrc|
+        next unless rsrc.name =~ /#{sys_name}_#{component}/
         svc = self.new(rsrc.name, rsrc.pattern)
         svc.run_state = info[:run_state].to_s if info[:run_state]
         svc
@@ -237,7 +238,7 @@ module ClusterChef
     ALLOWED_FLAVORS = [:http, :https, :pop3, :imap, :ftp, :jmx, :ssh, :nntp, :udp, :selfsame]
     def self.allowed_flavors() ALLOWED_FLAVORS ; end
 
-    def self.harvest(sys_name, info, run_context)
+    def self.harvest(run_context, sys_name, component, info)
       attr_aspects = attr_matches(info, /^((.+_)?port)$/) do |key, val, match|
         name   = match[1]
         flavor = match[2].to_s.empty? ? :port : match[2].gsub(/_$/, '').to_sym
@@ -253,7 +254,7 @@ module ClusterChef
     ALLOWED_FLAVORS = [ :http, :jmx ]
     def self.allowed_flavors() ALLOWED_FLAVORS ; end
 
-    def self.harvest(sys_name, info, run_context)
+    def self.harvest(run_context, sys_name, component, info)
       attr_aspects = attr_matches(info, /^(.*dash)_port(s)?$/) do |key, val, match|
         name   = match[1]
         flavor = (name == 'dash') ? :http_dash : name.to_sym
@@ -274,7 +275,7 @@ module ClusterChef
     include Aspect; register!
     ALLOWED_FLAVORS = [ :http, :log4j, :rails ]
 
-    def self.harvest(sys_name, info, run_context)
+    def self.harvest(run_context, sys_name, component, info)
       attr_matches(info, /^log_dir(s?)$/) do |key, val, match|
         name = 'log'
         self.new(name, name.to_sym, val)
@@ -293,7 +294,7 @@ module ClusterChef
     ALLOWED_FLAVORS = [ :home, :conf, :log, :tmp, :pid, :data, :lib, :journal, ]
     def self.allowed_flavors() ALLOWED_FLAVORS ; end
 
-    def self.harvest(sys_name, info, run_context)
+    def self.harvest(run_context, sys_name, component, info)
       attr_aspects = attr_matches(info, /(.*)_dir(s?)$/) do |key, val, match|
         name = match[1]
         self.new(name, name.to_sym, val)
@@ -329,7 +330,7 @@ module ClusterChef
       errors + super()
     end
 
-    def self.harvest(sys_name, info, run_context)
+    def self.harvest(run_context, sys_name, component, info)
       attr_matches(info, /^exported_(.*)$/) do |key, val, match|
         name = match[1]
         self.new(name, name.to_sym, val)

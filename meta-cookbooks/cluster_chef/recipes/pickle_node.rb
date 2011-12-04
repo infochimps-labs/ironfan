@@ -35,9 +35,6 @@ file "#{node[:cluster_chef][:conf_dir]}/chef_resources-#{node.name}.json" do
       @delayed_notifications = []
       @immediate_notifications = []
     end
-    if r.to_json.length > 1400
-      puts r.to_json
-    end
     resource_clxn << r
   end
   content       resource_clxn.to_json(JSON::PRETTY_STATE_PROTOTYPE)+"\n"
