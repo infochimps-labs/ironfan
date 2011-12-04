@@ -1,4 +1,14 @@
+#!/usr/bin/env bash
+
+#
 # Set Hadoop-specific environment variables here.
+#
+# Created by Chef -- changes will be overwritten
+#
+
+# a fence, because bin/hadoop sources this like four times
+this_file="`readlink -f $BASH_SOURCE`"
+if [ "$HADOOP_ENV_SOURCED" == "" ] || [ "$HADOOP_ENV_SOURCED" != "$this_file" ] ; then
 
 #
 # Locations
@@ -13,13 +23,12 @@ export HADOOP_SLAVES=${HADOOP_HOME}/conf/slaves
 export HADOOP_IDENT_STRING=hadoop
 export HADOOP_NODENAME="<%= node.name.gsub(/[^\w\-]+/, '') %>"
 
-
 #
 # Java Options
 #
 
 # The java implementation to use.  Required.
-# export JAVA_HOME=/usr/lib/j2sdk1.6-sun
+# export JAVA_HOME=<%= node[:java][:java_home] %>
 
 <%- unless @hadoop[:extra_classpaths].nil? %>
 # Extra classpaths for hadoop
@@ -50,8 +59,6 @@ export          HADOOP_DATANODE_OPTS="-Dcom.sun.management.jmxremote -Dcom.sun.m
 export       HADOOP_TASKTRACKER_OPTS="-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=<%= @hadoop[:tasktracker][:jmx_dash_port] %> $HADOOP_TASKTRACKER_OPTS"
 export          HADOOP_BALANCER_OPTS="-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=<%= @hadoop[:balancer   ][:jmx_dash_port] %> $HADOOP_BALANCER_OPTS"
 
-
-
 #
 # Other
 #
@@ -69,3 +76,7 @@ export HADOOP_SSH_OPTS="-o StrictHostKeyChecking=no"
 
 # The scheduling priority for daemon processes.  See 'man nice'.
 # export HADOOP_NICENESS=10
+
+# double-run fence end
+export HADOOP_ENV_SOURCED="$this_file"
+fi
