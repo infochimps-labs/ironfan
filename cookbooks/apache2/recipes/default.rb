@@ -208,5 +208,5 @@ include_recipe "apache2::mod_log_config" if platform?("redhat", "centos", "scien
 apache_site "default" if platform?("redhat", "centos", "scientific", "fedora")
 
 service "apache2" do
-  action :start
+  action node[:apache][:run_state]
 end

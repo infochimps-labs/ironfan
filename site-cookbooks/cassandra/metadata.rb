@@ -94,17 +94,17 @@ attribute "cassandra/storage_port",
   :description           => "",
   :default               => "7000"
 
-attribute "cassandra/jmx_port",
+attribute "cassandra/jmx_dash_port",
   :display_name          => "",
   :description           => "",
   :default               => "12345"
 
-attribute "cassandra/mx4j_listen_port",
+attribute "cassandra/mx4j_port",
   :display_name          => "",
   :description           => "",
   :default               => "8081"
 
-attribute "cassandra/mx4j_listen_addr",
+attribute "cassandra/mx4j_addr",
   :display_name          => "",
   :description           => "",
   :default               => "127.0.0.1"

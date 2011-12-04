@@ -70,6 +70,8 @@ end
 # and we don't want to override the tunings.
 ###
 
+default[:apache][:run_state] = :start
+
 # General settings
 default[:apache][:listen_ports] = [ "80","443" ]
 default[:apache][:contact] = "ops@example.com"

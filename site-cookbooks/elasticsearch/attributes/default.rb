@@ -68,7 +68,7 @@ default[:elasticsearch][:fd_ping_interval]        = "1s"
 default[:elasticsearch][:fd_ping_timeout]         = "30s"
 default[:elasticsearch][:fd_ping_retries]         = 3
 
-default[:elasticsearch][:jmx_port]                = '9400-9500'
+default[:elasticsearch][:jmx_dash_port]                = '9400-9500'
 
 default[:server_tuning][:ulimit]['@elasticsearch'] = { :nofile => { :both => 32768 }, :nproc => { :both => 50000 } }
 

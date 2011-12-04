@@ -151,7 +151,7 @@ attribute "elasticsearch/fd_ping_retries",
   :description           => "",
   :default               => "3"
 
-attribute "elasticsearch/jmx_port",
+attribute "elasticsearch/jmx_dash_port",
   :display_name          => "",
   :description           => "",
   :default               => "9400-9500"

@@ -101,7 +101,7 @@ limitations under the License.
 * `[:elasticsearch][:fd_ping_interval]` -  (default: "1s")
 * `[:elasticsearch][:fd_ping_timeout]` -  (default: "30s")
 * `[:elasticsearch][:fd_ping_retries]` -  (default: "3")
-* `[:elasticsearch][:jmx_port]`       -  (default: "9400-9500")
+* `[:elasticsearch][:jmx_dash_port]`       -  (default: "9400-9500")
 * `[:elasticsearch][:release_url_checksum]` - 
 * `[:elasticsearch][:home_dir]`       -  (default: "/usr/local/share/elasticsearch")
 * `[:elasticsearch][:conf_dir]`       -  (default: "/etc/elasticsearch")

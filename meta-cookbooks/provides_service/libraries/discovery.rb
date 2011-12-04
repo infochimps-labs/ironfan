@@ -1,5 +1,6 @@
 require File.expand_path('node_info.rb', File.dirname(__FILE__))
 require File.expand_path('struct_attr.rb', File.dirname(__FILE__))
+require File.expand_path('dump_aspects.rb', File.dirname(__FILE__))
 
 module ClusterChef
 
@@ -7,14 +8,42 @@ module ClusterChef
   #
   module Discovery
 
-    def announce(run_context, sys_name, component=nil, hsh={})
-      hsh = Mash.new(run_context.node[sys_name].to_hash)
-      hsh.merge!(run_context.node[sys_name][component]) if component
+    def announce(run_context, sys_name, component=nil)
+      node = run_context.node
+      if not node[sys_name] then # warn(['NO DATA', run_context, sys_name, component].join("\t")) ;
+        return {} ; end
+      hsh = Mash.new(node[sys_name].to_hash)
+      hsh.merge!(node[sys_name][component]) if component && node[sys_name][component]
       aspects = Aspect.harvest_all(sys_name, hsh, run_context)
-      # run_context.node[:discovery][sys_name] = aspects
+      # node[:discovery][sys_name] = aspects
       aspects
     end
+
+    def dump(aspects)
+      return if aspects.empty?
+      vals = [
+        aspects[:daemon    ].map{|asp|  asp.name                }.join(",")[0..20],
+        aspects[:port      ].map{|asp| "#{asp.flavor}=#{asp.port_num}" }.join(","),
+        aspects[:dashboard ].map{|asp|  asp.name                }.join(","),
+        aspects[:log       ].map{|asp|  asp.name                }.join(","),
+        DirectoryAspect::ALLOWED_FLAVORS.map do |flavor|
+          asp = aspects[:directory ].detect{|asp| asp[:flavor] == flavor }
+          # asp ? "#{asp.flavor}=#{asp.path}" : ""
+          asp ? asp.name : ""
+        end,
+        ExportedAspect::ALLOWED_FLAVORS.map do |flavor|
+          asp = aspects[:exported ].detect{|asp| asp[:flavor] == flavor }
+          # asp ? "#{asp.flavor}=#{asp.files.join(",")}" : ""
+          asp ? asp.name : ""
+        end,
+      ]
+      vals
+    end
+
+    # FIXME: remove
     module_function :announce
+    module_function :dump
+
   end
 
   #
@@ -201,6 +230,7 @@ module ClusterChef
   end
 
   class PortAspect < Struct.new(:name,
+      :flavor,
       :port_num,
       :addrs)
     include Aspect; register!
@@ -208,9 +238,10 @@ module ClusterChef
     def self.allowed_flavors() ALLOWED_FLAVORS ; end
 
     def self.harvest(sys_name, info, run_context)
-      attr_aspects = attr_matches(info, /^(.*_?port)$/) do |key, val, match|
+      attr_aspects = attr_matches(info, /^((.+_)?port)$/) do |key, val, match|
         name   = match[1]
-        flavor = name.to_sym
+        flavor = match[2].to_s.empty? ? :port : match[2].gsub(/_$/, '').to_sym
+        # p [match.captures, name, flavor].flatten
         self.new(name, flavor, val.to_s)
       end
     end
@@ -259,7 +290,7 @@ module ClusterChef
       :dirs    # directories pointed to
       )
     include Aspect; register!
-    ALLOWED_FLAVORS = [ :home, :conf, :log, :tmp, :pid, :data, :lib, :journal, :cache, ]
+    ALLOWED_FLAVORS = [ :home, :conf, :log, :tmp, :pid, :data, :lib, :journal, ]
     def self.allowed_flavors() ALLOWED_FLAVORS ; end
 
     def self.harvest(sys_name, info, run_context)
@@ -270,7 +301,7 @@ module ClusterChef
       rsrc_aspects = rsrc_matches(run_context.resource_collection, :directory, sys_name) do |rsrc|
         rsrc
       end
-      [attr_aspects, rsrc_aspects].flatten.each{|x| p x }
+      # [attr_aspects, rsrc_aspects].flatten.each{|x| p x }
       attr_aspects
     end
   end
@@ -284,7 +315,7 @@ module ClusterChef
       :files)
     include Aspect; register!
 
-    ALLOWED_FLAVORS = [:jars, :libs, :confs]
+    ALLOWED_FLAVORS = [:jars, :confs, :libs]
     def self.allowed_flavors() ALLOWED_FLAVORS ; end
 
     def flavor=(val)

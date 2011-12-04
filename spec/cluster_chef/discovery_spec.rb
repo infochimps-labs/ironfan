@@ -39,13 +39,22 @@ describe ClusterChef do
         # these tests are thus accurately failing
         #
 
+        it 'dummy' do
+          # run_context.node[:recipes].map{|x| x.gsub(/::.*/, '') }.uniq.each do |rec|
+          ClusterChef::Discovery.dump_aspects(run_context)
+        end
+
         it('daemon') do
           subject[:daemon].should == [
             ClusterChef::DaemonAspect.new("hadoop_datanode",  'datanode',  'stop') ]
         end
         it('port') do
-          subject[:daemon].should == [
-            ClusterChef::PortAspect.new("hadoop_datanode",  'datanode',  'stop') ]
+          subject[:port].should == [
+            ClusterChef::PortAspect.new("dash_port",      :dash,     "50075"),
+            ClusterChef::PortAspect.new("ipc_port",       :ipc,      "50020"),
+            ClusterChef::PortAspect.new("jmx_dash_port",  :jmx_dash, "8006"),
+            ClusterChef::PortAspect.new("port",           :port,     "50010"),
+          ]
         end
         it('dashboard') do
           subject[:dashboard].should == [
@@ -74,6 +83,7 @@ describe ClusterChef do
             ClusterChef::ExportedAspect.new("jars",  :jars,  ["/usr/lib/hadoop/hadoop-core.jar","/usr/lib/hadoop/hadoop-examples.jar", "/usr/lib/hadoop/hadoop-test.jar", "/usr/lib/hadoop/hadoop-tools.jar" ]),
           ]
         end
+
       end
     end
   end
@@ -97,7 +107,7 @@ describe ClusterChef do
       ClusterChef::Aspect.registered.should == Mash.new({
         :port => ClusterChef::PortAspect, :dashboard => ClusterChef::DashboardAspect, :daemon => ClusterChef::DaemonAspect,
         :log => ClusterChef::LogAspect, :directory => ClusterChef::DirectoryAspect,
-        :exported => ClusterChef::ExportedAspect, :volume => ClusterChef::VolumeAspect
+        :exported => ClusterChef::ExportedAspect
       })
     end
 
@@ -124,9 +134,9 @@ describe ClusterChef do
     it 'harvests any "*_port" attributes' do
       port_aspects = ClusterChef::PortAspect.harvest(:hadoop, chef_node[:hadoop][:datanode], run_context)
       port_aspects.should == [
-        ClusterChef::PortAspect.new("dash_port",      :dash_port,     "50075"),
-        ClusterChef::PortAspect.new("ipc_port",       :ipc_port,      "50020"),
-        ClusterChef::PortAspect.new("jmx_dash_port", :jmx_dash_port,  "8006"),
+        ClusterChef::PortAspect.new("dash_port",      :dash,     "50075"),
+        ClusterChef::PortAspect.new("ipc_port",       :ipc,      "50020"),
+        ClusterChef::PortAspect.new("jmx_dash_port", :jmx_dash,  "8006"),
         ClusterChef::PortAspect.new("port",           :port,          "50010"),
       ]
     end

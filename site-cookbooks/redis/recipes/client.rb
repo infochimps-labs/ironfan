@@ -19,6 +19,5 @@
 # limitations under the License.
 #
 
-%w[
-  redis redis-namespace
-].each{|gem_name| gem_package gem_name }
+gem_package     'redis'
+gem_package     'redis-namespace'

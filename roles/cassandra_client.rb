@@ -16,7 +16,7 @@ run_list *%w[
 default_attributes({
     :cassandra => {
       :auto_bootstrap    => true,
-      :jmx_port          => 12345,
+      :jmx_dash_port          => 12345,
       :concurrent_reads  => 4,
       :concurrent_writes => 64,
       :commitlog_sync    => 'periodic',

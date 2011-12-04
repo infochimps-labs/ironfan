@@ -20,7 +20,16 @@
 #
 
 include_recipe "python"
+include_recipe 'cluster_chef'
 
-include_recipe "graphite::whisper"
-include_recipe "graphite::carbon"
-include_recipe "graphite::web"
+standard_directories('graphite') do
+  directories   :conf_dir, :home_dir, :log_dir
+end
+
+# Data onto a bulk device
+volume_dirs('graphite.whisper.data') do
+  type          :persistent
+  selects       :all
+  path          'graphite/whisper/data'
+  mode          "0700"
+end

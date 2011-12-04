@@ -23,22 +23,20 @@ include_recipe "runit"
 
 package "python-twisted"
 
-remote_file "/usr/src/carbon-#{node[:graphite][:carbon][:version]}.tar.gz" do
-  source node[:graphite][:carbon][:release_url]
-  checksum node[:graphite][:carbon][:release_url_checksum]
+install_from_release('carbon') do
+  version       node[:graphite][:carbon][:version]
+  release_url   node[:graphite][:carbon][:release_url]
+  home_dir      node[:graphite][:carbon][:home_dir]
+  checksum      node[:graphite][:carbon][:release_url_checksum]
+  action        [:install_python]
+  not_if{ File.exists?("/usr/local/lib/python2.6/dist-packages/carbon-#{node[:graphite][:carbon][:version]}.egg-info") }
 end
 
-execute "untar carbon" do
-  command "tar xzf carbon-#{node[:graphite][:carbon][:version]}.tar.gz"
-  creates "/usr/src/carbon-#{node[:graphite][:carbon][:version]}"
-  cwd "/usr/src"
-end
-
-execute "install carbon" do
-  command "python setup.py install"
-  creates "/opt/graphite/lib/carbon-#{node[:graphite][:carbon][:version]}-py2.6.egg-info"
-  cwd "/usr/src/carbon-#{node[:graphite][:carbon][:version]}"
-end
+# execute "install carbon" do
+#   command "python setup.py install"
+#   creates "/opt/graphite/lib/carbon-#{node[:graphite][:carbon][:version]}-py2.6.egg-info"
+#   cwd "/usr/src/carbon-#{node[:graphite][:carbon][:version]}"
+# end
 
 template "/opt/graphite/conf/carbon.conf" do
   variables( :line_rcvr_addr   => node[:graphite][:carbon][:line_rcvr_addr],
@@ -54,15 +52,15 @@ cookbook_file "/etc/init.d/carbon-cache" do
   mode 0755
 end
 
-# execute "setup carbon sysvinit script" do
-#   command "ln -nsf /opt/graphite/bin/carbon-cache.py /etc/init.d/carbon-cache"
-#   creates "/etc/init.d/carbon-cache"
+# # execute "setup carbon sysvinit script" do
+# #   command "ln -nsf /opt/graphite/bin/carbon-cache.py /etc/init.d/carbon-cache"
+# #   creates "/etc/init.d/carbon-cache"
+# # end
+#
+# service "carbon-cache" do
+# #   running true
+# #   start_command "/opt/graphite/bin/carbon-cache.py start"
+# #   stop_command "/opt/graphite/bin/carbon-cache.py stop"
+#   action [ :enable, :start ]
+# #   action :start
 # end
-
-service "carbon-cache" do
-#   running true
-#   start_command "/opt/graphite/bin/carbon-cache.py start"
-#   stop_command "/opt/graphite/bin/carbon-cache.py stop"
-  action [ :enable, :start ]
-#   action :start
-end

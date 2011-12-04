@@ -181,7 +181,7 @@ transport:
 jmx:
   # Create an RMI connector?
   create_connector:             true
-  port:                         <%= node[:elasticsearch][:jmx_port] %>
+  port:                         <%= node[:elasticsearch][:jmx_dash_port] %>
   domain:                       elasticsearch
 
 # http://www.elasticsearch.com/docs/elasticsearch/modules/threadpool/

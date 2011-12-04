@@ -50,5 +50,10 @@ end
 # require 'pry'
 # binding.pry
 
+ruby_block('dump aspects') do
+  block do
+    ClusterChef::Discovery.dump_aspects(self.run_context)
+  end
+end
 
 # rr = run_context.resource_collection.select{|r| r.is_a?(Chef::Resource::File) }.map(&:dup).each{|r| r.content '' }

@@ -22,6 +22,7 @@
 include_recipe "runit"
 
 install_from_release('whisper') do
+  version       node[:graphite][:whisper][:version]
   release_url   node[:graphite][:whisper][:release_url]
   home_dir      node[:graphite][:whisper][:home_dir]
   checksum      node[:graphite][:whisper][:release_url_checksum]

@@ -28,6 +28,7 @@ package "python-memcache"
 package "python-rrdtool"
 
 install_from_release('graphite_web') do
+  version       node[:graphite][:graphite_web][:version]
   release_url   node[:graphite][:graphite_web][:release_url]
   home_dir      node[:graphite][:graphite_web][:home_dir]
   checksum      node[:graphite][:graphite_web][:release_url_checksum]

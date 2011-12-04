@@ -165,6 +165,6 @@ define :runit_service, :directory => nil, :only_if => false, :finish_script => f
   end
 
   service params[:name] do
-    notifies params[:run_state], "service[#{params[:name]}]", :delayed
+    action params[:run_state]
   end
 end
