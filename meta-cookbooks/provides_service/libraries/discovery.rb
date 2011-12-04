@@ -1,4 +1,5 @@
 require File.expand_path('node_info.rb', File.dirname(__FILE__))
+require File.expand_path('struct_attr.rb', File.dirname(__FILE__))
 
 module ClusterChef
 
@@ -6,146 +7,14 @@ module ClusterChef
   #
   module Discovery
 
-
-    def announces(sys_name, aspects={})
-      sys = System.new(sys_name, aspects)
-      node[:discovery][system] = sys.to_hash
+    def announce(run_context, sys_name, component=nil, hsh={})
+      hsh = Mash.new(run_context.node[sys_name].to_hash)
+      hsh.merge!(run_context.node[sys_name][component]) if component
+      aspects = Aspect.harvest_all(sys_name, hsh, run_context)
+      # run_context.node[:discovery][sys_name] = aspects
+      aspects
     end
-
-    System = Struct.new(
-      :name,
-      :realm,
-      :concerns,
-      :version,
-      #
-      :stores,
-      :daemons,
-      :ports,
-      :crons,
-      :exports,
-      #
-      :dashboards,
-      :description,
-      :cookbook
-      ) unless defined?(::ClusterChef::Discovery::System)
-    System.class_eval do
-      # include Chef::Mixin::CheckHelper
-      # include Chef::Mixin::ParamsValidate
-      # FORBIDDEN_IVARS = []
-      # HIDDEN_IVARS    = []
-
-      def initialize
-      end
-
-    end
-
-    # --------------------------------------------------------------------------
-    #
-    # Alternate syntax
-    #
-
-    # alias for #discovers
-    #
-    # @example
-    #   can_haz(:redis) # => {
-    #     :in_yr       => 'uploader_queue',             # alias for realm
-    #     :mah_bukkit  => '/var/log/uploader',          # alias for logs
-    #     :mah_sunbeam => '/usr/local/share/uploader',  # home dir
-    #     :ceiling_cat => 'http://10.80.222.69:2345/',  # dashboards
-    #     :o_rly       => ['mountable_volumes'],        # concerns
-    #     :zomg        => ['redis_server'],             # daemons
-    #     :btw         => %Q{Queue to process uploads}  # description
-    #   }
-    #
-    #
-    def can_haz(name, options={})
-      system = discover(name, options)
-      MAH_ASPECTZ_THEYR.each do |lol, real|
-        system[lol] = system.delete(real) if aspects.has_key?(real)
-      end
-      system
-    end
-
-    # alias for #announces. As with #announces, all params besides name are
-    # optional -- follow the conventions whereever possible. MAH_ASPECTZ_THEYR
-    # has the full list of alternate aspect names.
-    #
-    # @example
-    #   # announce a redis; everything according to convention except for the
-    #   # custom log directory.
-    #   i_haz_a(:redis, :mah_bukkit => '/var/log/uploader' )
-    #
-    def i_haz_a(system, aspects)
-      MAH_ASPECTZ_THEYR.each do |lol, real|
-        aspects[real] = aspects.delete(lol) if aspects.has_key?(lol)
-      end
-      announces(system, aspects)
-    end
-
-    # Alternate names for machine aspects. Only available through #i_haz_a and
-    # #can_haz.
-    #
-    MAH_ASPECTZ_THEYR = {
-      :in_yr => :realm, :mah_bukkit => :logs, :mah_sunbeam => :home,
-      :ceiling_cat => :dashboards, :o_rly => :concerns, :zomg => :daemons,
-      :btw => :description,
-    }
-  end
-
-  module StructAttr
-
-    #
-    # Returns a hash with each key set to its associated value.
-    #
-    # @example
-    #    FooClass = Struct(:a, :b)
-    #    foo = FooClass.new(100, 200)
-    #    foo.to_hash # => { :a => 100, :b => 200 }
-    #
-    # @return [Hash] a new Hash instance, with each key set to its associated value.
-    #
-    def to_mash
-      Mash.new.tap do |hsh|
-        each_pair do |key, val|
-          case
-          when val.respond_to?(:to_mash) then hsh[key] = val.to_mash
-          when val.respond_to?(:to_hash) then hsh[key] = val.to_hash
-          else                                hsh[key] = val
-          end
-        end
-      end
-    end
-    def to_hash() to_mash.to_hash ; end
-
-    # barf.
-    def store_into_node(node, a, b=nil)
-      if b then
-        node[a] ||= Mash.new
-        node[a][b] = self.to_mash
-      else
-        node[a]    = self.to_mash
-      end
-    end
-
-    module ClassMethods
-
-      def discover()
-      end
-
-      def populate
-      end
-
-      def from_node(node, scope)
-      end
-
-      def dsl_attr(name, validation)
-        name = name.to_sym
-        define_method(name) do |arg|
-          set_or_return(name, arg, validation)
-        end
-      end
-    end
-    def self.included(base) base.extend(ClassMethods) ; end
+    module_function :announce
   end
 
   #
@@ -280,7 +149,7 @@ module ClusterChef
           result.lint!
           results << result
         end
-        results
+        results.sort_by{|asp| asp.name }
       end
 
       # add this class to the list of registered aspects
@@ -296,7 +165,6 @@ module ClusterChef
 
       def rsrc_matches(rsrc_clxn, resource_name, cookbook_name)
         results = []
-        # p [resource_name, cookbook_name]
         rsrc_clxn.each do |rsrc|
           next unless rsrc.resource_name == resource_name.to_s
           next unless rsrc.cookbook_name == cookbook_name.to_s
@@ -338,6 +206,14 @@ module ClusterChef
     include Aspect; register!
     ALLOWED_FLAVORS = [:http, :https, :pop3, :imap, :ftp, :jmx, :ssh, :nntp, :udp, :selfsame]
     def self.allowed_flavors() ALLOWED_FLAVORS ; end
+
+    def self.harvest(sys_name, info, run_context)
+      attr_aspects = attr_matches(info, /^(.*_?port)$/) do |key, val, match|
+        name   = match[1]
+        flavor = name.to_sym
+        self.new(name, flavor, val.to_s)
+      end
+    end
   end
 
   class DashboardAspect < Struct.new(:name, :flavor,
@@ -430,12 +306,58 @@ module ClusterChef
     end
   end
 
-  class VolumeAspect < Struct.new(:name,
-      :device, :mount_path, :fstype
-      )
-    include Aspect; register!
-    ALLOWED_FLAVORS = [:persistent, :local, :fast, :bulk, :reserved, ]
-    def self.allowed_flavors() ALLOWED_FLAVORS ; end
+  ClusterChef::Discovery.class_eval do
+    # --------------------------------------------------------------------------
+    #
+    # Alternate syntax
+    #
+
+    # alias for #discovers
+    #
+    # @example
+    #   can_haz(:redis) # => {
+    #     :in_yr       => 'uploader_queue',             # alias for realm
+    #     :mah_bukkit  => '/var/log/uploader',          # alias for logs
+    #     :mah_sunbeam => '/usr/local/share/uploader',  # home dir
+    #     :ceiling_cat => 'http://10.80.222.69:2345/',  # dashboards
+    #     :o_rly       => ['mountable_volumes'],        # concerns
+    #     :zomg        => ['redis_server'],             # daemons
+    #     :btw         => %Q{Queue to process uploads}  # description
+    #   }
+    #
+    #
+    def can_haz(name, options={})
+      system = discover(name, options)
+      MAH_ASPECTZ_THEYR.each do |lol, real|
+        system[lol] = system.delete(real) if aspects.has_key?(real)
+      end
+      system
+    end
+
+    # alias for #announces. As with #announces, all params besides name are
+    # optional -- follow the conventions whereever possible. MAH_ASPECTZ_THEYR
+    # has the full list of alternate aspect names.
+    #
+    # @example
+    #   # announce a redis; everything according to convention except for the
+    #   # custom log directory.
+    #   i_haz_a(:redis, :mah_bukkit => '/var/log/uploader' )
+    #
+    def i_haz_a(system, aspects)
+      MAH_ASPECTZ_THEYR.each do |lol, real|
+        aspects[real] = aspects.delete(lol) if aspects.has_key?(lol)
+      end
+      announces(system, aspects)
+    end
+
+    # Alternate names for machine aspects. Only available through #i_haz_a and
+    # #can_haz.
+    #
+    MAH_ASPECTZ_THEYR = {
+      :in_yr => :realm, :mah_bukkit => :logs, :mah_sunbeam => :home,
+      :ceiling_cat => :dashboards, :o_rly => :concerns, :zomg => :daemons,
+      :btw => :description,
+    }
   end
 
   #

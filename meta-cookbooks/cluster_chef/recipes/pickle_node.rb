@@ -20,7 +20,6 @@ end
 require 'set'
 
 file "#{node[:cluster_chef][:conf_dir]}/chef_resources-#{node.name}.json" do
-  all_keys = Set.new
   resource_clxn = Chef::ResourceCollection.new
   run_context.resource_collection.each do |r|
     next if r.class.to_s == 'Chef::Resource::NodeMetadata'
@@ -50,8 +49,6 @@ end
 
 # require 'pry'
 # binding.pry
-#
+
+
 # rr = run_context.resource_collection.select{|r| r.is_a?(Chef::Resource::File) }.map(&:dup).each{|r| r.content '' }
-#
-# Chef::Log.info( [collection.class, collection.inspect] )
-# Chef::Log.info( [collection.each{|r| r.inspect }] )

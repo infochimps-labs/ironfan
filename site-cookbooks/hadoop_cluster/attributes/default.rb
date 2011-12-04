@@ -57,6 +57,8 @@ default[:hadoop][:pid_dir]  = "/var/run/hadoop"
 default[:hadoop][:log_dir]  = nil
 default[:hadoop][:tmp_dir]  = nil
 
+default[:hadoop][:exported_confs] ||= nil # set in recipe
+default[:hadoop][:exported_jars]  ||= nil # set in recipe
 
 default[:hadoop][:namenode   ][:port]              =  8020
 default[:hadoop][:jobtracker ][:port]              =  8021

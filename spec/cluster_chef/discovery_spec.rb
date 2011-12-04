@@ -26,6 +26,58 @@ describe ClusterChef do
     rc
   end
 
+  describe ClusterChef::Discovery do
+
+
+    context '.announce' do
+      context 'works on a complex example' do
+        subject{ ClusterChef::Discovery.announce(run_context, :hadoop, :datanode) }
+
+        #
+        # FIXME: need to be able to pull info about hadoop *and* datanode
+        #
+        # these tests are thus accurately failing
+        #
+
+        it('daemon') do
+          subject[:daemon].should == [
+            ClusterChef::DaemonAspect.new("hadoop_datanode",  'datanode',  'stop') ]
+        end
+        it('port') do
+          subject[:daemon].should == [
+            ClusterChef::PortAspect.new("hadoop_datanode",  'datanode',  'stop') ]
+        end
+        it('dashboard') do
+          subject[:dashboard].should == [
+            ClusterChef::DashboardAspect.new("dash",     :http_dash, "http://33.33.33.12:50075/"),
+            ClusterChef::DashboardAspect.new("jmx_dash", :jmx_dash,  "http://33.33.33.12:8006/"),
+          ]
+        end
+        it('log') do
+          subject[:log].should == [
+            ClusterChef::LogAspect.new("log",  :log,  "/hadoop/log")
+          ]
+        end
+        it('directory') do
+          subject[:directory].should == [
+            ClusterChef::DirectoryAspect.new("conf", :conf, "/etc/hadoop/conf"),
+            ClusterChef::DirectoryAspect.new("data", :data, ["/mnt1/hadoop/hdfs/data", "/mnt2/hadoop/hdfs/data"] ),
+            ClusterChef::DirectoryAspect.new("home", :home, "/usr/lib/hadoop"),
+            ClusterChef::DirectoryAspect.new("log",  :log,  "/hadoop/log"),
+            ClusterChef::DirectoryAspect.new("pid",  :pid,  "/var/run/hadoop"),
+            ClusterChef::DirectoryAspect.new("tmp",  :tmp,  "/hadoop/tmp"),
+          ]
+        end
+        it('exported') do
+          subject[:exported].should == [
+            ClusterChef::ExportedAspect.new("confs", :confs, ["/etc/hadoop/conf/core-site.xml", "/etc/hadoop/conf/hdfs-site.xml", "/etc/hadoop/conf/mapred-site.xml" ]),
+            ClusterChef::ExportedAspect.new("jars",  :jars,  ["/usr/lib/hadoop/hadoop-core.jar","/usr/lib/hadoop/hadoop-examples.jar", "/usr/lib/hadoop/hadoop-test.jar", "/usr/lib/hadoop/hadoop-tools.jar" ]),
+          ]
+        end
+      end
+    end
+  end
+
   describe ClusterChef::Aspect do
     let(:foo_aspect){ Struct.new('FooAspect', :name, :description){ include ClusterChef::Aspect } }
     after(:each) do
@@ -64,18 +116,31 @@ describe ClusterChef do
   end
 
   describe :PortAspect do
-    context '#addrs' do
-      it 'can be set explicitly'
-      it 'can be marked :critical, :open, :closed or :ignore'
-      it 'marks first private interface open by default'
-      it 'marks other interfaces closed by default'
+    it 'is harvested by Aspects.harvest_all' do
+      aspects = ClusterChef::Aspect.harvest_all(:hadoop, chef_node[:hadoop][:namenode], run_context)
+      aspects[:port].should_not be_empty
+      aspects[:port].each{|asp| asp.should be_a(ClusterChef::PortAspect) }
     end
-    context '#flavor' do
-      it 'accepts a defined flavor'
+    it 'harvests any "*_port" attributes' do
+      port_aspects = ClusterChef::PortAspect.harvest(:hadoop, chef_node[:hadoop][:datanode], run_context)
+      port_aspects.should == [
+        ClusterChef::PortAspect.new("dash_port",      :dash_port,     "50075"),
+        ClusterChef::PortAspect.new("ipc_port",       :ipc_port,      "50020"),
+        ClusterChef::PortAspect.new("jmx_dash_port", :jmx_dash_port,  "8006"),
+        ClusterChef::PortAspect.new("port",           :port,          "50010"),
+      ]
     end
-    context '#monitors' do
-      it 'accepts an arbitrary hash'
-    end
+    # context '#addrs' do
+    #   it 'can be marked :critical, :open, :closed or :ignore'
+    #   it 'marks first private interface open by default'
+    #   it 'marks other interfaces closed by default'
+    # end
+    # context '#flavor' do
+    #   it 'accepts a defined flavor'
+    # end
+    # context '#monitors' do
+    #   it 'accepts an arbitrary hash'
+    # end
   end
 
   describe :DashboardAspect do
@@ -86,7 +151,7 @@ describe ClusterChef do
     end
     it 'harvests any "dash_port" attributes' do
       dashboard_aspects = ClusterChef::DashboardAspect.harvest(:hadoop, chef_node[:hadoop][:namenode], run_context)
-      dashboard_aspects.sort_by{|asp| asp.name }.should == [
+      dashboard_aspects.should == [
         ClusterChef::DashboardAspect.new("dash",     :http_dash, "http://33.33.33.12:50070/"),
         ClusterChef::DashboardAspect.new("jmx_dash", :jmx_dash,  "http://33.33.33.12:8004/"),
       ]
@@ -104,7 +169,7 @@ describe ClusterChef do
     it 'harvests its associated service resource' do
       info = Mash.new(chef_node[:zookeeper].to_hash).merge(chef_node[:zookeeper][:server])
       daemon_aspects = ClusterChef::DaemonAspect.harvest(:zookeeper, info, run_context)
-      daemon_aspects.sort_by{|asp| asp.name }.should == [
+      daemon_aspects.should == [
         ClusterChef::DaemonAspect.new("zookeeper", "zookeeper", 'stop'),
       ]
     end
@@ -144,7 +209,7 @@ describe ClusterChef do
     end
     it 'harvests any "log_dir" attributes' do
       log_aspects = ClusterChef::LogAspect.harvest(:flume, chef_node[:flume], run_context)
-      log_aspects.sort_by{|asp| asp.name }.should == [
+      log_aspects.should == [
         ClusterChef::LogAspect.new("log", :log, "/var/log/flume"),
       ]
     end
@@ -161,7 +226,7 @@ describe ClusterChef do
     end
     it 'harvests attributes ending with "_dir"' do
       directory_aspects = ClusterChef::DirectoryAspect.harvest(:flume, chef_node[:flume], run_context)
-      directory_aspects.sort_by{|asp| asp.name }.should == [
+      directory_aspects.should == [
         ClusterChef::DirectoryAspect.new("conf", :conf, "/etc/flume/conf"),
         ClusterChef::DirectoryAspect.new("data", :data, "/data/db/flume"),
         ClusterChef::DirectoryAspect.new("home", :home, "/usr/lib/flume"),
@@ -173,7 +238,7 @@ describe ClusterChef do
       hadoop_namenode = Mash.new(chef_node[:hadoop].to_hash).merge(chef_node[:hadoop][:namenode])
       ap hadoop_namenode
       directory_aspects = ClusterChef::DirectoryAspect.harvest(:hadoop, hadoop_namenode, run_context)
-      directory_aspects.sort_by{|asp| asp.name }.should == [
+      directory_aspects.should == [
         ClusterChef::DirectoryAspect.new("conf", :conf, "/etc/hadoop/conf"),
         ClusterChef::DirectoryAspect.new("data", :data, ["/mnt1/hadoop/hdfs/name", "/mnt2/hadoop/hdfs/name"]),
         ClusterChef::DirectoryAspect.new("home", :home, "/usr/lib/hadoop"),
@@ -185,7 +250,7 @@ describe ClusterChef do
     it 'harvests non-standard dirs' do
       chef_node[:flume][:foo_dirs] = ['/var/foo/flume', '/var/bar/flume']
       directory_aspects = ClusterChef::DirectoryAspect.harvest(:flume, chef_node[:flume], run_context)
-      directory_aspects.sort_by{|asp| asp.name }.should == [
+      directory_aspects.should == [
         ClusterChef::DirectoryAspect.new("conf", :conf, "/etc/flume/conf"),
         ClusterChef::DirectoryAspect.new("data", :data, "/data/db/flume"),
         ClusterChef::DirectoryAspect.new("foo",  :foo, ["/var/foo/flume", "/var/bar/flume"]),
@@ -218,13 +283,13 @@ describe ClusterChef do
       end
       it 'harvests attributes beginning with "exported_"' do
         exported_aspects = ClusterChef::ExportedAspect.harvest(:zookeeper, chef_node[:zookeeper], run_context)
-        exported_aspects.sort_by{|asp| asp.name }.should == [
+        exported_aspects.should == [
           ClusterChef::ExportedAspect.new("jars", :jars, ["/usr/lib/zookeeper/zookeeper.jar"])
         ]
       end
       it 'harvests multiple examples' do
         exported_aspects = ClusterChef::ExportedAspect.harvest(:zookeeper, chef_node[:hbase], run_context)
-        exported_aspects.sort_by{|asp| asp.name }.should == [
+        exported_aspects.should == [
           ClusterChef::ExportedAspect.new("confs", :confs, ["/etc/hbase/conf/hbase-default.xml", "/etc/hbase/conf/hbase-site.xml"]),
           ClusterChef::ExportedAspect.new("jars",  :jars,  ["/usr/lib/hbase/hbase-0.90.1-cdh3u0.jar", "/usr/lib/hbase/hbase-0.90.1-cdh3u0-tests.jar"])
         ]

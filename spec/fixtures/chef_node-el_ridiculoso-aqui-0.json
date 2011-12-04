@@ -1666,7 +1666,7 @@
     "datanode": {
       "run_state": "start",
       "data_dirs": [
-        "/hadoop/hdfs/data"
+        "/mnt1/hadoop/hdfs/data", "/mnt2/hadoop/hdfs/data"
       ],
       "port": 50010,
       "ipc_port": 50020,
@@ -1702,6 +1702,17 @@
       "zookeeper": "/usr/lib/zookeeper/zookeeper.jar",
       "hbase": "/usr/lib/hbase/hbase.jar:/usr/lib/hbase/conf"
     },
+    "exported_confs": [
+      "/etc/hadoop/conf/core-site.xml",
+      "/etc/hadoop/conf/hdfs-site.xml",
+      "/etc/hadoop/conf/mapred-site.xml"
+    ],
+    "exported_jars": [
+      "/usr/lib/hadoop/hadoop-core.jar",     
+      "/usr/lib/hadoop/hadoop-examples.jar", 
+      "/usr/lib/hadoop/hadoop-test.jar",     
+      "/usr/lib/hadoop/hadoop-tools.jar"
+    ],
     "min_split_size": 134217728,
     "s3_block_size": 134217728,
     "hdfs_block_size": 134217728,

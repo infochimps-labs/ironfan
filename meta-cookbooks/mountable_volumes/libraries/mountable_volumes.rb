@@ -62,6 +62,14 @@ module MountableVolumes
     end
   end
 
+  # class VolumeAspect < Struct.new(:name,
+  #     :device, :mount_path, :fstype
+  #     )
+  #   include Aspect; register!
+  #   ALLOWED_FLAVORS = [:persistent, :local, :fast, :bulk, :reserved, ]
+  #   def self.allowed_flavors() ALLOWED_FLAVORS ; end
+  # end
+
 end
 
 class Chef::Recipe              ; include MountableVolumes ; end
