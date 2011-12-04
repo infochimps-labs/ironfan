@@ -1,48 +1,123 @@
 require File.expand_path('node_info.rb', File.dirname(__FILE__))
-require File.expand_path('struct_attr.rb', File.dirname(__FILE__))
+require File.expand_path('attr_struct.rb', File.dirname(__FILE__))
 require File.expand_path('dump_aspects.rb', File.dirname(__FILE__))
 
+# FIXME -- remove:
+require 'pry' ; require 'ap'
+
 module ClusterChef
+  [:Component, :DaemonAspect, :LogAspect, :DirectoryAspect, :DashboardAspect, :PortAspect, :ExportedAspect,
+  ].each{|klass| self.send(:remove_const, klass) rescue nil }
+
+  class Component < Struct.new(
+      :name,
+      :realm
+      )
+    include ClusterChef::AttrStruct
+    attr_reader :sys  # the system name: eg +:redis+ or +:nfs+
+    attr_reader :subsys # the subsystem name: eg +:server+ or +:datanode+
+
+    def initialize(run_context, sys, subsys=nil, hsh={})
+      super()
+      @run_context = run_context
+      @sys      = sys
+      @subsys   = subsys
+      self.name = subsys ? "#{sys}_#{subsys}".to_sym : sys.to_sym
+      merge!(hsh)
+    end
+
+    # A segmented name for the component
+    # @example
+    #   ClusterChef::Component.new(rc, :redis, :server, :realm => 'krypton').fullname
+    #   # => 'krypton-redis-server'
+    #   ClusterChef::Component.new(rc, :nfs, nil, :realm => 'krypton').fullname
+    #   # => 'krypton-nfs'
+    #
+    # @return [String] the component's dotted name
+    def fullname
+      self.class.fullname(realm, sys, subsys)
+    end
+
+    def self.fullname(realm, sys, subsys=nil)
+      subsys ? "#{realm}-#{sys}-#{subsys}".to_s : "#{realm}:#{sys}"
+    end
+
+    def node
+      @run_context.node
+    end
+
+    # Combines the hash for a system with the hash for its given subsys.
+    # This lets us ask about the +:user+ for the 'redis.server' component,
+    # whether it's set in +node[:redis][:server][:user]+ or
+    # +node[:redis][:user]+. If an attribute exists on both the parent and
+    # subsys hash, the subsys hash's value wins (see +:user+ in the
+    # example below).
+    #
+    # If subsys is nil, just returns the direct node hash.
+    #
+    # @example
+    #   node.to_hash
+    #   # { :hadoop => {
+    #   #     :user => 'hdfs', :log_dir => '/var/log/hadoop',
+    #   #     :jobtracker => { :user => 'mapred', :port => 50030 } }
+    #   # }
+    #   node_info(:hadoop, jobtracker)
+    #   # { :user => 'mapred', :log_dir => '/var/log/hadoop', :port => 50030,
+    #   #   :jobtracker => { :user => 'mapred', :port => 50030 } }
+    #   node_info(:hadoop, nil)
+    #   # { :user => 'hdfs', :log_dir => '/var/log/hadoop',
+    #   #   :jobtracker => { :user => 'mapred', :port => 50030 } }
+    #
+    #
+    def node_info
+      unless node[sys] then Chef::Log.warn("no system data in component '#{name}', node '#{node}'") ; return Mash.new ;  end
+      hsh = Mash.new(node[sys].to_hash)
+      if subsys
+        if node[sys][subsys]
+          hsh.merge!(node[sys][subsys])
+        else
+          Chef::Log.warn("no subsystem data in component '#{name}', node '#{node}'")
+        end
+      end
+      hsh
+    end
+
+    def self.has_aspect(aspect, klass)
+      @aspect_types ||= {}
+      @aspect_types[aspect] = klass
+    end
+  end
 
   #
   #
   module Discovery
 
-    def announce(run_context, sys_name, component=nil)
-      node = run_context.node
-      if not node[sys_name] then # warn(['NO DATA', run_context, sys_name, component].join("\t")) ;
-        return {} ; end
-      hsh = Mash.new(node[sys_name].to_hash)
-      hsh.merge!(node[sys_name][component]) if component && node[sys_name][component]
-      aspects = Aspect.harvest_all(run_context, sys_name, component, hsh)
-      # node[:discovery][sys_name] = aspects
-      aspects
+    def announce(sys, subsys=nil, options={})
+      options           = Mash.new(options)
+      options[:realm] ||= default_realm
+      component = Component.new(run_context, sys, subsys, options)
+      Chef::Log.info("Announcing component #{component.fullname}")
+      node[:discovery][component.fullname] = component.to_hash
+      component
     end
 
-    def dump(aspects)
-      return if aspects.empty?
-      vals = [
-        aspects[:daemon    ].map{|asp|  asp.name                }.join(",")[0..20],
-        aspects[:port      ].map{|asp| "#{asp.flavor}=#{asp.port_num}" }.join(","),
-        aspects[:dashboard ].map{|asp|  asp.name                }.join(","),
-        aspects[:log       ].map{|asp|  asp.name                }.join(","),
-        DirectoryAspect::ALLOWED_FLAVORS.map do |flavor|
-          asp = aspects[:directory ].detect{|asp| asp[:flavor] == flavor }
-          # asp ? "#{asp.flavor}=#{asp.path}" : ""
-          asp ? asp.name : ""
-        end,
-        ExportedAspect::ALLOWED_FLAVORS.map do |flavor|
-          asp = aspects[:exported ].detect{|asp| asp[:flavor] == flavor }
-          # asp ? "#{asp.flavor}=#{asp.files.join(",")}" : ""
-          asp ? asp.name : ""
-        end,
-      ]
-      vals
+    def discover_nodes(sys, subsys=nil, realm=nil)
+      realm ||= default_realm
+      component_name = ClusterChef::Component.fullname(realm, sys, subsys)
+      all_nodes = search(:node, "discovery:#{component_name}" ) rescue []
+      if all_nodes.empty?
+        Chef::Log.warn("No node announced for '#{component_name}'")
+        return []
+      end
+      all_nodes.reject!{|server| server.name == node.name}  # remove this node...
+      all_nodes << node if node[:discovery][component_name] # & use a fresh version
+      all_nodes.
+        sort_by{|server| server[:discovery][component_name][:timestamp] }
     end
 
-    # FIXME: remove
-    module_function :announce
-    module_function :dump
+    def default_realm
+      node[:cluster_name]
+    end
 
   end
 
@@ -88,7 +163,7 @@ module ClusterChef
   # * conventions can be messy, but aspects are perfectly uniform
   #
   module Aspect
-    include StructAttr
+    include AttrStruct
 
     # Harvest all aspects findable in the given node metadata hash
     #
@@ -98,11 +173,11 @@ module ClusterChef
     #   #   <DashboardAspect url="http://10.x.x.x:9387/">,
     #   #   <PortAspect port=9387 addr="10.x.x.x"> ]
     #
-    def self.harvest_all(run_context, sys_name, component, info)
+    def self.harvest_all(run_context, sys, subsys, info)
       info = Mash.new(info.to_hash)
       aspects = Mash.new
       registered.each do |aspect_name, aspect_klass|
-        res = aspect_klass.harvest(run_context, sys_name, component, info)
+        res = aspect_klass.harvest(run_context, sys, subsys, info)
         aspects[aspect_name] = res
       end
       aspects
@@ -139,7 +214,7 @@ module ClusterChef
     end
 
     module ClassMethods
-      include StructAttr::ClassMethods
+      include AttrStruct::ClassMethods
       include ClusterChef::NodeInfo
 
       # Identify aspects from the given hash
@@ -153,7 +228,7 @@ module ClusterChef
       #   # [ <LogAspect @name="access_log" @files=['/var/log/nginx/foo-access.log'] >,
       #   #   <LogAspect @name="error_log"  @files=['/var/log/nginx/foo-error.log']  > ]
       #
-      def harvest(run_context, sys_name, component, info)
+      def harvest(run_context, sys, subsys, info)
         []
       end
 
@@ -195,8 +270,8 @@ module ClusterChef
       def rsrc_matches(rsrc_clxn, resource_name, cookbook_name)
         results = []
         rsrc_clxn.each do |rsrc|
-          next unless rsrc.resource_name == resource_name.to_s
-          next unless rsrc.cookbook_name =~ /#{cookbook_name}/
+          next unless rsrc.resource_name.to_s == resource_name.to_s
+          next unless rsrc.cookbook_name.to_s =~ /#{cookbook_name}/
           result = block_given? ? yield(rsrc) : rsrc
           results << result if result
         end
@@ -220,9 +295,9 @@ module ClusterChef
       :run_state ) # desired run state
 
     include Aspect; register!
-    def self.harvest(run_context, sys_name, component, info)
-      rsrc_matches(run_context.resource_collection, :service, sys_name) do |rsrc|
-        next unless rsrc.name =~ /#{sys_name}_#{component}/
+    def self.harvest(run_context, sys, subsys, info)
+      rsrc_matches(run_context.resource_collection, :service, sys) do |rsrc|
+        next unless rsrc.name =~ /#{sys}_#{subsys}/
         svc = self.new(rsrc.name, rsrc.pattern)
         svc.run_state = info[:run_state].to_s if info[:run_state]
         svc
@@ -238,7 +313,7 @@ module ClusterChef
     ALLOWED_FLAVORS = [:http, :https, :pop3, :imap, :ftp, :jmx, :ssh, :nntp, :udp, :selfsame]
     def self.allowed_flavors() ALLOWED_FLAVORS ; end
 
-    def self.harvest(run_context, sys_name, component, info)
+    def self.harvest(run_context, sys, subsys, info)
       attr_aspects = attr_matches(info, /^((.+_)?port)$/) do |key, val, match|
         name   = match[1]
         flavor = match[2].to_s.empty? ? :port : match[2].gsub(/_$/, '').to_sym
@@ -254,7 +329,7 @@ module ClusterChef
     ALLOWED_FLAVORS = [ :http, :jmx ]
     def self.allowed_flavors() ALLOWED_FLAVORS ; end
 
-    def self.harvest(run_context, sys_name, component, info)
+    def self.harvest(run_context, sys, subsys, info)
       attr_aspects = attr_matches(info, /^(.*dash)_port(s)?$/) do |key, val, match|
         name   = match[1]
         flavor = (name == 'dash') ? :http_dash : name.to_sym
@@ -275,7 +350,7 @@ module ClusterChef
     include Aspect; register!
     ALLOWED_FLAVORS = [ :http, :log4j, :rails ]
 
-    def self.harvest(run_context, sys_name, component, info)
+    def self.harvest(run_context, sys, subsys, info)
       attr_matches(info, /^log_dir(s?)$/) do |key, val, match|
         name = 'log'
         self.new(name, name.to_sym, val)
@@ -294,12 +369,12 @@ module ClusterChef
     ALLOWED_FLAVORS = [ :home, :conf, :log, :tmp, :pid, :data, :lib, :journal, ]
     def self.allowed_flavors() ALLOWED_FLAVORS ; end
 
-    def self.harvest(run_context, sys_name, component, info)
+    def self.harvest(run_context, sys, subsys, info)
       attr_aspects = attr_matches(info, /(.*)_dir(s?)$/) do |key, val, match|
         name = match[1]
         self.new(name, name.to_sym, val)
       end
-      rsrc_aspects = rsrc_matches(run_context.resource_collection, :directory, sys_name) do |rsrc|
+      rsrc_aspects = rsrc_matches(run_context.resource_collection, :directory, sys) do |rsrc|
         rsrc
       end
       # [attr_aspects, rsrc_aspects].flatten.each{|x| p x }
@@ -330,66 +405,12 @@ module ClusterChef
       errors + super()
     end
 
-    def self.harvest(run_context, sys_name, component, info)
+    def self.harvest(run_context, sys, subsys, info)
       attr_matches(info, /^exported_(.*)$/) do |key, val, match|
         name = match[1]
         self.new(name, name.to_sym, val)
       end
     end
-  end
-
-  ClusterChef::Discovery.class_eval do
-    # --------------------------------------------------------------------------
-    #
-    # Alternate syntax
-    #
-
-    # alias for #discovers
-    #
-    # @example
-    #   can_haz(:redis) # => {
-    #     :in_yr       => 'uploader_queue',             # alias for realm
-    #     :mah_bukkit  => '/var/log/uploader',          # alias for logs
-    #     :mah_sunbeam => '/usr/local/share/uploader',  # home dir
-    #     :ceiling_cat => 'http://10.80.222.69:2345/',  # dashboards
-    #     :o_rly       => ['mountable_volumes'],        # concerns
-    #     :zomg        => ['redis_server'],             # daemons
-    #     :btw         => %Q{Queue to process uploads}  # description
-    #   }
-    #
-    #
-    def can_haz(name, options={})
-      system = discover(name, options)
-      MAH_ASPECTZ_THEYR.each do |lol, real|
-        system[lol] = system.delete(real) if aspects.has_key?(real)
-      end
-      system
-    end
-
-    # alias for #announces. As with #announces, all params besides name are
-    # optional -- follow the conventions whereever possible. MAH_ASPECTZ_THEYR
-    # has the full list of alternate aspect names.
-    #
-    # @example
-    #   # announce a redis; everything according to convention except for the
-    #   # custom log directory.
-    #   i_haz_a(:redis, :mah_bukkit => '/var/log/uploader' )
-    #
-    def i_haz_a(system, aspects)
-      MAH_ASPECTZ_THEYR.each do |lol, real|
-        aspects[real] = aspects.delete(lol) if aspects.has_key?(lol)
-      end
-      announces(system, aspects)
-    end
-
-    # Alternate names for machine aspects. Only available through #i_haz_a and
-    # #can_haz.
-    #
-    MAH_ASPECTZ_THEYR = {
-      :in_yr => :realm, :mah_bukkit => :logs, :mah_sunbeam => :home,
-      :ceiling_cat => :dashboards, :o_rly => :concerns, :zomg => :daemons,
-      :btw => :description,
-    }
   end
 
   #

@@ -44,9 +44,6 @@ file "#{node[:cluster_chef][:conf_dir]}/chef_resources-#{node.name}.json" do
   mode          "0600" # only readable by root
 end
 
-# require 'pry'
-# binding.pry
-
 ruby_block('dump aspects') do
   block do
     ClusterChef::Discovery.dump_aspects(self.run_context)

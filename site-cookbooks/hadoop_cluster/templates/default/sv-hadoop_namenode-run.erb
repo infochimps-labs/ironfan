@@ -8,11 +8,11 @@ if [ -f "/etc/default/hadoop-0.20" ] ; then
   . "/etc/default/hadoop-0.20"
 fi
 
-if [ -f "<%= @options[:home_dir] %>/bin/hadoop-config.sh" ]; then
+if [ -f "<%= @options[:home_dir] %>/bin/hadoop-config.sh" ] ; then
   . "<%= @options[:home_dir] %>/bin/hadoop-config.sh"
 fi
 
-if [ -f "<%= @options[:conf_dir] %>/hadoop-env.sh" ]; then
+if [ -f "<%= @options[:conf_dir] %>/hadoop-env.sh" ] ; then
   . "<%= @options[:conf_dir] %>/hadoop-env.sh"
 fi
 

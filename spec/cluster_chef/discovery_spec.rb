@@ -20,29 +20,173 @@ describe ClusterChef do
     nd
   end
 
-  let(:run_context) do
+  let(:chef_context) do
     rc = Chef::RunContext.new(chef_node, [])
     rc.resource_collection = CHEF_RESOURCE_CLXN
     rc
   end
 
+  class DummyNode < Mash
+    attr_accessor :cookbook_collection
+    attr_accessor :name
+
+    def initialize(name, *args, &block)
+      self.name = name
+      super(*args, &block)
+    end
+
+    def to_s
+      "node[#{name}]"
+    end
+  end
+
+  class DummyRecipe
+    include ClusterChef::Discovery
+    attr_accessor :name, :node, :run_context
+    def initialize(name, run_context)
+      self.name        = name
+      self.node        = run_context.node
+      self.run_context = run_context
+    end
+  end
+
+  let(:dummy_node) do
+    DummyNode.new('el_ridiculoso-aqui-0', {
+        :cluster_name => 'el_ridiculoso',
+        :nfs  => { :user => 'nfsd', :port => 111 },
+        :chef => { :user => 'chef',
+          :server => { :port => 4000 },
+          :webui  => { :port => 4040, :user => 'www-data' },
+        },
+        :discovery => {
+          'cocina-chef-client'               => { :timestamp => '20110907' },
+          'el_ridiculoso-hadoop-namenode'    => { :timestamp => '20110907' },
+          'el_ridiculoso-hadoop-datanode'    => { :timestamp => '20110907' },
+          'el_ridiculoso-redis-server'       => { :timestamp => '20110907' },
+        }
+      })
+  end
+
+  let(:dummy_context) do
+    rc = Chef::RunContext.new(dummy_node, [])
+    rc.resource_collection = CHEF_RESOURCE_CLXN
+    rc
+  end
+
+  let(:recipe){       DummyRecipe.new(:hadoop, chef_context) }
+  let(:dummy_recipe){ DummyRecipe.new(:hadoop, dummy_context) }
+
   describe ClusterChef::Discovery do
 
+    context '#node_info' do
+      def component_info(sys, subsys=nil)
+        comp = ClusterChef::Component.new(dummy_context, sys, subsys)
+        comp.node_info
+      end
+      it 'returns a mash' do
+        component_info(:chef, :server).should be_a(Mash)
+      end
+      it 'extracts just the system tree given only system (simple tree)' do
+        component_info(:nfs).should           == Mash.new({ :user => 'nfsd', :port => 111 })
+      end
+      it 'extracts just the system tree given only system (complex tree)' do
+        component_info(:chef).should          == Mash.new({ :user => 'chef',                    :server => { :port => 4000 }, :webui  => { :port => 4040, :user => 'www-data' } })
+      end
+      it 'extracts the node attribute tree given system and subsystem' do
+        component_info(:chef, :server).should == Mash.new({ :user => 'chef',    :port => 4000, :server => { :port => 4000 }, :webui  => { :port => 4040, :user => 'www-data' } })
+      end
+      it 'overrides system attrs with subsystem attrs' do
+        component_info(:chef, :webui).should  == Mash.new({ :user => 'www-data', :port => 4040, :server => { :port => 4000 }, :webui  => { :port => 4040, :user => 'www-data' } })
+      end
+      it 'warns but does not fail if system is missing' do
+        Chef::Log.should_receive(:warn).with("no system data in component 'mxyzptlk', node 'node[el_ridiculoso-aqui-0]'")
+        component_info(:mxyzptlk).should      == Mash.new
+      end
+      it 'warns but does not fail if subsystem is missing' do
+        Chef::Log.should_receive(:warn).with("no subsystem data in component 'chef_zod', node 'node[el_ridiculoso-aqui-0]'")
+        component_info(:chef, :zod).should    == Mash.new({ :user => 'chef',                    :server => { :port => 4000 }, :webui  => { :port => 4040, :user => 'www-data' } })
+      end
+    end
 
     context '.announce' do
+      it 'returns the announced component' do
+        component = recipe.announce(:chef, :server)
+        component.should be_a(ClusterChef::Component)
+        component.fullname.should == 'el_ridiculoso-chef-server'
+      end
+    end
+
+    let(:all_nodes) do
+      Mash.new({
+          'el_ridiculoso-cocina-0' => DummyNode.new('el_ridiculoso-cocina-0', :discovery => {
+              'cocina:chef.server'               => { :timestamp => '20110902' },
+              'cocina:chef.client'               => { :timestamp => '20110902' },
+              'cocina:rabbitmq.server'           => { :timestamp => '20110902' },
+              'cocina:couchdb.server'            => { :timestamp => '20110902' },
+            } ),
+          'el_ridiculoso-pequeno-0' => DummyNode.new('el_ridiculoso-pequeno-0', :discovery => {
+              'cocina:chef.client'               => { :timestamp => '20110903' },
+              'el_ridiculoso-hadoop-datanode'    => { :timestamp => '20110903' },
+              'el_ridiculoso-hadoop-tasktracker' => { :timestamp => '20110903' },
+            } ),
+          # note that this *does* announce tasktracker and *does not* announce redis-server
+          # and lacks all the attributes on the actual node
+          'el_ridiculoso-aqui-0'    => DummyNode.new('el_ridiculoso-aqui-0', :discovery => {
+              'cocina:chef.client'               => { :timestamp => '20110903' },
+              'el_ridiculoso-hadoop-namenode'    => { :timestamp => '20110905' },
+              'el_ridiculoso-hadoop-datanode'    => { :timestamp => '20110905' },
+              'el_ridiculoso-hadoop-tasktracker' => { :timestamp => '20110905' },
+            } ),
+        })
+    end
+
+    context '.discover_nodes' do
+      before(:each) do
+        dummy_recipe.stub!(:search).
+          with(:node, 'discovery:el_ridiculoso-hadoop-datanode').
+          and_return( all_nodes.values_at('el_ridiculoso-aqui-0', 'el_ridiculoso-pequeno-0') )
+        dummy_recipe.stub!(:search).
+          with(:node, 'discovery:el_ridiculoso-hadoop-tasktracker').
+          and_return( all_nodes.values_at('el_ridiculoso-aqui-0', 'el_ridiculoso-pequeno-0') )
+        dummy_recipe.stub!(:search).
+          with(:node, 'discovery:el_ridiculoso-redis-server').
+          and_return( all_nodes.values_at('el_ridiculoso-aqui-0') )
+        dummy_recipe.stub!(:search).
+          with(:node, 'discovery:cocina-chef-client').
+          and_return( all_nodes.values )
+      end
+      it 'finds nodes matching the request, sorted by timestamp' do
+        result = dummy_recipe.discover_nodes(:hadoop, :datanode)
+        result.map{|nd| nd.name }.should == ['el_ridiculoso-pequeno-0', 'el_ridiculoso-aqui-0']
+      end
+
+      it 'replaces itself with a current copy in the search results' do
+        result = dummy_recipe.discover_nodes(:hadoop, :datanode)
+        result.map{|nd| nd.name }.should == ['el_ridiculoso-pequeno-0', 'el_ridiculoso-aqui-0']
+        result[1].should have_key(:nfs)
+      end
+      it 'finds current node if it has announced (even when the server\'s copy has not)' do
+        result = dummy_recipe.discover_nodes(:redis, :server)
+        result.map{|nd| nd.name }.should == ['el_ridiculoso-aqui-0']
+        result[0].should have_key(:nfs)
+      end
+      it 'does not find current node if it has not announced (even when the server\'s copy has announced)' do
+        result = dummy_recipe.discover_nodes(:hadoop, :tasktracker)
+        result.map{|nd| nd.name }.should == ['el_ridiculoso-pequeno-0']
+      end
+      it 'when no server found warns and returns an empty hash' do
+        dummy_recipe.should_receive(:search).
+          with(:node, 'discovery:el_ridiculoso-hadoop-mxyzptlk').and_return([])
+        Chef::Log.should_receive(:warn).with("No node announced for 'el_ridiculoso-hadoop-mxyzptlk'")
+        result = dummy_recipe.discover_nodes(:hadoop, :mxyzptlk)
+        result.should == []
+      end
+    end
+  end
+
+  describe ClusterChef::Component do
+    context 'Disco' do
       context 'works on a complex example' do
-        subject{ ClusterChef::Discovery.announce(run_context, :hadoop, :datanode) }
-
-        #
-        # FIXME: need to be able to pull info about hadoop *and* datanode
-        #
-        # these tests are thus accurately failing
-        #
-
-        it 'dummy' do
-          # run_context.node[:recipes].map{|x| x.gsub(/::.*/, '') }.uniq.each do |rec|
-          ClusterChef::Discovery.dump_aspects(run_context)
-        end
 
         it('daemon') do
           subject[:daemon].should == [
@@ -86,6 +230,7 @@ describe ClusterChef do
 
       end
     end
+
   end
 
   describe ClusterChef::Aspect do
@@ -127,12 +272,12 @@ describe ClusterChef do
 
   describe :PortAspect do
     it 'is harvested by Aspects.harvest_all' do
-      aspects = ClusterChef::Aspect.harvest_all(run_context, :hadoop, :namenode, chef_node[:hadoop][:namenode])
+      aspects = ClusterChef::Aspect.harvest_all(chef_context, :hadoop, :namenode, chef_node[:hadoop][:namenode])
       aspects[:port].should_not be_empty
       aspects[:port].each{|asp| asp.should be_a(ClusterChef::PortAspect) }
     end
     it 'harvests any "*_port" attributes' do
-      port_aspects = ClusterChef::PortAspect.harvest(run_context, :hadoop, :datanode, chef_node[:hadoop][:datanode])
+      port_aspects = ClusterChef::PortAspect.harvest(chef_context, :hadoop, :datanode, chef_node[:hadoop][:datanode])
       port_aspects.should == [
         ClusterChef::PortAspect.new("dash_port",      :dash,     "50075"),
         ClusterChef::PortAspect.new("ipc_port",       :ipc,      "50020"),
@@ -155,12 +300,12 @@ describe ClusterChef do
 
   describe :DashboardAspect do
     it 'is harvested by Aspects.harvest_all' do
-      aspects = ClusterChef::Aspect.harvest_all(run_context, :hadoop, :namenode, chef_node[:hadoop][:namenode])
+      aspects = ClusterChef::Aspect.harvest_all(chef_context, :hadoop, :namenode, chef_node[:hadoop][:namenode])
       aspects[:dashboard].should_not be_empty
       aspects[:dashboard].each{|asp| asp.should be_a(ClusterChef::DashboardAspect) }
     end
     it 'harvests any "dash_port" attributes' do
-      dashboard_aspects = ClusterChef::DashboardAspect.harvest(run_context, :hadoop, :namenode, chef_node[:hadoop][:namenode])
+      dashboard_aspects = ClusterChef::DashboardAspect.harvest(chef_context, :hadoop, :namenode, chef_node[:hadoop][:namenode])
       dashboard_aspects.should == [
         ClusterChef::DashboardAspect.new("dash",     :http_dash, "http://33.33.33.12:50070/"),
         ClusterChef::DashboardAspect.new("jmx_dash", :jmx_dash,  "http://33.33.33.12:8004/"),
@@ -172,13 +317,13 @@ describe ClusterChef do
 
   describe :DaemonAspect do
     it 'is harvested by Aspects.harvest_all' do
-      aspects = ClusterChef::Aspect.harvest_all(run_context, :hadoop, :namenode, chef_node[:hadoop][:namenode])
+      aspects = ClusterChef::Aspect.harvest_all(chef_context, :hadoop, :namenode, chef_node[:hadoop][:namenode])
       aspects[:daemon].should_not be_empty
       aspects[:daemon].each{|asp| asp.should be_a(ClusterChef::DaemonAspect) }
     end
     it 'harvests its associated service resource' do
       info = Mash.new(chef_node[:zookeeper].to_hash).merge(chef_node[:zookeeper][:server])
-      daemon_aspects = ClusterChef::DaemonAspect.harvest(run_context, :zookeeper, :server, info)
+      daemon_aspects = ClusterChef::DaemonAspect.harvest(chef_context, :zookeeper, :server, info)
       daemon_aspects.should == [
         ClusterChef::DaemonAspect.new("zookeeper", "zookeeper", 'stop'),
       ]
@@ -186,9 +331,9 @@ describe ClusterChef do
 
     it 'harvesting many' do
       # rl = chef_node.run_list.map{|s| s.to_s.gsub(/(?:\Arecipe|role)\[([^:]+?)(?:::(.+))?\]\z/, '\1') }.compact.uniq.map(&:to_sym)
-      run_context.node.recipes.map{|x| x.split(/::/) }.uniq.each do |sys_name, component|
-        info = Mash.new(chef_node[sys_name])
-        daemon_aspects = ClusterChef::DaemonAspect.harvest(run_context, sys_name, component, info)
+      chef_context.node.recipes.map{|x| x.split(/::/) }.uniq.each do |sys, subsys|
+        info = Mash.new(chef_node[sys])
+        daemon_aspects = ClusterChef::DaemonAspect.harvest(chef_context, sys, subsys, info)
       end
     end
     # context '#run_state' do
@@ -213,12 +358,12 @@ describe ClusterChef do
 
   describe :LogAspect do
     it 'is harvested by Aspects.harvest_all' do
-      aspects = ClusterChef::Aspect.harvest_all(run_context, :flume, :node, chef_node[:flume])
+      aspects = ClusterChef::Aspect.harvest_all(chef_context, :flume, :node, chef_node[:flume])
       aspects[:log].should_not be_empty
       aspects[:log].each{|asp| asp.should be_a(ClusterChef::LogAspect) }
     end
     it 'harvests any "log_dir" attributes' do
-      log_aspects = ClusterChef::LogAspect.harvest(run_context, :flume, :node, chef_node[:flume])
+      log_aspects = ClusterChef::LogAspect.harvest(chef_context, :flume, :node, chef_node[:flume])
       log_aspects.should == [
         ClusterChef::LogAspect.new("log", :log, "/var/log/flume"),
       ]
@@ -230,12 +375,12 @@ describe ClusterChef do
 
   describe :DirectoryAspect do
     it 'is harvested by Aspects.harvest_all' do
-      aspects = ClusterChef::Aspect.harvest_all(run_context, :zookeeper, :server, chef_node[:zookeeper])
+      aspects = ClusterChef::Aspect.harvest_all(chef_context, :zookeeper, :server, chef_node[:zookeeper])
       aspects[:directory].should_not be_empty
       aspects[:directory].each{|asp| asp.should be_a(ClusterChef::DirectoryAspect) }
     end
     it 'harvests attributes ending with "_dir"' do
-      directory_aspects = ClusterChef::DirectoryAspect.harvest(run_context, :flume, :node, chef_node[:flume])
+      directory_aspects = ClusterChef::DirectoryAspect.harvest(chef_context, :flume, :node, chef_node[:flume])
       directory_aspects.should == [
         ClusterChef::DirectoryAspect.new("conf", :conf, "/etc/flume/conf"),
         ClusterChef::DirectoryAspect.new("data", :data, "/data/db/flume"),
@@ -246,7 +391,7 @@ describe ClusterChef do
     end
     it 'harvests plural directory sets ending with "_dirs"' do
       hadoop_namenode = Mash.new(chef_node[:hadoop].to_hash).merge(chef_node[:hadoop][:namenode])
-      directory_aspects = ClusterChef::DirectoryAspect.harvest(run_context, :hadoop, :namenode, hadoop_namenode)
+      directory_aspects = ClusterChef::DirectoryAspect.harvest(chef_context, :hadoop, :namenode, hadoop_namenode)
       directory_aspects.should == [
         ClusterChef::DirectoryAspect.new("conf", :conf, "/etc/hadoop/conf"),
         ClusterChef::DirectoryAspect.new("data", :data, ["/mnt1/hadoop/hdfs/name", "/mnt2/hadoop/hdfs/name"]),
@@ -258,7 +403,7 @@ describe ClusterChef do
     end
     it 'harvests non-standard dirs' do
       chef_node[:flume][:foo_dirs] = ['/var/foo/flume', '/var/bar/flume']
-      directory_aspects = ClusterChef::DirectoryAspect.harvest(run_context, :flume, :node, chef_node[:flume])
+      directory_aspects = ClusterChef::DirectoryAspect.harvest(chef_context, :flume, :node, chef_node[:flume])
       directory_aspects.should == [
         ClusterChef::DirectoryAspect.new("conf", :conf, "/etc/flume/conf"),
         ClusterChef::DirectoryAspect.new("data", :data, "/data/db/flume"),
@@ -286,18 +431,18 @@ describe ClusterChef do
   describe :ExportedAspect do
     context '#files' do
       it 'is harvested by Aspects.harvest_all' do
-        aspects = ClusterChef::Aspect.harvest_all(run_context, :zookeeper, :server, chef_node[:zookeeper])
+        aspects = ClusterChef::Aspect.harvest_all(chef_context, :zookeeper, :server, chef_node[:zookeeper])
         aspects[:exported].should_not be_empty
         aspects[:exported].each{|asp| asp.should be_a(ClusterChef::ExportedAspect) }
       end
       it 'harvests attributes beginning with "exported_"' do
-        exported_aspects = ClusterChef::ExportedAspect.harvest(run_context, :zookeeper, :server, chef_node[:zookeeper])
+        exported_aspects = ClusterChef::ExportedAspect.harvest(chef_context, :zookeeper, :server, chef_node[:zookeeper])
         exported_aspects.should == [
           ClusterChef::ExportedAspect.new("jars", :jars, ["/usr/lib/zookeeper/zookeeper.jar"])
         ]
       end
       it 'harvests multiple examples' do
-        exported_aspects = ClusterChef::ExportedAspect.harvest(run_context, :hbase, :master, chef_node[:hbase])
+        exported_aspects = ClusterChef::ExportedAspect.harvest(chef_context, :hbase, :master, chef_node[:hbase])
         exported_aspects.should == [
           ClusterChef::ExportedAspect.new("confs", :confs, ["/etc/hbase/conf/hbase-default.xml", "/etc/hbase/conf/hbase-site.xml"]),
           ClusterChef::ExportedAspect.new("jars",  :jars,  ["/usr/lib/hbase/hbase-0.90.1-cdh3u0.jar", "/usr/lib/hbase/hbase-0.90.1-cdh3u0-tests.jar"])

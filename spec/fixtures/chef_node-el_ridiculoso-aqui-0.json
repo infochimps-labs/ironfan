@@ -1849,38 +1849,38 @@
     "service_dir": "/etc/service",
     "sv_dir": "/etc/sv"
   },
-  "provides_service": {
-    "el_ridiculoso-flume-master": {
+  "discovery": {
+    "el_ridiculoso:flume.master": {
     },
-    "el_ridiculoso-flume-node": {
+    "el_ridiculoso:flume.node": {
     },
-    "el_ridiculoso-zookeeper": {
+    "el_ridiculoso:zookeeper.server": {
     },
-    "el_ridiculoso-datanode": {
+    "el_ridiculoso:hadoop.datanode": {
     },
-    "el_ridiculoso-jobtracker": {
+    "el_ridiculoso:hadoop.jobtracker": {
     },
-    "el_ridiculoso-namenode": {
+    "el_ridiculoso:hadoop.namenode": {
     },
-    "el_ridiculoso-secondarynn": {
+    "el_ridiculoso:hadoop.secondarynn": {
     },
-    "el_ridiculoso-tasktracker": {
+    "el_ridiculoso:hadoop.tasktracker": {
     },
-    "el_ridiculoso-ganglia_server": {
+    "el_ridiculoso:ganglia.server": {
     },
-    "el_ridiculoso-ganglia_monitor": {
+    "el_ridiculoso:ganglia.monitor": {
       "monitor_group": "el_ridiculoso",
       "rcv_port": 8649
     },
-    "el_ridiculoso-redis_server": {
+    "el_ridiculoso:redis_server": {
       "port": "6379"
     },
-    "resque_dashboard": {
+    "el_ridiculoso:resque.dashboard": {
       "port": null
     },
-    "el_ridiculoso-hbase-master": {
+    "el_ridiculoso:hbase.master": {
     },
-    "el_ridiculoso-hbase-regionserver": {
+    "el_ridiculoso:hbase.regionserver": {
     }
   },
   "cluster_chef": {
