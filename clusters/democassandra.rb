@@ -1,5 +1,5 @@
 ClusterChef.cluster 'democassandra' do
-  recipe                "cluster_chef::dedicated_server_tuning"
+  recipe                "tuning"
   role                  "ebs_volumes_attach"
   role                  "ebs_volumes_mount"
   role                  "hadoop_s3_keys"

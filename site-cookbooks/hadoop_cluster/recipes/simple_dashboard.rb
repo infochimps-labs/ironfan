@@ -19,7 +19,7 @@
 # limitations under the License.
 #
 
-include_recipe 'cluster_chef'
+include_recipe 'dashpot'
 
 #
 # Register dashboard
@@ -35,7 +35,7 @@ end
 # Drop in our mini-dashboard
 #
 
-cluster_chef_dashboard(:hadoop_cluster) do
+dashpot_dashboard(:hadoop_cluster) do
   summary_keys = %w[
   ==Daemons
     hadoop.namenode.addr   hadoop.namenode.port hadoop.jobtracker.addr hadoop.jobtracker.port

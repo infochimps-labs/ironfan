@@ -248,7 +248,7 @@ attribute "groups/elasticsearch/gid",
   :description           => "",
   :default               => "61021"
 
-attribute "server_tuning/ulimit/@elasticsearch",
+attribute "tuning/ulimit/@elasticsearch",
   :display_name          => "",
   :description           => "",
   :type                  => "hash",

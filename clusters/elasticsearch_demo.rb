@@ -14,7 +14,7 @@ ClusterChef.cluster 'elasticsearch_demo' do
   role                  :ssh
   role                  :nfs_client
   cluster_role
-  recipe                "cluster_chef::dedicated_server_tuning"
+  recipe                "tuning"
 
   volume(:data) do
     size              10

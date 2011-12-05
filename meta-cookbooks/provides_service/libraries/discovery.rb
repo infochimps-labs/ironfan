@@ -46,6 +46,15 @@ module ClusterChef
       @run_context.node
     end
 
+    def public_ip
+    end
+
+    def private_ip
+    end
+
+    def private_hostname
+    end
+
     # Combines the hash for a system with the hash for its given subsys.
     # This lets us ask about the +:user+ for the 'redis.server' component,
     # whether it's set in +node[:redis][:server][:user]+ or

@@ -1,7 +1,7 @@
 #
 # Cookbook Name::       cluster_chef
 # Description::         Dedicated Server Tuning
-# Recipe::              dedicated_server_tuning
+# Recipe::              ubuntu
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #
 # Copyright 2011, Philip (flip) Kromer - Infochimps, Inc
@@ -27,11 +27,11 @@ def set_proc_sys_limit desc, proc_path, limit
   end
 end
 
-set_proc_sys_limit "VM overcommit ratio",  '/proc/sys/vm/overcommit_memory', node[:server_tuning][:overcommit_memory]
-set_proc_sys_limit "VM overcommit memory", '/proc/sys/vm/overcommit_ratio',  node[:server_tuning][:overcommit_ratio]
-set_proc_sys_limit "VM swappiness",        '/proc/sys/vm/swappiness',        node[:server_tuning][:swappiness]
+set_proc_sys_limit "VM overcommit ratio",  '/proc/sys/vm/overcommit_memory', node[:tuning][:overcommit_memory]
+set_proc_sys_limit "VM overcommit memory", '/proc/sys/vm/overcommit_ratio',  node[:tuning][:overcommit_ratio]
+set_proc_sys_limit "VM swappiness",        '/proc/sys/vm/swappiness',        node[:tuning][:swappiness]
 
-node[:server_tuning][:ulimit].each do |user, ulimits|
+node[:tuning][:ulimit].each do |user, ulimits|
   conf_file = user.gsub(/^@/, 'group_')
 
   template "/etc/security/limits.d/#{conf_file}.conf" do

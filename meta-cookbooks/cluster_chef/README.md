@@ -39,10 +39,10 @@ Attributes are scoped by *cookbook* and then by *component*.
 
 ## Attributes
 
-* `[:server_tuning][:ulimit]`         - 
-* `[:server_tuning][:overcommit_memory]` -  (default: "1")
-* `[:server_tuning][:overcommit_ratio]` -  (default: "100")
-* `[:server_tuning][:swappiness]`     -  (default: "5")
+* `[:tuning][:ulimit]`         - 
+* `[:tuning][:overcommit_memory]` -  (default: "1")
+* `[:tuning][:overcommit_ratio]` -  (default: "100")
+* `[:tuning][:swappiness]`     -  (default: "5")
 * `[:cluster_chef][:conf_dir]`        -  (default: "/etc/cluster_chef")
 * `[:cluster_chef][:log_dir]`         -  (default: "/var/log/cluster_chef")
 * `[:cluster_chef][:home_dir]`        -  (default: "/etc/cluster_chef")
@@ -55,7 +55,7 @@ Attributes are scoped by *cookbook* and then by *component*.
 
 * `burn_ami_prep`            - Burn Ami Prep
 * `dashboard`                - Lightweight dashboard for this machine: index of services and their dashboard snippets
-* `dedicated_server_tuning`  - Dedicated Server Tuning
+* `dedicated_tuning`  - Dedicated Server Tuning
 * `default`                  - Base configuration for cluster_chef
 * `virtualbox_metadata`      - Virtualbox Metadata
 ## Integration

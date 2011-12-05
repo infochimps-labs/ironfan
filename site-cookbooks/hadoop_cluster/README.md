@@ -108,9 +108,9 @@ Copyright:: 2009, Opscode, Inc; 2010, 2011 Infochimps, In
 * `[:java][:java_home]`               -  (default: "/usr/lib/jvm/java-6-sun/jre")
 * `[:users][:hdfs][:uid]`             -  (default: "302")
 * `[:users][:mapred][:uid]`           -  (default: "303")
-* `[:server_tuning][:ulimit][:hdfs]`  - 
-* `[:server_tuning][:ulimit][:hbase]` - 
-* `[:server_tuning][:ulimit][:mapred]` - 
+* `[:tuning][:ulimit][:hdfs]`  - 
+* `[:tuning][:ulimit][:hbase]` - 
+* `[:tuning][:ulimit][:mapred]` - 
 
 ## Recipes 
 

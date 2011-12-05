@@ -4,14 +4,12 @@ license          "Apache 2.0"
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 version          "3.0.2"
 
-description      "Installs/Configures cluster_chef"
+description      "Creates and serves a lightweight pluggable dashboard for a machine"
 
 depends          "runit"
 depends          "provides_service"
 
-recipe           "cluster_chef::burn_ami_prep",        "Burn Ami Prep"
-recipe           "cluster_chef::default",              "Base configuration for cluster_chef"
-recipe           "cluster_chef::virtualbox_metadata",  "Virtualbox Metadata"
+recipe           "dashpot",       "Lightweight dashboard for this machine: index of services and their dashboard snippets"
 
 %w[ debian ubuntu ].each do |os|
   supports os
@@ -37,7 +35,12 @@ attribute "cluster_chef/user",
   :description           => "",
   :default               => "root"
 
-attribute "users/root/primary_group",
+attribute "cluster_chef/thttpd/port",
   :display_name          => "",
   :description           => "",
-  :default               => "root"
+  :default               => "6789"
+
+attribute "cluster_chef/dashboard/run_state",
+  :display_name          => "",
+  :description           => "",
+  :default               => "start"

@@ -382,19 +382,19 @@ attribute "users/mapred/uid",
   :description           => "",
   :default               => "303"
 
-attribute "server_tuning/ulimit/hdfs",
+attribute "tuning/ulimit/hdfs",
   :display_name          => "",
   :description           => "",
   :type                  => "hash",
   :default               => {:nofile=>{:both=>32768}, :nproc=>{:both=>50000}}
 
-attribute "server_tuning/ulimit/hbase",
+attribute "tuning/ulimit/hbase",
   :display_name          => "",
   :description           => "",
   :type                  => "hash",
   :default               => {:nofile=>{:both=>32768}, :nproc=>{:both=>50000}}
 
-attribute "server_tuning/ulimit/mapred",
+attribute "tuning/ulimit/mapred",
   :display_name          => "",
   :description           => "",
   :type                  => "hash",

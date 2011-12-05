@@ -2,7 +2,7 @@ ClusterChef.cluster 'demohbase' do
   use :defaults
   setup_role_implications
 
-  recipe                "cluster_chef::dedicated_server_tuning"
+  recipe                "tuning"
   role                  "ebs_volumes_attach"
   role                  "ebs_volumes_mount"
   role                  "hadoop_s3_keys"

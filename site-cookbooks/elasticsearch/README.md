@@ -120,7 +120,7 @@ limitations under the License.
 * `[:elasticsearch][:server][:run_state]` -  (default: "stop")
 * `[:users][:elasticsearch][:uid]`    -  (default: "61021")
 * `[:groups][:elasticsearch][:gid]`   -  (default: "61021")
-* `[:server_tuning][:ulimit][:@elasticsearch]` - 
+* `[:tuning][:ulimit][:@elasticsearch]` - 
 
 ## Recipes 
 

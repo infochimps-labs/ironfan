@@ -4,12 +4,11 @@ Allow nodes to discover the location for a given service at runtime, adapting wh
 
 ## Overview
 
-Based in good part on code from Ben Black's cassandra recipes
 
 Allow nodes to discover the location for a given service at runtime, adapting
 when new services register.
 
-Operations:
+### Operations:
 
 * register for a service. A timestamp records the last registry.
 * discover all chef nodes that have registered for the given service.
@@ -19,12 +18,14 @@ Operations:
 * get the 'public_ip' for a service -- the address that nodes on the local
   subnet / private cloud should use
 
-Implementation
+### Implementation
 
 Nodes register a service by setting the +[:provides_service][service_name]+
 attribute. This attribute is a hash containing at 'timestamp' (the time of
 registry), but the service can pass in an arbitrary hash of values to merge
 in.
+
+Inspired by code from Ben Black's cassandra recipes.
 
 ## Attributes
 
