@@ -4,5 +4,5 @@ description "Attaches ebs volumes"
 run_list *%w[
   aws
   xfs
-  mountable_volumes::attach
+  volumes::attach
 ]

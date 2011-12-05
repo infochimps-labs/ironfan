@@ -5,7 +5,7 @@ actions(
 # name of this dashboard
 attribute :name,          :name_attribute => true
 
-# location of dashboard snippets
+# location of dashboard snippets, node[:dashpot][:home_dir] by default
 attribute :dashboard_dir, :kind_of => String, :default => nil
 
 # use the named template (otherwise the name variable is used).  We'll look for
@@ -14,7 +14,7 @@ attribute :dashboard_dir, :kind_of => String, :default => nil
 attribute :template_name, :kind_of => String, :default => nil
 
 # if not explicitly set, use the node variables matching the given name: so,
-# `cluster_chef_dashboard(:redis){ ... }` gives node[:redis][:home_dir] as
+# `dashpot_dashboard(:redis){ ... }` gives node[:redis][:home_dir] as
 # @home_dir, node[:redis][:server][:port] as @server[:port], and so on.
 attribute :variables,     :kind_of => Hash, :default => nil
 
@@ -27,6 +27,7 @@ def initialize(*args)
 end
 
 def assume_defaults!
-  @dashboard_dir ||= ::File.join(node[:cluster_chef][:home_dir], 'dashboard')
+  @variables       = Mash.new(variables) # mashify
+  @dashboard_dir ||= node[:dashpot][:home_dir]
   @template_name ||= name
 end

@@ -9,8 +9,8 @@ description      "Installs/Configures zookeeper"
 depends          "java"
 depends          "apt"
 depends          "runit"
-depends          "mountable_volumes"
-depends          "provides_service"
+
+depends          "volumes"
 depends          "cluster_chef"
 
 recipe           "zookeeper::client",                  "Installs Zookeeper client libraries"

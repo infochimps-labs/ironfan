@@ -14,7 +14,7 @@ ClusterChef.cluster 'demohadoop' do
   role                  :chef_client
   role                  :ssh
   role                  :nfs_client
-  role                  :mountable_volumes
+  role                  :volumes
   role                  :hadoop
   role                  :hadoop_s3_keys
   role                  'pig'
@@ -63,7 +63,7 @@ ClusterChef.cluster 'demohadoop' do
         # :jobtracker        => { :java_heap_size_max => 3072 },
         :compress_mapout_codec      => 'org.apache.hadoop.io.compress.SnappyCodec',
       },
-      :mountable_volumes => {
+      :volumes => {
         :aws_credential_source => 'node_attributes',
       }
     })

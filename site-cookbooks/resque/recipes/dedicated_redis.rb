@@ -48,4 +48,4 @@ runit_service 'resque_redis' do
   options       node[:resque]
 end
 
-provide_service('resque_redis', :port => node[:resque][:redis][:port])
+announce(:resque, :redis, :port => node[:resque][:redis][:port])

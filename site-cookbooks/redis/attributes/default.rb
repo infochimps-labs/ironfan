@@ -39,7 +39,7 @@ default[:redis][:saves]             = [["900", "1"], ["300", "10"], ["60", "1000
 
 default[:redis][:slave]             = "no"
 if (node[:redis][:slave] == "yes")
-  # TODO: replace with provides_service
+  # TODO: replace with discovery
   default[:redis][:master_server]   = "redis-master." + domain
   default[:redis][:master_port]     = "6379"
 end

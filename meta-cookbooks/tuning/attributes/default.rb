@@ -1,13 +1,15 @@
 #
-# Server Tuning
+# Adjust ulimits by user
 #
 default[:tuning][:ulimit]  ||= Mash.new
 
+
 #
+# Linux VM settings
 #
+
 # For a desktop machine, the defaults are [0, 50, 60]
 # For a dedicated server, you may prefer  [1, 100, 5]
-#
 
 #
 # If virtual memory requests exceed available physical memory,

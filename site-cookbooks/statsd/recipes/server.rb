@@ -26,7 +26,7 @@ include_recipe "graphite"
 
 daemon_user(:statsd)
 
-standard_directories('statsd') do
+standard_dirs('statsd') do
   directories   :conf_dir, :log_dir, :pid_dir
 end
 
@@ -35,7 +35,7 @@ runit_service "statsd" do
   options       node[:statsd]
 end
 
-provide_service("#{node[:cluster_name]}-statsd", :port => node[:statsd][:port])
+announce(:statsd, :server, :port => node[:statsd][:port])
 
 git node[:statsd][:home_dir] do
   repository    node[:statsd][:git_repo]

@@ -1,7 +1,7 @@
 require 'cgi'
 
 module ClusterChef
-  module DashboardUtils
+  module Dashpot
 
     def add_dashboard_link(component, url_parts)
       if    url_parts.respond_to?(:each_pair) && url_parts["url"]
@@ -14,7 +14,7 @@ module ClusterChef
       else
         url = nil
       end
-      node[:cluster_chef][:dashboard][:links][component] = url
+      node[:dashpot][:links][component] = url
     end
 
     # Index into a (potentially deep) hash, using each key in turn. The key can
@@ -71,8 +71,8 @@ module ClusterChef
   end
 end
 
-class Chef::Recipe              ; include ClusterChef::DashboardUtils ; end
-class Chef::Resource::Directory ; include ClusterChef::DashboardUtils ; end
-class Chef::Resource::Execute   ; include ClusterChef::DashboardUtils ; end
-class Chef::Resource::Template  ; include ClusterChef::DashboardUtils ; end
-class Erubis::Context           ; include ClusterChef::DashboardUtils ; end
+class Chef::Recipe              ; include ClusterChef::Dashpot ; end
+class Chef::Resource::Directory ; include ClusterChef::Dashpot ; end
+class Chef::Resource::Execute   ; include ClusterChef::Dashpot ; end
+class Chef::Resource::Template  ; include ClusterChef::Dashpot ; end
+class Erubis::Context           ; include ClusterChef::Dashpot ; end

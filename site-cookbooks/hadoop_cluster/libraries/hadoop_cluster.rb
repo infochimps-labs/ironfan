@@ -12,7 +12,7 @@ module HadoopCluster
   # the hadoop services this machine provides
   def hadoop_services
     %w[namenode secondarynn jobtracker datanode tasktracker].select do |svc|
-      node[:provides_service]["#{node[:cluster_name]}-#{svc}"]
+      node[:announces]["#{node[:cluster_name]}-#{hadoop}-#{svc}"]
     end
   end
 

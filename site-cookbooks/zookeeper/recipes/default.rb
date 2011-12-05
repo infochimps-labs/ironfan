@@ -20,7 +20,7 @@
 #
 
 include_recipe "apt"
-include_recipe "mountable_volumes"
+include_recipe "volumes"
 include_recipe "cluster_chef"
 include_recipe "java" ; complain_if_not_sun_java(:cassandra)
 
@@ -36,14 +36,15 @@ package "hadoop-zookeeper"
 # Configuration files
 #
 
-standard_directories('zookeeper.server') do
+standard_dirs('zookeeper.server') do
   directories   :conf_dir, :log_dir
 end
 
 #
 # Config files
 #
-zookeeper_server_ips =  all_provider_private_ips("#{node[:zookeeper][:cluster_name]}-zookeeper").sort
+zookeeper_server_ips = discover_all(:zookeeper, :server).map(&:private_ip).sort
+
 myid = zookeeper_server_ips.find_index( private_ip_of node )
 template_variables = {
   :zookeeper              => node[:zookeeper],

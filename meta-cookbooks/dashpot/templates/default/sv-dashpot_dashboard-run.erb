@@ -1,0 +1,4 @@
+#!/bin/bash
+exec 2>&1
+cd             <%= @options[:home_dir] %>
+exec thttpd -C <%= @options[:conf_dir] %>/dashboard-thttpd.conf -D

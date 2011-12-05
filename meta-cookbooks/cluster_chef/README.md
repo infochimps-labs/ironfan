@@ -37,6 +37,28 @@ Attributes are scoped by *cookbook* and then by *component*.
 * If there is only one component, it can be implicitly named for its cookbook. In this case, it is omitted: the component attributes live in `node[:cookbook_name]` (which is the same as the component name).
 * If there are multiple components, they will live in `node[:cookbook_name][:component_name]` (eg `[:hadoop][:namenode]` or `[:flume][:master]`. In file names, these become `(whatever)/cookbook_name/component_name/(whatever)`; in other cases they are joined as `cookbook_name-component_name`.
 
+Allow nodes to discover the location for a given service at runtime, adapting when new services register.
+
+### Discovery
+
+Allow nodes to discover the location for a given service at runtime, adapting
+when new services register.
+
+#### Operations:
+
+* register for a service. A timestamp records the last registry.
+* discover all chef nodes that have registered for the given service.
+* discover the most recent chef node for that service.
+* get the 'public_ip' for a service -- the address that nodes in the larger
+  world should use
+* get the 'public_ip' for a service -- the address that nodes on the local
+  subnet / private cloud should use
+
+#### Implementation
+
+Nodes register a service by calling `announce`, which sets a hash containing
+'timestamp' (the time of registry) and other metadata passed in. 
+
 ## Attributes
 
 * `[:tuning][:ulimit]`         - 
@@ -55,7 +77,6 @@ Attributes are scoped by *cookbook* and then by *component*.
 
 * `burn_ami_prep`            - Burn Ami Prep
 * `dashboard`                - Lightweight dashboard for this machine: index of services and their dashboard snippets
-* `dedicated_tuning`  - Dedicated Server Tuning
 * `default`                  - Base configuration for cluster_chef
 * `virtualbox_metadata`      - Virtualbox Metadata
 ## Integration

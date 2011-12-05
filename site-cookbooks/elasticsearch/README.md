@@ -139,7 +139,7 @@ Cookbook dependencies:
 * java
 * aws
 * runit
-* mountable_volumes
+* volumes
 * provides_service
 * cluster_chef
 * nginx

@@ -3,38 +3,6 @@ module ClusterChef
   module CookbookUtils
 
     #
-    # Helpers for saving node metadata
-    #
-
-    def self.node_changed!
-      @node_changed = true
-    end
-    def node_changed! ; ClusterChef::CookbookUtils.node_changed! ; end
-
-    def self.node_changed?
-      !! @node_changed
-    end
-    def node_changed? ; ClusterChef::CookbookUtils.node_changed? ; end
-
-    class ::Chef ; MIN_VERSION_FOR_SAVE = "0.8.0" ; end
-
-    # Save the node, unless we're in chef-solo mode (or an ancient version)
-    def save_node!(node)
-      return unless node_changed?
-      # taken from ebs_volume cookbook
-      if Chef::VERSION !~ /^0\.[1-8]\b/
-        if not Chef::Config.solo
-          Chef::Log.info('Saving Node!!!!')
-          node.save
-        else
-          Chef::Log.warn("Skipping node save since we are running under chef-solo.  Node attributes will not be persisted.")
-        end
-      else
-        Chef::Log.warn("Skipping node save: Chef version #{Chef::VERSION} (prior to #{Chef::MIN_VERSION_FOR_SAVE}) can't save");
-      end
-    end
-
-    #
     # Run state helpers
     #
 
@@ -59,6 +27,24 @@ module ClusterChef
     # Best public or private IP
     #
 
+    #
+    # Change all occurences of a given line in-place in a file
+    #
+    # @param [String] name       - name for the resource invocation
+    # @param [String] filename   - the file to modify (in-place)
+    # @param [String] old_line   - the string to replace
+    # @param [String] new_line   - the string to insert in its place
+    # @param [String] shibboleth - a simple foolproof string that should be
+    #    present after this works
+    #
+    def munge_one_line(name, filename, old_line, new_line, shibboleth)
+      execute name do
+        command %Q{sed -i -e 's|#{old_line}|#{new_line}| ' '#{filename}'}
+        not_if  %Q{grep -q -e '#{shibboleth}' '#{filename}'}
+        only_if{ File.exists?(filename) }
+        yield if block_given?
+      end
+    end
 
   end
 end

@@ -21,7 +21,7 @@
 
 include_recipe "java::sun"
 include_recipe "apt"
-include_recipe "mountable_volumes"
+include_recipe "volumes"
 class Chef::Recipe; include HadoopCluster ; end
 
 include_recipe "hadoop_cluster::add_cloudera_repo"
@@ -62,7 +62,7 @@ hadoop_package "sbin"
 #
 #
 
-standard_directories('hadoop') do
+standard_dirs('hadoop') do
   directories   :conf_dir, :pid_dir
 end
 

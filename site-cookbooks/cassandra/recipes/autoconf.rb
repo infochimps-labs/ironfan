@@ -57,14 +57,11 @@ unless clusters.nil? || clusters[node[:cassandra][:cluster_name]].nil?
   end
 end
 
-# We want to find all nodes in our cluster that rock the cassandra.
-cassandra_cluster_name = node[:cassandra][:cluster_name] + '-cassandra'
-
 # Configure the various addrs for binding
 node[:cassandra][:listen_addr] = private_ip_of(node)
 node[:cassandra][:rpc_addr]    = private_ip_of(node)
-# And find out who all else provides cassandra in our cluster
-all_seeds  = all_provider_private_ips(cassandra_cluster_name+'-seed')
+# And find out who else provides cassandra in our cluster
+all_seeds  = discover_all(:elasticsearch, :seed).map(&:private_ip)
 all_seeds  = [private_ip_of(node), all_seeds] if (all_seeds.length < 2)
 node[:cassandra][:seeds] = all_seeds.flatten.compact.uniq.sort
 

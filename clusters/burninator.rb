@@ -63,7 +63,7 @@ ClusterChef.cluster 'burninator' do
           :force_distro => 'maverick', # no natty distro  yet
           :release_name => 'cdh3u2',
         }, },
-      :mountable_volumes => {
+      :volumes => {
         :aws_credential_source => 'node_attributes',
       },
       :hadoop => {

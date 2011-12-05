@@ -4,14 +4,9 @@ license          "Apache 2.0"
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 version          "3.0.2"
 
-description      "Installs/Configures cluster_chef"
+description      "Cluster orchestration -- coordinates discovery, integration and decoupling of cookbooks"
 
-depends          "runit"
-depends          "provides_service"
-
-recipe           "cluster_chef::burn_ami_prep",        "Burn Ami Prep"
 recipe           "cluster_chef::default",              "Base configuration for cluster_chef"
-recipe           "cluster_chef::virtualbox_metadata",  "Virtualbox Metadata"
 
 %w[ debian ubuntu ].each do |os|
   supports os

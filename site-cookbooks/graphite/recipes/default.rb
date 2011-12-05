@@ -22,7 +22,7 @@
 include_recipe "python"
 include_recipe 'cluster_chef'
 
-standard_directories('graphite') do
+standard_dirs('graphite') do
   directories   :conf_dir, :home_dir, :log_dir
 end
 

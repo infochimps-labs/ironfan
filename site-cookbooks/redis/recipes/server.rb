@@ -27,7 +27,7 @@ daemon_user(:redis) do
   home          node[:redis][:data_dir]
 end
 
-standard_directories('redis.server') do
+standard_dirs('redis.server') do
   directories   :conf_dir, :log_dir, :data_dir
 end
 
@@ -38,4 +38,5 @@ runit_service "redis_server" do
   options       node[:redis]
 end
 
-provide_service("#{node[:cluster_name]}-redis_server", :port => node[:redis][:server][:port])
+announce(:redis, :server,
+  :port => node[:redis][:server][:port])

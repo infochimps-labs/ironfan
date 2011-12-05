@@ -1,8 +1,8 @@
-port=<%= node[:cluster_chef][:thttpd][:port] %>
-dir=<%= node[:cluster_chef][:conf_dir] %>/dashboard
+port=<%= node[:dashpot][:port] %>
+dir=<%= node[:dashpot][:home_dir] %>
 charset=utf8
 chroot
 # data_dir=
 # globalpasswd
 user=nobody
-logfile=<%= node[:cluster_chef][:log_dir] %>/thttpd-dashboard.log
+logfile=<%= node[:dashpot][:log_dir] %>/thttpd-dashboard.log

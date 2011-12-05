@@ -510,7 +510,7 @@ module CookbookMunger
       end
       include_cookbooks = include_cookbooks.sort.uniq
       missing_dependencies = (include_cookbooks  - all_depends.keys - [name])
-      missing_includes     = (all_depends.keys - include_cookbooks  - [name, "provides_service"])
+      missing_includes     = (all_depends.keys - include_cookbooks  - [name])
       warn "Coookbook #{name} doesn't declare dependency on #{missing_dependencies.join(", ")}, but has an include_recipe that refers to it" if missing_dependencies.present?
       warn "Coookbook #{name} declares dependency on #{missing_includes.join(", ")}, but never calls include_recipe with it"             if missing_includes.present?
     end

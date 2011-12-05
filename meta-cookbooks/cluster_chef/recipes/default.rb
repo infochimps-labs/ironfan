@@ -22,17 +22,3 @@
 node_metadata(node) do
   action :save
 end
-
-directory node[:cluster_chef][:home_dir] do
-  owner     'root'
-  group     'root'
-  mode      '0755'
-  action    :create
-end
-
-directory node[:cluster_chef][:conf_dir] do
-  owner     'root'
-  group     'root'
-  mode      '0755'
-  action    :create
-end

@@ -47,9 +47,8 @@ template "#{node[:cassandra][:conf_dir]}/log4j-server.properties" do
   notifies      :restart, "service[cassandra]", :delayed if startable?(node[:cassandra])
 end
 
-# have some fraction of the nodes register as a seed with
-# provides_service
+# have some fraction of the nodes announce as a seed
 if (node[:cassandra][:seed_node] || (node[:facet_index].to_i % 3 == 0) )
-  provide_service(node[:cassandra][:cluster_name] + '-cassandra-seed')
+  announce(:cassandra, :seed)
 end
-provide_service(node[:cassandra][:cluster_name] + '-cassandra')
+announce(:cassandra, :server)

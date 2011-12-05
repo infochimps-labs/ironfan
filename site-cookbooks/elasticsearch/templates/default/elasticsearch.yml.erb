@@ -26,7 +26,7 @@ node:
 http:
   # # http.enabled: is this a query esnode (has http interface, dispatches/gathers queries)? Default true
   enabled:                      true
-  port:                         9200-9300
+  port:                         <%= node[:elasticsearch][:http_ports] %>
   max_content_length:           100mb
 
 gateway:

@@ -1,6 +1,6 @@
 #
 # Cookbook Name::       nfs
-# Description::         NFS server: exports directories via NFS; announces using provides_service.
+# Description::         NFS server: exports directories via NFS; announces using cluster_chef discovery.
 # Recipe::              server
 # Author::              37signals
 #
@@ -16,7 +16,12 @@ end
 package "nfs-kernel-server"
 
 if node[:nfs][:exports]
-  provide_service('nfs_server', node[:nfs][:exports].to_hash)
+  #
+  # FIXME: we should announce each export on its own, along with realm
+  #
+  hsh = Mash.new(node[:nfs][:exports].to_hash)
+  hsh[:realm] ||= 'all'
+  announce(:nfs, :server, hsh)
 
   service "nfs-kernel-server" do
     action [ :enable, :start ]

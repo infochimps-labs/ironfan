@@ -1,2 +1,0 @@
-
-default[:discovery] ||= Mash.new

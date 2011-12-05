@@ -28,36 +28,28 @@ link '/etc/motd' do
   only_if{ File.symlink?('/etc/motd') }
 end
 
-def get_silly
-  svcs = (node[:provides_service] || {}).keys
-  case
-  when (! svcs.grep(/chef_server/).empty?)           then "BORK BORK BORK"
-  when (! svcs.grep(/hadoop/).empty?)                then "CRUNCH CRUNCH CRUNCH"
-  when (! svcs.grep(/scrape/).empty?)                then "SCRAPE SCRAPE SCRAPE"
-  when (! svcs.grep(/hbase|redis|cassandra/).empty?) then "DATA DATA DATA DATA DATA"
-  when (! svcs.grep(/search/).empty?)                then "FIND FIND FIND"
-  when (! svcs.grep(/resque|queue|jenkins/).empty?)  then "ZUG ZUG ZUG"
-  when (! svcs.grep(/staging/).empty?)               then "STAGE STAGE STAGE"
-  when (! svcs.grep(/flume/).empty?)                 then "ROW ROW ROW"
-  when (! svcs.grep(/apache|nginx|web/).empty?)      then "SERVE SERVE SERVE"
-  else                                                    "OOK OOK OOK"
-  end
+node[:motd]         ||= Mash.new
+node[:motd][:roles]   = node[:roles] || []
+
+if node[:cloud]
+  [ :private_ips, :public_ips ].each{|v| node[:motd][v] = (node[:cloud] || {})[v] || [] }
 end
 
-motd_vars = {}
-motd_vars[:roles]            = node[:roles] || []
-motd_vars[:silliness]        = get_silly
+if node[:ec2]
+  include_recipe 'motd::ec2'
+end
 
-[ :instance_id, :instance_type, :public_hostname, ].each{|v| motd_vars[v] = (node[:ec2]   || {})[v] || '' }
-[ :security_groups,                               ].each{|v| motd_vars[v] = (node[:ec2]   || {})[v] || [] }
-[ :private_ips, :public_ips                       ].each{|v| motd_vars[v] = (node[:cloud] || {})[v] || [] }
-[ :description                                    ].each{|v| motd_vars[v] = (node[:lsb]   || {})[v] || '' }
+# FIXME: decouple
+[ :private_ips, :public_ips                       ].each{|v| node[:motd][v] = (node[:cloud] || {})[v] || [] }
+[ :instance_id, :instance_type, :public_hostname, ].each{|v| node[:motd][v] = (node[:ec2]   || {})[v] || '' }
+[ :security_groups,                               ].each{|v| node[:motd][v] = (node[:ec2]   || {})[v] || [] }
+[ :description                                    ].each{|v| node[:motd][v] = (node[:lsb]   || {})[v] || '' }
 
 template "/etc/motd" do
   owner  "root"
   mode   "0644"
   source "motd.erb"
-  variables(motd_vars)
+  variables(node[:motd])
 end
 
 # Put the node name in a file for other processes to read easily

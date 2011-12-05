@@ -21,7 +21,7 @@
 
 include_recipe "java::sun"
 include_recipe "apt"
-include_recipe "mountable_volumes"
+include_recipe "volumes"
 include_recipe "flume::add_cloudera_repo"
 
 class Chef::Resource::Template ; include FlumeCluster ; end

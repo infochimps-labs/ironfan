@@ -12,3 +12,5 @@ default[:users]['root'][:primary_group] = value_for_platform(
   "mac_os_x"  => { "default" => "wheel" },
   "default"   => "root"
 )
+
+default[:discovery] ||= Mash.new

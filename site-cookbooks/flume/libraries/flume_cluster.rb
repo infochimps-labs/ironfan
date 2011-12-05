@@ -5,10 +5,10 @@ module FlumeCluster
     node[:flume][:cluster_name]
   end
 
-  
+
   # returns an array containing the list of flume-masters in this cluster
   def flume_masters
-    all_provider_private_ips( "#{flume_cluster}-flume-master" ).sort
+    discover_all(:flume, :master).map(&:private_ip).sort
   end
 
   def flume_master
@@ -19,28 +19,28 @@ module FlumeCluster
   def flume_master_id
     flume_masters.find_index( private_ip_of( node ) )
   end
-  
+
   # returns true if this flume is managed by an external zookeeper
   def flume_external_zookeeper
     node[:flume][:master][:external_zookeeper]
   end
-  
+
   # returns the list of ips of zookeepers in this cluster
   def flume_zookeepers
-    all_provider_private_ips(  "#{flume_cluster}-zookeeper" )
+    discover_all(:zookeeper, :server).map(&:private_ip).sort
   end
-  
+
   # returns the port to talk to zookeeper on
   def flume_zookeeper_port
     node[:flume][:master][:zookeeper_port]
 end
-  
+
   # returns the list of zookeeper servers with ports
   def flume_zookeeper_list
     flume_zookeepers.map{ |zk| "#{zk}:#{flume_zookeeper_port}"}
   end
-  
-  
+
+
   def flume_collect_property( property )
     initial = node[:flume][property]
     initial = [] unless initial
@@ -52,17 +52,16 @@ end
 
   # returns the list of plugin classes to include
   def flume_plugin_classes
-    flume_collect_property( :classes ) 
+    flume_collect_property( :classes )
   end
-  
+
   # returns the list of dirs and jars to include on the FLUME_CLASSPATH
   def flume_classpath
-    flume_collect_property( :classpath ) 
+    flume_collect_property( :classpath )
   end
 
   def flume_java_opts
-    flume_collect_property( :java_opts ) 
+    flume_collect_property( :java_opts )
   end
-  
+
 end
- 

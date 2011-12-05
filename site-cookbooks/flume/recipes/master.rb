@@ -30,4 +30,4 @@ service "flume-master" do
   action        node[:flume][:master][:run_state]
 end
 
-provide_service ("#{node[:flume][:cluster_name]}-flume-master")
+announce(:flume, :master)

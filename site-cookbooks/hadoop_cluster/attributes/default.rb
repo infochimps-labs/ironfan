@@ -31,7 +31,7 @@ default[:hadoop][:balancer    ][:run_state]  = :stop
 #
 
 #
-# These are handled by mountable_volumes, which imprints them on the node.
+# These are handled by volumes, which imprints them on the node.
 # If you set an explicit value it will be used and no discovery is done.
 #
 # Chef Attr                    Owner           Permissions  Path                                     Hadoop Attribute

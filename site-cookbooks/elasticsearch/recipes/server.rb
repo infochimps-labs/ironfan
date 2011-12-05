@@ -47,10 +47,12 @@ runit_service "elasticsearch" do
   options       node[:elasticsearch]
 end
 
-provide_service("#{node[:elasticsearch][:cluster_name]}-data_esnode")
+announce(:elasticsearch, :datanode)
 
 # Tell ElasticSearch where to find its other nodes
-provide_service "#{node[:cluster_name]}-elasticsearch"
 if node[:elasticsearch][:seeds].nil?
-  node[:elasticsearch][:seeds] = all_provider_private_ips("#{node[:cluster_name]}-elasticsearch").sort().map { |ip| ip+':9300' }
+  es_servers = discover_all(:elasticsearch, :datanode)
+
+  # FIXME: use the port from the component
+  node[:elasticsearch][:seeds] = es_servers.map{|svr| "#{svr.private_ip}:#{node[:elasticsearch][:api_port] }" }
 end

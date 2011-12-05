@@ -21,7 +21,7 @@
 
 include_recipe 'cluster_chef'
 
-standard_directories('redis.server') do
+standard_dirs('redis.server') do
   directories   :conf_dir
 end
 

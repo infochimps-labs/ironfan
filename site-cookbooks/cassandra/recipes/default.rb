@@ -20,7 +20,7 @@
 #
 
 include_recipe "thrift"
-include_recipe "mountable_volumes"
+include_recipe "volumes"
 include_recipe "cluster_chef"
 include_recipe "java" ; complain_if_not_sun_java(:cassandra)
 
@@ -31,7 +31,7 @@ daemon_user(:cassandra) do
   create_group  false
 end
 
-standard_directories('cassandra') do
+standard_dirs('cassandra') do
   directories   [:conf_dir, :log_dir, :lib_dir, :pid_dir, :data_dirs, :commitlog_dir, :saved_caches_dir]
   group         'root'
 end

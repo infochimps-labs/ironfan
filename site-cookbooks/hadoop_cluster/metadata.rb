@@ -9,9 +9,11 @@ description      "Installs hadoop and sets up a high-performance cluster. Inspir
 depends          "java"
 depends          "apt"
 depends          "runit"
-depends          "mountable_volumes"
-depends          "provides_service"
+
+depends          "volumes"
+depends          "tuning"
 depends          "cluster_chef"
+depends          "dashpot"
 
 recipe           "hadoop_cluster::default",            "Base configuration for hadoop_cluster"
 recipe           "hadoop_cluster::add_cloudera_repo",  "Add Cloudera repo to package manager"

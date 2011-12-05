@@ -53,7 +53,7 @@ Cookbook dependencies:
 * hadoop_cluster
 * zookeeper
 * ganglia
-* mountable_volumes
+* volumes
 * provides_service
 
 

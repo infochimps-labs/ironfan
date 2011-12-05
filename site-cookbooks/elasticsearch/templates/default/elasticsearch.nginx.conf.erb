@@ -1,17 +1,16 @@
 upstream elasticsearch {
-  server <%= node[:ipaddress] %>:9200 ;
+  server <%= node[:ipaddress] %>:<%= @elasticsearch[:http_port] %>;
 }
 
 server {
-  listen 8200;
-  server_name elasticsearch.infinitemonkeys.info ;
-  access_log /var/log/elasticsearch/nginx-access.log ;
-  error_log  /var/log/elasticsearch/nginx-error.log ;
+  listen        <%= @elasticsearch[:proxy_port] %>;
+  server_name   <%= @elasticsearch[:proxy_hostname] %>;
+  access_log    /var/log/elasticsearch/nginx-access.log ;
+  error_log     /var/log/elasticsearch/nginx-error.log ;
 
   location ~ ^/(_cluster/(health|nodes)|tweet-.*/tweet/_search) {
     if ($request_method = GET) {
       proxy_pass http://elasticsearch ;
     }
   }
-
 }

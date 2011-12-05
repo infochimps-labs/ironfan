@@ -17,15 +17,13 @@ define(:daemon_user,
   :create_group => true                 # Action to take on the group: `true` means `[:create]`, false-y means do nothing, or you can supply explicit actions (eg `[:create, :manage]`). default: true
   ) do
 
-  if params[:name].to_s =~ /^\w+\.\w+$/
-    params[:name], params[:component] = params[:name].split(".", 2).map(&:to_sym)
-  end
-  name, component = params[:name], params[:component]
-  #
-  params[:user]         ||= scoped_default(name, component, :user,    :required)
-  params[:group]        ||= scoped_default(name, component, :group) || params[:user]
-  params[:home]         ||= scoped_default(name, component, :pid_dir, :required)
-  params[:comment]      ||= "#{[name, component].join(" ")} daemon"
+  sys, subsys = params[:name].split(".", 2).map(&:to_sym)
+  component = ClusterChef::Component.new(node, sys, subsys)
+
+  params[:user]         ||= component.node_attr(:user, :required)
+  params[:group]        ||= component.node_attr(:group) || params[:user]
+  params[:home]         ||= component.node_attr(:pid_dir, :required)
+  params[:comment]      ||= "#{component.name} daemon"
   #
   user_val                = params[:user].to_s
   group_val               = params[:group].to_s

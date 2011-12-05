@@ -21,7 +21,7 @@
 
 include_recipe "java::sun"
 include_recipe "apt"
-include_recipe "mountable_volumes"
+include_recipe "volumes"
 include_recipe "hadoop_cluster"
 include_recipe "zookeeper::client"
 include_recipe "ganglia"
@@ -74,13 +74,13 @@ end
     owner "root"
     mode "0644"
     variables({
-        :namenode_fqdn   => provider_fqdn("#{node[:hbase][:cluster_name]}-namenode"),
-        :jobtracker_addr => provider_private_ip("#{node[:hbase][:cluster_name]}-jobtracker"),
-        :zookeeper_addr  => all_provider_private_ips("#{node[:hbase][:cluster_name]}-zookeeper").join(","),
+        :namenode_fqdn   => discover(:hadoop, :namenode  ).private_hostname,
+        :jobtracker_addr => discover(:hadoop, :jobtracker).private_ip,
+        :zookeeper_addr  => discover_all(:zookeeper, :server).map(&:private_ip).sort
         :private_ip      => private_ip_of(node),
         :jmx_hostname    => public_ip_of(node),
-        :ganglia         => provider_for_service("#{node[:hbase][:cluster_name]}-gmetad"),
-        :ganglia_addr    => provider_fqdn("#{node[:hbase][:cluster_name]}-gmetad"),
+        :ganglia         => discover(:ganglia, :server),
+        :ganglia_addr    => discover(:ganglia, :server).private_hostname,
         :ganglia_port    => 8649,
         :period          => 10
       })

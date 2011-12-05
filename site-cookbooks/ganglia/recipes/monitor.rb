@@ -30,7 +30,7 @@ package "ganglia-monitor"
 # Create service
 #
 
-standard_directories('ganglia.monitor') do
+standard_dirs('ganglia.monitor') do
   directories [:home_dir, :log_dir, :conf_dir, :pid_dir, :data_dir]
 end
 
@@ -46,7 +46,7 @@ template "#{node[:ganglia][:conf_dir]}/gmond.conf" do
   owner         "ganglia"
   group         "ganglia"
   mode          "0644"
-  send_addr = provider_private_ip("#{node[:cluster_name]}-ganglia_server") || "localhost"
+  send_addr = discover(:ganglia, :server).private_ip
   variables(
     :cluster => {
       :name      => node[:cluster_name],
@@ -62,6 +62,6 @@ runit_service "ganglia_monitor" do
   options       node[:ganglia]
 end
 
-provide_service("#{node[:cluster_name]}-ganglia_monitor",
+announce(:ganglia, :monitor,
   :monitor_group => node[:cluster_name],
   :rcv_port      => node[:ganglia][:rcv_port ])

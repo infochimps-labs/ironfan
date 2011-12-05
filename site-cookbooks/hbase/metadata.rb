@@ -9,11 +9,13 @@ description      "Installs/Configures HBase"
 depends          "java"
 depends          "apt"
 depends          "runit"
+
+depends          "volumes"
+depends          "cluster_chef"
+
 depends          "hadoop_cluster"
 depends          "zookeeper"
 depends          "ganglia"
-depends          "mountable_volumes"
-depends          "provides_service"
 
 recipe           "hbase::backup_tables",               "Cron job to backup tables to S3"
 recipe           "hbase::default",                     "Base configuration for hbase"

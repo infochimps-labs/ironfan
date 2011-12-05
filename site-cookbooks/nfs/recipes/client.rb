@@ -1,6 +1,6 @@
 #
 # Cookbook Name::       nfs
-# Description::         NFS client: uses provides_service to discover its server, and mounts the corresponding NFS directory
+# Description::         NFS client: uses cluster_chef to discover its server, and mounts the corresponding NFS directory
 # Recipe::              client
 # Author::              37signals
 #
@@ -17,7 +17,7 @@ bash "modprobe nfs" do
   not_if("cat /proc/filesystems | grep -q nfs")
 end
 
-nfs_server_ip = provider_private_ip('nfs_server')
+nfs_server_ip = discover(:nfs, :server).private_ip
 
 if nfs_server_ip.nil?
   Chef::Log.error("***************")

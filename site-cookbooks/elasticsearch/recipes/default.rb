@@ -20,7 +20,7 @@
 #
 
 include_recipe "aws"
-include_recipe "mountable_volumes"
+include_recipe "volumes"
 include_recipe "cluster_chef"
 include_recipe "java" ; complain_if_not_sun_java(:elasticsearch)
 
@@ -28,7 +28,7 @@ daemon_user(:elasticsearch) do
   create_group  true
 end
 
-standard_directories('elasticsearch') do
+standard_dirs('elasticsearch') do
   directories   [:conf_dir, :log_dir, :lib_dir, :pid_dir]
   group         'root'
 end
@@ -48,7 +48,7 @@ template "/etc/elasticsearch/elasticsearch.in.sh" do
 end
 
 elasticsearch_seeds  = [node[:elasticsearch][:seeds]]
-elasticsearch_seeds += all_provider_private_ips(node[:elasticsearch][:cluster_name]+"-data_esnode") rescue []
+elasticsearch_seeds += discover_all(:elasticsearch, :seed).map(&:private_ip)
 template "/etc/elasticsearch/elasticsearch.yml" do
   source        "elasticsearch.yml.erb"
   owner         "elasticsearch"

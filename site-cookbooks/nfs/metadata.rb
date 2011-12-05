@@ -6,11 +6,11 @@ version          "3.0.2"
 
 description      "Configures NFS"
 
-depends          "provides_service"
+depends          "cluster_chef"
 
 recipe           "nfs::client",                        "NFS client: uses provides_service to discover its server, and mounts the corresponding NFS directory"
 recipe           "nfs::default",                       "Base configuration for nfs"
-recipe           "nfs::server",                        "NFS server: exports directories via NFS; announces using provides_service."
+recipe           "nfs::server",                        "NFS server: exports directories via NFS; announces using cluster_chef."
 
 %w[ debian ubuntu ].each do |os|
   supports os
@@ -23,7 +23,7 @@ attribute "nfs/exports",
 
 attribute "nfs/mounts",
   :display_name          => "NFS Mounts",
-  :description           => "The foreign volumes to mount. Uses provides_service to find the NFS server for that volume. Supply a list of pairs: <path-to-export, hash-of-NFS-options>.",
+  :description           => "The foreign volumes to mount. Uses cluster_chef discovery to find the NFS server for that volume. Supply a list of pairs: <path-to-export, hash-of-NFS-options>.",
   :type                  => "array",
   :default               => [["/home", {:owner=>"root", :remote_path=>"/home"}]]
 

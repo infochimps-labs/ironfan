@@ -35,7 +35,7 @@ gem_package 'yajl-ruby'
 
 daemon_user('resque')
 
-standard_directories('resque') do
+standard_dirs('resque') do
   directories :home_dir, :log_dir, :tmp_dir, :data_dir, :journal_dir, :conf_dir
 end
 
@@ -59,4 +59,4 @@ runit_service 'resque_dashboard' do
   options       node[:resque]
 end
 
-provide_service('resque_dashboard', :port => node[:resque][:dashboard_port])
+announce(:resque, :dashboard, :port => node[:resque][:dashboard_port])

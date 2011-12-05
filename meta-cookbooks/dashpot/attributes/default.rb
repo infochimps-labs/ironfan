@@ -1,8 +1,21 @@
 
+# hash, name => app dashboard url
+# add yours using add_dashboard_link
+default[:dashpot][:links]     ||= Mash.new
+
 #
-# Dashboard
+# Location
 #
 
-default[:cluster_chef][:thttpd][:port]             = 6789
-default[:cluster_chef][:dashboard][:links]       ||= {}  # hash of name => app dashboard url
-default[:cluster_chef][:dashboard][:run_state]     = :start
+default[:dashpot][:conf_dir] = '/etc/dashpot'
+default[:dashpot][:log_dir]  = '/var/log/dashpot'
+default[:dashpot][:home_dir] = '/var/lib/dashpot'
+
+#
+# Dashboard service -- lightweight THTTPD daemon
+#
+
+default[:dashpot][:port]        = 6789
+default[:dashpot][:run_state]   = :start
+
+default[:dashpot][:user]     = 'root'

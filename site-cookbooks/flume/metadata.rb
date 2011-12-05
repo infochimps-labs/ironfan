@@ -9,9 +9,9 @@ description      "Installs/Configures flume"
 depends          "java"
 depends          "apt"
 depends          "runit"
-depends          "mountable_volumes"
+
+depends          "volumes"
 depends          "cluster_chef"
-depends          "provides_service"
 
 recipe           "flume::default",                     "Base configuration for flume"
 recipe           "flume::hbase_sink_plugin",           "Hbase Sink Plugin"

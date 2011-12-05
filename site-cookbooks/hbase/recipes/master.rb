@@ -31,4 +31,4 @@ service "hadoop-hbase-master" do
   supports      :status => true, :restart => true
 end
 
-provide_service ("#{node[:hbase][:cluster_name]}-hbase-master")
+announce(:hbase, :master)

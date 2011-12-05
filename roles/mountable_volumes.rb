@@ -1,7 +1,7 @@
-name        'mountable_volumes'
+name        'volumes'
 description 'mounts attached volumes as described by node attributes'
 
 run_list(*[
     'xfs',
-    'mountable_volumes::mount',
+    'volumes::mount',
   ])

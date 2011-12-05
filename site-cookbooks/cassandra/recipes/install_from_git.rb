@@ -26,7 +26,7 @@ include_recipe "java"
 package 'sun-java6-jdk'
 package 'sun-java6-bin'
 
-standard_directories('cassandra') do
+standard_dirs('cassandra') do
   directories   :home_dir
 end
 

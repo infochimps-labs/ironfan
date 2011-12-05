@@ -1,0 +1,26 @@
+<html><head></head><body>
+    
+<h2>Mountable Volumes</h2>
+
+<%- if node[:volumes] %>
+<%- hsh_keys   = %w[ fstype device mount_point mount_options ] %>
+<%- other_keys = %w[ att? mnt? ] %>
+<%- tag_keys   = node[:volumes].map{|nm, vol_info| vol_info[:tags] && vol_info[:tags].keys }.flatten.compact.uniq.map{|t| "%#{t}" } %>
+<table>
+  <tr><th>name</th><%- [hsh_keys, other_keys, tag_keys].flatten.each do |hdr| %><th><%= hdr %></th><%- end %></tr>
+<%- node[:volumes].each do |name, vol_info| %>
+  <tr>
+    <th><%= name %></th>
+    <%- hsh_keys.each do |hdr_key| %><td><%= vol_info[hdr_key] %></td><%- end %>
+    <td><%= File.exists?(vol_info[:device])      ? 'y' : '' %></td>
+    <td><%= File.exists?(vol_info[:mount_point]) ? 'y' : '' %></td>
+    <%- tag_keys.each do |hdr_key| %><td><%= vol_info[:tags] && vol_info[:tags][hdr_key] %></td><%- end %>
+    <td>
+  </tr>
+<%- end %>
+</table>
+<%- else %>
+<p><em>No volumes described</em></p>
+<%- end %>
+
+</body></html>

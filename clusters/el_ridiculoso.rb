@@ -16,7 +16,7 @@ ClusterChef.cluster 'el_ridiculoso' do
   role                  :chef_client, :first
   role                  :ssh,         :first
 
-  role                  :mountable_volumes
+  role                  :volumes
   role                  :nfs_client
   role                  :hadoop_s3_keys, :first
   recipe                'cluster_chef'
@@ -138,7 +138,7 @@ ClusterChef.cluster 'el_ridiculoso' do
         :jobtracker            => { :java_heap_size_max => 3072, },
         :compress_mapout_codec => 'org.apache.hadoop.io.compress.SnappyCodec',
       },
-      :mountable_volumes => {
+      :volumes => {
         :aws_credential_source => 'node_attributes',
       }
     })

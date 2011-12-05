@@ -30,13 +30,13 @@ daemon_user(:zookeeper) do
   home          node[:zookeeper][:data_dir]
 end
 
-standard_directories('zookeeper.server') do
+standard_dirs('zookeeper.server') do
   directories   :data_dir
 end
 
 kill_old_service('hadoop-zookeeper-server'){ pattern 'zookeeper' ; not_if{ File.exists?("/etc/init.d/hadoop-zookeeper-server") } }
 
-provide_service("#{node[:zookeeper][:cluster_name]}-zookeeper")
+announce(:zookeeper, :server)
 
 runit_service "zookeeper" do
   run_state     node[:zookeeper][:server][:run_state]

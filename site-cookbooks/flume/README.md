@@ -84,7 +84,7 @@ Cookbook dependencies:
 * java
 * apt
 * runit
-* mountable_volumes
+* volumes
 * cluster_chef
 * provides_service
 

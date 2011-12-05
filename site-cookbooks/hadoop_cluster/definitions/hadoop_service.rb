@@ -17,5 +17,5 @@ define(:hadoop_service, :service_name => nil, :package_name => nil) do
     only_if{ File.exists?("/etc/init.d/#{node[:hadoop][:handle]}-#{name}") }
   end
 
-  provide_service ("#{node[:cluster_name]}-#{name}")
+  announce(:hadoop, :name)
 end

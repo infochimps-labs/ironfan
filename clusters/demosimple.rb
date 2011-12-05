@@ -11,7 +11,7 @@ ClusterChef.cluster 'demosimple' do
   role                  :base_role
   role                  :chef_client
   role                  :ssh
-  role                  :mountable_volumes
+  role                  :volumes
 
   #
   # An NFS server to hold your home drives.
@@ -70,7 +70,7 @@ ClusterChef.cluster 'demosimple' do
         :jobtracker            => { :java_heap_size_max => 3072, },
         :compress_mapout_codec => 'org.apache.hadoop.io.compress.SnappyCodec',
       },
-      :mountable_volumes => {
+      :volumes => {
         :aws_credential_source => 'node_attributes',
       }
     })

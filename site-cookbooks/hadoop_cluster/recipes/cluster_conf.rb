@@ -25,9 +25,9 @@
 # Find these variables in ../hadoop_cluster/libraries/hadoop_cluster.rb
 #
 
-node[:hadoop][:namenode   ][:addr] = provider_private_ip("#{node[:cluster_name]}-namenode")
-node[:hadoop][:jobtracker ][:addr] = provider_private_ip("#{node[:cluster_name]}-jobtracker")
-node[:hadoop][:secondarynn][:addr] = provider_private_ip("#{node[:cluster_name]}-secondarynn")
+node[:hadoop][:namenode   ][:addr] = discover(:hadoop, :namenode   ).private_ip
+node[:hadoop][:jobtracker ][:addr] = discover(:hadoop, :jobtracker ).private_ip
+node[:hadoop][:secondarynn][:addr] = discover(:hadoop, :secondarynn).private_ip
 
 %w[core-site.xml hdfs-site.xml mapred-site.xml hadoop-env.sh fairscheduler.xml hadoop-metrics.properties].each do |conf_file|
   template "#{node[:hadoop][:conf_dir]}/#{conf_file}" do

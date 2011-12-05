@@ -31,7 +31,7 @@ package "gmetad"
 # Create service
 #
 
-standard_directories('ganglia.server') do
+standard_dirs('ganglia.server') do
   directories [:home_dir, :log_dir, :conf_dir, :pid_dir, :data_dir]
 end
 
@@ -55,4 +55,4 @@ runit_service "ganglia_server" do
   options       node[:ganglia]
 end
 
-provide_service("#{node[:cluster_name]}-ganglia_server")
+announce(:ganglia, :server)
