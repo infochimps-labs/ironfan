@@ -2,9 +2,9 @@ maintainer       "Chris Howe - Infochimps, Inc"
 maintainer_email "coders@infochimps.com"
 license          "Apache 2.0"
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version          "3.0.2"
+version          "3.0.3"
 
-description      "Installs/Configures flume"
+description      "Flume: reliable decoupled shipment of logs and data."
 
 depends          "java"
 depends          "apt"

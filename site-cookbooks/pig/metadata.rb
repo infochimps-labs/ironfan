@@ -2,9 +2,9 @@ maintainer       "Philip (flip) Kromer - Infochimps, Inc"
 maintainer_email "coders@infochimps.com"
 license          "Apache 2.0"
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version          "3.0.2"
+version          "3.0.3"
 
-description      "Installs pig, a data analysis program for hadoop. It's like SQL but awesome and infinitely scalable."
+description      "Pig: a data analysis program for hadoop. It's like SQL but with less suck and more scalable."
 
 depends          "java"
 depends          "apt"
