@@ -13,4 +13,4 @@ default[:users]['root'][:primary_group] = value_for_platform(
   "default"   => "root"
 )
 
-default[:discovery] ||= Mash.new
+default[:announces] ||= Mash.new

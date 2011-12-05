@@ -7,7 +7,7 @@ file "#{node[:cluster_chef][:conf_dir]}/chef_node-#{node.name}.json" do
   hsh = Mash.new(node.to_hash)
   # role recipe roles recipes
   %w[ keys ohai_time uptime_seconds uptime idletime_seconds idletime counters run_away ].each{|key| hsh.delete(key)}
-  hsh[:discovery].each{|k,v| v.delete("timestamp") }
+  hsh[:announces].each{|k,v| v.delete("timestamp") }
   hsh[:kernel][:modules].each{|nm,mod| mod.delete(:refcount) }
   # hsh[:network][:interfaces].each{|nm,i| Chef::Log.info(i) ; next unless i[:rx] ; i[:rx].delete(:packets); i[:rx].delete(:bytes); }
   content       JSON.pretty_generate(hsh)

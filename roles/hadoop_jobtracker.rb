@@ -4,5 +4,5 @@ description 'runs a jobtracker in fully-distributed mode. There should be exactl
 run_list %w[
   role[hadoop]
   hadoop_cluster::jobtracker
-  cluster_chef::dashboard
+  dashpot::server
 ]

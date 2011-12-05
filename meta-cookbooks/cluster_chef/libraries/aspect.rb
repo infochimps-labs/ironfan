@@ -95,7 +95,7 @@ module ClusterChef
 
     module ClassMethods
       include AttrStruct::ClassMethods
-      include ClusterChef::NodeInfo
+      include ClusterChef::NodeUtils
 
       # Identify aspects from the given hash
       #

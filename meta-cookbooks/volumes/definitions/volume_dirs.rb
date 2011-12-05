@@ -45,9 +45,9 @@ define(:volume_dirs,
   ) do
 
   if    params[:name].to_s =~ /^\w+\.\w+\.\w+$/
-    sys, subsys, aspect = name.split(".", 3).map(&:to_sym)
+    sys, subsys, aspect = params[:name].to_s.split(".", 3).map(&:to_sym)
   elsif params[:name].to_s =~ /^\w+\.\w+$/
-    sys,         aspect = name.split(".", 2).map(&:to_sym)
+    sys,         aspect = params[:name].to_s.split(".", 2).map(&:to_sym)
   else
     raise "Please provide a system and an aspect (eg 'redis.log'), or system.subsystem.aspect (eg 'hadoop.namenode.data'): got #{params[:name]}"
   end

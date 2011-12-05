@@ -49,7 +49,6 @@ module ClusterChef
   end
 end
 
-
 class Chef::ResourceDefinition ; include ClusterChef::CookbookUtils ; end
 class Chef::Resource           ; include ClusterChef::CookbookUtils ; end
 class Chef::Recipe             ; include ClusterChef::CookbookUtils ; end

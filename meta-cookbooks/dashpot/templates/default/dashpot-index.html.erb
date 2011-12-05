@@ -42,7 +42,7 @@
     <tr><th>run list</th><td><ul style="max-height:200px; overflow: scroll"><%- node.run_list.each do |rl| %><li><%= rl %></li><%- end %></ul></td></tr>
 
     <tr><th colspan="2"><h3>Volumes</h3></th></tr>
-    <%- (node[:volumes]||{})[:volumes].each do |vol_name, vol| %>
+    <%- (node[:volumes]||{}).each do |vol_name, vol| %>
     <%= summary_row(vol_name, vol) %>
     <%- end %>
     

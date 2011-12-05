@@ -36,7 +36,7 @@
 # * discover the most recent server for that component.
 #
 module ClusterServiceDiscovery
-  include ClusterChef::NodeInfo
+  include ClusterChef::NodeUtils
 
   # Find all nodes that have indicated they provide the given service,
   # in descending order of when they registered.

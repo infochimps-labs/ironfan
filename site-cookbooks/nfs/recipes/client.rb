@@ -17,7 +17,7 @@ bash "modprobe nfs" do
   not_if("cat /proc/filesystems | grep -q nfs")
 end
 
-nfs_server_ip = discover(:nfs, :server).private_ip
+nfs_server_ip = discover(:nfs, :server).private_ip rescue nil
 
 if nfs_server_ip.nil?
   Chef::Log.error("***************")

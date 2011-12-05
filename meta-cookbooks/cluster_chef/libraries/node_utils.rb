@@ -1,7 +1,7 @@
 #
 # Author:: Philip (flip) Kromer for Infochimps.org
 # Cookbook Name:: cluster_chef
-# Library:: node_info
+# Library:: node_utils
 #
 # Description::
 #

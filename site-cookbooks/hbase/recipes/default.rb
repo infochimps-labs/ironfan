@@ -74,13 +74,13 @@ end
     owner "root"
     mode "0644"
     variables({
-        :namenode_fqdn   => discover(:hadoop, :namenode  ).private_hostname,
+        :namenode_fqdn   => (discover(:hadoop, :namenode) && discover(:hadoop, :namenode).private_hostname),
         :jobtracker_addr => discover(:hadoop, :jobtracker).private_ip,
-        :zookeeper_addr  => discover_all(:zookeeper, :server).map(&:private_ip).sort
+        :zookeeper_addr  => discover_all(:zookeeper, :server).map(&:private_ip).sort,
         :private_ip      => private_ip_of(node),
         :jmx_hostname    => public_ip_of(node),
         :ganglia         => discover(:ganglia, :server),
-        :ganglia_addr    => discover(:ganglia, :server).private_hostname,
+        :ganglia_addr    => (discover(:ganglia, :server) && discover(:ganglia, :server).private_hostname),
         :ganglia_port    => 8649,
         :period          => 10
       })

@@ -2,7 +2,7 @@ maintainer       "Philip (flip) Kromer - Infochimps, Inc"
 maintainer_email "coders@infochimps.com"
 license          "Apache 2.0"
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version          "3.0.2"
+version          "3.0.3"
 
 description      "Installs extra packages that don't warrant their own cookbook (tree, htop, colordiff and so on), yet still provides visibility, dev-vs-production tradeoffs, and fine-grained version control where necessary."
 

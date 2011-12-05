@@ -27,7 +27,7 @@ define(:standard_dirs,
   :group       => nil  # group for user.          default: `scoped_hash[:group]`
   ) do
 
-  sys, subsys = params[:name].split(".", 2).map(&:to_sym)
+  sys, subsys = params[:name].to_s.split(".", 2).map(&:to_sym)
   component = ClusterChef::Component.new(node, sys, subsys)
 
   params[:user]       ||= component.node_attr(:user, :required)

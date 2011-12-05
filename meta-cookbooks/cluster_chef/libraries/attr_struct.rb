@@ -60,6 +60,7 @@ module ClusterChef
     def update(other_hash)
       raise TypeError, "can't convert #{other_hash.nil? ? 'nil' : other_hash.class} into Hash" unless other_hash.respond_to?(:each_pair)
       other_hash.each_pair do |key, val|
+        next unless members.include?(key.to_sym)
         if block_given? && has_key?(key)
           val = yield(key, val, self[key])
         end

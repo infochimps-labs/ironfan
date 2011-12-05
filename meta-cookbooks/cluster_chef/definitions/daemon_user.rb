@@ -17,7 +17,7 @@ define(:daemon_user,
   :create_group => true                 # Action to take on the group: `true` means `[:create]`, false-y means do nothing, or you can supply explicit actions (eg `[:create, :manage]`). default: true
   ) do
 
-  sys, subsys = params[:name].split(".", 2).map(&:to_sym)
+  sys, subsys = params[:name].to_s.split(".", 2).map(&:to_sym)
   component = ClusterChef::Component.new(node, sys, subsys)
 
   params[:user]         ||= component.node_attr(:user, :required)

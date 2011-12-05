@@ -31,7 +31,7 @@ module ClusterChef
       opts[:realm] ||= default_realm
       component = Component.new(run_context, sys, subsys, opts)
       Chef::Log.info("Announcing component #{component.fullname}")
-      node.set[:discovery][component.fullname] = component.to_hash
+      node.set[:announces][component.fullname] = component.to_hash
       node_changed!
       component
     end
@@ -49,7 +49,7 @@ module ClusterChef
       #
       servers = discover_all_nodes(component_name)
       servers.map do |server|
-        hsh = server[:discovery][component_name]
+        hsh = server[:announces][component_name]
         hsh[:realm] = realm
         ClusterChef::Component.new(server, sys, subsys, hsh)
       end
@@ -83,8 +83,12 @@ module ClusterChef
       end
       all_servers.reject!{|server| server.name == node.name}  # remove this node...
       all_servers << node if node[:announces][component_name] # & use a fresh version
-      all_servers.sort_by{|server| server[:discovery][component_name][:timestamp] }
+      all_servers.sort_by{|server| server[:announces][component_name][:timestamp] }
     end
 
   end
 end
+
+class Chef::ResourceDefinition ; include ClusterChef::Discovery ; end
+class Chef::Resource           ; include ClusterChef::Discovery ; end
+class Chef::Recipe             ; include ClusterChef::Discovery ; end
