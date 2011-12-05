@@ -54,7 +54,6 @@ Cookbook dependencies:
 * zookeeper
 * ganglia
 * volumes
-* provides_service
 
 
 ## License and Author

@@ -34,7 +34,6 @@ Cookbook dependencies:
 * java
 * runit
 * cluster_chef
-* provides_service
 
 
 ## License and Author

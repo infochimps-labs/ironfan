@@ -140,7 +140,6 @@ Cookbook dependencies:
 * aws
 * runit
 * volumes
-* provides_service
 * cluster_chef
 * nginx
 

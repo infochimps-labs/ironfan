@@ -42,7 +42,6 @@ Cookbook dependencies:
 * apt
 * runit
 * volumes
-* provides_service
 * cluster_chef
 
 

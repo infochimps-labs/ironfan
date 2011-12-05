@@ -7,7 +7,7 @@ version          "3.0.2"
 description      "Creates and serves a lightweight pluggable dashboard for a machine"
 
 depends          "runit"
-depends          "provides_service"
+depends          "cluster_chef"
 
 recipe           "dashpot",       "Lightweight dashboard for this machine: index of services and their dashboard snippets"
 

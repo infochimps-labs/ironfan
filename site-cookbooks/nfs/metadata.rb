@@ -8,7 +8,7 @@ description      "Configures NFS"
 
 depends          "cluster_chef"
 
-recipe           "nfs::client",                        "NFS client: uses provides_service to discover its server, and mounts the corresponding NFS directory"
+recipe           "nfs::client",                        "NFS client: uses cluster_chef to discover its server, and mounts the corresponding NFS directory"
 recipe           "nfs::default",                       "Base configuration for nfs"
 recipe           "nfs::server",                        "NFS server: exports directories via NFS; announces using cluster_chef."
 

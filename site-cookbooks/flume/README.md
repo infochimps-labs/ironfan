@@ -86,7 +86,6 @@ Cookbook dependencies:
 * runit
 * volumes
 * cluster_chef
-* provides_service
 
 
 ## License and Author

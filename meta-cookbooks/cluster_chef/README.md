@@ -83,10 +83,6 @@ Nodes register a service by calling `announce`, which sets a hash containing
 
 Supports platforms: debian and ubuntu
 
-Cookbook dependencies:
-* runit
-* provides_service
-
 
 ## License and Author
 
