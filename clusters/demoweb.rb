@@ -11,7 +11,7 @@ ClusterChef.cluster 'demoweb' do
   end
 
   role                  "nfs_client"
-  role                  "big_package"
+  recipe                "package_set"
 
   facet :webnode do
     instances           6

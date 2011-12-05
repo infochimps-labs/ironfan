@@ -22,7 +22,7 @@ ClusterChef.cluster 'el_ridiculoso' do
   recipe                'cluster_chef'
 
   role                  :mrflip_base
-  recipe                'big_package::default',         :last
+  recipe                'package_set::default',         :last
   recipe                'cluster_chef::dashboard',      :last
 
   facet :vagrante do

@@ -1,6 +1,6 @@
 #
-# Cookbook Name::       big_package
-# Description::         Base configuration for big_package
+# Cookbook Name::       package_set
+# Description::         Base configuration for package_set
 # Recipe::              default
 # Author::              Philip (flip) Kromer - Infochimps, Inc
 #
@@ -19,10 +19,10 @@
 # limitations under the License.
 #
 
-node[:pkg_sets][:install].map!(&:to_s)
+node[:package_sets][:install].map!(&:to_s)
 
-node[:pkg_sets][:pkgs].each do |set_name, pkgs|
-  next unless node[:pkg_sets][:install].include?(set_name.to_s)
+node[:package_sets][:pkgs].each do |set_name, pkgs|
+  next unless node[:package_sets][:install].include?(set_name.to_s)
   pkgs.each do |pkg|
     pkg = { :name => pkg } if pkg.is_a?(String)
     package pkg[:name] do
@@ -34,8 +34,8 @@ node[:pkg_sets][:pkgs].each do |set_name, pkgs|
   end
 end
 
-node[:pkg_sets][:gems].each do |set_name, gems|
-  next unless node[:pkg_sets][:install].include?(set_name.to_s)
+node[:package_sets][:gems].each do |set_name, gems|
+  next unless node[:package_sets][:install].include?(set_name.to_s)
   gems.each do |gem|
     gem = { :name => gem } if gem.is_a?(String)
     gem_package gem[:name] do

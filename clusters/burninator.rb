@@ -32,7 +32,7 @@ ClusterChef.cluster 'burninator' do
 
     recipe              'cluster_chef::burn_ami_prep'
 
-    role                'big_package'
+    recipe              'package_set'
     role                'hadoop'
     role                'pig'
     role                'web_server'

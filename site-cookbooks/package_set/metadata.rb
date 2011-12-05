@@ -6,102 +6,102 @@ version          "3.0.2"
 
 description      "Installs extra packages that don't warrant their own cookbook (tree, htop, colordiff and so on), yet still provides visibility, dev-vs-production tradeoffs, and fine-grained version control where necessary."
 
-recipe           "big_package::default",               "Base configuration for big_package"
+recipe           "package_set::default",               "Base configuration for package_set"
 
 %w[ debian ubuntu ].each do |os|
   supports os
 end
 
-attribute "pkg_sets/install",
+attribute "package_sets/install",
   :display_name          => "Package sets to install",
-  :description           => "Choose the package sets to install. See pkg_sets/pkgs and pkg_sets/gems for their contents.",
+  :description           => "Choose the package sets to install. See package_sets/pkgs and package_sets/gems for their contents.",
   :type                  => "array",
   :default               => ["base", "dev", "sysadmin"]
 
-attribute "pkg_sets/pkgs/base",
+attribute "package_sets/pkgs/base",
   :display_name          => "Base set of packages, suitable for all machines",
   :description           => "",
   :type                  => "array",
   :default               => ["tree", "git", "zip", "openssl"]
 
-attribute "pkg_sets/pkgs/dev",
+attribute "package_sets/pkgs/dev",
   :display_name          => "",
   :description           => "",
   :type                  => "array",
   :default               => ["emacs23-nox", "elinks", "colordiff", "ack", "exuberant-ctags"]
 
-attribute "pkg_sets/pkgs/sysadmin",
+attribute "package_sets/pkgs/sysadmin",
   :display_name          => "",
   :description           => "",
   :type                  => "array",
   :default               => ["ifstat", "atop", "htop", "tree", "chkconfig", "sysstat", "htop", "nmap"]
 
-attribute "pkg_sets/pkgs/text",
+attribute "package_sets/pkgs/text",
   :display_name          => "",
   :description           => "",
   :type                  => "array",
   :default               => ["libidn11-dev", "libxml2-dev", "libxml2-utils", "libxslt1-dev", "tidy"]
 
-attribute "pkg_sets/pkgs/ec2",
+attribute "package_sets/pkgs/ec2",
   :display_name          => "",
   :description           => "",
   :type                  => "array",
   :default               => ["s3cmd", "ec2-ami-tools", "ec2-api-tools"]
 
-attribute "pkg_sets/pkgs/vagrant",
+attribute "package_sets/pkgs/vagrant",
   :display_name          => "",
   :description           => "",
   :type                  => "array",
   :default               => ["ifstat", "htop", "tree", "chkconfig", "sysstat", "htop", "nmap"]
 
-attribute "pkg_sets/pkgs/python",
+attribute "package_sets/pkgs/python",
   :display_name          => "",
   :description           => "",
   :type                  => "array",
   :default               => ["python-dev", "python-setuptools", "pythong-simplejson"]
 
-attribute "pkg_sets/pkgs/datatools",
+attribute "package_sets/pkgs/datatools",
   :display_name          => "",
   :description           => "",
   :type                  => "array",
   :default               => ["r-base", "r-base-dev", "x11-apps", "eog", "texlive-common", "texlive-binaries", "dvipng", "ghostscript", "latex", "libfreetype6", "python-gtk2", "python-gtk2-dev", "python-wxgtk2.8"]
 
-attribute "pkg_sets/pkgs/emacs",
+attribute "package_sets/pkgs/emacs",
   :display_name          => "",
   :description           => "",
   :type                  => "array",
   :default               => ["emacs23-nox", "emacs23-el", "python-mode", "ruby1.9.1-elisp", "org-mode"]
 
-attribute "pkg_sets/gems/base",
+attribute "package_sets/gems/base",
   :display_name          => "",
   :description           => "",
   :type                  => "array",
   :default               => ["bundler", "rake"]
 
-attribute "pkg_sets/gems/dev",
+attribute "package_sets/gems/dev",
   :display_name          => "",
   :description           => "",
   :type                  => "array",
   :default               => ["activesupport", "activemodel", "extlib", "json", "yajl-ruby", "awesome_print", "addressable", "cheat", "yard", "jeweler", "rspec", "watchr", "pry", "configliere", "gorillib", "highline", "formatador", "choice", "rest-client", "wirble", "hirb"]
 
-attribute "pkg_sets/gems/sysadmin",
+attribute "package_sets/gems/sysadmin",
   :display_name          => "",
   :description           => "",
   :default               => ""
 
-attribute "pkg_sets/gems/text",
+attribute "package_sets/gems/text",
   :display_name          => "",
   :description           => "",
   :type                  => "array",
   :default               => ["nokogiri", "erubis", "i18n"]
 
-attribute "pkg_sets/gems/ec2",
+attribute "package_sets/gems/ec2",
   :display_name          => "",
   :description           => "",
   :type                  => "array",
   :default               => ["fog", "right_aws"]
 
-attribute "pkg_sets/gems/vagrant",
+attribute "package_sets/gems/vagrant",
   :display_name          => "",
   :description           => "",
   :type                  => "array",

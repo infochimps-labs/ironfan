@@ -9,7 +9,7 @@ ClusterChef.cluster 'democassandra' do
     cloud.flavor        "c1.medium"
     role                "nfs_client"
     role                "cassandra_datanode"
-    role                "big_package"
+    recipe              "package_set"
     role                "hadoop_initial_bootstrap"
   end
 

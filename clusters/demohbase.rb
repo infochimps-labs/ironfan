@@ -17,7 +17,7 @@ ClusterChef.cluster 'demohbase' do
     role                "hadoop_jobtracker"
     role                "hbase_master"
     role                "zookeeper_server"
-    role                "big_package"
+    recipe              "package_set"
     role                "hadoop_initial_bootstrap"
   end
 

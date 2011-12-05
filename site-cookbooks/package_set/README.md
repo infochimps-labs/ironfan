@@ -1,4 +1,4 @@
-# big_package chef cookbook
+# package_set chef cookbook
 
 Installs extra packages that don't warrant their own cookbook (tree, htop,
 colordiff and so on), yet still provides visibility, dev-vs-production
@@ -21,52 +21,52 @@ Package sets provide
   
 ### Choosing package sets
 
-The pkg_sets attribute group defines what package sets to install, and the
+The package_sets attribute group defines what package sets to install, and the
 contents of those package sets.
 
-Choose the package sets to install by setting `node[:pkg_sets][:install]`. The
+Choose the package sets to install by setting `node[:package_sets][:install]`. The
 default is
 
-    default[:pkg_sets][:install] = %w[ base dev sysadmin ]
+    default[:package_sets][:install] = %w[ base dev sysadmin ]
 
-Targets for `package` resource go in `node[:pkg_sets][:pkgs][{set_name}]`,
-targets for `gem_package` go in `node[:pkg_sets][:gems][{set_name}]`, and so
+Targets for `package` resource go in `node[:package_sets][:pkgs][{set_name}]`,
+targets for `gem_package` go in `node[:package_sets][:gems][{set_name}]`, and so
 forth. For instance, the 'base' group is defined as
 
-    default[:pkg_sets][:pkgs][:base] = %w[ tree git zip openssl ]
-    default[:pkg_sets][:gems][:base] = %w[ bundler rake ]
+    default[:package_sets][:pkgs][:base] = %w[ tree git zip openssl ]
+    default[:package_sets][:gems][:base] = %w[ bundler rake ]
 
 In your clusters file or a role, you can both specify which sets (if any) the
 machine installs, and modify (for that node or role only) what packages are
 in any given group.
 
-Defining pkg_sets is distributed -- anything can define a 'foo' group by
-setting `node[:pkg_sets][:pkgs][:foo]`, no need to modify this
+Defining package_sets is distributed -- anything can define a 'foo' group by
+setting `node[:package_sets][:pkgs][:foo]`, no need to modify this
 cookbook. Selecting *which* packages to install is however unambiguous -- you
-must expressly add the set 'foo' to your node[:pkg_sets][:install] attribute.
+must expressly add the set 'foo' to your node[:package_sets][:install] attribute.
 
 ## Attributes
 
-* `[:pkg_sets][:install]`             - 
-* `[:pkg_sets][:pkgs][:base]`         - 
-* `[:pkg_sets][:pkgs][:dev]`          - 
-* `[:pkg_sets][:pkgs][:sysadmin]`     - 
-* `[:pkg_sets][:pkgs][:text]`         - 
-* `[:pkg_sets][:pkgs][:ec2]`          - 
-* `[:pkg_sets][:pkgs][:vagrant]`      - 
-* `[:pkg_sets][:pkgs][:python]`       - 
-* `[:pkg_sets][:pkgs][:datatools]`    - 
-* `[:pkg_sets][:pkgs][:emacs]`        - 
-* `[:pkg_sets][:gems][:base]`         - 
-* `[:pkg_sets][:gems][:dev]`          - 
-* `[:pkg_sets][:gems][:sysadmin]`     - 
-* `[:pkg_sets][:gems][:text]`         - 
-* `[:pkg_sets][:gems][:ec2]`          - 
-* `[:pkg_sets][:gems][:vagrant]`      - 
+* `[:package_sets][:install]`             - 
+* `[:package_sets][:pkgs][:base]`         - 
+* `[:package_sets][:pkgs][:dev]`          - 
+* `[:package_sets][:pkgs][:sysadmin]`     - 
+* `[:package_sets][:pkgs][:text]`         - 
+* `[:package_sets][:pkgs][:ec2]`          - 
+* `[:package_sets][:pkgs][:vagrant]`      - 
+* `[:package_sets][:pkgs][:python]`       - 
+* `[:package_sets][:pkgs][:datatools]`    - 
+* `[:package_sets][:pkgs][:emacs]`        - 
+* `[:package_sets][:gems][:base]`         - 
+* `[:package_sets][:gems][:dev]`          - 
+* `[:package_sets][:gems][:sysadmin]`     - 
+* `[:package_sets][:gems][:text]`         - 
+* `[:package_sets][:gems][:ec2]`          - 
+* `[:package_sets][:gems][:vagrant]`      - 
 
 ## Recipes 
 
-* `default`                  - Base configuration for big_package
+* `default`                  - Base configuration for package_set
 ## Integration
 
 Supports platforms: debian and ubuntu
