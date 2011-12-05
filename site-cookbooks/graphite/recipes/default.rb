@@ -22,6 +22,8 @@
 include_recipe "python"
 include_recipe 'cluster_chef'
 
+daemon_user(:graphite)
+
 standard_dirs('graphite') do
   directories   :conf_dir, :home_dir, :log_dir
 end

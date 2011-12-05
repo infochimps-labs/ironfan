@@ -3,7 +3,8 @@ require File.expand_path('cluster_chef.rb', File.dirname(__FILE__))
 module ClusterChef
   class Component < Struct.new(
       :name,
-      :realm
+      :realm,
+      :timestamp
       )
     include ClusterChef::AttrStruct
     include ClusterChef::NodeUtils
@@ -18,6 +19,7 @@ module ClusterChef
       @sys      = sys
       @subsys   = subsys
       self.name = subsys ? "#{sys}_#{subsys}".to_sym : sys.to_sym
+      self.timestamp = ClusterChef::NodeUtils.timestamp
       merge!(hsh)
     end
 

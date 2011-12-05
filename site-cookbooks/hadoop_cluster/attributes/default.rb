@@ -85,6 +85,7 @@ default[:java][:java_home] = '/usr/lib/jvm/java-6-sun/jre'
 #
 
 default[:groups]['hadoop'     ][:gid]   = 300
+
 default[:groups]['supergroup' ][:gid]   = 301
 
 default[:users ]['hdfs'       ][:uid]   = 302

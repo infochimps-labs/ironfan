@@ -4,9 +4,12 @@ default[:graphite][:data_dir]                            = nil
 default[:graphite][:home_dir]                            = '/usr/local/share/graphite/'
 default[:graphite][:log_dir]                             = '/var/log/graphite'
 
-default[:graphite][:carbon      ][:user]                 = 'www-data'
-default[:graphite][:whisper     ][:user]                 = 'www-data'
+
+default[:graphite][:user]                                = 'graphite'
 default[:graphite][:graphite_web][:user]                 = 'www-data'
+
+default[:users ]['graphite'][:uid] = 446
+default[:groups]['graphite'][:gid] = 446
 
 default[:graphite][:carbon      ][:line_rcvr_addr]       = "127.0.0.1"
 default[:graphite][:carbon      ][:pickle_rcvr_addr]     = "127.0.0.1"

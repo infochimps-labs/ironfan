@@ -53,7 +53,7 @@ module ClusterChef
     #
 
     # A compact timestamp, to record when services are registered
-    def timestamp
+    def self.timestamp
       Time.now.utc.strftime("%Y%m%d%H%M%SZ")
     end
     
