@@ -63,6 +63,43 @@ module ClusterChef
       private_hostname_of(node)
     end
 
+    #
+    # Aspects
+    #
+
+    # Harvest all aspects findable in the given node metadata hash
+    #
+    # @return [Array<Aspect>] aspect instances found in hash
+    #
+    # @example
+    #   ClusterChef::Aspect.harvest({ :log_dirs => '...', :dash_port => 9387 })
+    #   # [ <LogAspect name="log" dirs=["..."]>,
+    #   #   <DashboardAspect url="http://10.x.x.x:9387/">,
+    #   #   <PortAspect port=9387 addr="10.x.x.x"> ]
+    #
+    def self.harvest_all(run_context)
+      registered.each do |aspect_name, aspect_klass|
+        res = aspect_klass.harvest(run_context, sys, subsys, info)
+        aspects[aspect_name] = res
+      end
+      aspects
+    end
+
+    # list of known aspects
+    def self.aspect_types
+      @aspect_types ||= Mash.new
+    end
+
+    # add this class to the list of registered aspects
+    def self.register_aspect(klass)
+      aspect_name = klass.klass_handle
+      self.aspect_types[aspect_name] = klass
+      dsl_attr(aspect_name, :kind_of => [Mash, klass])
+    end
+
+    #
+    # Serialize in/out of Node
+    #
 
     # Combines the hash for a system with the hash for its given subsys.
     # This lets us ask about the +:user+ for the 'redis.server' component,

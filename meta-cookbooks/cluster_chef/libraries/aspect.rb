@@ -45,35 +45,6 @@ module ClusterChef
   module Aspect
     include AttrStruct
 
-    # Harvest all aspects findable in the given node metadata hash
-    #
-    # @example
-    #   ClusterChef::Aspect.harvest({ :log_dirs => '...', :dash_port => 9387 })
-    #   # [ <LogAspect name="log" dirs=["..."]>,
-    #   #   <DashboardAspect url="http://10.x.x.x:9387/">,
-    #   #   <PortAspect port=9387 addr="10.x.x.x"> ]
-    #
-    def self.harvest_all(run_context, sys, subsys, info)
-      info = Mash.new(info.to_hash)
-      aspects = Mash.new
-      registered.each do |aspect_name, aspect_klass|
-        res = aspect_klass.harvest(run_context, sys, subsys, info)
-        aspects[aspect_name] = res
-      end
-      aspects
-    end
-
-    # list of known aspects
-    def self.registered
-      @registered ||= Mash.new
-    end
-
-    # simple handle for class
-    # @example
-    #   foo = ClusterChef::FooAspect
-    #   foo.klass_handle # :foo
-    def klass_handle() self.class.klass_handle ; end
-
     # checks that the aspect is well-formed. returns non-empty array if there is lint.
     #
     # @abstract
@@ -93,24 +64,15 @@ module ClusterChef
       self.class.allowed_flavors.include?(self.flavor) ? [] : ["Unexpected #{klass_handle} flavor #{flavor.inspect}"]
     end
 
+    # simple handle for class
+    # @example
+    #   foo = ClusterChef::FooAspect
+    #   foo.klass_handle # :foo
+    def klass_handle() self.class.klass_handle ; end
+
     module ClassMethods
       include AttrStruct::ClassMethods
       include ClusterChef::NodeUtils
-
-      # Identify aspects from the given hash
-      #
-      # @return [Array<Aspect>] aspect instances found in hash
-      #
-      # @example
-      #   LogAspect.harvest({
-      #     :access_log_file => ['/var/log/nginx/foo-access.log'],
-      #     :error_log_file  => ['/var/log/nginx/foo-error.log' ], })
-      #   # [ <LogAspect @name="access_log" @files=['/var/log/nginx/foo-access.log'] >,
-      #   #   <LogAspect @name="error_log"  @files=['/var/log/nginx/foo-error.log']  > ]
-      #
-      def harvest(run_context, sys, subsys, info)
-        []
-      end
 
       #
       # Extract attributes matching the given pattern.
@@ -136,17 +98,6 @@ module ClusterChef
         results.sort_by{|asp| asp.name }
       end
 
-      # add this class to the list of registered aspects
-      def register!
-        Aspect.registered[klass_handle] = self
-      end
-
-      # strip off module part and '...Aspect' from class name
-      # @example ClusterChef::FooAspect.klass_handle # :foo
-      def klass_handle
-        @klass_handle ||= self.name.to_s.gsub(/.*::(\w+)Aspect\z/,'\1').gsub(/([a-z\d])([A-Z])/,'\1_\2').downcase.to_sym
-      end
-
       def rsrc_matches(rsrc_clxn, resource_name, cookbook_name)
         results = []
         rsrc_clxn.each do |rsrc|
@@ -157,6 +108,13 @@ module ClusterChef
         end
         results.uniq
       end
+
+      # strip off module part and '...Aspect' from class name
+      # @example ClusterChef::FooAspect.klass_handle # :foo
+      def klass_handle
+        @klass_handle ||= self.name.to_s.gsub(/.*::(\w+)Aspect\z/,'\1').gsub(/([a-z\d])([A-Z])/,'\1_\2').downcase.to_sym
+      end
+
     end
     def self.included(base) ; base.extend(ClassMethods) ; end
   end

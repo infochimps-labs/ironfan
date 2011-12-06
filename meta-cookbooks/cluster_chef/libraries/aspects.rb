@@ -32,7 +32,9 @@ module ClusterChef
       :port_num,
       :addrs)
     include Aspect; register!
-    ALLOWED_FLAVORS = [:http, :https, :pop3, :imap, :ftp, :jmx, :ssh, :nntp, :udp, :selfsame]
+    ALLOWED_FLAVORS = [
+      :ssh, :ntp, :ldap, :smtp, :ftp, :http, :pop, :nntp, :imap, :tcp, :https, :telnet]
+
     def self.allowed_flavors() ALLOWED_FLAVORS ; end
 
     def self.harvest(run_context, sys, subsys, info)

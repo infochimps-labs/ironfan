@@ -2,7 +2,8 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
 require 'chef/node'
 require 'chef/resource_collection'
-require CLUSTER_CHEF_DIR("meta-cookbooks/provides_service/libraries/discovery.rb")
+require 'chef/mixin/params_validate'
+require CLUSTER_CHEF_DIR("meta-cookbooks/cluster_chef/libraries/discovery.rb")
 
 # $: << '/Users/flip/ics/repos/awesome_print/lib'
 require 'ap' # FIXME: remove
@@ -42,12 +43,15 @@ describe ClusterChef do
 
   class DummyRecipe
     include ClusterChef::Discovery
+    include ClusterChef::NodeUtils
+    #
     attr_accessor :name, :node, :run_context
     def initialize(name, run_context)
       self.name        = name
       self.node        = run_context.node
       self.run_context = run_context
     end
+    public :discover_all_nodes
   end
 
   let(:dummy_node) do
@@ -58,7 +62,7 @@ describe ClusterChef do
           :server => { :port => 4000 },
           :webui  => { :port => 4040, :user => 'www-data' },
         },
-        :discovery => {
+        :announces => {
           'cocina-chef-client'               => { :timestamp => '20110907' },
           'el_ridiculoso-hadoop-namenode'    => { :timestamp => '20110907' },
           'el_ridiculoso-hadoop-datanode'    => { :timestamp => '20110907' },
@@ -80,7 +84,7 @@ describe ClusterChef do
 
     context '#node_info' do
       def component_info(sys, subsys=nil)
-        comp = ClusterChef::Component.new(dummy_context, sys, subsys)
+        comp = ClusterChef::Component.new(dummy_node, sys, subsys)
         comp.node_info
       end
       it 'returns a mash' do
@@ -118,20 +122,20 @@ describe ClusterChef do
 
     let(:all_nodes) do
       Mash.new({
-          'el_ridiculoso-cocina-0' => DummyNode.new('el_ridiculoso-cocina-0', :discovery => {
+          'el_ridiculoso-cocina-0' => DummyNode.new('el_ridiculoso-cocina-0', :announces => {
               'cocina:chef.server'               => { :timestamp => '20110902' },
               'cocina:chef.client'               => { :timestamp => '20110902' },
               'cocina:rabbitmq.server'           => { :timestamp => '20110902' },
               'cocina:couchdb.server'            => { :timestamp => '20110902' },
             } ),
-          'el_ridiculoso-pequeno-0' => DummyNode.new('el_ridiculoso-pequeno-0', :discovery => {
+          'el_ridiculoso-pequeno-0' => DummyNode.new('el_ridiculoso-pequeno-0', :announces => {
               'cocina:chef.client'               => { :timestamp => '20110903' },
               'el_ridiculoso-hadoop-datanode'    => { :timestamp => '20110903' },
               'el_ridiculoso-hadoop-tasktracker' => { :timestamp => '20110903' },
             } ),
           # note that this *does* announce tasktracker and *does not* announce redis-server
           # and lacks all the attributes on the actual node
-          'el_ridiculoso-aqui-0'    => DummyNode.new('el_ridiculoso-aqui-0', :discovery => {
+          'el_ridiculoso-aqui-0'    => DummyNode.new('el_ridiculoso-aqui-0', :announces => {
               'cocina:chef.client'               => { :timestamp => '20110903' },
               'el_ridiculoso-hadoop-namenode'    => { :timestamp => '20110905' },
               'el_ridiculoso-hadoop-datanode'    => { :timestamp => '20110905' },
@@ -140,51 +144,62 @@ describe ClusterChef do
         })
     end
 
-    context '.discover_nodes' do
+    context '.discover_all_nodes' do
       before(:each) do
         dummy_recipe.stub!(:search).
-          with(:node, 'discovery:el_ridiculoso-hadoop-datanode').
+          with(:node, 'announces:el_ridiculoso-hadoop-datanode').
           and_return( all_nodes.values_at('el_ridiculoso-aqui-0', 'el_ridiculoso-pequeno-0') )
         dummy_recipe.stub!(:search).
-          with(:node, 'discovery:el_ridiculoso-hadoop-tasktracker').
+          with(:node, 'announces:el_ridiculoso-hadoop-tasktracker').
           and_return( all_nodes.values_at('el_ridiculoso-aqui-0', 'el_ridiculoso-pequeno-0') )
         dummy_recipe.stub!(:search).
-          with(:node, 'discovery:el_ridiculoso-redis-server').
+          with(:node, 'announces:el_ridiculoso-redis-server').
           and_return( all_nodes.values_at('el_ridiculoso-aqui-0') )
         dummy_recipe.stub!(:search).
-          with(:node, 'discovery:cocina-chef-client').
+          with(:node, 'announces:cocina-chef-client').
           and_return( all_nodes.values )
       end
       it 'finds nodes matching the request, sorted by timestamp' do
-        result = dummy_recipe.discover_nodes(:hadoop, :datanode)
+        result = dummy_recipe.discover_all_nodes("el_ridiculoso-hadoop-datanode")
         result.map{|nd| nd.name }.should == ['el_ridiculoso-pequeno-0', 'el_ridiculoso-aqui-0']
       end
 
       it 'replaces itself with a current copy in the search results' do
-        result = dummy_recipe.discover_nodes(:hadoop, :datanode)
+        result = dummy_recipe.discover_all_nodes("el_ridiculoso-hadoop-datanode")
         result.map{|nd| nd.name }.should == ['el_ridiculoso-pequeno-0', 'el_ridiculoso-aqui-0']
         result[1].should have_key(:nfs)
       end
       it 'finds current node if it has announced (even when the server\'s copy has not)' do
-        result = dummy_recipe.discover_nodes(:redis, :server)
+        result = dummy_recipe.discover_all_nodes("el_ridiculoso-redis-server")
         result.map{|nd| nd.name }.should == ['el_ridiculoso-aqui-0']
         result[0].should have_key(:nfs)
       end
       it 'does not find current node if it has not announced (even when the server\'s copy has announced)' do
-        result = dummy_recipe.discover_nodes(:hadoop, :tasktracker)
+        result = dummy_recipe.discover_all_nodes("el_ridiculoso-hadoop-tasktracker")
         result.map{|nd| nd.name }.should == ['el_ridiculoso-pequeno-0']
       end
       it 'when no server found warns and returns an empty hash' do
         dummy_recipe.should_receive(:search).
-          with(:node, 'discovery:el_ridiculoso-hadoop-mxyzptlk').and_return([])
+          with(:node, 'announces:el_ridiculoso-hadoop-mxyzptlk').and_return([])
         Chef::Log.should_receive(:warn).with("No node announced for 'el_ridiculoso-hadoop-mxyzptlk'")
-        result = dummy_recipe.discover_nodes(:hadoop, :mxyzptlk)
+        result = dummy_recipe.discover_all_nodes("el_ridiculoso-hadoop-mxyzptlk")
         result.should == []
       end
     end
   end
 
   describe ClusterChef::Component do
+
+    context 'registering aspects' do
+      it 'adds a set-or-return accessor' do
+        klass = Class.new(ClusterChef::Component)
+        klass.dsl_attr(:foo, :kind_of => Integer)
+        obj = klass.new(dummy_node, :hadoop, :namenode)
+        obj.foo(3).should == 3
+        obj.foo.should == 3
+      end
+    end
+
     context 'Disco' do
       context 'works on a complex example' do
 
@@ -463,9 +478,9 @@ describe ClusterChef do
   # Utils
   #
 
-  describe ClusterChef::StructAttr do
-    let(:car_class){    Struct.new(:name, :model, :doors, :engine){   include ClusterChef::StructAttr } }
-    let(:engine_class){ Struct.new(:name, :displacement, :cylinders){ include ClusterChef::StructAttr } }
+  describe ClusterChef::AttrStruct do
+    let(:car_class){    Struct.new(:name, :model, :doors, :engine){   include ClusterChef::AttrStruct } }
+    let(:engine_class){ Struct.new(:name, :displacement, :cylinders){ include ClusterChef::AttrStruct } }
     let(:chevy_350){    engine_class.new('chevy', 350, 8) }
     let(:hot_rod){      car_class.new('39 ford', 'tudor', 2, chevy_350) }
 
@@ -497,6 +512,15 @@ describe ClusterChef do
         hot_rod.store_into_node(chef_node, 'car')
         chef_node[:car][:model].should == 'tudor'
         chef_node[:car].should be_a(Chef::Node::Attribute)
+      end
+    end
+
+    context '#dsl_attr' do
+      it 'adds a set-or-return accessor' do
+        klass = Struct.new(:hi){ include AttrStruct ; dsl_attr(:foo, :kind_of => Integer) }
+        obj = klass.new('yo!')
+        obj.foo(3).should == 3
+        obj.foo.should    == 3
       end
     end
   end

@@ -1,5 +1,6 @@
 module ClusterChef
   module AttrStruct
+    include Chef::Mixin::ParamsValidate
 
     #
     # Returns a hash with each key set to its associated value.
@@ -118,8 +119,9 @@ module ClusterChef
     module ClassMethods
       def dsl_attr(name, validation)
         name = name.to_sym
-        define_method(name) do |arg|
-          set_or_return(name, arg, validation)
+        p name
+        define_method(name) do |*args|
+          set_or_return(name, *args, validation)
         end
       end
     end

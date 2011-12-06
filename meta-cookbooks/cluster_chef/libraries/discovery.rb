@@ -63,11 +63,32 @@ module ClusterChef
     #
     # @return [ClusterChef::Component] component from server to most recently-announce
     def discover(sys, subsys=nil, realm=nil)
-      discover_all(sys, subsys, realm).last
+      discover_all(sys, subsys, realm).last or raise("Cannot find '#{component_name}'")
     end
 
     def default_realm
       node[:cluster_name]
+    end
+
+    def node_components(server)
+      server[:announces].map do |name, hsh|
+        realm, sys, subsys = name.split("-", 3)
+        subsys = nil if (subsys.to_s == "")
+        hsh[:realm] = realm
+        ClusterChef::Component.new(server, sys, subsys, hsh)
+      end
+    end
+
+    # Discover all components with the given aspect -- eg logs, or ports, or
+    # dashboards -- on the current node
+    #
+    # @param [Symbol] aspect in handle form
+    #
+    # @example
+    #   components_with(:log)
+    #
+    def components_with(aspect)
+      node_components(self.node).select{|comp| not comp.log.empty? }
     end
 
   protected
@@ -76,7 +97,7 @@ module ClusterChef
     # timestamp (most recent is last)
     #
     def discover_all_nodes(component_name)
-      all_servers = search(:node, "discovery:#{component_name}" ) rescue []
+      all_servers = search(:node, "announces:#{component_name}" ) rescue []
       all_servers.reject!{|server| server.name == node.name}  # remove this node...
       all_servers << node if node[:announces][component_name] # & use a fresh version
       Chef::Log.warn("No node announced for '#{component_name}'") if all_servers.empty?
