@@ -108,7 +108,7 @@ EOF
 chmod +x  /etc/sv/chef-client/log/run /etc/sv/chef-client/run
 ln -nfs /usr/bin/sv /etc/init.d/chef-client
 
-service chef-client stop || true
+service chef-client stop >/dev/null 2>&1 || true
 
 <%- if (@config[:bootstrap_runs_chef_client].to_s == 'true') || (@chef_config.knife[:bootstrap_runs_chef_client].to_s == 'true') %>
 echo -e "`date` \n\n**** \n**** First run of chef:\n****\n"
