@@ -28,7 +28,7 @@ module ClusterChef
     #
     def announce(sys, subsys=nil, opts={})
       opts           = Mash.new(opts)
-      opts[:realm] ||= default_realm
+      opts[:realm] ||= node[:cluster_name]
       component = Component.new(run_context, sys, subsys, opts)
       Chef::Log.info("Announcing component #{component.fullname}")
       node.set[:announces][component.fullname] = component.to_hash
@@ -44,7 +44,7 @@ module ClusterChef
     #
     # @return [ClusterChef::Component] component from server to most recently-announce
     def discover_all(sys, subsys=nil, realm=nil)
-      realm ||= default_realm
+      realm ||= discovery_realm(sys,subsys)
       component_name = ClusterChef::Component.fullname(realm, sys, subsys)
       #
       servers = discover_all_nodes(component_name)
@@ -66,7 +66,9 @@ module ClusterChef
       discover_all(sys, subsys, realm).last or raise("Cannot find '#{component_name}'")
     end
 
-    def default_realm
+    def discovery_realm(sys, subsys=nil)
+      return node[:discovers][sys][subsys] if (node[:discovers][sys][subsys].is_a? String rescue false)
+      return node[:discovers][sys]         if (node[:discovers][sys].is_a? String rescue false)
       node[:cluster_name]
     end
 
