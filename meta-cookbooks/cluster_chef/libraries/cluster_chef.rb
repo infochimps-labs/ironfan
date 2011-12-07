@@ -16,7 +16,3 @@ require File.expand_path('discovery.rb',   File.dirname(__FILE__))
 # require CLUSTER_CHEF_DIR("libraries/aspect")
 # require CLUSTER_CHEF_DIR("libraries/aspects")
 # require CLUSTER_CHEF_DIR("libraries/discovery")
-
-
-# FIXME -- remove:
-require 'pry' ; require 'ap'
