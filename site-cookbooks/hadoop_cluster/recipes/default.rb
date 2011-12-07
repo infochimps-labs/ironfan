@@ -113,7 +113,7 @@ volume_dirs('hadoop.log') do
   selects       :single
   path          'hadoop/log'
   group         'hadoop'
-  mode          "0775"
+  mode          "0777"
 end
 %w[namenode secondarynn datanode].each{|svc| directory("#{node[:hadoop][:log_dir]}/#{svc}"){ action(:create) ; owner 'hdfs'   ; group "hadoop"; mode "0775" } }
 %w[jobtracker tasktracker       ].each{|svc| directory("#{node[:hadoop][:log_dir]}/#{svc}"){ action(:create) ; owner 'mapred' ; group "hadoop"; mode "0775" } }
