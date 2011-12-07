@@ -47,7 +47,9 @@ runit_service "elasticsearch" do
   options       node[:elasticsearch]
 end
 
+# TODO: split httpnode and datanode into separate components
 announce(:elasticsearch, :datanode)
+announce(:elasticsearch, :httpnode)
 
 # Tell ElasticSearch where to find its other nodes
 if node[:elasticsearch][:seeds].nil?

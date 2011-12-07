@@ -1,7 +1,7 @@
 #
 # Cookbook Name::       elasticsearch
-# Description::         Http
-# Recipe::              http
+# Description::         load_balancer
+# Recipe::              load_balancer
 # Author::              GoTime, modifications by Infochimps
 #
 # Copyright 2011, GoTime, modifications by Infochimps
@@ -19,16 +19,5 @@
 # limitations under the License.
 #
 
-include_recipe "nginx"
-
-template File.join(node[:nginx][:dir], "sites-available", "elasticsearch.conf") do
-  source "elasticsearch.nginx.conf.erb"
-  action :create
-end
-
-nginx_site "elasticsearch.conf" do
-  action :enable
-end
-
+# TODO: Check to make sure this doesn't depend on the obselete nginx front-end setup
 load_balancer   node[:elasticsearch][:load_balancer] if node[:elasticsearch][:load_balancer]
-announce(:elasticsearch, :httpnode)
