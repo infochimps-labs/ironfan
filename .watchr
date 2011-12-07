@@ -11,14 +11,14 @@ def run_spec(file)
   puts
 end
 
-# watch("spec/.*/*_spec\.rb") do |match|
-#   run_spec match[0]
-# end
-#
-# watch("lib/(.*)\.rb") do |match|
-#   file = %{spec/#{match[1]}_spec.rb}
-#   run_spec file if File.exists?(file)
-# end
+watch("spec/.*/*_spec\.rb") do |match|
+  run_spec match[0]
+end
+
+watch("lib/(.*)\.rb") do |match|
+  file = %{spec/#{match[1]}_spec.rb}
+  run_spec file if File.exists?(file)
+end
 
 # watch('lib/cluster_chef/cookbook_munger\.rb') do |match|
 #   system match[0]
@@ -27,12 +27,3 @@ end
 # watch('lib/cluster_chef/cookbook_munger/.*\.erb') do |match|
 #   system 'lib/cluster_chef/cookbook_munger.rb'
 # end
-
-watch("spec/.*/discovery_spec\.rb") do |match|
-  run_spec match[0]
-end
-
-watch("meta-cookbooks/provides_service/libraries/discovery\.rb") do |match|
-  file = %{spec/cluster_chef/discovery_spec.rb}
-  run_spec file if File.exists?(file)
-end

@@ -13,12 +13,12 @@ module ClusterChef
     attr_reader :subsys # subsystem name: eg +:server+ or +:datanode+
     attr_reader :node   # node this component belongs to
 
-    def initialize(node, sys, subsys=nil, hsh={})
+    def initialize(node, sys, subsys, hsh={})
       super()
       @node     = node
       @sys      = sys
       @subsys   = subsys
-      self.name = subsys ? "#{sys}_#{subsys}".to_sym : sys.to_sym
+      self.name = "#{sys}_#{subsys}".to_sym
       self.timestamp = ClusterChef::NodeUtils.timestamp
       merge!(hsh)
     end
@@ -37,7 +37,7 @@ module ClusterChef
 
     # A segmented name for the component
     def self.fullname(realm, sys, subsys=nil)
-      subsys ? "#{realm}-#{sys}-#{subsys}".to_s : "#{realm}-#{sys}"
+      "#{realm}-#{sys}-#{subsys}".to_s
     end
 
     #
@@ -91,10 +91,9 @@ module ClusterChef
     end
 
     # add this class to the list of registered aspects
-    def self.register_aspect(klass)
-      aspect_name = klass.klass_handle
-      self.aspect_types[aspect_name] = klass
-      dsl_attr(aspect_name, :kind_of => [Mash, klass])
+    def self.has_aspect(klass)
+      self.aspect_types[klass.handle] = klass
+      dsl_attr(klass.handle, :kind_of => [Mash, klass])
     end
 
     #
@@ -107,8 +106,6 @@ module ClusterChef
     # +node[:redis][:user]+. If an attribute exists on both the parent and
     # subsys hash, the subsys hash's value wins (see +:user+ in the
     # example below).
-    #
-    # If subsys is nil, just returns the direct node hash.
     #
     # @example
     #   node.to_hash
@@ -127,12 +124,10 @@ module ClusterChef
     def node_info
       unless node[sys] then Chef::Log.warn("no system data in component '#{name}', node '#{node}'") ; return Mash.new ;  end
       hsh = Mash.new(node[sys].to_hash)
-      if subsys
-        if node[sys][subsys]
-          hsh.merge!(node[sys][subsys])
-        else
-          Chef::Log.warn("no subsystem data in component '#{name}', node '#{node}'")
-        end
+      if node[sys][subsys]
+        hsh.merge!(node[sys][subsys])
+      else
+        Chef::Log.warn("no subsystem data in component '#{name}', node '#{node}'")
       end
       hsh
     end
@@ -144,9 +139,5 @@ module ClusterChef
       node_info[attr]
     end
 
-    def self.has_aspect(aspect, klass)
-      @aspect_types ||= {}
-      @aspect_types[aspect] = klass
-    end
   end
 end

@@ -26,7 +26,7 @@ module ClusterChef
     # @option opts [String] :realm Offer the component within this realm -- by
     #   default, the current node's cluster
     #
-    def announce(sys, subsys=nil, opts={})
+    def announce(sys, subsys, opts={})
       opts           = Mash.new(opts)
       opts[:realm] ||= node[:cluster_name]
       component = Component.new(run_context, sys, subsys, opts)
@@ -43,7 +43,7 @@ module ClusterChef
     #   discover_all(:cassandra, :seeds, 'bukkit') # all cassandra seeds for 'bukkit' cluster
     #
     # @return [ClusterChef::Component] component from server to most recently-announce
-    def discover_all(sys, subsys=nil, realm=nil)
+    def discover_all(sys, subsys, realm=nil)
       realm ||= discovery_realm(sys,subsys)
       component_name = ClusterChef::Component.fullname(realm, sys, subsys)
       #
@@ -62,20 +62,17 @@ module ClusterChef
     #   discover(:redis, :server, 'uploader') # redis server for 'uploader' realm
     #
     # @return [ClusterChef::Component] component from server to most recently-announce
-    def discover(sys, subsys=nil, realm=nil)
+    def discover(sys, subsys, realm=nil)
       discover_all(sys, subsys, realm).last or raise("Cannot find '#{component_name}'")
     end
 
     def discovery_realm(sys, subsys=nil)
-      return node[:discovers][sys][subsys] if (node[:discovers][sys][subsys].is_a? String rescue false)
-      return node[:discovers][sys]         if (node[:discovers][sys].is_a? String rescue false)
-      node[:cluster_name]
+      node[:discovers][sys][subsys] rescue node[:cluster_name]
     end
 
     def node_components(server)
       server[:announces].map do |name, hsh|
         realm, sys, subsys = name.split("-", 3)
-        subsys = nil if (subsys.to_s == "")
         hsh[:realm] = realm
         ClusterChef::Component.new(server, sys, subsys, hsh)
       end

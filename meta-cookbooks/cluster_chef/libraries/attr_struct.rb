@@ -119,9 +119,8 @@ module ClusterChef
     module ClassMethods
       def dsl_attr(name, validation)
         name = name.to_sym
-        p name
-        define_method(name) do |*args|
-          set_or_return(name, *args, validation)
+        define_method(name) do |val=nil|
+          set_or_return(name, val, validation)
         end
       end
     end

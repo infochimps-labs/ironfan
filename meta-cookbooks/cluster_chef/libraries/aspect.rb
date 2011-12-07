@@ -61,18 +61,16 @@ module ClusterChef
     end
 
     def lint_flavor
-      self.class.allowed_flavors.include?(self.flavor) ? [] : ["Unexpected #{klass_handle} flavor #{flavor.inspect}"]
+      self.class.allowed_flavors.include?(self.flavor) ? [] : ["Unexpected #{self.class.handle} flavor #{flavor.inspect}"]
     end
-
-    # simple handle for class
-    # @example
-    #   foo = ClusterChef::FooAspect
-    #   foo.klass_handle # :foo
-    def klass_handle() self.class.klass_handle ; end
 
     module ClassMethods
       include AttrStruct::ClassMethods
       include ClusterChef::NodeUtils
+
+      def register!
+        ClusterChef::Component.has_aspect(self)
+      end
 
       #
       # Extract attributes matching the given pattern.
@@ -110,9 +108,9 @@ module ClusterChef
       end
 
       # strip off module part and '...Aspect' from class name
-      # @example ClusterChef::FooAspect.klass_handle # :foo
-      def klass_handle
-        @klass_handle ||= self.name.to_s.gsub(/.*::(\w+)Aspect\z/,'\1').gsub(/([a-z\d])([A-Z])/,'\1_\2').downcase.to_sym
+      # @example ClusterChef::FooAspect.handle # :foo
+      def handle
+        @handle ||= self.name.to_s.gsub(/.*::(\w+)Aspect\z/,'\1').gsub(/([a-z\d])([A-Z])/,'\1_\2').downcase.to_sym
       end
 
     end

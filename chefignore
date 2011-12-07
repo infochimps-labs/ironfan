@@ -32,3 +32,10 @@ a.out
 */.bzr/*
 */.hg/*
 */.svn/*
+
+## Don't send rspecs up in cookbook
+.watchr
+.rspec
+spec/*
+spec/fixtures/*
+

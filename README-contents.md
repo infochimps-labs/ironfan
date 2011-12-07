@@ -79,20 +79,52 @@ For example, I am user `mrflip` and my organization is `infochimps`, so my tree 
     #
     # Systems
     #
+
+    #
+    # A server is something that (typically all, but at least most of)
+    # runs a daemon, opens ports, has logs, has directories, etc.
+    #
+    # if there's only one contender for the title of 
+    #
     [:apache,         :server],
     [:cassandra,      :server],
-    [:chef,           :client],
-    [:cron,           :daemon],
-    [:cluster_chef,   :dashboard],
-    # [:dash_dash,    :dashboard],
+    [:mongodb,        :server],
+    [:mysql,          :server],
+    [:nfs,            :server],
+    [:nginx,          :server],
+    [:ntp,            :server],
+    [:redis,          :server],
+    [:statsd,         :server],
+    [:zabbix,         :server],
+    [:zookeeper,      :server],
+    [:apt_cacher,     :server],
+    [:dashpot,        :server], # not dashboard 
+    [:resque,         :server],
+    [:openssh,        :server],
+
+    # !not extra server: an announcement some cassandra servers make!
+    [:cassandra,      :seed],
+    [:elasticsearch,  :seed],
+    # similarly, a mysql-master is also a mysql-server 
+    [:mysql,          :master],
+    [:mysql,          :slave ],
+    [:redis,          :master],
+    [:redis,          :slave ],    
+
+    # where there are lots of server-y things
+    # give them their system-specific natural name.
+    # If there are multiple server-y names, avoid if possible giving any of them the subsytem name 'server'...
+
+    [:chef,           :expander],
+    [:chef,           :server], # ... but don't fight city hall: if its name is server go with server
+    [:chef,           :solr],
+    [:chef,           :webui],
     [:elasticsearch,  :datanode],
     [:elasticsearch,  :httpnode],
-    [:flume,          :client],
     [:flume,          :master],
     [:ganglia,        :master],
-    [:ganglia,        :monitor],
     [:graphite,       :carbon],
-    [:graphite,       :dashboard],
+    [:graphite,       :dashboard], 
     [:graphite,       :whisper],
     [:hadoop,         :datanode],
     [:hadoop,         :hdfs_fuse],
@@ -103,32 +135,32 @@ For example, I am user `mrflip` and my organization is `infochimps`, so my tree 
     [:hbase,          :master],
     [:hbase,          :regionserver],
     [:hbase,          :stargate],
-    [:mongodb,        :server],
-    [:mysql,          :server],
-    [:nfs,            :client],
-    [:nfs,            :server],
-    [:nginx,          :server],
-    [:ntp,            :server],
-    [:redis,          :server],
-    [:resque,         :dashboard],
-    [:openssh,        :daemon],
-    [:statsd,         :server],
-    [:zabbix,         :monitor],
-    [:zabbix,         :server],
-    [:zookeeper,      :server],
-    
-    [:apt_cacher,     :server],
-    [:bluepill,       :monitor],
-    [:goliath,        :app],
-    [:unicorn,        :app],
+    [:jenkins,        :master],
+    [:jenkins,        :worker],      
     [:resque,         :worker],
 
-    [:chef,           :dashboard],
-    [:chef,           :expander],
-    [:chef,           :server],
-    [:chef,           :solr],
-    [:jenkins,        :master],
-    [:jenkins,        :worker],
+    #
+    # A 'client' means 'I install all the stuff to let you *use* some other
+    # component. We're not even sure if these announce.
+    #
+    [:nfs,            :client],
+    [:redis,          :client],
+    
+    # An 'agent' is a thing that runs and uses that thing. A client is not
+    # necessarily an agent.
+    [:flume,          :agent],
+    [:zabbix,         :agent],
+    [:cron,           :agent],
+    [:ganglia,        :agent],
+    [:bluepill,       :agent],
+    
+    # The chef-client daemon is in this terminology properly an 'agent' -- if it
+    # conformed to the style guide, chef_client would install the runnable, and
+    # chef_agent would be the daemon which periodically contacts the chef_server
+    # and converges the machine.
+    [:chef,           :client],
+
+__________________________________________________________________________
     
     #
     # Discovery / preparation
