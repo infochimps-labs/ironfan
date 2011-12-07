@@ -66,7 +66,7 @@ define(:volume_dirs,
   paths = Array( component.node_attr(aspect_attr) ).compact
   if paths.empty?
     # default path to "sys/subsys/aspect", eg "graphite/carbon/log"
-    sub_path = params[:path] || File.join(*[sys, subsys, aspect].compact)
+    sub_path = params[:path] || File.join(*[sys, subsys, aspect].compact.map{|s| s.to_s})
     # look for "graphite.carbon.log", "graphite.log", "log", or fallback
     volumes = volumes_tagged(
       "#{sys}.#{subsys}.#{aspect}", "#{sys}.#{aspect}", params[:type], 'fallback')
