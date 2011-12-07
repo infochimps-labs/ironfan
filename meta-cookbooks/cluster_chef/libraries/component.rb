@@ -18,7 +18,7 @@ module ClusterChef
     def initialize(node, sys, subsys, hsh={})
       @node = node
       super(sys, subsys)
-      self.name      "#{sys}_#{subsys}".to_sym
+      self.name      subsys.to_s.empty? ? sys.to_sym : "#{sys}_#{subsys}".to_sym
       self.timestamp ClusterChef::NodeUtils.timestamp
       merge!(hsh)
     end
@@ -132,10 +132,11 @@ module ClusterChef
     def node_info
       unless node[sys] then Chef::Log.warn("no system data in component '#{name}', node '#{node}'") ; return Mash.new ;  end
       hsh = Mash.new(node[sys].to_hash)
-      if node[sys][subsys]
+      if     node[sys][subsys]
         hsh.merge!(node[sys][subsys])
-      else
-        Chef::Log.warn("no subsystem data in component '#{name}', node '#{node}'")
+      elsif (subsys.to_s != '') && (not node[sys].has_key?(subsys))
+        puts caller
+        Chef::Log.warn("no subsystem data in component '#{name}', node '#{node}': #{self.inspect}")
       end
       hsh
     end

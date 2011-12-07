@@ -1,3 +1,4 @@
+require CLUSTER_CHEF_DIR("libraries/discovery")
 CHEF_RESOURCE_CLXN = JSON.parse(File.read(CLUSTER_CHEF_DIR('spec/fixtures/chef_resources-el_ridiculoso-aqui-0.json')))
 
 shared_context 'dummy_chef' do

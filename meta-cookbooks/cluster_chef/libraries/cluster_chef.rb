@@ -12,6 +12,9 @@ require File.expand_path('component.rb',   File.dirname(__FILE__))
 require File.expand_path('aspect.rb',      File.dirname(__FILE__))
 require File.expand_path('aspects.rb',     File.dirname(__FILE__))
 require File.expand_path('discovery.rb',   File.dirname(__FILE__))
+# require CLUSTER_CHEF_DIR("libraries/aspect")
+# require CLUSTER_CHEF_DIR("libraries/aspects")
+# require CLUSTER_CHEF_DIR("libraries/discovery")
 
 
 # FIXME -- remove:

@@ -69,7 +69,7 @@ module ClusterChef
       !! @node_changed
     end
 
-    class ::Chef ; MIN_VERSION_FOR_SAVE = "0.8.0" ; end
+    MIN_VERSION_FOR_SAVE = "0.8.0" unless defined?(MIN_VERSION_FOR_SAVE)
 
     # Save the node, unless we're in chef-solo mode (or an ancient version)
     def save_node!(node)
@@ -83,7 +83,7 @@ module ClusterChef
           Chef::Log.warn("Skipping node save since we are running under chef-solo.  Node attributes will not be persisted.")
         end
       else
-        Chef::Log.warn("Skipping node save: Chef version #{Chef::VERSION} (prior to #{Chef::MIN_VERSION_FOR_SAVE}) can't save");
+        Chef::Log.warn("Skipping node save: Chef version #{Chef::VERSION} (prior to #{MIN_VERSION_FOR_SAVE}) can't save");
       end
     end
 

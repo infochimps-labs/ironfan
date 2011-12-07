@@ -7,7 +7,7 @@ module ClusterChef
     #
 
     def run_state_includes?(hsh, state)
-      Array(hsh[:run_state]).map(&:to_s).include?(state.to_str)
+      Array(hsh[:run_state]).map(&:to_s).include?(state.to_s)
     end
 
     def startable?(hsh)

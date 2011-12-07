@@ -15,6 +15,7 @@ module ClusterChef
   #
   #
   module Discovery
+    include NodeUtils
 
     #
     # Announce that you provide the given component in some realm (by default,
@@ -77,6 +78,7 @@ module ClusterChef
       server[:announces].map do |name, hsh|
         realm, sys, subsys = name.split("-", 3)
         hsh[:realm] = realm
+        p ['node_components', name, realm, sys, subsys]
         ClusterChef::Component.new(server, sys, subsys, hsh)
       end
     end

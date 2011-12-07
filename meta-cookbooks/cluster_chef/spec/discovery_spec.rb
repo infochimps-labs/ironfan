@@ -1,5 +1,5 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
-require CLUSTER_CHEF_DIR("libraries/cluster_chef.rb")
+require CLUSTER_CHEF_DIR("libraries/cluster_chef")
 
 describe ClusterChef::Discovery do
   include_context 'dummy_chef'

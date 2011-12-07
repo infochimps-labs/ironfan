@@ -1,10 +1,9 @@
 module FlumeCluster
-
+  include ClusterChef::NodeUtils
   # Returns the name of the cluster that this flume is playing with
   def flume_cluster
     node[:flume][:cluster_name]
   end
-
 
   # returns an array containing the list of flume-masters in this cluster
   def flume_masters
@@ -17,7 +16,7 @@ module FlumeCluster
 
   # returns the index of the current host in th list of flume masters
   def flume_master_id
-    flume_masters.find_index( private_ip_of( node ) )
+    flume_masters.find_index( ClusterChef::NodeUtils.private_ip_of( node ) )
   end
 
   # returns true if this flume is managed by an external zookeeper
