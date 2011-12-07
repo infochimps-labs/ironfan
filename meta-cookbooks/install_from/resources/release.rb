@@ -86,17 +86,6 @@ def initialize(*args)
   @action ||= :install
 end
 
-def untar_cmd(sub_cmd, release_file, install_dir)
-  %Q{mkdir -p '#{install_dir}' ; tar #{sub_cmd} '#{release_file}' --strip-components=1 -C '#{install_dir}'}
-end
-
-def set_release_url
-  raise "Missing required resource attribute release_url" unless @release_url
-  @release_url.gsub!(/:name:/,          name.to_s)
-  @release_url.gsub!(/:version:/,       version.to_s)
-  @release_url.gsub!(/:apache_mirror:/, node['install_from']['apache_mirror'])
-end
-
 def assume_defaults!
   #
   set_release_url
@@ -118,4 +107,15 @@ def assume_defaults!
     end
 
   # Chef::Log.info( [environment, install_dir, home_dir, release_file, release_basename, release_ext, release_url, prefix_root ].inspect )
+end
+
+def untar_cmd(sub_cmd, release_file, install_dir)
+  %Q{mkdir -p '#{install_dir}' ; tar #{sub_cmd} '#{release_file}' --strip-components=1 -C '#{install_dir}'}
+end
+
+def set_release_url
+  raise "Missing required resource attribute release_url" unless @release_url
+  @release_url.gsub!(/:name:/,          name.to_s)
+  @release_url.gsub!(/:version:/,       version.to_s)
+  @release_url.gsub!(/:apache_mirror:/, node['install_from']['apache_mirror'])
 end
