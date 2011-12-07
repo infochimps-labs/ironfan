@@ -92,7 +92,7 @@ end
 
 # Mapred job scratch space striped across all scratch dirs
 volume_dirs('hadoop.tasktracker.scratch') do
-  type          :scratch
+  type          :local
   selects       :all
   path          'hadoop/mapred/local'
   mode          "0755"
@@ -100,7 +100,7 @@ end
 
 # Hadoop tmp storage on a single scratch dir
 volume_dirs('hadoop.tmp') do
-  type          :scratch
+  type          :local
   selects       :single
   path          'hadoop/tmp'
   group         'hadoop'
@@ -109,7 +109,7 @@ end
 
 # Hadoop log storage on a single scratch dir
 volume_dirs('hadoop.log') do
-  type          :scratch
+  type          :local
   selects       :single
   path          'hadoop/log'
   group         'hadoop'

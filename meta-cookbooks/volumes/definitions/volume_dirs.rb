@@ -13,7 +13,7 @@
 # @example
 #
 #     volume_dirs("hadoop.log") do
-#       type        :scratch
+#       type        :local
 #       owner       'hdfs'
 #       group       'hadoop'
 #       mode        "0775"
@@ -36,7 +36,7 @@
 define(:volume_dirs,
   :aspect    => nil,         # eg 'log', 'data', etc.
   :selects   => nil,         # :all creates ??_log_dirs, an array of one or more for the matching volume set; :single creates ??_log_dir, from the first in the matching volume set
-  :type      => :persistent, # one of `:persistent` or `:scratch`
+  :type      => :persistent, # one of `:persistent` or `:local`
   :path      => nil,         # default: "#{sys}/#{subsys}/#{aspect}" -- eg "mysql/log" or "redis/data". NOTE: if the node attribute is already present, it is used as the full path and this is ignored.
   #
   :owner     => nil,         # passed on to `directory` if set
@@ -57,8 +57,10 @@ define(:volume_dirs,
   raise "Please select either :all or :single" unless ['all', 'single'].include?(params[:selects].to_s)
   aspect_attr = (params[:selects] == :all) ? "#{aspect}_dirs" : "#{aspect}_dir"
 
-  params[:user]       ||= component.node_attr(:user, :required)
+  params[:owner]      ||= component.node_attr(:user, :required)
   params[:group]      ||= component.node_attr(:group) || params[:owner]
+
+  Log.info( [params[:name], params, component.to_hash] )
 
   #
   # Once we've chosen a path, we need to use it forever.
@@ -69,7 +71,7 @@ define(:volume_dirs,
     sub_path = params[:path] || File.join(*[sys, subsys, aspect].compact.map{|s| s.to_s})
     # look for "graphite.carbon.log", "graphite.log", "log", or fallback
     volumes = volumes_tagged(
-      "#{sys}.#{subsys}.#{aspect}", "#{sys}.#{aspect}", params[:type], 'fallback')
+      "#{sys}_#{subsys}_#{aspect}", "#{sys}_#{aspect}", params[:type], 'fallback')
     # singularize if :single
     volumes = [volumes.first] if (params[:selects] == :single)
     # slap path on the end of volume roots

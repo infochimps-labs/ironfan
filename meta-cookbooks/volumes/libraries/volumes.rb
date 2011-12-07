@@ -55,6 +55,7 @@ module MountableVolumes
   # **and** there are /dev/xvdXX devices, we relabel all the /dev/sdXX device
   # points to be /dev/xvdXX.
   def fix_for_xen!(vols)
+    Chef::Log.info( [vols].inspect )
     return unless node[:virtualization] && (node[:virtualization][:system] == 'xen')
     return unless (Dir['/dev/sd*'].empty?) && (not Dir['/dev/xvd*'].empty?)
     vols.each do |vol_name, vol|
