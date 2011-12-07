@@ -42,8 +42,12 @@ module ClusterChef
   #
   # * conventions can be messy, but aspects are perfectly uniform
   #
-  module Aspect
+  class Aspect
     include AttrStruct
+    extend  ClusterChef::NodeUtils
+
+    dsl_attr(:component, :kind_of => ClusterChef::Component)
+    dsl_attr(:name,      :kind_of => [String, Symbol])
 
     # checks that the aspect is well-formed. returns non-empty array if there is lint.
     #
@@ -57,18 +61,17 @@ module ClusterChef
     end
 
     def lint!
-      lint.each{|l| Chef::Log.warn(l) }
+      lint.flatten.compact.each{|l| Chef::Log.warn(l) }
     end
 
     def lint_flavor
       self.class.allowed_flavors.include?(self.flavor) ? [] : ["Unexpected #{self.class.handle} flavor #{flavor.inspect}"]
     end
 
-    module ClassMethods
-      include AttrStruct::ClassMethods
-      include ClusterChef::NodeUtils
+      # include AttrStruct::ClassMethods
+      # include ClusterChef::NodeUtils
 
-      def register!
+      def self.register!
         ClusterChef::Component.has_aspect(self)
       end
 
@@ -85,35 +88,39 @@ module ClusterChef
       # @yieldreturn [Aspect]        block should return an aspect
       #
       # @return [Array<Aspect>] collection of the block's results
-      def attr_matches(info, regexp)
-        results = []
-        info.each do |key, val|
+      def self.attr_matches(component, regexp)
+        results = Mash.new
+        component.node_info.each do |key, val|
           next unless (match = regexp.match(key.to_s))
-          result = yield(key, val, match)
+          result = yield(key, val, match) or next
           result.lint!
-          results << result
+          results[result.name] ||= result
         end
-        results.sort_by{|asp| asp.name }
+        results
       end
 
-      def rsrc_matches(rsrc_clxn, resource_name, cookbook_name)
-        results = []
+      def self.rsrc_matches(rsrc_clxn, resource_name, cookbook_name)
+        results = Mash.new
         rsrc_clxn.each do |rsrc|
           next unless rsrc.resource_name.to_s == resource_name.to_s
           next unless rsrc.cookbook_name.to_s =~ /#{cookbook_name}/
-          result = block_given? ? yield(rsrc) : rsrc
-          results << result if result
+          result = yield(rsrc) or next
+          results[result.name] ||= result
         end
-        results.uniq
+        results
       end
 
       # strip off module part and '...Aspect' from class name
       # @example ClusterChef::FooAspect.handle # :foo
-      def handle
+      def self.handle
         @handle ||= self.name.to_s.gsub(/.*::(\w+)Aspect\z/,'\1').gsub(/([a-z\d])([A-Z])/,'\1_\2').downcase.to_sym
       end
 
-    end
-    def self.included(base) ; base.extend(ClassMethods) ; end
+      def self.plural_handle
+        "#{handle}s".to_sym
+      end
+
+    # end
+    # def self.included(base) ; base.extend(ClassMethods) ; end
   end
 end

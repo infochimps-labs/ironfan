@@ -1,25 +1,25 @@
 require File.expand_path('cluster_chef.rb', File.dirname(__FILE__))
 
 module ClusterChef
-  class Component < Struct.new(
-      :name,
-      :realm,
-      :timestamp
-      )
+  class Component
     include ClusterChef::AttrStruct
     include ClusterChef::NodeUtils
+    attr_reader(:node)
+    dsl_attr(:sys,       :kind_of => Symbol, :coerce => :to_sym)
+    dsl_attr(:subsys,    :kind_of => Symbol, :coerce => :to_sym)
+    dsl_attr(:name,      :kind_of => String, :coerce => :to_s)
+    dsl_attr(:realm,     :kind_of => Symbol, :coerce => :to_sym)
+    dsl_attr(:timestamp, :kind_of => String, :regex => /\d{10}/)
 
-    attr_reader :sys    # system name: eg +:redis+ or +:nfs+
-    attr_reader :subsys # subsystem name: eg +:server+ or +:datanode+
-    attr_reader :node   # node this component belongs to
+    # attr_reader :sys    # system name: eg +:redis+ or +:nfs+
+    # attr_reader :subsys # subsystem name: eg +:server+ or +:datanode+
+    # attr_reader :node   # node this component belongs to
 
     def initialize(node, sys, subsys, hsh={})
-      super()
-      @node     = node
-      @sys      = sys
-      @subsys   = subsys
-      self.name = "#{sys}_#{subsys}".to_sym
-      self.timestamp = ClusterChef::NodeUtils.timestamp
+      @node = node
+      super(sys, subsys)
+      self.name      "#{sys}_#{subsys}".to_sym
+      self.timestamp ClusterChef::NodeUtils.timestamp
       merge!(hsh)
     end
 
@@ -69,20 +69,16 @@ module ClusterChef
 
     # Harvest all aspects findable in the given node metadata hash
     #
-    # @return [Array<Aspect>] aspect instances found in hash
-    #
     # @example
-    #   ClusterChef::Aspect.harvest({ :log_dirs => '...', :dash_port => 9387 })
-    #   # [ <LogAspect name="log" dirs=["..."]>,
-    #   #   <DashboardAspect url="http://10.x.x.x:9387/">,
-    #   #   <PortAspect port=9387 addr="10.x.x.x"> ]
+    #   component.harvest_all(run_context)
+    #   component.dashboard(:webui)      # #<DashboardAspect name='webui' url="http://10.x.x.x:4040/">
+    #   component.port(:webui_dash_port) # #<PortAspect port=4040 addr="10.x.x.x">
     #
-    def self.harvest_all(run_context)
-      registered.each do |aspect_name, aspect_klass|
-        res = aspect_klass.harvest(run_context, sys, subsys, info)
-        aspects[aspect_name] = res
+    def harvest_all(run_context)
+      self.class.aspect_types.each do |aspect_name, aspect_klass|
+        res = aspect_klass.harvest(run_context, self)
+        self.send(aspect_name, res)
       end
-      aspects
     end
 
     # list of known aspects
@@ -92,8 +88,20 @@ module ClusterChef
 
     # add this class to the list of registered aspects
     def self.has_aspect(klass)
-      self.aspect_types[klass.handle] = klass
-      dsl_attr(klass.handle, :kind_of => [Mash, klass])
+      self.aspect_types[klass.plural_handle] = klass
+      dsl_attr(klass.plural_handle, :kind_of => Mash, :dup_default => Mash.new)
+      define_method(klass.handle) do |name, val=nil, &block|
+        hsh = self.send(klass.plural_handle)
+        #
+        hsh[name] = val if val
+        # instance eval if block given (auto-vivify if necessary
+        if block
+          hsh[name] ||= klass.new(self, name)
+          hsh[name].instance_eval(&block)
+        end
+        #
+        hsh[name]
+      end
     end
 
     #

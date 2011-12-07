@@ -26,11 +26,14 @@ module ClusterChef
     # @option opts [String] :realm Offer the component within this realm -- by
     #   default, the current node's cluster
     #
-    def announce(sys, subsys, opts={})
+    def announce(sys, subsys, opts={}, &block)
       opts           = Mash.new(opts)
       opts[:realm] ||= node[:cluster_name]
-      component = Component.new(run_context, sys, subsys, opts)
+      component = Component.new(node, sys, subsys, opts)
       Chef::Log.info("Announcing component #{component.fullname}")
+      #
+      component.instance_eval(&block) if block
+      #
       node.set[:announces][component.fullname] = component.to_hash
       node_changed!
       component
