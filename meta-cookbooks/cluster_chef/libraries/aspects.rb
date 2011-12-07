@@ -12,13 +12,15 @@ module ClusterChef
   #
   class DaemonAspect < Aspect
     register!
-    dsl_attr(:pattern,   :kind_of => String)
-    dsl_attr(:run_state, :kind_of => [String, Symbol])
+    dsl_attr(:service_name, :kind_of => String)
+    dsl_attr(:pattern,      :kind_of => String)
+    dsl_attr(:run_state,    :kind_of => [String, Symbol])
+    dsl_attr(:service_name, :kind_of => String)
 
     def self.harvest(run_context, component)
       rsrc_matches(run_context.resource_collection, :service, component.sys) do |rsrc|
         next unless rsrc.name =~ /#{component.name}/
-        svc = self.new(component, rsrc.name, rsrc.pattern)
+        svc = self.new(component, rsrc.name, rsrc.service_name, rsrc.pattern)
         svc.run_state(component.node_info[:run_state])
         svc
       end

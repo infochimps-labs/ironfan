@@ -1,5 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
-require CLUSTER_CHEF_DIR("libraries/cluster_chef.rb")
+require CLUSTER_CHEF_DIR("libraries/cluster_chef")
+require CLUSTER_CHEF_DIR("libraries/aspects")
 
 describe ClusterChef::Aspect do
   include_context 'dummy_chef'

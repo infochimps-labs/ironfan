@@ -35,12 +35,9 @@
 # data_source "my cluster" 10 localhost  my.machine.edu:8649  1.2.3.5:8655
 # data_source "my grid" 50 1.3.4.7:8655 grid.org:8651 grid-backup.org:8651
 # data_source "another source" 1.3.4.7:8655  1.3.4.8
-
-<%- monitor_groups = Hash.new{|h,k| h[k] = [] } %>
-<%- all_service_info("#{node[:cluster_name]}-ganglia_monitor").each{|svr| monitor_groups[svr[:name]] << svr } %>
   
-<% monitor_groups.each do |monitor_group, servers| %>
-data_source "<%= monitor_group %>" <%= servers.map{|svr| "#{svr[:private_ip]}:#{svr[:rcv_port]}" }.join(' ') %>
+<% @monitor_groups.each do |monitor_group, servers_list| %>
+data_source "<%= monitor_group %>" <%= servers_list.join(" ") %>
 <% end %>
 
 #

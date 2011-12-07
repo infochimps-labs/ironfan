@@ -135,15 +135,14 @@ module ClusterChef
       if     node[sys][subsys]
         hsh.merge!(node[sys][subsys])
       elsif (subsys.to_s != '') && (not node[sys].has_key?(subsys))
-        puts caller
-        Chef::Log.warn("no subsystem data in component '#{name}', node '#{node}': #{self.inspect}")
+        Chef::Log.warn("no subsystem data in component '#{name}', node '#{node}'")
       end
       hsh
     end
 
     def node_attr(attr, required=nil)
       if required && (not node_info.has_key?(attr))
-        Chef::Log.warn "No definition for #{attr} in #{name} - set node[:#{sys}][:#{subsys}] or node[:#{sys}]"
+        Chef::Log.warn "No definition for #{attr} in #{name} - set node[:#{sys}][:#{subsys}] or node[:#{sys}]\n#{caller[0..4].join("\n    ")}"
       end
       node_info[attr]
     end

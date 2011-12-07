@@ -41,6 +41,14 @@ kill_old_service('gmetad')
 # Conf file -- auto-discovers ganglia monitors
 #
 
+monitor_groups = Hash.new{|h,k| h[k] = [] }
+discover_all(:ganglia, :monitor).each do |svr|
+  monitor_groups[svr.name] << "#{svr.private_ip}:#{svr.node_info[:rcv_port]}"
+end
+
+# <%- servers.map{|svr| "#{svr[:private_ip]}:#{svr[:rcv_port]}" }.join(' ')  %>
+# <%- all_service_info("#{node[:cluster_name]}-ganglia_monitor").each{|svr| monitor_groups[svr[:name]] << svr } %>
+
 template "#{node[:ganglia][:conf_dir]}/gmetad.conf" do
   source        "gmetad.conf.erb"
   backup        false
@@ -48,6 +56,7 @@ template "#{node[:ganglia][:conf_dir]}/gmetad.conf" do
   group         "ganglia"
   mode          "0644"
   notifies :restart, "service[ganglia_server]", :delayed if startable?(node[:ganglia][:server])
+  variables :monitor_groups => monitor_groups
 end
 
 runit_service "ganglia_server" do

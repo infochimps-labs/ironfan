@@ -1,5 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 require CLUSTER_CHEF_DIR("libraries/cluster_chef.rb")
+require CLUSTER_CHEF_DIR("libraries/aspects")
 
 describe ClusterChef::Component do
   include_context 'dummy_chef'
@@ -22,7 +23,7 @@ describe ClusterChef::Component do
     end
 
     context 'makes a singular accessor' do
-      let(:megatron){ ClusterChef::DaemonAspect.new(component, :megatron, 'gun', :start) }
+      let(:megatron){ ClusterChef::DaemonAspect.new(component, :megatron, 'megatron', 'gun', :start) }
 
       it 'that is set-or-return' do
         component.daemon(:megatron).should be_nil
@@ -70,7 +71,7 @@ describe ClusterChef::Component do
 
       it('daemon') do
         component.daemons.should == Mash.new({
-            :hadoop_datanode => ClusterChef::DaemonAspect.new(component, "hadoop_datanode",  'hadoop_datanode',  'start')
+            :hadoop_datanode => ClusterChef::DaemonAspect.new(component, "hadoop_datanode", "hadoop_datanode", "hadoop_datanode", 'start')
           })
       end
       it('port') do

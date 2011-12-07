@@ -1,5 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
-require CLUSTER_CHEF_DIR("libraries/cluster_chef.rb")
+require CLUSTER_CHEF_DIR("libraries/cluster_chef")
+require CLUSTER_CHEF_DIR("libraries/aspects")
 
 describe 'aspect' do
   include_context 'dummy_chef'
@@ -48,7 +49,7 @@ describe 'aspect' do
   describe ClusterChef::DaemonAspect do
     it 'harvests its associated service resource' do
       harvested.should == Mash.new({
-          :hadoop_datanode => ClusterChef::DaemonAspect.new(component, "hadoop_datanode", "hadoop_datanode", 'start'),
+          :hadoop_datanode => ClusterChef::DaemonAspect.new(component, "hadoop_datanode", "hadoop_datanode", "hadoop_datanode", 'start'),
         })
     end
 

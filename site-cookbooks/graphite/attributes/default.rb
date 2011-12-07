@@ -3,7 +3,7 @@ default[:graphite][:conf_dir]                            = '/etc/graphite/'
 default[:graphite][:data_dir]                            = nil
 default[:graphite][:home_dir]                            = '/usr/local/share/graphite/'
 default[:graphite][:log_dir]                             = '/var/log/graphite'
-
+default[:graphite][:pid_dir]                             = '/var/run/graphite'
 
 default[:graphite][:user]                                = 'graphite'
 default[:graphite][:graphite_web][:user]                 = 'www-data'
