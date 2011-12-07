@@ -9,6 +9,20 @@ require 'chef/providers'
 require 'chef/resources'
 require 'chef/mixin/params_validate'
 
+class Chef
+  class Resource
+
+    def self.json_create(o)
+      resource = self.new(o["instance_vars"]["name"])
+      o["instance_vars"].each do |k,v|
+        resource.instance_variable_set("@#{k}".to_sym, v)
+      end
+      resource
+    end
+  end
+end
+
+
 Dir[CLUSTER_CHEF_DIR("spec/spec_helper/*.rb")].each {|f| require f}
 
 # Configure rspec

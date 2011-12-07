@@ -1,6 +1,11 @@
 require File.expand_path('cluster_chef.rb', File.dirname(__FILE__))
 
 module ClusterChef
+  #
+  #
+  #
+  #
+  #
   class Component
     include ClusterChef::AttrStruct
     include ClusterChef::NodeUtils
@@ -10,10 +15,6 @@ module ClusterChef
     dsl_attr(:name,      :kind_of => String, :coerce => :to_s)
     dsl_attr(:realm,     :kind_of => Symbol, :coerce => :to_sym)
     dsl_attr(:timestamp, :kind_of => String, :regex => /\d{10}/)
-
-    # attr_reader :sys    # system name: eg +:redis+ or +:nfs+
-    # attr_reader :subsys # subsystem name: eg +:server+ or +:datanode+
-    # attr_reader :node   # node this component belongs to
 
     def initialize(node, sys, subsys, hsh={})
       @node = node
