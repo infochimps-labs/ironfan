@@ -148,7 +148,7 @@ module ClusterChef
     def chef_client_script_content
       return @chef_client_script_content if @chef_client_script_content
       return unless cloud.chef_client_script
-      script_filename = File.expand_path(cloud.chef_client_script, File.join(Chef::Config[:cluster_chef_path], 'config'))
+      script_filename = File.expand_path("../../config/#{cloud.chef_client_script}", File.dirname(__FILE__))
       @chef_client_script_content = safely{ File.read(script_filename) }
     end
 

@@ -23,14 +23,11 @@ require 'cluster_chef/fog_layer'         # interface to fog  for server actions
 #
 require 'cluster_chef/deprecated'        # stuff slated to go away
 
-Chef::Config[:cluster_chef_path] ||= File.expand_path(File.dirname(__FILE__)+'../..')
-Chef::Config[:cluster_path]      ||= [ File.join(Chef::Config[:cluster_chef_path], "clusters") ]
-
 module ClusterChef
 
   # path to search for cluster definition files
   def self.cluster_path
-    Chef::Config[:cluster_path]
+    Chef::Config[:cluster_path] ||= Chef::Config[:cookbooks_path].map{|dir| File.expand_path('../clusters', dir) }
   end
 
   #
