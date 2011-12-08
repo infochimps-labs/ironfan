@@ -12,7 +12,7 @@ cluster:
 
 # File paths
 path:
-  home:                         <%= node[:elasticsearch][:install_dir] %>
+  home:                         <%= node[:elasticsearch][:home_dir] %>
   conf:                         /etc/elasticsearch
   logs:                         /var/log/elasticsearch
   # data dirs are set in in the elasticsearch.in.sh

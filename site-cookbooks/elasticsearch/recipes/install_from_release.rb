@@ -26,5 +26,5 @@ install_from_release(:elasticsearch) do
   checksum      node[:elasticsearch][:checksum]
   action        [ :install ]
   has_binaries  [ 'bin/elasticsearch' ]
-  not_if{ ::File.exists?("#{node[:elasticsearch][:install_dir]}/bin/elasticsearch") }
+  not_if{ ::File.exists?("#{node[:elasticsearch][:home_dir]}/bin/elasticsearch") }
 end

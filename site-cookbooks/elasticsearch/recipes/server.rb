@@ -37,6 +37,13 @@ volume_dirs('elasticsearch.work') do
   mode          "0700"
 end
 
+# FIXME: Is this supposed to be handled by volume_dirs?
+directory "#{node[:elasticsearch][:data_root]}" do
+  owner         "elasticsearch"
+  group         "elasticsearch"
+  mode          0755
+end
+
 #
 # Service
 #
