@@ -166,6 +166,7 @@ module ClusterChef
       @chef_node = Chef::Node.new
       @chef_node.name(fullname)
       set_chef_node_attributes
+      set_chef_node_environment
       sync_volume_attributes
       unless_dry_run do
         chef_api_server_as_client.post_rest('nodes', @chef_node)
