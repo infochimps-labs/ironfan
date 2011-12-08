@@ -47,7 +47,7 @@ default[:package_sets][:install]          = %w[ base dev sysadmin ]
 # Package set definitions: related code assets installable as a group
 #
 
-default[:package_sets][:pkgs][:base]      = %w[ tree git zip openssl ]
+default[:package_sets][:pkgs][:base]      = %w[ tree git zip openssl wget curl runit runit-services libyaml-dev libxslt-dev ]
 default[:package_sets][:gems][:base]      = %w[ bundler rake ]
 
 default[:package_sets][:pkgs][:dev]       = %w[ emacs23-nox elinks colordiff ack exuberant-ctags ]
