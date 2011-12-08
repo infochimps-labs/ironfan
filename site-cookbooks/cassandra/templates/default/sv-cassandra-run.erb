@@ -14,6 +14,7 @@ done
 source ${CASSANDRA_HOME}/conf/cassandra-env.sh
 
 JMX_PORT=<%= @cassandra[:jmx_dash_port] %>
+JMX_ADDR=<%= ClusterChef::NodeUtils.public_ip_of(node) %>
 
 # bump number of open files allowed way way up
 ulimit -n 65535
@@ -53,8 +54,8 @@ exec chpst -u${CASSANDRA_USER} -e /etc/sv/cassandra/env -o 65535       \
       -Xloggc:/var/log/cassandra/cassandra-gc-`date +%s`.log           \
       -verbose:gc                                                      \
 <%- end %>
-      -Djava.rmi.server.hostname=<%= public_ip_of(node) %>             \
-      -Dcom.sun.management.jmxremote.port=<%= @cassandra[:jmx_dash_port] %> \
+      -Djava.rmi.server.hostname=$JMX_ADDR             \
+      -Dcom.sun.management.jmxremote.port=$JMX_PORT \
       -Dcom.sun.management.jmxremote.ssl=false                         \
       -Dcom.sun.management.jmxremote.authenticate=false                \
       -Dcassandra-config=${CASSANDRA_CONF}                             \

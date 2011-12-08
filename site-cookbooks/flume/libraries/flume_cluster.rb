@@ -1,5 +1,5 @@
 module FlumeCluster
-  include ClusterChef::NodeUtils
+
   # Returns the name of the cluster that this flume is playing with
   def flume_cluster
     node[:flume][:cluster_name]

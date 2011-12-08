@@ -55,7 +55,7 @@ default[:package_sets][:gems][:dev]       = %w[
   activesupport activemodel extlib json yajl-ruby awesome_print addressable cheat
   yard jeweler rspec  watchr pry configliere gorillib highline formatador choice rest-client wirble hirb ]
 
-default[:package_sets][:pkgs][:sysadmin]  = %w[ ifstat atop htop tree chkconfig sysstat nmap ]
+default[:package_sets][:pkgs][:sysadmin]  = %w[ ifstat htop tree chkconfig sysstat nmap ]
 default[:package_sets][:gems][:sysadmin]  = %w[]
 
 default[:package_sets][:pkgs][:text]      = %w[ libidn11-dev libxml2-dev libxml2-utils libxslt1-dev tidy ]

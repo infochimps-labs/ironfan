@@ -10,8 +10,8 @@
   <h3>Service Dashboards:</h3>
   <ul>
   <%- hadoop_services.each do |component| %>
-    <%- next unless node[:cluster_chef][:dashboard][:links]["hadoop.#{component}"] %>
-    <li><a href="<%= node[:cluster_chef][:dashboard][:links]["hadoop.#{component}"] %>">hadoop-<%= component %></a></li>
+    <%- next unless node[:dashpot][:links]["hadoop.#{component}"] %>
+    <li><a href="<%= node[:dashpot][:links]["hadoop.#{component}"] %>">hadoop-<%= component %></a></li>
   <%- end %>
   </ul>
 
