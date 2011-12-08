@@ -73,7 +73,7 @@ module ClusterChef
       # Location of ssh private keys
       def ssh_identity_dir(val=nil)
         set :ssh_identity_dir, File.expand_path(val) unless val.nil?
-        @settings.include?(:ssh_identity_dir) ? @settings[:ssh_identity_dir] : Chef::Config.keypair_path
+        @settings.include?(:ssh_identity_dir) ? @settings[:ssh_identity_dir] : Chef::Config.ec2_key_dir
       end
 
       # SSH identity file used for knife ssh, knife boostrap and such
