@@ -19,17 +19,25 @@
 # limitations under the License.
 #
 
-include_recipe "thrift"
-include_recipe "volumes"
+# == Recipes
+
 include_recipe "cluster_chef"
+include_recipe "volumes"
 include_recipe "java" ; complain_if_not_sun_java(:cassandra)
+include_recipe "thrift"
+
+# == Packages
 
 gem_package 'cassandra'
 gem_package 'avro'
 
+# == Users
+
 daemon_user(:cassandra) do
   create_group  false
 end
+
+# == Directories
 
 standard_dirs('cassandra') do
   directories   [:conf_dir, :log_dir, :lib_dir, :pid_dir, :data_dirs, :commitlog_dir, :saved_caches_dir]

@@ -53,7 +53,7 @@ default[:cassandra][:seeds]             = ["127.0.0.1"]
 default[:cassandra][:rpc_addr]          = "localhost"
 default[:cassandra][:rpc_port]          = 9160
 default[:cassandra][:storage_port]      = 7000
-default[:cassandra][:jmx_dash_port]          = 12345         # moved from default of 8080 (conflicts with hadoop)
+default[:cassandra][:jmx_dash_port]     = 12345         # moved from default of 8080 (conflicts with hadoop)
 default[:cassandra][:mx4j_addr]  = "127.0.0.1"
 default[:cassandra][:mx4j_port]  = "8081"
 
