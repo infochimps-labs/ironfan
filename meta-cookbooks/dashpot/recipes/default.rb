@@ -33,5 +33,5 @@ dashpot_dashboard(:dashpot) do
   template_name 'index'
   action        :create
   summary_keys = %w[]
-  variables     :summary_keys => summary_keys
+  variables     :summary_keys => summary_keys, :dashpot => node[:dashpot]
 end

@@ -16,7 +16,7 @@
   <hr/>
   <h2>Service Dashboards</h2>
   <ul>
-  <%- node[:cluster_chef][:dashboard][:links].each do |component,url| %>
+  <%- @dashpot[:links].each do |component,url| %>
     <li><a href="<%= url %>"><%= component %></a></li>
   <%- end %>
   </ul>
@@ -25,7 +25,7 @@
   <hr/>
   <h2>Mini-Dashboards</h2>
   <ul>
-    <%- Dir["#{node[:cluster_chef][:home_dir]}/dashboard/*.html"].sort.each do |filename| %>
+    <%- Dir["#{@dashpot[:home_dir]}/*.html"].sort.each do |filename| %>
     <li><a href="<%= File.basename(filename) %>"><%= File.basename(filename) %></a></li>
     <%- end %>
   </ul>
