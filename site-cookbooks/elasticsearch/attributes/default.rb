@@ -60,13 +60,13 @@ default[:elasticsearch][:snapshot_on_close]       = 'false'
 
 default[:elasticsearch][:seeds]                   = nil
 
-default[:elasticsearch][:recovery_after_nodes]     = 2
-default[:elasticsearch][:recovery_after_time]      = '5m'
-default[:elasticsearch][:expected_nodes]           = 2
+default[:elasticsearch][:recovery_after_nodes]    = 2
+default[:elasticsearch][:recovery_after_time]     = '5m'
+default[:elasticsearch][:expected_nodes]          = 2
 
-default[:elasticsearch][:fd_ping_interval]        = "1s"
-default[:elasticsearch][:fd_ping_timeout]         = "30s"
-default[:elasticsearch][:fd_ping_retries]         = 3
+default[:elasticsearch][:fd_ping_interval]        = "2s"
+default[:elasticsearch][:fd_ping_timeout]         = "60s"
+default[:elasticsearch][:fd_ping_retries]         = 6
 
 default[:elasticsearch][:http_ports]              = "9200-9300"
 default[:elasticsearch][:api_port]                = "9300"
