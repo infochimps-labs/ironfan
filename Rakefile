@@ -33,6 +33,9 @@ require 'rspec/core'
 require 'rspec/core/rake_task'
 require 'yard'
 
+# Load constants from rake config file.
+require File.join(File.dirname(__FILE__), 'config', 'rake')
+
 # ---------------------------------------------------------------------------
 #
 # Jeweler -- release cluster_chef as a gem
