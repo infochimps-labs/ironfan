@@ -47,7 +47,7 @@ default[:package_set][:install]          = %w[ base dev sysadmin ]
 # Package set definitions: related code assets installable as a group
 #
 
-default[:package_set][:pkgs][:base]      = %w[ tree git zip openssl wget curl runit runit-services libyaml-dev libxslt-dev ]
+default[:package_set][:pkgs][:base]      = %w[ tree git zip openssl wget curl runit libyaml-dev libxslt1-dev ]
 default[:package_set][:gems][:base]      = %w[ bundler rake ]
 
 default[:package_set][:pkgs][:dev]       = %w[ emacs23-nox elinks colordiff ack exuberant-ctags ]
@@ -56,10 +56,10 @@ default[:package_set][:gems][:dev]       = %w[
   yard jeweler rspec  watchr pry configliere gorillib highline formatador choice rest-client wirble hirb
   ]
 
-default[:package_set][:pkgs][:sysadmin]  = %w[ ifstat htop tree chkconfig sysstat nmap ]
+default[:package_set][:pkgs][:sysadmin]  = %w[ ifstat htop tree chkconfig sysstat nmap python-software-properties ]
 default[:package_set][:gems][:sysadmin]  = %w[]
 
-default[:package_set][:pkgs][:text]      = %w[ libidn11-dev libxml2-dev libxml2-utils libxslt-dev tidy ]
+default[:package_set][:pkgs][:text]      = %w[ libidn11-dev libxml2-dev libxml2-utils libxslt1-dev tidy ]
 default[:package_set][:gems][:text]      = %w[ nokogiri erubis i18n ]
 
 default[:package_set][:pkgs][:ec2]       = %w[ s3cmd ec2-ami-tools ec2-api-tools ]

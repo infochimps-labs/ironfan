@@ -19,6 +19,11 @@ cd /tmp/knife-bootstrap
 eval `cat /etc/lsb-release `
 export DEBIAN_FRONTEND=noninteractive
 
+# source for sun java if you want to install it later
+apt-get install -y python-software-properties
+add-apt-repository ppa:ferramroberto/java
+apt-get -y update
+
 if [ ! -f /usr/bin/chef-client ]; then
 echo -e "`date` \n\n**** \n**** apt update:\n****\n"
 apt-get    update
@@ -29,14 +34,15 @@ apt-get install -y build-essential wget ruby1.9.1 ruby1.9.1-dev runit zlib1g-dev
 
 if ruby -e "exit(%x{gem --version} < \"1.6.2\" ? 0 : -1 )" ; then
   echo -e "`date` \n\n**** \n**** Updating rubygems:\n****\n"
-  gem install --no-rdoc --no-ri rubygems-update --version=1.6.2
-  update_rubygems --version=1.6.2
+  gem update --system
+  # screw you rubygems
+  for foo in /usr/lib/ruby/site_ruby/*/rubygems/deprecate.rb ; do sudo sed -i.bak 's!@skip ||= false!true!' "$foo" ; done
 fi
 
 echo -e "`date` \n\n**** \n**** Installing chef:\n****\n"
 gem install ohai --no-rdoc --no-ri
 gem install chef --no-rdoc --no-ri <%= bootstrap_version_string %>
-gem install      --no-rdoc --no-ri extlib json ruby-shadow right_aws
+gem install      --no-rdoc --no-ri bundler pry cheat
 
 else # no chef-client
 echo -e "`date` \n\n**** \n**** Chef is present -- skipping apt/ruby/chef installation\n****\n"
