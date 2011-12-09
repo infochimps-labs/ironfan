@@ -28,7 +28,7 @@ default[:groups]['elasticsearch'][:gid]           = 61021
 # Install
 #
 
-default[:elasticsearch][:version]                 = "0.13.1"
+default[:elasticsearch][:version]                 = "0.18.5"
 default[:elasticsearch][:release_url_checksum]    = nil
 default[:elasticsearch][:release_url]             = "https://github.com/downloads/elasticsearch/elasticsearch/elasticsearch-:version:.tar.gz"
 default[:elasticsearch][:git_repo]                = "https://github.com/elasticsearch/elasticsearch.git"

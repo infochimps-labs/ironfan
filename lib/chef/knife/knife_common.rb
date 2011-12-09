@@ -13,7 +13,7 @@ module ClusterChef
     end
 
     def load_cluster_chef
-      # $LOAD_PATH << File.expand_path()
+      $: << Chef::Config[:cluster_chef_path]+'/lib'
       require 'cluster_chef'
       $stdout.sync = true
       ClusterChef.ui          = self.ui

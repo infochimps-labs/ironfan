@@ -4,28 +4,28 @@
 exec 2>&1
 
 # Where does elasticsearch live?
-export ES_HOME=<%= node[:elasticsearch][:install_dir] %>
-export ES_CONF_DIR=/etc/elasticsearch
+export ES_HOME=<%= @options[:home_dir] %>
+export ES_CONF_DIR=<%= @options[:conf_dir] %>
 export ES_INCLUDE=$ES_CONF_DIR/elasticsearch.in.sh
-export JAVA_HOME=<%= node[:elasticsearch][:java_home] %>
+export JAVA_HOME=<%= @options[:java_home] %>
 
 # Where does data live?
-ES_DATA_ROOT=<%= node[:elasticsearch][:data_root] %>
+ES_DATA_ROOT=<%= @options[:data_root] %>
 export ES_DATA_DIR=$ES_DATA_ROOT/data
 export ES_WORK_DIR=$ES_DATA_ROOT/work
 
 # bump the # of open files way way up
 ulimit -n 65536
-<%- unless node[:elasticsearch][:ulimit_mlock].nil? %>
+<%- unless @options[:ulimit_mlock].nil? %>
 # allow elasticsearch to lock itself into memory if JNA is installed
-ulimit -l <%= node[:elasticsearch][:ulimit_mlock] %>
+ulimit -l <%= @options[:ulimit_mlock] %>
 <%- end %>
 
 ulimit -a
 
 # Force the heap size
-export ES_MIN_MEM=<%= node[:elasticsearch][:java_heap_size_max] %>m
-export ES_MAX_MEM=<%= node[:elasticsearch][:java_heap_size_max] %>m
+export ES_MIN_MEM=<%= @options[:java_heap_size_max] %>m
+export ES_MAX_MEM=<%= @options[:java_heap_size_max] %>m
 
 sleep 2 # ES will flap flap flap if it crashes on start. Slightly reduces chance that it fills your log dir.
 
