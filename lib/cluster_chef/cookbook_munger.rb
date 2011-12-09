@@ -10,23 +10,24 @@
 # It also has hooks to do a limited amount of validation and linting.
 #
 
+require 'erubis'
+require 'chef/mash'
+require 'chef/mixin/from_file'
+
 require 'configliere'
-require 'extlib/mash'
 require 'gorillib/metaprogramming/class_attribute'
 require 'gorillib/hash/reverse_merge'
 require 'gorillib/object/blank'
 require 'gorillib/hash/compact'
 require 'gorillib/string/inflections'
 require 'gorillib/string/human'
+require 'gorillib/logger/log'
 require 'set'
-
-require 'erubis'
-require 'chef/mixin/from_file'
 
 $:.unshift File.expand_path('..', File.dirname(__FILE__))
 require 'cluster_chef/dsl_object'
 
-require 'gorillib/logger/log'
+# silence the chef log
 class Chef ; class Log ; def self.info(*args) ; end ; def self.debug(*args) ; end ; end ; end
 
 Settings.define :maintainer,       :default => 'default mantainer name', :default => "Philip (flip) Kromer - Infochimps, Inc"

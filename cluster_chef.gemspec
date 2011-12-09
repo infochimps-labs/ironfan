@@ -5,18 +5,15 @@
 
 Gem::Specification.new do |s|
   s.name = "cluster_chef"
-  s.version = "3.0.2"
+  s.version = "3.0.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Infochimps"]
-  s.date = "2011-11-17"
+  s.date = "2011-12-09"
   s.description = "cluster_chef allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
   s.email = "coders@infochimps.com"
   s.extra_rdoc_files = [
     "LICENSE",
-    "README-checklist.md",
-    "README-contents.md",
-    "README-integration_cookbooks.md",
     "README.md"
   ]
   s.files = [
@@ -25,24 +22,21 @@ Gem::Specification.new do |s|
     "CHANGELOG.md",
     "Gemfile",
     "LICENSE",
-    "README-checklist.md",
-    "README-contents.md",
-    "README-integration_cookbooks.md",
     "README.md",
     "Rakefile",
     "TODO.md",
     "VERSION",
     "chefignore",
     "cluster_chef.gemspec",
-    "lib/TAGS",
-    "lib/chef/TAGS",
     "lib/chef/knife/bootstrap/ubuntu10.04-basic.erb",
     "lib/chef/knife/bootstrap/ubuntu10.04-cluster_chef.erb",
+    "lib/chef/knife/bootstrap/ubuntu11.10-cluster_chef.erb",
     "lib/chef/knife/cluster_bootstrap.rb",
     "lib/chef/knife/cluster_kick.rb",
     "lib/chef/knife/cluster_kill.rb",
     "lib/chef/knife/cluster_launch.rb",
     "lib/chef/knife/cluster_list.rb",
+    "lib/chef/knife/cluster_proxy.rb",
     "lib/chef/knife/cluster_show.rb",
     "lib/chef/knife/cluster_ssh.rb",
     "lib/chef/knife/cluster_start.rb",
@@ -71,17 +65,13 @@ Gem::Specification.new do |s|
     "lib/cluster_chef/server_slice.rb",
     "lib/cluster_chef/volume.rb",
     "notes/aws_console_screenshot.jpg",
-    "notes/burn_your_own_AMI.txt",
-    "notes/design_your_cluster.md",
-    "notes/ec2pricing-and-capacity.txt",
-    "notes/tips_and_troubleshooting.md",
-    "pkg/cluster_chef-3.0.0.gem",
-    "pkg/cluster_chef-3.0.1.gem",
+    "rspec.watchr",
     "spec/cluster_chef/cluster_spec.rb",
     "spec/cluster_chef/facet_spec.rb",
     "spec/cluster_chef/server_slice_spec.rb",
     "spec/cluster_chef/server_spec.rb",
     "spec/cluster_chef_spec.rb",
+    "spec/helpers.rb",
     "spec/spec_helper.rb",
     "spec/test_config.rb"
   ]
@@ -90,61 +80,58 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   s.rubygems_version = "1.8.11"
   s.summary = "cluster_chef allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
-  s.test_files = ["spec/cluster_chef/cluster_spec.rb", "spec/cluster_chef/facet_spec.rb", "spec/cluster_chef/server_slice_spec.rb", "spec/cluster_chef/server_spec.rb", "spec/cluster_chef_spec.rb", "spec/spec_helper.rb", "spec/test_config.rb"]
+  s.test_files = ["spec/cluster_chef/cluster_spec.rb", "spec/cluster_chef/facet_spec.rb", "spec/cluster_chef/server_slice_spec.rb", "spec/cluster_chef/server_spec.rb", "spec/cluster_chef_spec.rb", "spec/helpers.rb", "spec/spec_helper.rb", "spec/test_config.rb"]
 
   if s.respond_to? :specification_version then
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<chef>, ["~> 0.10.4"])
-      s.add_runtime_dependency(%q<right_aws>, ["~> 2.1.0"])
-      s.add_runtime_dependency(%q<highline>, ["~> 1.6.2"])
-      s.add_runtime_dependency(%q<fog>, ["~> 0.8.2"])
       s.add_runtime_dependency(%q<formatador>, ["~> 0.2.1"])
       s.add_runtime_dependency(%q<choice>, ["~> 0.1.4"])
-      s.add_runtime_dependency(%q<gorillib>, ["~> 0.1.3"])
+      s.add_runtime_dependency(%q<highline>, ["~> 1.6.2"])
+      s.add_runtime_dependency(%q<gorillib>, ["~> 0.1.7"])
+      s.add_runtime_dependency(%q<fog>, ["~> 1.1.1"])
       s.add_development_dependency(%q<bundler>, ["~> 1"])
       s.add_development_dependency(%q<yard>, ["~> 0.6.7"])
       s.add_development_dependency(%q<jeweler>, ["~> 1.6.4"])
-      s.add_development_dependency(%q<rspec>, ["~> 2.5.0"])
+      s.add_development_dependency(%q<rspec>, ["~> 2.7.0"])
       s.add_development_dependency(%q<spork>, ["~> 0.9.0.rc5"])
-      s.add_development_dependency(%q<watchr>, [">= 0"])
-      s.add_development_dependency(%q<configliere>, [">= 0"])
+      s.add_development_dependency(%q<watchr>, ["~> 0.7"])
+      s.add_development_dependency(%q<configliere>, ["~> 0.4.8"])
       s.add_development_dependency(%q<bundler>, ["~> 1.0.12"])
       s.add_development_dependency(%q<jeweler>, ["~> 1.5.2"])
     else
       s.add_dependency(%q<chef>, ["~> 0.10.4"])
-      s.add_dependency(%q<right_aws>, ["~> 2.1.0"])
-      s.add_dependency(%q<highline>, ["~> 1.6.2"])
-      s.add_dependency(%q<fog>, ["~> 0.8.2"])
       s.add_dependency(%q<formatador>, ["~> 0.2.1"])
       s.add_dependency(%q<choice>, ["~> 0.1.4"])
-      s.add_dependency(%q<gorillib>, ["~> 0.1.3"])
+      s.add_dependency(%q<highline>, ["~> 1.6.2"])
+      s.add_dependency(%q<gorillib>, ["~> 0.1.7"])
+      s.add_dependency(%q<fog>, ["~> 1.1.1"])
       s.add_dependency(%q<bundler>, ["~> 1"])
       s.add_dependency(%q<yard>, ["~> 0.6.7"])
       s.add_dependency(%q<jeweler>, ["~> 1.6.4"])
-      s.add_dependency(%q<rspec>, ["~> 2.5.0"])
+      s.add_dependency(%q<rspec>, ["~> 2.7.0"])
       s.add_dependency(%q<spork>, ["~> 0.9.0.rc5"])
-      s.add_dependency(%q<watchr>, [">= 0"])
-      s.add_dependency(%q<configliere>, [">= 0"])
+      s.add_dependency(%q<watchr>, ["~> 0.7"])
+      s.add_dependency(%q<configliere>, ["~> 0.4.8"])
       s.add_dependency(%q<bundler>, ["~> 1.0.12"])
       s.add_dependency(%q<jeweler>, ["~> 1.5.2"])
     end
   else
     s.add_dependency(%q<chef>, ["~> 0.10.4"])
-    s.add_dependency(%q<right_aws>, ["~> 2.1.0"])
-    s.add_dependency(%q<highline>, ["~> 1.6.2"])
-    s.add_dependency(%q<fog>, ["~> 0.8.2"])
     s.add_dependency(%q<formatador>, ["~> 0.2.1"])
     s.add_dependency(%q<choice>, ["~> 0.1.4"])
-    s.add_dependency(%q<gorillib>, ["~> 0.1.3"])
+    s.add_dependency(%q<highline>, ["~> 1.6.2"])
+    s.add_dependency(%q<gorillib>, ["~> 0.1.7"])
+    s.add_dependency(%q<fog>, ["~> 1.1.1"])
     s.add_dependency(%q<bundler>, ["~> 1"])
     s.add_dependency(%q<yard>, ["~> 0.6.7"])
     s.add_dependency(%q<jeweler>, ["~> 1.6.4"])
-    s.add_dependency(%q<rspec>, ["~> 2.5.0"])
+    s.add_dependency(%q<rspec>, ["~> 2.7.0"])
     s.add_dependency(%q<spork>, ["~> 0.9.0.rc5"])
-    s.add_dependency(%q<watchr>, [">= 0"])
-    s.add_dependency(%q<configliere>, [">= 0"])
+    s.add_dependency(%q<watchr>, ["~> 0.7"])
+    s.add_dependency(%q<configliere>, ["~> 0.4.8"])
     s.add_dependency(%q<bundler>, ["~> 1.0.12"])
     s.add_dependency(%q<jeweler>, ["~> 1.5.2"])
   end

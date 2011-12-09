@@ -59,7 +59,7 @@ Jeweler::Tasks.new do |gem|
     reject{|f| f =~ %r{^(cookbooks|site-cookbooks|meta-cookbooks|integration-cookbooks)} }.
     reject{|f| f =~ %r{^(certificates|clusters|config|data_bags|environments|roles|chefignore|deprecated|tasks)/} }.
     reject{|f| File.directory?(f) }.
-    reject{|f| ignores.any?{|i| File.fnmatch(i, f) || File.fnmatch(i+'/**/*', f) } }
+    reject{|f| ignores.any?{|i| File.fnmatch(i, f) || File.fnmatch(i+'/*', f) || File.fnmatch(i+'/**/*', f) } }
   gem.test_files = gem.files.grep(/^spec\//)
   gem.require_paths = ['lib']
 end

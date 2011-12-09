@@ -1,4 +1,4 @@
-require 'extlib/mash'
+require 'chef/mash'
 require 'gorillib/metaprogramming/class_attribute'
 require 'gorillib/hash/reverse_merge'
 require 'gorillib/object/blank'
