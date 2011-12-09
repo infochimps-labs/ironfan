@@ -23,7 +23,7 @@ module ClusterChef
     end
 
     def filename
-      File.join(Chef::Config.keypair_path, "#{name}.pem")
+      File.join(key_dir, "#{name}.pem")
     end
 
     def save
@@ -69,6 +69,10 @@ module ClusterChef
       end
       @body
     end
+
+    def key_dir
+      Chef::Config.client_key_dir || '/tmp/client_keys'
+    end
   end
 
   class Ec2Keypair < PrivateKey
@@ -90,6 +94,16 @@ module ClusterChef
       ClusterChef.fog_keypairs[name] = proxy
       self.body = proxy.private_key
       save
+    end
+
+    def key_dir
+      if Chef::Config.ec2_key_dir
+        return Chef::Config.ec2_key_dir
+      else
+        dir = "#{ENV['HOME']}/.chef/ec2_keys"
+        warn "Please set 'ec2_key_dir' in your knife.rb -- using #{dir} as a default"
+        dir
+      end
     end
   end
 

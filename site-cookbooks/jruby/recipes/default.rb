@@ -19,7 +19,7 @@
 # limitations under the License.
 #
 
-include_recipe "java::sun"
+include_recipe 'java'
 
 install_from_release('jruby') do
   release_url   node[:jruby][:release_url]

@@ -11,7 +11,7 @@
 # * client exists, node absent: FAIL.
 #
 # The current implementation persists the client keys locally to your
-# Chef::Config[:keypair_path].  This is insecure and unmanageable; and the
+# Chef::Config[:client_key_dir].  This is insecure and unmanageable; and the
 # node will shortly re-register the key, making it invalide anyway.
 #
 # If the client's private_key is empty/wrong and the node is absent, it will
@@ -148,7 +148,7 @@ module ClusterChef
     def chef_client_script_content
       return @chef_client_script_content if @chef_client_script_content
       return unless cloud.chef_client_script
-      script_filename = File.expand_path(cloud.chef_client_script, File.join(Chef::Config[:cluster_chef_path], 'config'))
+      script_filename = File.expand_path("../../config/#{cloud.chef_client_script}", File.dirname(__FILE__))
       @chef_client_script_content = safely{ File.read(script_filename) }
     end
 

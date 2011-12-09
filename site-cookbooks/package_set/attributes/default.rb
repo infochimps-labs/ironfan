@@ -47,15 +47,16 @@ default[:package_set][:install]          = %w[ base dev sysadmin ]
 # Package set definitions: related code assets installable as a group
 #
 
-default[:package_set][:pkgs][:base]      = %w[ tree git zip openssl ]
+default[:package_set][:pkgs][:base]      = %w[ tree git zip openssl wget curl runit runit-services libyaml-dev libxslt-dev ]
 default[:package_set][:gems][:base]      = %w[ bundler rake ]
 
 default[:package_set][:pkgs][:dev]       = %w[ emacs23-nox elinks colordiff ack exuberant-ctags ]
 default[:package_set][:gems][:dev]       = %w[
   activesupport activemodel extlib json yajl-ruby awesome_print addressable cheat
-  yard jeweler rspec  watchr pry configliere gorillib highline formatador choice rest-client wirble hirb ]
+  yard jeweler rspec  watchr pry configliere gorillib highline formatador choice rest-client wirble hirb
+  ]
 
-default[:package_set][:pkgs][:sysadmin]  = %w[ ifstat atop htop tree chkconfig sysstat nmap ]
+default[:package_set][:pkgs][:sysadmin]  = %w[ ifstat htop tree chkconfig sysstat nmap ]
 default[:package_set][:gems][:sysadmin]  = %w[]
 
 default[:package_set][:pkgs][:text]      = %w[ libidn11-dev libxml2-dev libxml2-utils libxslt1-dev tidy ]

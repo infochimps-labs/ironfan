@@ -143,7 +143,7 @@ module ClusterChef
 
     def node_attr(attr, required=nil)
       if required && (not node_info.has_key?(attr))
-        Chef::Log.warn "No definition for #{attr} in #{name} - set node[:#{sys}][:#{subsys}] or node[:#{sys}]\n#{caller[0..4].join("\n    ")}"
+        Chef::Log.warn "No definition for #{attr} in #{name} - set node[:#{sys}][:#{subsys}][#{attr.inspect}] or node[:#{sys}][#{attr.inspect}]\n#{caller[0..4].join("\n    ")}"
       end
       node_info[attr]
     end
