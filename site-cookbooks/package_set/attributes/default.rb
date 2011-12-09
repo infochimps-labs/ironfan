@@ -59,14 +59,14 @@ default[:package_set][:gems][:dev]       = %w[
 default[:package_set][:pkgs][:sysadmin]  = %w[ ifstat htop tree chkconfig sysstat nmap ]
 default[:package_set][:gems][:sysadmin]  = %w[]
 
-default[:package_set][:pkgs][:text]      = %w[ libidn11-dev libxml2-dev libxml2-utils libxslt1-dev tidy ]
+default[:package_set][:pkgs][:text]      = %w[ libidn11-dev libxml2-dev libxml2-utils libxslt-dev tidy ]
 default[:package_set][:gems][:text]      = %w[ nokogiri erubis i18n ]
 
 default[:package_set][:pkgs][:ec2]       = %w[ s3cmd ec2-ami-tools ec2-api-tools ]
-default[:package_set][:gems][:ec2]       = %w[ fog right_aws ]
+default[:package_set][:gems][:ec2]       = %w[ fog right_aws cluster_chef ]
 
-default[:package_set][:pkgs][:vagrant]   = %w[ ifstat htop tree chkconfig sysstat htop nmap ]
-default[:package_set][:gems][:vagrant]   = %w[ vagrant ]
+default[:package_set][:pkgs][:vagrant]   = %w[ ifstat htop tree chkconfig sysstat nmap ]
+default[:package_set][:gems][:vagrant]   = %w[ vagrant veewee cluster_chef ]
 
 default[:package_set][:pkgs][:python]    = %w[python-dev python-setuptools pythong-simplejson]
 
@@ -74,7 +74,6 @@ default[:package_set][:pkgs][:datatools] = %w[
   r-base r-base-dev x11-apps eog texlive-common texlive-binaries dvipng
   ghostscript latex libfreetype6 python-gtk2 python-gtk2-dev python-wxgtk2.8
 ]
-
 
 ruby_mode = (node[:languages][:ruby][:version] =~ /^1.9/ ? "ruby1.9.1-elisp" : "ruby") # rescue nil
 default[:package_set][:pkgs][:emacs]     = [ "emacs23-nox", "emacs23-el", "python-mode", ruby_mode, "org-mode" ].compact
