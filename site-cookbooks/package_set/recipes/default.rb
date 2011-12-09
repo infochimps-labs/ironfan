@@ -19,10 +19,10 @@
 # limitations under the License.
 #
 
-node[:package_sets][:install].map!(&:to_s)
+node[:package_set][:install].map!(&:to_s)
 
-node[:package_sets][:pkgs].each do |set_name, pkgs|
-  next unless node[:package_sets][:install].include?(set_name.to_s)
+node[:package_set][:pkgs].each do |set_name, pkgs|
+  next unless node[:package_set][:install].include?(set_name.to_s)
   pkgs.each do |pkg|
     pkg = { :name => pkg } if pkg.is_a?(String)
     package pkg[:name] do
@@ -34,8 +34,8 @@ node[:package_sets][:pkgs].each do |set_name, pkgs|
   end
 end
 
-node[:package_sets][:gems].each do |set_name, gems|
-  next unless node[:package_sets][:install].include?(set_name.to_s)
+node[:package_set][:gems].each do |set_name, gems|
+  next unless node[:package_set][:install].include?(set_name.to_s)
   gems.each do |gem|
     gem = { :name => gem } if gem.is_a?(String)
     gem_package gem[:name] do

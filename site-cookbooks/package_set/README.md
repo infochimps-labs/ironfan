@@ -21,48 +21,48 @@ Package sets provide
   
 ### Choosing package sets
 
-The package_sets attribute group defines what package sets to install, and the
+The package_set attribute group defines what package sets to install, and the
 contents of those package sets.
 
-Choose the package sets to install by setting `node[:package_sets][:install]`. The
+Choose the package sets to install by setting `node[:package_set][:install]`. The
 default is
 
-    default[:package_sets][:install] = %w[ base dev sysadmin ]
+    default[:package_set][:install] = %w[ base dev sysadmin ]
 
-Targets for `package` resource go in `node[:package_sets][:pkgs][{set_name}]`,
-targets for `gem_package` go in `node[:package_sets][:gems][{set_name}]`, and so
+Targets for `package` resource go in `node[:package_set][:pkgs][{set_name}]`,
+targets for `gem_package` go in `node[:package_set][:gems][{set_name}]`, and so
 forth. For instance, the 'base' group is defined as
 
-    default[:package_sets][:pkgs][:base] = %w[ tree git zip openssl ]
-    default[:package_sets][:gems][:base] = %w[ bundler rake ]
+    default[:package_set][:pkgs][:base] = %w[ tree git zip openssl ]
+    default[:package_set][:gems][:base] = %w[ bundler rake ]
 
 In your clusters file or a role, you can both specify which sets (if any) the
 machine installs, and modify (for that node or role only) what packages are
 in any given group.
 
-Defining package_sets is distributed -- anything can define a 'foo' group by
-setting `node[:package_sets][:pkgs][:foo]`, no need to modify this
+Defining package_set is distributed -- anything can define a 'foo' group by
+setting `node[:package_set][:pkgs][:foo]`, no need to modify this
 cookbook. Selecting *which* packages to install is however unambiguous -- you
-must expressly add the set 'foo' to your node[:package_sets][:install] attribute.
+must expressly add the set 'foo' to your node[:package_set][:install] attribute.
 
 ## Attributes
 
-* `[:package_sets][:install]`             - 
-* `[:package_sets][:pkgs][:base]`         - 
-* `[:package_sets][:pkgs][:dev]`          - 
-* `[:package_sets][:pkgs][:sysadmin]`     - 
-* `[:package_sets][:pkgs][:text]`         - 
-* `[:package_sets][:pkgs][:ec2]`          - 
-* `[:package_sets][:pkgs][:vagrant]`      - 
-* `[:package_sets][:pkgs][:python]`       - 
-* `[:package_sets][:pkgs][:datatools]`    - 
-* `[:package_sets][:pkgs][:emacs]`        - 
-* `[:package_sets][:gems][:base]`         - 
-* `[:package_sets][:gems][:dev]`          - 
-* `[:package_sets][:gems][:sysadmin]`     - 
-* `[:package_sets][:gems][:text]`         - 
-* `[:package_sets][:gems][:ec2]`          - 
-* `[:package_sets][:gems][:vagrant]`      - 
+* `[:package_set][:install]`             - 
+* `[:package_set][:pkgs][:base]`         - 
+* `[:package_set][:pkgs][:dev]`          - 
+* `[:package_set][:pkgs][:sysadmin]`     - 
+* `[:package_set][:pkgs][:text]`         - 
+* `[:package_set][:pkgs][:ec2]`          - 
+* `[:package_set][:pkgs][:vagrant]`      - 
+* `[:package_set][:pkgs][:python]`       - 
+* `[:package_set][:pkgs][:datatools]`    - 
+* `[:package_set][:pkgs][:emacs]`        - 
+* `[:package_set][:gems][:base]`         - 
+* `[:package_set][:gems][:dev]`          - 
+* `[:package_set][:gems][:sysadmin]`     - 
+* `[:package_set][:gems][:text]`         - 
+* `[:package_set][:gems][:ec2]`          - 
+* `[:package_set][:gems][:vagrant]`      - 
 
 ## Recipes 
 
