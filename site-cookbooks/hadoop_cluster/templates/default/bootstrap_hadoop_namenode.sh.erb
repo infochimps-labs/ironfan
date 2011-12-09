@@ -47,7 +47,7 @@ dfs_2nn_dirs="<%=      @hadoop[:secondarynn][:data_dirs].join(" ") %>"
 dfs_name_dir_root="<%= @hadoop[:namenode   ][:data_dirs].last      %>"
 hadoop_tmp_dir="<%=    @hadoop[:tmp_dir] %>"
 hadoop_log_dir="<%=    @hadoop[:log_dir] %>"
-namenode_daemon="<%= "#{@hadoop[:handle]}-namenode" %>"
+namenode_daemon="hadoop_namenode"
 sentinel="$hadoop_tmp_dir/made_initial_dirs.log"
 
 make_hadoop_dir_if_not_exists() {
@@ -71,7 +71,7 @@ for dir in $dfs_data_dirs $dfs_name_dirs $dfs_2nn_dirs ; do
   make_hadoop_dir_if_not_exists "$dir"
 done
 make_hadoop_dir_if_not_exists "$hadoop_tmp_dir" 777
-make_hadoop_dir_if_not_exists "$hadoop_log_dir" 775
+make_hadoop_dir_if_not_exists "$hadoop_log_dir" 777
 
 #
 echo "Stopping the $namenode_daemon daemon" ; echo -n "  "
@@ -129,5 +129,5 @@ fi
 echo
 echo "Success! you can start the rest of the daemons now by running:"
 echo
-echo '  for foo in datanode secondarynamenode tasktracker jobtracker ; do echo $foo ; sudo service hadoop-0.20-$foo start ; done'
+echo '  for foo in datanode secondarynamenode tasktracker jobtracker ; do echo $foo ; sudo service hadoop_$foo start ; done'
 echo
