@@ -4,7 +4,6 @@ module ClusterChef
   module KnifeCommon
 
     def self.load_deps
-      require 'highline'
       require 'readline'
       require 'formatador'
       require 'chef/node'
@@ -167,10 +166,6 @@ module ClusterChef
     def section(desc, *style)
       style = [:blue] if style.empty?
       ui.info(ui.color(desc, *style))
-    end
-
-    def h
-      @highline ||= HighLine.new
     end
 
     def die *args
