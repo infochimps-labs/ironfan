@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Infochimps"]
-  s.date = "2011-12-09"
+  s.date = "2011-12-10"
   s.description = "cluster_chef allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
   s.email = "coders@infochimps.com"
   s.extra_rdoc_files = [
@@ -27,6 +27,7 @@ Gem::Specification.new do |s|
     "TODO.md",
     "VERSION",
     "chefignore",
+    "cluster_chef-knife.gemspec",
     "cluster_chef.gemspec",
     "lib/chef/knife/bootstrap/ubuntu10.04-basic.erb",
     "lib/chef/knife/bootstrap/ubuntu10.04-cluster_chef.erb",
@@ -77,6 +78,7 @@ Gem::Specification.new do |s|
   ]
   s.homepage = "http://infochimps.com/labs"
   s.licenses = ["apachev2"]
+  s.post_install_message = "==========================================================================\n\n!WARNING!\n\nDue to a bug in chef, knife won't load plugins whose name ends in 'chef'.\n\nPlease uninstall this gem and instead gem install cluster_chef-knife\n\n==========================================================================\n\n"
   s.require_paths = ["lib"]
   s.rubygems_version = "1.8.11"
   s.summary = "cluster_chef allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."

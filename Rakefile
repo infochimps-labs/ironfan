@@ -1,5 +1,5 @@
 #
-# Rakefile for Chef Server Repository
+# Rakefile for Cluster Chef Knife plugins
 #
 # Author::    Adam Jacob (<adam@opscode.com>)
 # Copyright:: Copyright (c) 2008 Opscode, Inc.
@@ -41,8 +41,7 @@ require File.join(File.dirname(__FILE__), 'config', 'rake')
 # Jeweler -- release cluster_chef as a gem
 #
 Jeweler::Tasks.new do |gem|
-  # gem is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
-  gem.name        = "cluster_chef"
+  gem.name        = ENV['CLUSTER_CHEF_NAME'] || "cluster_chef-knife"
   gem.homepage    = "http://infochimps.com/labs"
   gem.license     = NEW_COOKBOOK_LICENSE.to_s
   gem.summary     = %Q{cluster_chef allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks.}
@@ -62,6 +61,21 @@ Jeweler::Tasks.new do |gem|
     reject{|f| ignores.any?{|i| File.fnmatch(i, f) || File.fnmatch(i+'/*', f) || File.fnmatch(i+'/**/*', f) } }
   gem.test_files = gem.files.grep(/^spec\//)
   gem.require_paths = ['lib']
+
+  if gem.name == 'cluster_chef'
+    gem.post_install_message = <<-EOM
+==========================================================================
+
+!WARNING!
+
+Due to a bug in chef, knife won't load plugins whose name ends in 'chef'.
+
+Please uninstall this gem and instead gem install cluster_chef-knife
+
+==========================================================================
+
+EOM
+    end
 end
 Jeweler::RubygemsDotOrgTasks.new
 

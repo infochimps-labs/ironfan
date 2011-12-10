@@ -153,9 +153,9 @@ module ClusterChef
       self.class.sub_command
     end
 
-    def confirm_or_exit str
-      response = STDIN.readline
-      unless response.chomp == str
+    def confirm_or_exit question, correct_answer
+      response = ui.ask_question(question)
+      unless response.chomp == correct_answer
         die "I didn't think so.", "Aborting!", 1
       end
       ui.info("")

@@ -65,8 +65,7 @@ class Chef
         delete_message = [
           (((!config[:chef])   || target.chef_nodes.empty?)  ? nil : "#{target.chef_nodes.length} chef nodes"),
           (((!config[:cloud])  || target.fog_servers.empty?) ? nil : "#{target.fog_servers.length} fog servers") ].compact.join(" and ")
-        ui.info "Are you absolutely certain that you want to delete #{delete_message}? (Type 'Yes' to confirm)"
-        confirm_or_exit('Yes')
+        confirm_or_exit("Are you absolutely certain that you want to delete #{delete_message}? (Type 'Yes' to confirm) ", 'Yes')
       end
 
     end

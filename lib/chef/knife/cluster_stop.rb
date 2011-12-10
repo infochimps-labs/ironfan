@@ -30,8 +30,7 @@ class Chef
       def confirm_execution(target)
         ui.info "  Unless these nodes are backed by EBS volumes, this will result in loss of all data"
         ui.info "  not saved elsewhere. Even if they are EBS backed, there may still be some data loss."
-        ui.info "  Are you absolutely certain that you want to perform this action? (Type 'Yes' to confirm)"
-        confirm_or_exit('Yes')
+        confirm_or_exit("Are you absolutely certain that you want to perform this action? (Type 'Yes' to confirm) ", 'Yes')
       end
     end
   end
