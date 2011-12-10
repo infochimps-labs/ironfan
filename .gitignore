@@ -48,3 +48,4 @@ metadata.json
 .chef
 *.pem
 .rvmrc
+vendor/*

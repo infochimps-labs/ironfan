@@ -1,13 +1,26 @@
+require 'rubygems' unless defined?(Gem)
+require 'bundler'
+# begin
+#   Bundler.setup(:default, :development)
+# rescue Bundler::BundlerError => e
+#   $stderr.puts e.message
+#   $stderr.puts "Run `bundle install` to install missing gems"
+#   exit e.status_code
+# end
 require 'spork'
-require 'rspec'
 
-Spork.prefork do
-  # This code is run only once when the spork server is started
-  CLUSTER_CHEF_DIR = File.expand_path(File.dirname(__FILE__)+'/..') unless defined?(CLUSTER_CHEF_DIR)
+unless defined?(CLUSTER_CHEF_DIR)
+  CLUSTER_CHEF_DIR = File.expand_path(File.dirname(__FILE__)+'/..')
   def CLUSTER_CHEF_DIR(*paths) File.join(CLUSTER_CHEF_DIR, *paths); end
+  # load from vendored libraries, if present
+  Dir[CLUSTER_CHEF_DIR("vendor/*/lib")].each{|dir| p dir ;  $LOAD_PATH.unshift(File.expand_path(dir)) } ; $LOAD_PATH.uniq!
+end
 
-  $:.unshift('/Users/flip/ics/repos/chef/chef/lib')
+Spork.prefork do # This code is run only once when the spork server is started
+
+  require 'rspec'
   require 'chef'
+  require 'chef/knife'
   require 'fog'
 
   Fog.mock!
@@ -16,8 +29,8 @@ Spork.prefork do
   CHEF_CONFIG_FILE = File.expand_path(CLUSTER_CHEF_DIR('spec/test_config.rb')) unless defined?(CHEF_CONFIG_FILE)
   Chef::Config.from_file(CHEF_CONFIG_FILE)
 
-  # Requires custom matchers & macros, etc from files in ./support/ & subdirs
-  Dir[CLUSTER_CHEF_DIR("spec/support/**/*.rb")].each {|f| require f}
+  # Requires custom matchers & macros, etc from files in ./spec_helper/
+  Dir[CLUSTER_CHEF_DIR("spec/spec_helper/*.rb")].each {|f| require f}
 
   def load_example_cluster(name)
     require(CLUSTER_CHEF_DIR('clusters', "#{name}.rb"))
