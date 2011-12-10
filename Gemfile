@@ -13,9 +13,6 @@ group :development do
   gem 'jeweler',     "~> 1.6.4"
   gem 'rspec',       "~> 2.7.0"
   gem 'configliere', "~> 0.4.8"
-end
-
-group :test do
   gem 'spork',       "~> 0.9.0.rc5"
   gem 'watchr',      "~> 0.7"
 end

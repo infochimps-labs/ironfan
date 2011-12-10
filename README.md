@@ -87,7 +87,7 @@ The commands available are
 Let's say that app is truly awesome, and the features and demand increases. This cluster adds an [ElasticSearch server](http://elasticsearch.org) for searching, a haproxy loadbalancer, and spreads the webnodes across two availability zones.
 
 ```ruby
-ClusterChef.cluster 'demoweb' do
+ClusterChef.cluster 'webserver_demo' do
   cloud(:ec2) do
     image_name          "maverick"
     flavor              "t1.micro"

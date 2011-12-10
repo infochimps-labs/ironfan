@@ -29,7 +29,6 @@ rescue Bundler::BundlerError => e
 end
 require 'json'
 require 'jeweler'
-require 'rspec/core'
 require 'rspec/core/rake_task'
 require 'yard'
 
@@ -49,33 +48,20 @@ Jeweler::Tasks.new do |gem|
   gem.email       = SSL_EMAIL_ADDRESS
   gem.authors     = ["Infochimps"]
 
-  gem.add_development_dependency 'bundler', "~> 1.0.12"
-  gem.add_development_dependency 'jeweler', "~> 1.5.2"
-
   ignores = File.readlines(".gitignore").grep(/^[^#]\S+/).map{|s| s.chomp }
   dotfiles = [".gemtest", ".gitignore", ".rspec", ".yardopts"]
   gem.files = dotfiles + Dir["**/*"].
-    reject{|f| f =~ %r{^(cookbooks|site-cookbooks|meta-cookbooks|integration-cookbooks)} }.
-    reject{|f| f =~ %r{^(certificates|clusters|config|data_bags|environments|roles|chefignore|deprecated|tasks)/} }.
+    reject{|f| f =~ %r{^cookbooks/} }.
     reject{|f| File.directory?(f) }.
     reject{|f| ignores.any?{|i| File.fnmatch(i, f) || File.fnmatch(i+'/*', f) || File.fnmatch(i+'/**/*', f) } }
   gem.test_files = gem.files.grep(/^spec\//)
   gem.require_paths = ['lib']
 
   if gem.name == 'cluster_chef'
-    gem.post_install_message = <<-EOM
-==========================================================================
-
-!WARNING!
-
-Due to a bug in chef, knife won't load plugins whose name ends in 'chef'.
-
-Please uninstall this gem and instead gem install cluster_chef-knife
-
-==========================================================================
-
-EOM
-    end
+    gem.files.reject!{|f| f =~ %r{^(cluster_chef-knife.gemspec|lib/chef/knife/)} }
+  else
+    gem.files.reject!{|f| f =~ %r{^(cluster_chef.gemspec|lib/cluster_chef)} }
+  end
 end
 Jeweler::RubygemsDotOrgTasks.new
 

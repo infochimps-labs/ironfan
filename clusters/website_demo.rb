@@ -1,4 +1,4 @@
-ClusterChef.cluster 'demoweb' do
+ClusterChef.cluster 'webserver_demo' do
   cloud :ec2 do
     defaults
     availability_zones ['us-east-1d']

@@ -23,7 +23,7 @@ describe ClusterChef::Server do
     foo = ClusterChef::Server.new(ClusterChef::Facet.new(ClusterChef::Cluster.new('hi'),'there'),0)
     puts foo.inspect
     puts foo.chef_node
-    @cluster = get_example_cluster('demoweb')
+    @cluster = get_example_cluster('webserver_demo')
     @cluster.resolve!
     @facet   = @cluster.facet(:dbnode)
     @server  = @facet.server(0)
@@ -81,9 +81,9 @@ describe ClusterChef::Server do
         hsh.should == {
           :image_id             => "ami-08f40561",
           :flavor_id            => "m1.large",
-          :groups               => ["demoweb-redis_client", "demoweb-dbnode", "default", "ssh", "nfs_client", "demoweb"],
-          :key_name             => :demoweb,
-          :tags                 => {:cluster=>:demoweb, :facet=>:dbnode, :index=>0},
+          :groups               => ["webserver_demo-redis_client", "webserver_demo-dbnode", "default", "ssh", "nfs_client", "webserver_demo"],
+          :key_name             => :webserver_demo,
+          :tags                 => {:cluster=>:webserver_demo, :facet=>:dbnode, :index=>0},
           :block_device_mapping => [
             {"DeviceName"=>"/dev/sdi", "Ebs.SnapshotId"=>"snap-d9c1edb1", "Ebs.VolumeSize"=>50, "Ebs.DeleteOnTermination"=>"false"},
             {"DeviceName"=>"/dev/sdb", "VirtualName"=>"ephemeral0"},
