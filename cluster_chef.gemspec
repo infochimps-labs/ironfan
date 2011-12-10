@@ -28,7 +28,7 @@ Gem::Specification.new do |s|
     "VERSION",
     "chefignore",
     "cluster_chef.gemspec",
-    "clusters/demoweb.rb",
+    "clusters/website_demo.rb",
     "config/client.rb",
     "config/rake.rb",
     "lib/cluster_chef.rb",
