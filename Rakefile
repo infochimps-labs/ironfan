@@ -33,7 +33,7 @@ require 'rspec/core/rake_task'
 require 'yard'
 
 # Load constants from rake config file.
-Dir[File.join(File.dirname(__FILE__), 'tasks', '*.rb')].sort.each{|f| p f ; require f }
+Dir[File.join(File.dirname(__FILE__), 'tasks', '*.rb')].sort.each{|f| require f }
 
 $jeweler_push_from_branch = 'version_3'
 
@@ -41,31 +41,33 @@ $jeweler_push_from_branch = 'version_3'
 #
 # Jeweler -- release cluster_chef as a gem
 #
-Jeweler::Tasks.new do |gem|
-  gem.name        = ENV['CLUSTER_CHEF_NAME'] || "cluster_chef-knife"
-  gem.homepage    = "http://infochimps.com/labs"
-  gem.license     = NEW_COOKBOOK_LICENSE.to_s
-  gem.summary     = %Q{cluster_chef allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks.}
-  gem.description = %Q{cluster_chef allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks.}
-  gem.email       = SSL_EMAIL_ADDRESS
-  gem.authors     = ["Infochimps"]
+%w[ cluster_chef cluster_chef-knife ].each do |gem_name|
+  Jeweler::Tasks.new do |gem|
+    gem.name        = gem_name
+    gem.homepage    = "http://infochimps.com/labs"
+    gem.license     = NEW_COOKBOOK_LICENSE.to_s
+    gem.summary     = %Q{cluster_chef allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks.}
+    gem.description = %Q{cluster_chef allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks.}
+    gem.email       = SSL_EMAIL_ADDRESS
+    gem.authors     = ["Infochimps"]
 
-  ignores = File.readlines(".gitignore").grep(/^[^#]\S+/).map{|s| s.chomp }
-  dotfiles = [".gemtest", ".gitignore", ".rspec", ".yardopts"]
-  gem.files = dotfiles + Dir["**/*"].
-    reject{|f| f =~ %r{^cookbooks/} }.
-    reject{|f| File.directory?(f) }.
-    reject{|f| ignores.any?{|i| File.fnmatch(i, f) || File.fnmatch(i+'/*', f) || File.fnmatch(i+'/**/*', f) } }
-  gem.test_files = gem.files.grep(/^spec\//)
-  gem.require_paths = ['lib']
+    ignores = File.readlines(".gitignore").grep(/^[^#]\S+/).map{|s| s.chomp }
+    dotfiles = [".gemtest", ".gitignore", ".rspec", ".yardopts"]
+    gem.files = dotfiles + Dir["**/*"].
+      reject{|f| f =~ %r{^cookbooks/} }.
+      reject{|f| File.directory?(f) }.
+      reject{|f| ignores.any?{|i| File.fnmatch(i, f) || File.fnmatch(i+'/*', f) || File.fnmatch(i+'/**/*', f) } }
+    gem.test_files = gem.files.grep(/^spec\//)
+    gem.require_paths = ['lib']
 
-  if gem.name == 'cluster_chef'
-    gem.files.reject!{|f| f =~ %r{^(cluster_chef-knife.gemspec|lib/chef/knife/)} }
-  else
-    gem.files.reject!{|f| f =~ %r{^(cluster_chef.gemspec|lib/cluster_chef)} }
+    if gem.name == 'cluster_chef'
+      gem.files.reject!{|f| f =~ %r{^(cluster_chef-knife.gemspec|lib/chef/knife/)} }
+    else
+      gem.files.reject!{|f| f =~ %r{^(cluster_chef.gemspec|lib/cluster_chef)} }
+    end
   end
+  Jeweler::RubygemsDotOrgTasks.new
 end
-Jeweler::RubygemsDotOrgTasks.new
 
 # ---------------------------------------------------------------------------
 #

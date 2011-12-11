@@ -27,7 +27,6 @@ Gem::Specification.new do |s|
     "TODO.md",
     "VERSION",
     "chefignore",
-    "cluster_chef-knife.gemspec",
     "clusters/website_demo.rb",
     "config/client.rb",
     "lib/chef/knife/bootstrap/ubuntu10.04-basic.erb",

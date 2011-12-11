@@ -27,7 +27,6 @@ Gem::Specification.new do |s|
     "TODO.md",
     "VERSION",
     "chefignore",
-    "cluster_chef.gemspec",
     "clusters/website_demo.rb",
     "config/client.rb",
     "lib/cluster_chef.rb",
