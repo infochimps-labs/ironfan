@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "cluster_chef-knife"
-  s.version = "3.0.4"
+  s.version = "3.0.5"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Infochimps"]
-  s.date = "2011-12-10"
+  s.date = "2011-12-11"
   s.description = "cluster_chef allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
   s.email = "coders@infochimps.com"
   s.extra_rdoc_files = [
@@ -30,7 +30,6 @@ Gem::Specification.new do |s|
     "cluster_chef-knife.gemspec",
     "clusters/website_demo.rb",
     "config/client.rb",
-    "config/rake.rb",
     "lib/chef/knife/bootstrap/ubuntu10.04-basic.erb",
     "lib/chef/knife/bootstrap/ubuntu10.04-cluster_chef.erb",
     "lib/chef/knife/bootstrap/ubuntu11.10-cluster_chef.erb",
@@ -56,7 +55,9 @@ Gem::Specification.new do |s|
     "spec/cluster_chef_spec.rb",
     "spec/spec_helper.rb",
     "spec/spec_helper/dummy_chef.rb",
-    "spec/test_config.rb"
+    "spec/test_config.rb",
+    "tasks/chef_config.rb",
+    "tasks/jeweler_use_alt_branch.rb"
   ]
   s.homepage = "http://infochimps.com/labs"
   s.licenses = ["apachev2"]
