@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = "cluster_chef-knife"
-  s.version = "3.0.5"
+  s.version = "3.0.6"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Infochimps"]
@@ -27,6 +27,7 @@ Gem::Specification.new do |s|
     "TODO.md",
     "VERSION",
     "chefignore",
+    "cluster_chef-knife.gemspec",
     "clusters/website_demo.rb",
     "config/client.rb",
     "lib/chef/knife/bootstrap/ubuntu10.04-basic.erb",
