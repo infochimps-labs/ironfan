@@ -33,7 +33,9 @@ require 'rspec/core/rake_task'
 require 'yard'
 
 # Load constants from rake config file.
-require File.join(File.dirname(__FILE__), 'config', 'rake')
+Dir[File.join(File.dirname(__FILE__), 'tasks', '*.rb')].sort.each{|f| p f ; require f }
+
+$jeweler_push_from_branch = 'version_3'
 
 # ---------------------------------------------------------------------------
 #
