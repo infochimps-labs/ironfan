@@ -12,7 +12,7 @@ depends          "runit"
 
 depends          "volumes"
 depends          "tuning"
-depends          "cluster_chef"
+depends          "metachef"
 depends          "dashpot"
 
 recipe           "hadoop_cluster::default",            "Base configuration for hadoop_cluster"

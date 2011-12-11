@@ -8,7 +8,7 @@ description      "Addon to the volumes cookbook: Attach and mount EBS volumes on
 
 depends          "aws"
 depends          "volumes"
-depends          "cluster_chef"
+depends          "metachef"
 
 recipe           "volumes_ec2::default",               "Placeholder cookbook"
 recipe           "volumes_ec2::attach_ebs",            "Attach EBS volumes as directed by node[:volumes]"

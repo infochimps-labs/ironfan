@@ -8,7 +8,7 @@ Installs and configures the Cassandra distributed storage system
 
 Cookbook based on Benjamin Black's (<b@b3k.us>) -- original at http://github.com/b/cookbooks/tree/cassandra/cassandra/
 
-Modified to use `cluster_chef` discovery and options preparation.
+Modified to use `metachef` discovery and options preparation.
 
 ## Attributes
 
@@ -117,7 +117,7 @@ Cookbook dependencies:
 * thrift
 * volumes
 * provides_service
-* cluster_chef
+* metachef
 * iptables
 
 

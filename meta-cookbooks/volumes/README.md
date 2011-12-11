@@ -215,7 +215,7 @@ Besides creating the directory, we store the calculated path into
 Supports platforms: debian and ubuntu
 
 Cookbook dependencies:
-* cluster_chef
+* metachef
 
 
 ## License and Author

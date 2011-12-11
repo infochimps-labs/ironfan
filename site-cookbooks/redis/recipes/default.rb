@@ -19,7 +19,7 @@
 # limitations under the License.
 #
 
-include_recipe 'cluster_chef'
+include_recipe 'metachef'
 
 standard_dirs('redis.server') do
   directories   :conf_dir

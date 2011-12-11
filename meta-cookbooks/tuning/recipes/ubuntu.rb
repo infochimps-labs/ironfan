@@ -1,5 +1,5 @@
 #
-# Cookbook Name::       cluster_chef
+# Cookbook Name::       metachef
 # Description::         Dedicated Server Tuning
 # Recipe::              ubuntu
 # Author::              Philip (flip) Kromer - Infochimps, Inc

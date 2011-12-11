@@ -1,6 +1,6 @@
 #
 # Author:: Philip (flip) Kromer for Infochimps.org
-# Cookbook Name:: cluster_chef
+# Cookbook Name:: metachef
 # Library:: node_utils
 #
 # Description::
@@ -56,7 +56,7 @@ module ClusterChef
     def self.timestamp
       Time.now.utc.strftime("%Y%m%d%H%M%SZ")
     end
-    
+
     #
     # Saving node
     #

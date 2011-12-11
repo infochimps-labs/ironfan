@@ -11,7 +11,7 @@ depends          "apt"
 depends          "runit"
 
 depends          "volumes"
-depends          "cluster_chef"
+depends          "metachef"
 
 recipe           "flume::default",                     "Base configuration for flume"
 recipe           "flume::hbase_sink_plugin",           "Hbase Sink Plugin"

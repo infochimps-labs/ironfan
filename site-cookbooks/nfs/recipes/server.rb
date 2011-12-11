@@ -1,6 +1,6 @@
 #
 # Cookbook Name::       nfs
-# Description::         NFS server: exports directories via NFS; announces using cluster_chef discovery.
+# Description::         NFS server: exports directories via NFS; announces using metachef discovery.
 # Recipe::              server
 # Author::              37signals
 #

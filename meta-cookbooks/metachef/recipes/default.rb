@@ -1,6 +1,6 @@
 #
-# Cookbook Name::       cluster_chef
-# Description::         Base configuration for cluster_chef
+# Cookbook Name::       metachef
+# Description::         Base configuration for metachef
 # Recipe::              default
 # Author::              Philip (flip) Kromer
 #

@@ -1,6 +1,6 @@
-# cluster_chef chef cookbook
+# metachef chef cookbook
 
-Installs/Configures cluster_chef
+Installs/Configures metachef
 
 ## Overview
 
@@ -65,19 +65,19 @@ Nodes register a service by calling `announce`, which sets a hash containing
 * `[:tuning][:overcommit_memory]` -  (default: "1")
 * `[:tuning][:overcommit_ratio]` -  (default: "100")
 * `[:tuning][:swappiness]`     -  (default: "5")
-* `[:cluster_chef][:conf_dir]`        -  (default: "/etc/cluster_chef")
-* `[:cluster_chef][:log_dir]`         -  (default: "/var/log/cluster_chef")
-* `[:cluster_chef][:home_dir]`        -  (default: "/etc/cluster_chef")
-* `[:cluster_chef][:user]`            -  (default: "root")
-* `[:cluster_chef][:thttpd][:port]`   -  (default: "6789")
-* `[:cluster_chef][:dashboard][:run_state]` -  (default: "start")
+* `[:metachef][:conf_dir]`        -  (default: "/etc/metachef")
+* `[:metachef][:log_dir]`         -  (default: "/var/log/metachef")
+* `[:metachef][:home_dir]`        -  (default: "/etc/metachef")
+* `[:metachef][:user]`            -  (default: "root")
+* `[:metachef][:thttpd][:port]`   -  (default: "6789")
+* `[:metachef][:dashboard][:run_state]` -  (default: "start")
 * `[:users][:root][:primary_group]`   -  (default: "root")
 
 ## Recipes 
 
 * `burn_ami_prep`            - Burn Ami Prep
 * `dashboard`                - Lightweight dashboard for this machine: index of services and their dashboard snippets
-* `default`                  - Base configuration for cluster_chef
+* `default`                  - Base configuration for metachef
 * `virtualbox_metadata`      - Virtualbox Metadata
 ## Integration
 

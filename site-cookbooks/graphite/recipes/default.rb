@@ -20,7 +20,7 @@
 #
 
 include_recipe "python"
-include_recipe 'cluster_chef'
+include_recipe 'metachef'
 
 daemon_user(:graphite)
 

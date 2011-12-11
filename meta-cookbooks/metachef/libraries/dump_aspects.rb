@@ -7,7 +7,7 @@ module ClusterChef
         [:cassandra,      :server],
         [:chef_client,    :client],
         # [:dash_dash,    :dashboard],
-        [:cluster_chef,   :dashboard],
+        [:metachef,   :dashboard],
         [:cron,           :daemon],
         [:elasticsearch,  :datanode],
         [:elasticsearch,  :httpnode],

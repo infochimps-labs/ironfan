@@ -9,7 +9,7 @@ description      "Statsd, a non-blocking proxy to graphite: counting and timing 
 depends          "runit"
 depends          "nodejs"
 depends          "graphite"
-depends          "cluster_chef"
+depends          "metachef"
 
 recipe           "statsd::default",                    "Base configuration for statsd"
 recipe           "statsd::server",                     "Server"

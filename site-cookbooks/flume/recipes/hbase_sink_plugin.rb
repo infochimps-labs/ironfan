@@ -19,7 +19,7 @@
 # limitations under the License.
 #
 
-include_recipe 'cluster_chef'
+include_recipe 'metachef'
 
 cookbook_file "/usr/lib/flume/plugins/hbase-sink.jar" do
   source "hbase-sink.jar"

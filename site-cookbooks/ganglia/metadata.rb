@@ -10,7 +10,7 @@ depends          "java"
 depends          "runit"
 
 depends          "volumes"
-depends          "cluster_chef"
+depends          "metachef"
 
 recipe           "ganglia::default",                   "Base configuration for ganglia"
 recipe           "ganglia::server",                    "Ganglia server -- contact point for all ganglia_monitors"

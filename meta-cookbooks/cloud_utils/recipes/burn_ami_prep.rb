@@ -1,5 +1,5 @@
 #
-# Cookbook Name::       cluster_chef
+# Cookbook Name::       cloud_utils
 # Description::         Burn Ami Prep
 # Recipe::              burn_ami_prep
 # Author::              Philip (flip) Kromer - Infochimps, Inc

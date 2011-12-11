@@ -33,7 +33,7 @@ Supports platforms: debian and ubuntu
 Cookbook dependencies:
 * java
 * runit
-* cluster_chef
+* metachef
 
 
 ## License and Author

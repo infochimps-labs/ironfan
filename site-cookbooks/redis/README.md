@@ -59,7 +59,7 @@ Supports platforms: debian and ubuntu
 Cookbook dependencies:
 * runit
 * install_from
-* cluster_chef
+* metachef
 
 
 ## License and Author

@@ -11,7 +11,7 @@ depends          "apt"
 depends          "runit"
 
 depends          "volumes"
-depends          "cluster_chef"
+depends          "metachef"
 
 recipe           "zookeeper::client",                  "Installs Zookeeper client libraries"
 recipe           "zookeeper::default",                 "Base configuration for zookeeper"

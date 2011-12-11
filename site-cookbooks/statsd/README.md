@@ -36,7 +36,7 @@ Cookbook dependencies:
 * runit
 * nodejs
 * graphite
-* cluster_chef
+* metachef
 
 
 ## License and Author

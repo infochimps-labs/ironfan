@@ -27,7 +27,7 @@ Supports platforms: debian and ubuntu
 Cookbook dependencies:
 * aws
 * volumes
-* cluster_chef
+* metachef
 
 
 ## License and Author

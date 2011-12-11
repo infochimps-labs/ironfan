@@ -6,28 +6,28 @@ version          "3.0.3"
 
 description      "Cluster orchestration -- coordinates discovery, integration and decoupling of cookbooks"
 
-recipe           "cluster_chef::default",              "Base configuration for cluster_chef"
+recipe           "metachef::default",              "Base configuration for metachef"
 
 %w[ debian ubuntu ].each do |os|
   supports os
 end
 
-attribute "cluster_chef/conf_dir",
+attribute "metachef/conf_dir",
   :display_name          => "",
   :description           => "",
-  :default               => "/etc/cluster_chef"
+  :default               => "/etc/metachef"
 
-attribute "cluster_chef/log_dir",
+attribute "metachef/log_dir",
   :display_name          => "",
   :description           => "",
-  :default               => "/var/log/cluster_chef"
+  :default               => "/var/log/metachef"
 
-attribute "cluster_chef/home_dir",
+attribute "metachef/home_dir",
   :display_name          => "",
   :description           => "",
-  :default               => "/etc/cluster_chef"
+  :default               => "/etc/metachef"
 
-attribute "cluster_chef/user",
+attribute "metachef/user",
   :display_name          => "",
   :description           => "",
   :default               => "root"

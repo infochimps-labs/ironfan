@@ -19,7 +19,7 @@
 # limitations under the License.
 #
 
-include_recipe  'cluster_chef'
+include_recipe  'metachef'
 
 standard_dirs(:dashpot) do
   directories  :home_dir, :log_dir, :conf_dir

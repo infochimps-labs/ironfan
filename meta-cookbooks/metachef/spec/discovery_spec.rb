@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
-require CLUSTER_CHEF_DIR("libraries/cluster_chef")
-require CLUSTER_CHEF_DIR("libraries/aspects")
+require METACHEF_DIR("libraries/metachef")
+require METACHEF_DIR("libraries/aspects")
 
 describe ClusterChef::Discovery do
   include_context 'dummy_chef'
@@ -108,7 +108,7 @@ describe ClusterChef::Discovery do
   end
 
   it 'loads the node from its fixture' do
-    node_json.keys.sort.should == ["apt", "apt_cacher", "aws", "block_device", "chef_environment", "chef_packages", "chef_server", "chef_type", "cloud", "cluster_chef", "cluster_name", "cluster_size", "command", "cpu", "current_user", "discovery", "dmi", "domain", "end", "etc", "facet_index", "facet_name", "filesystem", "firewall", "flume", "fqdn", "ganglia", "groups", "hadoop", "hbase", "hostname", "install_from", "ipaddress", "java", "jruby", "kernel", "languages", "lsb", "macaddress", "memory", "mountable_volumes", "name", "network", "nfs", "node_name", "nodejs", "ntp", "os", "os_version", "pig", "pkg_sets", "platform", "platform_version", "python", "recipes", "redis", "resque", "rstats", "run_list", "runit", "server_tuning", "tags", "thrift", "users", "value_for_platform", "virtualbox", "virtualization", "zookeeper"]
+    node_json.keys.sort.should == ["apt", "apt_cacher", "aws", "block_device", "chef_environment", "chef_packages", "chef_server", "chef_type", "cloud", "metachef", "cluster_name", "cluster_size", "command", "cpu", "current_user", "discovery", "dmi", "domain", "end", "etc", "facet_index", "facet_name", "filesystem", "firewall", "flume", "fqdn", "ganglia", "groups", "hadoop", "hbase", "hostname", "install_from", "ipaddress", "java", "jruby", "kernel", "languages", "lsb", "macaddress", "memory", "mountable_volumes", "name", "network", "nfs", "node_name", "nodejs", "ntp", "os", "os_version", "pig", "pkg_sets", "platform", "platform_version", "python", "recipes", "redis", "resque", "rstats", "run_list", "runit", "server_tuning", "tags", "thrift", "users", "value_for_platform", "virtualbox", "virtualization", "zookeeper"]
     chef_node.name.should == 'el_ridiculoso-aqui-0'
     chef_node[:cloud][:public_ipv4].should == "10.0.2.15"
   end

@@ -28,7 +28,7 @@ From the client machine,
   - Describes the volumes to export. Supply a list of pairs: <path-to-export, hash-of-NFS-options>. For example, 
      default[:nfs][:exports] = [[ '/home', { :nfs_options => '*.internal(rw,no_root_squash,no_subtree_check)' }]]
 * `[:nfs][:mounts]`                   - NFS Mounts
-  - The foreign volumes to mount. Uses cluster_chef to find the NFS server for that volume. Supply a list of pairs: <path-to-export, hash-of-NFS-options>.
+  - The foreign volumes to mount. Uses metachef to find the NFS server for that volume. Supply a list of pairs: <path-to-export, hash-of-NFS-options>.
 * `[:firewall][:port_scan][:portmap]` - 
 * `[:firewall][:port_scan][:nfsd]`    - 
 * `[:firewall][:port_scan][:mountd]`  - 
@@ -36,7 +36,7 @@ From the client machine,
 
 ## Recipes 
 
-* `client`                   - NFS client: uses cluster_chef discovery to find its server, and mounts the corresponding NFS directory
+* `client`                   - NFS client: uses metachef discovery to find its server, and mounts the corresponding NFS directory
 * `default`                  - Base configuration for nfs
 * `server`                   - NFS server: exports directories via NFS; announces using provides_service.
 ## Integration

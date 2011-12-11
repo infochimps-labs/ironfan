@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
-require CLUSTER_CHEF_DIR("libraries/cluster_chef")
-require CLUSTER_CHEF_DIR("libraries/aspects")
+require METACHEF_DIR("libraries/metachef")
+require METACHEF_DIR("libraries/aspects")
 
 describe 'aspect' do
   include_context 'dummy_chef'

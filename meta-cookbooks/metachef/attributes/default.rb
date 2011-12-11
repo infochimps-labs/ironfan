@@ -1,9 +1,9 @@
 
-default[:cluster_chef][:conf_dir] = '/etc/cluster_chef'
-default[:cluster_chef][:log_dir]  = '/var/log/cluster_chef'
-default[:cluster_chef][:home_dir] = '/etc/cluster_chef'
+default[:metachef][:conf_dir] = '/etc/metachef'
+default[:metachef][:log_dir]  = '/var/log/metachef'
+default[:metachef][:home_dir] = '/etc/metachef'
 
-default[:cluster_chef][:user]     = 'root'
+default[:metachef][:user]     = 'root'
 
 # Request user account properties here.
 default[:users]['root'][:primary_group] = value_for_platform(

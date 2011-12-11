@@ -135,7 +135,7 @@ Cookbook dependencies:
 * apt
 * runit
 * volumes
-* cluster_chef
+* metachef
 
 
 ## License and Author

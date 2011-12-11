@@ -19,7 +19,7 @@
 # limitations under the License.
 #
 
-include_recipe "cluster_chef"
+include_recipe "metachef"
 
 include_recipe "java::sun"
 include_recipe "apt"

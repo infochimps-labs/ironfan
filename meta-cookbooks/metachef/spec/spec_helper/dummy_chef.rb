@@ -1,5 +1,5 @@
-require CLUSTER_CHEF_DIR("libraries/discovery")
-CHEF_RESOURCE_CLXN = JSON.parse(File.read(CLUSTER_CHEF_DIR('spec/fixtures/chef_resources-el_ridiculoso-aqui-0.json')))
+require METACHEF_DIR("libraries/discovery")
+CHEF_RESOURCE_CLXN = JSON.parse(File.read(METACHEF_DIR('spec/fixtures/chef_resources-el_ridiculoso-aqui-0.json')))
 
 shared_context 'dummy_chef' do
 
@@ -75,7 +75,7 @@ shared_context 'dummy_chef' do
       })
   end
 
-  let(:node_json){ JSON.parse(File.read(CLUSTER_CHEF_DIR('spec/fixtures/chef_node-el_ridiculoso-aqui-0.json'))) }
+  let(:node_json){ JSON.parse(File.read(METACHEF_DIR('spec/fixtures/chef_node-el_ridiculoso-aqui-0.json'))) }
   let(:chef_node) do
     recipes = node_json.delete('recipes')
     nd = Chef::Node.new ; nd.consume_attributes(node_json)

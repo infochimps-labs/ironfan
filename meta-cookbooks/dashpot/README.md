@@ -14,7 +14,7 @@ Lightweight dashboard for each server
 Supports platforms: debian and ubuntu
 
 Cookbook dependencies:
-* cluster_chef
+* metachef
 
 
 ## License and Author

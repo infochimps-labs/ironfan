@@ -11,7 +11,7 @@ depends          "apt"
 depends          "runit"
 
 depends          "volumes"
-depends          "cluster_chef"
+depends          "metachef"
 
 depends          "hadoop_cluster"
 depends          "zookeeper"

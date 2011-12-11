@@ -19,5 +19,6 @@
 # limitations under the License.
 #
 
-include_recipe "java::sun"
-include_recipe "cluster_chef"
+include_recipe "metachef"
+include_recipe "java"
+complain_if_not_sun_java(:ganglia)

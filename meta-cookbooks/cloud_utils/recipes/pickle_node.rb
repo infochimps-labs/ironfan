@@ -3,7 +3,7 @@
 # pickle your node metadata to a file -- useful for teleporting back home to a VM
 #
 
-file "#{node[:cluster_chef][:conf_dir]}/chef_node-#{node.name}.json" do
+file "#{node[:metachef][:conf_dir]}/chef_node-#{node.name}.json" do
   hsh = Mash.new(node.to_hash)
   # role recipe roles recipes
   %w[ keys ohai_time uptime_seconds uptime idletime_seconds idletime counters run_away ].each{|key| hsh.delete(key)}
@@ -19,7 +19,7 @@ end
 
 require 'set'
 
-file "#{node[:cluster_chef][:conf_dir]}/chef_resources-#{node.name}.json" do
+file "#{node[:metachef][:conf_dir]}/chef_resources-#{node.name}.json" do
   resource_clxn = Chef::ResourceCollection.new
   run_context.resource_collection.each do |r|
     next if r.class.to_s == 'Chef::Resource::NodeMetadata'

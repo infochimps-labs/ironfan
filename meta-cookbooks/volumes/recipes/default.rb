@@ -19,6 +19,6 @@
 # limitations under the License.
 #
 
-include_recipe 'cluster_chef'
+include_recipe 'metachef'
 
 dashpot_dashboard('volumes')

@@ -1,5 +1,5 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
-require CLUSTER_CHEF_DIR("libraries/cluster_chef.rb")
+require METACHEF_DIR("libraries/metachef.rb")
 
 describe ClusterChef::AttrStruct do
   let(:car_class) do

@@ -1,6 +1,6 @@
 #
 # Cookbook Name::       nfs
-# Description::         NFS client: uses cluster_chef to discover its server, and mounts the corresponding NFS directory
+# Description::         NFS client: uses metachef to discover its server, and mounts the corresponding NFS directory
 # Recipe::              client
 # Author::              37signals
 #

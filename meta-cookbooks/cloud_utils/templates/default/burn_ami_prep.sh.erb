@@ -12,7 +12,7 @@ apt-get clean ;
 updatedb ;
 
 # move away anything tied to the identity of this machine
-mv /etc/hostname /etc/node*name /etc/cluster_chef/dashboard "$away_dir"
+mv /etc/hostname /etc/node*name /etc/dashpot "$away_dir"
 # move away chef junk
 mv /var/chef /etc/chef/*.json /etc/chef/*.pem /etc/chef/*~ "$away_dir"
 

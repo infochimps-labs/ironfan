@@ -13,7 +13,7 @@ depends          "nginx"
 
 depends          "volumes"
 depends          "tuning"
-depends          "cluster_chef"
+depends          "metachef"
 depends          "install_from"
 depends          "dashpot"
 

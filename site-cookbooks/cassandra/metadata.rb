@@ -12,7 +12,7 @@ depends          "thrift"
 depends          "iptables"
 
 depends          "volumes"
-depends          "cluster_chef"
+depends          "metachef"
 depends          "tuning"
 depends          "install_from"
 depends          "dashpot"

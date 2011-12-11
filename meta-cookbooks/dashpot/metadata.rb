@@ -7,7 +7,7 @@ version          "3.0.3"
 description      "Creates and serves a lightweight pluggable dashboard for a machine"
 
 depends          "runit"
-depends          "cluster_chef"
+depends          "metachef"
 
 recipe           "dashpot",       "Lightweight dashboard for this machine: index of services and their dashboard snippets"
 
@@ -15,32 +15,32 @@ recipe           "dashpot",       "Lightweight dashboard for this machine: index
   supports os
 end
 
-attribute "cluster_chef/conf_dir",
+attribute "dashpot/conf_dir",
   :display_name          => "",
   :description           => "",
-  :default               => "/etc/cluster_chef"
+  :default               => "/etc/dashpot"
 
-attribute "cluster_chef/log_dir",
+attribute "dashpot/log_dir",
   :display_name          => "",
   :description           => "",
-  :default               => "/var/log/cluster_chef"
+  :default               => "/var/log/dashpot"
 
-attribute "cluster_chef/home_dir",
+attribute "dashpot/home_dir",
   :display_name          => "",
   :description           => "",
-  :default               => "/etc/cluster_chef"
+  :default               => "/etc/dashpot"
 
-attribute "cluster_chef/user",
+attribute "dashpot/user",
   :display_name          => "",
   :description           => "",
   :default               => "root"
 
-attribute "cluster_chef/thttpd/port",
+attribute "dashpot/thttpd/port",
   :display_name          => "",
   :description           => "",
   :default               => "6789"
 
-attribute "cluster_chef/dashboard/run_state",
+attribute "dashpot/dashboard/run_state",
   :display_name          => "",
   :description           => "",
   :default               => "start"
