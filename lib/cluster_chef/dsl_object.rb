@@ -46,8 +46,9 @@ module ClusterChef
     class_attribute :keys
     self.keys = []
 
-    def initialize(attrs={})
-      @settings = attrs.to_mash || Mash.new
+    def initialize(attrs={}, &block)
+      @settings = Mash.new
+      configure(attrs, &block)
     end
 
     #
