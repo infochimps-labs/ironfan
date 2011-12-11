@@ -10,7 +10,7 @@ Jeweler::Commands::ReleaseToGit.class_eval do
       raise "Unclean staging area! Be sure to commit or .gitignore everything first. See `git status` above."
     end
 
-    repo.checkout($jeweler_push_from_branch || 'master')
+    repo.checkout('version_3')
     repo.push
 
     if release_not_tagged?
