@@ -21,4 +21,5 @@ end
 
 group :support do
   gem 'pry'
+  gem 'grit'
 end
