@@ -1,7 +1,8 @@
 ## v3.0.6: schism of cookbooks and tools
 
-* cookbook
-
+* cookbooks all now live in [their own repo](https://github.com/infochimps-labs/cluster_chef-homebase), organized according to opscode standard.
+* gem is now split into `cluster_chef` (the libraries) and `cluster_chef-knife` (the chef plugins)
+* private_key was passing its block to super, with bad results
 
 ## Changes from v2 => v3 [2011 October]
 
