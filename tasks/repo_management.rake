@@ -11,7 +11,7 @@ require 'pry'
 #
 # * bare    a bare git repo, in /tmp/repoman/bare/foo.git
 # * solo    a full git checkout, in /tmp/repoman/solo/foo
-# * github  
+# * github
 # * main holds two kinds of branches:
 #   - mainline
 #   - per-component branch for that component's subtree.
@@ -28,17 +28,49 @@ REPOMAN_ROOT_DIR = '/tmp/repoman'
 GITHUB_ORG       = 'infochimps-cookbooks'
 GITHUB_TEAM      = '117089'
 
-def get_repoman
-  cookbooks = FileList['site-cookbooks/*'].select{|d| File.directory?(d) }.sort_by{|d| File.basename(d) }.reverse
-  cookbooks = cookbooks.select{|c| c.to_s =~ /hadoop|cassandra/ }
-  clxn = ClusterChef::Repoman::Collection.new(
-    cookbooks,
-    :main_dir  => '/tmp/cluster_chef',
-    :github_org  => GITHUB_ORG,
-    :github_team => GITHUB_TEAM,
-    )
-  clxn
-end
+#
+# Gee this part here could serve to be a bit cleaner.
+# yes, I am in fact commenting the various collections in and out and re-running.
+#
+
+# def get_repoman
+#   cookbooks = FileList['site-cookbooks/*', 'meta-cookbooks/*'].select{|d| File.directory?(d) }.sort_by{|d| File.basename(d) }.reverse
+#   #  cookbooks = cookbooks[18..-1] # .select{|c| c.to_s =~ /hadoop|cassandra/ }
+#   clxn = ClusterChef::Repoman::Collection.new(
+#     cookbooks,
+#     :vendor   => 'infochimps',
+#     :main_dir  => '/tmp/cluster_chef',
+#     :github_org  => GITHUB_ORG,
+#     :github_team => GITHUB_TEAM,
+#     )
+#   clxn
+# end
+
+# def get_repoman
+#   cookbooks = %w[
+#     ant apache2 apt aws bluepill boost build-essential chef-client chef-server
+#     couchdb cron daemontools database emacs erlang gecode git iptables java
+#     jpackage mysql nginx ntp openssh openssl python rabbitmq rsyslog runit
+#     thrift ubuntu ucspi-tcp ufw xfs xml yum zlib zsh
+#  ].reverse
+#   # cookbooks = cookbooks[-6..-1]
+#   clxn = ClusterChef::Repoman::Collection.new(
+#     cookbooks,
+#     :vendor   => 'opscode',
+#     :main_dir  => '/tmp/opscode',
+#     :github_org  => GITHUB_ORG,
+#     :github_team => GITHUB_TEAM,
+#     )
+#   clxn
+# end
+
+# def get_repoman
+#   ClusterChef::Repoman::Collection.new(['zabbix'],  :vendor => 'laradji', :main_dir => nil, :github_org  => GITHUB_ORG, :github_team => GITHUB_TEAM )
+# end
+
+# def get_repoman
+#   ClusterChef::Repoman::Collection.new(['rvm'],     :vendor => 'fnichol', :main_dir => nil, :github_org  => GITHUB_ORG, :github_team => GITHUB_TEAM )
+# end
 
 def get_repo(repo_name)
   repoman  = get_repoman
@@ -60,13 +92,20 @@ end
 namespace :repo do
 
   desc 'repo mgmt: ensure all github targets exist'
+  task :add_subtree_hack do |rt, args|
+    check_args(rt, args)
+    repoman = get_repoman
+    repoman.subtree_add_all
+  end
+
+  desc 'repo mgmt: ensure all github targets exist'
   task :gh do |rt, args|
     check_args(rt, args)
     repoman = get_repoman
     repoman.each_repo do |repo|
       banner(rt, args, repo)
       repo.github_create
-    end    
+    end
   end
 
   desc 'repo mgmt: extract subtree split'
@@ -78,7 +117,7 @@ namespace :repo do
         banner(rt, args, repo)
         repo.git_subtree_split
       end
-    end    
+    end
   end
 
   desc 'repo mgmt: sync solo with tree'
@@ -91,7 +130,7 @@ namespace :repo do
     end
   end
 
-  task :push => [:gh, :solo, :subtree] do |rt, args|
+  task :push => [:gh, :solo, :subtree ] do |rt, args|
     check_args(rt, args)
     repoman = get_repoman
     repoman.in_main_tree do
@@ -100,7 +139,7 @@ namespace :repo do
         repo.pull_to_solo_from_main.invoke
         repo.push_from_solo_to_github.invoke
       end
-    end    
+    end
   end
 
   #
@@ -122,6 +161,16 @@ namespace :repo do
       repo.github_sync
     end
 
+    desc 'repo mgmt: ensure all github targets exist'
+    task :sync_all do |rt, args|
+      check_args(rt, args)
+      repoman = get_repoman
+      repoman.each_repo do |repo|
+        banner(rt, args, repo)
+        repo.github_sync
+      end
+    end
+
     desc 'repo mgmt: delete github target repo. must set the REPOMAN_LOOK_IN_TRUNK environment variable.'
     task :whack, [:repo_name] do |rt, args|
       check_args(rt, args)
@@ -130,5 +179,5 @@ namespace :repo do
       Log.info("whacked #{repo.name}")
     end
   end
-  
+
 end

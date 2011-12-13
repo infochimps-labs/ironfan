@@ -29,6 +29,7 @@ module ClusterChef
         :container_dir,      # holds the bare/ and single/ versions of the repo
         :main_dir,         # the local checkout to mine
         :push_urlbase,       # base url for target repo names, eg git@github.com:infochimps-cookbooks
+        :vendor,             # direectory within vendor/ to target inside homebase
         :github_api_urlbase, # github API url base
         :github_org,         # github organization, eg 'infochimps-cookbooks'
         :github_team,        # github team to authorize for the repo
@@ -75,15 +76,28 @@ module ClusterChef
       def in_main_tree
         raise "Repo dirty. Too terrified to move.\n#{filth}" unless clean?
         cd main_dir do
-          sh("git", "checkout", "version_3_cookbooks_restored")
+          sh("git", "checkout", "main")
           yield
+        end
+      end
+
+      def subtree_add_all
+        cd File.expand_path('~/ics/sysadmin/homebase') do
+          each_repo do |repo|
+            file("vendor/#{vendor}/#{repo.name}") do
+              puts "#{repo.name} subtreeing"
+              sh("git", "subtree", "add", "-P", "vendor/#{vendor}/#{repo.name}", File.join(repo.solo_dir, '.git'), "master")
+            end
+            file("cookbooks/#{repo.name}"){ symlink("../vendor/#{vendor}/#{repo.name}", "cookbooks") }
+            task("add_subtree_#{repo.name}" => ["vendor/#{vendor}/#{repo.name}", "cookbooks/#{repo.name}"]).invoke
+          end
         end
       end
 
       #
       # Github
       #
-      
+
       def set_github_credentials
         return if github_username.present? && github_token.present?
         self.github_username( ENV['GITHUB_USERNAME'] || `git config --get github.user` )
@@ -162,10 +176,10 @@ module ClusterChef
 
       # Directory holding the main repo
       def main_dir()   collection.main_dir  end
-      
+
       # Directory holding the solo repo
       def solo_dir()   File.join(container, 'solo', name)  end
-      
+
       # if this file is present the repo is assumed to exist
       def solo_repo_presence() File.join(solo_dir, '.git', 'HEAD') end
 
@@ -229,7 +243,7 @@ module ClusterChef
       def push_from_solo_to_github
         create_solo
         task "repo:solo:push_from_#{name}_to_github" => "repo:solo:create_#{name}" do
-          cd solo_dir do 
+          cd solo_dir do
             sh('git', 'push', github_repo_url, "master:master")
           end
         end
