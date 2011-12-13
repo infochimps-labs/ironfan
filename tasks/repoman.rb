@@ -46,6 +46,16 @@ module ClusterChef
         end
       end
 
+      def defaults
+        @settings[:github_api_urlbase] ||= 'https://github.com/api/v2/json'
+        @settings[:push_urlbase]  ||= "git@github.com:"
+        set_github_credentials
+      end
+
+      #
+      # Locations
+      #
+
       # repo object for each subtree under management
       def repo(repo_name)
         @repos[repo_name]
@@ -58,12 +68,22 @@ module ClusterChef
         @repos.values.each{|repo| yield(repo) }
       end
 
-      def defaults
-        @settings[:github_api_urlbase] ||= 'https://github.com/api/v2/json'
-        @settings[:push_urlbase]  ||= "git@github.com:"
-        set_github_credentials
+      def main_repo
+        @main_repo ||= Grit::Repo.new(main_dir)
       end
 
+      def in_main_tree
+        raise "Repo dirty. Too terrified to move.\n#{filth}" unless clean?
+        cd main_dir do
+          sh("git", "checkout", "version_3_cookbooks_restored")
+          yield
+        end
+      end
+
+      #
+      # Github
+      #
+      
       def set_github_credentials
         return if github_username.present? && github_token.present?
         self.github_username( ENV['GITHUB_USERNAME'] || `git config --get github.user` )
@@ -97,11 +117,6 @@ module ClusterChef
         ].join
       end
 
-      def main_repo
-        @main_repo ||= Grit::Repo.new(main_dir)
-      end
-
-
       def clean?
         st = main_repo.status
         st.changed.empty? && st.added.empty? && st.deleted.empty? && st.untracked.empty?
@@ -112,15 +127,6 @@ module ClusterChef
             "  added     #{    st.added.values.map(&:path).join(', ')}",
             "  deleted   #{  st.deleted.values.map(&:path).join(', ')}",
             "  untracked #{st.untracked.values.map(&:path).join(', ')}", ].join("\n")
-      end
-
-
-      def in_main_tree
-        raise "Repo dirty. Too terrified to move.\n#{filth}" unless clean?
-        cd main_dir do
-          sh("git", "checkout", "version_3_cookbooks_restored")
-          yield
-        end
       end
     end
 
@@ -153,10 +159,13 @@ module ClusterChef
       def container
         REPOMAN_ROOT_DIR
       end
+
       # Directory holding the main repo
+      def main_dir()   collection.main_dir  end
       
       # Directory holding the solo repo
       def solo_dir()   File.join(container, 'solo', name)  end
+      
       # if this file is present the repo is assumed to exist
       def solo_repo_presence() File.join(solo_dir, '.git', 'HEAD') end
 
@@ -172,30 +181,18 @@ module ClusterChef
       # 'templates', etc. -- it'the contents of the single target repo.
       def git_subtree_split
         shas[:sr_before] = git_main_branch.commit.to_s rescue nil
-        Log.debug("Extracting subtree for #{name} from #{path} in #{collection.main_dir}; was at #{shas[:sr_before] || '()'}")
-        sh("git-subtree", "split", "-P", path, "-b", name){|ok, status| Log.debug("status #{status}") }
+        Log.debug("Extracting subtree for #{name} from #{path} in #{main_dir}; was at #{shas[:sr_before] || '()'}")
+        sh( "git-subtree", "split", "-P", path, "-b", branch_name ){|ok, status| Log.debug("status #{status}") }
         shas[:sr_after] = git_main_branch.commit.to_s rescue nil
         shas
       end
 
+      def branch_name
+        "br-#{name}"
+      end
+
       def git_main_branch
-        collection.main_repo.branches.detect{|branch| branch.name == self.name }
-      end
-
-      def remote_name
-        "gh-#{name}"
-      end
-
-      def git_remote
-        remote_obj  = collection.main_repo.remotes.detect{|rem| rem.name == "#{remote_name}/master" }
-        return remote_obj if remote_obj
-        sh("git", "remote", "add", remote_name, github_repo_url){|ok, status| Log.debug( status ) }
-        git_fetch
-        collection.main_repo.remotes.detect{|rem| rem.name == remote_name }
-      end
-
-      def git_fetch
-        sh("git", "fetch", remote_name)
+        collection.main_repo.branches.detect{|branch| branch.name == branch_name }
       end
 
       #
@@ -213,6 +210,7 @@ module ClusterChef
         task 'repo:solo' => "repo:solo:create_#{name}"
         task("repo:solo:create_#{name}")
       end
+
       def git_clone_solo
         cd File.dirname(solo_dir) do
           sh('git', 'clone', github_repo_url)
@@ -223,25 +221,7 @@ module ClusterChef
         create_solo
         task "repo:solo:pull_to_#{name}_from_main" => "repo:solo:create_#{name}" do
           cd solo_dir do
-            sh('git', 'pull', "#{collection.main_dir}/.git", "#{name}:master")
-          end
-        end
-      end
-
-      def pull_to_main_from_solo
-        create_solo
-        task "repo:solo:pull_to_main_from_#{name}" => "repo:solo:create_#{name}" do
-          cd collection.main_dir do
-            sh('git', 'pull', "#{solo_dir}/.git",              "master:#{name}")
-          end
-        end
-      end
-
-      def pull_to_solo_from_github
-        create_solo
-        task "repo:solo:pull_to_#{name}_from_github" => "repo:solo:create_#{name}" do
-          cd solo_dir do
-            sh('git', 'pull', github_repo_url, "master:master")
+            sh('git', 'pull', "#{main_dir}/.git", "#{branch_name}:master")
           end
         end
       end
@@ -249,8 +229,8 @@ module ClusterChef
       def push_from_solo_to_github
         create_solo
         task "repo:solo:push_from_#{name}_to_github" => "repo:solo:create_#{name}" do
-          cd collection.main_dir do
-            sh('git', 'pusj', "#{solo_dir}/.git", "master:master")
+          cd solo_dir do 
+            sh('git', 'push', github_repo_url, "master:master")
           end
         end
       end
@@ -265,7 +245,6 @@ module ClusterChef
       def github_repo_url
         "#{collection.push_urlbase}#{github_repo_name}.git"
       end
-
       def public?
         (github_public.to_s != "false") && (github_public.to_s != '0')
       end
@@ -277,6 +256,15 @@ module ClusterChef
       # Hash of info about the repo on github
       def github_info
         collection.github_api_get("repos/show/#{github_repo_name}")
+      end
+
+      def github_sync
+        info = {}
+        info[:create] = github_create
+        info[:auth  ] = github_add_teams
+        info[:update] = github_update
+        Log.info("synced #{name}")
+        info
       end
 
       # Create the repo if it doesn't exist
@@ -322,15 +310,6 @@ module ClusterChef
           Log.warn "Deleting repo #{name} at #{github_repo_url}"
           collection.github_api_post("repos/delete/#{github_repo_name}", :delete_token => del_tok)
         end
-      end
-
-      def github_sync
-        info = {}
-        info[:create] = github_create
-        info[:auth  ] = github_add_teams
-        info[:update] = github_update
-        Log.info("synced #{name}")
-        info
       end
 
       #

@@ -29,8 +29,8 @@ GITHUB_ORG       = 'infochimps-cookbooks'
 GITHUB_TEAM      = '117089'
 
 def get_repoman
-  cookbooks = FileList['meta-cookbooks/*'].select{|d| File.directory?(d) }.sort_by{|d| File.basename(d) }.reverse
-  cookbooks = ['site-cookbooks'] #cookbooks.select{|c| c.to_s =~ /hadoop|cassandra/ }
+  cookbooks = FileList['site-cookbooks/*'].select{|d| File.directory?(d) }.sort_by{|d| File.basename(d) }.reverse
+  cookbooks = cookbooks.select{|c| c.to_s =~ /hadoop|cassandra/ }
   clxn = ClusterChef::Repoman::Collection.new(
     cookbooks,
     :main_dir  => '/tmp/cluster_chef',
@@ -97,22 +97,8 @@ namespace :repo do
     repoman.in_main_tree do
       repoman.each_repo do |repo|
         banner(rt, args, repo)
-        repo.pull_to_solo_from_github.invoke
         repo.pull_to_solo_from_main.invoke
         repo.push_from_solo_to_github.invoke
-      end
-    end    
-  end
-
-  task :pull => [:gh, :solo, :subtree] do |rt, args|
-    check_args(rt, args)
-    repoman = get_repoman
-    repoman.in_main_tree do
-      repoman.each_repo do |repo|
-        banner(rt, args, repo)
-        repo.pull_to_solo_from_main.invoke
-        repo.pull_to_solo_from_github.invoke
-        repo.pull_to_main_from_solo.invoke
       end
     end    
   end

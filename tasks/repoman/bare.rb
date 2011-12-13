@@ -53,6 +53,27 @@ module ClusterChef
         Log.debug("Creating bare repo #{bare_dir}")
         Grit::Repo.init_bare(bare_dir)
       end
+
+      #
+      # Git remote setup
+      #
+
+      def remote_name
+        "gh-#{name}"
+      end
+
+      def git_remote
+        remote_obj  = collection.main_repo.remotes.detect{|rem| rem.name == "#{remote_name}/master" }
+        return remote_obj if remote_obj
+        sh("git", "remote", "add", remote_name, github_repo_url){|ok, status| Log.debug( status ) }
+        git_fetch
+        collection.main_repo.remotes.detect{|rem| rem.name == remote_name }
+      end
+
+      def git_fetch
+        sh("git", "fetch", remote_name)
+      end
+
     end
   end
 end
