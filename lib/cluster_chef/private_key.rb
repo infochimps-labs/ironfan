@@ -16,7 +16,6 @@ module ClusterChef
     # @yield      a block, executed in caller's context, when the body is updated
     # @yieldparam the updated body
     def initialize(name, proxy=nil, &on_update)
-      super()
       @name      = name
       @proxy     = proxy
       @on_update = on_update
