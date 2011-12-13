@@ -6,24 +6,15 @@
 
 <%= long_description.present? ? long_description : description %>
 
-## Attributes
-
-<%- all_attributes.attrs.each do |attrib| %>
-* <%= "%-35s" % ('`'+attrib.bracketed_name+'`') %> - <%= attrib.display_name %><%- if attrib.default.is_a?(String) || attrib.default.is_a?(Symbol) %> (default: <%= attrib.default.inspect %>)<%- end %>
-<%- if attrib.description.present? && (attrib.description != attrib.display_name) %>
-  - <%= attrib.description.gsub(/\n/, "\n  ") %>
-<%- end %>
-<%- end %>
 <%- if components[:recipes].present? %>
-
 ## Recipes 
 
 <%- components[:recipes].each do |recipe| %>
 * <%= "%-26s" % ('`'+recipe.name+'`') %> - <%= recipe.desc %>
 <%- end %>
 <%- end %>
-<%- if all_resources.present? %>
 
+<%- if all_resources.present? %>
 ## Resources / Providers
 
 <%- end %>
@@ -36,6 +27,15 @@ Cookbook dependencies:
 <%- all_depends.each do |nm, dep| -%>
 * <%= dep.gsub(/"/, '') %>
 <%- end -%><%- end -%>
+
+## Attributes
+
+<%- all_attributes.attrs.each do |attrib| %>
+* <%= "%-35s" % ('`'+attrib.bracketed_name+'`') %> - <%= attrib.display_name %><%- if attrib.default.is_a?(String) || attrib.default.is_a?(Symbol) %> (default: <%= attrib.default.inspect %>)<%- end %>
+<%- if attrib.description.present? && (attrib.description != attrib.display_name) %>
+  - <%= attrib.description.gsub(/\n/, "\n  ") %>
+<%- end %>
+<%- end %>
 
 ## License and Author
 
