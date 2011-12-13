@@ -1,8 +1,0 @@
-# values set by chef from node[:tuning][:ulimit]['<%= @user %>']
-
-<%- @ulimits.each do |ulimit_type, ulimit_settings| %>
-<%- ulimit_settings.each do |hardness, value| %>
-<%- hardness = '-' if hardness.to_s == 'both' %>
-<%= "%-23s %-7s %-15s %s" % [@user, hardness, ulimit_type, value]  %>
-<%- end %>
-<%- end %>  

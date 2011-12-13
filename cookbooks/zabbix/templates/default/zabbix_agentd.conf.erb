@@ -1,9 +1,0 @@
-Hostname=<%= @node[:fqdn] %>
-LogFile=/var/log/zabbix/zabbix_agentd.log
-DebugLevel=3
-EnableRemoteCommands=1
-LogRemoteCommands=1
-Include=/etc/zabbix/include
-PidFile=/tmp/zabbix_agentd.pid
-Server=<%= node.zabbix.agent.servers.join(',') %>
-StartAgents=4

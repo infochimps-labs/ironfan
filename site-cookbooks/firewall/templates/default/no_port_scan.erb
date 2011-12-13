@@ -1,9 +1,0 @@
-# Don't allow port scan for <%= @name %> port <%= @port %> (added by firewall::port_scan recipe)
-
-# Setup our hitcount rule
--A FWR -p TCP --dport <%= @port %> -m state --state NEW -m recent --set --name <%= @name.upcase %>
--A FWR -p TCP --dport <%= @port %> -m state --state NEW -m recent --update --seconds <%= @window %> --hitcount <%= @max_conns %> --rttl --name <%= @name.upcase %> -j DROP
-
-# By default, we need to allow this traffic
--A FWR -p TCP --dport <%= @port %> -j ACCEPT
-

@@ -1,5 +1,0 @@
-#!/bin/bash
-
-exec 2>&1
-cd   <%= @options[:pid_dir] %>
-exec chpst -u <%= @options[:user] %> /usr/sbin/gmetad --conf=<%= @options[:conf_dir] %>/gmetad.conf --debug=1

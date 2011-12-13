@@ -1,4 +1,0 @@
-#!/bin/bash
-exec 2>&1
-cd <%= @options[:home_dir] %>
-exec chpst -u <%= @options[:user] %> node stats.js baseConfig.js

@@ -1,2 +1,0 @@
-#!/bin/sh
-exec chpst -u azkaban /usr/local/share/azkaban/bin/azkaban-server.sh --job-dir <%= @node[:azkaban][:job_dir] %> --log-dir <%= @node[:azkaban][:log_dir] %>

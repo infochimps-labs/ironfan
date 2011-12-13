@@ -1,6 +1,0 @@
-<%= node.name %>	<%= @description %>
-Provide	<%= (node[:announces] || {}).keys.sort.join(",") %>
-Roles	<%= @roles.sort.join(' ') %>
-IP	<%= [@private_ips, @public_ips, @public_hostname].flatten.join("\t") %>
-<%- if node[:ec2] -%>EC2	<%= [ @instance_id, @instance_type, @security_groups.sort.join(' ') ].join("\t") %><%- end -%>
-CHIMP CHIMP CHIMP <%= @silliness %>
