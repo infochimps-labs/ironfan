@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Infochimps"]
-  s.date = "2011-12-11"
+  s.date = "2011-12-13"
   s.description = "cluster_chef allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
   s.email = "coders@infochimps.com"
   s.extra_rdoc_files = [
@@ -60,8 +60,8 @@ Gem::Specification.new do |s|
     "spec/spec_helper.rb",
     "spec/spec_helper/dummy_chef.rb",
     "spec/test_config.rb",
-    "tasks/chef_config.rb",
-    "tasks/jeweler_use_alt_branch.rb"
+    "tasks/chef_config.rake",
+    "tasks/jeweler_use_alt_branch.rake"
   ]
   s.homepage = "http://infochimps.com/labs"
   s.licenses = ["apachev2"]
@@ -79,12 +79,10 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<formatador>, ["~> 0.2.1"])
       s.add_runtime_dependency(%q<gorillib>, ["~> 0.1.7"])
       s.add_development_dependency(%q<bundler>, ["~> 1"])
-      s.add_development_dependency(%q<yard>, ["~> 0.6.7"])
-      s.add_development_dependency(%q<jeweler>, ["~> 1.6.4"])
-      s.add_development_dependency(%q<rspec>, ["~> 2.7.0"])
+      s.add_development_dependency(%q<jeweler>, ["~> 1.6"])
+      s.add_development_dependency(%q<rspec>, ["~> 2.5"])
+      s.add_development_dependency(%q<yard>, ["~> 0.6"])
       s.add_development_dependency(%q<configliere>, ["~> 0.4.8"])
-      s.add_development_dependency(%q<spork>, ["~> 0.9.0.rc5"])
-      s.add_development_dependency(%q<watchr>, ["~> 0.7"])
       s.add_runtime_dependency(%q<cluster_chef-knife>, ["= 3.0.6"])
     else
       s.add_dependency(%q<chef>, ["~> 0.10.4"])
@@ -92,12 +90,10 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<formatador>, ["~> 0.2.1"])
       s.add_dependency(%q<gorillib>, ["~> 0.1.7"])
       s.add_dependency(%q<bundler>, ["~> 1"])
-      s.add_dependency(%q<yard>, ["~> 0.6.7"])
-      s.add_dependency(%q<jeweler>, ["~> 1.6.4"])
-      s.add_dependency(%q<rspec>, ["~> 2.7.0"])
+      s.add_dependency(%q<jeweler>, ["~> 1.6"])
+      s.add_dependency(%q<rspec>, ["~> 2.5"])
+      s.add_dependency(%q<yard>, ["~> 0.6"])
       s.add_dependency(%q<configliere>, ["~> 0.4.8"])
-      s.add_dependency(%q<spork>, ["~> 0.9.0.rc5"])
-      s.add_dependency(%q<watchr>, ["~> 0.7"])
       s.add_dependency(%q<cluster_chef-knife>, ["= 3.0.6"])
     end
   else
@@ -106,12 +102,10 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<formatador>, ["~> 0.2.1"])
     s.add_dependency(%q<gorillib>, ["~> 0.1.7"])
     s.add_dependency(%q<bundler>, ["~> 1"])
-    s.add_dependency(%q<yard>, ["~> 0.6.7"])
-    s.add_dependency(%q<jeweler>, ["~> 1.6.4"])
-    s.add_dependency(%q<rspec>, ["~> 2.7.0"])
+    s.add_dependency(%q<jeweler>, ["~> 1.6"])
+    s.add_dependency(%q<rspec>, ["~> 2.5"])
+    s.add_dependency(%q<yard>, ["~> 0.6"])
     s.add_dependency(%q<configliere>, ["~> 0.4.8"])
-    s.add_dependency(%q<spork>, ["~> 0.9.0.rc5"])
-    s.add_dependency(%q<watchr>, ["~> 0.7"])
     s.add_dependency(%q<cluster_chef-knife>, ["= 3.0.6"])
   end
 end
