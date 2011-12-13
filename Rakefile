@@ -29,9 +29,7 @@ rescue Bundler::BundlerError => e
 end
 require 'json'
 require 'jeweler'
-require 'jeweler/version'
-
-# require 'rspec/core/rake_task'
+require 'rspec/core/rake_task'
 require 'yard'
 
 # Load constants from rake config file.
@@ -46,7 +44,6 @@ Dir[File.join('tasks', '*.rake')].sort.each{|f| load(f) }
 %w[ cluster_chef cluster_chef-knife ].each do |gem_name|
   Jeweler::Tasks.new do |gem|
     gem.name        = gem_name
-    gem.version     = File.read('VERSION')
     gem.homepage    = "http://infochimps.com/labs"
     gem.license     = NEW_COOKBOOK_LICENSE.to_s
     gem.summary     = %Q{cluster_chef allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks.}
@@ -65,7 +62,7 @@ Dir[File.join('tasks', '*.rake')].sort.each{|f| load(f) }
 
     if    gem.name == 'cluster_chef'
       gem.files.reject!{|f| f =~ %r{^(cluster_chef-knife.gemspec|lib/chef/knife/)} }
-      gem.add_runtime_dependency 'cluster_chef-knife', "= #{gem.version}"
+      gem.add_runtime_dependency 'cluster_chef-knife', "= #{File.read('VERSION').strip}"
     elsif gem.name == 'cluster_chef-knife'
       gem.files.reject!{|f| f =~ %r{^(cluster_chef.gemspec|lib/cluster_chef)} }
     else
