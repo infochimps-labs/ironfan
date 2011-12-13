@@ -1,4 +1,6 @@
+## v3.0.6: schism of cookbooks and tools
 
+* cookbook
 
 
 ## Changes from v2 => v3 [2011 October]
