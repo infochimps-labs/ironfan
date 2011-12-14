@@ -27,7 +27,7 @@ module ClusterChef
 
   # path to search for cluster definition files
   def self.cluster_path
-    Chef::Config[:cluster_path] ||= Chef::Config[:cookbooks_path].map{|dir| File.expand_path('../clusters', dir) }
+    Chef::Config[:cluster_path] ||= Chef::Config[:cookbook_path].map{|dir| File.expand_path('../clusters', dir) }
   end
 
   #

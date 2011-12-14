@@ -61,22 +61,23 @@ class Chef
       end
 
       def command_for_target(svr)
-        config[:attribute]     ||= Chef::Config[:knife][:ssh_address_attribute] || "fqdn"
-        config[:ssh_user]      ||= Chef::Config[:knife][:ssh_user]
-        config[:identity_file] ||= svr.cloud.ssh_identity_file
+        config[:attribute]       ||= Chef::Config[:knife][:ssh_address_attribute] || "fqdn"
+        config[:ssh_user]        ||= Chef::Config[:knife][:ssh_user]
+        config[:identity_file]   ||= svr.cloud.ssh_identity_file
+        config[:host_key_verify] ||= Chef::Config[:knife][:host_key_verify] || (not config[:no_host_key_verify]) # pre-vs-post 0.10.4
 
         if (svr.cloud.public_ip)             then address = svr.cloud.public_ip ; end
         if (not address) && (svr.chef_node)  then address = format_for_display( svr.chef_node )[config[:attribute]] ; end
         if (not address) && (svr.fog_server) then address = svr.fog_server.public_ip_address ; end
 
         cmd  = [ 'ssh', '-N' ]
-        cmd += [ '-D', config[:socks_port].to_s  ]
-        cmd += [ '-i', config[:identity_file]    ] if config[:identity_file].present?
-        cmd += [ '-p', config[:port].to_s        ] if config[:port].present?
-        cmd << '-f'                                if config[:background]
-        cmd << "-#{'v' * config[:verbosity]}"      if (config[:verbosity] > 0)
-        cmd += %w[ -o StrictHostKeyChecking=no   ] if config[:no_host_key_verify]
+        cmd += [ '-D', config[:socks_port].to_s ]
+        cmd += [ '-p', config[:port].to_s       ]  if  config[:port].present?
+        cmd << '-f'                                if  config[:background]
+        cmd << "-#{'v' * config[:verbosity].to_i}" if (config[:verbosity].to_i > 0)
+        cmd += %w[ -o StrictHostKeyChecking=no  ]  if  config[:host_key_verify]
         cmd += %w[ -o ConnectTimeout=10 -o ServerAliveInterval=60 -o ControlPath=none ]
+        cmd += [ '-i', File.expand_path(config[:identity_file]) ] if  config[:identity_file].present?
         cmd << (config[:ssh_user] ? "#{config[:ssh_user]}@#{address}" : address)
 
         Chef::Log.debug("Cluster proxy config:  #{config.inspect}")
@@ -86,6 +87,7 @@ class Chef
             "for",        ui.color(svr.name,            :cyan),
             "(#{address})"
           ].join(" "))
+
         cmd
      end
 

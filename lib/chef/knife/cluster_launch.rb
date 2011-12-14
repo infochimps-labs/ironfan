@@ -31,7 +31,7 @@ class Chef
       end
 
       banner "knife cluster launch CLUSTER_NAME [FACET_NAME [INDEXES]] (options)"
-      [ :ssh_port, :ssh_password, :identity_file, :use_sudo, :no_host_key_verify,
+      [ :ssh_port, :ssh_password, :identity_file, :use_sudo,
         :prerelease, :bootstrap_version, :template_file,
       ].each do |name|
         option name, Chef::Knife::Bootstrap.options[name]
@@ -58,6 +58,11 @@ class Chef
         :description => "If bootstrap is invoked, the bootstrap script causes an initial run of chef-client (default true).",
         :boolean     => true,
         :default     => true
+      option :host_key_verify,
+        :long => "--[no-]host-key-verify",
+        :description => "Verify host key, enabled by default.",
+        :boolean => true,
+        :default => true
 
       def run
         load_cluster_chef

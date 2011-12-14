@@ -43,9 +43,14 @@ class Chef
         :long        => "--sudo",
         :description => "Execute the bootstrap via sudo",
         :boolean     => true
+      option :host_key_verify,
+        :long => "--[no-]host-key-verify",
+        :description => "Verify host key, enabled by default.",
+        :boolean => true,
+        :default => true
 
       import_banner_and_options(Chef::Knife::Bootstrap,
-        :except => [:chef_node_name, :run_list, :ssh_user, :distro, :template_file])
+        :except => [:chef_node_name, :run_list, :ssh_user, :distro, :template_file, :no_host_key_verify, :host_key_verify])
       import_banner_and_options(ClusterChef::Script)
 
       deps do
