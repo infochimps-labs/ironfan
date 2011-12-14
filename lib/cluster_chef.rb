@@ -27,7 +27,11 @@ module ClusterChef
 
   # path to search for cluster definition files
   def self.cluster_path
-    Chef::Config[:cluster_path] ||= Chef::Config[:cookbook_path].map{|dir| File.expand_path('../clusters', dir) }
+    return Chef::Config[:cluster_path] if Chef::Config[:cluster_path]
+    raise "Holy smokes, you have no cookbook_path or cluster_path set up. Follow chef's directions for creating a knife.rb." if Chef::Config[:cookbook_path].blank?
+    cl_path = Chef::Config[:cookbook_path].map{|dir| File.expand_path('../clusters', dir) }.uniq
+    ui.warn "No cluster path set. Taking a wild guess that #{cl_path.inspect} is \nreasonable based on your cookbook_path -- but please set cluster_path in your knife.rb"
+    Chef::Config[:cluster_path] = cl_path
   end
 
   #
