@@ -1,4 +1,4 @@
-bash -c '
+bash <<EOF || echo "Chef bootstrap failed!"
 
 # This is the ubuntu-10.04-cluster_chef script from infochimps, which
 # is based on the ubuntu-10.04-gems script from opscode, but it
@@ -21,7 +21,7 @@ export DEBIAN_FRONTEND=noninteractive
 
 # source for sun java if you want to install it later
 apt-get install -y python-software-properties
-add-apt-repository ppa:ferramroberto/java
+add-apt-repository -y ppa:ferramroberto/java
 apt-get -y update
 
 if [ ! -f /usr/bin/chef-client ]; then
@@ -34,9 +34,14 @@ apt-get install -y build-essential wget ruby1.9.1 ruby1.9.1-dev runit zlib1g-dev
 
 if ruby -e "exit(%x{gem --version} < \"1.6.2\" ? 0 : -1 )" ; then
   echo -e "`date` \n\n**** \n**** Updating rubygems:\n****\n"
-  gem update --system
+  # screw you Debian
+  REALLY_GEM_UPDATE_SYSTEM=1 gem update --system
   # screw you rubygems
-  for foo in /usr/lib/ruby/site_ruby/*/rubygems/deprecate.rb ; do sudo sed -i.bak 's!@skip ||= false!true!' "$foo" ; done
+  for foo in /usr/lib/ruby/site_ruby/*/rubygems/deprecate.rb
+  do
+    # Don't have to be any such deprecations, in which case $foo won't exist
+    [ -f "$foo" ] && sudo sed -i.bak 's!@skip ||= false!true!' "$foo"
+  done
 fi
 
 echo -e "`date` \n\n**** \n**** Installing chef:\n****\n"
@@ -96,19 +101,19 @@ EOP
 echo -e "`date` \n\n**** \n**** Adding chef client runit scripts:\n****\n"
 (service chef-client stop >/dev/null 2>&1 ; sleep 1 ; killall chef-client 2>/dev/null) || true
 mkdir -p /var/log/chef /var/chef /etc/service /etc/sv/chef-client/{log/main,supervise} 
-cat > /etc/sv/chef-client/log/run <<EOF
+cat > /etc/sv/chef-client/log/run <<EOP
 #!/bin/bash
 exec svlogd -tt ./main
-EOF
-cat > /etc/sv/chef-client/run <<EOF
+EOP
+cat > /etc/sv/chef-client/run <<EOP
 #!/bin/bash
 exec 2>&1
 exec /usr/bin/env chef-client -i 43200 -s 20 -L /var/log/chef/client.log
-EOF
+EOP
 chmod +x  /etc/sv/chef-client/log/run /etc/sv/chef-client/run
 ln -nfs /usr/bin/sv /etc/init.d/chef-client
 
-service chef-client stop || true
+service chef-client stop >/dev/null 2>&1 || true
 
 <%- if (@config[:bootstrap_runs_chef_client].to_s == 'true') || (@chef_config.knife[:bootstrap_runs_chef_client].to_s == 'true') %>
 echo -e "`date` \n\n**** \n**** First run of chef:\n****\n"
@@ -125,4 +130,4 @@ ln -nfs /etc/sv/chef-client /etc/service/chef-client
 service chef-client start
 
 echo -e "`date` \n\n**** \n**** Cluster Chef client bootstrap complete\n****\n"
-' || echo "Chef bootstrap failed!"
+EOF
