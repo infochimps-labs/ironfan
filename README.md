@@ -212,8 +212,7 @@ to the chef server. (see below for details).
 Hooray! You're ready to launch a cluster:
 
 ```ruby
-    knife cluster launch demosimple homebase --bootstrap
-</pre>
+    knife cluster launch demosimple homebase --bootstrap```
 
 It will kick off a node and then bootstrap it. You'll see it install a whole bunch of things. Yay.
 
