@@ -116,7 +116,7 @@ module ClusterChef
 
     # run list elements grouped into :first, :normal and :last
     def run_list_groups
-      @run_list_info.keys.sort_by{|item| @run_list_info[:rank] }.group_by{|item| @run_list_info[item][:placement] }
+      @run_list_info.keys.sort_by{|item| @run_list_info[item][:rank] }.group_by{|item| @run_list_info[item][:placement] }
     end
 
     #
