@@ -116,13 +116,17 @@ class Chef
         # Wait for node creation on amazon side
         server.fog_server.wait_for{ ready? }
 
-        # Attach volumes, etc
-        server.sync_to_cloud
-
         # Try SSH
         unless config[:dry_run]
           nil until tcp_test_ssh(server.fog_server.dns_name){ sleep @initial_sleep_delay ||= 10  }
         end
+
+        # Make sure our list of volumes is accurate
+        ClusterChef.fetch_fog_volumes
+        server.discover_volumes!
+
+        # Attach volumes, etc
+        server.sync_to_cloud
 
         # Run Bootstrap
         if config[:bootstrap]

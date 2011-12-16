@@ -116,7 +116,11 @@ module ClusterChef
     def discover_addresses!
       servers.each(&:discover_addresses!)
     end
-  end
+
+  end # ClusterChef::Cluster
+end
+
+module ClusterChef
 
   def self.fog_connection
     @fog_connection ||= Fog::Compute.new({
@@ -133,16 +137,19 @@ module ClusterChef
     @fog_servers = ClusterChef.fog_connection.servers.all
   end
 
-  def self.fog_volumes
-    return @fog_volumes if @fog_volumes
-    Chef::Log.debug("Using fog to catalog all volumes")
-    @fog_volumes ||= ClusterChef.fog_connection.volumes
-  end
-
   def self.fog_addresses
     return @fog_addresses if @fog_addresses
     Chef::Log.debug("Using fog to catalog all addresses")
     @fog_addresses = {}.tap{|hsh| ClusterChef.fog_connection.addresses.each{|fa| hsh[fa.public_ip] = fa } }
+  end
+
+  def self.fog_volumes
+    @fog_volumes || fetch_fog_volumes
+  end
+
+  def self.fetch_fog_volumes
+    Chef::Log.debug("Using fog to catalog all volumes")
+    @fog_volumes = ClusterChef.fog_connection.volumes
   end
 
   def self.fog_keypairs

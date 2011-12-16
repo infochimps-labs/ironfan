@@ -1,4 +1,6 @@
 require 'chef/mash'
+require 'chef/config'
+#
 require 'gorillib/metaprogramming/class_attribute'
 require 'gorillib/hash/reverse_merge'
 require 'gorillib/object/blank'

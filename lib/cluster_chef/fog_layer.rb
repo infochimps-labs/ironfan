@@ -38,9 +38,11 @@ module ClusterChef
     # Takes key-value pairs and idempotently sets those tags on the cloud machine
     #
     def fog_create_tags(fog_obj, desc, tags)
-      tags.each do |key, value|
-        next if fog_obj.tags[key] == value.to_s
-        Chef::Log.debug( "tagging #{key} = #{value} on #{desc}" )
+      tags_to_create = tags.reject{|key, val| fog_obj.tags[key] == val.to_s }
+      return if tags_to_create.empty?
+      step("  tagging #{desc} with #{tags_to_create.inspect}", :green)
+      tags_to_create.each do |key, value|
+        Chef::Log.debug( "tagging #{desc} with #{key} = #{value}" )
         safely do
           ClusterChef.fog_connection.tags.create({
             :key => key, :value => value.to_s, :resource_id => fog_obj.id })

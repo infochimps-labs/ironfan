@@ -4,7 +4,6 @@ module ClusterChef
   module KnifeCommon
 
     def self.load_deps
-      require 'readline'
       require 'formatador'
       require 'chef/node'
       require 'chef/api_client'

@@ -24,7 +24,7 @@ class Chef
       include ClusterChef::KnifeCommon
 
       deps do
-        ClusterChef::KnifeCommon.load_deps
+        require 'formatador'
       end
 
       banner "knife cluster list (options)"
