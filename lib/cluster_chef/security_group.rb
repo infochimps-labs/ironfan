@@ -39,8 +39,30 @@ module ClusterChef
         group = all[group_name] || ClusterChef.fog_connection.security_groups.get(group_name)
         if ! group
           self.step(group_name, "creating (#{description})", :blue)
-          group = all[group_name] = ClusterChef.fog_connection.security_groups.new(:name => group_name, :description => description, :connection => ClusterChef.fog_connection)
-          group.save
+          begin
+            group = ClusterChef.fog_connection.security_groups.new(:name => group_name, :description => description, :connection => ClusterChef.fog_connection) 
+            group.save
+          rescue Fog::Service::Error => fog_err
+            # I'm worried that in the future other exception types may be
+            # returned by the group.save() call, however at this time
+            # the only error returned by 
+            # Fog::AWS::Compute::Real::create_security_group.rb currently
+            # (fog 0.8.2) is the call to 
+            # Fog::AWS::Compute::Error.new("InvalidGroup.Duplicate => The security group '#{name}' already exists") 
+            # So I'm going to just accomodate the case where Fog::Service::Error is
+            # due to the prior existence of the group.
+            ClusterChef.fog_connection.security_groups.all().each do |g| 
+              if g.name.downcase == group_name.downcase then
+                self.step(group_name, "group_name isn't matching in a case-sensitive manner.  Use #{g.name} instead")
+                group = g
+                break
+              end
+            end
+            if not group then
+              raise fog_err
+            end
+          end
+          all[group_name] = group
         end
         group
       end
