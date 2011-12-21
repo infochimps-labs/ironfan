@@ -73,10 +73,10 @@ describe ClusterChef::Server do
   end
 
   describe 'launch' do
-    describe '#fog_description_for_launch' do
+    describe '#fog_launch_description' do
       it 'has right attributes' do
 
-        hsh = @server.fog_description_for_launch
+        hsh = @server.fog_launch_description
         hsh.delete(:user_data)
         hsh.should == {
           :image_id             => "ami-08f40561",
@@ -97,7 +97,7 @@ describe ClusterChef::Server do
       end
 
       it 'has right user_data' do
-        hsh = @server.fog_description_for_launch
+        hsh = @server.fog_launch_description
         user_data_hsh = JSON.parse( hsh[:user_data] )
         user_data_hsh.keys.should == ["chef_server", "validation_client_name", "validation_key", "attributes"]
         user_data_hsh["attributes"].keys.sort.should == [

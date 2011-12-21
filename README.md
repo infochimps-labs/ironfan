@@ -1,6 +1,6 @@
 # cluster_chef
 
-Chef is a powerful tool for maintaining and describing the software and configurations that let a machine provide its services.
+Describe and orchestrate whole clusters of machines, in the cloud or on VMs. Infrastructure as code.
 
 cluster_chef is
 

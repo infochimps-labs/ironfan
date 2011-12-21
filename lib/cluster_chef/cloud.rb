@@ -60,7 +60,7 @@ module ClusterChef
       # @returns [Hash] hash of defaults
       def defaults
         reverse_merge!({
-          :image_name         => 'maverick',
+          :image_name         => 'natty',
         })
       end
 
