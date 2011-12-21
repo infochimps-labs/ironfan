@@ -8,7 +8,7 @@ module ClusterChef
       @cluster    = cluster
       @servers    = Mash.new
       @chef_roles = []
-      @settings[:instances] ||= 0
+      @settings[:instances] ||= 1
       create_facet_role
       create_facet_security_group unless attrs[:no_security_group]
     end

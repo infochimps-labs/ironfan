@@ -217,7 +217,10 @@ module ClusterChef
       end
 
       def flavor(val=nil)
-        warn("Unknown machine image name '#{val}'") if val && (not FLAVOR_INFO.has_key?(val.to_s))
+        if val && (not FLAVOR_INFO.has_key?(val.to_s))
+          ui.warn("Unknown machine image flavor '#{val}'")
+          list_flavors
+        end
         set :flavor, val
       end
 

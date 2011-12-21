@@ -6,14 +6,20 @@ module ClusterChef
 
     def fog_create_server
       step(" creating cloud server", :green)
-      fog_description = fog_description_for_launch
-      Chef::Log.debug(JSON.pretty_generate(fog_description))
+      lint_fog
+      launch_desc = fog_launch_description
+      Chef::Log.debug(JSON.pretty_generate(launch_desc))
       safely do
-        @fog_server = ClusterChef.fog_connection.servers.create(fog_description)
+        @fog_server = ClusterChef.fog_connection.servers.create(launch_desc)
       end
     end
 
-    def fog_description_for_launch
+    def lint_fog
+      unless cloud.image_id then raise "No image ID found: nothing in Chef::Config[:ec2_image_info] for AZ #{self.default_availability_zone} flavor #{cloud.flavor} backing #{cloud.backing} image name #{cloud.image_name}, and cloud.image_id was not set directly. See https://github.com/infochimps/cluster_chef/wiki/machine-image-(AMI)-lookup-by-name - #{cloud.list_images}" end
+      unless cloud.image_id then cloud.list_flavors ; raise "No machine flavor found" ; end
+    end
+
+    def fog_launch_description
       {
         :image_id          => cloud.image_id,
         :flavor_id         => cloud.flavor,
