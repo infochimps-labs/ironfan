@@ -206,7 +206,7 @@ module ClusterChef
       # Utility methods
 
       def image_info
-        Chef::Config[:ec2_image_info][ [region, bits, backing, image_name] ] or ui.warn "Make sure to define the machine's region, bits, backing and image_name. (Have #{[region, bits, backing, image_name].inspect})"
+        Chef::Config[:ec2_image_info][ [region, bits, backing, image_name] ] or ( ui.warn "Make sure to define the machine's region, bits, backing and image_name. (Have #{[region, bits, backing, image_name].inspect})" ; {} )
       end
 
       def list_images
@@ -225,7 +225,7 @@ module ClusterChef
       end
 
       def flavor_info
-        FLAVOR_INFO[flavor] or raise "Please define the machine's flavor: have #{self.inspect}"
+        FLAVOR_INFO[flavor] or ( ui.warn "Please define the machine's flavor: have #{self.inspect}" ; {} )
       end
 
       def list_flavors

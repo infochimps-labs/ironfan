@@ -108,9 +108,6 @@ module ClusterChef
 
     # creates or updates the chef node.
     #
-    # FIXME: !! this currently doesn't do the right thing for modifications to the
-    #           chef node. !!
-    #
     # See notes at top of file for why all this jiggery-fuckery
     #
     # * client exists, node exists: assume client can update, weep later when
