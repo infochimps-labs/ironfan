@@ -32,7 +32,7 @@ class Chef
 
       banner "knife cluster launch CLUSTER_NAME [FACET_NAME [INDEXES]] (options)"
       [ :ssh_port, :ssh_password, :identity_file, :use_sudo,
-        :prerelease, :bootstrap_version, :template_file,
+        :prerelease, :bootstrap_version, :template_file, :distro
       ].each do |name|
         option name, Chef::Knife::Bootstrap.options[name]
       end
