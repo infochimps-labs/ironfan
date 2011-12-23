@@ -383,10 +383,10 @@ module ClusterChef
           %w[ us-west-1            64-bit  ebs             oneric                         ] => { :image_id => 'ami-7b772b3e', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
           %w[ us-west-1            64-bit  instance        oneric                         ] => { :image_id => 'ami-4b772b0e', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
           #
-          %w[ us-west-2            32-bit  ebs             oneric                         ] => { :image_id => 'ami-20f97410', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-          %w[ us-west-2            32-bit  instance        oneric                         ] => { :image_id => 'ami-52f67b62', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-          %w[ us-west-2            64-bit  ebs             oneric                         ] => { :image_id => 'ami-2af9741a', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-          %w[ us-west-2            64-bit  instance        oneric                         ] => { :image_id => 'ami-56f67b66', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ us-west-2            32-bit  ebs             oneric                         ] => { :image_id => 'ami-ea9a17da', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ us-west-2            32-bit  instance        oneric                         ] => { :image_id => 'ami-f49a17c4', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ us-west-2            64-bit  ebs             oneric                         ] => { :image_id => 'ami-ec9a17dc', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ us-west-2            64-bit  instance        oneric                         ] => { :image_id => 'ami-fe9a17ce', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
         })
     end
 
