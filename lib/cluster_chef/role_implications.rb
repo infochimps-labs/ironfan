@@ -1,6 +1,11 @@
 module ClusterChef
   ComputeBuilder.class_eval do
 
+    role_implication "systemwide" do
+      self.cloud.security_group "systemwide" do
+      end
+    end
+
     role_implication "nfs_server" do
       self.cloud.security_group "nfs_server" do
         authorize_group "nfs_client"
