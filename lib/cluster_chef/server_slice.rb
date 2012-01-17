@@ -108,6 +108,7 @@ module ClusterChef
 
     def sync_to_cloud
       sync_keypairs
+      sync_security_groups
       delegate_to_servers( :sync_to_cloud )
     end
 

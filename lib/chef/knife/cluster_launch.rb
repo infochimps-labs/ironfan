@@ -85,10 +85,6 @@ class Chef
         target.sync_to_cloud
         target.sync_to_chef
 
-        # Make security groups
-        section("Making security groups")
-        full_target.security_groups.each{|name,group| group.run }
-
         # Launch servers
         section("Launching machines", :green)
         target.create_servers

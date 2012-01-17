@@ -1,11 +1,13 @@
 module ClusterChef
   ComputeBuilder.class_eval do
 
-    role_implication "systemwide" do
-      self.cloud.security_group "systemwide" do
+    # organization-wide security group
+    role_implication "org_base" do
+      self.cloud.security_group "org_base" do
       end
     end
 
+    # NFS server allows access from nfs_clients
     role_implication "nfs_server" do
       self.cloud.security_group "nfs_server" do
         authorize_group "nfs_client"
@@ -16,12 +18,14 @@ module ClusterChef
       self.cloud.security_group "nfs_client"
     end
 
+    # Opens port 22 to the world
     role_implication "ssh" do
       self.cloud.security_group 'ssh' do
         authorize_port_range 22..22
       end
     end
 
+    # Open the Chef server API port (4000) and the webui (4040)
     role_implication "chef_server" do
       self.cloud.security_group "chef_server" do
         authorize_port_range 4000..4000  # chef-server-api

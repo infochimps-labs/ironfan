@@ -1,12 +1,15 @@
 # cluster_chef
 
-Describe and orchestrate whole clusters of machines, in the cloud or on VMs. Infrastructure as code.
+Infrastructure as code: describe and orchestrate whole clusters of cloud or virtual machines. 
 
-cluster_chef is
+## Overview
 
-* a clean, expressive way to describe how machines and roles are assembled into a working cluster.
-* Our collection of Industrial-strength, cloud-ready recipes for Hadoop, Cassandra, HBase, Elasticsearch and more.
-* a set of conventions and helpers that make provisioning cloud machines easier.
+The cluster_chef toolset takes chef to the next level:
+
+* `cluster_chef` gem: assembles machines and roles into a working cluster using a clean, expressive domain-specific language.
+* `cluster_chef-knife` knife plugin: orchestrate clusters of machines, in the cloud or VMs.
+* `cluster_chef-homebase`: Our collection of industrial-strength, cloud-ready recipes for Hadoop, HBase, Cassandra, Elasticsearch, Zabbix and more.
+* the `metachef` cookbook: coordinate discovery of services ("list all the machines for `awesome_webapp`, that I might load balance them") and aspects ("
 
 ## Walkthrough
 

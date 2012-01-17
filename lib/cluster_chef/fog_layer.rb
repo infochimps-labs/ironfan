@@ -138,5 +138,12 @@ module ClusterChef
         ClusterChef.fog_keypairs[keypair_name] = keypair_obj
       end
     end
+
+    # Create security groups, their dependencies, and synchronize their permissions
+    def sync_security_groups
+      step("ensuring security groups exist and are correct")
+      security_groups.each{|name,group| group.run }
+    end
+      
   end
 end
