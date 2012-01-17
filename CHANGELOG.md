@@ -1,3 +1,13 @@
+## v3.0.10: Cloud fixes
+
+* security groups are now created/updated in knife cluster sync. This can't help you apply then to a node afer launch though -- nothing can, the API doesn't allow it.
+* clusters now all refer to an AMI named `cluster_chef-natty` by default, and to customizable roles `org_base`, `org_final` and `org_users` (where `org_base` has a role_implication for membership in the systemwide `org_base` security group)
+* default facet instances is now 1 who knows why it wasn't always 1.
+* minor linting of cluster before launching it
+* bump to latest versions of oneiric AMIs thx @redbeard
+* bootstrap fixes, oneiric support, more from @gchpaco
+
+
 ## v3.0.6: schism of cookbooks and tools
 
 * cookbooks all now live in [their own repo](https://github.com/infochimps-labs/cluster_chef-homebase), organized according to opscode standard.
