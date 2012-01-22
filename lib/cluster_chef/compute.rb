@@ -144,7 +144,7 @@ module ClusterChef
   protected
 
     def add_to_run_list(item, placement)
-      raise "run_list placement must be one of :first, :normal, :last or nil (also means :normal)" unless [:first, :last, nil].include?(placement)
+      raise "run_list placement must be one of :first, :normal, :last or nil (also means :normal)" unless [:first, :last, :own, nil].include?(placement)
       @@run_list_rank += 1
       placement ||= :normal
       @run_list_info[item] ||= { :rank => @@run_list_rank, :placement => placement }

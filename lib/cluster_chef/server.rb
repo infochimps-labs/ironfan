@@ -136,6 +136,7 @@ module ClusterChef
     #
     # * run_list :first  items -- cluster then facet then server
     # * run_list :normal items -- cluster then facet then server
+    # * own roles: cluster_role then facet_role
     # * run_list :last   items -- cluster then facet then server
     #
     #    ClusterChef.cluster(:my_cluster) do
@@ -152,11 +153,11 @@ module ClusterChef
     #    end
     #
     # produces
-    #    cluster list  [a] [c] [fg]
-    #    facet list    [b] [de] [h]
+    #    cluster list  [a] [c]  [cluster_role] [fg]
+    #    facet list    [b] [de] [facet_role]   [h]
     #
     # yielding run_list
-    #     ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+    #     ['a', 'b', 'c', 'd', 'e', 'cr', 'fr', 'f', 'g', 'h']
     #
     # Avoid duplicate conflicting declarations. If you say define things more
     # than once, the *earliest encountered* one wins, even if it is elsewhere
@@ -168,6 +169,7 @@ module ClusterChef
       sg = self.run_list_groups
       [ cg[:first],  fg[:first],  sg[:first],
         cg[:normal], fg[:normal], sg[:normal],
+        cg[:own],    fg[:own],
         cg[:last],   fg[:last],   sg[:last], ].flatten.compact.uniq
     end
 
