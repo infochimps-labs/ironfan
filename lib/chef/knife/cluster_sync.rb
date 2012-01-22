@@ -52,6 +52,7 @@ class Chef
         if config[:chef]
           sync_to_chef target
         else Chef::Log.debug("Skipping sync to chef") ; end
+
         if config[:cloud] && target.any?(&:in_cloud?)
           sync_to_cloud target
         else Chef::Log.debug("Skipping sync to cloud") ; end
