@@ -17,6 +17,7 @@
 #
 
 require File.expand_path(File.dirname(__FILE__)+"/knife_common.rb")
+require File.expand_path(File.dirname(__FILE__)+"/cluster_bootstrap.rb")
 
 class Chef
   class Knife
@@ -26,15 +27,15 @@ class Chef
       deps do
         require 'time'
         require 'socket'
-        ClusterChef::KnifeCommon.load_deps
-        Chef::Knife::Bootstrap.load_deps
+        Chef::Knife::ClusterBootstrap.load_deps
       end
 
       banner "knife cluster launch CLUSTER_NAME [FACET_NAME [INDEXES]] (options)"
       [ :ssh_port, :ssh_password, :identity_file, :use_sudo,
-        :prerelease, :bootstrap_version, :template_file, :distro
+        :prerelease, :bootstrap_version, :template_file, :distro,
+        :bootstrap_runs_chef_client, :host_key_verify
       ].each do |name|
-        option name, Chef::Knife::Bootstrap.options[name]
+        option name, Chef::Knife::ClusterBootstrap.options[name]
       end
 
       option :dry_run,
@@ -53,16 +54,6 @@ class Chef
         :description => "Also bootstrap the launched node (default is NOT to bootstrap)",
         :boolean     => true,
         :default     => false
-      option :bootstrap_runs_chef_client,
-        :long        => "--[no-]bootstrap-runs-chef-client",
-        :description => "If bootstrap is invoked, the bootstrap script causes an initial run of chef-client (default true).",
-        :boolean     => true,
-        :default     => true
-      option :host_key_verify,
-        :long => "--[no-]host-key-verify",
-        :description => "Verify host key, enabled by default.",
-        :boolean => true,
-        :default => true
 
       def run
         load_cluster_chef
