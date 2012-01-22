@@ -9,6 +9,7 @@ module ClusterChef
       :name,
       # mountable volume attributes
       :device, :mount_point, :mount_options, :fstype, :mount_dump, :mount_pass,
+      :mountable, :formattable, :resizable, :in_raid,
       # cloud volume attributes
       :attachable, :create_at_launch, :volume_id, :snapshot_id, :size, :keep, :availability_zone,
       # arbitrary tags
@@ -19,9 +20,26 @@ module ClusterChef
       :fstype          => 'xfs',
       :mount_options    => 'defaults,nouuid,noatime',
       :attachable       => :ebs,
+      :mountable        => true,
+      :resizable        => true,
+      :in_raid          => false,
+      :formattable      => false,
       :create_at_launch => false,
       :keep             => true,
     }
+
+    # Snapshot for snapshot_name method.
+    # Set your own by adding
+    #
+    #     VOLUME_IDS = Mash.new unless defined?(VOLUME_IDS)
+    #     VOLUME_IDS.merge!({ :your_id => 'snap-whatever' })
+    #
+    # to your organization's knife.rb
+    #
+    VOLUME_IDS = Mash.new unless defined?(VOLUME_IDS)
+    VOLUME_IDS.merge!({
+      :blank_xfs       => 'snap-d9c1edb1',
+    })
 
     # Describes a volume
     #
@@ -48,6 +66,13 @@ module ClusterChef
 
     def ephemeral_device?
       volume_id =~ /^ephemeral/
+    end
+
+    # Named snapshots, as defined in ClusterChef::Volume::VOLUME_IDS
+    def snapshot_name(name)
+      snap_id = VOLUME_IDS[name.to_sym]
+      raise "Unknown snapshot name #{name} - is it defined in ClusterChef::Volume::VOLUME_IDS?" unless snap_id
+      self.snapshot_id(snap_id)
     end
 
     # With snapshot specified but volume missing, have it auto-created at launch
@@ -79,15 +104,51 @@ module ClusterChef
       if ephemeral_device?
         hsh['VirtualName'] = volume_id
       elsif create_at_launch?
-        hsh.merge!({
-            'Ebs.SnapshotId' => snapshot_id,
-            'Ebs.VolumeSize' => size,
-            'Ebs.DeleteOnTermination' => (! keep).to_s })
+        raise "Must specify a size or a snapshot ID for #{self}" if snapshot_id.blank? && size.blank?
+        hsh['Ebs.SnapshotId'] = snapshot_id if snapshot_id.present?
+        hsh['Ebs.VolumeSize'] = size.to_s   if size.present?
+        hsh['Ebs.DeleteOnTermination'] = (! keep).to_s
       else
         return
       end
       hsh
     end
 
+  end
+
+
+  #
+  # Consider raising the chunk size to 256 and setting read_ahead 65536 if you are raid'ing EBS volumes
+  #
+  # * http://victortrac.com/EC2_Ephemeral_Disks_vs_EBS_Volumes
+  # * http://orion.heroku.com/past/2009/7/29/io_performance_on_ebs/
+  # * http://tech.blog.greplin.com/aws-best-practices-and-benchmarks
+  # * http://stu.mp/2009/12/disk-io-and-throughput-benchmarks-on-amazons-ec2.html
+  #
+  class RaidGroup < Volume
+    has_keys(
+      :sub_volumes,     # volumes that comprise this raid group
+      :level,           # RAID level (http://en.wikipedia.org/wiki/RAID#Standard_levels)
+      :chunk,           # Raid chunk size (https://raid.wiki.kernel.org/articles/r/a/i/RAID_setup_cbb2.html)
+      :read_ahead,      # read-ahead buffer
+      )
+
+    def desc
+      "#{name} on #{parent.fullname} (#{volume_id} @ #{device} from #{sub_volumes.join(',')})"
+    end
+
+    def defaults()
+      super
+      fstype            'xfs'
+      mount_options     "defaults,nobootwait,noatime,nouuid,comment=cluster_chef"
+      attachable        false
+      mountable         true
+      resizable         false
+      formattable       true
+      in_raid           false
+      create_at_launch  false
+      #
+      sub_volumes       []
+    end
   end
 end

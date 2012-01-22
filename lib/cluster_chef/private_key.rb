@@ -74,6 +74,27 @@ module ClusterChef
     end
   end
 
+  class DataBagKey < PrivateKey
+    def body
+      return @body if @body
+      @body
+    end
+
+    def random_token
+      require "digest/sha2"
+      digest = Digest::SHA512.hexdigest(  Time.now.to_s + (1..10).collect{ rand.to_s }.join  )
+      5.times{ digest = Digest::SHA512.hexdigest(digest) }
+      digest
+    end
+
+    def key_dir
+      return Chef::Config.data_bag_key_dir if Chef::Config.data_bag_key_dir
+      dir = "#{ENV['HOME']}/.chef/data_bag_keys"
+      warn "Please set 'data_bag_key_dir' in your knife.rb. Will use #{dir} as a default"
+      dir
+    end
+  end
+
   class Ec2Keypair < PrivateKey
     def body
       return @body if @body
@@ -100,7 +121,7 @@ module ClusterChef
         return Chef::Config.ec2_key_dir
       else
         dir = "#{ENV['HOME']}/.chef/ec2_keys"
-        warn "Please set 'ec2_key_dir' in your knife.rb -- using #{dir} as a default"
+        warn "Please set 'ec2_key_dir' in your knife.rb. Will use #{dir} as a default"
         dir
       end
     end

@@ -70,6 +70,16 @@ module ClusterChef
       volumes[volume_name]
     end
 
+    def raid_group(rg_name, attrs={}, &block)
+      volumes[rg_name] ||= ClusterChef::RaidGroup.new(:parent => self, :name => rg_name)
+      volumes[rg_name].configure(attrs, &block)
+      p volumes
+      volumes[rg_name].sub_volumes.each do |sv_name|
+        volume(sv_name){ in_raid(rg_name) ; mountable(false) ; tags({}) }
+      end
+      volumes[rg_name]
+    end
+
     def root_volume(attrs={}, &block)
       volume(:root, attrs, &block)
     end

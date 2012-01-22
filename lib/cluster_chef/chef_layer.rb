@@ -204,7 +204,7 @@ module ClusterChef
     end
 
     def set_chef_node_environment
-      @chef_node.chef_environment(environment.to_s)
+      @chef_node.chef_environment(environment.to_s) if environment.present?
     end
 
     #
