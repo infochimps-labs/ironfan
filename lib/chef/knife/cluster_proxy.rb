@@ -97,7 +97,7 @@ class Chef
       #
       def dump_proxy_pac
         pac_filename = File.expand_path(File.join('/tmp', "cluster_chef_proxy-#{ENV['USER']}.pac"))
-        ui.info("point your browser at PAC (automatic proxy config file) #{pac_filename}")
+        ui.info("point your browser at PAC (automatic proxy config file) file://#{pac_filename}")
         File.open(pac_filename, 'w') do |f|
           f.print %Q{function FindProxyForURL(url, host) {
   if ((shExpMatch(host, "*ec2*.amazonaws.com"      )) ||
