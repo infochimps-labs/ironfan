@@ -86,7 +86,7 @@ module ClusterChef
         @group_authorizations.uniq.each do |other_name, authed_owner|
           authed_owner ||= self.owner_id
           next if group_permission_already_set?(fog_group, other_name, authed_owner)
-          step("authorizing access from all machines in #{other_name}", :blue)
+          step("authorizing access from all machines in #{other_name} to #{name}", :blue)
           self.class.get_or_create(other_name, "Authorized to access #{name}")
           begin  fog_group.authorize_group_and_owner(other_name, authed_owner)
           rescue StandardError => e ; ui.warn e ; end
@@ -95,7 +95,7 @@ module ClusterChef
           authed_owner = self.owner_id
           other_group = self.class.get_or_create(other_name, "Authorized for access by #{self.name}")
           next if group_permission_already_set?(other_group, self.name, authed_owner)
-          step("authorizing access to all machines in #{other_name}", :blue)
+          step("authorizing access to all machines in #{other_name} from #{name}", :blue)
           begin  other_group.authorize_group_and_owner(self.name, authed_owner)
           rescue StandardError => e ; ui.warn e ; end
         end
