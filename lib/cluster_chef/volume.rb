@@ -19,13 +19,14 @@ module ClusterChef
     VOLUME_DEFAULTS = {
       :fstype          => 'xfs',
       :mount_options    => 'defaults,nouuid,noatime',
-      :attachable       => :ebs,
-      :mountable        => true,
-      :resizable        => true,
-      :in_raid          => false,
-      :formattable      => false,
-      :create_at_launch => false,
       :keep             => true,
+      :attachable       => :ebs,
+      :create_at_launch => false,
+      #
+      :mountable        => true,
+      :resizable        => false,
+      :formattable      => false,
+      :in_raid          => false,
     }
 
     # Snapshot for snapshot_name method.
@@ -142,11 +143,13 @@ module ClusterChef
       fstype            'xfs'
       mount_options     "defaults,nobootwait,noatime,nouuid,comment=cluster_chef"
       attachable        false
+      create_at_launch  false
+      #
       mountable         true
       resizable         false
       formattable       true
+      #
       in_raid           false
-      create_at_launch  false
       #
       sub_volumes       []
     end
