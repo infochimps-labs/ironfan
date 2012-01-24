@@ -1,3 +1,17 @@
+## v3.0.11: We Raid at Dawn
+
+* You can now assemble raid groups in the cluster definition:
+  - node metadata instructing the volumes recipe to build the raid volume
+  - marks the component volumes as non-mountable, in the appropriate raid group, etc
+* Changed the order of `cluster_role` and `facet_role` in the run list. It now goes:
+  - `:first`  roles (cluster then facet)
+  - `:normal` roles (cluster then facet)
+  - special roles: `cluster_role` then `facet_role`
+  - `:last` roles (cluster then facet)
+* knife cluster launch uses ClusterBootstrap, not knife's vanilla bootstrap.
+* can now do group('group_that_wants').authorized_by_group('group_that_grants') so that in cluster A I can request access to cluster B without gaining its group myself.
+* push the organization (if set) into the node metadata
+
 ## v3.0.10: Cloud fixes
 
 * security groups are now created/updated in knife cluster sync. This can't help you apply then to a node afer launch though -- nothing can, the API doesn't allow it.
