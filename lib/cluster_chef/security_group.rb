@@ -52,7 +52,7 @@ module ClusterChef
       end
 
       def authorized_by_group(other_name)
-        @group_authorized_by << [other_name.to_s, nil]
+        @group_authorized_by << other_name.to_s
       end
 
       def authorize_port_range(range, cidr_ip = '0.0.0.0/0', ip_protocol = 'tcp')
