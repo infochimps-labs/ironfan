@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "cluster_chef-knife"
-  s.version = "3.0.11"
+  s.version = "3.0.12"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Infochimps"]
-  s.date = "2012-01-24"
+  s.date = "2012-01-25"
   s.description = "cluster_chef allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
   s.email = "coders@infochimps.com"
   s.extra_rdoc_files = [
