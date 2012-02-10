@@ -149,6 +149,10 @@ module ClusterChef
       @chef_client_script_content = safely{ File.read(script_filename) }
     end
 
+    def announce_state state
+      @chef_node.override[:state] = state
+    end
+
   protected
 
     # Create the chef client on the server. Do not call this directly -- go
