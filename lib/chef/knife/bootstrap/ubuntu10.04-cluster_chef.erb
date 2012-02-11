@@ -1,30 +1,40 @@
-bash -c '
+bash <<EOF || echo "Chef bootstrap failed!"
 
-# This is the ubuntu-10.04-gems script from opscode, but it
-# * installs ruby 1.9.2, not 1.8.7
+# This is the ubuntu natty bootstrap script from infochimps' cluster_chef. It is
+# based on opscode's bootstrap script, with the following important differences: 
+#
+# * installs ruby 1.9.2 (not 1.8.7) from source
 # * upgrades rubygems rather than installing from source
 # * pushes the node identity into the first-boot.json
 # * installs the chef-client service and kicks off the first run of chef
 
+set -e
+
 <%= (@config[:verbosity].to_i > 1 ? 'set -v' : '') %>
 
-mkdir -p /tmp/knife-bootstrap ; chmod 700 /tmp/knife-bootstrap 
-cd /tmp/knife-bootstrap
-
 RUBY_VERSION=1.9.2-p290
+CHEF_VERSION=<%= bootstrap_version_string.gsub(/.*[\s=]/,"") %>
+
+mkdir -p /tmp/knife-bootstrap
+chmod 700 /tmp/knife-bootstrap 
+cd /tmp/knife-bootstrap
 
 <%= "export http_proxy=\"#{knife_config[:bootstrap_proxy]}\"" if knife_config[:bootstrap_proxy] -%>
 eval `cat /etc/lsb-release `
 export DEBIAN_FRONTEND=noninteractive
 
-if [ ! -f /usr/bin/chef-client ]; then
+date > /etc/box_build_time
+
 echo -e "`date` \n\n**** \n**** apt update:\n****\n"
-apt-get    update
+apt-get -y update
 apt-get -y upgrade
 
 echo -e "`date` \n\n**** \n**** Installing base packages:\n****\n"
-apt-get install -y build-essential wget runit runit-services zlib1g-dev libssl-dev openssl libcurl4-openssl-dev libreadline6-dev libyaml-dev
+apt-get -y install build-essential make wget curl runit zlib1g-dev libssl-dev openssl libcurl4-openssl-dev libxml2-dev libxslt-dev libyaml-dev libreadline6 libreadline6-dev
+apt-get -y install runit-services
+apt-get clean
 
+if [ ! -f /usr/bin/chef-client ]; then
 echo -e "`date` \n\n**** \n**** Installing ruby version ${RUBY_VERSION}:\n****\n"
 
 wget ftp://ftp.ruby-lang.org//pub/ruby/1.9/ruby-${RUBY_VERSION}.tar.gz
@@ -46,21 +56,28 @@ update-alternatives \
 
 if ruby -e "exit(%x{gem --version} < \"1.6.2\" ? 0 : -1 )" ; then
   echo -e "`date` \n\n**** \n**** Updating rubygems:\n****\n"
-  gem install --no-rdoc --no-ri rubygems-update --version=1.6.2
-  update_rubygems --version=1.6.2
+  # screw you Debian
+  REALLY_GEM_UPDATE_SYSTEM=1 gem update --system
+  # screw you rubygems
+  for foo in /usr/lib/ruby/site_ruby/*/rubygems/deprecate.rb ; do
+    # Don't have to be any such deprecations, in which case $foo won't exist
+    [ -f "$foo" ] && sudo sed -i.bak 's!@skip ||= false!true!' "$foo"
+  done
 fi
 
 echo -e "`date` \n\n**** \n**** Installing chef:\n****\n"
 gem install ohai --no-rdoc --no-ri
 gem install chef --no-rdoc --no-ri <%= bootstrap_version_string %>
-gem install      --no-rdoc --no-ri extlib json ruby-shadow right_aws
+# gems needed for the client.rb or so generically useful you want them at hand
+gem install      --no-rdoc --no-ri extlib bundler json right_aws pry
 
 else # no chef-client
 echo -e "`date` \n\n**** \n**** Chef is present -- skipping apt/ruby/chef installation\n****\n"
-fi 
+fi # end ruby+chef install
 
 # fix a bug in chef that prevents debugging template errors
-bad_template_file='/usr/lib/ruby/gems/1.9.2-p290/gems/chef-0.10.4/lib/chef/mixin/template.rb'
+# will not work with --prerelease but that's OK hopefully opscode patches this crap soon
+bad_template_file="/usr/lib/ruby/gems/${RUBY_VERSION}/gems/chef-${CHEF_VERSION}/lib/chef/mixin/template.rb"
 if  echo "0505c482b8b0b333ac71bbc8a1795d19  $bad_template_file" | md5sum -c - 2>/dev/null ; then
   curl https://github.com/mrflip/chef/commit/655a1967253a8759afb54f30b818bbcb7c309198.patch | sudo patch $bad_template_file
 fi
@@ -87,7 +104,7 @@ awk NF /tmp/knife-bootstrap/validation.pem > /etc/chef/validation.pem
 echo -e "`date` \n\n**** \n**** Nuking our temp files:\n****\n"
 
 cd /tmp
-# rm -rf /tmp/knife-bootstrap
+rm -rf /tmp/knife-bootstrap
 
 echo -e "`date` \n\n**** \n**** Creating chef client script:\n****\n"
 
@@ -105,21 +122,21 @@ EOP
 ) > /etc/chef/first-boot.json
 
 echo -e "`date` \n\n**** \n**** Adding chef client runit scripts:\n****\n"
-service chef-client stop >/dev/null 2>&1 ; sleep 1 ; killall chef-client 2>/dev/null ; true
+( service chef-client stop >/dev/null 2>&1 ; sleep 1 ; killall chef-client 2>/dev/null ) || true
 mkdir -p /var/log/chef /var/chef /etc/service /etc/sv/chef-client/{log/main,supervise} 
-cat > /etc/sv/chef-client/log/run <<EOF
+cat > /etc/sv/chef-client/log/run <<EOP
 #!/bin/bash
 exec svlogd -tt ./main
-EOF
-cat > /etc/sv/chef-client/run <<EOF
+EOP
+cat > /etc/sv/chef-client/run <<EOP
 #!/bin/bash
 exec 2>&1
 exec /usr/bin/env chef-client -i 43200 -s 20 -L /var/log/chef/client.log
-EOF
+EOP
 chmod +x  /etc/sv/chef-client/log/run /etc/sv/chef-client/run
 ln -nfs /usr/bin/sv /etc/init.d/chef-client
 
-service chef-client stop ; true
+service chef-client stop >/dev/null 2>&1 || true
 
 <%- if (@config[:bootstrap_runs_chef_client].to_s == 'true') || (@chef_config.knife[:bootstrap_runs_chef_client].to_s == 'true') %>
 echo -e "`date` \n\n**** \n**** First run of chef:\n****\n"
@@ -129,6 +146,7 @@ set +e
 <%- end %>
 
 echo -e "`date` \n\n**** \n**** Cleanup:\n****\n"
+# make locate work good
 updatedb
 
 echo -e "`date` \n\n**** \n**** Enabling chef client service:\n****\n"
@@ -136,4 +154,4 @@ ln -nfs /etc/sv/chef-client /etc/service/chef-client
 service chef-client start
 
 echo -e "`date` \n\n**** \n**** Cluster Chef client bootstrap complete\n****\n"
-'
+EOF
