@@ -263,5 +263,11 @@ module ClusterChef
       composite_volumes.values.map(&:block_device_mapping).compact
     end
 
+    def announce_as_stopped
+      return unless chef_node
+      announce_state('stopped')
+      chef_node.save
+    end
+    
   end
 end

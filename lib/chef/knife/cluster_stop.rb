@@ -15,7 +15,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 require File.expand_path(File.dirname(__FILE__)+"/generic_command.rb")
 
 class Chef
@@ -25,6 +24,13 @@ class Chef
 
       def relevant?(server)
         server.running?
+      end
+
+      def perform_execution(target)
+        section("Stopping machines")
+        super(target)
+        section("Announcing Chef nodes as stopped")
+        target.send(:delegate_to_servers, :announce_as_stopped)
       end
 
       def confirm_execution(target)

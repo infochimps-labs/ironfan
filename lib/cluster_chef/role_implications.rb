@@ -2,8 +2,8 @@ module ClusterChef
   ComputeBuilder.class_eval do
 
     # organization-wide security group
-    role_implication "org_base" do
-      self.cloud.security_group "org_base" do
+    role_implication "systemwide" do
+      self.cloud.security_group "systemwide" do
       end
     end
 
