@@ -99,21 +99,27 @@ class Chef
         pac_filename = File.expand_path(File.join('/tmp', "cluster_chef_proxy-#{ENV['USER']}.pac"))
         ui.info("point your browser at PAC (automatic proxy config file) file://#{pac_filename}")
         File.open(pac_filename, 'w') do |f|
-          f.print %Q{function FindProxyForURL(url, host) {
-  if ((shExpMatch(host, "*ec2*.amazonaws.com"      )) ||
-      (shExpMatch(host, "*ec2.internal*"           )) ||
-      (shExpMatch(host, "*compute-*.amazonaws.com" )) ||
-      (shExpMatch(host, "*compute-*.internal*"     )) ||
-      (shExpMatch(host, "*domu*.internal*"         )) ||
-      (shExpMatch(host, "10.*"                     ))
+          f.print proxy_pac_contents
+        end
+      end
+
+      EC2_PROXY_PATTERNS = [ "*ec2*.amazonaws.com", "*ec2.internal*", "*compute-*.amazonaws.com", "*compute-*.internal*", "*domu*.internal*", "10.*",]
+
+      def proxy_pac_contents
+        proxy_patterns  = EC2_PROXY_PATTERNS
+        proxy_patterns += Array(Chef::Config[:cluster_proxy_patterns])
+        rules = proxy_patterns.compact.map{|str| "(shExpMatch(host, %-28s))" % %Q{"#{str}"} }
+        %Q{function FindProxyForURL(url, host) {
+  if (#{rules.join(" ||\n      ")}
       ) {
     return "SOCKS5 localhost:#{config[:socks_port]}";
   }
   return "DIRECT";
-}
-         }
-        end
+}\n}
       end
+
+
+
 
     end
   end
