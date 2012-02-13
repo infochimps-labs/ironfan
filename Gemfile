@@ -14,9 +14,10 @@ group :development do
 end
 
 group :test do
-  gem 'spork',       "~> 0.9.0.rc5", :platform => :mri
+  gem 'spork',       ">= 0.9.0", :platform => :mri
+  gem 'rcov',        ">= 0.9.9", :platform => :ruby_18
+  gem 'simplecov',   ">= 0.5",   :platform => :ruby_19
   gem 'watchr',      "~> 0.7"
-  gem 'rcov',        ">= 0.9.9"
 end
 
 group :support do
