@@ -25,12 +25,12 @@ class Chef
 
       option :cloud,
         :long        => "--[no-]cloud",
-        :description => "Sync to the cloud (default syncs cloud; use --no-cloud to skip)",
+        :description => "Sync to the cloud (default is yes, sync cloud; use --no-cloud to skip)",
         :default     => true,
         :boolean     => true
       option :chef,
         :long        => "--[no-]chef",
-        :description => "Sync to the chef server (default syncs chef; use --no-chef to skip)",
+        :description => "Sync to the chef server (default is yes, sync chef; use --no-chef to skip)",
         :default     => true,
         :boolean     => true
       option :sync_all,

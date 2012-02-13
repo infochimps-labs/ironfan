@@ -30,12 +30,12 @@ class Chef
         :default     => false
       option :cloud,
         :long        => '--[no-]cloud',
-        :description => "Delete machines from cloud (default is to delete, use --no-cloud to skip)",
+        :description => "Kill machines from cloud (default is yes, terminate machines; use --no-cloud to skip)",
         :boolean     => true,
         :default     => true
       option :chef,
         :long        => "--[no-]chef",
-        :description => "Delete the chef node and client (default is to delete, use --no-chef to skip)",
+        :description => "Delete the chef node and client (default is yes, delete chef objects; use --no-chef to skip)",
         :boolean     => true,
         :default     => true
 

@@ -5,7 +5,7 @@ module ClusterChef
       @aws_instance_hash = {}
       discover_cluster_chef!
       discover_chef_nodes!
-      discover_fog_servers!
+      discover_fog_servers!  unless ClusterChef.chef_config[:cloud] == false
       discover_chef_clients!
       discover_volumes!
     end
@@ -13,7 +13,16 @@ module ClusterChef
     def chef_clients
       return @chef_clients if @chef_clients
       @chef_clients = []
-      Chef::Search::Query.new.search(:client, "clientname:#{cluster_name}-*") do |client_hsh|
+
+      # Oh for fuck's sake -- the key used to index clients changed from
+      # 'clientname' in 0.10.4-and-prev to 'name' in 0.10.8. Rather than index
+      # both 'clientname' and 'name', they switched it -- so we have to fall
+      # back.  FIXME: While the Opscode platform is 0.10.4 I have clientname
+      # first (sorry, people of the future). When it switches to 0.10.8 we'll
+      # reverse them (suck it people of the past)
+      clients, wtf, num = Chef::Search::Query.new.search(:client, "clientname:#{cluster_name}-*")
+      clients, wtf, num = Chef::Search::Query.new.search(:client, "name:#{cluster_name}-*") if clients.blank?
+      clients.each do |client_hsh|
         # Return values from Chef::Search seem to be inconsistent across chef
         # versions (sometimes a hash, sometimes an object). Fix if necessary.
         client_hsh = Chef::ApiClient.json_create(client_hsh) unless client_hsh.is_a?(Chef::ApiClient)

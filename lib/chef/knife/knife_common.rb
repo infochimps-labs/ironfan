@@ -173,20 +173,17 @@ module ClusterChef
 
     module ClassMethods
       def sub_command
-        self.to_s.gsub(/^.*::/, '').gsub!(/^Cluster/, '').downcase
+        self.to_s.gsub(/^.*::/, '').gsub(/^Cluster/, '').downcase
       end
 
       def import_banner_and_options(klass, options={})
         options[:except] ||= []
-        klass.options.each do |name, info|
+        deps{ klass.load_deps }
+        klass.options.sort.each do |name, info|
           next if options.include?(name) || options[:except].include?(name)
           option name, info
         end
         banner "knife cluster #{sub_command} CLUSTER_NAME [FACET_NAME [INDEXES]] (options)"
-
-        deps do
-          klass.load_deps
-        end
       end
     end
     def self.included(base)

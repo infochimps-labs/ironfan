@@ -27,6 +27,11 @@ class Chef
       end
 
       banner "knife cluster show CLUSTER_NAME [FACET_NAME [INDEXES]] (options)"
+      option :cloud,
+        :long        => "--[no-]cloud",
+        :description => "Look up machines on AWS cloud (default is yes, look up machines; use --no-cloud to skip)",
+        :default     => true,
+        :boolean     => true
 
       def run
         load_cluster_chef

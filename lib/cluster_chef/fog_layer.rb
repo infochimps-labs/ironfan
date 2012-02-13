@@ -65,6 +65,7 @@ module ClusterChef
       composite_volumes.each do |vol_name, vol|
         my_vol = volumes[vol_name]
         next if my_vol.fog_volume
+        next if ClusterChef.chef_config[:cloud] == false
         my_vol.fog_volume = ClusterChef.fog_volumes.find do |fv|
           ( # matches the explicit volume id
             (vol.volume_id && (fv.id == vol.volume_id)    ) ||
@@ -144,6 +145,6 @@ module ClusterChef
       step("ensuring security groups exist and are correct")
       security_groups.each{|name,group| group.run }
     end
-      
+
   end
 end
