@@ -53,7 +53,7 @@ class Chef
 
         @action_nodes = target.chef_nodes
         addresses = target.servers.map do |svr|
-          if (svr.cloud.public_ip)            then address = svr.cloud.public_ip ; end
+          if (svr.cloud.public_ip)             then address = svr.cloud.public_ip ; end
           if (not address) && (svr.fog_server) then address = svr.fog_server.public_ip_address ; end
           if (not address) && (svr.chef_node)  then address = format_for_display( svr.chef_node )[config[:attribute]] ; end
           address
@@ -64,8 +64,55 @@ class Chef
         session_from_list(addresses)
       end
 
+      #
+      # Override the one in Chef::Knife::Ssh to allow an err flag (prints in red
+      # if non-null)
+      #
+      def print_data(host, data, err=nil)
+        if data =~ /\n/
+          data.split(/\n/).each { |d| print_data(host, d, err) }
+        else
+          padding = @longest - host.length
+          str = ui.color(host, :cyan) + (" " * (padding + 1)) + (err ? ui.color(data, :red) : data)
+          ui.msg(str)
+        end
+      end
+
+      #
+      # Override the one in Chef::Knife::Ssh to give a big red warning if the
+      # process executes with badness
+      #
+      def ssh_command(command, subsession=nil)
+        subsession ||= session
+        command = fixup_sudo(command)
+        notifications = []
+        subsession.open_channel do |ch|
+          ch.request_pty
+          ch.exec command do |ch, success|
+            raise ArgumentError, "Cannot execute #{command}" unless success
+            # note: you can't do the stderr calback because requesting a pty
+            # squashes stderr and stdout together
+            ch.on_data do |ichannel, data|
+              print_data(ichannel[:host], data)
+              if data =~ /^knife sudo password: /
+                ichannel.send_data("#{get_password}\n")
+              end
+            end
+            ch.on_request "exit-status" do |ichannel, data|
+              exit_status = data.read_long
+              if exit_status != 0
+                command_snippet = (command.length < 70) ? command : (command[0..45] + ' ... ' + command[-19..-1])
+                notifications << [ichannel[:host], "'#{command_snippet.gsub(/[\r\n]+/, "; ")}' terminated with error status #{exit_status}", :err]
+              end
+            end
+          end
+        end
+        session.loop
+        notifications.each{|args| print_data(*args) }
+      end
+
       def cssh
-        exec "cssh "+session.servers_for.map {|server| server.user ? "#{server.user}@#{server.host}" : server.host}.join(" ")
+        exec "cssh "+session.servers_for.map{|server| server.user ? "#{server.user}@#{server.host}" : server.host}.join(" ")
       end
 
       def run

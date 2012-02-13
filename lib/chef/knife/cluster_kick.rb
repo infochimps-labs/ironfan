@@ -48,6 +48,9 @@ class Chef
 set -e
 <%= ((config[:verbosity].to_i > 1) ? "set -v" : "") %>
 
+if sudo service chef-client status ; then
+
+# running
 pid_file="<%= config[:pid_file] %>"
 log_file=/var/log/chef/client.log
 
@@ -71,6 +74,11 @@ sudo true
 pid="$(sudo cat $pid_file)"
 sudo kill -USR1 "$pid"
 sed -r "/(ERROR: Sleeping for [0-9]+ seconds before trying again|INFO: Report handlers complete)\$/{q}" $pipe
+
+else
+  echo -e "****\n\nchef-client daemon not running, invoking chef-client directly\n\n****\n"
+  sudo chef-client
+fi
 EOF
       end
 
