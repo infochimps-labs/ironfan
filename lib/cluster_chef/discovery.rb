@@ -19,10 +19,13 @@ module ClusterChef
       # both 'clientname' and 'name', they switched it -- so we have to fall
       # back.  FIXME: While the Opscode platform is 0.10.4 I have clientname
       # first (sorry, people of the future). When it switches to 0.10.8 we'll
-      # reverse them (suck it people of the past)
-      clients, wtf, num = Chef::Search::Query.new.search(:client, "clientname:#{cluster_name}-*")
+      # reverse them (suck it people of the past).
+      # Also sometimes the server returns results that are nil on
+      # recently-expired clients, so that's annoying too.
+      clients, wtf, num = Chef::Search::Query.new.search(:client, "clientname:#{cluster_name}-*") ; clients.compact!
       clients, wtf, num = Chef::Search::Query.new.search(:client, "name:#{cluster_name}-*") if clients.blank?
       clients.each do |client_hsh|
+        next if client_hsh.nil?
         # Return values from Chef::Search seem to be inconsistent across chef
         # versions (sometimes a hash, sometimes an object). Fix if necessary.
         client_hsh = Chef::ApiClient.json_create(client_hsh) unless client_hsh.is_a?(Chef::ApiClient)
