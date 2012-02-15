@@ -5,11 +5,13 @@
 
 Gem::Specification.new do |s|
   s.name = "cluster_chef-knife"
-  s.version = "3.0.12"
+  s.version = "3.0.14"
+
+  puts "Note: cluster_chef is now named 'ironfan'. New versions of the cluster_chef gem will not be pushed after March 2012. Sorry for the inconvenience..."
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Infochimps"]
-  s.date = "2012-01-25"
+  s.date = "2012-02-15"
   s.description = "cluster_chef allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
   s.email = "coders@infochimps.com"
   s.extra_rdoc_files = [
@@ -28,10 +30,11 @@ Gem::Specification.new do |s|
     "VERSION",
     "chefignore",
     "cluster_chef-knife.gemspec",
-    "clusters/website_demo.rb",
     "config/client.rb",
     "config/proxy.pac",
-    "lib/chef/knife/bootstrap/ubuntu10.04-basic.erb",
+    "config/ubuntu10.04-cluster_chef.erb",
+    "config/ubuntu11.10-cluster_chef.erb",
+    "ironfan.gemspec",
     "lib/chef/knife/bootstrap/ubuntu10.04-cluster_chef.erb",
     "lib/chef/knife/bootstrap/ubuntu11.10-cluster_chef.erb",
     "lib/chef/knife/cluster_bootstrap.rb",
@@ -103,4 +106,3 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<configliere>, ["~> 0.4.8"])
   end
 end
-

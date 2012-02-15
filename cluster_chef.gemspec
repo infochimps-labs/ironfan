@@ -5,11 +5,13 @@
 
 Gem::Specification.new do |s|
   s.name = "cluster_chef"
-  s.version = "3.0.12"
+  s.version = "3.0.14"
+
+  puts "Note: cluster_chef is now named 'ironfan'. New versions of the cluster_chef gem will not be pushed after March 2012. Sorry for the inconvenience..."
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Infochimps"]
-  s.date = "2012-01-25"
+  s.date = "2012-02-15"
   s.description = "cluster_chef allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
   s.email = "coders@infochimps.com"
   s.extra_rdoc_files = [
@@ -28,18 +30,16 @@ Gem::Specification.new do |s|
     "VERSION",
     "chefignore",
     "cluster_chef.gemspec",
-    "clusters/website_demo.rb",
     "config/client.rb",
     "config/proxy.pac",
+    "config/ubuntu10.04-cluster_chef.erb",
+    "config/ubuntu11.10-cluster_chef.erb",
+    "ironfan.gemspec",
     "lib/cluster_chef.rb",
     "lib/cluster_chef/chef_layer.rb",
     "lib/cluster_chef/cloud.rb",
     "lib/cluster_chef/cluster.rb",
     "lib/cluster_chef/compute.rb",
-    "lib/cluster_chef/cookbook_munger.rb",
-    "lib/cluster_chef/cookbook_munger/README.md.erb",
-    "lib/cluster_chef/cookbook_munger/licenses.yaml",
-    "lib/cluster_chef/cookbook_munger/metadata.rb.erb",
     "lib/cluster_chef/deprecated.rb",
     "lib/cluster_chef/discovery.rb",
     "lib/cluster_chef/dsl_object.rb",
@@ -84,7 +84,7 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<rspec>, ["~> 2.5"])
       s.add_development_dependency(%q<yard>, ["~> 0.6"])
       s.add_development_dependency(%q<configliere>, ["~> 0.4.8"])
-      s.add_runtime_dependency(%q<cluster_chef-knife>, ["= 3.0.12"])
+      s.add_runtime_dependency(%q<cluster_chef-knife>, ["= 3.0.14"])
     else
       s.add_dependency(%q<chef>, ["~> 0.10.4"])
       s.add_dependency(%q<fog>, ["~> 1.1.1"])
@@ -95,7 +95,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<rspec>, ["~> 2.5"])
       s.add_dependency(%q<yard>, ["~> 0.6"])
       s.add_dependency(%q<configliere>, ["~> 0.4.8"])
-      s.add_dependency(%q<cluster_chef-knife>, ["= 3.0.12"])
+      s.add_dependency(%q<cluster_chef-knife>, ["= 3.0.14"])
     end
   else
     s.add_dependency(%q<chef>, ["~> 0.10.4"])
@@ -107,7 +107,6 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<rspec>, ["~> 2.5"])
     s.add_dependency(%q<yard>, ["~> 0.6"])
     s.add_dependency(%q<configliere>, ["~> 0.4.8"])
-    s.add_dependency(%q<cluster_chef-knife>, ["= 3.0.12"])
+    s.add_dependency(%q<cluster_chef-knife>, ["= 3.0.14"])
   end
 end
-
