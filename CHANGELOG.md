@@ -1,3 +1,27 @@
+## v3.0.14: 
+
+Big important change:
+
+# ClusterChef is now Ironfan
+
+Due to a polite request from outside, we are changing this project's name to not include the word 'Chef'.
+
+It's now 'Ironfan', after Princess Iron Fan from the legend of Sun Wukong (Voyage to the West). The monkey hero Sun Wukong could not reach his destination without the help of the Princess's Iron Fan. The project helps you fan out across big iron in the sky -- and "You Can't Do B.I. without a Big Ironfan".
+
+This weekend (2/18) everything in the cluster_chef family of everything will get regex-replaced as ironfan. We'll track both gems for the next push or so, but new versions of the gem will not be released after Feb 2012.
+
+Other improvements/fixes:
+
+* knife cluster proxy now accepts additional hosts to direct to proxy -- set Chef::Config[:cluster_proxy_patterns] to an array of additional glob-style strings. Use this with the route53 support for fun and profit - if your machines look like foo-server-0-internal.whatupchimpy.com, add Chef::Config[:cluster_proxy_patterns] = '*internal.whatupchimpy.com*' to your knife-org.rb -- now you can browse securely to the private interface of any machine your target can.
+* FIX #76 -- `knife cluster kick` runs chef-client if the service is stopped. Fixes #76 . Also knife ssh will at its end show a bright red list of machines whose commands exited with a non-zero exit code -- useful when 1 out of 30 machines fails a knife cluster kick.
+* A limited number of commands (ssh, show, kill) now run with no requirement of cloud anything (Relates to #28). Also worked around an annoying incompatibility with chef 0.10.8 (clients have a 'name') vs 0.10.40-and-prev (clients have a 'clientname'.
+* examples all live in `ironfan-homebase` now.
+* When you `knife cluster stop` a node, it sets `node[:state]` to 
+* the cookbook linter now has its own project: [ironfan-scrubby](https://github.com/infochimps-labs/ironfan-scrubby). Along the way, 
+  - some ability to cycle comments from the attributes file into node attribute docs in the `metadata.rb`.
+  - added helpful links to the `README.md` template
+* minor fix to the new `authorized_by` calls
+
 ## v3.0.11: We Raid at Dawn
 
 * You can now assemble raid groups in the cluster definition:

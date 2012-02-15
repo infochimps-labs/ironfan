@@ -150,7 +150,7 @@ module ClusterChef
     end
 
     def announce_state state
-      @chef_node.override[:state] = state
+      @chef_node.set[:state] = state
     end
 
   protected

@@ -7,8 +7,6 @@ Gem::Specification.new do |s|
   s.name = "cluster_chef"
   s.version = "3.0.14"
 
-  puts "Note: cluster_chef is now named 'ironfan'. New versions of the cluster_chef gem will not be pushed after March 2012. Sorry for the inconvenience..."
-
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Infochimps"]
   s.date = "2012-02-15"
@@ -66,6 +64,7 @@ Gem::Specification.new do |s|
   ]
   s.homepage = "http://infochimps.com/labs"
   s.licenses = ["apachev2"]
+  s.post_install_message = "!! This gem has been renamed 'ironfan' (from cluster_chef). \n   It will not be updated after Feb. 2012. \n  Sorry for the inconvenience."
   s.require_paths = ["lib"]
   s.rubygems_version = "1.8.15"
   s.summary = "cluster_chef allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
@@ -110,3 +109,4 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<cluster_chef-knife>, ["= 3.0.14"])
   end
 end
+

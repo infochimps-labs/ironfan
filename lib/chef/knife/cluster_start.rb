@@ -27,6 +27,14 @@ class Chef
       def relevant?(server)
         server.startable?
       end
+
+      def perform_execution(target)
+        section("Starting machines")
+        super(target)
+        section("Announcing Chef nodes as started")
+        target.send(:delegate_to_servers, :announce_as_started)
+      end
+
     end
   end
 end

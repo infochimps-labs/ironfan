@@ -18,6 +18,8 @@
 # limitations under the License.
 #
 
+DEPRECATED_NAME = "!! This gem has been renamed 'ironfan' (from cluster_chef). \n   It will not be updated after Feb. 2012. \n  Sorry for the inconvenience."
+
 require 'rubygems' unless defined?(Gem)
 require 'bundler'
 begin
@@ -64,8 +66,10 @@ gems_to_release.each do |gem_name|
     if    gem.name == 'cluster_chef'
       gem.files.reject!{|f| f =~ %r{^(cluster_chef-knife.gemspec|lib/chef/knife/)} }
       gem.add_runtime_dependency 'cluster_chef-knife', "= #{File.read('VERSION').strip}"
+      gem.post_install_message = DEPRECATED_NAME
     elsif gem.name == 'cluster_chef-knife'
       gem.files.reject!{|f| f =~ %r{^(cluster_chef.gemspec|lib/cluster_chef)} }
+      gem.post_install_message = DEPRECATED_NAME
     elsif gem.name == 'ironfan'
       true # pass
     else
