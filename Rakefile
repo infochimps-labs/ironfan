@@ -41,13 +41,14 @@ Dir[File.join('tasks', '*.rake')].sort.each{|f| load(f) }
 # Jeweler -- release cluster_chef as a gem
 #
 
-%w[ cluster_chef cluster_chef-knife ].each do |gem_name|
+gems_to_release = ENV['GEMS_TO_RELEASE'] ? ENV['GEMS_TO_RELEASE'].split : %w[ cluster_chef cluster_chef-knife ]
+gems_to_release.each do |gem_name|
   Jeweler::Tasks.new do |gem|
     gem.name        = gem_name
     gem.homepage    = "http://infochimps.com/labs"
     gem.license     = NEW_COOKBOOK_LICENSE.to_s
-    gem.summary     = %Q{cluster_chef allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks.}
-    gem.description = %Q{cluster_chef allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks.}
+    gem.summary     = %Q{#{gem_name} allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks.}
+    gem.description = %Q{#{gem_name} allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks.}
     gem.email       = SSL_EMAIL_ADDRESS
     gem.authors     = ["Infochimps"]
 
@@ -65,6 +66,8 @@ Dir[File.join('tasks', '*.rake')].sort.each{|f| load(f) }
       gem.add_runtime_dependency 'cluster_chef-knife', "= #{File.read('VERSION').strip}"
     elsif gem.name == 'cluster_chef-knife'
       gem.files.reject!{|f| f =~ %r{^(cluster_chef.gemspec|lib/cluster_chef)} }
+    elsif gem.name == 'ironfan'
+      true # pass
     else
       raise "Don't know what to include for gem #{gem.name}"
     end
@@ -83,7 +86,7 @@ end
 RSpec::Core::RakeTask.new(:rcov) do |spec|
   spec.pattern = 'spec/**/*_spec.rb'
   spec.rcov = true
-  spec.rcov_opts = %w[ --exclude .rvm --no-comments --text-summary]
+  spec.rcov_opts = %w[ --exclude .rvm --no-comments --text-summary ]
 end
 
 # ---------------------------------------------------------------------------
