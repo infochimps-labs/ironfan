@@ -79,7 +79,32 @@ module ClusterChef
       # SSH identity file used for knife ssh, knife boostrap and such
       def ssh_identity_file(val=nil)
         set :ssh_identity_file, File.expand_path(val) unless val.nil?
-        @settings.include?(:ssh_identity_file) ? @settings[:ssh_identity_file] : File.join(ssh_identity_dir, "#{keypair}.pem")
+        if @settings.include?(:ssh_identity_file) 
+          @settings[:ssh_identity_file] 
+        else 
+          # The default ssh key extension could be a few differnet things.  
+          # Try reasonable options based on the keypair name, but only
+          # return success if we can see it.  Otherwise revert to the
+          # cluster_chef default.
+          
+          # e.g.: id_rsa
+          fname = File.join(ssh_identity_dir, "#{keypair}_rsa")
+          if File.exists?(fname)
+            return fname
+          end
+          # e.g. keyfile is named foo
+          fname = File.join(ssh_identity_dir, "#{keypair}")
+          if File.exists?(fname)
+            return fname
+          end
+          # e.g. keyfile is named id_foo
+          fname = File.join(ssh_identity_dir, "id_#{keypair}")
+          if File.exists?(fname)
+            return fname
+          end
+          # last, revert to the prior default behavior.
+          File.join(ssh_identity_dir, "#{keypair}.pem")
+        end
       end
 
       # ID of the machine image to use.
