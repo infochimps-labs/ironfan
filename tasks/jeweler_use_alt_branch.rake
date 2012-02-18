@@ -6,7 +6,7 @@
 
 module Jeweler::Commands
 
-  PUSH_FROM_BRANCH = 'version_3' unless defined?(PUSH_FROM_BRANCH)
+  PUSH_FROM_BRANCH = 'master' unless defined?(PUSH_FROM_BRANCH)
 
   ReleaseToGit.class_eval do
     def run
