@@ -1,4 +1,29 @@
-# ironfan
+# Ironfan Core: knife tools and core models
+
+The ironfan project is an expressive toolset for constructing scalable, resilient architectures. It works in the cloud, in the data center, and on your laptop, and makes your system diagram visible and inevitable.
+
+This repo implements
+* core models to describe your system diagram with a clean, expressive domain-specific language
+* knife plugins to orchestrate clusters of machines using simple commands like `knife cluster launch`
+* logic to coordinate truth among chef server and cloud providers.
+
+It works together with the full ironfan toolset:
+
+* [ironfan-homebase](https://github.com/infochimps-labs/ironfan-homebase): centralizes the cookbooks, roles and clusters. A solid foundation for any chef user.
+* [ironfan gem](https://github.com/infochimps-labs/ironfan): core ironfan models, and knife plugins to orchestrate machines and coordinate truth among you homebase, cloud and chef server.
+* [ironfan-pantry](https://github.com/infochimps-labs/ironfan-pantry): Our collection of industrial-strength, cloud-ready recipes for Hadoop, HBase, Cassandra, Elasticsearch, Zabbix and more.
+* [silverware cookbook](https://github.com/infochimps-labs/ironfan-homebase/tree/master/cookbooks/silverware): coordinate discovery of services ("list all the machines for `awesome_webapp`, that I might load balance them") and aspects ("list all components that write logs, that I might logrotate them, or that I might monitor the free space on their volumes".
+* [ironfan-ci](https://github.com/infochimps-labs/ironfan-ci): Continuous integration testing of not just your cookbooks but your *architecture*.
+
+* [ironfan wiki](https://github.com/infochimps-labs/ironfan/wiki): high-level documentation and install instructions
+* [ironfan issues](https://github.com/infochimps-labs/ironfan/issues): bugs, questions and feature requests for *any* part of the ironfan toolset.
+* [ironfan gem docs](http://rdoc.info/gems/ironfan): rdoc docs for ironfan
+
+Please file all issues on [ironfan issues](https://github.com/infochimps-labs/ironfan/issues).
+
+__________________________________________________________________________
+
+# Ironfan
 
 Infrastructure as code: describe and orchestrate whole clusters of cloud or virtual machines. 
 
@@ -174,41 +199,7 @@ With these simple settings, if you have already [set up chef's knife to launch c
 
 ## Getting Started
 
-This assumes you have installed chef, have a working chef server, and have an AWS account. If you can run knife and use the web browser to see your EC2 console, you can start here. If not, see the instructions below.
-
-### Setup
-
-```ruby
-bundle install
-```
-
-### Your first cluster
-
-Let's create a cluster called 'demosimple'. It's, well, a simple demo cluster.
-
-#### Create a simple demo cluster
-
-Create a directory for your clusters; copy the demosimple cluster and its associated roles from ironfan:
-
-```ruby
-        mkdir -p $CHEF_REPO_DIR/clusters
-        cp ironfan/clusters/{defaults,demosimple}.rb ./clusters/
-        cp ironfan/roles/{big_package,nfs_*,ssh,base_role,chef_client}.rb  ./roles/
-```
-
-Lastly, add the `cookbooks`, `site-cookbooks`, and `meta-cookbooks` directories
-from ironfan to the `cookbooks_path` in your knife.rb, and push everything
-to the chef server. (see below for details).
-
-#### knife cluster launch
-
-Hooray! You're ready to launch a cluster:
-
-```ruby
-    knife cluster launch demosimple homebase --bootstrap
-```
-
-It will kick off a node and then bootstrap it. You'll see it install a whole bunch of things. Yay.
+@sya add the contents of https://github.com/infochimps-labs/ironfan/wiki/INSTALL here
 
 __________________________________________________________________________
 
@@ -235,19 +226,6 @@ __________________________________________________________________________
 
 ## Advanced Superpowers
 
-#### Auto-vivifying machines (no bootstrap required!)
-
-On EC2, you can make a machine that auto-vivifies -- no bootstrap necessary. Burn an AMI that has the `config/client.rb` file in /etc/chef/client.rb. It will use the ec2 userdata (passed in by knife) to realize its purpose in life, its identity, and the chef server to connect to; everything happens automagically from there. No parallel ssh required!
-
-#### EBS Volumes
-
-Define a `snapshot_id` for your volumes, and set `create_at_launch` true.
-
-__________________________________________________________________________
-
-
-## Extended Installation Notes
-
 #### Set up Knife on your local machine, and a Chef Server in the cloud
 
 If you already have a working chef installation you can skip this section.
@@ -257,72 +235,10 @@ To get started with knife and chef, follow the "Chef Quickstart,":http://wiki.op
 * [Launch Cloud Instances with Knife](http://wiki.opscode.com/display/chef/Launch+Cloud+Instances+with+Knife)
 * [EC2 Bootstrap Fast Start Guide](http://wiki.opscode.com/display/chef/EC2+Bootstrap+Fast+Start+Guide)
 
-#### Cloud setup
+#### Auto-vivifying machines (no bootstrap required!)
 
-Next,
+On EC2, you can make a machine that auto-vivifies -- no bootstrap necessary. Burn an AMI that has the `config/client.rb` file in /etc/chef/client.rb. It will use the ec2 userdata (passed in by knife) to realize its purpose in life, its identity, and the chef server to connect to; everything happens automagically from there. No parallel ssh required!
 
-* sign up for an AWS account
-* Follow the "Knife with AWS quickstart": on the opscode wiki.
+#### EBS Volumes
 
-Right now cluster chef works well with AWS.  If you're interested in modifying it to work with other cloud providers, "see here":https://github.com/infochimps-labs/ironfan/issues/28 or get in touch.
-
-#### Knife setup
-
-In your `.chef/knife.rb`, modify the cookbook path to include ironfan's `cookbooks`, `meta-cookbooks` and `site-cookbooks`, and to add settings for `ironfan_path`, `cluster_path` and `keypair_path`. Here's mine:
-
-```
-        current_dir = File.dirname(__FILE__)
-        organization  = 'CHEF_ORGANIZATION'
-        username      = 'CHEF_USERNAME'
-
-        # The full path to your ironfan installation
-        ironfan_path File.expand_path("#{current_dir}/../ironfan")
-        # The list of paths holding clusters
-        cluster_path      [ File.expand_path("#{current_dir}/../clusters") ]
-        # The directory holding your cloud keypairs
-        keypair_path      File.expand_path(current_dir)
-
-        log_level                :info
-        log_location             STDOUT
-        node_name                username
-        client_key               "#{keypair_path}/#{username}.pem"
-        validation_client_name   "#{organization}-validator"
-        validation_key           "#{keypair_path}/#{organization}-validator.pem"
-        chef_server_url          "https://api.opscode.com/organizations/#{organization}"
-        cache_type               'BasicFile'
-        cache_options( :path => "#{ENV['HOME']}/.chef/checksums" )
-
-        # The first things have lowest priority (so, site-cookbooks gets to win)
-        cookbook_path            [
-          "#{ironfan_path}/cookbooks",      # std cookbooks from opscode/cookbooks
-          "#{ironfan_path}/meta-cookbooks", # coordinate services among cookbooks
-          "#{ironfan_path}/site-cookbooks", # infochimps' collection of cookbooks
-          "#{current_dir}/../cookbooks",         
-          "#{current_dir}/../site-cookbooks",    # your internal cookbooks
-        ]
-
-        # If you primarily use AWS cloud services:
-        knife[:ssh_address_attribute] = 'cloud.public_hostname'
-        knife[:ssh_user] = 'ubuntu'
-
-        # Configure bootstrapping
-        knife[:bootstrap_runs_chef_client] = true
-        bootstrap_chef_version   "~> 0.10.0"
-
-        # AWS access credentials
-        knife[:aws_access_key_id]      = "XXXXXXXXXXX"
-        knife[:aws_secret_access_key]  = "XXXXXXXXXXXXX"
-```
-
-#### Push to chef server
-
-To send all the cookbooks and role to the chef server, visit your ironfan directory and run:
-
-```ruby
-        cd $CHEF_REPO_DIR
-        mkdir -p $CHEF_REPO_DIR/site-cookbooks
-        knife cookbook upload --all
-        for foo in roles/*.rb ; do knife role from file $foo & sleep 1 ; done
-```
-
-You should see all the cookbooks defined in ironfan/cookbooks (ant, apt, ...) listed among those it uploads.
+Define a `snapshot_id` for your volumes, and set `create_at_launch` true.
