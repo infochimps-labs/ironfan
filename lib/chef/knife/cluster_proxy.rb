@@ -103,7 +103,8 @@ class Chef
         end
       end
 
-      EC2_PROXY_PATTERNS = [ "*ec2*.amazonaws.com", "*ec2.internal*", "*compute-*.amazonaws.com", "*compute-*.internal*", "*domu*.internal*", "10.*",]
+      EC2_PROXY_PATTERNS = [] unless defined?(EC2_PROXY_PATTERNS)
+      EC2_PROXY_PATTERNS.unshift("*ec2*.amazonaws.com", "*ec2.internal*", "*compute-*.amazonaws.com", "*compute-*.internal*", "*domu*.internal*", "10.*",)
 
       def proxy_pac_contents
         proxy_patterns  = EC2_PROXY_PATTERNS
