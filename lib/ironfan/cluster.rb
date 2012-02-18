@@ -1,9 +1,9 @@
-module ClusterChef
+module Ironfan
   #
   # A cluster has many facets. Any setting applied here is merged with the facet
   # at resolve time; if the facet explicitly sets any attributes they will win out.
   #
-  class Cluster < ClusterChef::ComputeBuilder
+  class Cluster < Ironfan::ComputeBuilder
     attr_reader :facets, :undefined_servers
 
     def initialize(name, attrs={})
@@ -46,11 +46,11 @@ module ClusterChef
     # @param [Hash] attrs -- attributes to configure on the object
     # @yield a block to execute in the context of the object
     #
-    # @return [ClusterChef::Facet]
+    # @return [Ironfan::Facet]
     #
     def facet(facet_name, attrs={}, &block)
       facet_name = facet_name.to_sym
-      @facets[facet_name] ||= ClusterChef::Facet.new(self, facet_name)
+      @facets[facet_name] ||= Ironfan::Facet.new(self, facet_name)
       @facets[facet_name].configure(attrs, &block)
       @facets[facet_name]
     end
@@ -65,10 +65,10 @@ module ClusterChef
 
     # All servers in this facet, sorted by facet name and index
     #
-    # @return [ClusterChef::ServerSlice] slice containing all servers
+    # @return [Ironfan::ServerSlice] slice containing all servers
     def servers
       svrs = @facets.sort.map{|name, facet| facet.servers.to_a }
-      ClusterChef::ServerSlice.new(self, svrs.flatten)
+      Ironfan::ServerSlice.new(self, svrs.flatten)
     end
 
     #
@@ -81,9 +81,9 @@ module ClusterChef
     # @param [Array, String] slice_indexes -- servers in that facet (or nil for all in facet).
     #   You must specify a facet if you use slice_indexes.
     #
-    # @return [ClusterChef::ServerSlice] the requested slice
+    # @return [Ironfan::ServerSlice] the requested slice
     def slice facet_name=nil, slice_indexes=nil
-      return ClusterChef::ServerSlice.new(self, self.servers) if facet_name.nil?
+      return Ironfan::ServerSlice.new(self, self.servers) if facet_name.nil?
       find_facet(facet_name).slice(slice_indexes)
     end
 

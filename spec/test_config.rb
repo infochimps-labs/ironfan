@@ -4,13 +4,13 @@ username      = 'mrflip'
 
 cookbook_root = ENV['PATH_TO_COOKBOOK_REPOS'] || File.expand_path('~/ics/sysadmin')
 
-cluster_chef_path       File.expand_path(cookbook_root+'/cluster_chef')
+ironfan_path       File.expand_path(cookbook_root+'/ironfan')
 keypair_path            File.expand_path(current_dir+"/keypairs")
 cookbook_path    [
-  "cluster_chef/cookbooks",         "cluster_chef/site-cookbooks",
+  "ironfan/cookbooks",         "ironfan/site-cookbooks",
   ].map{|path| File.join(cookbook_root, path) }
 cluster_path     [
-  'cluster_chef/clusters',
+  'ironfan/clusters',
   ].map{|path| File.join(cookbook_root, path) }
 
 node_name                username

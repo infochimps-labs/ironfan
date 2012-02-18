@@ -1,8 +1,8 @@
-module ClusterChef
+module Ironfan
   #
   # Base class allowing us to layer settings for facet over cluster
   #
-  class ComputeBuilder < ClusterChef::DslObject
+  class ComputeBuilder < Ironfan::DslObject
     attr_reader :cloud, :volumes, :chef_roles
     has_keys :name, :bogosity, :environment
     @@role_implications ||= Mash.new
@@ -38,7 +38,7 @@ module ClusterChef
     #
     def cloud(cloud_provider=nil, attrs={}, &block)
       raise "Only have ec2 so far" if cloud_provider && (cloud_provider != :ec2)
-      @cloud ||= ClusterChef::Cloud::Ec2.new(self)
+      @cloud ||= Ironfan::Cloud::Ec2.new(self)
       @cloud.configure(attrs, &block)
       @cloud
     end
@@ -65,13 +65,13 @@ module ClusterChef
     # @param attrs [Hash] a hash of attributes to pass down.
     #
     def volume(volume_name, attrs={}, &block)
-      volumes[volume_name] ||= ClusterChef::Volume.new(:parent => self, :name => volume_name)
+      volumes[volume_name] ||= Ironfan::Volume.new(:parent => self, :name => volume_name)
       volumes[volume_name].configure(attrs, &block)
       volumes[volume_name]
     end
 
     def raid_group(rg_name, attrs={}, &block)
-      volumes[rg_name] ||= ClusterChef::RaidGroup.new(:parent => self, :name => rg_name)
+      volumes[rg_name] ||= Ironfan::RaidGroup.new(:parent => self, :name => rg_name)
       volumes[rg_name].configure(attrs, &block)
       volumes[rg_name].sub_volumes.each do |sv_name|
         volume(sv_name){ in_raid(rg_name) ; mountable(false) ; tags({}) }
@@ -95,7 +95,7 @@ module ClusterChef
     # * run_list :normal items -- cluster, then facet, then server
     # * run_list :last   items -- cluster, then facet, then server
     #
-    # (see ClusterChef::Server#combined_run_list for full details though)
+    # (see Ironfan::Server#combined_run_list for full details though)
     #
     def role(role_name, placement=nil)
       add_to_run_list("role[#{role_name}]", placement)
@@ -109,7 +109,7 @@ module ClusterChef
     # * run_list :normal items -- cluster, then facet, then server
     # * run_list :last   items -- cluster, then facet, then server
     #
-    # (see ClusterChef::Server#combined_run_list for full details though)
+    # (see Ironfan::Server#combined_run_list for full details though)
     #
     def recipe(name, placement=nil)
       add_to_run_list(name, placement)
@@ -117,7 +117,7 @@ module ClusterChef
 
     # Roles and recipes for this element only.
     #
-    # See ClusterChef::Server#combined_run_list for run_list order resolution
+    # See Ironfan::Server#combined_run_list for run_list order resolution
     def run_list
       groups = run_list_groups
       [ groups[:first], groups[:normal], groups[:last] ].flatten.compact.uniq

@@ -21,9 +21,9 @@ require File.expand_path(File.dirname(__FILE__)+"/knife_common.rb")
 class Chef
   class Knife
     class ClusterShow < Knife
-      include ClusterChef::KnifeCommon
+      include Ironfan::KnifeCommon
       deps do
-        ClusterChef::KnifeCommon.load_deps
+        Ironfan::KnifeCommon.load_deps
       end
 
       banner "knife cluster show CLUSTER_NAME [FACET_NAME [INDEXES]] (options)"
@@ -34,7 +34,7 @@ class Chef
         :boolean     => true
 
       def run
-        load_cluster_chef
+        load_ironfan
         die(banner) if @name_args.empty?
         configure_dry_run
 

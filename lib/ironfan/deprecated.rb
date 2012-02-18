@@ -1,4 +1,4 @@
-module ClusterChef
+module Ironfan
 
   class Cluster
     #
@@ -7,7 +7,7 @@ module ClusterChef
     def use(*clusters)
       ui.warn "The 'use' statement is deprecated #{caller.inspect}"
       clusters.each do |c|
-        other_cluster =  ClusterChef.load_cluster(c)
+        other_cluster =  Ironfan.load_cluster(c)
         reverse_merge! other_cluster
       end
       self

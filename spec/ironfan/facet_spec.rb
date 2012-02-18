@@ -1,9 +1,9 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
-require CLUSTER_CHEF_DIR("lib/cluster_chef")
+require IRONFAN_DIR("lib/ironfan")
 
-describe ClusterChef::Facet do
-  let(:cluster){ ClusterChef.cluster(:gibbon) }
+describe Ironfan::Facet do
+  let(:cluster){ Ironfan.cluster(:gibbon) }
   let(:facet){
     cluster.facet(:namenode) do
       instances 5
@@ -67,4 +67,3 @@ describe ClusterChef::Facet do
 
   end
 end
-

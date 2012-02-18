@@ -20,8 +20,8 @@ require File.expand_path(File.dirname(__FILE__)+"/generic_command.rb")
 
 class Chef
   class Knife
-    class ClusterKill < ClusterChef::Script
-      import_banner_and_options(ClusterChef::Script)
+    class ClusterKill < Ironfan::Script
+      import_banner_and_options(Ironfan::Script)
 
       option :kill_bogus,
         :long        => "--kill-bogus",

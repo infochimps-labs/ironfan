@@ -1,4 +1,4 @@
-module ClusterChef
+module Ironfan
   module Cloud
 
     #
@@ -45,7 +45,7 @@ module ClusterChef
     #       spot_price_fraction   0.4
     #     end
     #
-    class Base < ClusterChef::DslObject
+    class Base < Ironfan::DslObject
       has_keys(
         :name, :flavor, :image_name, :image_id, :keypair,
         :chef_client_script, :public_ip, :permanent )
@@ -152,13 +152,13 @@ module ClusterChef
       # adds a security group to the cloud instance
       def security_group(sg_name, hsh={}, &block)
         sg_name = sg_name.to_s
-        security_groups[sg_name] ||= ClusterChef::Cloud::SecurityGroup.new(self, sg_name)
+        security_groups[sg_name] ||= Ironfan::Cloud::SecurityGroup.new(self, sg_name)
         security_groups[sg_name].configure(hsh, &block)
         security_groups[sg_name]
       end
 
       # With a value, sets the spot price to the given fraction of the
-      #   instance's full price (as found in ClusterChef::Cloud::Aws::FLAVOR_INFO)
+      #   instance's full price (as found in Ironfan::Cloud::Aws::FLAVOR_INFO)
       # With no value, returns the spot price as a fraction of the full instance price.
       def spot_price_fraction(val=nil)
         if val

@@ -1,11 +1,11 @@
 require 'fileutils'
 
-module ClusterChef
+module Ironfan
   #
   # A private key -- chef client key, ssh key, etc.
   #
   # The key is a pro
-  class PrivateKey < ClusterChef::DslObject
+  class PrivateKey < Ironfan::DslObject
     attr_reader   :name
     attr_reader   :proxy
     attr_reader   :on_update
@@ -27,7 +27,7 @@ module ClusterChef
 
     def save
       return unless @body
-      if ClusterChef.chef_config[:dry_run]
+      if Ironfan.chef_config[:dry_run]
         Chef::Log.debug("    key #{name} - dry run, not writing out key")
         return
       end
@@ -109,9 +109,9 @@ module ClusterChef
     def create_proxy!
       safely do
         step("    key #{name} - creating", :green)
-        @proxy = ClusterChef.fog_connection.key_pairs.create(:name => name.to_s)
+        @proxy = Ironfan.fog_connection.key_pairs.create(:name => name.to_s)
       end
-      ClusterChef.fog_keypairs[name] = proxy
+      Ironfan.fog_keypairs[name] = proxy
       self.body = proxy.private_key
       save
     end

@@ -1,6 +1,6 @@
 require 'chef/knife'
 
-module ClusterChef
+module Ironfan
   module KnifeCommon
 
     def self.load_deps
@@ -10,12 +10,12 @@ module ClusterChef
       require 'fog'
     end
 
-    def load_cluster_chef
-      $LOAD_PATH << File.join(Chef::Config[:cluster_chef_path], '/lib') if Chef::Config[:cluster_chef_path]
-      require 'cluster_chef'
+    def load_ironfan
+      $LOAD_PATH << File.join(Chef::Config[:ironfan_path], '/lib') if Chef::Config[:ironfan_path]
+      require 'ironfan'
       $stdout.sync = true
-      ClusterChef.ui          = self.ui
-      ClusterChef.chef_config = self.config
+      Ironfan.ui          = self.ui
+      Ironfan.chef_config = self.config
     end
 
     #
@@ -26,13 +26,13 @@ module ClusterChef
     # @param [Array, String] slice_indexes -- servers in that facet (or nil for all in facet).
     #   You must specify a facet if you use slice_indexes.
     #
-    # @return [ClusterChef::ServerSlice] the requested slice
+    # @return [Ironfan::ServerSlice] the requested slice
     def get_slice(cluster_name, facet_name=nil, slice_indexes=nil)
       if facet_name.nil? && slice_indexes.nil?
         cluster_name, facet_name, slice_indexes = cluster_name.split(/[\s\-]/, 3)
       end
       ui.info("Inventorying servers in #{predicate_str(cluster_name, facet_name, slice_indexes)}")
-      cluster = ClusterChef.load_cluster(cluster_name)
+      cluster = Ironfan.load_cluster(cluster_name)
       cluster.resolve!
       cluster.discover!
       cluster.slice(facet_name, slice_indexes)
@@ -168,7 +168,7 @@ module ClusterChef
     end
 
     def die *args
-      ClusterChef.die(*args)
+      Ironfan.die(*args)
     end
 
     module ClassMethods

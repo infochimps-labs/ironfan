@@ -25,16 +25,16 @@ class Chef
     #
     # Runs the ssh command to open a SOCKS proxy to the given host, and writes a
     # PAC (automatic proxy config) file to
-    # /tmp/cluster_chef_proxy-YOURNAME.pac. Only the first host is used, even if
+    # /tmp/ironfan_proxy-YOURNAME.pac. Only the first host is used, even if
     # multiple match.
     #
     # Why not use Net::Ssh directly? The SOCKS proxy support was pretty
     # bad. Though ugly, exec'ing the command works.
     #
-    class ClusterProxy < ClusterChef::Script
+    class ClusterProxy < Ironfan::Script
 
       import_banner_and_options(Chef::Knife::ClusterSsh, :except => [:concurrency, ])
-      banner 'knife cluster proxy "CLUSTER [FACET [INDEXES]]" (options) - Runs the ssh command to open a SOCKS proxy to the given host, and writes a PAC (automatic proxy config) file to /tmp/cluster_chef_proxy-YOURNAME.pac. Only the first host is used, even if multiple match.'
+      banner 'knife cluster proxy "CLUSTER [FACET [INDEXES]]" (options) - Runs the ssh command to open a SOCKS proxy to the given host, and writes a PAC (automatic proxy config) file to /tmp/ironfan_proxy-YOURNAME.pac. Only the first host is used, even if multiple match.'
 
       option :background,
         :long        => "--[no-]background",
@@ -93,10 +93,10 @@ class Chef
 
       #
       # Write a .pac (automatic proxy configuration) file
-      # to /etc/cluster_chef_proxy-YOURNAME.pac
+      # to /etc/ironfan_proxy-YOURNAME.pac
       #
       def dump_proxy_pac
-        pac_filename = File.expand_path(File.join('/tmp', "cluster_chef_proxy-#{ENV['USER']}.pac"))
+        pac_filename = File.expand_path(File.join('/tmp', "ironfan_proxy-#{ENV['USER']}.pac"))
         ui.info("point your browser at PAC (automatic proxy config file) file://#{pac_filename}")
         File.open(pac_filename, 'w') do |f|
           f.print proxy_pac_contents

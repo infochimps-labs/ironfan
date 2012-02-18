@@ -20,10 +20,10 @@ watch("lib/(.*)\.rb") do |match|
   run_spec file if File.exists?(file)
 end
 
-# watch('lib/cluster_chef/cookbook_munger\.rb') do |match|
+# watch('lib/ironfan/cookbook_munger\.rb') do |match|
 #   system match[0]
 # end
 #
-# watch('lib/cluster_chef/cookbook_munger/.*\.erb') do |match|
-#   system 'lib/cluster_chef/cookbook_munger.rb'
+# watch('lib/ironfan/cookbook_munger/.*\.erb') do |match|
+#   system 'lib/ironfan/cookbook_munger.rb'
 # end

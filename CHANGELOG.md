@@ -1,14 +1,30 @@
+# v3.1.0-rc1
+
+* 'ClusterChef has been renamed 'Ironfan'
+* The 'Metachef' cookbook has been renamed 'Silverware'
+* The 'Minidash' cookbook has been renamed 'Minidash'
+
+Please be sure you do a 
+
+    knife cookbook delete metachef minidash
+    knife cookbook upload --all
+
+These renames unfortunately hit every cookbook that depends on (what is now) silverware.
+
+__________________________________________________________________________
+__________________________________________________________________________
+
 ## v3.0.14: 
 
 Big important change:
 
-# ClusterChef is now Ironfan
+# Ironfan is now Ironfan
 
 Due to a polite request from outside, we are changing this project's name to not include the word 'Chef'.
 
 It's now 'Ironfan', after Princess Iron Fan from the legend of Sun Wukong (Voyage to the West). The monkey hero Sun Wukong could not reach his destination without the help of the Princess's Iron Fan. The project helps you fan out across big iron in the sky -- and "You Can't Do B.I. without a Big Ironfan".
 
-This weekend (2/18) everything in the cluster_chef family of everything will get regex-replaced as ironfan. We'll track both gems for the next push or so, but new versions of the gem will not be released after Feb 2012.
+This weekend (2/18) everything in the ironfan family of everything will get regex-replaced as ironfan. We'll track both gems for the next push or so, but new versions of the gem will not be released after Feb 2012.
 
 Other improvements/fixes:
 
@@ -39,7 +55,7 @@ Other improvements/fixes:
 ## v3.0.10: Cloud fixes
 
 * security groups are now created/updated in knife cluster sync. This can't help you apply then to a node afer launch though -- nothing can, the API doesn't allow it.
-* clusters now all refer to an AMI named `cluster_chef-natty` by default, and to customizable roles `org_base`, `org_final` and `org_users` (where `org_base` has a role_implication for membership in the systemwide `org_base` security group)
+* clusters now all refer to an AMI named `ironfan-natty` by default, and to customizable roles `org_base`, `org_final` and `org_users` (where `org_base` has a role_implication for membership in the systemwide `org_base` security group)
 * default facet instances is now 1 who knows why it wasn't always 1.
 * minor linting of cluster before launching it
 * bump to latest versions of oneiric AMIs thx @redbeard
@@ -48,8 +64,8 @@ Other improvements/fixes:
 
 ## v3.0.6: schism of cookbooks and tools
 
-* cookbooks all now live in [their own repo](https://github.com/infochimps-labs/cluster_chef-homebase), organized according to opscode standard.
-* gem is now split into `cluster_chef` (the libraries) and `cluster_chef-knife` (the chef plugins)
+* cookbooks all now live in [their own repo](https://github.com/infochimps-labs/ironfan-homebase), organized according to opscode standard.
+* gem is now split into `ironfan` (the libraries) and `ironfan-knife` (the chef plugins)
 * private_key was passing its block to super, with bad results
 
 ## Changes from v2 => v3 [2011 October]
@@ -58,15 +74,15 @@ Other improvements/fixes:
 
 _________
 
-ClusterChef underwent a major upgrade with the last several commits.
+Ironfan underwent a major upgrade with the last several commits.
 
-* the `cluster_chef` tools -- the DSL, knife plugins, and bootstrap scripts -- have been split out of the  [cluster_chef repo](http://github.com/infochimps/cluster_chef) into a [separate repo](http://github.com/infochimps/cluster_chef-tools).
-* The tools are now available as a gem -- `gem install cluster_chef`
+* the `ironfan` tools -- the DSL, knife plugins, and bootstrap scripts -- have been split out of the  [ironfan repo](http://github.com/infochimps-labs/ironfan) into a [separate repo](http://github.com/infochimps-labs/ironfan-tools).
+* The tools are now available as a gem -- `gem install ironfan`
 * Cleaned up the code
 * Standardized clusters & roles
 * Standardized cookbooks
 
-### ClusterChef DSL Changes
+### Ironfan DSL Changes
 
 The following behaviors have been removed:
 
@@ -95,8 +111,8 @@ Several knife scripts saw name changes to their params. If you have external scr
 
 ### Cookbook-affecting changes
 
-* Standardized on `node[:cluster_name]`, `node[:facet_name]` and `node[:facet_index]` as the way to refer to the cluster, facet and server parts of a node's name. This replaces the way-too-many names for these: `node[:cluster_chef][:facet]` and `node[:cluster_role]` (use `node[:facet_name]`), `node[:cluster_chef][:index]` and `node[:cluster_role_index]` (use `node[:facet_index]`) .
-* ClusterChef family of cookbooks were updated accordingly.
+* Standardized on `node[:cluster_name]`, `node[:facet_name]` and `node[:facet_index]` as the way to refer to the cluster, facet and server parts of a node's name. This replaces the way-too-many names for these: `node[:ironfan][:facet]` and `node[:cluster_role]` (use `node[:facet_name]`), `node[:ironfan][:index]` and `node[:cluster_role_index]` (use `node[:facet_index]`) .
+* Ironfan family of cookbooks were updated accordingly.
 
 #### hadoop_cluster cookbook
 
@@ -108,7 +124,7 @@ Several knife scripts saw name changes to their params. If you have external scr
 
 #### Deprecated cookbooks
 
-You must add `"#{cluster_chef_path}/deprecated-cookbooks"` to your cookbook_path in knife.rb if you would like to keep using
+You must add `"#{ironfan_path}/deprecated-cookbooks"` to your cookbook_path in knife.rb if you would like to keep using
 
 * `cluster_ebs_volumes` -- use `mountable_volumes` instead.
 

@@ -1,8 +1,8 @@
-module ClusterChef
+module Ironfan
   #
   # Internal or external storage
   #
-  class Volume < ClusterChef::DslObject
+  class Volume < Ironfan::DslObject
     attr_reader   :parent
     attr_accessor :fog_volume
     has_keys(
@@ -45,7 +45,7 @@ module ClusterChef
     # Describes a volume
     #
     # @example
-    #   ClusterChef::Volume.new( :name => 'redis',
+    #   Ironfan::Volume.new( :name => 'redis',
     #     :device => '/dev/sdp', :mount_point => '/data/redis', :fstype => 'xfs', :mount_options => 'defaults,nouuid,noatime'
     #     :size => 1024, :snapshot_id => 'snap-66494a08', :volume_id => 'vol-12312',
     #     :tags => {}, :keep => true )
@@ -69,10 +69,10 @@ module ClusterChef
       volume_id =~ /^ephemeral/
     end
 
-    # Named snapshots, as defined in ClusterChef::Volume::VOLUME_IDS
+    # Named snapshots, as defined in Ironfan::Volume::VOLUME_IDS
     def snapshot_name(name)
       snap_id = VOLUME_IDS[name.to_sym]
-      raise "Unknown snapshot name #{name} - is it defined in ClusterChef::Volume::VOLUME_IDS?" unless snap_id
+      raise "Unknown snapshot name #{name} - is it defined in Ironfan::Volume::VOLUME_IDS?" unless snap_id
       self.snapshot_id(snap_id)
     end
 
@@ -141,7 +141,7 @@ module ClusterChef
     def defaults()
       super
       fstype            'xfs'
-      mount_options     "defaults,nobootwait,noatime,nouuid,comment=cluster_chef"
+      mount_options     "defaults,nobootwait,noatime,nouuid,comment=ironfan"
       attachable        false
       create_at_launch  false
       #

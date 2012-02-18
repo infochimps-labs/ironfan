@@ -18,12 +18,12 @@
 
 require File.expand_path(File.dirname(__FILE__)+"/knife_common.rb")
 
-module ClusterChef
+module Ironfan
   class Script < Chef::Knife
-    include ClusterChef::KnifeCommon
+    include Ironfan::KnifeCommon
 
     deps do
-      ClusterChef::KnifeCommon.load_deps
+      Ironfan::KnifeCommon.load_deps
     end
 
     option :dry_run,
@@ -37,7 +37,7 @@ module ClusterChef
       :boolean     => true
 
     def run
-      load_cluster_chef
+      load_ironfan
       die(banner) if @name_args.empty?
       configure_dry_run
 

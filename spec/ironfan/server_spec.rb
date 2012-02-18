@@ -1,26 +1,26 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
-require CLUSTER_CHEF_DIR("lib/cluster_chef")
+require IRONFAN_DIR("lib/ironfan")
 
-describe ClusterChef::Server do
+describe Ironfan::Server do
   include_context 'dummy_chef'
 
-  ClusterChef::Server.class_eval do
+  Ironfan::Server.class_eval do
     def chef_node
       Chef::Node.new
     end
   end
 
-  ClusterChef::DryRunnable.class_eval do
+  Ironfan::DryRunnable.class_eval do
     def unless_dry_run
       puts "Not doing that"
     end
   end
 
   before do
-    ClusterChef::Server.stub!(:chef_node).and_return( "HI" )
+    Ironfan::Server.stub!(:chef_node).and_return( "HI" )
     Chef::Config.stub!(:validation_key).and_return("I_AM_VALID")
 
-    foo = ClusterChef::Server.new(ClusterChef::Facet.new(ClusterChef::Cluster.new('hi'),'there'),0)
+    foo = Ironfan::Server.new(Ironfan::Facet.new(Ironfan::Cluster.new('hi'),'there'),0)
     puts foo.inspect
     puts foo.chef_node
     @cluster = get_example_cluster('webserver_demo')

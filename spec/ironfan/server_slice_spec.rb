@@ -1,9 +1,9 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
-require CLUSTER_CHEF_DIR("lib/cluster_chef")
+require IRONFAN_DIR("lib/ironfan")
 
-describe ClusterChef::ServerSlice do
+describe Ironfan::ServerSlice do
   before do
-    @slice = ClusterChef.slice('webserver_demo')
+    @slice = Ironfan.slice('webserver_demo')
   end
 
   describe 'attributes' do

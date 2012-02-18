@@ -25,12 +25,12 @@
 #
 #
 
-module ClusterChef
+module Ironfan
   module DryRunnable
-    # Run given block unless in dry_run mode (ClusterChef.chef_config[:dry_run]
+    # Run given block unless in dry_run mode (Ironfan.chef_config[:dry_run]
     # is true)
     def unless_dry_run
-      if ClusterChef.chef_config[:dry_run]
+      if Ironfan.chef_config[:dry_run]
         ui.info("      ... but not really (#{ui.color("dry run", :bold, :yellow)} for server #{name})")
       else
         yield
@@ -42,7 +42,7 @@ module ClusterChef
     def new_chef_role(role_name, cluster, facet=nil)
       chef_role = Chef::Role.new
       chef_role.name        role_name
-      chef_role.description "ClusterChef generated role for #{[cluster_name, facet_name].compact.join('-')}" unless chef_role.description
+      chef_role.description "Ironfan generated role for #{[cluster_name, facet_name].compact.join('-')}" unless chef_role.description
       chef_role.instance_eval{ @cluster = cluster; @facet = facet; }
       @chef_roles << chef_role
       chef_role
@@ -60,7 +60,7 @@ module ClusterChef
   end
 
   #
-  # ClusterChef::Server methods that handle chef actions
+  # Ironfan::Server methods that handle chef actions
   #
   Server.class_eval do
     include DryRunnable
@@ -136,7 +136,7 @@ module ClusterChef
     end
 
     def client_key
-      @client_key ||= ClusterChef::ChefClientKey.new("client-#{fullname}", chef_client) do |body|
+      @client_key ||= Ironfan::ChefClientKey.new("client-#{fullname}", chef_client) do |body|
         chef_client.private_key(body) if chef_client.present? && body.present?
         cloud.user_data(:client_key => body)
       end

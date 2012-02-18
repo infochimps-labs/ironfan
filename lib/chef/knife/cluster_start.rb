@@ -21,8 +21,8 @@ require File.expand_path(File.dirname(__FILE__)+"/generic_command.rb")
 
 class Chef
   class Knife
-    class ClusterStart < ClusterChef::Script
-      import_banner_and_options(ClusterChef::Script)
+    class ClusterStart < Ironfan::Script
+      import_banner_and_options(Ironfan::Script)
 
       def relevant?(server)
         server.startable?

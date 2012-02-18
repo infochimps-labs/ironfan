@@ -1,6 +1,6 @@
-module ClusterChef
+module Ironfan
   #
-  # ClusterChef::Server methods that handle Fog action
+  # Ironfan::Server methods that handle Fog action
   #
   Server.class_eval do
 
@@ -10,12 +10,12 @@ module ClusterChef
       launch_desc = fog_launch_description
       Chef::Log.debug(JSON.pretty_generate(launch_desc))
       safely do
-        @fog_server = ClusterChef.fog_connection.servers.create(launch_desc)
+        @fog_server = Ironfan.fog_connection.servers.create(launch_desc)
       end
     end
 
     def lint_fog
-      unless cloud.image_id then raise "No image ID found: nothing in Chef::Config[:ec2_image_info] for AZ #{self.default_availability_zone} flavor #{cloud.flavor} backing #{cloud.backing} image name #{cloud.image_name}, and cloud.image_id was not set directly. See https://github.com/infochimps/cluster_chef/wiki/machine-image-(AMI)-lookup-by-name - #{cloud.list_images}" end
+      unless cloud.image_id then raise "No image ID found: nothing in Chef::Config[:ec2_image_info] for AZ #{self.default_availability_zone} flavor #{cloud.flavor} backing #{cloud.backing} image name #{cloud.image_name}, and cloud.image_id was not set directly. See https://github.com/infochimps-labs/ironfan/wiki/machine-image-(AMI)-lookup-by-name - #{cloud.list_images}" end
       unless cloud.image_id then cloud.list_flavors ; raise "No machine flavor found" ; end
     end
 
@@ -50,7 +50,7 @@ module ClusterChef
       tags_to_create.each do |key, value|
         Chef::Log.debug( "tagging #{desc} with #{key} = #{value}" )
         safely do
-          ClusterChef.fog_connection.tags.create({
+          Ironfan.fog_connection.tags.create({
             :key => key, :value => value.to_s, :resource_id => fog_obj.id })
         end
       end
@@ -58,15 +58,15 @@ module ClusterChef
 
     def fog_address
       address_str = self.cloud.public_ip or return
-      ClusterChef.fog_addresses[address_str]
+      Ironfan.fog_addresses[address_str]
     end
 
     def discover_volumes!
       composite_volumes.each do |vol_name, vol|
         my_vol = volumes[vol_name]
         next if my_vol.fog_volume
-        next if ClusterChef.chef_config[:cloud] == false
-        my_vol.fog_volume = ClusterChef.fog_volumes.find do |fv|
+        next if Ironfan.chef_config[:cloud] == false
+        my_vol.fog_volume = Ironfan.fog_volumes.find do |fv|
           ( # matches the explicit volume id
             (vol.volume_id && (fv.id == vol.volume_id)    ) ||
             # OR this server's machine exists, and this volume is attached to
@@ -111,7 +111,7 @@ module ClusterChef
       if (fog_address && fog_address.server_id) then check_server_id_pairing(fog_address, desc) ; return ; end
       safely do
         step("  assigning #{desc}", :blue)
-        ClusterChef.fog_connection.associate_address(self.fog_server.id, address)
+        Ironfan.fog_connection.associate_address(self.fog_server.id, address)
       end
     end
 
@@ -133,10 +133,10 @@ module ClusterChef
     def sync_keypairs
       step("ensuring keypairs exist")
       keypairs  = servers.map{|svr| [svr.cluster.cloud.keypair, svr.cloud.keypair] }.flatten.map(&:to_s).reject(&:blank?).uniq
-      keypairs  = keypairs - ClusterChef.fog_keypairs.keys
+      keypairs  = keypairs - Ironfan.fog_keypairs.keys
       keypairs.each do |keypair_name|
-        keypair_obj = ClusterChef::Ec2Keypair.create!(keypair_name)
-        ClusterChef.fog_keypairs[keypair_name] = keypair_obj
+        keypair_obj = Ironfan::Ec2Keypair.create!(keypair_name)
+        Ironfan.fog_keypairs[keypair_name] = keypair_obj
       end
     end
 

@@ -1,8 +1,8 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
-require CLUSTER_CHEF_DIR("lib/cluster_chef")
+require IRONFAN_DIR("lib/ironfan")
 
-describe ClusterChef::Cluster do
+describe Ironfan::Cluster do
   describe 'discover!' do
     let(:cluster){ get_example_cluster(:monkeyballs) }
 

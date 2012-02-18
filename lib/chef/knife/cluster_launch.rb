@@ -22,7 +22,7 @@ require File.expand_path(File.dirname(__FILE__)+"/cluster_bootstrap.rb")
 class Chef
   class Knife
     class ClusterLaunch < Knife
-      include ClusterChef::KnifeCommon
+      include Ironfan::KnifeCommon
 
       deps do
         require 'time'
@@ -56,7 +56,7 @@ class Chef
         :default     => false
 
       def run
-        load_cluster_chef
+        load_ironfan
         die(banner) if @name_args.empty?
         configure_dry_run
 
@@ -109,7 +109,7 @@ class Chef
         end
 
         # Make sure our list of volumes is accurate
-        ClusterChef.fetch_fog_volumes
+        Ironfan.fetch_fog_volumes
         server.discover_volumes!
 
         # Attach volumes, etc

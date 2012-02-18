@@ -19,12 +19,12 @@ Hash.class_eval do
   end unless method_defined?(:to_mash)
 end
 
-module ClusterChef
+module Ironfan
   #
   # Provides magic methods, defined with has_keys
   #
   # @example
-  #   class Mom < ClusterChef::DslObject
+  #   class Mom < Ironfan::DslObject
   #     has_keys(:college, :combat_boots, :fat, :so_fat)
   #   end
   #
@@ -57,7 +57,7 @@ module ClusterChef
     # @params [Array(String)] key_names DSL attribute names
     #
     # @example
-    #   class Mom < ClusterChef::DslObject
+    #   class Mom < Ironfan::DslObject
     #     has_keys(:fat, :so_fat)
     #   end
     #   yer_mom = Mom.new
@@ -104,19 +104,19 @@ module ClusterChef
     end
 
     # delegate to the knife ui presenter
-    def ui()      ClusterChef.ui ; end
+    def ui()      Ironfan.ui ; end
     # delegate to the knife ui presenter
-    def self.ui() ClusterChef.ui ; end
+    def self.ui() Ironfan.ui ; end
 
     def step(desc, *style)
       ui.info("  #{"%-15s" % (name.to_s+":")}\t#{ui.color(desc.to_s, *style)}")
     end
 
     # helper method for bombing out of a script
-    def die(*args) ClusterChef.die(*args) ; end
+    def die(*args) Ironfan.die(*args) ; end
 
     # helper method for turning exceptions into warnings
-    def safely(*args, &block) ClusterChef.safely(*args, &block) ; end
+    def safely(*args, &block) Ironfan.safely(*args, &block) ; end
 
     # helper method for debugging only
     def dump(*args) args.each{|arg| Chef::Log.debug( arg.inspect ) } end

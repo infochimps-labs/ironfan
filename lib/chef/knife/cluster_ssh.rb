@@ -22,11 +22,11 @@ require 'chef/knife/ssh'
 class Chef
   class Knife
     class ClusterSsh < Chef::Knife::Ssh
-      include ClusterChef::KnifeCommon
+      include Ironfan::KnifeCommon
 
       deps do
         Chef::Knife::Ssh.load_deps
-        ClusterChef::KnifeCommon.load_deps
+        Ironfan::KnifeCommon.load_deps
       end
 
       banner 'knife cluster ssh "CLUSTER [FACET [INDEXES]]" COMMAND (options)'
@@ -116,7 +116,7 @@ class Chef
       end
 
       def run
-        load_cluster_chef
+        load_ironfan
         die(banner) if @name_args.empty?
         extend Chef::Mixin::Command
 

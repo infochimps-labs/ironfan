@@ -1,4 +1,4 @@
-module ClusterChef
+module Ironfan
   module Cloud
 
     class SecurityGroup < DslObject
@@ -9,7 +9,7 @@ module ClusterChef
       def initialize cloud, group_name, group_description=nil, group_owner_id=nil
         super()
         set :name, group_name.to_s
-        description group_description || "cluster_chef generated group #{group_name}"
+        description group_description || "ironfan generated group #{group_name}"
         @cloud         = cloud
         @group_authorizations = []
         @group_authorized_by  = []
@@ -26,22 +26,22 @@ module ClusterChef
         get_all
       end
       def self.get_all
-        groups_list = ClusterChef.fog_connection.security_groups.all
+        groups_list = Ironfan.fog_connection.security_groups.all
         @@all = groups_list.inject(Mash.new) do |hsh, fog_group|
           hsh[fog_group.name] = fog_group ; hsh
         end
       end
 
       def get
-        all[name] || ClusterChef.fog_connection.security_groups.get(name)
+        all[name] || Ironfan.fog_connection.security_groups.get(name)
       end
 
       def self.get_or_create(group_name, description)
-        # FIXME: the '|| ClusterChef.fog' part is probably unnecessary
-        fog_group = all[group_name] || ClusterChef.fog_connection.security_groups.get(group_name)
+        # FIXME: the '|| Ironfan.fog' part is probably unnecessary
+        fog_group = all[group_name] || Ironfan.fog_connection.security_groups.get(group_name)
         unless fog_group
           self.step(group_name, "creating (#{description})", :green)
-          fog_group = all[group_name] = ClusterChef.fog_connection.security_groups.new(:name => group_name, :description => description, :connection => ClusterChef.fog_connection)
+          fog_group = all[group_name] = Ironfan.fog_connection.security_groups.new(:name => group_name, :description => description, :connection => Ironfan.fog_connection)
           fog_group.save
         end
         fog_group

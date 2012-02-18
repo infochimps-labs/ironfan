@@ -1,11 +1,11 @@
-module ClusterChef
+module Ironfan
   #
   # A server group is a set of actual or implied servers.
   #
   # The idea is we want to be able to smoothly roll up settings
   #
   #
-  class ServerSlice < ClusterChef::DslObject
+  class ServerSlice < Ironfan::DslObject
     attr_reader :name, :servers, :cluster
 
     def initialize cluster, servers
@@ -142,7 +142,7 @@ module ClusterChef
     # call it with no args, you get the basic table that knife cluster show
     # draws.  If you give it an array of strings, you can override the order and
     # headings displayed. If you also give it a block you can add your own logic
-    # for generating content. The block is given a ClusterChef::Server instance
+    # for generating content. The block is given a Ironfan::Server instance
     # for each item in the collection and should return a hash of Name,Value
     # pairs to merge into the minimal fields.
     #
@@ -220,7 +220,7 @@ module ClusterChef
     # Calls block on each server in parallel, each in its own thread
     #
     # @example
-    #   target = ClusterChef::Cluster.slice('web_server')
+    #   target = Ironfan::Cluster.slice('web_server')
     #   target.parallelize{|svr| svr.launch }
     #
     # @yield each server, in turn

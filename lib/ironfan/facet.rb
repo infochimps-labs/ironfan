@@ -1,5 +1,5 @@
-module ClusterChef
-  class Facet < ClusterChef::ComputeBuilder
+module Ironfan
+  class Facet < Ironfan::ComputeBuilder
     attr_reader :cluster
     has_keys  :instances
 
@@ -50,11 +50,11 @@ module ClusterChef
     # @param [Hash] attrs -- attributes to configure on the object
     # @yield a block to execute in the context of the object
     #
-    # @return [ClusterChef::Facet]
+    # @return [Ironfan::Facet]
     #
     def server(idx, attrs={}, &block)
       idx = idx.to_i
-      @servers[idx] ||= ClusterChef::Server.new(self, idx)
+      @servers[idx] ||= Ironfan::Server.new(self, idx)
       @servers[idx].configure(attrs, &block)
       @servers[idx]
     end
@@ -70,7 +70,7 @@ module ClusterChef
 
     # All servers in this facet
     #
-    # @return [ClusterChef::ServerSlice] slice containing all servers
+    # @return [Ironfan::ServerSlice] slice containing all servers
     def servers
       slice(indexes)
     end
@@ -83,12 +83,12 @@ module ClusterChef
     #
     # @param [Array, String] slice_indexes -- servers in that facet (or nil for all in facet).
     #
-    # @return [ClusterChef::ServerSlice] the requested slice
+    # @return [Ironfan::ServerSlice] the requested slice
     def slice(slice_indexes=nil)
       slice_indexes = self.indexes if slice_indexes.blank?
       slice_indexes = indexes_from_intervals(slice_indexes) if slice_indexes.is_a?(String)
       svrs = Array(slice_indexes).map(&:to_i).sort!.select{|idx| has_server?(idx) }.map{|idx| server(idx) }
-      ClusterChef::ServerSlice.new(self.cluster, svrs)
+      Ironfan::ServerSlice.new(self.cluster, svrs)
     end
 
     # all valid server indexes
@@ -127,7 +127,7 @@ module ClusterChef
     # indexes. The indexes will be unique but in an arbitrary order.
     #
     # @example
-    #   facet = ClusterChef::Facet.new('foo', 'bar')
+    #   facet = Ironfan::Facet.new('foo', 'bar')
     #   facet.indexes_from_intervals('1,2-3,8-9,7') # [1, 2, 3, 8, 9, 7]
     #   facet.indexes_from_intervals('1,3-5,4,7')   # [1, 3, 4, 5, 7]
     #

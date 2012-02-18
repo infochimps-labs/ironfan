@@ -1,4 +1,4 @@
-module ClusterChef
+module Ironfan
 
   #
   # A server is a specific (logical) member of a facet within a cluster.
@@ -6,7 +6,7 @@ module ClusterChef
   # It may have extra attributes if it also exists in the Chef server,
   # or if it exists in the real world (as revealed by Fog)
   #
-  class Server < ClusterChef::ComputeBuilder
+  class Server < Ironfan::ComputeBuilder
     attr_reader   :cluster, :facet, :facet_index, :tags
     attr_accessor :chef_node, :fog_server
 
@@ -37,7 +37,7 @@ module ClusterChef
     end
 
     def servers
-      ClusterChef::ServerGroup.new(cluster, [self])
+      Ironfan::ServerGroup.new(cluster, [self])
     end
 
     def bogosity val=nil
@@ -139,7 +139,7 @@ module ClusterChef
     # * own roles: cluster_role then facet_role
     # * run_list :last   items -- cluster then facet then server
     #
-    #    ClusterChef.cluster(:my_cluster) do
+    #    Ironfan.cluster(:my_cluster) do
     #      role('f',  :last)
     #      role('c')
     #      facet(:my_facet) do
@@ -186,12 +186,12 @@ module ClusterChef
     def composite_volumes
       vols = {}
       facet.volumes.each do |vol_name, vol|
-        self.volumes[vol_name] ||= ClusterChef::Volume.new(:parent => self, :name => vol_name)
+        self.volumes[vol_name] ||= Ironfan::Volume.new(:parent => self, :name => vol_name)
         vols[vol_name]         ||= self.volumes[vol_name].dup
         vols[vol_name].reverse_merge!(vol)
       end
       cluster.volumes.each do |vol_name, vol|
-        self.volumes[vol_name] ||= ClusterChef::Volume.new(:parent => self, :name => vol_name)
+        self.volumes[vol_name] ||= Ironfan::Volume.new(:parent => self, :name => vol_name)
         vols[vol_name]         ||= self.volumes[vol_name].dup
         vols[vol_name].reverse_merge!(vol)
       end
@@ -209,7 +209,7 @@ module ClusterChef
     # retrieval
     #
     def self.get(cluster_name, facet_name, facet_index)
-      cluster = ClusterChef.cluster(cluster_name)
+      cluster = Ironfan.cluster(cluster_name)
       had_facet = cluster.has_facet?(facet_name)
       facet = cluster.facet(facet_name)
       facet.bogosity true unless had_facet

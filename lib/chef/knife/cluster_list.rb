@@ -21,7 +21,7 @@ require File.expand_path(File.dirname(__FILE__)+"/knife_common.rb")
 class Chef
   class Knife
     class ClusterList < Knife
-      include ClusterChef::KnifeCommon
+      include Ironfan::KnifeCommon
 
       deps do
         require 'formatador'
@@ -30,17 +30,17 @@ class Chef
       banner "knife cluster list (options)"
 
       def run
-        load_cluster_chef
+        load_ironfan
         configure_dry_run
 
-        hash = ClusterChef.cluster_filenames
+        hash = Ironfan.cluster_filenames
 
         table = []
         hash.keys.sort.each do |key|
           table.push( { :cluster => key, :path => hash[key] } )
         end
 
-        ui.info "Cluster Path: #{ ClusterChef.cluster_path.join ", " }"
+        ui.info "Cluster Path: #{ Ironfan.cluster_path.join ", " }"
 
         Formatador.display_compact_table(table, [:cluster,:path])
 

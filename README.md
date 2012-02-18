@@ -1,4 +1,4 @@
-# cluster_chef
+# ironfan
 
 Infrastructure as code: describe and orchestrate whole clusters of cloud or virtual machines. 
 
@@ -7,7 +7,7 @@ Infrastructure as code: describe and orchestrate whole clusters of cloud or virt
 Here's a very simple cluster:
 
 ```ruby
-ClusterChef.cluster 'webapp_demo' do
+Ironfan.cluster 'webapp_demo' do
   cloud(:ec2) do
     flavor              't1.micro'
   end
@@ -80,7 +80,7 @@ The commands available are
 Let's say that app is truly awesome, and the features and demand increases. This cluster adds an [ElasticSearch server](http://elasticsearch.org) for searching, a haproxy loadbalancer, and spreads the webnodes across two availability zones.
 
 ```ruby
-ClusterChef.cluster 'webserver_demo_2' do
+Ironfan.cluster 'webserver_demo_2' do
   cloud(:ec2) do
     image_name          "maverick"
     flavor              "t1.micro"
@@ -147,7 +147,7 @@ end
 
 The facets are described and scale independently. If you'd like to add more webnodes, just increase the instance count. If a machine misbehaves, just terminate it. Running `knife cluster launch webapp_demo webnode` will note which machines are missing, and launch and configure them appropriately.
 
-ClusterChef speaks naturally to both Chef and your cloud provider. The esnode's `cluster_role.override_attributes` statement will be synchronized to the chef server, pinning the elasticsearch version across the clients and server.. Your chef roles should focus system-specific information; the cluster file lets you see the architecture as a whole.
+Ironfan speaks naturally to both Chef and your cloud provider. The esnode's `cluster_role.override_attributes` statement will be synchronized to the chef server, pinning the elasticsearch version across the clients and server.. Your chef roles should focus system-specific information; the cluster file lets you see the architecture as a whole.
 
 With these simple settings, if you have already [set up chef's knife to launch cloud servers](http://wiki.opscode.com/display/chef/Launch+Cloud+Instances+with+Knife), typing `knife cluster launch demosimple --bootstrap` will (using Amazon EC2 as an example):
 
@@ -160,12 +160,12 @@ With these simple settings, if you have already [set up chef's knife to launch c
   - uses a keypair (login ssh key) isolated to that cluster
   - Recognizes the `ssh` role, and add a security group `ssh` that by default opens port 22.
   - Recognize the `nfs_server` role, and adds security groups `nfs_server` and `nfs_client`
-  - Authorizes the `nfs_server` to accept connections from all `nfs_client`s. Machines in other clusters that you mark as `nfs_client`s can connect to the NFS server, but are not automatically granted any other access to the machines in this cluster. ClusterChef's opinionated behavior is about more than saving you effort -- tying this behavior to the chef role means you can't screw it up. 
+  - Authorizes the `nfs_server` to accept connections from all `nfs_client`s. Machines in other clusters that you mark as `nfs_client`s can connect to the NFS server, but are not automatically granted any other access to the machines in this cluster. Ironfan's opinionated behavior is about more than saving you effort -- tying this behavior to the chef role means you can't screw it up. 
 * Launches the machines in parallel:
   - using the image name and the availability zone, it determines the appropriate region, image ID, and other implied behavior. 
   - passes a JSON-encoded user_data hash specifying the machine's chef `node_name` and client key. An appropriately-configured machine image will need no further bootstrapping -- it will connect to the chef server with the appropriate identity and proceed completely unattended.
 * Syncronizes to the cloud provider:
-  - Applies EC2 tags to the machine, making your console intelligible: ![AWS Console screenshot](https://github.com/infochimps/cluster_chef/raw/version_3/notes/aws_console_screenshot.jpg)
+  - Applies EC2 tags to the machine, making your console intelligible: ![AWS Console screenshot](https://github.com/infochimps-labs/ironfan/raw/version_3/notes/aws_console_screenshot.jpg)
   - Connects external (EBS) volumes, if any, to the correct mount point -- it uses (and applies) tags to the volumes, so they know which machine to adhere to. If you've manually added volumes, just make sure they're defined correctly in your cluster file and run `knife cluster sync {cluster_name}`; it will paint them with the correct tags.
   - Associates an elastic IP, if any, to the machine
 * Bootstraps the machine using knife bootstrap
@@ -188,16 +188,16 @@ Let's create a cluster called 'demosimple'. It's, well, a simple demo cluster.
 
 #### Create a simple demo cluster
 
-Create a directory for your clusters; copy the demosimple cluster and its associated roles from cluster_chef:
+Create a directory for your clusters; copy the demosimple cluster and its associated roles from ironfan:
 
 ```ruby
         mkdir -p $CHEF_REPO_DIR/clusters
-        cp cluster_chef/clusters/{defaults,demosimple}.rb ./clusters/
-        cp cluster_chef/roles/{big_package,nfs_*,ssh,base_role,chef_client}.rb  ./roles/
+        cp ironfan/clusters/{defaults,demosimple}.rb ./clusters/
+        cp ironfan/roles/{big_package,nfs_*,ssh,base_role,chef_client}.rb  ./roles/
 ```
 
 Lastly, add the `cookbooks`, `site-cookbooks`, and `meta-cookbooks` directories
-from cluster_chef to the `cookbooks_path` in your knife.rb, and push everything
+from ironfan to the `cookbooks_path` in your knife.rb, and push everything
 to the chef server. (see below for details).
 
 #### knife cluster launch
@@ -264,19 +264,19 @@ Next,
 * sign up for an AWS account
 * Follow the "Knife with AWS quickstart": on the opscode wiki.
 
-Right now cluster chef works well with AWS.  If you're interested in modifying it to work with other cloud providers, "see here":https://github.com/infochimps/cluster_chef/issues/28 or get in touch.
+Right now cluster chef works well with AWS.  If you're interested in modifying it to work with other cloud providers, "see here":https://github.com/infochimps-labs/ironfan/issues/28 or get in touch.
 
 #### Knife setup
 
-In your `.chef/knife.rb`, modify the cookbook path to include cluster_chef's `cookbooks`, `meta-cookbooks` and `site-cookbooks`, and to add settings for `cluster_chef_path`, `cluster_path` and `keypair_path`. Here's mine:
+In your `.chef/knife.rb`, modify the cookbook path to include ironfan's `cookbooks`, `meta-cookbooks` and `site-cookbooks`, and to add settings for `ironfan_path`, `cluster_path` and `keypair_path`. Here's mine:
 
 ```
         current_dir = File.dirname(__FILE__)
         organization  = 'CHEF_ORGANIZATION'
         username      = 'CHEF_USERNAME'
 
-        # The full path to your cluster_chef installation
-        cluster_chef_path File.expand_path("#{current_dir}/../cluster_chef")
+        # The full path to your ironfan installation
+        ironfan_path File.expand_path("#{current_dir}/../ironfan")
         # The list of paths holding clusters
         cluster_path      [ File.expand_path("#{current_dir}/../clusters") ]
         # The directory holding your cloud keypairs
@@ -294,9 +294,9 @@ In your `.chef/knife.rb`, modify the cookbook path to include cluster_chef's `co
 
         # The first things have lowest priority (so, site-cookbooks gets to win)
         cookbook_path            [
-          "#{cluster_chef_path}/cookbooks",      # std cookbooks from opscode/cookbooks
-          "#{cluster_chef_path}/meta-cookbooks", # coordinate services among cookbooks
-          "#{cluster_chef_path}/site-cookbooks", # infochimps' collection of cookbooks
+          "#{ironfan_path}/cookbooks",      # std cookbooks from opscode/cookbooks
+          "#{ironfan_path}/meta-cookbooks", # coordinate services among cookbooks
+          "#{ironfan_path}/site-cookbooks", # infochimps' collection of cookbooks
           "#{current_dir}/../cookbooks",         
           "#{current_dir}/../site-cookbooks",    # your internal cookbooks
         ]
@@ -316,7 +316,7 @@ In your `.chef/knife.rb`, modify the cookbook path to include cluster_chef's `co
 
 #### Push to chef server
 
-To send all the cookbooks and role to the chef server, visit your cluster_chef directory and run:
+To send all the cookbooks and role to the chef server, visit your ironfan directory and run:
 
 ```ruby
         cd $CHEF_REPO_DIR
@@ -325,4 +325,4 @@ To send all the cookbooks and role to the chef server, visit your cluster_chef d
         for foo in roles/*.rb ; do knife role from file $foo & sleep 1 ; done
 ```
 
-You should see all the cookbooks defined in cluster_chef/cookbooks (ant, apt, ...) listed among those it uploads.
+You should see all the cookbooks defined in ironfan/cookbooks (ant, apt, ...) listed among those it uploads.

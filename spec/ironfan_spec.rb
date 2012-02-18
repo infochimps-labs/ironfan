@@ -1,8 +1,8 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
-require CLUSTER_CHEF_DIR("lib/cluster_chef")
+require IRONFAN_DIR("lib/ironfan")
 
-describe "cluster_chef" do
+describe "ironfan" do
   describe 'successfuly runs example' do
 
     describe 'webserver_demo:' do
@@ -12,7 +12,7 @@ describe "cluster_chef" do
       end
 
       it 'loads successfuly' do
-        @cluster.should be_a(ClusterChef::Cluster)
+        @cluster.should be_a(Ironfan::Cluster)
         @cluster.name.should == :webserver_demo
       end
 
@@ -26,7 +26,7 @@ describe "cluster_chef" do
       end
 
       it 'defaults cluster' do
-        defaults_cluster = ClusterChef.cluster(:defaults)
+        defaults_cluster = Ironfan.cluster(:defaults)
         cloud_hash = defaults_cluster.cloud.to_hash
         [:security_groups, :user_data].each{|k| cloud_hash.delete k }
         cloud_hash.should == {
@@ -37,7 +37,7 @@ describe "cluster_chef" do
           :backing            => "ebs",
           :disable_api_termination => false,
           :public_ip         => false,
-          :bootstrap_distro   => "ubuntu10.04-cluster_chef",
+          :bootstrap_distro   => "ubuntu10.04-ironfan",
         }
       end
 
@@ -52,7 +52,7 @@ describe "cluster_chef" do
           :backing            => "instance",
           :disable_api_termination => false,
           :public_ip         => false,
-          :bootstrap_distro   => "ubuntu10.04-cluster_chef",
+          :bootstrap_distro   => "ubuntu10.04-ironfan",
           :keypair            => :webserver_demo,
         }
       end
@@ -122,7 +122,7 @@ describe "cluster_chef" do
         gg = @cluster.facet(:esnode).security_groups
         gg.keys.sort.should == ["default", "webserver_demo", "webserver_demo-esnode", "webserver_demo-redis_server", "nfs_client", "ssh"]
         gg['webserver_demo-redis_server'][:name].should == "webserver_demo-redis_server"
-        gg['webserver_demo-redis_server'][:description].should == "cluster_chef generated group webserver_demo-redis_server"
+        gg['webserver_demo-redis_server'][:description].should == "ironfan generated group webserver_demo-redis_server"
         gg['webserver_demo-redis_server'].group_authorizations.should == [['webserver_demo-redis_client', nil]]
       end
 
@@ -182,7 +182,7 @@ describe "cluster_chef" do
             :backing            => "ebs",
             :disable_api_termination => false,
             :public_ip         => false,
-            :bootstrap_distro   => "ubuntu10.04-cluster_chef",
+            :bootstrap_distro   => "ubuntu10.04-ironfan",
             :keypair            => :webserver_demo,
           }
         end

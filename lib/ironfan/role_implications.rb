@@ -1,4 +1,4 @@
-module ClusterChef
+module Ironfan
   ComputeBuilder.class_eval do
 
     # organization-wide security group

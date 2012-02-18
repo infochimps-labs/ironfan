@@ -1,11 +1,11 @@
-module ClusterChef
+module Ironfan
   class Cluster
 
     def discover!
       @aws_instance_hash = {}
-      discover_cluster_chef!
+      discover_ironfan!
       discover_chef_nodes!
-      discover_fog_servers!  unless ClusterChef.chef_config[:cloud] == false
+      discover_fog_servers!  unless Ironfan.chef_config[:cloud] == false
       discover_chef_clients!
       discover_volumes!
     end
@@ -56,7 +56,7 @@ module ClusterChef
   protected
 
     def fog_servers
-      @fog_servers ||= ClusterChef.fog_servers.select{|fs| fs.key_name == cluster_name.to_s && (fs.state != "terminated") }
+      @fog_servers ||= Ironfan.fog_servers.select{|fs| fs.key_name == cluster_name.to_s && (fs.state != "terminated") }
     end
 
     # Walk the list of chef nodes and
@@ -75,7 +75,7 @@ module ClusterChef
         else
           next
         end
-        svr = ClusterChef::Server.get(cluster_name, facet_name, facet_index)
+        svr = Ironfan::Server.get(cluster_name, facet_name, facet_index)
         svr.chef_node = chef_node
         @aws_instance_hash[ chef_node.ec2.instance_id ] = svr if chef_node[:ec2] && chef_node.ec2.instance_id
       end
@@ -86,8 +86,8 @@ module ClusterChef
       servers.each(&:chef_client)
     end
 
-    # calling #servers vivifies each facet's ClusterChef::Server instances
-    def discover_cluster_chef!
+    # calling #servers vivifies each facet's Ironfan::Server instances
+    def discover_ironfan!
       self.servers
     end
 
@@ -98,7 +98,7 @@ module ClusterChef
       # to the chef node name found in the chef node
       fog_servers.each do |fs|
         if fs.tags["cluster"] && fs.tags["facet"] && fs.tags["index"] && fs.tags["cluster"] == cluster_name.to_s
-          svr = ClusterChef::Server.get(fs.tags["cluster"], fs.tags["facet"], fs.tags["index"])
+          svr = Ironfan::Server.get(fs.tags["cluster"], fs.tags["facet"], fs.tags["index"])
         elsif @aws_instance_hash[fs.id]
           svr = @aws_instance_hash[fs.id]
         else
@@ -129,10 +129,10 @@ module ClusterChef
       servers.each(&:discover_addresses!)
     end
 
-  end # ClusterChef::Cluster
+  end # Ironfan::Cluster
 end
 
-module ClusterChef
+module Ironfan
 
   def self.fog_connection
     @fog_connection ||= Fog::Compute.new({
@@ -146,13 +146,13 @@ module ClusterChef
   def self.fog_servers
     return @fog_servers if @fog_servers
     Chef::Log.debug("Using fog to catalog all servers")
-    @fog_servers = ClusterChef.fog_connection.servers.all
+    @fog_servers = Ironfan.fog_connection.servers.all
   end
 
   def self.fog_addresses
     return @fog_addresses if @fog_addresses
     Chef::Log.debug("Using fog to catalog all addresses")
-    @fog_addresses = {}.tap{|hsh| ClusterChef.fog_connection.addresses.each{|fa| hsh[fa.public_ip] = fa } }
+    @fog_addresses = {}.tap{|hsh| Ironfan.fog_connection.addresses.each{|fa| hsh[fa.public_ip] = fa } }
   end
 
   def self.fog_volumes
@@ -161,17 +161,17 @@ module ClusterChef
 
   def self.fetch_fog_volumes
     Chef::Log.debug("Using fog to catalog all volumes")
-    @fog_volumes = ClusterChef.fog_connection.volumes
+    @fog_volumes = Ironfan.fog_connection.volumes
   end
 
   def self.fog_keypairs
     return @fog_keypairs if @fog_keypairs
     Chef::Log.debug("Using fog to catalog all keypairs")
-    @fog_keypairs = {}.tap{|hsh| ClusterChef.fog_connection.key_pairs.each{|kp| hsh[kp.name] = kp } }
+    @fog_keypairs = {}.tap{|hsh| Ironfan.fog_connection.key_pairs.each{|kp| hsh[kp.name] = kp } }
   end
 
   def safely *args, &block
-    ClusterChef.safely(*args, &block)
+    Ironfan.safely(*args, &block)
   end
 
 end

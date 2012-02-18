@@ -9,11 +9,11 @@ require 'bundler'
 # end
 require 'spork'
 
-unless defined?(CLUSTER_CHEF_DIR)
-  CLUSTER_CHEF_DIR = File.expand_path(File.dirname(__FILE__)+'/..')
-  def CLUSTER_CHEF_DIR(*paths) File.join(CLUSTER_CHEF_DIR, *paths); end
+unless defined?(IRONFAN_DIR)
+  IRONFAN_DIR = File.expand_path(File.dirname(__FILE__)+'/..')
+  def IRONFAN_DIR(*paths) File.join(IRONFAN_DIR, *paths); end
   # load from vendored libraries, if present
-  Dir[CLUSTER_CHEF_DIR("vendor/*/lib")].each{|dir| p dir ;  $LOAD_PATH.unshift(File.expand_path(dir)) } ; $LOAD_PATH.uniq!
+  Dir[IRONFAN_DIR("vendor/*/lib")].each{|dir| p dir ;  $LOAD_PATH.unshift(File.expand_path(dir)) } ; $LOAD_PATH.uniq!
 end
 
 Spork.prefork do # This code is run only once when the spork server is started
@@ -26,18 +26,18 @@ Spork.prefork do # This code is run only once when the spork server is started
   Fog.mock!
   Fog::Mock.delay = 0
 
-  CHEF_CONFIG_FILE = File.expand_path(CLUSTER_CHEF_DIR('spec/test_config.rb')) unless defined?(CHEF_CONFIG_FILE)
+  CHEF_CONFIG_FILE = File.expand_path(IRONFAN_DIR('spec/test_config.rb')) unless defined?(CHEF_CONFIG_FILE)
   Chef::Config.from_file(CHEF_CONFIG_FILE)
 
   # Requires custom matchers & macros, etc from files in ./spec_helper/
-  Dir[CLUSTER_CHEF_DIR("spec/spec_helper/*.rb")].each {|f| require f}
+  Dir[IRONFAN_DIR("spec/spec_helper/*.rb")].each {|f| require f}
 
   def load_example_cluster(name)
-    require(CLUSTER_CHEF_DIR('clusters', "#{name}.rb"))
+    require(IRONFAN_DIR('clusters', "#{name}.rb"))
   end
   def get_example_cluster name
     load_example_cluster(name)
-    ClusterChef.cluster(name)
+    Ironfan.cluster(name)
   end
 
   # Configure rspec

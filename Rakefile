@@ -40,7 +40,7 @@ Dir[File.join('tasks', '*.rake')].sort.each{|f| load(f) }
 
 # ---------------------------------------------------------------------------
 #
-# Jeweler -- release cluster_chef as a gem
+# Jeweler -- release ironfan as a gem
 #
 
 gems_to_release = ENV['GEMS_TO_RELEASE'] ? ENV['GEMS_TO_RELEASE'].split : %w[ cluster_chef cluster_chef-knife ]
