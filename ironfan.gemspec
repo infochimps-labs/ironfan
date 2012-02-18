@@ -5,15 +5,15 @@
 
 Gem::Specification.new do |s|
   s.name = "ironfan"
-  s.version = "3.0.14"
+  s.version = "3.1.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Infochimps"]
-  s.date = "2012-02-15"
+  s.date = "2012-02-18"
   s.description = "ironfan allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
   s.email = "coders@infochimps.com"
   s.extra_rdoc_files = [
-    "LICENSE",
+    "LICENSE.md",
     "README.md"
   ]
   s.files = [
@@ -21,18 +21,19 @@ Gem::Specification.new do |s|
     ".rspec",
     "CHANGELOG.md",
     "Gemfile",
-    "LICENSE",
+    "LICENSE.md",
     "README.md",
     "Rakefile",
     "TODO.md",
     "VERSION",
     "chefignore",
-    "ironfan-knife.gemspec",
-    "ironfan.gemspec",
+    "cluster_chef-knife.gemspec",
+    "cluster_chef.gemspec",
     "config/client.rb",
     "config/proxy.pac",
     "config/ubuntu10.04-ironfan.erb",
     "config/ubuntu11.10-ironfan.erb",
+    "ironfan.gemspec",
     "lib/chef/knife/bootstrap/ubuntu10.04-ironfan.erb",
     "lib/chef/knife/bootstrap/ubuntu11.10-ironfan.erb",
     "lib/chef/knife/cluster_bootstrap.rb",
@@ -64,7 +65,6 @@ Gem::Specification.new do |s|
     "lib/ironfan/server.rb",
     "lib/ironfan/server_slice.rb",
     "lib/ironfan/volume.rb",
-    "notes/aws_console_screenshot.jpg",
     "rspec.watchr",
     "spec/ironfan/cluster_spec.rb",
     "spec/ironfan/facet_spec.rb",
@@ -120,3 +120,4 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<configliere>, ["~> 0.4.8"])
   end
 end
+

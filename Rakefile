@@ -43,7 +43,7 @@ Dir[File.join('tasks', '*.rake')].sort.each{|f| load(f) }
 # Jeweler -- release ironfan as a gem
 #
 
-gems_to_release = ENV['GEMS_TO_RELEASE'] ? ENV['GEMS_TO_RELEASE'].split : %w[ cluster_chef cluster_chef-knife ]
+gems_to_release = ENV['GEMS_TO_RELEASE'] ? ENV['GEMS_TO_RELEASE'].split : %w[ ironfan ]
 gems_to_release.each do |gem_name|
   Jeweler::Tasks.new do |gem|
     gem.name        = gem_name

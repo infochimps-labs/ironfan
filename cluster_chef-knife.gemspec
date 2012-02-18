@@ -4,16 +4,16 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = "ironfan-knife"
-  s.version = "3.0.14"
+  s.name = "cluster_chef-knife"
+  s.version = "3.1.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Infochimps"]
-  s.date = "2012-02-15"
-  s.description = "ironfan-knife allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
+  s.date = "2012-02-18"
+  s.description = "cluster_chef-knife allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
   s.email = "coders@infochimps.com"
   s.extra_rdoc_files = [
-    "LICENSE",
+    "LICENSE.md",
     "README.md"
   ]
   s.files = [
@@ -21,13 +21,13 @@ Gem::Specification.new do |s|
     ".rspec",
     "CHANGELOG.md",
     "Gemfile",
-    "LICENSE",
+    "LICENSE.md",
     "README.md",
     "Rakefile",
     "TODO.md",
     "VERSION",
     "chefignore",
-    "ironfan-knife.gemspec",
+    "cluster_chef-knife.gemspec",
     "config/client.rb",
     "config/proxy.pac",
     "config/ubuntu10.04-ironfan.erb",
@@ -48,7 +48,22 @@ Gem::Specification.new do |s|
     "lib/chef/knife/cluster_sync.rb",
     "lib/chef/knife/generic_command.rb",
     "lib/chef/knife/knife_common.rb",
-    "notes/aws_console_screenshot.jpg",
+    "lib/ironfan.rb",
+    "lib/ironfan/chef_layer.rb",
+    "lib/ironfan/cloud.rb",
+    "lib/ironfan/cluster.rb",
+    "lib/ironfan/compute.rb",
+    "lib/ironfan/deprecated.rb",
+    "lib/ironfan/discovery.rb",
+    "lib/ironfan/dsl_object.rb",
+    "lib/ironfan/facet.rb",
+    "lib/ironfan/fog_layer.rb",
+    "lib/ironfan/private_key.rb",
+    "lib/ironfan/role_implications.rb",
+    "lib/ironfan/security_group.rb",
+    "lib/ironfan/server.rb",
+    "lib/ironfan/server_slice.rb",
+    "lib/ironfan/volume.rb",
     "rspec.watchr",
     "spec/ironfan/cluster_spec.rb",
     "spec/ironfan/facet_spec.rb",
@@ -63,10 +78,10 @@ Gem::Specification.new do |s|
   ]
   s.homepage = "http://infochimps.com/labs"
   s.licenses = ["apachev2"]
-  s.post_install_message = "!! This gem has been renamed 'ironfan' (from ironfan). \n   It will not be updated after Feb. 2012. \n  Sorry for the inconvenience."
+  s.post_install_message = "!! This gem has been renamed 'ironfan' (from cluster_chef). \n   It will not be updated after Feb. 2012. \n  Sorry for the inconvenience."
   s.require_paths = ["lib"]
   s.rubygems_version = "1.8.15"
-  s.summary = "ironfan-knife allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
+  s.summary = "cluster_chef-knife allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
   s.test_files = ["spec/ironfan/cluster_spec.rb", "spec/ironfan/facet_spec.rb", "spec/ironfan/server_slice_spec.rb", "spec/ironfan/server_spec.rb", "spec/ironfan_spec.rb", "spec/spec_helper/dummy_chef.rb", "spec/spec_helper.rb", "spec/test_config.rb"]
 
   if s.respond_to? :specification_version then
@@ -105,3 +120,4 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<configliere>, ["~> 0.4.8"])
   end
 end
+
