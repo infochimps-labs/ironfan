@@ -145,7 +145,7 @@ module Ironfan
     def chef_client_script_content
       return @chef_client_script_content if @chef_client_script_content
       return unless cloud.chef_client_script
-      script_filename = File.expand_path("../../config/#{cloud.chef_client_script}", File.dirname(__FILE__))
+      script_filename = File.expand_path("../../config/#{cloud.chef_client_script}", File.dirname(File.realdirpath(__FILE__)))
       @chef_client_script_content = safely{ File.read(script_filename) }
     end
 
@@ -202,7 +202,7 @@ module Ironfan
     def set_chef_node_attributes
       step("  setting node runlist and essential attributes")
       @chef_node.run_list = Chef::RunList.new(*@settings[:run_list])
-      @chef_node.normal[  :organization] = Chef::Config[:organization] if Chef::Config[:organization]
+      @chef_node.normal[:organization]   = organization if organization
       @chef_node.override[:cluster_name] = cluster_name
       @chef_node.override[:facet_name]   = facet_name
       @chef_node.override[:facet_index]  = facet_index

@@ -37,7 +37,7 @@ module Ironfan
     end
 
     def servers
-      Ironfan::ServerGroup.new(cluster, [self])
+      Ironfan::ServerSlice.new(cluster, [self])
     end
 
     def bogosity val=nil
@@ -101,6 +101,10 @@ module Ironfan
       @tags[key]
     end
 
+    def chef_server_url()        Chef::Config.chef_server_url        ; end
+    def validation_client_name() Chef::Config.validation_client_name ; end
+    def validation_key()         Chef::Config.validation_key         ; end
+    def organization()           Chef::Config.organization           ; end
     #
     # Resolve:
     #
@@ -113,19 +117,18 @@ module Ironfan
       cloud.reverse_merge!(cluster.cloud)
       #
       cloud.user_data({
-          :chef_server            => Chef::Config.chef_server_url,
-          :validation_client_name => Chef::Config.validation_client_name,
+          :chef_server            => chef_server_url,
+          :validation_client_name => validation_client_name,
           #
           :node_name              => fullname,
+          :organization           => organization,
           :cluster_name           => cluster_name,
           :facet_name             => facet_name,
           :facet_index            => facet_index,
           #
-          :run_list               => run_list,
+          :run_list               => combined_run_list,
         })
       #
-      if client_key.body then cloud.user_data({ :client_key     => client_key.body, })
-      else                    cloud.user_data({ :validation_key => cloud.validation_key }) ; end
       cloud.keypair(cluster_name) if cloud.keypair.nil?
       #
       self

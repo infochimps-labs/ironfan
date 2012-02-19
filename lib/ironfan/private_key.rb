@@ -70,7 +70,7 @@ module Ironfan
     end
 
     def key_dir
-      Chef::Config.client_key_dir || '/tmp/client_keys'
+      Chef::Config.client_key_dir || "/tmp/#{ENV['USER']}-client_keys"
     end
   end
 
@@ -89,7 +89,7 @@ module Ironfan
 
     def key_dir
       return Chef::Config.data_bag_key_dir if Chef::Config.data_bag_key_dir
-      dir = "#{ENV['HOME']}/.chef/data_bag_keys"
+      dir = "#{ENV['HOME']}/.chef/credentials/data_bag_keys"
       warn "Please set 'data_bag_key_dir' in your knife.rb. Will use #{dir} as a default"
       dir
     end
@@ -120,7 +120,7 @@ module Ironfan
       if Chef::Config.ec2_key_dir
         return Chef::Config.ec2_key_dir
       else
-        dir = "#{ENV['HOME']}/.chef/ec2_keys"
+        dir = "#{ENV['HOME']}/.chef/credentials/ec2_keys"
         warn "Please set 'ec2_key_dir' in your knife.rb. Will use #{dir} as a default"
         dir
       end

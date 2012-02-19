@@ -20,23 +20,26 @@ module Ironfan
     end
 
     def fog_launch_description
+      user_data_hsh =
+        if client_key.body then cloud.user_data.merge({ :client_key     => client_key.body })
+        else                    cloud.user_data.merge({ :validation_key => cloud.validation_key }) ; end
+      #
       {
-        :image_id          => cloud.image_id,
-        :flavor_id         => cloud.flavor,
-        #
-        :groups            => cloud.security_groups.keys,
-        :key_name          => cloud.keypair.to_s,
+        :image_id             => cloud.image_id,
+        :flavor_id            => cloud.flavor,
+        :groups               => cloud.security_groups.keys,
+        :key_name             => cloud.keypair.to_s,
         # Fog does not actually create tags when it creates a server.
-        :tags              => {
-          :cluster => cluster_name,
-          :facet   => facet_name,
-          :index   => facet_index, },
-        :user_data         => JSON.pretty_generate(cloud.user_data),
-        :block_device_mapping    => block_device_mapping,
+        :tags                 => {
+          :cluster            => cluster_name,
+          :facet              => facet_name,
+          :index              => facet_index, },
+        :user_data            => JSON.pretty_generate(user_data_hsh),
+        :block_device_mapping => block_device_mapping,
+        :availability_zone    => self.default_availability_zone,
+        :monitoring           => cloud.monitoring,
         # :disable_api_termination => cloud.permanent,
         # :instance_initiated_shutdown_behavior => instance_initiated_shutdown_behavior,
-        :availability_zone => self.default_availability_zone,
-        :monitoring => cloud.monitoring,
       }
     end
 
