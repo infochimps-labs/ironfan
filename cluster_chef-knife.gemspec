@@ -46,8 +46,8 @@ Gem::Specification.new do |s|
     "lib/chef/knife/cluster_start.rb",
     "lib/chef/knife/cluster_stop.rb",
     "lib/chef/knife/cluster_sync.rb",
-    "lib/chef/knife/generic_command.rb",
-    "lib/chef/knife/knife_common.rb",
+    "lib/chef/knife/ironfan_script.rb",
+    "lib/chef/knife/ironfan_knife_common.rb",
     "lib/ironfan.rb",
     "lib/ironfan/chef_layer.rb",
     "lib/ironfan/cloud.rb",
@@ -120,4 +120,3 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<configliere>, ["~> 0.4.8"])
   end
 end
-

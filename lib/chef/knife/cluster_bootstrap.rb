@@ -16,7 +16,7 @@
 # limitations under the License.
 #
 
-require File.expand_path(File.dirname(__FILE__)+"/generic_command.rb")
+require File.expand_path('ironfan_script', File.dirname(File.realdirpath(__FILE__)))
 require 'chef/knife/bootstrap'
 
 class Chef

@@ -16,7 +16,7 @@
 # limitations under the License.
 #
 
-require File.expand_path(File.dirname(__FILE__)+"/knife_common.rb")
+require File.expand_path('ironfan_knife_common', File.dirname(File.realdirpath(__FILE__)))
 require 'chef/knife/ssh'
 
 class Chef

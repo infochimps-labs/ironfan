@@ -16,7 +16,7 @@
 # limitations under the License.
 #
 
-require File.expand_path(File.dirname(__FILE__)+"/knife_common.rb")
+require File.expand_path('ironfan_knife_common', File.dirname(File.realdirpath(__FILE__)))
 
 class Chef
   class Knife
@@ -27,6 +27,7 @@ class Chef
       end
 
       banner "knife cluster show CLUSTER_NAME [FACET_NAME [INDEXES]] (options)"
+
       option :cloud,
         :long        => "--[no-]cloud",
         :description => "Look up machines on AWS cloud (default is yes, look up machines; use --no-cloud to skip)",
