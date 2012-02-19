@@ -33,6 +33,17 @@ module Ironfan
         ServerSlice.new cluster, @servers.send(method, *args, &block)
       end
     end
+    # true if slice contains a server with the given fullname (if arg is a
+    # string) or same fullname as the given server (if a Server)
+    #
+    # @overload include?(server_fullname)
+    #   @param [String] server_fullname checks for a server with that fullname
+    # @overload include?(server)
+    #   @param [Ironfan::Server] server checks for server with same fullname
+    def include?(server)
+      fullname = server.is_a?(String) ? server : server.fullname
+      @servers.any?{|svr| svr.fullname == fullname }
+    end
 
     # Return the collection of servers that are not yet 'created'
     def uncreated_servers
