@@ -14,7 +14,7 @@ unless defined?(Chef::Config)
 
     Instead, issue commands like
 
-        knife cluster vm COMMAND CLUSTER[-FACET-[INDEXES]]
+        knife cluster vagrant COMMAND CLUSTER[-FACET-[INDEXES]]
 
     Where command is something like
 

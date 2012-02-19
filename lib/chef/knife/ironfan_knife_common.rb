@@ -27,10 +27,13 @@ module Ironfan
     #   You must specify a facet if you use slice_indexes.
     #
     # @return [Ironfan::ServerSlice] the requested slice
-    def get_slice(cluster_name, facet_name=nil, slice_indexes=nil)
-      if facet_name.nil? && slice_indexes.nil?
-        cluster_name, facet_name, slice_indexes = cluster_name.split(/[\s\-]/, 3)
+    def get_slice(slice_string, *args)
+      if not args.empty?
+        slice_string = [slice_string, args].flatten.join("-")
+        ui.info("")
+        ui.warn("Please specify server slices joined by dashes and not separate args:\n\n  knife cluster #{sub_command} #{slice_string}\n\n")
       end
+      cluster_name, facet_name, slice_indexes = slice_string.split(/[\s\-]/, 3)
       ui.info("Inventorying servers in #{predicate_str(cluster_name, facet_name, slice_indexes)}")
       cluster = Ironfan.load_cluster(cluster_name)
       cluster.resolve!
@@ -183,7 +186,8 @@ module Ironfan
           next if options.include?(name) || options[:except].include?(name)
           option name, info
         end
-        banner "knife cluster #{sub_command} CLUSTER_NAME [FACET_NAME [INDEXES]] (options)"
+        options[:description] ||= "#{sub_command} all servers described by given cluster slice"
+        banner "knife cluster #{"%-11s" % sub_command} CLUSTER-[FACET-[INDEXES]] (options) - #{options[:description]}"
       end
     end
     def self.included(base)

@@ -21,7 +21,7 @@ require File.expand_path('ironfan_script', File.dirname(File.realdirpath(__FILE_
 class Chef
   class Knife
     class ClusterSync < Ironfan::Script
-      import_banner_and_options(Ironfan::Script)
+      import_banner_and_options(Ironfan::Script, :description => "Update chef server and cloud machines with current cluster definition")
 
       option :cloud,
         :long        => "--[no-]cloud",

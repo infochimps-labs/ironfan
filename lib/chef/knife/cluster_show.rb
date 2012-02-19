@@ -26,7 +26,7 @@ class Chef
         Ironfan::KnifeCommon.load_deps
       end
 
-      banner "knife cluster show CLUSTER_NAME [FACET_NAME [INDEXES]] (options)"
+      banner "knife cluster show        CLUSTER-[FACET-[INDEXES]] (options) - a helpful display of cluster's cloud and chef state"
 
       option :cloud,
         :long        => "--[no-]cloud",

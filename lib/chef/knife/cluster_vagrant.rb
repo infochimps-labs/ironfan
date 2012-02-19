@@ -31,7 +31,7 @@ class Chef
     # good reasons), so the following oddball procedure may persist until it a)
     # stops working well or b) someone recommends a better approach.
     #
-    # when you run `knife cluster vm command cluster-[facet-[indexes]]` we:
+    # when you run `knife cluster vagrant command cluster-[facet-[indexes]]` we:
     #
     # * identify all servers defined on that cluster
     # * find (or make) the directory config.vagrant_path
@@ -40,7 +40,7 @@ class Chef
     #   - it is called vagrantfile, but won't work in a standalone way.
     #
     #
-    class ClusterVm < Knife
+    class ClusterVagrant < Knife
       IRONFAN_DIR = File.dirname(File.realdirpath(__FILE__))
       require File.expand_path('ironfan_knife_common', IRONFAN_DIR)
       include Ironfan::KnifeCommon
@@ -52,7 +52,7 @@ class Chef
         require File.expand_path('vagrant/ironfan_provisioners', IRONFAN_DIR)
       end
 
-      banner "knife cluster vm COMMAND CLUSTER-[FACET-[INDEXES]] (options)"
+      banner "knife cluster vagrant CMD CLUSTER-[FACET-[INDEXES]] (options) - runs the given command against a vagrant environment created from your cluster definition. EARLY, use at your own risk"
 
       option :cloud,
         :long        => "--cloud PROVIDER",
@@ -62,7 +62,7 @@ class Chef
         :boolean     => false
 
       def run
-        # The subnet for thi
+        # The subnet for this world
         Chef::Config.host_network_blk   ||= '33.33.33'
         # Location that cookbooks, roles, etc will be mounted on vm
         # set to false to skip

@@ -29,7 +29,7 @@ class Chef
         Ironfan::KnifeCommon.load_deps
       end
 
-      banner 'knife cluster ssh "CLUSTER [FACET [INDEXES]]" COMMAND (options)'
+      banner 'knife cluster ssh         CLUSTER-[FACET-[INDEXES]] COMMAND (options)'
       Chef::Knife::Ssh.options.each do |name, hsh|
         next if name == :attribute
         option name, hsh

@@ -33,7 +33,7 @@ class Chef
     class ClusterProxy < Ironfan::Script
 
       import_banner_and_options(Chef::Knife::ClusterSsh, :except => [:concurrency, ])
-      banner 'knife cluster proxy "CLUSTER [FACET [INDEXES]]" (options) - Runs the ssh command to open a SOCKS proxy to the given host, and writes a PAC (automatic proxy config) file to /tmp/ironfan_proxy-YOURNAME.pac. Only the first host is used, even if multiple match.'
+      banner 'knife cluster proxy       CLUSTER-[FACET-[INDEXES]] (options) - Runs the ssh command to open a SOCKS proxy to the given host, and writes a PAC (automatic proxy config) file to /tmp/ironfan_proxy-YOURNAME.pac. Only the first host is used, even if multiple match.'
 
       option :background,
         :long        => "--[no-]background",
