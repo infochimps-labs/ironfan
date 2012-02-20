@@ -108,7 +108,7 @@ The commands available are:
 Let's say that app is truly awesome, and the features and demand increases. This cluster adds an [ElasticSearch server](http://elasticsearch.org) for searching, a haproxy loadbalancer, and spreads the webnodes across two availability zones.
 
 ```ruby
-Ironfan.cluster 'webserver_demo_2' do
+Ironfan.cluster 'web_demo' do
   cloud(:ec2) do
     image_name          "maverick"
     flavor              "t1.micro"
@@ -175,7 +175,7 @@ end
 
 The facets are described and scale independently. If you'd like to add more webnodes, just increase the instance count. If a machine misbehaves, just terminate it. Running `knife cluster launch web_demo webnode` will note which machines are missing, and launch and configure them appropriately.
 
-Ironfan speaks naturally to both Chef and your cloud provider. The esnode's `cluster_role.override_attributes` statement will be synchronized to the chef server, pinning the elasticsearch version across the clients and server.. Your chef roles should focus system-specific information; the cluster file lets you see the architecture as a whole.
+Ironfan speaks naturally to both Chef and your cloud provider. The esnode's `cluster_role.override_attributes` statement will be synchronized to the chef server, pinning the elasticsearch version across the server and clients. Your chef roles should focus on specific subsystems; the cluster file lets you see the architecture as a whole.
 
 With these simple settings, if you have already [set up chef's knife to launch cloud servers](http://wiki.opscode.com/display/chef/Launch+Cloud+Instances+with+Knife), typing `knife cluster launch demosimple --bootstrap` will (using Amazon EC2 as an example):
 
