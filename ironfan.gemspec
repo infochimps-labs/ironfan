@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "ironfan"
-  s.version = "3.1.0.rc1"
+  s.version = "3.1.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Infochimps"]
-  s.date = "2012-02-18"
+  s.date = "2012-02-20"
   s.description = "ironfan allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
   s.email = "coders@infochimps.com"
   s.extra_rdoc_files = [
@@ -19,6 +19,7 @@ Gem::Specification.new do |s|
   s.files = [
     ".gitignore",
     ".rspec",
+    ".yardopts",
     "CHANGELOG.md",
     "Gemfile",
     "LICENSE.md",
@@ -47,8 +48,12 @@ Gem::Specification.new do |s|
     "lib/chef/knife/cluster_start.rb",
     "lib/chef/knife/cluster_stop.rb",
     "lib/chef/knife/cluster_sync.rb",
-    "lib/chef/knife/ironfan_script.rb",
+    "lib/chef/knife/cluster_vagrant.rb",
     "lib/chef/knife/ironfan_knife_common.rb",
+    "lib/chef/knife/ironfan_script.rb",
+    "lib/chef/knife/vagrant/ironfan_environment.rb",
+    "lib/chef/knife/vagrant/ironfan_provisioners.rb",
+    "lib/chef/knife/vagrant/skeleton_vagrantfile.rb",
     "lib/ironfan.rb",
     "lib/ironfan/chef_layer.rb",
     "lib/ironfan/cloud.rb",
@@ -65,6 +70,25 @@ Gem::Specification.new do |s|
     "lib/ironfan/server.rb",
     "lib/ironfan/server_slice.rb",
     "lib/ironfan/volume.rb",
+    "notes/Home.md",
+    "notes/INSTALL-cloud_setup.md",
+    "notes/INSTALL.md",
+    "notes/Knife-Cluster-Commands.md",
+    "notes/Silverware.md",
+    "notes/aws_console_screenshot.jpg",
+    "notes/cookbook-versioning.md",
+    "notes/declaring_volumes.md",
+    "notes/design_notes-ci_testing.md",
+    "notes/design_notes-cookbook_event_ordering.md",
+    "notes/design_notes-dsl_object.md",
+    "notes/design_notes-meta_discovery.md",
+    "notes/ec2-pricing_and_capacity.md",
+    "notes/ironfan_homebase_layout.md",
+    "notes/named-cloud-objects.md",
+    "notes/rake_tasks.md",
+    "notes/renamed-recipes.txt",
+    "notes/style_guide.md",
+    "notes/tips_and_troubleshooting.md",
     "spec/ironfan/cluster_spec.rb",
     "spec/ironfan/facet_spec.rb",
     "spec/ironfan/server_slice_spec.rb",
@@ -119,3 +143,4 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<configliere>, ["~> 0.4.8"])
   end
 end
+
