@@ -1,6 +1,6 @@
 # Ironfan Core: knife tools and core models
 
-The ironfan project is an expressive toolset for constructing scalable, resilient architectures. It works in the cloud, in the data center, and on your laptop, and makes your system diagram visible and inevitable.
+Ironfan is an expressive toolset for scalable, resilient architectures. It enables "Infrastructure as Code", allowing you to describe and orchestrate systems that work in the cloud, in the data center, and on your laptop, makes your system diagram visible and inevitable.
 
 This repo implements
 
@@ -26,9 +26,12 @@ ironfan core works together with the full ironfan toolset:
 
 __________________________________________________________________________
 
-# Ironfan
 
-Infrastructure as code: describe and orchestrate whole clusters of cloud or virtual machines. 
+## Getting Started
+
+To jump right into using Ironfan, follow our [installation instructions](https://github.com/infochimps-labs/ironfan/wiki/INSTALL)
+
+__________________________________________________________________________
 
 ## Walkthrough
 
@@ -75,7 +78,6 @@ Each server inherits the appropriate behaviors from its facet and cluster. All t
 As you can see, the dbnode facet asks for a different flavor of machine (`m1.large`) than the cluster default (`t1.micro`). Settings in the facet override those in the server, and settings in the server override those of its facet. You economically describe only what's significant about each machine.
 
 ### Cluster-level tools
-
 
 ```
 $ knife cluster show web_demo
@@ -198,31 +200,20 @@ With these simple settings, if you have already [set up chef's knife to launch c
   - Associates an elastic IP, if any, to the machine
 * Bootstraps the machine using knife bootstrap
 
----------------------------------------------------------------------------
-
-## Getting Started
-
-@sya add the contents of https://github.com/infochimps-labs/ironfan/wiki/INSTALL here
-
 __________________________________________________________________________
 
 ## Philosophy
 
 Some general principles of how we use chef.
 
-* *Chef server is never the repository of truth* -- it only mirrors the truth.
-  - a file is tangible and immediate to access
-* Specifically, we want truth to live in the git repo, and be enforced by the chef server. *There is no truth but git, and chef is its messenger*.
-  - this means that everything is versioned, documented and exchangeable.
-* *Systems, services and significant modifications cluster should be obvious from the `clusters` file*.  I don't want to have to bounce around nine different files to find out which thing installed a redis:server.
-  - basically, the existence of anything that opens a port should be obvious when I look at the cluster file.
+* *Chef server is never the repository of truth* -- it only mirrors the truth. A file is tangible and immediate to access.
+* Specifically, we want truth to live in the git repo, and be enforced by the chef server.  This means that everything is versioned, documented and exchangeable. *There is no truth but git, and chef is its messenger*.
+* *Systems, services and significant modifications cluster should be obvious from the `clusters` file*.  I don't want to have to bounce around nine different files to find out which thing installed a redis:server. The existence of anything that opens a port should be obvious when I look at the cluster file.
 * *Roles define systems, clusters assemble systems into a machine*.
   - For example, a resque worker queue has a redis, a webserver and some config files -- your cluster should invoke a @whatever_queue@ role, and the @whatever_queue@ role should include recipes for the component services.
   - the existence of anything that opens a port _or_ runs as a service should be obvious when I look at the roles file.
 * *include_recipe considered harmful* Do NOT use include_recipe for anything that a) provides a service, b) launches a daemon or c) is interesting in any way. (so: @include_recipe java@ yes; @include_recipe iptables@ no.) You should note the dependency in the metadata.rb. This seems weird, but the breaking behavior is purposeful: it makes you explicitly state all dependencies.
-* It's nice when *machines are in full control of their destiny*.
-  - initial setup (elastic IP, attaching a drive) is often best enforced externally
-  - but machines should be ablt independently assert things like load balancer registration that that might change at any point in the lifetime.
+* It's nice when *machines are in full control of their destiny*. Their initial setup (elastic IP, attaching a drive) is often best enforced externally. However, machines should be able independently assert things like load balancer registration which may change at any point in their lifetime.
 * It's even nicer, though, to have *full idempotency from the command line*: I can at any time push truth from the git repo to the chef server and know that it will take hold.
 
 __________________________________________________________________________
