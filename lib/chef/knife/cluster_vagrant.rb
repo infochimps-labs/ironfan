@@ -127,7 +127,9 @@ class Chef
         #
         section("issuing command 'vagrant #{vagrant_command}'", :green)
 
-        env.cli(vagrant_command, * target.servers.map(&:fullname))
+        target.servers.each do |server|
+          env.cli(vagrant_command, server.fullname)
+        end
       end
 
       def display(target)

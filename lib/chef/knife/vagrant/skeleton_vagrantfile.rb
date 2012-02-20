@@ -38,6 +38,8 @@ Vagrant::Config.run do |config|
 
   # FIXME: things like this should be imputed by the `cloud` statement
   ram_mb           = 640
+  video_ram_mb     = 10
+  cores            = 2
 
   # ===========================================================================
   #
@@ -53,7 +55,7 @@ Vagrant::Config.run do |config|
   #
   # Define a VM for all the targeted servers in the cluster.
   #
-  # * vm name   - server's fullname ('el_ridiculoso-grande-2')
+  # * vm name   - server's fullname ('el_ridiculoso-gordo-2')
   # * vm box    - cloud.image_name
   # * creates host network on the subnet defined in Chef::Config[:host_network_blk]
   # * populates chef provisioner from the server's run_list
@@ -68,15 +70,15 @@ Vagrant::Config.run do |config|
       # See http://www.virtualbox.org/manual/ch08.html#idp12418752
       # for the craziness
       #
-      vm_customizations = {
-        "modifyvm" => :id,
-        "--name"   => svr.fullname.to_s,
-        # Use the host resolver for DNS so that VPN continues to work within the VM
-        "--natdnshostresolver1" => "on",
-      }
-      # vm_customizations["--memory"] = svr.cloud.ram_mb.to_s if svr.cloud.ram_mb
+      vm_customizations = {}
+      vm_customizations[:name]   = svr.fullname.to_s
+      vm_customizations[:memory] = ram_mb.to_s       if ram_mb
+      vm_customizations[:vram]   = video_ram_mb.to_s if video_ram_mb
+      vm_customizations[:cpus]   = cores.to_s        if cores
+      # Use the host resolver for DNS so that VPN continues to work within the VM
+      vm_customizations[:natdnshostresolver1] = "on"
       #
-      cfg.vm.customize vm_customizations
+      cfg.vm.customize ["modifyvm", :id, vm_customizations.map{|k,v| ["--#{k}", v]} ].flatten
 
       # Assign this VM to a bridged network, allowing you to connect directly to a
       # network using the host's network device. This makes the VM appear as another
