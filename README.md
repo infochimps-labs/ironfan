@@ -90,7 +90,8 @@ $ knife cluster show web_demo
 
 ```
 
-The commands available are
+The commands available are:
+
 * list -- lists known clusters
 * show -- show the named servers
 * launch -- launch server
