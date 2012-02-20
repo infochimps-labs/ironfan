@@ -1,15 +1,28 @@
-# v3.1.0-rc1
+# v3.1.1: I am Ironfan danananananabumbumbum
 
 * 'ClusterChef has been renamed 'Ironfan'
 * The 'Metachef' cookbook has been renamed 'Silverware'
 * The 'Minidash' cookbook has been renamed 'Minidash'
 
-Please be sure you do a 
+You should reload your chef server:
 
-    knife cookbook delete metachef minidash
+    knife cookbook delete metachef dashpot
     knife cookbook upload --all
+    rake roles
 
-These renames unfortunately hit every cookbook that depends on (what is now) silverware.
+* You can now launch a cluster locally with vagrant!
+  - follow the instructions in [ironfan-ci](https://github.com/infochimps-labs/ironfan-ci/blob/master/README-install.md)
+  - set up a credentials set for your local machine (`cp -rp knife/example-credentials knife/local-credentials ; ln -nfs local-credentials knife/credentials`)
+  - customize its `knife-org.rb` for your chef server
+  - `knife cluster vagrant up sandbox-simple`
+
+* Deprecated 'knife cluster foo nikko web 0' (many args) in favor of 'knife cluster foo nikko-web-0' (single arg). 
+  - the latter still works, it just yells a lot.
+  
+* Am changing `--no-cloud` and `--no-chef` to `--cloud=false` and `--chef=false`, opening up room for a later `--cloud=rackspace` etc.
+
+* many doc fixes, thanks @sya!
+
 
 __________________________________________________________________________
 __________________________________________________________________________
@@ -18,7 +31,7 @@ __________________________________________________________________________
 
 Big important change:
 
-# Ironfan is now Ironfan
+# ClusterChef is now Ironfan
 
 Due to a polite request from outside, we are changing this project's name to not include the word 'Chef'.
 
