@@ -35,7 +35,7 @@ Infrastructure as code: describe and orchestrate whole clusters of cloud or virt
 Here's a very simple cluster:
 
 ```ruby
-Ironfan.cluster 'webapp_demo' do
+Ironfan.cluster 'web_demo' do
   cloud(:ec2) do
     flavor              't1.micro'
   end
@@ -66,11 +66,11 @@ end
 
 This code defines a cluster named demosimple. A cluster is a group of servers united around a common purpose, in this case to serve a scalable web application.
 
-The webapp_demo cluster has two 'facets' -- dbnode and webnode. A facet is a subgroup of interchangeable servers that provide a logical set of systems: in this case, the systems that store the website's data and those that render it.
+The web_demo cluster has two 'facets' -- dbnode and webnode. A facet is a subgroup of interchangeable servers that provide a logical set of systems: in this case, the systems that store the website's data and those that render it.
 
-The dbnode facet has one server, which will be named `webapp_demo-dbnode-0`; the webnode facet has two servers, `webapp_demo-webnode-0` and `webapp_demo-webnode-1`.
+The dbnode facet has one server, which will be named `web_demo-dbnode-0`; the webnode facet has two servers, `web_demo-webnode-0` and `web_demo-webnode-1`.
 
-Each server inherits the appropriate behaviors from its facet and cluster. All the servers in this cluster have the `base_role`, `chef_client` and `ssh` roles. The dbnode machines additionally house a MySQL server, while the webnodes have an nginx reverse proxy for the custom `webapp_demo_webapp`.
+Each server inherits the appropriate behaviors from its facet and cluster. All the servers in this cluster have the `base_role`, `chef_client` and `ssh` roles. The dbnode machines additionally house a MySQL server, while the webnodes have an nginx reverse proxy for the custom `web_demo_webapp`.
 
 As you can see, the dbnode facet asks for a different flavor of machine (`m1.large`) than the cluster default (`t1.micro`). Settings in the facet override those in the server, and settings in the server override those of its facet. You economically describe only what's significant about each machine.
 
@@ -78,16 +78,15 @@ As you can see, the dbnode facet asks for a different flavor of machine (`m1.lar
 
 
 ```
-$ knife cluster show webapp_demo
+$ knife cluster show web_demo
 
-  +--------------------+-------+------------+-------------+--------------+---------------+-----------------+----------+--------------+------------+------------+
-  | Name               | Chef? | InstanceID | State       | Public IP    | Private IP    | Created At      | Flavor   | Image        | AZ         | SSH Key    |
-  +--------------------+-------+------------+-------------+--------------+---------------+-----------------+----------+--------------+------------+------------+
-  | webapp_demo-dbnode-0   | yes   | i-43c60e20 | running     | 107.22.6.104 | 10.88.112.201 | 20111029-204156 | t1.micro | ami-cef405a7 | us-east-1a | webapp_demo    |
-  | webapp_demo-webnode-0  | yes   | i-1233aef1 | running     | 102.99.3.123 | 10.88.112.123 | 20111029-204156 | t1.micro | ami-cef405a7 | us-east-1a | webapp_demo    |
-  | webapp_demo-webnode-1  | yes   | i-0986423b | not running |              |               |                 |          |              |            |            |
-  +--------------------+-------+------------+-------------+--------------+---------------+-----------------+----------+--------------+------------+------------+
-
++---------------------+-------+------------+-------------+--------------+---------------+-----------------+----------+--------------+------------+------------+
+| Name                | Chef? | InstanceID | State       | Public IP    | Private IP    | Created At      | Flavor   | Image        | AZ         | SSH Key    |
++---------------------+-------+------------+-------------+--------------+---------------+-----------------+----------+--------------+------------+------------+
+| web_demo-dbnode-0   | yes   | i-43c60e20 | running     | 107.22.6.104 | 10.88.112.201 | 20111029-204156 | t1.micro | ami-cef405a7 | us-east-1a | web_demo   |
+| web_demo-webnode-0  | yes   | i-1233aef1 | running     | 102.99.3.123 | 10.88.112.123 | 20111029-204156 | t1.micro | ami-cef405a7 | us-east-1a | web_demo   |
+| web_demo-webnode-1  | yes   | i-0986423b | not running |              |               |                 |          |              |            |            |
++---------------------+-------+------------+-------------+--------------+---------------+-----------------+----------+--------------+------------+------------+
 
 ```
 
@@ -173,7 +172,7 @@ Ironfan.cluster 'webserver_demo_2' do
 end
 ```
 
-The facets are described and scale independently. If you'd like to add more webnodes, just increase the instance count. If a machine misbehaves, just terminate it. Running `knife cluster launch webapp_demo webnode` will note which machines are missing, and launch and configure them appropriately.
+The facets are described and scale independently. If you'd like to add more webnodes, just increase the instance count. If a machine misbehaves, just terminate it. Running `knife cluster launch web_demo webnode` will note which machines are missing, and launch and configure them appropriately.
 
 Ironfan speaks naturally to both Chef and your cloud provider. The esnode's `cluster_role.override_attributes` statement will be synchronized to the chef server, pinning the elasticsearch version across the clients and server.. Your chef roles should focus system-specific information; the cluster file lets you see the architecture as a whole.
 
