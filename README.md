@@ -25,7 +25,6 @@ ironfan core works together with the full ironfan toolset:
 * [ironfan wiki](https://github.com/infochimps-labs/ironfan/wiki): high-level documentation and install instructions
 * [ironfan issues](https://github.com/infochimps-labs/ironfan/issues): bugs, questions and feature requests for *any* part of the ironfan toolset.
 * [ironfan gem docs](http://rdoc.info/gems/ironfan): rdoc docs for ironfan
-__________________________________________________________________________
 
 ## Philosophy
 
