@@ -14,29 +14,25 @@ To jump right into using Ironfan, follow our [installation instructions](https:/
 
 ## Index
 
-ironfan core works together with the full ironfan toolset:
+ironfan-homebase works together with the full Ironfan toolset:
 
-* [ironfan-homebase](https://github.com/infochimps-labs/ironfan-homebase): centralizes the cookbooks, roles and clusters. A solid foundation for any chef user.
-* [ironfan gem](https://github.com/infochimps-labs/ironfan): core ironfan models, and knife plugins to orchestrate machines and coordinate truth among you homebase, cloud and chef server.
-* [ironfan-pantry](https://github.com/infochimps-labs/ironfan-pantry): Our collection of industrial-strength, cloud-ready recipes for Hadoop, HBase, Cassandra, Elasticsearch, Zabbix and more.
-* [silverware cookbook](https://github.com/infochimps-labs/ironfan-pantry/tree/master/cookbooks/silverware): coordinate discovery of services ("list all the machines for `awesome_webapp`, that I might load balance them") and aspects ("list all components that write logs, that I might logrotate them, or that I might monitor the free space on their volumes".
-* [ironfan-ci](https://github.com/infochimps-labs/ironfan-ci): Continuous integration testing of not just your cookbooks but your *architecture*.
+Core Tools:
+* [ironfan-homebase](https://github.com/infochimps-labs/ironfan-homebase): Centralizes the cookbooks, roles and clusters. A solid foundation for any chef user.
+* [ironfan gem](https://github.com/infochimps-labs/ironfan): The core Ironfan models, and Knife plugins to orchestrate machines and coordinate truth among your homebase, cloud and chef server. It comes with [ironfan-homebase](https://github.com/infochimps-labs/ironfan-homebase).
+* [ironfan-pantry](https://github.com/infochimps-labs/ironfan-pantry): Our collection of industrial-strength, cloud-ready recipes for Hadoop, HBase, Cassandra, Elasticsearch, Zabbix and more. 
+* [silverware cookbook](https://github.com/infochimps-labs/ironfan-pantry/tree/master/cookbooks/silverware): Helps you coordinate discovery of services ("list all the machines for `awesome_webapp`, that I might load balance them") and aspects ("list all components that write logs, that I might logrotate them, or that I might monitor the free space on their volumes"). Found within the [ironfan-pantry](https://github.com/infochimps-labs/ironfan-pantry).
 
-* [ironfan wiki](https://github.com/infochimps-labs/ironfan/wiki): high-level documentation and install instructions
-* [ironfan issues](https://github.com/infochimps-labs/ironfan/issues): bugs, questions and feature requests for *any* part of the ironfan toolset.
-* [ironfan gem docs](http://rdoc.info/gems/ironfan): rdoc docs for ironfan
+Core Documentation:
+* [ironfan wiki](https://github.com/infochimps-labs/ironfan/wiki): High-level documentation and install instructions.
+* [ironfan issues](https://github.com/infochimps-labs/ironfan/issues): Bugs or questions and feature requests for *any* part of the Ironfan toolset.
+* [ironfan gem docs](http://rdoc.info/gems/ironfan): Rdoc docs for Ironfan.
 
-## Philosophy
+## What is Ironfan? 
+Ironfan is a systems provisioning and deployment tool. Ironfan automates not only machine configuration, but entire systems configuration to enable the entire Big Data stack, including tools for _data ingestion_, _scraping_, _storage_, _computation_, and _monitoring_.  
 
-Some general principles of how we use chef.
+Ironfan builds on Chef, but is opinionated about its architecture, which allows broader integration between components. It assumes a source repository, a central Chef Server, and a modern POSIX-compliant operating system for a base image. Currently, it works best with Git, Amazon Web Services, Ubuntu 11.04, with exploration into other virtualization platforms (Vagrant, etc.) and operating systems (Centos, FreeSBD, etc) ongoing, both inside and outside of Infochimps.
 
-* *Chef server is never the repository of truth* -- it only mirrors the truth. A file is tangible and immediate to access.
-* Specifically, we want truth to live in the git repo, and be enforced by the chef server.  This means that everything is versioned, documented and exchangeable. *There is no truth but git, and chef is its messenger*.
-* *Systems, services and significant modifications cluster should be obvious from the `clusters` file*.  I don't want to have to bounce around nine different files to find out which thing installed a redis:server. The existence of anything that opens a port should be obvious when I look at the cluster file.
-* *Roles define systems, clusters assemble systems into a machine*.
-  - For example, a resque worker queue has a redis, a webserver and some config files -- your cluster should invoke a @whatever_queue@ role, and the @whatever_queue@ role should include recipes for the component services.
-  - the existence of anything that opens a port _or_ runs as a service should be obvious when I look at the roles file.
-* *include_recipe considered harmful* Do NOT use include_recipe for anything that a) provides a service, b) launches a daemon or c) is interesting in any way. (so: @include_recipe java@ yes; @include_recipe iptables@ no.) You should note the dependency in the metadata.rb. This seems weird, but the breaking behavior is purposeful: it makes you explicitly state all dependencies.
-* It's nice when *machines are in full control of their destiny*. Their initial setup (elastic IP, attaching a drive) is often best enforced externally. However, machines should be able independently assert things like load balancer registration which may change at any point in their lifetime.
-* It's even nicer, though, to have *full idempotency from the command line*: I can at any time push truth from the git repo to the chef server and know that it will take hold.
+To understand the Philosophy behind how we use Chef go [here](https://github.com/infochimps-labs/ironfan/wiki/Philosophy).
+
+
 
