@@ -1,17 +1,17 @@
-# Ironfan Core: knife tools and core models
+# Ironfan Core: Knife Tools and Core Models
 
 Ironfan, the foundation of The Infochimps Platform, is an expressive toolset for constructing scalable, resilient architectures. It works in the cloud, in the data center, and on your laptop, and it makes your system diagram visible and inevitable. Inevitable systems coordinate automatically to interconnect, removing the hassle of manual configuration of connection points (and the associated danger of human error).
 For more information about Ironfan and The Infochimps Platform, visit the [Infochimps Blog introducing them](http://blog.infochimps.com/2012/02/23/infochimps-platform/).
 
-This repo implements
+This repo implements:
 
-* core models to describe your system diagram with a clean, expressive domain-specific language
-* knife plugins to orchestrate clusters of machines using simple commands like `knife cluster launch`
-* logic to coordinate truth among chef server and cloud providers.
+* Core models to describe your system diagram with a clean, expressive domain-specific language
+* Knife plugins to orchestrate clusters of machines using simple commands like `knife cluster launch`
+* Logic to coordinate truth among chef server and cloud providers.
 
 ## Getting Started
 
-To jump right into using Ironfan, follow our [installation instructions](https://github.com/infochimps-labs/ironfan/wiki/INSTALL). For an explanatory tour, check out our [Hadoop walkthrough](https://github.com/infochimps-labs/ironfan/wiki/INSTALL).  Please file all issues on [ironfan issues](https://github.com/infochimps-labs/ironfan/issues).
+To jump right into using Ironfan, follow our [Installation Instructions](https://github.com/infochimps-labs/ironfan/wiki/INSTALL). For an explanatory tour, check out our [Hadoop Walkthrough](https://github.com/infochimps-labs/ironfan/wiki/INSTALL).  Please file all issues on [Ironfan Issues](https://github.com/infochimps-labs/ironfan/issues).
 
 ## Index
 
