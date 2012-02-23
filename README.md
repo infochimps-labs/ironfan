@@ -1,247 +1,41 @@
-# Ironfan Core: knife tools and core models
+# Ironfan Core: Knife Tools and Core Models
 
-The ironfan project is an expressive toolset for constructing scalable, resilient architectures. It works in the cloud, in the data center, and on your laptop, and makes your system diagram visible and inevitable.
+Ironfan, the foundation of The Infochimps Platform, is an expressive toolset for constructing scalable, resilient architectures. It works in the cloud, in the data center, and on your laptop, and it makes your system diagram visible and inevitable. Inevitable systems coordinate automatically to interconnect, removing the hassle of manual configuration of connection points (and the associated danger of human error).
+For more information about Ironfan and The Infochimps Platform, visit the [Infochimps Blog introducing the Infochimps Platform](http://blog.infochimps.com/2012/02/22/infochimps-platform/).
 
-This repo implements
+This repo implements:
 
-* core models to describe your system diagram with a clean, expressive domain-specific language
-* knife plugins to orchestrate clusters of machines using simple commands like `knife cluster launch`
-* logic to coordinate truth among chef server and cloud providers.
-
-To get started with ironfan, clone the [homebase repo](https://github.com/infochimps-labs/ironfan-homebase) and follow the [installation instructions](https://github.com/infochimps-labs/ironfan/wiki/install). Please file all issues on [ironfan issues](https://github.com/infochimps-labs/ironfan/issues).
-
-## Index
-
-ironfan core works together with the full ironfan toolset:
-
-* [ironfan-homebase](https://github.com/infochimps-labs/ironfan-homebase): centralizes the cookbooks, roles and clusters. A solid foundation for any chef user.
-* [ironfan gem](https://github.com/infochimps-labs/ironfan): core ironfan models, and knife plugins to orchestrate machines and coordinate truth among you homebase, cloud and chef server.
-* [ironfan-pantry](https://github.com/infochimps-labs/ironfan-pantry): Our collection of industrial-strength, cloud-ready recipes for Hadoop, HBase, Cassandra, Elasticsearch, Zabbix and more.
-* [silverware cookbook](https://github.com/infochimps-labs/ironfan-homebase/tree/master/cookbooks/silverware): coordinate discovery of services ("list all the machines for `awesome_webapp`, that I might load balance them") and aspects ("list all components that write logs, that I might logrotate them, or that I might monitor the free space on their volumes".
-* [ironfan-ci](https://github.com/infochimps-labs/ironfan-ci): Continuous integration testing of not just your cookbooks but your *architecture*.
-
-* [ironfan wiki](https://github.com/infochimps-labs/ironfan/wiki): high-level documentation and install instructions
-* [ironfan issues](https://github.com/infochimps-labs/ironfan/issues): bugs, questions and feature requests for *any* part of the ironfan toolset.
-* [ironfan gem docs](http://rdoc.info/gems/ironfan): rdoc docs for ironfan
-
-__________________________________________________________________________
-
-# Ironfan
-
-Infrastructure as code: describe and orchestrate whole clusters of cloud or virtual machines. 
-
-## Walkthrough
-
-Here's a very simple cluster:
-
-```ruby
-Ironfan.cluster 'webapp_demo' do
-  cloud(:ec2) do
-    flavor              't1.micro'
-  end
-
-  role                  :base_role
-  role                  :chef_client
-  role                  :ssh
-
-  # The database server
-  facet :dbnode do
-    instances           1
-    role                :mysql_server
-
-    cloud do
-      flavor           'm1.large'
-      backing          'ebs'
-    end
-  end
-
-  # A throwaway facet for development.
-  facet :webnode do
-    instances           2
-    role                :nginx_server
-    role                :awesome_webapp
-  end
-end
-```
-
-This code defines a cluster named demosimple. A cluster is a group of servers united around a common purpose, in this case to serve a scalable web application.
-
-The webapp_demo cluster has two 'facets' -- dbnode and webnode. A facet is a subgroup of interchangeable servers that provide a logical set of systems: in this case, the systems that store the website's data and those that render it.
-
-The dbnode facet has one server, which will be named `webapp_demo-dbnode-0`; the webnode facet has two servers, `webapp_demo-webnode-0` and `webapp_demo-webnode-1`.
-
-Each server inherits the appropriate behaviors from its facet and cluster. All the servers in this cluster have the `base_role`, `chef_client` and `ssh` roles. The dbnode machines additionally house a MySQL server, while the webnodes have an nginx reverse proxy for the custom `webapp_demo_webapp`.
-
-As you can see, the dbnode facet asks for a different flavor of machine (`m1.large`) than the cluster default (`t1.micro`). Settings in the facet override those in the server, and settings in the server override those of its facet. You economically describe only what's significant about each machine.
-
-### Cluster-level tools
-
-
-```
-$ knife cluster show webapp_demo
-
-  +--------------------+-------+------------+-------------+--------------+---------------+-----------------+----------+--------------+------------+------------+
-  | Name               | Chef? | InstanceID | State       | Public IP    | Private IP    | Created At      | Flavor   | Image        | AZ         | SSH Key    |
-  +--------------------+-------+------------+-------------+--------------+---------------+-----------------+----------+--------------+------------+------------+
-  | webapp_demo-dbnode-0   | yes   | i-43c60e20 | running     | 107.22.6.104 | 10.88.112.201 | 20111029-204156 | t1.micro | ami-cef405a7 | us-east-1a | webapp_demo    |
-  | webapp_demo-webnode-0  | yes   | i-1233aef1 | running     | 102.99.3.123 | 10.88.112.123 | 20111029-204156 | t1.micro | ami-cef405a7 | us-east-1a | webapp_demo    |
-  | webapp_demo-webnode-1  | yes   | i-0986423b | not running |              |               |                 |          |              |            |            |
-  +--------------------+-------+------------+-------------+--------------+---------------+-----------------+----------+--------------+------------+------------+
-
-
-```
-
-The commands available are
-* list -- lists known clusters
-* show -- show the named servers
-* launch -- launch server
-* bootstrap  
-* sync       
-* ssh        
-* start/stop       
-* kill       
-* kick -- trigger a chef-client run on each named machine, tailing the logs until the run completes
-
-
-### Advanced clusters remain simple
-
-Let's say that app is truly awesome, and the features and demand increases. This cluster adds an [ElasticSearch server](http://elasticsearch.org) for searching, a haproxy loadbalancer, and spreads the webnodes across two availability zones.
-
-```ruby
-Ironfan.cluster 'webserver_demo_2' do
-  cloud(:ec2) do
-    image_name          "maverick"
-    flavor              "t1.micro"
-    availability_zones  ['us-east-1a']
-  end
-
-  # The database server
-  facet :dbnode do
-    instances           1
-    role                :mysql_server
-    cloud do
-      flavor           'm1.large'
-      backing          'ebs'
-    end
-
-    volume(:data) do
-      size              20
-      keep              true                        
-      device            '/dev/sdi'                  
-      mount_point       '/data'              
-      snapshot_id       'snap-a10234f'             
-      attachable        :ebs
-    end
-  end
-
-  facet :webnode do
-    instances           6
-    cloud.availability_zones  ['us-east-1a', 'us-east-1b']
-
-    role                :nginx_server
-    role                :awesome_webapp
-    role                :elasticsearch_client
-
-    volume(:server_logs) do
-      size              5                           
-      keep              true                        
-      device            '/dev/sdi'                  
-      mount_point       '/server_logs'              
-      snapshot_id       'snap-d9c1edb1'             
-    end
-  end
-
-  facet :esnode do
-    instances           1
-    role                "elasticsearch_datanode"
-    role                "elasticsearch_httpnode"
-    cloud.flavor        "m1.large"
-  end
-
-  facet :loadbalancer do
-    instances           1
-    role                "haproxy"
-    cloud.flavor        "m1.xlarge"
-    elastic_ip          "128.69.69.23"
-  end
-  
-  cluster_role.override_attributes({
-    :elasticsearch => {
-      :version => '0.17.8',
-    },
-  })
-end
-```
-
-The facets are described and scale independently. If you'd like to add more webnodes, just increase the instance count. If a machine misbehaves, just terminate it. Running `knife cluster launch webapp_demo webnode` will note which machines are missing, and launch and configure them appropriately.
-
-Ironfan speaks naturally to both Chef and your cloud provider. The esnode's `cluster_role.override_attributes` statement will be synchronized to the chef server, pinning the elasticsearch version across the clients and server.. Your chef roles should focus system-specific information; the cluster file lets you see the architecture as a whole.
-
-With these simple settings, if you have already [set up chef's knife to launch cloud servers](http://wiki.opscode.com/display/chef/Launch+Cloud+Instances+with+Knife), typing `knife cluster launch demosimple --bootstrap` will (using Amazon EC2 as an example):
-
-* Synchronize to the chef server:
-  - create chef roles on the server for the cluster and each facet.
-  - apply role directives (eg the homebase's `default_attributes` declaration).
-  - create a node for each machine
-  - apply the runlist to each node 
-* Set up security isolation:
-  - uses a keypair (login ssh key) isolated to that cluster
-  - Recognizes the `ssh` role, and add a security group `ssh` that by default opens port 22.
-  - Recognize the `nfs_server` role, and adds security groups `nfs_server` and `nfs_client`
-  - Authorizes the `nfs_server` to accept connections from all `nfs_client`s. Machines in other clusters that you mark as `nfs_client`s can connect to the NFS server, but are not automatically granted any other access to the machines in this cluster. Ironfan's opinionated behavior is about more than saving you effort -- tying this behavior to the chef role means you can't screw it up. 
-* Launches the machines in parallel:
-  - using the image name and the availability zone, it determines the appropriate region, image ID, and other implied behavior. 
-  - passes a JSON-encoded user_data hash specifying the machine's chef `node_name` and client key. An appropriately-configured machine image will need no further bootstrapping -- it will connect to the chef server with the appropriate identity and proceed completely unattended.
-* Syncronizes to the cloud provider:
-  - Applies EC2 tags to the machine, making your console intelligible: ![AWS Console screenshot](https://github.com/infochimps-labs/ironfan/raw/version_3/notes/aws_console_screenshot.jpg)
-  - Connects external (EBS) volumes, if any, to the correct mount point -- it uses (and applies) tags to the volumes, so they know which machine to adhere to. If you've manually added volumes, just make sure they're defined correctly in your cluster file and run `knife cluster sync {cluster_name}`; it will paint them with the correct tags.
-  - Associates an elastic IP, if any, to the machine
-* Bootstraps the machine using knife bootstrap
-
----------------------------------------------------------------------------
+* Core models to describe your system diagram with a clean, expressive domain-specific language
+* Knife plugins to orchestrate clusters of machines using simple commands like `knife cluster launch`
+* Logic to coordinate truth among chef server and cloud providers
 
 ## Getting Started
 
-@sya add the contents of https://github.com/infochimps-labs/ironfan/wiki/INSTALL here
+To jump right into using Ironfan, follow our [Installation Instructions](https://github.com/infochimps-labs/ironfan/wiki/INSTALL). For an explanatory tour, check out our [Hadoop Walkthrough](https://github.com/infochimps-labs/ironfan/wiki/INSTALL).  Please file all issues on [Ironfan issues](https://github.com/infochimps-labs/ironfan/issues).
 
-__________________________________________________________________________
+## Index
 
-## Philosophy
+The full Ironfan toolset:
 
-Some general principles of how we use chef.
+###Core Tools:
 
-* *Chef server is never the repository of truth* -- it only mirrors the truth.
-  - a file is tangible and immediate to access
-* Specifically, we want truth to live in the git repo, and be enforced by the chef server. *There is no truth but git, and chef is its messenger*.
-  - this means that everything is versioned, documented and exchangeable.
-* *Systems, services and significant modifications cluster should be obvious from the `clusters` file*.  I don't want to have to bounce around nine different files to find out which thing installed a redis:server.
-  - basically, the existence of anything that opens a port should be obvious when I look at the cluster file.
-* *Roles define systems, clusters assemble systems into a machine*.
-  - For example, a resque worker queue has a redis, a webserver and some config files -- your cluster should invoke a @whatever_queue@ role, and the @whatever_queue@ role should include recipes for the component services.
-  - the existence of anything that opens a port _or_ runs as a service should be obvious when I look at the roles file.
-* *include_recipe considered harmful* Do NOT use include_recipe for anything that a) provides a service, b) launches a daemon or c) is interesting in any way. (so: @include_recipe java@ yes; @include_recipe iptables@ no.) You should note the dependency in the metadata.rb. This seems weird, but the breaking behavior is purposeful: it makes you explicitly state all dependencies.
-* It's nice when *machines are in full control of their destiny*.
-  - initial setup (elastic IP, attaching a drive) is often best enforced externally
-  - but machines should be ablt independently assert things like load balancer registration that that might change at any point in the lifetime.
-* It's even nicer, though, to have *full idempotency from the command line*: I can at any time push truth from the git repo to the chef server and know that it will take hold.
+* [ironfan-homebase](https://github.com/infochimps-labs/ironfan-homebase): Centralizes the cookbooks, roles and clusters. A solid foundation for any Chef user.
+* [ironfan gem](https://github.com/infochimps-labs/ironfan): The core Ironfan models, and Knife plugins to orchestrate machines and coordinate truth among your homebase, cloud and chef server. It comes with [ironfan-homebase](https://github.com/infochimps-labs/ironfan-homebase).
+* [ironfan-pantry](https://github.com/infochimps-labs/ironfan-pantry): Our collection of industrial-strength, cloud-ready recipes for Hadoop, HBase, Cassandra, Elasticsearch, Zabbix and more. 
+* [silverware cookbook](https://github.com/infochimps-labs/ironfan-pantry/tree/master/cookbooks/silverware): Helps you coordinate discovery of services ("list all the machines for `awesome_webapp`, that I might load balance them") and aspects ("list all components that write logs, that I might logrotate them, or that I might monitor the free space on their volumes"). Found within the [ironfan-pantry](https://github.com/infochimps-labs/ironfan-pantry).
 
-__________________________________________________________________________
+###Core Documentation:
 
-## Advanced Superpowers
+* [ironfan wiki](https://github.com/infochimps-labs/ironfan/wiki): High-level documentation and install instructions.
+* [ironfan issues](https://github.com/infochimps-labs/ironfan/issues): Bugs or questions and feature requests for *any* part of the Ironfan toolset.
+* [ironfan gem docs](http://rdoc.info/gems/ironfan): Rdoc docs for Ironfan.
 
-#### Set up Knife on your local machine, and a Chef Server in the cloud
+## What is Ironfan? 
+Ironfan is a systems provisioning and deployment tool. Ironfan automates not only machine configuration, but entire systems configuration to enable the entire Big Data stack, including tools for _data ingestion_, _scraping_, _storage_, _computation_, and _monitoring_.  
 
-If you already have a working chef installation you can skip this section.
+Ironfan builds on Chef, but is opinionated about its architecture, which allows broader integration between components. It assumes a source repository, a central Chef Server, and a modern POSIX-compliant operating system for a base image. Currently, it works best with Git, Amazon Web Services, Ubuntu 11.04, with exploration into other virtualization platforms (Vagrant, etc.) and operating systems (Centos, FreeSBD, etc) ongoing, both inside and outside of Infochimps.
 
-To get started with knife and chef, follow the "Chef Quickstart,":http://wiki.opscode.com/display/chef/Quick+Start We use the hosted chef service and are very happy, but there are instructions on the wiki to set up a chef server too. Stop when you get to "Bootstrap the Ubuntu system" -- cluster chef is going to make that much easier.
+To understand the Philosophy behind how we use Chef go [here](https://github.com/infochimps-labs/ironfan/wiki/Philosophy).
 
-* [Launch Cloud Instances with Knife](http://wiki.opscode.com/display/chef/Launch+Cloud+Instances+with+Knife)
-* [EC2 Bootstrap Fast Start Guide](http://wiki.opscode.com/display/chef/EC2+Bootstrap+Fast+Start+Guide)
 
-#### Auto-vivifying machines (no bootstrap required!)
 
-On EC2, you can make a machine that auto-vivifies -- no bootstrap necessary. Burn an AMI that has the `config/client.rb` file in /etc/chef/client.rb. It will use the ec2 userdata (passed in by knife) to realize its purpose in life, its identity, and the chef server to connect to; everything happens automagically from there. No parallel ssh required!
-
-#### EBS Volumes
-
-Define a `snapshot_id` for your volumes, and set `create_at_launch` true.
