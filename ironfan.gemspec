@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = "ironfan"
-  s.version = "3.1.2"
+  s.version = "3.1.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Infochimps"]
@@ -119,6 +119,7 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<jeweler>, ["~> 1.6"])
       s.add_development_dependency(%q<rspec>, ["~> 2.5"])
       s.add_development_dependency(%q<yard>, ["~> 0.6"])
+      s.add_development_dependency(%q<redcarpet>, ["~> 2"])
       s.add_development_dependency(%q<configliere>, ["~> 0.4.8"])
     else
       s.add_dependency(%q<chef>, ["~> 0.10.4"])
@@ -129,6 +130,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<jeweler>, ["~> 1.6"])
       s.add_dependency(%q<rspec>, ["~> 2.5"])
       s.add_dependency(%q<yard>, ["~> 0.6"])
+      s.add_dependency(%q<redcarpet>, ["~> 2"])
       s.add_dependency(%q<configliere>, ["~> 0.4.8"])
     end
   else
@@ -140,6 +142,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<jeweler>, ["~> 1.6"])
     s.add_dependency(%q<rspec>, ["~> 2.5"])
     s.add_dependency(%q<yard>, ["~> 0.6"])
+    s.add_dependency(%q<redcarpet>, ["~> 2"])
     s.add_dependency(%q<configliere>, ["~> 0.4.8"])
   end
 end
