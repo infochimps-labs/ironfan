@@ -10,6 +10,7 @@ group :development do
   gem 'jeweler',     "~> 1.6"
   gem 'rspec',       "~> 2.5"
   gem 'yard',        "~> 0.6"
+  gem 'redcarpet',   "~> 2"
   gem 'configliere', "~> 0.4.8"
 end
 
