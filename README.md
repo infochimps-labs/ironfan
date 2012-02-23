@@ -153,8 +153,8 @@ Ironfan.cluster 'webserver_demo_2' do
 
   facet :esnode do
     instances           1
-    role                "elasticsearch_data_esnode"
-    role                "elasticsearch_http_esnode"
+    role                "elasticsearch_datanode"
+    role                "elasticsearch_httpnode"
     cloud.flavor        "m1.large"
   end
 

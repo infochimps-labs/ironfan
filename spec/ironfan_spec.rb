@@ -94,9 +94,9 @@ describe "ironfan" do
         fct = @cluster.facet(:esnode)
         fct.to_hash.should == {
           :name            => :esnode,
-          :run_list        => ["role[nginx]", "role[redis_server]", "role[elasticsearch_data_esnode]", "role[elasticsearch_http_esnode]", "role[webserver_demo_esnode]"],
+          :run_list        => ["role[nginx]", "role[redis_server]", "role[elasticsearch_datanode]", "role[elasticsearch_httpnode]", "role[webserver_demonode]"],
           :chef_attributes => {},
-          :facet_role      => "webserver_demo_esnode",
+          :facet_role      => "webserver_demonode",
           :instances       => 1,
         }
         fct.cloud.flavor.should == 'm1.large'

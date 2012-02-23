@@ -115,7 +115,7 @@ class Chef
         FileUtils.mkdir_p cluster_vagrant_dir
         FileUtils.cp      skeleton_vagrantfile, File.join(cluster_vagrant_dir, 'vagrantfile')
 
-        log_level = [0, (3 - config.verbosity)].max
+        log_level = [0, (3 - config[:verbosity])].max
         env = Vagrant::IronfanEnvironment.new(
           :ui_class    => Vagrant::UI::Colored,
           :cwd         => cluster_vagrant_dir,
