@@ -46,6 +46,8 @@ class Chef
         KICKSTART_SCRIPT = <<EOF
 #!/bin/bash
 set -e
+sudo -p 'knife sudo password: ' true
+
 <%= ((config[:verbosity].to_i > 1) ? "set -v" : "") %>
 
 if sudo service chef-client status ; then
@@ -83,7 +85,7 @@ EOF
       end
 
       def run
-        @name_args = [ @name_args.join(' ') ]
+        @name_args = [ @name_args.join('-') ]
         script = Erubis::Eruby.new(KICKSTART_SCRIPT).result(:config => config)
         @name_args[1] = script
         super
