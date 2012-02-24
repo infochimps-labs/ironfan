@@ -28,11 +28,11 @@ Ironfan consists of the following Toolset:
 ### Documentation
 
 * [Index of wiki pages](https://github.com/infochimps-labs/ironfan/wiki/_pages)
-* [Ironfan wiki](https://github.com/infochimps-labs/ironfan/wiki): high-level documentation and install instructions
+* [Ironfan wiki](https://github.com/infochimps-labs/ironfan/wiki): high-level documentation
 * [Ironfan issues](https://github.com/infochimps-labs/ironfan/issues): bugs, questions and feature requests for *any* part of the ironfan toolset.
-* [Ironfan gem docs](http://rdoc.info/gems/ironfan): rdoc docs for ironfan
-* Ironfan powers the [Infochimps Platform](http://www.infochimps.com/how-it-works), our scalable enterprise big data platform. Ironfan Enterprise adds zero-configuration logging, monitoring and a compelling UI.
+* [Ironfan gem docs](http://rdoc.info/gems/ironfan): rdoc docs for Ironfan
 * [Ironfan Screencast](http://bit.ly/ironfan-hadoop-in-20-minutes) -- build a Hadoop cluster from scratch in 20 minutes.
+* Ironfan powers the [Infochimps Platform](http://www.infochimps.com/how-it-works), our scalable enterprise big data platform. Ironfan Enterprise adds zero-configuration logging, monitoring and a compelling UI.
 
 ### The Ironfan Way
 
