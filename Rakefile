@@ -53,7 +53,6 @@ Jeweler::Tasks.new do |gem|
   ignores = File.readlines(".gitignore").grep(/^[^#]\S+/).map{|s| s.chomp }
   dotfiles = [".gemtest", ".gitignore", ".rspec", ".yardopts"]
   gem.files = dotfiles + Dir["**/*"].
-    reject{|f| f =~ %r{^cookbooks/} }.
     reject{|f| File.directory?(f) }.
     reject{|f| ignores.any?{|i| File.fnmatch(i, f) || File.fnmatch(i+'/*', f) || File.fnmatch(i+'/**/*', f) } }
   gem.test_files = gem.files.grep(/^spec\//)

@@ -1,3 +1,9 @@
+# v3.1.4: The inevitable post-launch tweaks
+
+* Lots of documentation fixes, thanks @sya!
+* Yard docs render pretty now (and quietly)
+* Knife cluster kick now asks for sudo correctly -- enabling knife to do its password catching thing
+
 # v3.1.1: I am Ironfan danananananabumbumbum
 
 * 'ClusterChef has been renamed 'Ironfan'
