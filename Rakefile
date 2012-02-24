@@ -18,8 +18,6 @@
 # limitations under the License.
 #
 
-DEPRECATED_NAME = "!! This gem has been renamed 'ironfan' (from cluster_chef). \n   It will not be updated after Feb. 2012. \n  Sorry for the inconvenience."
-
 require 'rubygems' unless defined?(Gem)
 require 'bundler'
 begin
@@ -43,41 +41,25 @@ Dir[File.join('tasks', '*.rake')].sort.each{|f| load(f) }
 # Jeweler -- release ironfan as a gem
 #
 
-gems_to_release = ENV['GEMS_TO_RELEASE'] ? ENV['GEMS_TO_RELEASE'].split : %w[ ironfan ]
-gems_to_release.each do |gem_name|
-  Jeweler::Tasks.new do |gem|
-    gem.name        = gem_name
-    gem.homepage    = "http://infochimps.com/labs"
-    gem.license     = NEW_COOKBOOK_LICENSE.to_s
-    gem.summary     = %Q{#{gem_name} allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks.}
-    gem.description = %Q{#{gem_name} allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks.}
-    gem.email       = SSL_EMAIL_ADDRESS
-    gem.authors     = ["Infochimps"]
+Jeweler::Tasks.new do |gem|
+  gem.name        = 'ironfan'
+  gem.homepage    = "http://infochimps.com/labs"
+  gem.license     = NEW_COOKBOOK_LICENSE.to_s
+  gem.summary     = %Q{Ironfan allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks.}
+  gem.description = %Q{Ironfan allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks.}
+  gem.email       = SSL_EMAIL_ADDRESS
+  gem.authors     = ["Infochimps"]
 
-    ignores = File.readlines(".gitignore").grep(/^[^#]\S+/).map{|s| s.chomp }
-    dotfiles = [".gemtest", ".gitignore", ".rspec", ".yardopts"]
-    gem.files = dotfiles + Dir["**/*"].
-      reject{|f| f =~ %r{^cookbooks/} }.
-      reject{|f| File.directory?(f) }.
-      reject{|f| ignores.any?{|i| File.fnmatch(i, f) || File.fnmatch(i+'/*', f) || File.fnmatch(i+'/**/*', f) } }
-    gem.test_files = gem.files.grep(/^spec\//)
-    gem.require_paths = ['lib']
-
-    if    gem.name == 'cluster_chef'
-      gem.files.reject!{|f| f =~ %r{^(cluster_chef-knife.gemspec|lib/chef/knife/)} }
-      gem.add_runtime_dependency 'cluster_chef-knife', "= #{File.read('VERSION').strip}"
-      gem.post_install_message = DEPRECATED_NAME
-    elsif gem.name == 'cluster_chef-knife'
-      gem.files.reject!{|f| f =~ %r{^(cluster_chef.gemspec|lib/cluster_chef)} }
-      gem.post_install_message = DEPRECATED_NAME
-    elsif gem.name == 'ironfan'
-      true # pass
-    else
-      raise "Don't know what to include for gem #{gem.name}"
-    end
-  end
-  Jeweler::RubygemsDotOrgTasks.new
+  ignores = File.readlines(".gitignore").grep(/^[^#]\S+/).map{|s| s.chomp }
+  dotfiles = [".gemtest", ".gitignore", ".rspec", ".yardopts"]
+  gem.files = dotfiles + Dir["**/*"].
+    reject{|f| f =~ %r{^cookbooks/} }.
+    reject{|f| File.directory?(f) }.
+    reject{|f| ignores.any?{|i| File.fnmatch(i, f) || File.fnmatch(i+'/*', f) || File.fnmatch(i+'/**/*', f) } }
+  gem.test_files = gem.files.grep(/^spec\//)
+  gem.require_paths = ['lib']
 end
+Jeweler::RubygemsDotOrgTasks.new
 
 # ---------------------------------------------------------------------------
 #
@@ -98,6 +80,8 @@ end
 # Yard -- documentation
 #
 YARD::Rake::YardocTask.new
+desc "Alias for 'rake yard'"
+task :doc => :yard
 
 # ---------------------------------------------------------------------------
 
