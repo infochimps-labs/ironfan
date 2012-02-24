@@ -27,16 +27,16 @@ Ironfan consists of the following Toolset:
 
 ### Documentation
 
-* [ironfan wiki](https://github.com/infochimps-labs/ironfan/wiki): high-level documentation and install instructions
 * [Index of wiki pages](https://github.com/infochimps-labs/ironfan/wiki/_pages)
-* [ironfan issues](https://github.com/infochimps-labs/ironfan/issues): bugs, questions and feature requests for *any* part of the ironfan toolset.
-* [ironfan gem docs](http://rdoc.info/gems/ironfan): rdoc docs for ironfan
+* [Ironfan wiki](https://github.com/infochimps-labs/ironfan/wiki): high-level documentation and install instructions
+* [Ironfan issues](https://github.com/infochimps-labs/ironfan/issues): bugs, questions and feature requests for *any* part of the ironfan toolset.
+* [Ironfan gem docs](http://rdoc.info/gems/ironfan): rdoc docs for ironfan
 * Ironfan powers the [Infochimps Platform](http://www.infochimps.com/how-it-works), our scalable enterprise big data platform. Ironfan Enterprise adds zero-configuration logging, monitoring and a compelling UI.
 * [Ironfan Screencast](http://bit.ly/ironfan-hadoop-in-20-minutes) -- build a Hadoop cluster from scratch in 20 minutes.
 
 ### The Ironfan Way
 
-* [Core Concepts](core_concepts)     -- Components, Announcements, Amenities and more.
-* [Philosophy](philosophy)            -- best practices and lessons learned
-* [Style Guide](style_guide)         -- common attribute names, how and when to include other cookbooks, and more
-* [Homebase Layout](homebase-layout) -- how this homebase is organized, and why
+* [Core Concepts](https://github.com/infochimps-labs/ironfan/wiki/core_concepts)     -- Components, Announcements, Amenities and more.
+* [Philosophy](https://github.com/infochimps-labs/ironfan/wiki/Philosophy)            -- Best practices and lessons learned
+* [Style Guide](https://github.com/infochimps-labs/ironfan/wiki/style_guide)         -- Common attribute names, how and when to include other cookbooks, and more
+* [Homebase Layout](https://github.com/infochimps-labs/ironfan/wiki/homebase-layout) -- How this homebase is organized, and why
