@@ -54,7 +54,7 @@ module Ironfan
     #
     # Defines DSL attributes
     #
-    # @params [Array(String)] key_names DSL attribute names
+    # @param [Array(String)] key_names DSL attribute names
     #
     # @example
     #   class Mom < Ironfan::DslObject

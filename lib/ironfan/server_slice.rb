@@ -236,7 +236,7 @@ module Ironfan
     #
     # @yield each server, in turn
     #
-    # @return array (in same order as servers) of each block's result
+    # @return [Array] array (in same order as servers) of each block's result
     def parallelize
       servers.map do |svr|
         sleep(0.1) # avoid hammering with simultaneous requests
@@ -251,7 +251,7 @@ module Ironfan
     # @param [Symbol]  method   -- method to call on each server
     # @param [Boolean] threaded -- execute each call in own thread
     #
-    # @return array (in same order as servers) of results for that method
+    # @return [Array] array (in same order as servers) of results for that method
     def delegate_to_servers method, threaded = true
       if threaded  # Call in threads
         threads = parallelize{|svr| svr.send(method) }

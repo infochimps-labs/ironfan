@@ -1,5 +1,10 @@
+--readme   README.md
+--markup   markdown
+--charset  UTF-8
+-
 VERSION
 CHANGELOG.md
 LICENSE.md
 README.md
-notes/*
+notes/*.md
+notes/*.txt

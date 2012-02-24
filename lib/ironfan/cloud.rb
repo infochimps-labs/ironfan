@@ -57,7 +57,7 @@ module Ironfan
       end
 
       # default values to apply where no value was set
-      # @returns [Hash] hash of defaults
+      # @return [Hash] hash of defaults
       def defaults
         reverse_merge!({
           :image_name         => 'natty',
