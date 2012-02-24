@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "ironfan"
-  s.version = "3.1.3"
+  s.version = "3.1.4"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Infochimps"]
-  s.date = "2012-02-23"
+  s.date = "2012-02-24"
   s.description = "ironfan allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
   s.email = "coders@infochimps.com"
   s.extra_rdoc_files = [
@@ -22,6 +22,7 @@ Gem::Specification.new do |s|
     ".yardopts",
     "CHANGELOG.md",
     "Gemfile",
+    "Guardfile",
     "LICENSE.md",
     "README.md",
     "Rakefile",
@@ -73,22 +74,31 @@ Gem::Specification.new do |s|
     "notes/Home.md",
     "notes/INSTALL-cloud_setup.md",
     "notes/INSTALL.md",
-    "notes/Knife-Cluster-Commands.md",
-    "notes/Silverware.md",
-    "notes/aws_console_screenshot.jpg",
+    "notes/advanced-superpowers.md",
+    "notes/aws_servers.jpg",
+    "notes/aws_user_key.png",
     "notes/cookbook-versioning.md",
+    "notes/core_concepts.md",
     "notes/declaring_volumes.md",
+    "notes/design_notes-aspect_oriented_devops.md",
     "notes/design_notes-ci_testing.md",
     "notes/design_notes-cookbook_event_ordering.md",
     "notes/design_notes-dsl_object.md",
     "notes/design_notes-meta_discovery.md",
     "notes/ec2-pricing_and_capacity.md",
-    "notes/ironfan_homebase_layout.md",
+    "notes/homebase-layout.txt",
+    "notes/knife-cluster-commands.md",
     "notes/named-cloud-objects.md",
+    "notes/opscode_org_key.png",
+    "notes/opscode_user_key.png",
+    "notes/philosophy.md",
     "notes/rake_tasks.md",
     "notes/renamed-recipes.txt",
+    "notes/silverware.md",
     "notes/style_guide.md",
     "notes/tips_and_troubleshooting.md",
+    "notes/walkthrough-hadoop.md",
+    "notes/walkthrough-web.md",
     "spec/ironfan/cluster_spec.rb",
     "spec/ironfan/facet_spec.rb",
     "spec/ironfan/server_slice_spec.rb",
@@ -120,7 +130,6 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<rspec>, ["~> 2.5"])
       s.add_development_dependency(%q<yard>, ["~> 0.6"])
       s.add_development_dependency(%q<redcarpet>, ["~> 2"])
-      s.add_development_dependency(%q<configliere>, ["~> 0.4.8"])
     else
       s.add_dependency(%q<chef>, ["~> 0.10.4"])
       s.add_dependency(%q<fog>, ["~> 1.1.1"])
@@ -131,7 +140,6 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<rspec>, ["~> 2.5"])
       s.add_dependency(%q<yard>, ["~> 0.6"])
       s.add_dependency(%q<redcarpet>, ["~> 2"])
-      s.add_dependency(%q<configliere>, ["~> 0.4.8"])
     end
   else
     s.add_dependency(%q<chef>, ["~> 0.10.4"])
@@ -143,7 +151,6 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<rspec>, ["~> 2.5"])
     s.add_dependency(%q<yard>, ["~> 0.6"])
     s.add_dependency(%q<redcarpet>, ["~> 2"])
-    s.add_dependency(%q<configliere>, ["~> 0.4.8"])
   end
 end
 
