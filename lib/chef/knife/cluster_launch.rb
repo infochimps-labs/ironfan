@@ -30,8 +30,8 @@ class Chef
         Chef::Knife::ClusterBootstrap.load_deps
       end
 
-      banner "knife cluster launch      CLUSTER-[FACET-[INDEXES]] (options) - Creates chef node and chef apiclient, pre-populates chef node, and instantiates in parallel their cloud machines. With --bootstrap flag, will ssh in to machines as they become ready and launch the bootstrap process"
-      [ :ssh_port, :ssh_password, :identity_file, :use_sudo,
+      banner "knife cluster launch      CLUSTER[-FACET[-INDEXES]] (options) - Creates chef node and chef apiclient, pre-populates chef node, and instantiates in parallel their cloud machines. With --bootstrap flag, will ssh in to machines as they become ready and launch the bootstrap process"
+      [ :ssh_port, :ssh_user, :ssh_password, :identity_file, :use_sudo,
         :prerelease, :bootstrap_version, :template_file, :distro,
         :bootstrap_runs_chef_client, :host_key_verify
       ].each do |name|

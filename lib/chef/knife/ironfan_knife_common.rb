@@ -187,7 +187,7 @@ module Ironfan
           option name, info
         end
         options[:description] ||= "#{sub_command} all servers described by given cluster slice"
-        banner "knife cluster #{"%-11s" % sub_command} CLUSTER-[FACET-[INDEXES]] (options) - #{options[:description]}"
+        banner "knife cluster #{"%-11s" % sub_command} CLUSTER[-FACET[-INDEXES]] (options) - #{options[:description]}"
       end
     end
     def self.included(base)
