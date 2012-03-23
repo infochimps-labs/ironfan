@@ -128,6 +128,7 @@ module Ironfan
 
       def initialize(*args)
         super *args
+        name :ec2 # cloud provider name
         @settings[:security_groups]      ||= Mash.new
         @settings[:user_data]            ||= Mash.new
       end
