@@ -250,7 +250,7 @@ module Ironfan
 
       FLAVOR_INFO = {
         't1.micro'    => { :price => 0.02,  :bits => '64-bit', :ram =>    686, :cores => 1, :core_size => 0.25, :inst_disks => 0, :inst_disk_size =>    0, :ephemeral_volumes => 0 },
-        'm1.small'    => { :price => 0.085, :bits => '32-bit', :ram =>   1740, :cores => 1, :core_size => 1,    :inst_disks => 1, :inst_disk_size =>  160, :ephemeral_volumes => 1 },
+        'm1.small'    => { :price => 0.085, :bits => '64-bit', :ram =>   1740, :cores => 1, :core_size => 1,    :inst_disks => 1, :inst_disk_size =>  160, :ephemeral_volumes => 1 },
         'c1.medium'   => { :price => 0.17,  :bits => '32-bit', :ram =>   1740, :cores => 2, :core_size => 2.5,  :inst_disks => 1, :inst_disk_size =>  350, :ephemeral_volumes => 1 },
         'm1.large'    => { :price => 0.34,  :bits => '64-bit', :ram =>   7680, :cores => 2, :core_size => 2,    :inst_disks => 2, :inst_disk_size =>  850, :ephemeral_volumes => 2 },
         'm2.xlarge'   => { :price => 0.50,  :bits => '64-bit', :ram =>  18124, :cores => 2, :core_size => 3.25, :inst_disks => 1, :inst_disk_size =>  420, :ephemeral_volumes => 1 },
@@ -359,37 +359,37 @@ module Ironfan
           %w[ us-west-1            64-bit  instance        natty                          ] => { :image_id => 'ami-a15f03e4', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
 
           #
-          # Oneric (Ubuntu 11.10)
+          # Oneiric (Ubuntu 11.10)
           #
-          %w[ ap-northeast-1       32-bit  ebs             oneric                         ] => { :image_id => 'ami-84902785', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-          %w[ ap-northeast-1       32-bit  instance        oneric                         ] => { :image_id => 'ami-5e90275f', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-          %w[ ap-northeast-1       64-bit  ebs             oneric                         ] => { :image_id => 'ami-88902789', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-          %w[ ap-northeast-1       64-bit  instance        oneric                         ] => { :image_id => 'ami-7c90277d', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ ap-northeast-1       32-bit  ebs             oneiric                         ] => { :image_id => 'ami-84902785', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ ap-northeast-1       32-bit  instance        oneiric                         ] => { :image_id => 'ami-5e90275f', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ ap-northeast-1       64-bit  ebs             oneiric                         ] => { :image_id => 'ami-88902789', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ ap-northeast-1       64-bit  instance        oneiric                         ] => { :image_id => 'ami-7c90277d', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
           #
-          %w[ ap-southeast-1       32-bit  ebs             oneric                         ] => { :image_id => 'ami-0a327758', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-          %w[ ap-southeast-1       32-bit  instance        oneric                         ] => { :image_id => 'ami-00327752', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-          %w[ ap-southeast-1       64-bit  ebs             oneric                         ] => { :image_id => 'ami-0832775a', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-          %w[ ap-southeast-1       64-bit  instance        oneric                         ] => { :image_id => 'ami-04327756', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ ap-southeast-1       32-bit  ebs             oneiric                         ] => { :image_id => 'ami-0a327758', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ ap-southeast-1       32-bit  instance        oneiric                         ] => { :image_id => 'ami-00327752', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ ap-southeast-1       64-bit  ebs             oneiric                         ] => { :image_id => 'ami-0832775a', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ ap-southeast-1       64-bit  instance        oneiric                         ] => { :image_id => 'ami-04327756', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
           #
-          %w[ eu-west-1            32-bit  ebs             oneric                         ] => { :image_id => 'ami-11f0cc65', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-          %w[ eu-west-1            32-bit  instance        oneric                         ] => { :image_id => 'ami-4ff0cc3b', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-          %w[ eu-west-1            64-bit  ebs             oneric                         ] => { :image_id => 'ami-1df0cc69', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-          %w[ eu-west-1            64-bit  instance        oneric                         ] => { :image_id => 'ami-23f0cc57', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ eu-west-1            32-bit  ebs             oneiric                         ] => { :image_id => 'ami-11f0cc65', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ eu-west-1            32-bit  instance        oneiric                         ] => { :image_id => 'ami-4ff0cc3b', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ eu-west-1            64-bit  ebs             oneiric                         ] => { :image_id => 'ami-1df0cc69', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ eu-west-1            64-bit  instance        oneiric                         ] => { :image_id => 'ami-23f0cc57', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
           #
-          %w[ us-east-1            32-bit  ebs             oneric                         ] => { :image_id => 'ami-a562a9cc', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-          %w[ us-east-1            32-bit  instance        oneric                         ] => { :image_id => 'ami-3962a950', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-          %w[ us-east-1            64-bit  ebs             oneric                         ] => { :image_id => 'ami-bf62a9d6', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-          %w[ us-east-1            64-bit  instance        oneric                         ] => { :image_id => 'ami-c162a9a8', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ us-east-1            32-bit  ebs             oneiric                         ] => { :image_id => 'ami-a562a9cc', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ us-east-1            32-bit  instance        oneiric                         ] => { :image_id => 'ami-3962a950', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ us-east-1            64-bit  ebs             oneiric                         ] => { :image_id => 'ami-bf62a9d6', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ us-east-1            64-bit  instance        oneiric                         ] => { :image_id => 'ami-c162a9a8', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
           #
-          %w[ us-west-1            32-bit  ebs             oneric                         ] => { :image_id => 'ami-c9a1fe8c', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-          %w[ us-west-1            32-bit  instance        oneric                         ] => { :image_id => 'ami-21a1fe64', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-          %w[ us-west-1            64-bit  ebs             oneric                         ] => { :image_id => 'ami-cba1fe8e', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-          %w[ us-west-1            64-bit  instance        oneric                         ] => { :image_id => 'ami-3fa1fe7a', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ us-west-1            32-bit  ebs             oneiric                         ] => { :image_id => 'ami-c9a1fe8c', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ us-west-1            32-bit  instance        oneiric                         ] => { :image_id => 'ami-21a1fe64', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ us-west-1            64-bit  ebs             oneiric                         ] => { :image_id => 'ami-cba1fe8e', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ us-west-1            64-bit  instance        oneiric                         ] => { :image_id => 'ami-3fa1fe7a', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
           #
-          %w[ us-west-2            32-bit  ebs             oneric                         ] => { :image_id => 'ami-ea9a17da', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-          %w[ us-west-2            32-bit  instance        oneric                         ] => { :image_id => 'ami-f49a17c4', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-          %w[ us-west-2            64-bit  ebs             oneric                         ] => { :image_id => 'ami-ec9a17dc', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-          %w[ us-west-2            64-bit  instance        oneric                         ] => { :image_id => 'ami-fe9a17ce', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ us-west-2            32-bit  ebs             oneiric                         ] => { :image_id => 'ami-ea9a17da', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ us-west-2            32-bit  instance        oneiric                         ] => { :image_id => 'ami-f49a17c4', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ us-west-2            64-bit  ebs             oneiric                         ] => { :image_id => 'ami-ec9a17dc', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ us-west-2            64-bit  instance        oneiric                         ] => { :image_id => 'ami-fe9a17ce', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
         })
     end
 

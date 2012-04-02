@@ -119,7 +119,7 @@ Gem::Specification.new do |s|
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<chef>, ["~> 0.10.4"])
-      s.add_runtime_dependency(%q<fog>, ["~> 1.1.1"])
+      s.add_runtime_dependency(%q<fog>, ["~> 1.2.0"])
       s.add_runtime_dependency(%q<formatador>, ["~> 0.2.1"])
       s.add_runtime_dependency(%q<gorillib>, ["~> 0.1.7"])
       s.add_development_dependency(%q<bundler>, ["~> 1"])
@@ -129,7 +129,7 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<redcarpet>, ["~> 2"])
     else
       s.add_dependency(%q<chef>, ["~> 0.10.4"])
-      s.add_dependency(%q<fog>, ["~> 1.1.1"])
+      s.add_dependency(%q<fog>, ["~> 1.2.0"])
       s.add_dependency(%q<formatador>, ["~> 0.2.1"])
       s.add_dependency(%q<gorillib>, ["~> 0.1.7"])
       s.add_dependency(%q<bundler>, ["~> 1"])
@@ -140,7 +140,7 @@ Gem::Specification.new do |s|
     end
   else
     s.add_dependency(%q<chef>, ["~> 0.10.4"])
-    s.add_dependency(%q<fog>, ["~> 1.1.1"])
+    s.add_dependency(%q<fog>, ["~> 1.2.0"])
     s.add_dependency(%q<formatador>, ["~> 0.2.1"])
     s.add_dependency(%q<gorillib>, ["~> 0.1.7"])
     s.add_dependency(%q<bundler>, ["~> 1"])
