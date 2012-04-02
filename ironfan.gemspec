@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "ironfan"
-  s.version = "3.1.4"
+  s.version = "3.1.5"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Infochimps"]
-  s.date = "2012-02-24"
+  s.date = "2012-04-02"
   s.description = "Ironfan allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
   s.email = "coders@infochimps.com"
   s.extra_rdoc_files = [
@@ -42,6 +42,7 @@ Gem::Specification.new do |s|
     "lib/chef/knife/cluster_launch.rb",
     "lib/chef/knife/cluster_list.rb",
     "lib/chef/knife/cluster_proxy.rb",
+    "lib/chef/knife/cluster_pry.rb",
     "lib/chef/knife/cluster_show.rb",
     "lib/chef/knife/cluster_ssh.rb",
     "lib/chef/knife/cluster_start.rb",
@@ -69,9 +70,11 @@ Gem::Specification.new do |s|
     "lib/ironfan/server.rb",
     "lib/ironfan/server_slice.rb",
     "lib/ironfan/volume.rb",
+    "notes/Backup of ec2-pricing_and_capacity.numbers",
     "notes/Home.md",
     "notes/INSTALL-cloud_setup.md",
     "notes/INSTALL.md",
+    "notes/Ironfan-Roadmap.md",
     "notes/advanced-superpowers.md",
     "notes/aws_servers.jpg",
     "notes/aws_user_key.png",
@@ -81,9 +84,9 @@ Gem::Specification.new do |s|
     "notes/design_notes-aspect_oriented_devops.md",
     "notes/design_notes-ci_testing.md",
     "notes/design_notes-cookbook_event_ordering.md",
-    "notes/design_notes-dsl_object.md",
     "notes/design_notes-meta_discovery.md",
     "notes/ec2-pricing_and_capacity.md",
+    "notes/ec2-pricing_and_capacity.numbers",
     "notes/homebase-layout.txt",
     "notes/knife-cluster-commands.md",
     "notes/named-cloud-objects.md",
@@ -110,7 +113,7 @@ Gem::Specification.new do |s|
   s.homepage = "http://infochimps.com/labs"
   s.licenses = ["apachev2"]
   s.require_paths = ["lib"]
-  s.rubygems_version = "1.8.15"
+  s.rubygems_version = "1.8.11"
   s.summary = "Ironfan allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
   s.test_files = ["spec/ironfan/cluster_spec.rb", "spec/ironfan/facet_spec.rb", "spec/ironfan/server_slice_spec.rb", "spec/ironfan/server_spec.rb", "spec/ironfan_spec.rb", "spec/spec_helper/dummy_chef.rb", "spec/spec_helper.rb", "spec/test_config.rb"]
 
