@@ -1,3 +1,7 @@
+# v3.1.5: A bug with quoting in bootstrap scripts
+
+* Bootstrap scripts with env vars were being interpolated twice, so the bootstrap script quoting was changed to use `'` (single-quote) semantics. I am a bit troubled, because I can't tell when this regression happened. I believe I introduced it while merging @gpaco's bootstrap scripts and didn't notice because the bug strikes most forcefully within the fenced-off 'Is ruby installed?' part. But there's a chance I just screwed over chef 0.10.04 users.
+
 # v3.1.4: The inevitable post-launch tweaks
 
 * Lots of documentation fixes, thanks @sya!
