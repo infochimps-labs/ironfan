@@ -1,4 +1,4 @@
-bash <<EOF || echo "Chef bootstrap failed!"
+bash <<'EOF' || echo "Chef bootstrap failed!"
 
 # This is the ubuntu oneiric bootstrap script from infochimps' ironfan. It is
 # based on the opscode bootstrap script, with the important differences being it:
@@ -112,11 +112,11 @@ EOP
 echo -e "`date` \n\n**** \n**** Adding chef client runit scripts:\n****\n"
 ( service chef-client stop >/dev/null 2>&1 ; sleep 1 ; killall chef-client 2>/dev/null ) || true
 mkdir -p /var/log/chef /var/chef /etc/service /etc/sv/chef-client/{log/main,supervise} 
-cat > /etc/sv/chef-client/log/run <<EOP
+cat > /etc/sv/chef-client/log/run <<'EOP'
 #!/bin/bash
 exec svlogd -tt ./main
 EOP
-cat > /etc/sv/chef-client/run <<EOP
+cat > /etc/sv/chef-client/run <<'EOP'
 #!/bin/bash
 exec 2>&1
 exec /usr/bin/env chef-client -i 43200 -s 20 -L /var/log/chef/client.log
