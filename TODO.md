@@ -1,3 +1,40 @@
+
+
+* All over the place there is the following construct (absolutely necessary, absolutely horrid):
+
+      foo = Mash.new().merge(node[:system]).merge(node[:system][:component])
+      
+  You might look at this and think "gee I know a much simpler way to do that". That simpler way does not work; this way does.
+
+  I propose adding a 'smush' method to `silverware/libraries/cookbook_utils`: 
+  
+      ```ruby
+      module Ironfan::CookbookUtils
+        module_function
+        
+        # Merge the given objects (node attributes, hashes, or anything
+        # else with `#to_hash`) into a combined `Mash` object. Objects 
+        # given later in the list 'win' over objects given earlier.
+        #
+        # @examples
+        #   template_vars = Ironfan::CookbookUtils.smush( node[:flume], node[:flume][:agent], :zookeeper_port => node[:zookeeper][:port] )
+        #
+        # @param [Array[#to_hash]] smushables -- any number of things that respond to `#to_hash`
+        #
+        def smush(*smushables)
+          result = Mash.new
+          smushables.compact.each do |smushable|
+            result.merge! smushable.to_hash
+          end
+          result
+        end
+        
+      end
+
+  (obviously the hard part is not writing the method, it's applying it to all the cookbooks.)
+
+
+
 ### Knife commands
 
 * knife cluster launch should fail differently if you give it a facet that doesn't exist
