@@ -33,7 +33,7 @@ Vagrant::Config.run do |config|
   #
 
   def ip_for(svr)
-    "#{Chef::Config.host_network_blk}.#{30 + svr.facet_index}"
+    "#{Chef::Config.host_network_base}.#{(Chef::Config.host_network_ip_mapping[svr.facet_name] || 30) + svr.facet_index}"
   end
 
   # FIXME: things like this should be imputed by the `cloud` statement
