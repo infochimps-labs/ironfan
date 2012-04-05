@@ -63,7 +63,7 @@ class Chef
 
       def run
         # The subnet for this world
-        Chef::Config.host_network_blk   ||= '33.33.33'
+        Chef::Config.host_network_base   ||= '33.33.33'
         # Location that cookbooks, roles, etc will be mounted on vm
         # set to false to skip
         Chef::Config.homebase_on_vm_dir "/homebase" if Chef::Config.homebase_on_vm_dir.nil?
