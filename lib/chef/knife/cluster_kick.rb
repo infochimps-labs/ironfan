@@ -35,7 +35,7 @@ class Chef
     class ClusterKick < Chef::Knife::ClusterSsh
 
       import_banner_and_options(Chef::Knife::ClusterSsh)
-      banner 'knife cluster kick        CLUSTER-[FACET-[INDEXES]] (options) - start a run of chef-client on each server, tailing the logs and exiting when the run completes.'
+      banner 'knife cluster kick        CLUSTER[-FACET[-INDEXES]] (options) - start a run of chef-client on each server, tailing the logs and exiting when the run completes.'
 
       option :pid_file,
         :long        => "--pid_file",

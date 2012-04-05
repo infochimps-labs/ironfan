@@ -52,7 +52,7 @@ class Chef
         require File.expand_path('vagrant/ironfan_provisioners', IRONFAN_DIR)
       end
 
-      banner "knife cluster vagrant CMD CLUSTER-[FACET-[INDEXES]] (options) - runs the given command against a vagrant environment created from your cluster definition. EARLY, use at your own risk"
+      banner "knife cluster vagrant CMD CLUSTER[-FACET[-INDEXES]] (options) - runs the given command against a vagrant environment created from your cluster definition. EARLY, use at your own risk"
 
       option :cloud,
         :long        => "--cloud PROVIDER",
