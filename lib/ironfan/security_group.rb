@@ -14,7 +14,7 @@ module Ironfan
         @group_authorizations = []
         @group_authorized_by  = []
         @range_authorizations = []
-        owner_id(group_owner_id || Chef::Config[:knife][:aws_account_id])
+        owner_id(group_owner_id || Chef::Config[:knife][:openstack_account_id])
       end
 
       @@all = nil

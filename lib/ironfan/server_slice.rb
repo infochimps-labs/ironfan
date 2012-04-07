@@ -183,15 +183,15 @@ module Ironfan
         # end
         if (fs = svr.fog_server)
           hsh.merge!(
-              "InstanceID" => (fs.id && fs.id.length > 0) ? fs.id : "???",
+              "InstanceID" => (fs.id && fs.id > 0) ? fs.id : "???",
               "Flavor"     => fs.flavor_id,
               "Image"      => fs.image_id,
               "AZ"         => fs.availability_zone,
-              "SSH Key"    => fs.key_name,
+#               "SSH Key"    => fs.key_name,
               "State"      => "[#{MACHINE_STATE_COLORS[fs.state] || 'white'}]#{fs.state}[reset]",
               "Public IP"  => fs.public_ip_address,
               "Private IP" => fs.private_ip_address,
-              "Created At" => fs.created_at.strftime("%Y%m%d-%H%M%S")
+#               "Created At" => fs.created_at.strftime("%Y%m%d-%H%M%S")
             )
         else
           hsh["State"] = "not running"

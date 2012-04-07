@@ -23,10 +23,10 @@ end
 # Start with a set of defaults
 chef_config = Mash.new
 
-# Extract client configuration from EC2 user-data
+# Extract client configuration from Rackspace user-data
 OHAI_INFO = Ohai::System.new
 OHAI_INFO.all_plugins
-merge_safely(chef_config){ JSON.parse(OHAI_INFO[:ec2][:userdata]) }
+merge_safely(chef_config){ JSON.parse(OHAI_INFO[:rackspace][:userdata]) }
 
 #
 # Configure chef run

@@ -15,7 +15,7 @@ module Ironfan
     end
 
     def lint_fog
-      unless cloud.image_id then raise "No image ID found: nothing in Chef::Config[:ec2_image_info] for AZ #{self.default_availability_zone} flavor #{cloud.flavor} backing #{cloud.backing} image name #{cloud.image_name}, and cloud.image_id was not set directly. See https://github.com/infochimps-labs/ironfan/wiki/machine-image-(AMI)-lookup-by-name - #{cloud.list_images}" end
+      unless cloud.image_id then raise "No image ID found: nothing in Chef::Config[:rackspace_image_info] for AZ #{self.default_availability_zone} flavor #{cloud.flavor} backing #{cloud.backing} image name #{cloud.image_name}, and cloud.image_id was not set directly. See https://github.com/infochimps-labs/ironfan/wiki/machine-image-(AMI)-lookup-by-name - #{cloud.list_images}" end
       unless cloud.image_id then cloud.list_flavors ; raise "No machine flavor found" ; end
     end
 
@@ -27,13 +27,13 @@ module Ironfan
       {
         :image_id             => cloud.image_id,
         :flavor_id            => cloud.flavor,
+        :name                 => self.fullname,
         :groups               => cloud.security_groups.keys,
         :key_name             => cloud.keypair.to_s,
-        # Fog does not actually create tags when it creates a server.
-        :tags                 => {
-          :cluster            => cluster_name,
-          :facet              => facet_name,
-          :index              => facet_index, },
+        :metadata             => {
+          :cluster            => cluster_name.to_s,
+          :facet              => facet_name.to_s,
+          :index              => facet_index.to_s, },
         :user_data            => JSON.pretty_generate(user_data_hsh),
         :block_device_mapping => block_device_mapping,
         :availability_zone    => self.default_availability_zone,
@@ -134,19 +134,19 @@ module Ironfan
 
   class ServerSlice
     def sync_keypairs
-      step("ensuring keypairs exist")
-      keypairs  = servers.map{|svr| [svr.cluster.cloud.keypair, svr.cloud.keypair] }.flatten.map(&:to_s).reject(&:blank?).uniq
-      keypairs  = keypairs - Ironfan.fog_keypairs.keys
-      keypairs.each do |keypair_name|
-        keypair_obj = Ironfan::Ec2Keypair.create!(keypair_name)
-        Ironfan.fog_keypairs[keypair_name] = keypair_obj
-      end
+      step("ensuring keypairs exist - DISABLED!")
+#       keypairs  = servers.map{|svr| [svr.cluster.cloud.keypair, svr.cloud.keypair] }.flatten.map(&:to_s).reject(&:blank?).uniq
+#       keypairs  = keypairs - Ironfan.fog_keypairs.keys
+#       keypairs.each do |keypair_name|
+#         keypair_obj = Ironfan::RackspaceKeypair.create!(keypair_name)
+#         Ironfan.fog_keypairs[keypair_name] = keypair_obj
+#       end
     end
 
     # Create security groups, their dependencies, and synchronize their permissions
     def sync_security_groups
-      step("ensuring security groups exist and are correct")
-      security_groups.each{|name,group| group.run }
+      step("ensuring security groups exist and are correct - DISABLED!")
+#       security_groups.each{|name,group| group.run }
     end
 
   end

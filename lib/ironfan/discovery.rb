@@ -2,12 +2,12 @@ module Ironfan
   class Cluster
 
     def discover!
-      @aws_instance_hash = {}
+      @rackspace_instance_hash = {}
       discover_ironfan!
       discover_chef_nodes!
       discover_fog_servers!  unless Ironfan.chef_config[:cloud] == false
       discover_chef_clients!
-      discover_volumes!
+#       discover_volumes!
     end
 
     def chef_clients
@@ -56,7 +56,8 @@ module Ironfan
   protected
 
     def fog_servers
-      @fog_servers ||= Ironfan.fog_servers.select{|fs| fs.key_name == cluster_name.to_s && (fs.state != "terminated") }
+#       @fog_servers ||= Ironfan.fog_servers.select{|fs| fs.key_name == cluster_name.to_s && (fs.state != "terminated") }
+      @fog_servers ||= Ironfan.fog_servers.select{|fs| fs.state != "terminated" }
     end
 
     # Walk the list of chef nodes and
@@ -77,7 +78,7 @@ module Ironfan
         end
         svr = Ironfan::Server.get(cluster_name, facet_name, facet_index)
         svr.chef_node = chef_node
-        @aws_instance_hash[ chef_node.ec2.instance_id ] = svr if chef_node[:ec2] && chef_node.ec2.instance_id
+        @rackspace_instance_hash[ chef_node.rackspace.instance_id ] = svr if chef_node[:rackspace] && chef_node.rackspace.instance_id
       end
     end
 
@@ -94,13 +95,19 @@ module Ironfan
     def discover_fog_servers!
       # If the fog server is tagged with cluster/facet/index, then try to
       # locate the corresponding machine in the cluster def
-      # Otherwise, try to get to it through mapping the aws instance id
+      # Otherwise, try to get to it through mapping the Rackspace instance id
       # to the chef node name found in the chef node
       fog_servers.each do |fs|
+        def fs.tags
+          tags = {}
+          tags["cluster"], tags["facet"], tags["index"] = self.name.split('-')
+          tags
+        end
+        
         if fs.tags["cluster"] && fs.tags["facet"] && fs.tags["index"] && fs.tags["cluster"] == cluster_name.to_s
           svr = Ironfan::Server.get(fs.tags["cluster"], fs.tags["facet"], fs.tags["index"])
-        elsif @aws_instance_hash[fs.id]
-          svr = @aws_instance_hash[fs.id]
+        elsif @rackspace_instance_hash[fs.id]
+          svr = @rackspace_instance_hash[fs.id]
         else
           next
         end
@@ -136,10 +143,10 @@ module Ironfan
 
   def self.fog_connection
     @fog_connection ||= Fog::Compute.new({
-        :provider              => 'AWS',
-        :aws_access_key_id     => Chef::Config[:knife][:aws_access_key_id],
-        :aws_secret_access_key => Chef::Config[:knife][:aws_secret_access_key],
-        :region                => Chef::Config[:knife][:region]
+        :provider           => 'OpenStack',
+        :openstack_api_key  => Chef::Config[:knife][:rackspace_api_key],
+        :openstack_username => Chef::Config[:knife][:rackspace_username],
+        :openstack_auth_url => Chef::Config[:knife][:rackspace_auth_url]
       })
   end
 
@@ -160,14 +167,15 @@ module Ironfan
   end
 
   def self.fetch_fog_volumes
-    Chef::Log.debug("Using fog to catalog all volumes")
-    @fog_volumes = Ironfan.fog_connection.volumes
+    Chef::Log.debug("Using fog to catalog all volumes - DISABLED")
+#     @fog_volumes = Ironfan.fog_connection.volumes
   end
 
   def self.fog_keypairs
     return @fog_keypairs if @fog_keypairs
-    Chef::Log.debug("Using fog to catalog all keypairs")
-    @fog_keypairs = {}.tap{|hsh| Ironfan.fog_connection.key_pairs.each{|kp| hsh[kp.name] = kp } }
+    Chef::Log.debug("Using fog to catalog all keypairs - DISABLED")
+#     @fog_keypairs = {}.tap{|hsh| Ironfan.fog_connection.key_pairs.each{|kp| hsh[kp.name] = kp } }
+    nil
   end
 
   def safely *args, &block

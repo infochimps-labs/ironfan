@@ -30,22 +30,22 @@ module Ironfan
     #     security_group :nagios
     #   end
     #
-    #   # defines ec2-specific behavior
-    #   cloud(:ec2) do
+    #   # defines rackspace-specific behavior
+    #   cloud(:rackspace) do
     #     public_ip      '1.2.3.4'
     #     region         'us-east-1d'
     #   end
     #
     def cloud(cloud_provider=nil, attrs={}, &block)
-      raise "Only have ec2 so far" if cloud_provider && (cloud_provider != :ec2)
-      @cloud ||= Ironfan::Cloud::Ec2.new(self)
+      raise "Only have Rackspace so far" if cloud_provider && (cloud_provider != :rackspace)
+      @cloud ||= Ironfan::Cloud::Rackspace.new(self)
       @cloud.configure(attrs, &block)
       @cloud
     end
 
-    # sugar for cloud(:ec2)
-    def ec2(attrs={}, &block)
-      cloud(:ec2, attrs, &block)
+    # sugar for cloud(:rackspace)
+    def rackspace(attrs={}, &block)
+      cloud(:rackspace, attrs, &block)
     end
 
     # Magic method to describe a volume
@@ -130,7 +130,7 @@ module Ironfan
 
     #
     # Some roles imply aspects of the machine that have to exist at creation.
-    # For instance, on an ec2 machine you may wish the 'ssh' role to imply a
+    # For instance, on an rackspace machine you may wish the 'ssh' role to imply a
     # security group explicity opening port 22.
     #
     # @param [String] role_name -- the role that triggers the block

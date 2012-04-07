@@ -95,7 +95,7 @@ module Ironfan
     end
   end
 
-  class Ec2Keypair < PrivateKey
+  class RackspaceKeypair < PrivateKey
     def body
       return @body if @body
       if proxy && proxy.private_key && (not proxy.private_key.empty?)
@@ -117,11 +117,11 @@ module Ironfan
     end
 
     def key_dir
-      if Chef::Config.ec2_key_dir
-        return Chef::Config.ec2_key_dir
+      if Chef::Config.rackspace_key_dir
+        return Chef::Config.rackspace_key_dir
       else
-        dir = "#{ENV['HOME']}/.chef/credentials/ec2_keys"
-        warn "Please set 'ec2_key_dir' in your knife.rb. Will use #{dir} as a default"
+        dir = "#{ENV['HOME']}/.chef/credentials/rackspace_keys"
+        warn "Please set 'rackspace_key_dir' in your knife.rb. Will use #{dir} as a default"
         dir
       end
     end
