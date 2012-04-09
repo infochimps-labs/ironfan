@@ -232,8 +232,8 @@ module Ironfan
 
     def sync_to_cloud
       step "Syncing to cloud"
-      attach_volumes
-      create_tags
+#       attach_volumes
+#       create_tags
       associate_public_ip
     end
 

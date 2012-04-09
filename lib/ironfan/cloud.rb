@@ -248,9 +248,24 @@ module Ironfan
         end
       end
 
+      # 1              256 server     256            10 GB        
+      # 2              512 server     512            20 GB        
+      # 3              1GB server     1024           40 GB        
+      # 4              2GB server     2048           80 GB        
+      # 5              4GB server     4096           160 GB       
+      # 6              8GB server     8192           320 GB       
+      # 7              15.5GB server  15872          620 GB       
+      # 8              30GB server    30720          1200 GB      
 
       FLAVOR_INFO = {
-        '1'               => { :price => 0.00,  :bits => '64-bit', :ram =>    256, :cores => 1, :core_size => 0.25, :inst_disks => 0, :inst_disk_size =>    0, :ephemeral_volumes => 0 },
+        '1'               => { :price => 0.00,  :bits => '64-bit', :ram =>    256, :cores => 1, :core_size => 0.25, :inst_disks => 1, :inst_disk_size =>   10, :ephemeral_volumes => 0 },
+        '2'               => { :price => 0.00,  :bits => '64-bit', :ram =>    512, :cores => 1, :core_size => 0.25, :inst_disks => 0, :inst_disk_size =>   20, :ephemeral_volumes => 0 },
+        '3'               => { :price => 0.00,  :bits => '64-bit', :ram =>   1024, :cores => 1, :core_size => 0.25, :inst_disks => 0, :inst_disk_size =>   40, :ephemeral_volumes => 0 },
+        '4'               => { :price => 0.00,  :bits => '64-bit', :ram =>   2048, :cores => 1, :core_size => 0.25, :inst_disks => 0, :inst_disk_size =>   80, :ephemeral_volumes => 0 },
+        '5'               => { :price => 0.00,  :bits => '64-bit', :ram =>   4096, :cores => 1, :core_size => 0.25, :inst_disks => 0, :inst_disk_size =>  160, :ephemeral_volumes => 0 },
+        '6'               => { :price => 0.00,  :bits => '64-bit', :ram =>   8192, :cores => 1, :core_size => 0.25, :inst_disks => 0, :inst_disk_size =>  320, :ephemeral_volumes => 0 },
+        '7'               => { :price => 0.00,  :bits => '64-bit', :ram =>  15872, :cores => 1, :core_size => 0.25, :inst_disks => 0, :inst_disk_size =>  620, :ephemeral_volumes => 0 },
+        '8'               => { :price => 0.00,  :bits => '64-bit', :ram =>  30720, :cores => 1, :core_size => 0.25, :inst_disks => 0, :inst_disk_size => 1200, :ephemeral_volumes => 0 },
       }
 
       #
@@ -265,8 +280,8 @@ module Ironfan
       #
       Chef::Config[:rackspace_image_info] ||= {}
       Chef::Config[:rackspace_image_info].merge!({
-          %w[ 64-bit natty ]    => { :image_id => '115', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
-          %w[ 64-bit oneiric ]  => { :image_id => '119', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ 64-bit natty ]    => { :image_id => '115', :ssh_user => 'root', :bootstrap_distro => "ubuntu10.04-gems", },
+          %w[ 64-bit oneiric ]  => { :image_id => '119', :ssh_user => 'root', :bootstrap_distro => "ubuntu10.04-gems", },
         })
     end
 

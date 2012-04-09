@@ -186,7 +186,7 @@ module Ironfan
               "InstanceID" => (fs.id && fs.id > 0) ? fs.id : "???",
               "Flavor"     => fs.flavor_id,
               "Image"      => fs.image_id,
-              "AZ"         => fs.availability_zone,
+#               "AZ"         => fs.availability_zone,
 #               "SSH Key"    => fs.key_name,
               "State"      => "[#{MACHINE_STATE_COLORS[fs.state] || 'white'}]#{fs.state}[reset]",
               "Public IP"  => fs.public_ip_address,

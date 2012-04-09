@@ -78,7 +78,7 @@ module Ironfan
         end
         svr = Ironfan::Server.get(cluster_name, facet_name, facet_index)
         svr.chef_node = chef_node
-        @rackspace_instance_hash[ chef_node.rackspace.instance_id ] = svr if chef_node[:rackspace] && chef_node.rackspace.instance_id
+        @rackspace_instance_hash[ chef_node.rackspace.instance_id ] = svr if chef_node[:rackspace] && chef_node.rackspace.respond_to?(:instance_id)
       end
     end
 
@@ -143,10 +143,14 @@ module Ironfan
 
   def self.fog_connection
     @fog_connection ||= Fog::Compute.new({
-        :provider           => 'OpenStack',
-        :openstack_api_key  => Chef::Config[:knife][:rackspace_api_key],
-        :openstack_username => Chef::Config[:knife][:rackspace_username],
-        :openstack_auth_url => Chef::Config[:knife][:rackspace_auth_url]
+        :provider                       => 'Rackspace',
+        :rackspace_api_key              => Chef::Config[:knife][:rackspace_api_key],
+        :rackspace_username             => Chef::Config[:knife][:rackspace_username],
+#         :provider                       => 'OpenStack',
+#         :openstack_api_key              => Chef::Config[:knife][:rackspace_api_key],
+#         :openstack_username             => Chef::Config[:knife][:rackspace_username],
+#         :openstack_auth_url             => Chef::Config[:knife][:rackspace_auth_url],
+#         :openstack_compute_service_name => Chef::Config[:knife][:rackspace_compute_service_name]
       })
   end
 

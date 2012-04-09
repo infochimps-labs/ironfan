@@ -109,11 +109,15 @@ class Chef
         end
 
         # Make sure our list of volumes is accurate
-        Ironfan.fetch_fog_volumes
-        server.discover_volumes!
+#         Ironfan.fetch_fog_volumes
+#         server.discover_volumes!
 
         # Attach volumes, etc
         server.sync_to_cloud
+
+        Chef::Log.debug("connecting to server with password = #{server.fog_server.password}")
+
+        server.fog_server.setup :password => server.fog_server.password
 
         # Run Bootstrap
         if config[:bootstrap]

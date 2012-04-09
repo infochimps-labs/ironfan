@@ -24,17 +24,20 @@ module Ironfan
         if client_key.body then cloud.user_data.merge({ :client_key     => client_key.body })
         else                    cloud.user_data.merge({ :validation_key => cloud.validation_key }) ; end
       #
+      private_key_file = File.join(Chef::Config.rackspace_key_dir, "#{cloud.keypair.to_s}.pem")
       {
         :image_id             => cloud.image_id,
         :flavor_id            => cloud.flavor,
         :name                 => self.fullname,
         :groups               => cloud.security_groups.keys,
         :key_name             => cloud.keypair.to_s,
+        :private_key_file     => private_key_file,
+        :public_key           => `ssh-keygen -y -f #{private_key_file}`,
         :metadata             => {
           :cluster            => cluster_name.to_s,
           :facet              => facet_name.to_s,
           :index              => facet_index.to_s, },
-        :user_data            => JSON.pretty_generate(user_data_hsh),
+#         :user_data            => JSON.pretty_generate(user_data_hsh),
         :block_device_mapping => block_device_mapping,
         :availability_zone    => self.default_availability_zone,
         :monitoring           => cloud.monitoring,
@@ -134,7 +137,8 @@ module Ironfan
 
   class ServerSlice
     def sync_keypairs
-      step("ensuring keypairs exist - DISABLED!")
+    Chef::Log.debug("ensuring keypairs exist - DISABLED")
+#       step("ensuring keypairs exist - DISABLED")
 #       keypairs  = servers.map{|svr| [svr.cluster.cloud.keypair, svr.cloud.keypair] }.flatten.map(&:to_s).reject(&:blank?).uniq
 #       keypairs  = keypairs - Ironfan.fog_keypairs.keys
 #       keypairs.each do |keypair_name|
@@ -145,7 +149,8 @@ module Ironfan
 
     # Create security groups, their dependencies, and synchronize their permissions
     def sync_security_groups
-      step("ensuring security groups exist and are correct - DISABLED!")
+    Chef::Log.debug("ensuring security groups exist and are correct - DISABLED")
+#       step("ensuring security groups exist and are correct - DISABLED")
 #       security_groups.each{|name,group| group.run }
     end
 

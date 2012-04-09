@@ -60,7 +60,7 @@ class Chef
 
       def perform_execution(target)
         # Execute across all servers in parallel
-        threads = target.servers.map{ |server| Thread.new(server) { |svr| run_bootstrap(svr, svr.fog_server.ipaddress) } }
+        threads = target.servers.map{ |server| Thread.new(server) { |svr| run_bootstrap(svr, svr.fog_server.addresses["public"].first) } }
         # Wait for the threads to finish and return the array of thread's exit value
         threads.map{ |t| t.join.value }
       end
