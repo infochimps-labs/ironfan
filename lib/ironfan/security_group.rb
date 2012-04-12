@@ -28,7 +28,10 @@ module Ironfan
       def self.get_all
         groups_list = Ironfan.fog_connection.security_groups.all
         @@all = groups_list.inject(Mash.new) do |hsh, fog_group|
-          hsh[fog_group.name] = fog_group ; hsh
+          # AWS security_groups are strangely case sensitive, allowing upper-case but colliding regardless
+          #  of the case. This forces all names to lowercase, and matches against that below.
+          #  See https://github.com/infochimps-labs/ironfan/pull/86 for more details.
+          hsh[fog_group.name.downcase] = fog_group ; hsh
         end
       end
 
@@ -37,6 +40,7 @@ module Ironfan
       end
 
       def self.get_or_create(group_name, description)
+        group_name = group_name.to_s.downcase
         # FIXME: the '|| Ironfan.fog' part is probably unnecessary
         fog_group = all[group_name] || Ironfan.fog_connection.security_groups.get(group_name)
         unless fog_group
