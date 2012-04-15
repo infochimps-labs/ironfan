@@ -38,8 +38,7 @@ module Ironfan
         :block_device_mapping => block_device_mapping,
         :availability_zone    => self.default_availability_zone,
         :monitoring           => cloud.monitoring,
-        # :disable_api_termination => cloud.permanent,
-        # :instance_initiated_shutdown_behavior => instance_initiated_shutdown_behavior,
+        # permanence is applied during sync
       }
     end
 
@@ -127,6 +126,18 @@ module Ironfan
       else
         Chef::Log.debug("#{type_of_thing} paired: #{desc}")
         true
+      end
+    end
+
+    def set_instance_attributes
+      return unless self.in_cloud? && (not self.cloud.permanent.nil?)
+      desc = "termination flag #{permanent?} for #{self.fullname}"
+      # the EC2 API does not surface disable_api_termination as a value, so we
+      # have to set it every time.
+      safely do
+        step("  setting #{desc}", :blue)
+        Ironfan.fog_connection.modify_instance_attribute(self.fog_server.id, {
+            'DisableApiTermination.Value' => permanent?, })
       end
     end
 

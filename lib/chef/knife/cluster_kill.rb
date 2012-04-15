@@ -58,6 +58,7 @@ class Chef
 
       def display(target, *args, &block)
         super
+        ui.info Formatador.display_line("[red]Permanent servers ignored[reset]: [blue]#{target.select{|svr| svr.permanent }.map(&:fullname).inspect}[reset]") unless target.select{|svr| svr.permanent }.empty?
         ui.info Formatador.display_line("[red]Bogus servers detected[reset]: [blue]#{target.bogus_servers.map(&:fullname).inspect}[reset]") unless target.bogus_servers.empty?
       end
 

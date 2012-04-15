@@ -84,7 +84,12 @@ module Ironfan
       in_chef?
     end
 
+    def permanent?
+      !! self.cloud.permanent
+    end
+
     def killable?
+      return false if permanent?
       in_chef? || created?
     end
 
@@ -235,6 +240,7 @@ module Ironfan
       attach_volumes
       create_tags
       associate_public_ip
+      set_instance_attributes
     end
 
     def sync_to_chef

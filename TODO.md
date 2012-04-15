@@ -1,4 +1,4 @@
-
+* We should use the `Fog::Compute::AWS::FLAVORS` constant that [fog defines](http://rubydoc.info/github/fog/fog/master/Fog/Compute/AWS) in the cloud code (instead of the one we put there)
 
 * All over the place there is the following construct (absolutely necessary, absolutely horrid):
 
