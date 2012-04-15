@@ -52,7 +52,7 @@ class Chef
         require File.expand_path('vagrant/ironfan_provisioners', IRONFAN_DIR)
       end
 
-      banner "knife cluster vagrant CMD CLUSTER-[FACET-[INDEXES]] (options) - runs the given command against a vagrant environment created from your cluster definition. EARLY, use at your own risk"
+      banner "knife cluster vagrant CMD CLUSTER[-FACET[-INDEXES]] (options) - runs the given command against a vagrant environment created from your cluster definition. EARLY, use at your own risk"
 
       option :cloud,
         :long        => "--cloud PROVIDER",
@@ -63,7 +63,7 @@ class Chef
 
       def run
         # The subnet for this world
-        Chef::Config.host_network_blk   ||= '33.33.33'
+        Chef::Config.host_network_base   ||= '33.33.33'
         # Location that cookbooks, roles, etc will be mounted on vm
         # set to false to skip
         Chef::Config.homebase_on_vm_dir "/homebase" if Chef::Config.homebase_on_vm_dir.nil?
