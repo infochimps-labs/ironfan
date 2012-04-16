@@ -34,6 +34,8 @@ Ironfan consists of the following Toolset:
 * [Ironfan Screencast](http://bit.ly/ironfan-hadoop-in-20-minutes) -- build a Hadoop cluster from scratch in 20 minutes.
 * Ironfan powers the [Infochimps Platform](http://www.infochimps.com/how-it-works), our scalable enterprise big data platform. Ironfan Enterprise adds zero-configuration logging, monitoring and a compelling UI.
 
+**Note**: Ironfan is [not compatible with Ruby 1.8](https://github.com/infochimps-labs/ironfan/issues/127). All versions later than 1.9.2-p136 should work fine.
+
 ### The Ironfan Way
 
 * [Core Concepts](https://github.com/infochimps-labs/ironfan/wiki/core_concepts)     -- Components, Announcements, Amenities and more.
