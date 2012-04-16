@@ -58,7 +58,7 @@ class Chef
 
       def display(target, *args, &block)
         super
-        ui.info Formatador.display_line("[red]Permanent servers ignored[reset]: [blue]#{target.select{|svr| svr.permanent }.map(&:fullname).inspect}[reset]") unless target.select{|svr| svr.permanent }.empty?
+        ui.info Formatador.display_line("servers with [red]'permanent=true'[reset] ignored: [blue]#{target.select(&:permanent?).map(&:fullname).inspect}[reset]. (To kill, change 'permanent' to false, run knife cluster sync, and re-try)") unless target.none?(&:permanent?)
         ui.info Formatador.display_line("[red]Bogus servers detected[reset]: [blue]#{target.bogus_servers.map(&:fullname).inspect}[reset]") unless target.bogus_servers.empty?
       end
 

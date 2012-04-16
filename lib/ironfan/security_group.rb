@@ -93,7 +93,7 @@ module Ironfan
           step("authorizing access from all machines in #{other_name} to #{name}", :blue)
           self.class.get_or_create(other_name, "Authorized to access #{name}")
           begin  fog_group.authorize_group_and_owner(other_name, authed_owner)
-          rescue StandardError => e ; ui.warn e ; end
+          rescue StandardError => err ; handle_security_group_error(err) ; end
         end
         @group_authorized_by.uniq.each do |other_name|
           authed_owner = self.owner_id
@@ -101,13 +101,21 @@ module Ironfan
           next if group_permission_already_set?(other_group, self.name, authed_owner)
           step("authorizing access to all machines in #{other_name} from #{name}", :blue)
           begin  other_group.authorize_group_and_owner(self.name, authed_owner)
-          rescue StandardError => e ; ui.warn e ; end
+          rescue StandardError => err ; handle_security_group_error(err) ; end
         end
         @range_authorizations.uniq.each do |range, cidr_ip, ip_protocol|
           next if range_permission_already_set?(fog_group, range, cidr_ip, ip_protocol)
           step("opening #{ip_protocol} ports #{range} to #{cidr_ip}", :blue)
           begin  fog_group.authorize_port_range(range, { :cidr_ip => cidr_ip, :ip_protocol => ip_protocol })
-          rescue StandardError => e ; ui.warn e ; end
+          rescue StandardError => err ; handle_security_group_error(err) ; end
+        end
+      end
+
+      def handle_security_group_error(err)
+        if (/has already been authorized/ =~ err.to_s)
+          Chef::Log.debug err
+        else
+          ui.warn(err)
         end
       end
 
