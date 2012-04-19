@@ -39,9 +39,6 @@
 
 ### Knife commands
 
-* knife cluster launch should fail differently if you give it a facet that doesn't exist
-
-
 * reify notion of 'homebase'; cluster commands work off it
 * move away from referring to Chef::Config everywhere; 
 
