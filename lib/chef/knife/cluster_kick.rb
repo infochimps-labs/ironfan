@@ -42,6 +42,14 @@ class Chef
         :description => "Where to find the pid file. Typically /var/run/chef/client.pid (init.d) or /etc/sv/chef-client/supervise/pid (runit)",
         :default     => "/etc/sv/chef-client/supervise/pid"
 
+      def run
+        @name_args = [ @name_args.join('-') ]
+        config[:display_target] = true
+        script = Erubis::Eruby.new(KICKSTART_SCRIPT).result(:config => config)
+        @name_args[1] = script
+        super
+      end
+
       unless defined?(KICKSTART_SCRIPT)
         KICKSTART_SCRIPT = <<EOF
 #!/bin/bash
@@ -81,13 +89,6 @@ else
   sudo -p 'knife sudo password: ' chef-client
 fi
 EOF
-      end
-
-      def run
-        @name_args = [ @name_args.join('-') ]
-        script = Erubis::Eruby.new(KICKSTART_SCRIPT).result(:config => config)
-        @name_args[1] = script
-        super
       end
 
     end

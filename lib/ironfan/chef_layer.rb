@@ -30,8 +30,9 @@ module Ironfan
     # Run given block unless in dry_run mode (Ironfan.chef_config[:dry_run]
     # is true)
     def unless_dry_run
-      if Ironfan.chef_config[:dry_run]
+      if Ironfan.dry_run?
         ui.info("      ... but not really (#{ui.color("dry run", :bold, :yellow)} for server #{name})")
+        return nil
       else
         yield
       end

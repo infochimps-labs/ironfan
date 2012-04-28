@@ -170,6 +170,19 @@ module Ironfan
     @fog_keypairs = {}.tap{|hsh| Ironfan.fog_connection.key_pairs.each{|kp| hsh[kp.name] = kp } }
   end
 
+  def self.dry_run?
+    Ironfan.chef_config[:dry_run]
+  end
+
+  def self.placement_groups
+    return @placement_groups if @placement_groups
+    Chef::Log.debug("Using fog to catalog all placement_groups")
+    resp = self.fog_connection.describe_placement_groups unless dry_run?
+    return {} unless resp.respond_to?(:body) && resp.body.present?
+    arr = resp.body['placementGroupSet']
+    @placement_groups = arr.inject({}){|acc, pg| acc[pg['groupName']] = pg ; acc }
+  end
+
   def safely *args, &block
     Ironfan.safely(*args, &block)
   end

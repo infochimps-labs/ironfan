@@ -24,7 +24,7 @@ module Ironfan
         if client_key.body then cloud.user_data.merge({ :client_key     => client_key.body })
         else                    cloud.user_data.merge({ :validation_key => cloud.validation_key }) ; end
       #
-      {
+      description = {
         :image_id             => cloud.image_id,
         :flavor_id            => cloud.flavor,
         :groups               => cloud.security_groups.keys,
@@ -40,12 +40,18 @@ module Ironfan
         :monitoring           => cloud.monitoring,
         # permanence is applied during sync
       }
+      if needs_placement_group?
+        ui.warn "1.3.1 and earlier versions of Fog don't correctly support placement groups, so your nodes will land willy-nilly. We're working on a fix"
+        description[:placement] = { 'groupName' => cloud.placement_group.to_s }
+      end
+      description
     end
 
     #
     # Takes key-value pairs and idempotently sets those tags on the cloud machine
     #
     def fog_create_tags(fog_obj, desc, tags)
+      tags['Name'] ||= tags['name'] if tags.has_key?('name')
       tags_to_create = tags.reject{|key, val| fog_obj.tags[key] == val.to_s }
       return if tags_to_create.empty?
       step("  tagging #{desc} with #{tags_to_create.inspect}", :green)
@@ -106,6 +112,23 @@ module Ironfan
       end
     end
 
+    def ensure_placement_group
+      return unless needs_placement_group?
+      pg_name = cloud.placement_group.to_s
+      desc = "placement group #{pg_name} for #{self.fullname} (vs #{Ironfan.placement_groups.inspect}"
+      return if Ironfan.placement_groups.include?(pg_name)
+      safely do
+        step("  creating #{desc}", :blue)
+        unless_dry_run{ Ironfan.fog_connection.create_placement_group(pg_name, 'cluster') }
+        Ironfan.placement_groups[pg_name] = { 'groupName' => pg_name, 'strategy' => 'cluster' }
+      end
+      pg_name
+    end
+
+    def needs_placement_group?
+      cloud.flavor_info[:placement_groupable]
+    end
+
     def associate_public_ip
       address = self.cloud.public_ip
       return unless self.in_cloud? && address
@@ -136,8 +159,11 @@ module Ironfan
       # have to set it every time.
       safely do
         step("  setting #{desc}", :blue)
-        Ironfan.fog_connection.modify_instance_attribute(self.fog_server.id, {
-            'DisableApiTermination.Value' => permanent?, })
+        unless_dry_run do
+          Ironfan.fog_connection.modify_instance_attribute(self.fog_server.id, {
+              'DisableApiTermination.Value' => permanent?, })
+        end
+        true
       end
     end
 
