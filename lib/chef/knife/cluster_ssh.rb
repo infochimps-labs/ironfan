@@ -43,7 +43,7 @@ class Chef
       def configure_session
         target = get_slice(@name_args[0]).select(&:sshable?)
 
-        display(target) if config[:verbose]
+        display(target) if config[:verbose] || config[:display_target]
 
         config[:attribute]     ||= Chef::Config[:knife][:ssh_address_attribute] || "fqdn"
         config[:ssh_user]      ||= Chef::Config[:knife][:ssh_user]
@@ -51,9 +51,10 @@ class Chef
 
         @action_nodes = target.chef_nodes
         addresses = target.servers.map do |svr|
-          if (svr.cloud.public_ip)             then address = svr.cloud.public_ip ; end
-          if (not address) && (svr.fog_server) then address = svr.fog_server.public_ip_address ; end
-          if (not address) && (svr.chef_node)  then address = format_for_display( svr.chef_node )[config[:attribute]] ; end
+          address = svr.public_hostname
+          if address.blank? && (svr.chef_node)
+            address = format_for_display( svr.chef_node )[config[:attribute]]
+          end
           address
         end.compact
 

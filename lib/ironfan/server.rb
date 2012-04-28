@@ -106,6 +106,10 @@ module Ironfan
       @tags[key]
     end
 
+    def public_hostname
+      give_me_a_hostname_from_one_of_these_seven_ways_you_assholes
+    end
+
     def chef_server_url()        Chef::Config.chef_server_url        ; end
     def validation_client_name() Chef::Config.validation_client_name ; end
     def validation_key()         Chef::Config.validation_key         ; end
@@ -240,6 +244,7 @@ module Ironfan
       attach_volumes
       create_tags
       associate_public_ip
+      ensure_placement_group
       set_instance_attributes
     end
 
@@ -284,6 +289,24 @@ module Ironfan
       return unless chef_node
       announce_state('stop')
       chef_node.save
+    end
+
+  protected
+
+    def give_me_a_hostname_from_one_of_these_seven_ways_you_assholes
+      # note: there are not actually seven ways. That is the least absurd part of this situation.
+      case
+      when cloud.public_ip
+        cloud.public_ip
+      when fog_server && fog_server.respond_to?(:public_ip_address) && fog_server.public_ip_address.present?
+        fog_server.public_ip_address
+      when fog_server && fog_server.respond_to?(:ipaddress)
+        fog_server.ipaddress
+      when fog_server && fog_server.respond_to?(:dns_name)
+        fog_server.dns_name
+      else
+        nil
+      end
     end
 
   end

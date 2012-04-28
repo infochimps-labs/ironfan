@@ -65,9 +65,10 @@ class Chef
         config[:identity_file]   ||= svr.cloud.ssh_identity_file
         config[:host_key_verify] ||= Chef::Config[:knife][:host_key_verify] || (not config[:no_host_key_verify]) # pre-vs-post 0.10.4
 
-        if (svr.cloud.public_ip)             then address = svr.cloud.public_ip ; end
-        if (not address) && (svr.chef_node)  then address = format_for_display( svr.chef_node )[config[:attribute]] ; end
-        if (not address) && (svr.fog_server) then address = svr.fog_server.public_ip_address ; end
+        address = svr.public_hostname
+        if address.blank? && (svr.chef_node)
+          address = format_for_display( svr.chef_node )[config[:attribute]]
+        end
 
         cmd  = [ 'ssh', '-N' ]
         cmd += [ '-D', config[:socks_port].to_s ]
