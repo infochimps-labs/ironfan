@@ -26,13 +26,19 @@ export DEBIAN_FRONTEND=noninteractive
 date > /etc/box_build_time
 
 echo -e "`date` \n\n**** \n**** apt update:\n****\n"
-apt-get -y update
-apt-get -y upgrade
+apt-get --force-yes -y update
+apt-get --force-yes -y upgrade
 
 echo -e "`date` \n\n**** \n**** Installing base packages:\n****\n"
-apt-get -y install build-essential make wget curl runit zlib1g-dev libssl-dev openssl libcurl4-openssl-dev libxml2-dev libxslt-dev libyaml-dev libreadline6 libreadline6-dev
-apt-get -y install runit-services
+apt-get --force-yes -y install build-essential make wget curl runit zlib1g-dev libssl-dev openssl libcurl4-openssl-dev libxml2-dev libxslt-dev libyaml-dev libreadline6 libreadline6-dev
+apt-get --force-yes -y install runit-services
 apt-get clean
+
+# do not trust the ubuntu chef package
+rm -f /etc/init.d/chef-client || true
+apt-get   remove -y --force-yes         chef ruby1.8-dev libjson-ruby1.8 libmixlib-authentication-ruby1.8 ohai libmixlib-log-ruby1.8 libmime-types-ruby librestclient-ruby1.8 ruby1.8 ruby liberubis-ruby1.8 libsystemu-ruby1.8 libohai-ruby libuuidtools-ruby1.8 libhighline-ruby1.8 libabstract-ruby1.8 libmixlib-config-ruby1.8 rubygems1.8 libbunny-ruby1.8 libchef-ruby1.8 libmixlib-cli-ruby1.8 libyajl-ruby libmoneta-ruby1.8 libohai-ruby1.8 libextlib-ruby1.8 || true
+# apt-get remove -y --force-yes --purge myproxy globus-core condor nis autofs myproxy-server globus-proxy-utils globus-repository-natty globus-gridftp-server-progs globus-gass-copy-progs globus-simple-ca globus-gsi-cert-utils-progs || true
+sudo apt-get autoremove -y --force-yes || true
 
 if [ ! -f /usr/bin/chef-client ]; then
 echo -e "`date` \n\n**** \n**** Installing ruby version ${RUBY_VERSION}:\n****\n"
@@ -69,7 +75,7 @@ echo -e "`date` \n\n**** \n**** Installing chef:\n****\n"
 gem install ohai --no-rdoc --no-ri
 gem install chef --no-rdoc --no-ri <%= bootstrap_version_string %>
 # gems needed for the client.rb or so generically useful you want them at hand
-gem install      --no-rdoc --no-ri extlib bundler json right_aws pry
+gem install      --no-rdoc --no-ri extlib bundler json right_aws pry fog
 
 else # no chef-client
 echo -e "`date` \n\n**** \n**** Chef is present -- skipping apt/ruby/chef installation\n****\n"
