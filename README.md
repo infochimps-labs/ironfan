@@ -42,3 +42,7 @@ Ironfan consists of the following Toolset:
 * [Philosophy](https://github.com/infochimps-labs/ironfan/wiki/Philosophy)            -- Best practices and lessons learned
 * [Style Guide](https://github.com/infochimps-labs/ironfan/wiki/style_guide)         -- Common attribute names, how and when to include other cookbooks, and more
 * [Homebase Layout](https://github.com/infochimps-labs/ironfan/wiki/homebase-layout) -- How this homebase is organized, and why
+
+### Getting Help
+* Feel free to contact us at info@infochimps.com or 855-DATA-FUN
+* Also, you invited to a [private consultation](http://www.infochimps.com/free-big-data-consultation?utm_source=git&utm_medium=referral&utm_campaign=consult) with Infochimps founders on your big data project.
