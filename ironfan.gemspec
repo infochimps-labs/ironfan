@@ -70,7 +70,6 @@ Gem::Specification.new do |s|
     "lib/ironfan/server.rb",
     "lib/ironfan/server_slice.rb",
     "lib/ironfan/volume.rb",
-    "notes/Backup of ec2-pricing_and_capacity.numbers",
     "notes/Home.md",
     "notes/INSTALL-cloud_setup.md",
     "notes/INSTALL.md",
