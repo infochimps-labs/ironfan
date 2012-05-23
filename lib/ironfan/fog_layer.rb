@@ -27,6 +27,8 @@ module Ironfan
       description = {
         :image_id             => cloud.image_id,
         :flavor_id            => cloud.flavor,
+        :vpc_id               => cloud.vpc,
+        :subnet_id            => cloud.subnet,
         :groups               => cloud.security_groups.keys,
         :key_name             => cloud.keypair.to_s,
         # Fog does not actually create tags when it creates a server.

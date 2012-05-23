@@ -123,8 +123,8 @@ module Ironfan
         :region, :availability_zones, :backing,
         :spot_price, :spot_price_fraction,
         :user_data, :security_groups,
-        :monitoring,
-        :placement_group
+        :monitoring, :placement_group,
+        :vpc, :subnet
         )
 
       def initialize(*args)
@@ -234,6 +234,14 @@ module Ironfan
         ec2_image_info.each do |flavor_name, flavor|
           ui.info("  %-55s\t%s" % [flavor_name, flavor.inspect])
         end
+      end
+
+      def vpc(val=nil)
+        set :vpc, val
+      end
+
+      def subnet(val=nil)
+        set :subnet, val
       end
 
       def flavor(val=nil)
