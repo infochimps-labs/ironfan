@@ -32,6 +32,8 @@ Vagrant::Config.run do |config|
   # learn more abt vagrant to figure out where.
   #
 
+  # TODO: FIXME: WTF is this hoary horseshit? At *least* do it by cluster-facet, 
+  #   not just facet (especially since the examples given are all *clusters*)
   def ip_for(svr)
     "#{Chef::Config.host_network_base}.#{(Chef::Config.host_network_ip_mapping[svr.facet_name] || 30) + svr.facet_index}"
   end
@@ -47,7 +49,7 @@ Vagrant::Config.run do |config|
   #
 
   # Boot with a GUI so you can see the screen. (Default is headless)
-  config.vm.boot_mode = :gui
+  #config.vm.boot_mode = :gui
 
   # Mount this to see all our chefs and stuff: [type, vm_path, host_path]
   config.vm.share_folder "homebase", Chef::Config.homebase_on_vm_dir, Chef::Config.homebase
@@ -65,6 +67,7 @@ Vagrant::Config.run do |config|
 
       cfg.vm.box     = svr.cloud.image_name
       cfg.vm.network  :hostonly, ip_for(svr)
+# TODO: FIXME: Need to set the "private IP" for each vagrant to something distinct for each node
 
       #
       # See http://www.virtualbox.org/manual/ch08.html#idp12418752
