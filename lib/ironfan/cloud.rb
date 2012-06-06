@@ -113,7 +113,7 @@ module Ironfan
       def from_setting_or_image_info(key, val=nil, default=nil)
         @settings[key] = val unless val.nil?
         return @settings[key]  if @settings.include?(key)
-        return image_info[key] unless image_info.nil?
+#         return image_info[key] unless image_info.nil?
         return default       # otherwise
       end
     end
@@ -446,6 +446,24 @@ module Ironfan
 
     class Terremark < Base
       # password, username, service
+    end
+
+    class Physical < Base
+      def target_address(val=nil)
+        from_setting_or_image_info :target_address, val
+      end
+      def target_password(val=nil)
+        from_setting_or_image_info :target_password, val
+      end
+      def target_user(val=nil)
+        from_setting_or_image_info :target_user, val, 'ubuntu'
+      end
+      def target_port(val=nil)
+        from_setting_or_image_info :target_port, val, 22
+      end
+      def user_data(val=nil)
+        from_setting_or_image_info :user_data, val
+      end
     end
   end
 end

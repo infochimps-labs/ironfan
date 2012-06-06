@@ -21,7 +21,8 @@ require 'ironfan/private_key'       # coordinate chef keys, cloud keypairs, etc
 require 'ironfan/role_implications' # make roles trigger other actions (security groups, etc)
 #
 require 'ironfan/chef_layer'        # interface to chef for server actions
-require 'ironfan/fog_layer'         # interface to fog  for server actions
+# require 'ironfan/fog_layer'         # interface to fog  for server actions
+require 'ironfan/host_layer'        # interface to host for server actions (LIDAR refactor of fog)
 #
 require 'ironfan/deprecated'        # stuff slated to go away
 

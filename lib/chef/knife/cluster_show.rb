@@ -49,7 +49,7 @@ class Chef
           target.each do |svr|
             Chef::Log.debug( "Server #{svr.name}: #{JSON.pretty_generate(svr.to_hash)}" )
             Chef::Log.debug( "- cloud: #{JSON.pretty_generate(svr.cloud.to_hash)}" )
-            Chef::Log.debug( "- fog:   #{JSON.pretty_generate(svr.fog_launch_description)}" )
+            Chef::Log.debug( "- host:  #{JSON.pretty_generate(svr.host_server.to_hash)}" )
           end
         end
 

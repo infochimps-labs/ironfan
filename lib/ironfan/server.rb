@@ -8,7 +8,7 @@ module Ironfan
   #
   class Server < Ironfan::ComputeBuilder
     attr_reader   :cluster, :facet, :facet_index, :tags
-    attr_accessor :chef_node, :fog_server
+    attr_accessor :chef_node, :host_server
 
     @@all ||= Mash.new
 
@@ -49,7 +49,7 @@ module Ironfan
     end
 
     def in_cloud?
-      !! fog_server
+      !! host_server
     end
 
     def in_chef?
@@ -57,7 +57,7 @@ module Ironfan
     end
 
     def has_cloud_state?(*states)
-      in_cloud? && states.flatten.include?(fog_server.state)
+      in_cloud? && states.flatten.include?(host_server.state)
     end
 
     def exists?
@@ -65,7 +65,7 @@ module Ironfan
     end
 
     def created?
-      in_cloud? && (not ['terminated', 'shutting-down'].include?(fog_server.state))
+      in_cloud? && (not ['terminated', 'shutting-down'].include?(host_server.state))
     end
 
     def running?
@@ -81,7 +81,7 @@ module Ironfan
     end
 
     def sshable?
-      in_chef?
+      in_chef? || running?
     end
 
     def permanent?
@@ -94,7 +94,7 @@ module Ironfan
     end
 
     def to_s
-      super[0..-3] + " chef: #{in_chef? && chef_node.name} fog: #{in_cloud? && fog_server.id}}>"
+      super[0..-3] + " chef: #{in_chef? && chef_node.name} host: #{in_cloud? && host_server.id}}>"
     end
 
     #
@@ -125,19 +125,19 @@ module Ironfan
       cloud.reverse_merge!(facet.cloud)
       cloud.reverse_merge!(cluster.cloud)
       #
-      cloud.user_data({
-          :chef_server            => chef_server_url,
-          :validation_client_name => validation_client_name,
-          #
-          :node_name              => fullname,
-          :organization           => organization,
-          :cluster_name           => cluster_name,
-          :facet_name             => facet_name,
-          :facet_index            => facet_index,
-          #
-          :run_list               => combined_run_list,
-        })
-      #
+#       cloud.user_data({
+#           :chef_server            => chef_server_url,
+#           :validation_client_name => validation_client_name,
+#           #
+#           :node_name              => fullname,
+#           :organization           => organization,
+#           :cluster_name           => cluster_name,
+#           :facet_name             => facet_name,
+#           :facet_index            => facet_index,
+#           #
+#           :run_list               => combined_run_list,
+#         })
+#       #
       cloud.keypair(cluster_name) if cloud.keypair.nil?
       #
       self
@@ -207,7 +207,7 @@ module Ironfan
         vols[vol_name]         ||= self.volumes[vol_name].dup
         vols[vol_name].reverse_merge!(vol)
       end
-      vols.each{|vol_name, vol| vol.availability_zone self.default_availability_zone }
+#       vols.each{|vol_name, vol| vol.availability_zone self.default_availability_zone }
       vols
     end
 
@@ -241,11 +241,11 @@ module Ironfan
 
     def sync_to_cloud
       step "Syncing to cloud"
-      attach_volumes
-      create_tags
-      associate_public_ip
-      ensure_placement_group
-      set_instance_attributes
+#       attach_volumes
+#       create_tags
+#       associate_public_ip
+#       ensure_placement_group
+#       set_instance_attributes
     end
 
     def sync_to_chef
@@ -264,7 +264,7 @@ module Ironfan
     def create_tags
       return unless created?
       step("  labeling servers and volumes")
-      fog_create_tags(fog_server, self.fullname, tags)
+      fog_create_tags(host_server, self.fullname, tags)
       composite_volumes.each do |vol_name, vol|
         if vol.fog_volume
           fog_create_tags(vol.fog_volume, vol.desc,
@@ -298,12 +298,12 @@ module Ironfan
       case
       when cloud.public_ip
         cloud.public_ip
-      when fog_server && fog_server.respond_to?(:public_ip_address) && fog_server.public_ip_address.present?
-        fog_server.public_ip_address
-      when fog_server && fog_server.respond_to?(:ipaddress)
-        fog_server.ipaddress
-      when fog_server && fog_server.respond_to?(:dns_name)
-        fog_server.dns_name
+      when host_server && host_server.respond_to?(:public_ip_address) && host_server.public_ip_address.present?
+        host_server.public_ip_address
+      when host_server && host_server.respond_to?(:ipaddress)
+        host_server.ipaddress
+      when host_server && host_server.respond_to?(:dns_name)
+        host_server.dns_name
       else
         nil
       end

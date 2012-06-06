@@ -5,9 +5,9 @@ module Ironfan
       @aws_instance_hash = {}
       discover_ironfan!
       discover_chef_nodes!
-      discover_fog_servers!  unless Ironfan.chef_config[:cloud] == false
+      discover_host_servers!  unless Ironfan.chef_config[:cloud] == false
       discover_chef_clients!
-      discover_volumes!
+#       discover_volumes!
     end
 
     def chef_clients
@@ -91,34 +91,37 @@ module Ironfan
       self.servers
     end
 
-    def discover_fog_servers!
-      # If the fog server is tagged with cluster/facet/index, then try to
-      # locate the corresponding machine in the cluster def
-      # Otherwise, try to get to it through mapping the aws instance id
-      # to the chef node name found in the chef node
-      fog_servers.each do |fs|
-        if fs.tags["cluster"] && fs.tags["facet"] && fs.tags["index"] && fs.tags["cluster"] == cluster_name.to_s
-          svr = Ironfan::Server.get(fs.tags["cluster"], fs.tags["facet"], fs.tags["index"])
-        elsif @aws_instance_hash[fs.id]
-          svr = @aws_instance_hash[fs.id]
-        else
-          next
-        end
+    # Walk the list of servers, asking each to discover its host 
+    def discover_host_servers!
+      servers.each(&:host_server)
 
-        # If there already is a fog server there, then issue a warning and slap
-        # the just-discovered one onto a server with an arbitrary index, and
-        # mark both bogus
-        if existing_fs = svr.fog_server
-          if existing_fs.id != fs.id
-            ui.warn "Duplicate fog instance found for #{svr.fullname}: #{fs.id} and #{existing_fs.id}!!"
-            old_svr = svr
-            svr     = old_svr.facet.server(1_000 + svr.facet_index.to_i)
-            old_svr.bogosity :duplicate
-            svr.bogosity     :duplicate
-          end
-        end
-        svr.fog_server = fs
-      end
+#       # If the fog server is tagged with cluster/facet/index, then try to
+#       # locate the corresponding machine in the cluster def
+#       # Otherwise, try to get to it through mapping the aws instance id
+#       # to the chef node name found in the chef node
+#       fog_servers.each do |fs|
+#         if fs.tags["cluster"] && fs.tags["facet"] && fs.tags["index"] && fs.tags["cluster"] == cluster_name.to_s
+#           svr = Ironfan::Server.get(fs.tags["cluster"], fs.tags["facet"], fs.tags["index"])
+#         elsif @aws_instance_hash[fs.id]
+#           svr = @aws_instance_hash[fs.id]
+#         else
+#           next
+#         end
+# 
+#         # If there already is a fog server there, then issue a warning and slap
+#         # the just-discovered one onto a server with an arbitrary index, and
+#         # mark both bogus
+#         if existing_fs = svr.fog_server
+#           if existing_fs.id != fs.id
+#             ui.warn "Duplicate fog instance found for #{svr.fullname}: #{fs.id} and #{existing_fs.id}!!"
+#             old_svr = svr
+#             svr     = old_svr.facet.server(1_000 + svr.facet_index.to_i)
+#             old_svr.bogosity :duplicate
+#             svr.bogosity     :duplicate
+#           end
+#         end
+#         svr.fog_server = fs
+#       end
     end
 
     def discover_volumes!
@@ -168,6 +171,13 @@ module Ironfan
     return @fog_keypairs if @fog_keypairs
     Chef::Log.debug("Using fog to catalog all keypairs")
     @fog_keypairs = {}.tap{|hsh| Ironfan.fog_connection.key_pairs.each{|kp| hsh[kp.name] = kp } }
+  end
+
+  def self.host_keypairs
+    return @host_keypairs if @host_keypairs
+    Chef::Log.debug("Using host to catalog all keypairs")
+    {}
+#     @host_keypairs = {}.tap{|hsh| Ironfan.fog_connection.key_pairs.each{|kp| hsh[kp.name] = kp } }
   end
 
   def self.dry_run?

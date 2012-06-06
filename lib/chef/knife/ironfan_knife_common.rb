@@ -119,7 +119,8 @@ module Ironfan
       bootstrap.name_args               = [ hostname ]
       bootstrap.config[:node]           = server
       bootstrap.config[:run_list]       = server.combined_run_list
-      bootstrap.config[:ssh_user]       = config[:ssh_user]       || server.cloud.ssh_user
+      bootstrap.config[:ssh_user]       = server.cloud.target_user
+      bootstrap.config[:ssh_password]   = server.cloud.target_password
       bootstrap.config[:attribute]      = config[:attribute]
       bootstrap.config[:identity_file]  = config[:identity_file]  || server.cloud.ssh_identity_file
       bootstrap.config[:distro]         = config[:distro]         || server.cloud.bootstrap_distro

@@ -41,7 +41,7 @@ yum clean all
 if [ ! -f /usr/bin/chef-client ]; then
   echo -e "`date` \n\n**** \n**** Installing ruby version ${RUBY_VERSION}:\n****\n"
 
-  wget ftp://ftp.ruby-lang.org/pub/ruby/1.9/ruby-${RUBY_VERSION}.tar.gz
+  wget https://s3.amazonaws.com/artifacts.chimpy.us/tarballs/ruby-${RUBY_VERSION}.tar.gz
   tar xzf ruby-${RUBY_VERSION}.tar.gz
   cd ruby-${RUBY_VERSION}
   ./configure --with-ruby-version=${RUBY_VERSION} --prefix=/usr --program-suffix=${RUBY_VERSION}

@@ -118,8 +118,8 @@ module Ironfan
     end
 
     def sync_to_cloud
-      sync_keypairs
-      sync_security_groups
+#       sync_keypairs
+#       sync_security_groups
       delegate_to_servers( :sync_to_cloud )
     end
 
@@ -134,9 +134,9 @@ module Ironfan
 
     # FIXME: this is a jumble. we need to pass it in some other way.
 
-    MINIMAL_HEADINGS  = ["Name", "Chef?", "State", "InstanceID", "Public IP", "Private IP", "Created At"].to_set.freeze
-    DEFAULT_HEADINGS  = (MINIMAL_HEADINGS + ['Flavor', 'AZ', 'Env']).freeze
-    EXPANDED_HEADINGS = DEFAULT_HEADINGS + ['Image', 'Volumes', 'Elastic IP', 'SSH Key']
+    MINIMAL_HEADINGS  = ["Name", "Chef?", "State", "Public IP"].to_set.freeze
+    DEFAULT_HEADINGS  = (MINIMAL_HEADINGS + ['Env']).freeze
+    EXPANDED_HEADINGS = DEFAULT_HEADINGS + ["InstanceID", "Private IP", "Created At", 'Flavor', 'AZ', 'Image', 'Volumes', 'Elastic IP', 'SSH Key']
 
     MACHINE_STATE_COLORS  = {
       'running'       => :green,
@@ -181,17 +181,11 @@ module Ironfan
         #     "Env"    => cs.environment,
         #     )
         # end
-        if (fs = svr.fog_server)
+        if (host = svr.host_server)
+#           raise "the roof"
           hsh.merge!(
-              "InstanceID" => (fs.id && fs.id.length > 0) ? fs.id : "???",
-              "Flavor"     => fs.flavor_id,
-              "Image"      => fs.image_id,
-              "AZ"         => fs.availability_zone,
-              "SSH Key"    => fs.key_name,
-              "State"      => "[#{MACHINE_STATE_COLORS[fs.state] || 'white'}]#{fs.state}[reset]",
-              "Public IP"  => fs.public_ip_address,
-              "Private IP" => fs.private_ip_address,
-              "Created At" => fs.created_at.strftime("%Y%m%d-%H%M%S")
+              "State"      => "[#{MACHINE_STATE_COLORS[host.state] || 'white'}]#{host.state}[reset]",
+              "Public IP"  => host.public_ip_address,
             )
         else
           hsh["State"] = "not running"

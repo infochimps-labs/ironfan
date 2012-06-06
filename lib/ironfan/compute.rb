@@ -36,9 +36,14 @@ module Ironfan
     #     region         'us-east-1d'
     #   end
     #
-    def cloud(cloud_provider=nil, attrs={}, &block)
-      raise "Only have ec2 so far" if cloud_provider && (cloud_provider != :ec2)
-      @cloud ||= Ironfan::Cloud::Ec2.new(self)
+    def cloud(cloud_provider=:physical, attrs={}, &block)
+      raise "This branch only supports cloud :physical" unless cloud_provider == :physical
+      classes = {
+        :ec2            => 'Ironfan::Cloud::Ec2',
+        :physical       => 'Ironfan::Cloud::Physical',
+        :go_grid        => 'Ironfan::Cloud::GoGrid',
+      }
+      @cloud ||= eval(classes[cloud_provider]).new(self)
       @cloud.configure(attrs, &block)
       @cloud
     end
@@ -46,6 +51,16 @@ module Ironfan
     # sugar for cloud(:ec2)
     def ec2(attrs={}, &block)
       cloud(:ec2, attrs, &block)
+    end
+
+    # sugar for cloud(:physical)
+    def physical(attrs={}, &block)
+      cloud(:physical, attrs, &block)
+    end
+
+    # sugar for cloud(:go_grid)
+    def go_grid(attrs={}, &block)
+      cloud(:go_grid, attrs, &block)
     end
 
     # Magic method to describe a volume
@@ -99,7 +114,7 @@ module Ironfan
     #
     def role(role_name, placement=nil)
       add_to_run_list("role[#{role_name}]", placement)
-      self.instance_eval(&@@role_implications[role_name]) if @@role_implications[role_name]
+#       self.instance_eval(&@@role_implications[role_name]) if @@role_implications[role_name]
     end
 
     # Add the given recipe to the run list. You can specify placement of
