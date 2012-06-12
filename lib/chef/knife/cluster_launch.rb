@@ -136,6 +136,9 @@ class Chef
       rescue Errno::ECONNREFUSED
         sleep 2
         false
+      rescue Errno::EHOSTUNREACH
+        sleep 2
+        false
       ensure
         tcp_socket && tcp_socket.close
       end
