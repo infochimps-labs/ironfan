@@ -1,15 +1,22 @@
 module Ironfan
   module Cloud
-
     class SecurityGroup < DslObject
-      has_keys :name, :description, :owner_id
+      has_keys :name, :description, :owner_id, :group_id
       attr_reader :group_authorizations
       attr_reader :range_authorizations
-
       def initialize cloud, group_name, group_description=nil, group_owner_id=nil
         super()
-        set :name, group_name.to_s
-        description group_description || "ironfan generated group #{group_name}"
+
+        @@vpc = cloud.vpc if cloud.vpc.present?
+
+        if (@@vpc)
+          group_name = @@vpc + "-" + group_name
+          set :name, group_name.to_s
+          description group_description || "ironfan generated vpc group #{group_name}"
+        else
+          set :name, group_name.to_s
+          description group_description || "ironfan generated group #{group_name}"
+        end
         @cloud         = cloud
         @group_authorizations = []
         @group_authorized_by  = []
@@ -17,16 +24,25 @@ module Ironfan
         owner_id(group_owner_id || Chef::Config[:knife][:aws_account_id])
       end
 
+      @@vpc = nil
+
       @@all = nil
+
       def all
         self.class.all
       end
+
       def self.all
         return @@all if @@all
         get_all
       end
+
       def self.get_all
-        groups_list = Ironfan.fog_connection.security_groups.all
+        if (@@vpc)
+          groups_list = Ironfan.fog_connection.security_groups.all({ "group-name" => "#{@@vpc}-*" })
+        else
+          groups_list = Ironfan.fog_connection.security_groups.all
+        end
         @@all = groups_list.inject(Mash.new) do |hsh, fog_group|
           # AWS security_groups are strangely case sensitive, allowing upper-case but colliding regardless
           #  of the case. This forces all names to lowercase, and matches against that below.
@@ -45,7 +61,7 @@ module Ironfan
         fog_group = all[group_name] || Ironfan.fog_connection.security_groups.get(group_name)
         unless fog_group
           self.step(group_name, "creating (#{description})", :green)
-          fog_group = all[group_name] = Ironfan.fog_connection.security_groups.new(:name => group_name, :description => description, :connection => Ironfan.fog_connection)
+          fog_group = all[group_name] = Ironfan.fog_connection.security_groups.new(:name => group_name, :description => description, :connection => Ironfan.fog_connection, :vpc_id => @@vpc)
           fog_group.save
         end
         fog_group
@@ -68,16 +84,16 @@ module Ironfan
         return false if fog_group.ip_permissions.nil?
         fog_group.ip_permissions.any? do |existing_permission|
           existing_permission["groups"].include?({"userId" => authed_owner, "groupName" => other_name}) &&
-            existing_permission["fromPort"] == 1 &&
-            existing_permission["toPort"]   == 65535
+          existing_permission["fromPort"] == 1 &&
+          existing_permission["toPort"]   == 65535
         end
       end
 
       def range_permission_already_set?(fog_group, range, cidr_ip, ip_protocol)
         return false if fog_group.ip_permissions.nil?
         fog_group.ip_permissions.include?(
-          { "groups"=>[], "ipRanges"=>[{"cidrIp"=>cidr_ip}],
-            "ipProtocol"=>ip_protocol, "fromPort"=>range.first, "toPort"=>range.last})
+        { "groups"=>[], "ipRanges"=>[{"cidrIp"=>cidr_ip}],
+          "ipProtocol"=>ip_protocol, "fromPort"=>range.first, "toPort"=>range.last})
       end
 
       # FIXME: so if you're saying to yourself, "self, this is some soupy gooey
@@ -122,6 +138,7 @@ module Ironfan
       def self.step(group_name, desc, *style)
         ui.info("  group #{"%-15s" % (group_name+":")}\t#{ui.color(desc.to_s, *style)}")
       end
+
       def step(desc, *style)
         self.class.step(self.name, desc, *style)
       end

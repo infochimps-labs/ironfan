@@ -105,7 +105,7 @@ class Chef
 
         # Try SSH
         unless config[:dry_run]
-          nil until tcp_test_ssh(server.fog_server.dns_name){ sleep @initial_sleep_delay ||= 10  }
+          nil until tcp_test_ssh(server.public_hostname){ sleep @initial_sleep_delay ||= 10  }
         end
 
         # Make sure our list of volumes is accurate
@@ -117,7 +117,7 @@ class Chef
 
         # Run Bootstrap
         if config[:bootstrap]
-          run_bootstrap(server, server.fog_server.dns_name)
+          run_bootstrap(server, server.public_hostname)
         end
       end
 
@@ -134,6 +134,9 @@ class Chef
       rescue Errno::ETIMEDOUT
         false
       rescue Errno::ECONNREFUSED
+        sleep 2
+        false
+      rescue Errno::EHOSTUNREACH
         sleep 2
         false
       ensure

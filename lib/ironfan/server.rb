@@ -300,10 +300,12 @@ module Ironfan
         cloud.public_ip
       when fog_server && fog_server.respond_to?(:public_ip_address) && fog_server.public_ip_address.present?
         fog_server.public_ip_address
-      when fog_server && fog_server.respond_to?(:ipaddress)
+      when fog_server && fog_server.respond_to?(:ipaddress) && fog_server.ipaddress.present?
         fog_server.ipaddress
-      when fog_server && fog_server.respond_to?(:dns_name)
+      when fog_server && fog_server.respond_to?(:dns_name) && fog_server.dns_name.present?
         fog_server.dns_name
+      when fog_server && fog_server.respond_to?(:private_ip_address) && fog_server.private_ip_address.present?
+        fog_server.private_ip_address
       else
         nil
       end
