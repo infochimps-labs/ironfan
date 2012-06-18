@@ -122,7 +122,7 @@ module Ironfan
       bootstrap.config[:ssh_user]       = server.cloud.target_user
       bootstrap.config[:ssh_password]   = server.cloud.target_password
       bootstrap.config[:attribute]      = config[:attribute]
-      bootstrap.config[:identity_file]  = config[:identity_file]  || server.cloud.ssh_identity_file
+      bootstrap.config[:identity_file]  = config[:identity_file]  || Ironfan::HostKey.new(server.cloud.target_key).filename
       bootstrap.config[:distro]         = config[:distro]         || server.cloud.bootstrap_distro
       bootstrap.config[:use_sudo]       = true unless config[:use_sudo] == false
       bootstrap.config[:chef_node_name] = server.fullname
