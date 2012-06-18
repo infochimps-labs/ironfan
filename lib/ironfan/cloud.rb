@@ -458,8 +458,14 @@ module Ironfan
       def target_user(val=nil)
         from_setting_or_image_info :target_user, val, 'ubuntu'
       end
+      def target_key(val=nil)
+        from_setting_or_image_info :target_key, val
+      end
       def target_port(val=nil)
         from_setting_or_image_info :target_port, val, 22
+      end
+      def target_timeout(val=nil)
+        from_setting_or_image_info :target_timeout, val, 3
       end
       def user_data(val=nil)
         from_setting_or_image_info :user_data, val
