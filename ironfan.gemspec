@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "ironfan"
-  s.version = "3.1.5"
+  s.version = "3.1.6"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Infochimps"]
-  s.date = "2012-04-02"
+  s.date = "2012-06-18"
   s.description = "Ironfan allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
   s.email = "coders@infochimps.com"
   s.extra_rdoc_files = [
@@ -33,7 +33,9 @@ Gem::Specification.new do |s|
     "config/proxy.pac",
     "config/ubuntu10.04-ironfan.erb",
     "config/ubuntu11.10-ironfan.erb",
+    "ironfan-3.1.5.gem",
     "ironfan.gemspec",
+    "lib/chef/knife/bootstrap/centos6.2-ironfan.erb",
     "lib/chef/knife/bootstrap/ubuntu10.04-ironfan.erb",
     "lib/chef/knife/bootstrap/ubuntu11.10-ironfan.erb",
     "lib/chef/knife/cluster_bootstrap.rb",
@@ -70,6 +72,7 @@ Gem::Specification.new do |s|
     "lib/ironfan/server.rb",
     "lib/ironfan/server_slice.rb",
     "lib/ironfan/volume.rb",
+    "notes/Backup of ec2-pricing_and_capacity.numbers",
     "notes/Home.md",
     "notes/INSTALL-cloud_setup.md",
     "notes/INSTALL.md",
@@ -97,6 +100,7 @@ Gem::Specification.new do |s|
     "notes/silverware.md",
     "notes/style_guide.md",
     "notes/tips_and_troubleshooting.md",
+    "notes/version-3_2.md",
     "notes/walkthrough-hadoop.md",
     "notes/walkthrough-web.md",
     "spec/ironfan/cluster_spec.rb",
@@ -121,34 +125,34 @@ Gem::Specification.new do |s|
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<chef>, ["~> 0.10.4"])
-      s.add_runtime_dependency(%q<fog>, ["~> 1.2.0"])
-      s.add_runtime_dependency(%q<formatador>, ["~> 0.2.1"])
-      s.add_runtime_dependency(%q<gorillib>, ["~> 0.1.7"])
-      s.add_development_dependency(%q<bundler>, ["~> 1"])
-      s.add_development_dependency(%q<jeweler>, ["~> 1.6"])
+      s.add_runtime_dependency(%q<fog>, ["~> 1.2"])
+      s.add_runtime_dependency(%q<formatador>, ["~> 0.2"])
+      s.add_runtime_dependency(%q<gorillib>, ["~> 0.1"])
+      s.add_development_dependency(%q<bundler>, [">= 1.1"])
+      s.add_development_dependency(%q<jeweler>, [">= 1.6"])
       s.add_development_dependency(%q<rspec>, ["~> 2.5"])
-      s.add_development_dependency(%q<yard>, ["~> 0.6"])
+      s.add_development_dependency(%q<yard>, [">= 0.6"])
       s.add_development_dependency(%q<redcarpet>, ["~> 2"])
     else
       s.add_dependency(%q<chef>, ["~> 0.10.4"])
-      s.add_dependency(%q<fog>, ["~> 1.2.0"])
-      s.add_dependency(%q<formatador>, ["~> 0.2.1"])
-      s.add_dependency(%q<gorillib>, ["~> 0.1.7"])
-      s.add_dependency(%q<bundler>, ["~> 1"])
-      s.add_dependency(%q<jeweler>, ["~> 1.6"])
+      s.add_dependency(%q<fog>, ["~> 1.2"])
+      s.add_dependency(%q<formatador>, ["~> 0.2"])
+      s.add_dependency(%q<gorillib>, ["~> 0.1"])
+      s.add_dependency(%q<bundler>, [">= 1.1"])
+      s.add_dependency(%q<jeweler>, [">= 1.6"])
       s.add_dependency(%q<rspec>, ["~> 2.5"])
-      s.add_dependency(%q<yard>, ["~> 0.6"])
+      s.add_dependency(%q<yard>, [">= 0.6"])
       s.add_dependency(%q<redcarpet>, ["~> 2"])
     end
   else
     s.add_dependency(%q<chef>, ["~> 0.10.4"])
-    s.add_dependency(%q<fog>, ["~> 1.2.0"])
-    s.add_dependency(%q<formatador>, ["~> 0.2.1"])
-    s.add_dependency(%q<gorillib>, ["~> 0.1.7"])
-    s.add_dependency(%q<bundler>, ["~> 1"])
-    s.add_dependency(%q<jeweler>, ["~> 1.6"])
+    s.add_dependency(%q<fog>, ["~> 1.2"])
+    s.add_dependency(%q<formatador>, ["~> 0.2"])
+    s.add_dependency(%q<gorillib>, ["~> 0.1"])
+    s.add_dependency(%q<bundler>, [">= 1.1"])
+    s.add_dependency(%q<jeweler>, [">= 1.6"])
     s.add_dependency(%q<rspec>, ["~> 2.5"])
-    s.add_dependency(%q<yard>, ["~> 0.6"])
+    s.add_dependency(%q<yard>, [">= 0.6"])
     s.add_dependency(%q<redcarpet>, ["~> 2"])
   end
 end
