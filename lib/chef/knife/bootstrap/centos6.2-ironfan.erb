@@ -27,6 +27,11 @@ date > /etc/box_build_time
 echo -e "`date` \n\n**** \n**** yum upgrade:\n****\n"
 yum upgrade --assumeyes
 
+# chef-client will bomb out with a very cryptic 401 if time is out of sync
+echo -e "`date` \n\n**** \n**** use ntpdate to set correct time:\n****\n"
+yum install --assumeyes ntpdate
+ntpdate 0.centos.pool.ntp.org || true # Don't bomb if ntp is already running
+
 echo -e "`date` \n\n**** \n**** Installing base packages:\n****\n"
 yum install --assumeyes make wget 
 yum install --assumeyes git rpm-build rpmdevtools gcc glibc-static zlib-devel libxml2-devel libxslt-devel openssl-devel 
