@@ -137,7 +137,7 @@ service chef-client stop >/dev/null 2>&1 || true
 <%- if (@config[:bootstrap_runs_chef_client].to_s == 'true') || (@chef_config.knife[:bootstrap_runs_chef_client].to_s == 'true') %>
 echo -e "`date` \n\n**** \n**** First run of chef:\n****\n"
 set -e
-<%= start_chef %>
+<%= start_chef %> --environment <%= @config[:node].environment %>
 set +e
 <%- end %>
 
