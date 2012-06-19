@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "ironfan"
-  s.version = "3.1.5"
+  s.version = "3.3.0.physical.alpha"
 
-  s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
+  s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Infochimps"]
-  s.date = "2012-04-02"
+  s.date = "2012-06-19"
   s.description = "Ironfan allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
   s.email = "coders@infochimps.com"
   s.extra_rdoc_files = [
@@ -34,6 +34,7 @@ Gem::Specification.new do |s|
     "config/ubuntu10.04-ironfan.erb",
     "config/ubuntu11.10-ironfan.erb",
     "ironfan.gemspec",
+    "lib/chef/knife/bootstrap/centos6.2-ironfan.erb",
     "lib/chef/knife/bootstrap/ubuntu10.04-ironfan.erb",
     "lib/chef/knife/bootstrap/ubuntu11.10-ironfan.erb",
     "lib/chef/knife/cluster_bootstrap.rb",
@@ -64,41 +65,13 @@ Gem::Specification.new do |s|
     "lib/ironfan/dsl_object.rb",
     "lib/ironfan/facet.rb",
     "lib/ironfan/fog_layer.rb",
+    "lib/ironfan/host_layer.rb",
     "lib/ironfan/private_key.rb",
     "lib/ironfan/role_implications.rb",
     "lib/ironfan/security_group.rb",
     "lib/ironfan/server.rb",
     "lib/ironfan/server_slice.rb",
     "lib/ironfan/volume.rb",
-    "notes/Home.md",
-    "notes/INSTALL-cloud_setup.md",
-    "notes/INSTALL.md",
-    "notes/Ironfan-Roadmap.md",
-    "notes/advanced-superpowers.md",
-    "notes/aws_servers.jpg",
-    "notes/aws_user_key.png",
-    "notes/cookbook-versioning.md",
-    "notes/core_concepts.md",
-    "notes/declaring_volumes.md",
-    "notes/design_notes-aspect_oriented_devops.md",
-    "notes/design_notes-ci_testing.md",
-    "notes/design_notes-cookbook_event_ordering.md",
-    "notes/design_notes-meta_discovery.md",
-    "notes/ec2-pricing_and_capacity.md",
-    "notes/ec2-pricing_and_capacity.numbers",
-    "notes/homebase-layout.txt",
-    "notes/knife-cluster-commands.md",
-    "notes/named-cloud-objects.md",
-    "notes/opscode_org_key.png",
-    "notes/opscode_user_key.png",
-    "notes/philosophy.md",
-    "notes/rake_tasks.md",
-    "notes/renamed-recipes.txt",
-    "notes/silverware.md",
-    "notes/style_guide.md",
-    "notes/tips_and_troubleshooting.md",
-    "notes/walkthrough-hadoop.md",
-    "notes/walkthrough-web.md",
     "spec/ironfan/cluster_spec.rb",
     "spec/ironfan/facet_spec.rb",
     "spec/ironfan/server_slice_spec.rb",
@@ -112,9 +85,9 @@ Gem::Specification.new do |s|
   s.homepage = "http://infochimps.com/labs"
   s.licenses = ["apachev2"]
   s.require_paths = ["lib"]
-  s.rubygems_version = "1.8.11"
+  s.rubygems_version = "1.8.15"
   s.summary = "Ironfan allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
-  s.test_files = ["spec/ironfan/cluster_spec.rb", "spec/ironfan/facet_spec.rb", "spec/ironfan/server_slice_spec.rb", "spec/ironfan/server_spec.rb", "spec/ironfan_spec.rb", "spec/spec_helper/dummy_chef.rb", "spec/spec_helper.rb", "spec/test_config.rb"]
+  s.test_files = ["spec/ironfan_spec.rb", "spec/spec_helper/dummy_chef.rb", "spec/ironfan/cluster_spec.rb", "spec/ironfan/server_slice_spec.rb", "spec/ironfan/server_spec.rb", "spec/ironfan/facet_spec.rb", "spec/spec_helper.rb", "spec/test_config.rb"]
 
   if s.respond_to? :specification_version then
     s.specification_version = 3
