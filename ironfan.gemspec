@@ -33,6 +33,7 @@ Gem::Specification.new do |s|
     "config/proxy.pac",
     "config/ubuntu10.04-ironfan.erb",
     "config/ubuntu11.10-ironfan.erb",
+    "ironfan.gemspec",
     "lib/chef/knife/bootstrap/centos6.2-ironfan.erb",
     "lib/chef/knife/bootstrap/ubuntu10.04-ironfan.erb",
     "lib/chef/knife/bootstrap/ubuntu11.10-ironfan.erb",
