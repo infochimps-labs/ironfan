@@ -1,6 +1,6 @@
 source "http://rubygems.org"
 
-gem 'chef',          "~> 0.10.4"
+gem 'chef',          ">= 0.10.4"
 gem 'fog',           "~> 1.2"
 gem 'formatador',    "~> 0.2"
 gem 'gorillib',      "~> 0.1"
