@@ -43,7 +43,8 @@ module Ironfan
       field :flavor, String
       field :flavor_info, Array
       field :image_name, String
-      field :image_id, String, :default => lambda { from_setting_or_image_info(:image_id) }
+      # TODO: Replace the lambda with an underlay from image_info?
+      field :image_id, String, :default => lambda { image_info[:image_id] unless image_info.nil? }
       field :ssh_user, String, :default => 'root'
 
       def to_hash
@@ -51,24 +52,12 @@ module Ironfan
         attributes
       end
 
-#       # ID of the machine image to use.
-#       # @return the image_id if set explicitly; otherwise, the id implied by the image name
-#       def image_id(val=nil)
-#         from_setting_or_image_info :image_id, val
-#       end
-
 ## TODO: Replace with code that will assume ssh_identity_dir if ssh_identity_file isn't absolutely pathed
 #       # SSH identity file used for knife ssh, knife boostrap and such
 #       def ssh_identity_file(val=nil)
 #         set :ssh_identity_file, File.expand_path(val) unless val.nil?
 #         @settings.include?(:ssh_identity_file) ? @settings[:ssh_identity_file] : File.join(ssh_identity_dir, "#{keypair}.pem")
 #       end
-
-    protected
-      # If value was explicitly set, use that; if the Chef::Config[:ec2_image_info] implies a value use that; otherwise use the default
-      def from_setting_or_image_info(key)
-        image_info[key] unless image_info.nil?
-      end
     end
 
     class Ec2 < Base
