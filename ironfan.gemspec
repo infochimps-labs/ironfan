@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "ironfan"
-  s.version = "3.1.6"
+  s.version = "3.2.0.multicloud.alpha1"
 
-  s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
+  s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Infochimps"]
-  s.date = "2012-06-24"
+  s.date = "2012-06-25"
   s.description = "Ironfan allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
   s.email = "coders@infochimps.com"
   s.extra_rdoc_files = [
@@ -71,37 +71,6 @@ Gem::Specification.new do |s|
     "lib/ironfan/server.rb",
     "lib/ironfan/server_slice.rb",
     "lib/ironfan/volume.rb",
-    "notes/Backup of ec2-pricing_and_capacity.numbers",
-    "notes/Home.md",
-    "notes/INSTALL-cloud_setup.md",
-    "notes/INSTALL.md",
-    "notes/Ironfan-Roadmap.md",
-    "notes/advanced-superpowers.md",
-    "notes/aws_servers.jpg",
-    "notes/aws_user_key.png",
-    "notes/cookbook-versioning.md",
-    "notes/core_concepts.md",
-    "notes/declaring_volumes.md",
-    "notes/design_notes-aspect_oriented_devops.md",
-    "notes/design_notes-ci_testing.md",
-    "notes/design_notes-cookbook_event_ordering.md",
-    "notes/design_notes-meta_discovery.md",
-    "notes/ec2-pricing_and_capacity.md",
-    "notes/ec2-pricing_and_capacity.numbers",
-    "notes/homebase-layout.txt",
-    "notes/knife-cluster-commands.md",
-    "notes/named-cloud-objects.md",
-    "notes/opscode_org_key.png",
-    "notes/opscode_user_key.png",
-    "notes/philosophy.md",
-    "notes/rake_tasks.md",
-    "notes/renamed-recipes.txt",
-    "notes/silverware.md",
-    "notes/style_guide.md",
-    "notes/tips_and_troubleshooting.md",
-    "notes/version-3_2.md",
-    "notes/walkthrough-hadoop.md",
-    "notes/walkthrough-web.md",
     "spec/ironfan/cluster_spec.rb",
     "spec/ironfan/facet_spec.rb",
     "spec/ironfan/server_slice_spec.rb",
@@ -115,9 +84,9 @@ Gem::Specification.new do |s|
   s.homepage = "http://infochimps.com/labs"
   s.licenses = ["apachev2"]
   s.require_paths = ["lib"]
-  s.rubygems_version = "1.8.11"
+  s.rubygems_version = "1.8.15"
   s.summary = "Ironfan allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
-  s.test_files = ["spec/ironfan/cluster_spec.rb", "spec/ironfan/facet_spec.rb", "spec/ironfan/server_slice_spec.rb", "spec/ironfan/server_spec.rb", "spec/ironfan_spec.rb", "spec/spec_helper/dummy_chef.rb", "spec/spec_helper.rb", "spec/test_config.rb"]
+  s.test_files = ["spec/ironfan_spec.rb", "spec/spec_helper/dummy_chef.rb", "spec/ironfan/cluster_spec.rb", "spec/ironfan/server_slice_spec.rb", "spec/ironfan/server_spec.rb", "spec/ironfan/facet_spec.rb", "spec/spec_helper.rb", "spec/test_config.rb"]
 
   if s.respond_to? :specification_version then
     s.specification_version = 3
@@ -126,7 +95,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<chef>, [">= 0.10.4"])
       s.add_runtime_dependency(%q<fog>, ["~> 1.2"])
       s.add_runtime_dependency(%q<formatador>, ["~> 0.2"])
-      s.add_runtime_dependency(%q<gorillib>, ["~> 0.1"])
+      s.add_runtime_dependency(%q<gorillib>, ["~> 0.4"])
       s.add_development_dependency(%q<bundler>, [">= 1.1"])
       s.add_development_dependency(%q<jeweler>, [">= 1.6"])
       s.add_development_dependency(%q<rspec>, ["~> 2.5"])
@@ -136,7 +105,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<chef>, [">= 0.10.4"])
       s.add_dependency(%q<fog>, ["~> 1.2"])
       s.add_dependency(%q<formatador>, ["~> 0.2"])
-      s.add_dependency(%q<gorillib>, ["~> 0.1"])
+      s.add_dependency(%q<gorillib>, ["~> 0.4"])
       s.add_dependency(%q<bundler>, [">= 1.1"])
       s.add_dependency(%q<jeweler>, [">= 1.6"])
       s.add_dependency(%q<rspec>, ["~> 2.5"])
@@ -147,7 +116,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<chef>, [">= 0.10.4"])
     s.add_dependency(%q<fog>, ["~> 1.2"])
     s.add_dependency(%q<formatador>, ["~> 0.2"])
-    s.add_dependency(%q<gorillib>, ["~> 0.1"])
+    s.add_dependency(%q<gorillib>, ["~> 0.4"])
     s.add_dependency(%q<bundler>, [">= 1.1"])
     s.add_dependency(%q<jeweler>, [">= 1.6"])
     s.add_dependency(%q<rspec>, ["~> 2.5"])
