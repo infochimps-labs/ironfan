@@ -9,7 +9,7 @@ require 'gorillib/builder'
 require 'set'
 
 require 'ironfan/dsl_object'
-require 'ironfan/dsl_model'         # replacement for dsl_object
+require 'ironfan/dsl_builder'       # replacement for dsl_object
 require 'ironfan/cloud'
 require 'ironfan/security_group'
 require 'ironfan/compute'           # base class for machine attributes
