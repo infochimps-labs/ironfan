@@ -121,10 +121,10 @@ module Ironfan
       reverse_merge!(facet)
       reverse_merge!(cluster)
       @settings[:run_list] = combined_run_list
-      #
-      cloud.reverse_merge!(facet.cloud)
-      cloud.reverse_merge!(cluster.cloud)
-      #
+
+      facet.cloud.underlay      cluster.cloud
+      cloud.underlay            facet.cloud
+
       cloud.user_data({
           :chef_server            => chef_server_url,
           :validation_client_name => validation_client_name,

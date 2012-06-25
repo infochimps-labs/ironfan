@@ -36,10 +36,15 @@ module Ironfan
     #     region         'us-east-1d'
     #   end
     #
-    def cloud(cloud_provider=nil, attrs={}, &block)
-      raise "Only have ec2 so far" if cloud_provider && (cloud_provider != :ec2)
-      @cloud ||= Ironfan::Cloud::Ec2.new(self)
-      @cloud.configure(attrs, &block)
+    def cloud(cloud_provider=:ec2, attrs={}, &block)
+      case cloud_provider
+      when :ec2
+        @cloud ||= Ironfan::CloudDsl::Ec2.new(self, attrs, &block)
+      when :virtualbox
+        @cloud ||= Ironfan::CloudDsl::VirtualBox.new(self, attrs, &block)
+      else
+        raise "Only have ec2 so far" if cloud_provider && (cloud_provider != :ec2)
+      end
       @cloud
     end
 
