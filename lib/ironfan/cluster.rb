@@ -12,7 +12,8 @@ module Ironfan
       @chef_roles        = []
       environment          :_default if environment.blank?
       create_cluster_role
-      create_cluster_security_group unless attrs[:no_security_group]
+      ui.warn "Stubbing out Cluster security groups"
+      #create_cluster_security_group unless attrs[:no_security_group]
     end
 
     def cluster
