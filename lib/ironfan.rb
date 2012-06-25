@@ -5,9 +5,11 @@ require 'gorillib/metaprogramming/class_attribute'
 require 'gorillib/hash/reverse_merge'
 require 'gorillib/object/blank'
 require 'gorillib/hash/compact'
+require 'gorillib/builder'
 require 'set'
 
 require 'ironfan/dsl_object'
+require 'ironfan/dsl_model'         # replacement for dsl_object
 require 'ironfan/cloud'
 require 'ironfan/security_group'
 require 'ironfan/compute'           # base class for machine attributes
