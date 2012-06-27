@@ -10,17 +10,17 @@ module Gorillib
     magic :underlay, Whatever
 
     def override_resolve(field_name)
-      read_set_attribute(field_name) or 
-        read_underlay_attribute(field_name) or
-        read_unset_attribute(field_name)
+      result = read_set_attribute(field_name)
+      return result unless result.nil?
+      result = read_underlay_attribute(field_name)
+      return result unless result.nil?
+      read_unset_attribute(field_name)
     end
 
     def merge_resolve(field_name)
       result = self.class.fields[field_name].type.new
-      s = read_set_attribute(field_name)
-      result.receive!(s) if s
-      u = read_underlay_attribute(field_name)
-      result.receive!(u) if u
+      s = read_set_attribute(field_name) and result.receive!(s)
+      u = read_underlay_attribute(field_name) and result.receive!(u)
       result
     end
 
