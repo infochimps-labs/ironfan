@@ -23,7 +23,7 @@ module Ironfan
     end
   end
 
-  class Cloud::Ec2
+  class CloudDsl::Ec2
     # **DEPRECATED**: Please use +public_ip+ instead.
     def elastic_ip(*args, &block)
       public_ip(*args, &block)
