@@ -1,30 +1,70 @@
-module Ironfan
-  #
-  # This class is intended as a drop-in replacement for DslObject, using 
-  #   Gorillib::Builder setup, instead the half-baked predecessor that was 
-  #   part of DslObject.
-  #
-  # The magic attribute :underlay provides an object (preferably another
-  #   Gorillib::Model or the like) that will respond with defaults, if none
-  #   are responded to locally. It is overridden by :default on local fields.
-  class DslBuilder
-    include Gorillib::Builder
-    field :container, Whatever
-    field :underlay, Whatever
+module Gorillib
+  module Model
+    Field.class_eval do
+      field :resolution, Whatever
+    end
+  end
+  module Underlies
+    include Gorillib::FancyBuilder
 
-    def initialize(ctnr, *args)
-      container ctnr
-      super(*args)
+    magic :underlay, Whatever
+
+    def override_resolve(field_name)
+      read_set_attribute(field_name) or 
+        read_underlay_attribute(field_name) or
+        read_unset_attribute(field_name)
+    end
+
+    def merge_resolve(field_name)
+      result = self.class.fields[field_name].type.new
+      s = read_set_attribute(field_name)
+      result.receive!(s) if s
+      u = read_underlay_attribute(field_name)
+      result.receive!(u) if u
+      result
+    end
+
+    def read_attribute(field_name)
+      field = self.class.fields[field_name]
+      return override_resolve(field_name) unless field.resolution.is_a? Proc
+      return self.instance_exec(field_name, &field.resolution)
+    end
+
+    def read_set_attribute(field_name)
+      attr_name = "@#{field_name}"
+      instance_variable_get(attr_name) if instance_variable_defined?(attr_name)
+    end
+
+    def read_underlay_attribute(field_name)
+      return if field_name == :underlay
+      underlay.read_attribute(field_name) if instance_variable_defined?("@underlay")
     end
 
     def read_unset_attribute(field_name)
-      foo = super(field_name)           # get the default value
-      return foo unless foo.nil?        # return the default if set
-      return nil if field_name == :underlay
-      return nil if underlay.nil?
-      underlay.read_attribute(field_name)
+      field = self.class.fields[field_name]
+      return unless field.has_default?
+      attribute_default(field)
     end
 
+  end
+end
+
+module Ironfan
+  #
+  # This class is intended as a drop-in replacement for DslObject, using 
+  #   Gorillib::Builder setup, instead its half-baked predecessor.
+  #
+  # The magic attribute :underlay provides an object (preferably another
+  #   Gorillib::Model or the like) that will respond with defaults. If 
+  #   fields are declared with a resolution lambda, it will apply that 
+  #   lambda in preference to the normal resolution rules (self.field
+  #   -> underlay.magic -> self.field.default )
+  #
+  class DslBuilder
+    include Gorillib::FancyBuilder
+    include Gorillib::Underlies
+
+    def self.ui() Ironfan.ui ; end
     def ui()      Ironfan.ui ; end
   end
 end
@@ -38,26 +78,174 @@ require 'ironfan/private_key'
 module Ironfan
   module CloudDsl
     class Base < Ironfan::DslBuilder
-      field :bootstrap_distro, String, :default => "ubuntu10.04-gems"
-      field :chef_client_script, String
-      field :flavor, String
-      field :flavor_info, Array
-      field :image_name, String
-      # TODO: Replace the lambda with an underlay from image_info?
-      field :image_id, String, :default => lambda { image_info[:image_id] unless image_info.nil? }
-      field :ssh_user, String, :default => 'root'
+      magic :bootstrap_distro, String, :default => "ubuntu10.04-gems"
+      magic :chef_client_script, String
+      magic :flavor, String
+      magic :flavor_info, Array
+      magic :image_name, String
+      magic :ssh_user, String, :default => 'root'
+
+      magic :owner, Whatever
+
+      def initialize(container, *args)
+        owner     container
+        super(*args)
+      end
 
       def to_hash
         Chef::Log.warn("Using to_hash is depreciated, use attributes instead")
         attributes
       end
 
+      # Stub to be filled by child classes
+      def defaults
+      end
+
+      # # TODO: Replace the lambda with an underlay from image_info?
+      # magic :image_id, String, :default => lambda { image_info[:image_id] unless image_info.nil? }
+      def image_id
+        return @image_id if @image_id
+        image_info[:image_id] unless image_info.nil?
+      end
 ## TODO: Replace with code that will assume ssh_identity_dir if ssh_identity_file isn't absolutely pathed
 #       # SSH identity file used for knife ssh, knife boostrap and such
 #       def ssh_identity_file(val=nil)
 #         set :ssh_identity_file, File.expand_path(val) unless val.nil?
 #         @settings.include?(:ssh_identity_file) ? @settings[:ssh_identity_file] : File.join(ssh_identity_dir, "#{keypair}.pem")
 #       end
+    end
+    
+    class SecurityGroup < Ironfan::DslBuilder
+#       has_keys :name, :description, :owner_id
+      magic :name, String
+      magic :description, String
+      magic :group_authorizations, Array
+      magic :group_authorized_by, Array
+      magic :range_authorizations, Array
+
+      def initialize params
+#         super()
+        name                    params[:name].to_s
+        description             "ironfan generated group #{name}"
+#         @cloud         = cloud
+        group_authorizations    []
+        group_authorized_by     []
+        range_authorizations    []
+#         owner_id(group_owner_id || Chef::Config[:knife][:aws_account_id])
+      end
+
+      def to_key
+        name
+      end
+
+      @@all = nil
+      def all
+        self.class.all
+      end
+      def self.all
+        return @@all if @@all
+        get_all
+      end
+      def self.get_all
+        groups_list = Ironfan.fog_connection.security_groups.all
+        @@all = groups_list.inject(Mash.new) do |hsh, fog_group|
+          # AWS security_groups are strangely case sensitive, allowing upper-case but colliding regardless
+          #  of the case. This forces all names to lowercase, and matches against that below.
+          #  See https://github.com/infochimps-labs/ironfan/pull/86 for more details.
+          hsh[fog_group.name.downcase] = fog_group ; hsh
+        end
+      end
+
+      def get
+        all[name] || Ironfan.fog_connection.security_groups.get(name)
+      end
+
+      def self.get_or_create(group_name, description)
+        group_name = group_name.to_s.downcase
+        # FIXME: the '|| Ironfan.fog' part is probably unnecessary
+        fog_group = all[group_name] || Ironfan.fog_connection.security_groups.get(group_name)
+        unless fog_group
+          self.step(group_name, "creating (#{description})", :green)
+          fog_group = all[group_name] = Ironfan.fog_connection.security_groups.new(:name => group_name, :description => description, :connection => Ironfan.fog_connection)
+          fog_group.save
+        end
+        fog_group
+      end
+
+      def authorize_group(group_name, owner_id=nil)
+        group_authorizations << [group_name.to_s, owner_id]
+      end
+# 
+#       def authorized_by_group(other_name)
+#         @group_authorized_by << other_name.to_s
+#       end
+# 
+      def authorize_port_range(range, cidr_ip = '0.0.0.0/0', ip_protocol = 'tcp')
+        range = (range .. range) if range.is_a?(Integer)
+        range_authorizations << [range, cidr_ip, ip_protocol]
+      end
+# 
+#       def group_permission_already_set?(fog_group, other_name, authed_owner)
+#         return false if fog_group.ip_permissions.nil?
+#         fog_group.ip_permissions.any? do |existing_permission|
+#           existing_permission["groups"].include?({"userId" => authed_owner, "groupName" => other_name}) &&
+#             existing_permission["fromPort"] == 1 &&
+#             existing_permission["toPort"]   == 65535
+#         end
+#       end
+# 
+#       def range_permission_already_set?(fog_group, range, cidr_ip, ip_protocol)
+#         return false if fog_group.ip_permissions.nil?
+#         fog_group.ip_permissions.include?(
+#           { "groups"=>[], "ipRanges"=>[{"cidrIp"=>cidr_ip}],
+#             "ipProtocol"=>ip_protocol, "fromPort"=>range.first, "toPort"=>range.last})
+#       end
+# 
+      # FIXME: so if you're saying to yourself, "self, this is some soupy gooey
+      # code right here" then you and your self are correct. Much of this is to
+      # work around old limitations in the EC2 api. You can now treat range and
+      # group permissions the same, and we should.
+
+      def run
+        fog_group = self.class.get_or_create(name, description)
+        @group_authorizations.uniq.each do |other_name, authed_owner|
+          authed_owner ||= self.owner_id
+          next if group_permission_already_set?(fog_group, other_name, authed_owner)
+          step("authorizing access from all machines in #{other_name} to #{name}", :blue)
+          self.class.get_or_create(other_name, "Authorized to access #{name}")
+          begin  fog_group.authorize_group_and_owner(other_name, authed_owner)
+          rescue StandardError => err ; handle_security_group_error(err) ; end
+        end
+        @group_authorized_by.uniq.each do |other_name|
+          authed_owner = self.owner_id
+          other_group = self.class.get_or_create(other_name, "Authorized for access by #{self.name}")
+          next if group_permission_already_set?(other_group, self.name, authed_owner)
+          step("authorizing access to all machines in #{other_name} from #{name}", :blue)
+          begin  other_group.authorize_group_and_owner(self.name, authed_owner)
+          rescue StandardError => err ; handle_security_group_error(err) ; end
+        end
+        @range_authorizations.uniq.each do |range, cidr_ip, ip_protocol|
+          next if range_permission_already_set?(fog_group, range, cidr_ip, ip_protocol)
+          step("opening #{ip_protocol} ports #{range} to #{cidr_ip}", :blue)
+          begin  fog_group.authorize_port_range(range, { :cidr_ip => cidr_ip, :ip_protocol => ip_protocol })
+          rescue StandardError => err ; handle_security_group_error(err) ; end
+        end
+      end
+# 
+#       def handle_security_group_error(err)
+#         if (/has already been authorized/ =~ err.to_s)
+#           Chef::Log.debug err
+#         else
+#           ui.warn(err)
+#         end
+#       end
+# 
+      def self.step(group_name, desc, *style)
+        ui.info("  group #{"%-15s" % (group_name+":")}\t#{ui.color(desc.to_s, *style)}")
+      end
+      def step(desc, *style)
+        self.class.step(self.name, desc, *style)
+      end
     end
 
     class Ec2 < Base
@@ -198,28 +386,27 @@ module Ironfan
         %w[ us-west-2            64-bit  instance        oneiric    ] => { :image_id => 'ami-fe9a17ce', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
       })
 
-      field :availability_zones, Array
-      field :backing, String
-      field :ec2_image_info, Hash, :default => Chef::Config[:ec2_image_info]
-      field :flavor, String
-#       field :flavor_info, Array, :default => { :placement_groupable => false }
-      field :image_name, String, :default => 'natty'
-      field :keypair, Whatever
-      field :mount_ephemerals, String
-      field :monitoring, String
-      field :permanent, String
-      field :public_ip, String
-      field :region, String, :default => lambda {
+      magic :availability_zones, Array, :default => ['us-east-1d']
+      magic :backing, String, :default => 'ebs'
+      magic :ec2_image_info, Hash, :default => Chef::Config[:ec2_image_info]
+      magic :flavor, String, :default => 't1.micro'
+      magic :image_name, String, :default => 'natty'
+      magic :keypair, Whatever
+      magic :mount_ephemerals, String
+      magic :monitoring, String
+      magic :permanent, String
+      magic :public_ip, String
+      magic :region, String, :default => lambda {
         default_availability_zone.gsub(/^(\w+-\w+-\d)[a-z]/, '\1') if default_availability_zone
       }
-      field :security_groups, Hash, :default => {}
-      field :ssh_user, String, :default => 'ubuntu'
-      field :ssh_identity_dir, String, :default => Chef::Config.ec2_key_dir
-      field :ssh_identity_file, String #, :default => "#{keypair}.pem"
-      field :subnet, String
-      field :user_data, String
-      field :validation_key, String, :default => IO.read(Chef::Config.validation_key) rescue ''
-      field :vpc, String
+      collection :security_groups, Ironfan::CloudDsl::SecurityGroup, :resolution => lambda {|f| merge_resolve(f) }
+      magic :ssh_user, String, :default => 'ubuntu'
+      magic :ssh_identity_dir, String, :default => Chef::Config.ec2_key_dir
+      magic :ssh_identity_file, String #, :default => "#{keypair}.pem"
+      magic :subnet, String
+      magic :user_data, String
+      magic :validation_key, String, :default => IO.read(Chef::Config.validation_key) rescue ''
+      magic :vpc, String
 
       def list_images
         ui.info("Available images:")
@@ -234,6 +421,16 @@ module Ironfan
 
       def image_info
         ec2_image_info[ [region, bits, backing, image_name] ] or ( ui.warn "Make sure to define the machine's region, bits, backing and image_name. (Have #{[region, bits, backing, image_name, virtualization].inspect})" ; {} )
+      end
+
+      # Sets default root volume for AWS
+      def defaults
+        owner.volume(:root).reverse_merge!({
+            :device      => '/dev/sda1',
+            :mount_point => '/',
+            :mountable   => false,
+          })
+        super
       end
 
       # The instance bitness, drawn from the compute flavor's info
@@ -295,20 +492,20 @@ module Ironfan
 
     class VirtualBox < Base
       # # These fields are probably nonsense in VirtualBox
-      # field :availability_zones, String
-      # field :backing, String
-      # field :default_availability_zone, String
-      # field :flavor_info, Array, :default => { :placement_groupable => false }
-      # field :keypair, Ironfan::PrivateKey
-      # field :mount_ephemerals, String
-      # field :monitoring, String
-      # field :permanent, String
-      # field :public_ip, String
-      # field :security_groups, Array, :default => { :keys => nil }
-      # field :subnet, String
-      # field :user_data, String
-      # field :validation_key, String
-      # field :vpc, String
+      # magic :availability_zones, String
+      # magic :backing, String
+      # magic :default_availability_zone, String
+      # magic :flavor_info, Array, :default => { :placement_groupable => false }
+      # magic :keypair, Ironfan::PrivateKey
+      # magic :mount_ephemerals, String
+      # magic :monitoring, String
+      # magic :permanent, String
+      # magic :public_ip, String
+      # magic :security_groups, Array, :default => { :keys => nil }
+      # magic :subnet, String
+      # magic :user_data, String
+      # magic :validation_key, String
+      # magic :vpc, String
 
       def initialize(*args)
         Chef::Log.warn("Several fields (e.g. - availability_zones, backing, mount_ephemerals, etc.) are nonsense in VirtualBox context")
@@ -413,30 +610,6 @@ end
 #         @settings[:user_data]            ||= Mash.new
 #       end
 # 
-#       #
-#       # Sets some defaults for amazon cloud usage, and registers the root volume
-#       #
-#       def defaults
-#         owner.volume(:root).reverse_merge!({
-#             :device      => '/dev/sda1',
-#             :mount_point => '/',
-#             :mountable   => false,
-#           })
-#         self.reverse_merge!({
-#             :availability_zones => ['us-east-1d'],
-#             :backing            => 'ebs',
-#             :flavor             => 't1.micro',
-#           })
-#         super
-#       end
-# 
-#       # adds a security group to the cloud instance
-#       def security_group(sg_name, hsh={}, &block)
-#         sg_name = sg_name.to_s
-#         security_groups[sg_name] ||= Ironfan::Cloud::SecurityGroup.new(self, sg_name)
-#         security_groups[sg_name].configure(hsh, &block)
-#         security_groups[sg_name]
-#       end
 # 
 #       # With a value, sets the spot price to the given fraction of the
 #       #   instance's full price (as found in Ironfan::Cloud::Aws::FLAVOR_INFO)
