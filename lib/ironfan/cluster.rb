@@ -103,7 +103,7 @@ module Ironfan
     # Create a security group named for the cluster
     # that is friends with everything in the cluster
     def create_cluster_security_group
-      clname = self.name # put it in scope
+      clname = self.name.to_s # put it in scope
       cloud.security_group(clname){ authorize_group(clname) }
     end
 
