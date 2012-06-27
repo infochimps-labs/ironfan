@@ -13,6 +13,7 @@ module Ironfan
       set :name, builder_name
       @run_list_info = attrs[:run_list] || Mash.new
       @volumes = Mash.new
+      @clouds  = Mash.new
     end
 
     # set the bogosity to a descriptive reason. Anything truthy implies bogusness
@@ -39,13 +40,15 @@ module Ironfan
     def cloud(cloud_provider=:ec2, attrs={}, &block)
       case cloud_provider
       when :ec2
-        @cloud ||= Ironfan::CloudDsl::Ec2.new(self, attrs, &block)
+        klass = Ironfan::CloudDsl::Ec2
       when :virtualbox
-        @cloud ||= Ironfan::CloudDsl::VirtualBox.new(self, attrs, &block)
+        klass = Ironfan::CloudDsl::VirtualBox
       else
-        raise "Only have ec2 so far" if cloud_provider && (cloud_provider != :ec2)
+        raise "Only have EC2 and VirtualBox so far"
       end
-      @cloud
+      @clouds[cloud_provider] ||= klass.new(self)
+      @clouds[cloud_provider].receive!(attrs, &block)
+      @clouds[cloud_provider]
     end
 
     # sugar for cloud(:ec2)
