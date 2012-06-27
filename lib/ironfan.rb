@@ -9,9 +9,9 @@ require 'gorillib/builder'
 require 'set'
 
 require 'ironfan/dsl_object'
-require 'ironfan/cloud'
-require 'ironfan/security_group'
 require 'ironfan/dsl_builder'       # replacement for dsl_object
+require 'ironfan/security_group'
+require 'ironfan/cloud'
 require 'ironfan/compute'           # base class for machine attributes
 require 'ironfan/facet'             # similar machines within a cluster
 require 'ironfan/cluster'           # group of machines with a common mission
