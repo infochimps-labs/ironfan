@@ -10,8 +10,7 @@ module Ironfan
       @chef_roles = []
       @settings[:instances] ||= 1
       create_facet_role
-      ui.warn "Stubbing out Facet security groups"
-      #create_facet_security_group unless attrs[:no_security_group]
+      create_facet_security_group unless attrs[:no_security_group]
     end
 
     def cluster_name
