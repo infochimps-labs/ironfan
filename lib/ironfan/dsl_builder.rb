@@ -404,7 +404,7 @@ module Ironfan
       magic :ssh_identity_dir, String, :default => Chef::Config.ec2_key_dir
       magic :ssh_identity_file, String #, :default => "#{keypair}.pem"
       magic :subnet, String
-      magic :user_data, String
+      magic :user_data, Hash, :default => {}
       magic :validation_key, String, :default => IO.read(Chef::Config.validation_key) rescue ''
       magic :vpc, String
 
@@ -421,6 +421,15 @@ module Ironfan
 
       def image_info
         ec2_image_info[ [region, bits, backing, image_name] ] or ( ui.warn "Make sure to define the machine's region, bits, backing and image_name. (Have #{[region, bits, backing, image_name, virtualization].inspect})" ; {} )
+      end
+
+      # EC2 User data -- DNA typically used to bootstrap the machine.
+      # @param  [Hash] value -- when present, merged with the existing user data (overriding it)
+      # @return the user_data hash
+      def user_data(hsh={})
+        result = read_attribute(:user_data)
+        write_attribute(:user_data, result.merge!(hsh.to_hash)) unless hsh.empty?
+        result
       end
 
       # Sets default root volume for AWS
@@ -620,14 +629,6 @@ end
 #         else
 #           spot_price / price rescue 0
 #         end
-#       end
-# 
-#       # EC2 User data -- DNA typically used to bootstrap the machine.
-#       # @param  [Hash] value -- when present, merged with the existing user data (overriding it)
-#       # @return the user_data hash
-#       def user_data(hsh={})
-#         @settings[:user_data].merge!(hsh.to_hash) unless hsh.empty?
-#         @settings[:user_data]
 #       end
 # 
 #       def reverse_merge!(hsh)
