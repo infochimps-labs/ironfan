@@ -85,7 +85,7 @@ module Ironfan
     end
 
     def permanent?
-      !! self.cloud.permanent
+      [true, :true, 'true'].include?(self.cloud.permanent)
     end
 
     def killable?
