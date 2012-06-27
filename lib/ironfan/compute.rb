@@ -104,8 +104,7 @@ module Ironfan
     #
     def role(role_name, placement=nil)
       add_to_run_list("role[#{role_name}]", placement)
-      ui.warn "Stubbing out role_implications"
-      #self.instance_eval(&@@role_implications[role_name]) if @@role_implications[role_name]
+      self.instance_eval(&@@role_implications[role_name]) if @@role_implications[role_name]
     end
 
     # Add the given recipe to the run list. You can specify placement of
