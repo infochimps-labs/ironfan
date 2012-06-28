@@ -254,7 +254,7 @@ module Ironfan
     end
 
     def block_device_mapping
-      composite_volumes.values.map(&:block_device_mapping).compact
+      volumes.values.map(&:block_device_mapping).compact
     end
 
     # ugh. non-dry below.
