@@ -1,14 +1,13 @@
 module Ironfan
   class Facet < Ironfan::ComputeBuilder
     attr_reader :cluster
-    has_keys  :instances
+    magic :instances, Integer, :default => 1
 
     def initialize cluster, facet_name, attrs={}
       super(facet_name.to_sym, attrs)
       @cluster    = cluster
       @servers    = Mash.new
       @chef_roles = []
-      @settings[:instances] ||= 1
       create_facet_role
       create_facet_security_group unless attrs[:no_security_group]
     end
@@ -55,7 +54,7 @@ module Ironfan
     def server(idx, attrs={}, &block)
       idx = idx.to_i
       @servers[idx] ||= Ironfan::Server.new(self, idx)
-      @servers[idx].configure(attrs, &block)
+      @servers[idx].receive!(attrs, &block)
       @servers[idx]
     end
 

@@ -1,4 +1,17 @@
 module Ironfan
+  class DslBuilder    
+    def to_hash
+      ui.warn "The 'to_hash' statement is deprecated #{caller.first.inspect}, use attributes instead"
+      attributes
+    end
+  end
+
+  class ComputeBuilder
+    def configure(attrs={},&block)
+      ui.warn "The 'configure' statement is deprecated #{caller.first.inspect}, use receive! instead"
+      receive!(attrs, &block)
+    end
+  end
 
   class Cluster
     #
