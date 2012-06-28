@@ -196,7 +196,7 @@ module Ironfan
     def sync_volume_attributes
       composite_volumes.each do |vol_name, vol|
         chef_node.normal[:volumes] ||= Mash.new
-        chef_node.normal[:volumes][vol_name] = vol.to_mash.compact
+        chef_node.normal[:volumes][vol_name] = vol.attributes.compact
       end
     end
 

@@ -59,9 +59,6 @@ module Ironfan
       "#{name} on #{parent.fullname} (#{volume_id} @ #{device})"
     end
 
-    def defaults
-    end
-
     def ephemeral_device?
       volume_id =~ /^ephemeral/
     end

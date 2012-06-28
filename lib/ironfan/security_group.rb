@@ -56,11 +56,11 @@ module Ironfan
       def authorize_group(group_name, owner_id=nil)
         group_authorizations << [group_name.to_s, owner_id]
       end
-# 
-#       def authorized_by_group(other_name)
-#         @group_authorized_by << other_name.to_s
-#       end
-# 
+
+      def authorized_by_group(other_name)
+        group_authorized_by << other_name.to_s
+      end
+
       def authorize_port_range(range, cidr_ip = '0.0.0.0/0', ip_protocol = 'tcp')
         range = (range .. range) if range.is_a?(Integer)
         range_authorizations << [range, cidr_ip, ip_protocol]

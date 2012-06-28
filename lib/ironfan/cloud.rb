@@ -233,7 +233,7 @@ module Ironfan
 
       # Sets default root volume for AWS
       def defaults
-        owner.volume(:root).reverse_merge!({
+        owner.volume(:root).receive!({
             :device      => '/dev/sda1',
             :mount_point => '/',
             :mountable   => false,
