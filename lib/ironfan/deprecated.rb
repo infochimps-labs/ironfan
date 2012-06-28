@@ -1,43 +1,56 @@
 module Ironfan
+  def self.deprecated call, replacement=nil
+    correction = ", use #{replacement} instead" if replacement
+    ui.warn "The '#{call}' statement is deprecated #{caller(2).first.inspect}#{correction}"
+  end
+
   class DslBuilder    
     def to_hash
-      ui.warn "The 'to_hash' statement is deprecated #{caller.first.inspect}, use attributes instead"
+      Ironfan.deprecated 'to_hash', 'attributes'
       attributes
     end
+    def to_mash
+      Ironfan.deprecated 'to_mash', 'attributes'
+      attributes
+    end
+    def reverse_merge!(attrs={})
+      Ironfan.deprecated 'reverse_merge!', 'receive!'
+      receive!(attrs)
+    end
     def configure(attrs={},&block)
-      ui.warn "The 'configure' statement is deprecated #{caller.first.inspect}, use receive! instead"
+      Ironfan.deprecated 'configure', 'receive!'
       receive!(attrs, &block)
     end
   end
 
   class Cluster
-    #
-    # **DEPRECATED**: This doesn't really work -- use +reverse_merge!+ instead
-    #
     def use(*clusters)
-      ui.warn "The 'use' statement is deprecated #{caller.inspect}"
+      Ironfan.deprecated 'use', 'underlay'
       clusters.each do |c|
         other_cluster =  Ironfan.load_cluster(c)
-        reverse_merge! other_cluster
+        cluster.underlay        other_cluster
       end
       self
     end
-
   end
 
   class Server
-    # **DEPRECATED**: Please use +fullname+ instead.
     def chef_node_name name
-      ui.warn "[DEPRECATION] `chef_node_name` is deprecated.  Please use `fullname` instead."
+      Ironfan.deprecated 'chef_node_name', 'fullname'
       fullname name
     end
   end
 
   class CloudDsl::Ec2
-    # **DEPRECATED**: Please use +public_ip+ instead.
     def elastic_ip(*args, &block)
+      Ironfan.deprecated 'elastic_ip', 'public_ip'
       public_ip(*args, &block)
     end
   end
 
+  class Volume
+    def defaults
+      Ironfan.deprecated 'defaults'
+    end
+  end
 end
