@@ -73,12 +73,12 @@ module Ironfan
       @chef_client = cluster.find_client(fullname) || false
     end
 
-    # The chef node, if it already exists in the server.
-    # Use the 'ensure' method to create/update it.
-    def chef_node
-      return @chef_node unless @chef_node.nil?
-      @chef_node   = cluster.find_node(fullname) || false
-    end
+#     # The chef node, if it already exists in the server.
+#     # Use the 'ensure' method to create/update it.
+#     def chef_node
+#       return @chef_node unless @chef_node.nil?
+#       @chef_node   = cluster.find_node(fullname) || false
+#     end
 
     # true if chef client is created and discovered
     def chef_client?

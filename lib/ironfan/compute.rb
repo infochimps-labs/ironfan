@@ -2,15 +2,18 @@ module Ironfan
   #
   # Base class allowing us to layer settings for facet over cluster
   #
-  class ComputeBuilder < Ironfan::DslObject
+  class ComputeBuilder < Ironfan::DslBuilder
+    magic :name, String
+    magic :bogosity, String, :default => false
+    magic :environment, String
+
     attr_reader :cloud, :volumes, :chef_roles
-    has_keys :name, :bogosity, :environment
     @@role_implications ||= Mash.new
     @@run_list_rank     ||= 0
 
     def initialize(builder_name, attrs={})
       super(attrs)
-      set :name, builder_name
+      name      builder_name
       @run_list_info = attrs[:run_list] || Mash.new
       @volumes = Mash.new
       @clouds  = Mash.new

@@ -7,15 +7,20 @@ module Ironfan
   # or if it exists in the real world (as revealed by Fog)
   #
   class Server < Ironfan::ComputeBuilder
-    attr_reader   :cluster, :facet, :facet_index, :tags
-    attr_accessor :chef_node, :fog_server
+    magic :cluster, Cluster
+    magic :facet, Facet
+    magic :facet_index, Integer
+    attr_reader :tags
+
+    magic :chef_node, Whatever, :default => lambda {|o,n| p self, @cluster; raise 'hell';@cluster.find_node(n) || false}
+    attr_accessor :fog_server
 
     @@all ||= Mash.new
 
     def initialize facet, idx
-      @cluster     = facet.cluster
-      @facet       = facet
-      @facet_index = idx
+      cluster           facet.cluster
+      facet             facet
+      facet_index       idx
       @fullname    = [cluster_name, facet_name, facet_index].join('-')
       super(@fullname)
       @tags = { "name" => name, "cluster" => cluster_name, "facet"   => facet_name, "index" => facet_index, }
@@ -40,13 +45,13 @@ module Ironfan
       Ironfan::ServerSlice.new(cluster, [self])
     end
 
-    def bogosity val=nil
-      @settings[:bogosity] = val  if not val.nil?
-      return @settings[:bogosity] if not @settings[:bogosity].nil?
-      return :bogus_facet         if facet.bogus?
-      # return :out_of_range      if (self.facet_index.to_i >= facet.instances)
-      false
-    end
+#     def bogosity val=nil
+#       @settings[:bogosity] = val  if not val.nil?
+#       return @settings[:bogosity] if not @settings[:bogosity].nil?
+#       return :bogus_facet         if facet.bogus?
+#       # return :out_of_range      if (self.facet_index.to_i >= facet.instances)
+#       false
+#     end
 
     def in_cloud?
       !! fog_server
@@ -118,9 +123,10 @@ module Ironfan
     # Resolve:
     #
     def resolve!
-      reverse_merge!(facet)
-      reverse_merge!(cluster)
-      @settings[:run_list] = combined_run_list
+      facet.underlay            cluster
+      self.underlay             facet.cloud
+
+      #@settings[:run_list] = combined_run_list
 
       facet.cloud.underlay      cluster.cloud
       cloud.underlay            facet.cloud

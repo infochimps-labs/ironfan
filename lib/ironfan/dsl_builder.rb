@@ -25,7 +25,7 @@ module Gorillib
     end
 
     def read_attribute(field_name)
-      field = self.class.fields[field_name]
+      field = self.class.fields[field_name] or return
       return override_resolve(field_name) unless field.resolution.is_a? Proc
       return self.instance_exec(field_name, &field.resolution)
     end
@@ -66,5 +66,9 @@ module Ironfan
 
     def self.ui() Ironfan.ui ; end
     def ui()      Ironfan.ui ; end
+
+    def step(desc, *style)
+      ui.info("  #{"%-15s" % (name.to_s+":")}\t#{ui.color(desc.to_s, *style)}")
+    end
   end
 end

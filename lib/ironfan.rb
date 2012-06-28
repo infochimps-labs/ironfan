@@ -72,8 +72,8 @@ module Ironfan
   #
   def self.cluster(name, attrs={}, &block)
     name = name.to_sym
-    cl = ( self.clusters[name] ||= Ironfan::Cluster.new(name, attrs) )
-    cl.configure(&block)
+    cl = ( self.clusters[name] ||= Ironfan::Cluster.new(name) )
+    cl.receive!(attrs, &block)
     cl
   end
 

@@ -76,7 +76,7 @@ module Ironfan
           next
         end
         svr = Ironfan::Server.get(cluster_name, facet_name, facet_index)
-        svr.chef_node = chef_node
+        svr.chef_node   chef_node
         @aws_instance_hash[ chef_node.ec2.instance_id ] = svr if chef_node[:ec2] && chef_node.ec2.instance_id
       end
     end
