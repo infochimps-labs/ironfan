@@ -189,7 +189,6 @@ module Ironfan
       magic :flavor, String, :default => 't1.micro'
       magic :image_name, String, :default => 'natty'
       magic :keypair, Whatever
-      magic :mount_ephemerals, String
       magic :monitoring, String
       magic :permanent, String
       magic :public_ip, String
@@ -214,6 +213,14 @@ module Ironfan
 
       def default_availability_zone
         availability_zones.first if availability_zones
+      end
+
+      # Bring the ephemeral storage (local scratch disks) online
+      def mount_ephemerals(attrs={})
+        owner.volume(:ephemeral0, attrs){ device '/dev/sdb'; volume_id 'ephemeral0' ; mount_point '/mnt' ; tags( :bulk => true, :local => true, :fallback => true) } if flavor_info[:ephemeral_volumes] > 0
+        owner.volume(:ephemeral1, attrs){ device '/dev/sdc'; volume_id 'ephemeral1' ; mount_point '/mnt2'; tags( :bulk => true, :local => true, :fallback => true) } if flavor_info[:ephemeral_volumes] > 1
+        owner.volume(:ephemeral2, attrs){ device '/dev/sdd'; volume_id 'ephemeral2' ; mount_point '/mnt3'; tags( :bulk => true, :local => true, :fallback => true) } if flavor_info[:ephemeral_volumes] > 2
+        owner.volume(:ephemeral3, attrs){ device '/dev/sde'; volume_id 'ephemeral3' ; mount_point '/mnt4'; tags( :bulk => true, :local => true, :fallback => true) } if flavor_info[:ephemeral_volumes] > 3
       end
 
       def image_info
@@ -303,7 +310,6 @@ module Ironfan
       # magic :default_availability_zone, String
       # magic :flavor_info, Array, :default => { :placement_groupable => false }
       # magic :keypair, Ironfan::PrivateKey
-      # magic :mount_ephemerals, String
       # magic :monitoring, String
       # magic :permanent, String
       # magic :public_ip, String
@@ -446,14 +452,6 @@ end
 #       def placement_group(val=nil)
 #         set(:placement_group, val)
 #         @settings[:placement_group] || owner.cluster_name
-#       end
-# 
-#       # Bring the ephemeral storage (local scratch disks) online
-#       def mount_ephemerals(attrs={})
-#         owner.volume(:ephemeral0, attrs){ device '/dev/sdb'; volume_id 'ephemeral0' ; mount_point '/mnt' ; tags( :bulk => true, :local => true, :fallback => true) } if flavor_info[:ephemeral_volumes] > 0
-#         owner.volume(:ephemeral1, attrs){ device '/dev/sdc'; volume_id 'ephemeral1' ; mount_point '/mnt2'; tags( :bulk => true, :local => true, :fallback => true) } if flavor_info[:ephemeral_volumes] > 1
-#         owner.volume(:ephemeral2, attrs){ device '/dev/sdd'; volume_id 'ephemeral2' ; mount_point '/mnt3'; tags( :bulk => true, :local => true, :fallback => true) } if flavor_info[:ephemeral_volumes] > 2
-#         owner.volume(:ephemeral3, attrs){ device '/dev/sde'; volume_id 'ephemeral3' ; mount_point '/mnt4'; tags( :bulk => true, :local => true, :fallback => true) } if flavor_info[:ephemeral_volumes] > 3
 #       end
 # 
 #       # Utility methods

@@ -2,32 +2,31 @@ module Ironfan
   #
   # Internal or external storage
   #
-  class Volume < Ironfan::DslObject
+  class Volume < Ironfan::DslBuilder
     attr_reader   :parent
     attr_accessor :fog_volume
-    has_keys(
-      :name,
-      # mountable volume attributes
-      :device, :mount_point, :mount_options, :fstype, :mount_dump, :mount_pass,
-      :mountable, :formattable, :resizable, :in_raid,
-      # cloud volume attributes
-      :attachable, :create_at_launch, :volume_id, :snapshot_id, :size, :keep, :availability_zone,
-      # arbitrary tags
-      :tags
-      )
-
-    VOLUME_DEFAULTS = {
-      :fstype          => 'xfs',
-      :mount_options    => 'defaults,nouuid,noatime',
-      :keep             => true,
-      :attachable       => :ebs,
-      :create_at_launch => false,
-      #
-      :mountable        => true,
-      :resizable        => false,
-      :formattable      => false,
-      :in_raid          => false,
-    }
+    magic :name, String
+    # mountable volume attributes
+    magic :device, String
+    magic :mount_point, String
+    magic :mount_options, String, :default => 'defaults,nouuid,noatime'
+    magic :fstype, String, :default => 'xfs'
+    magic :mount_dump, String
+    magic :mount_pass, String
+    magic :mountable, Whatever, :default => true
+    magic :formattable, Whatever, :default => false
+    magic :resizable, Whatever, :default => false
+    magic :in_raid, Whatever, :default => false
+    # cloud volume attributes
+    magic :attachable, Whatever, :default => :ebs
+    magic :create_at_launch, Whatever, :default => false
+    magic :volume_id, String
+    magic :snapshot_id, String
+    magic :size, String
+    magic :keep, Whatever, :default => true
+    magic :availability_zone, String
+    # arbitrary tags
+    magic :tags, Hash, :default => {}
 
     # Snapshot for snapshot_name method.
     # Set your own by adding
@@ -53,7 +52,6 @@ module Ironfan
     def initialize attrs={}
       @parent = attrs.delete(:parent)
       super(attrs)
-      @settings[:tags] ||= {}
     end
 
     # human-readable description for logging messages and such
@@ -62,7 +60,6 @@ module Ironfan
     end
 
     def defaults
-      self.configure(VOLUME_DEFAULTS)
     end
 
     def ephemeral_device?
@@ -93,11 +90,11 @@ module Ironfan
       in_cloud? && fog_volume.server_id.present?
     end
 
-    def reverse_merge!(other_hsh)
-      super(other_hsh)
-      self.tags.reverse_merge!(other_hsh.tags) if other_hsh.respond_to?(:tags) && other_hsh.tags.present?
-      self
-    end
+#     def reverse_merge!(other_hsh)
+#       super(other_hsh)
+#       self.tags.reverse_merge!(other_hsh.tags) if other_hsh.respond_to?(:tags) && other_hsh.tags.present?
+#       self
+#     end
 
     # An array of hashes with dorky-looking keys, just like Fog wants it.
     def block_device_mapping
@@ -127,31 +124,25 @@ module Ironfan
   # * http://stu.mp/2009/12/disk-io-and-throughput-benchmarks-on-amazons-ec2.html
   #
   class RaidGroup < Volume
-    has_keys(
-      :sub_volumes,     # volumes that comprise this raid group
-      :level,           # RAID level (http://en.wikipedia.org/wiki/RAID#Standard_levels)
-      :chunk,           # Raid chunk size (https://raid.wiki.kernel.org/articles/r/a/i/RAID_setup_cbb2.html)
-      :read_ahead,      # read-ahead buffer
-      )
+    # volumes that comprise this raid group
+    magic :sub_volumes, Array, :default => []
+    # RAID level (http://en.wikipedia.org/wiki/RAID#Standard_levels)
+    magic :level, String
+    # Raid chunk size (https://raid.wiki.kernel.org/articles/r/a/i/RAID_setup_cbb2.html)
+    magic :chunk, String
+    # read-ahead buffer
+    magic :read_ahead, String
+
+    # Overrides of Volume field defaults
+    magic :attachable, Whatever, :default => false
+    magic :formattable, Whatever, :default => true
+    magic :mount_options, String, :default => 'defaults,nobootwait,noatime,nouuid,comment=ironfan'
 
     def desc
       "#{name} on #{parent.fullname} (#{volume_id} @ #{device} from #{sub_volumes.join(',')})"
     end
 
-    def defaults()
-      super
-      fstype            'xfs'
-      mount_options     "defaults,nobootwait,noatime,nouuid,comment=ironfan"
-      attachable        false
-      create_at_launch  false
-      #
-      mountable         true
-      resizable         false
-      formattable       true
-      #
-      in_raid           false
-      #
-      sub_volumes       []
-    end
+    attr_reader   :parent
+    attr_accessor :fog_volume
   end
 end
