@@ -202,7 +202,7 @@ module Ironfan
 
     def set_chef_node_attributes
       step("  setting node runlist and essential attributes")
-      @chef_node.run_list = Chef::RunList.new(*@settings[:run_list])
+      @chef_node.run_list = Chef::RunList.new(*combined_run_list)
       @chef_node.normal[:organization]   = organization if organization
       @chef_node.normal[:permanent]      = cloud.permanent if cloud.permanent
       @chef_node.override[:cluster_name] = cluster_name

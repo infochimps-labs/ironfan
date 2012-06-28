@@ -70,5 +70,8 @@ module Ironfan
     def step(desc, *style)
       ui.info("  #{"%-15s" % (name.to_s+":")}\t#{ui.color(desc.to_s, *style)}")
     end
+
+    # helper method for turning exceptions into warnings
+    def safely(*args, &block) Ironfan.safely(*args, &block) ; end
   end
 end
