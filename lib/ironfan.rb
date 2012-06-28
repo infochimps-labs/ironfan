@@ -8,8 +8,7 @@ require 'gorillib/hash/compact'
 require 'gorillib/builder'
 require 'set'
 
-require 'ironfan/dsl_object'
-require 'ironfan/dsl_builder'       # replacement for dsl_object
+require 'ironfan/dsl_builder'
 require 'ironfan/security_group'
 require 'ironfan/cloud'
 require 'ironfan/compute'           # base class for machine attributes
