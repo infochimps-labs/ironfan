@@ -1,3 +1,4 @@
+require 'ironfan/volume'            # configure external and internal volumes
 module Ironfan
   #
   # Base class allowing us to layer settings for facet over cluster
@@ -6,8 +7,9 @@ module Ironfan
     magic :name, String
     magic :bogosity, String, :default => false
     magic :environment, String
+    collection :volumes, Ironfan::Volume, :resolution => lambda {|f| merge_resolve(f) }
 
-    attr_reader :cloud, :volumes, :chef_roles
+    attr_reader :cloud, :chef_roles
     @@role_implications ||= Mash.new
     @@run_list_rank     ||= 0
 
@@ -15,7 +17,6 @@ module Ironfan
       super(attrs)
       name      builder_name
       @run_list_info = attrs[:run_list] || Mash.new
-      @volumes = Mash.new
       @clouds  = Mash.new
     end
 
@@ -57,28 +58,6 @@ module Ironfan
     # sugar for cloud(:ec2)
     def ec2(attrs={}, &block)
       cloud(:ec2, attrs, &block)
-    end
-
-    # Magic method to describe a volume
-    # * returns the named volume, creating it if necessary.
-    # * executes the block (if any) in the volume's context
-    #
-    # @example
-    #   # a 1 GB volume at '/data' from the given snapshot
-    #   volume(:data) do
-    #     size        1
-    #     mount_point '/data'
-    #     snapshot_id 'snap-12345'
-    #   end
-    #
-    # @param volume_name [String] an arbitrary handle -- you can use the device
-    #   name, or a descriptive symbol.
-    # @param attrs [Hash] a hash of attributes to pass down.
-    #
-    def volume(volume_name, attrs={}, &block)
-      volumes[volume_name] ||= Ironfan::Volume.new(:parent => self, :name => volume_name)
-      volumes[volume_name].receive!(attrs, &block)
-      volumes[volume_name]
     end
 
     def raid_group(rg_name, attrs={}, &block)

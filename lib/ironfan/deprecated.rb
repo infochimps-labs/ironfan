@@ -39,6 +39,11 @@ module Ironfan
       Ironfan.deprecated 'chef_node_name', 'fullname'
       fullname name
     end
+
+    def composite_volumes
+      Ironfan.deprecated 'composite_volumes', 'volumes'
+      volumes
+    end
   end
 
   class CloudDsl::Ec2
