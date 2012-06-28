@@ -124,7 +124,7 @@ module Ironfan
     #
     def resolve!
       facet.underlay            cluster
-      self.underlay             facet.cloud
+      self.underlay             facet
 
       #@settings[:run_list] = combined_run_list
 
@@ -191,32 +191,6 @@ module Ironfan
         cg[:last],   fg[:last],   sg[:last], ].flatten.compact.uniq
     end
 
-    #
-    # This prepares a composited view of the volumes -- it shows the cluster
-    # definition overlaid by the facet definition overlaid by the server
-    # definition.
-    #
-    # This method *does* auto-vivify an empty volume declaration on the server,
-    # but doesn't modify it.
-    #
-    # This code is pretty smelly, but so is the resolve! behavior. advice welcome.
-    #
-    def composite_volumes
-      vols = {}
-      facet.volumes.each do |vol_name, vol|
-        self.volumes[vol_name] ||= Ironfan::Volume.new(:parent => self, :name => vol_name)
-        vols[vol_name]         ||= self.volumes[vol_name].dup
-        vols[vol_name].receive!(vol)
-      end
-      cluster.volumes.each do |vol_name, vol|
-        self.volumes[vol_name] ||= Ironfan::Volume.new(:parent => self, :name => vol_name)
-        vols[vol_name]         ||= self.volumes[vol_name].dup
-        vols[vol_name].receive!(vol)
-      end
-      vols.each{|vol_name, vol| vol.availability_zone self.default_availability_zone }
-      vols
-    end
-
     # FIXME -- this will break on some edge case wehre a bogus node is
     # discovered after everything is resolve!d
     def default_availability_zone
@@ -271,7 +245,7 @@ module Ironfan
       return unless created?
       step("  labeling servers and volumes")
       fog_create_tags(fog_server, self.fullname, tags)
-      composite_volumes.each do |vol_name, vol|
+      volumes.each_pair do |vol_name, vol|
         if vol.fog_volume
           fog_create_tags(vol.fog_volume, vol.desc,
             { "server" => self.fullname, "name" => "#{name}-#{vol.name}", "device" => vol.device, "mount_point" => vol.mount_point, "cluster" => cluster_name, "facet"   => facet_name, "index"   => facet_index, })

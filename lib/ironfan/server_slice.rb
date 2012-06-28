@@ -197,7 +197,7 @@ module Ironfan
           hsh["State"] = "not running"
         end
         hsh['Volumes'] = []
-        svr.composite_volumes.each do |name, vol|
+        svr.volumes.each_pair do |name, vol|
           if    vol.ephemeral_device? then next
           elsif vol.volume_id         then hsh['Volumes'] << vol.volume_id
           elsif vol.create_at_launch? then hsh['Volumes'] << vol.snapshot_id
