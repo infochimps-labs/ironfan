@@ -69,10 +69,6 @@ module Ironfan
       volumes[rg_name]
     end
 
-    def root_volume(attrs={}, &block)
-      volume(:root, attrs, &block)
-    end
-
     #
     # Adds the given role to the run list, and invokes any role_implications it
     # implies (for instance, defining and applying the 'ssh' security group if
