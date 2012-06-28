@@ -12,7 +12,7 @@ module Ironfan
     magic :facet_index, Integer
     attr_reader :tags
 
-    magic :chef_node, Whatever, :default => lambda {|o,n| p self, @cluster; raise 'hell';@cluster.find_node(n) || false}
+    magic :chef_node, Whatever, :default => -> owner,name { owner.cluster.find_node(name) || false }
     attr_accessor :fog_server
 
     @@all ||= Mash.new
