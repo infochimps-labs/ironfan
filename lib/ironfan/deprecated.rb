@@ -23,6 +23,13 @@ module Ironfan
     end
   end
 
+  class ComputeBuilder
+    def root_volume(attrs={}, &block)
+      Ironfan.deprecated 'root_volume', 'volume(:root)'
+      volume(:root, attrs, &block)
+    end
+  end
+
   class Cluster
     def use(*clusters)
       Ironfan.deprecated 'use', 'underlay'
