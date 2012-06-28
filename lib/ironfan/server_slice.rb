@@ -6,13 +6,16 @@ module Ironfan
   #
   #
   class ServerSlice < Ironfan::DslBuilder
-    attr_reader :name, :servers, :cluster
+    field :name, String
+
+    field :cluster, String
+    field :servers, String
 
     def initialize cluster, servers
       super()
-      @name    = "#{cluster.name} slice"
-      @cluster = cluster
-      @servers = servers
+      self.name    = "#{cluster.name} slice"
+      self.cluster = cluster
+      self.servers = servers
     end
 
     #
