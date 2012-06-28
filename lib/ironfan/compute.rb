@@ -77,13 +77,13 @@ module Ironfan
     #
     def volume(volume_name, attrs={}, &block)
       volumes[volume_name] ||= Ironfan::Volume.new(:parent => self, :name => volume_name)
-      volumes[volume_name].configure(attrs, &block)
+      volumes[volume_name].receive!(attrs, &block)
       volumes[volume_name]
     end
 
     def raid_group(rg_name, attrs={}, &block)
       volumes[rg_name] ||= Ironfan::RaidGroup.new(:parent => self, :name => rg_name)
-      volumes[rg_name].configure(attrs, &block)
+      volumes[rg_name].receive!(attrs, &block)
       volumes[rg_name].sub_volumes.each do |sv_name|
         volume(sv_name){ in_raid(rg_name) ; mountable(false) ; tags({}) }
       end

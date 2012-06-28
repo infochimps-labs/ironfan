@@ -206,12 +206,12 @@ module Ironfan
       facet.volumes.each do |vol_name, vol|
         self.volumes[vol_name] ||= Ironfan::Volume.new(:parent => self, :name => vol_name)
         vols[vol_name]         ||= self.volumes[vol_name].dup
-        vols[vol_name].reverse_merge!(vol)
+        vols[vol_name].receive!(vol)
       end
       cluster.volumes.each do |vol_name, vol|
         self.volumes[vol_name] ||= Ironfan::Volume.new(:parent => self, :name => vol_name)
         vols[vol_name]         ||= self.volumes[vol_name].dup
-        vols[vol_name].reverse_merge!(vol)
+        vols[vol_name].receive!(vol)
       end
       vols.each{|vol_name, vol| vol.availability_zone self.default_availability_zone }
       vols
