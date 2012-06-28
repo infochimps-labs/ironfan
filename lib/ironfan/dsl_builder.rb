@@ -37,7 +37,7 @@ module Gorillib
 
     def read_underlay_attribute(field_name)
       return if field_name == :underlay
-      underlay.read_attribute(field_name) if instance_variable_defined?("@underlay")
+      underlay.read_attribute(field_name) unless @underlay.nil?
     end
 
     def read_unset_attribute(field_name)
