@@ -5,7 +5,7 @@ module Ironfan
   # The idea is we want to be able to smoothly roll up settings
   #
   #
-  class ServerSlice < Ironfan::DslObject
+  class ServerSlice < Ironfan::DslBuilder
     attr_reader :name, :servers, :cluster
 
     def initialize cluster, servers
