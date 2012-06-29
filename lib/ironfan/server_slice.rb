@@ -5,35 +5,24 @@ module Ironfan
   # The idea is we want to be able to smoothly roll up settings
   #
   #
-  class ServerSlice < Ironfan::DslBuilder
+  class ServerSlice < Ironfan::DslBuilderCollection
     field :name, String
-
     field :cluster, String
-    field :servers, String
 
     def initialize cluster, servers
       super()
       self.name    = "#{cluster.name} slice"
       self.cluster = cluster
-      self.servers = servers
+      receive!(servers)
     end
 
-    #
-    # Enumerable
-    #
-    include Enumerable
-    def each(&block)
-      @servers.each(&block)
+    def servers
+      @clxn.values
     end
-    def length
-      @servers.length
-    end
-    def empty?
-      length == 0
-    end
+
     [:select, :find_all, :reject, :detect, :find, :drop_while].each do |method|
       define_method(method) do |*args, &block|
-        ServerSlice.new cluster, @servers.send(method, *args, &block)
+        ServerSlice.new cluster, servers.send(method, *args, &block)
       end
     end
     # true if slice contains a server with the given fullname (if arg is a
