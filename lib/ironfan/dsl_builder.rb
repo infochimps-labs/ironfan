@@ -60,18 +60,38 @@ module Ironfan
   #   lambda in preference to the normal resolution rules (self.field
   #   -> underlay.magic -> self.field.default )
   #
-  class DslBuilder
-    include Gorillib::FancyBuilder
-    include Gorillib::Underlies
-
+  module DslHooks
     def self.ui() Ironfan.ui ; end
     def ui()      Ironfan.ui ; end
+
+    # helper method for turning exceptions into warnings
+    def safely(*args, &block) Ironfan.safely(*args, &block) ; end
 
     def step(desc, *style)
       ui.info("  #{"%-15s" % (name.to_s+":")}\t#{ui.color(desc.to_s, *style)}")
     end
+  end
 
-    # helper method for turning exceptions into warnings
-    def safely(*args, &block) Ironfan.safely(*args, &block) ; end
+  class DslBuilder
+    include Gorillib::FancyBuilder
+    include Gorillib::Underlies
+    include Ironfan::DslHooks
+  end
+
+  class DslBuilderCollection < Gorillib::ModelCollection
+    include Ironfan::DslHooks
+    include Enumerable
+#     #
+#     # Enumerable
+#     #
+#     def each(&block)
+#       @servers.each(&block)
+#     end
+#     def length
+#       @servers.length
+#     end
+#     def empty?
+#       length == 0
+#     end
   end
 end
