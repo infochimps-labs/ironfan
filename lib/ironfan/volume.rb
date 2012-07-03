@@ -3,7 +3,7 @@ module Ironfan
   # Internal or external storage
   #
   class Volume < Ironfan::DslBuilder
-    magic :parent, String
+    field :parent, String
     attr_accessor :fog_volume
     # mountable volume attributes
     magic :device, String
@@ -49,13 +49,14 @@ module Ironfan
     #     :tags => {}, :keep => true )
     #
     def initialize attrs={}
-      parent    attrs.delete(:owner)
+      parent = attrs.delete(:owner)
       super(attrs)
     end
 
     # human-readable description for logging messages and such
     def desc
-      "#{name} on #{parent.name} (#{volume_id} @ #{device})"
+      container = parent.name rescue nil
+      "#{name} on #{container} (#{volume_id} @ #{device})"
     end
 
     def ephemeral_device?
