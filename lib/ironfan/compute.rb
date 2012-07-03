@@ -7,7 +7,7 @@ module Ironfan
     magic :name, String
     magic :bogosity, String, :default => false
     magic :environment, String
-    collection :volumes, Ironfan::Volume, :resolution => lambda {|f| merge_resolve(f) }
+    collection :volumes, Ironfan::Volume, :resolution => ->(f) { merge_resolve(f) }
 
     attr_reader :cloud, :chef_roles
     @@role_implications ||= Mash.new
