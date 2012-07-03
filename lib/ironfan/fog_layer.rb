@@ -74,7 +74,7 @@ module Ironfan
     def discover_volumes!
       result = self.class.fields[:volumes].type.new
       volumes.each_pair do |vol_name, definition|
-        raise 'hand' if definition.fog_volume
+        next if definition.fog_volume
         next if Ironfan.chef_config[:cloud] == false
         vol = definition.dup
         vol.fog_volume = Ironfan.fog_volumes.find do |fv|
