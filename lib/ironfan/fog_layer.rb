@@ -33,6 +33,7 @@ module Ironfan
         :key_name             => cloud.keypair.to_s,
         # Fog does not actually create tags when it creates a server.
         :tags                 => {
+          :name               => self.fullname,
           :cluster            => cluster_name,
           :facet              => facet_name,
           :index              => facet_index, },
