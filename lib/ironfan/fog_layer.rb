@@ -72,9 +72,11 @@ module Ironfan
     end
 
     def discover_volumes!
-      volumes.each_pair do |vol_name, vol|
-        next if vol.fog_volume
+      result = self.class.fields[:volumes].type.new
+      volumes.each_pair do |vol_name, definition|
+        raise 'hand' if definition.fog_volume
         next if Ironfan.chef_config[:cloud] == false
+        vol = definition.dup
         vol.fog_volume = Ironfan.fog_volumes.find do |fv|
           ( # matches the explicit volume id
             (vol.volume_id && (fv.id == vol.volume_id)    ) ||
@@ -93,8 +95,9 @@ module Ironfan
         vol.volume_id(vol.fog_volume.id)                        unless vol.volume_id.present?
         vol.availability_zone(vol.fog_volume.availability_zone) unless vol.availability_zone.present?
         check_server_id_pairing(vol.fog_volume, vol.desc)
+        result << vol
       end
-      volumes
+      write_attribute(:volumes,result)
     end
 
     def attach_volumes
