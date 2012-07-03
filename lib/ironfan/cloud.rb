@@ -187,10 +187,9 @@ module Ironfan
       magic :monitoring, String
       magic :permanent, String
       magic :public_ip, String
-      magic :region, String, :default => lambda {
-        default_availability_zone.gsub(/^(\w+-\w+-\d)[a-z]/, '\1') if default_availability_zone
-      }
-      collection :security_groups, Ironfan::CloudDsl::SecurityGroup, :resolution => lambda {|f| merge_resolve(f) }
+      magic :region, String, 
+          :default => ->{ default_availability_zone.gsub(/^(\w+-\w+-\d)[a-z]/, '\1') if default_availability_zone }
+      collection :security_groups, Ironfan::CloudDsl::SecurityGroup, :resolution => ->(f){ merge_resolve(f) }
       magic :ssh_user, String, :default => 'ubuntu'
       magic :ssh_identity_dir, String, :default => Chef::Config.ec2_key_dir
       magic :ssh_identity_file, String #, :default => "#{keypair}.pem"
