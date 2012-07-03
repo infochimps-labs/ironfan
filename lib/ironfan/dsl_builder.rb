@@ -9,6 +9,12 @@ module Gorillib
 
     magic :underlay, Whatever
 
+    def read_attribute(field_name)
+      field = self.class.fields[field_name] or return
+      return override_resolve(field_name) unless field.resolution.is_a? Proc
+      return self.instance_exec(field_name, &field.resolution)
+    end
+
     def override_resolve(field_name)
       result = read_set_attribute(field_name)
       return result unless result.nil?
@@ -19,16 +25,10 @@ module Gorillib
 
     def merge_resolve(field_name)
       result = self.class.fields[field_name].type.new
-      d = read_unset_attribute(field_name) and result.receive!(d)
-      u = read_underlay_attribute(field_name) and result.receive!(u)
-      s = read_set_attribute(field_name) and result.receive!(s)
+      result.receive! read_unset_attribute(field_name) || {}
+      result.receive! read_underlay_attribute(field_name) || {}
+      result.receive! read_set_attribute(field_name) || {}
       result
-    end
-
-    def read_attribute(field_name)
-      field = self.class.fields[field_name] or return
-      return override_resolve(field_name) unless field.resolution.is_a? Proc
-      return self.instance_exec(field_name, &field.resolution)
     end
 
     def read_set_attribute(field_name)
@@ -41,6 +41,9 @@ module Gorillib
       underlay.read_attribute(field_name) unless @underlay.nil?
     end
 
+    # Note: this overrides the regular :default behavior without calling super,
+    #   to avoid the writing back of the default attribute on a read. This 
+    #   probably breaks your method chaining, beware.
     def read_unset_attribute(field_name)
       field = self.class.fields[field_name]
       return unless field.has_default?
