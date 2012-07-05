@@ -57,6 +57,8 @@ module Ironfan
       ui.info("")
       ui.info "Finished! Current state:"
       display(target)
+      #
+      exit_if_unhealthy!
     end
 
     def perform_execution(target)

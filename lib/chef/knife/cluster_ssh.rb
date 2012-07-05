@@ -84,7 +84,7 @@ class Chef
       def ssh_command(command, subsession=nil)
         subsession ||= session
         command = fixup_sudo(command)
-        notifications = []
+        #
         subsession.open_channel do |ch|
           ch.request_pty
           ch.exec command do |ch, success|
@@ -101,13 +101,12 @@ class Chef
               exit_status = data.read_long
               if exit_status != 0
                 command_snippet = (command.length < 70) ? command : (command[0..45] + ' ... ' + command[-19..-1])
-                notifications << [ichannel[:host], "'#{command_snippet.gsub(/[\r\n]+/, "; ")}' terminated with error status #{exit_status}", :err]
+                has_problem ->{ print_data(ichannel[:host], "'#{command_snippet.gsub(/[\r\n]+/, "; ")}' terminated with error status #{exit_status}", :err) }
               end
             end
           end
         end
         session.loop
-        notifications.each{|args| print_data(*args) }
       end
 
       def cssh
@@ -133,6 +132,7 @@ class Chef
         end
 
         session.close
+        exit_if_unhealthy!
       end
 
     end
