@@ -61,12 +61,12 @@ module Ironfan
     end
 
     def raid_group(rg_name, attrs={}, &block)
-      volumes[rg_name] ||= Ironfan::RaidGroup.new(:parent => self, :name => rg_name)
-      volumes[rg_name].receive!(attrs, &block)
-      volumes[rg_name].sub_volumes.each do |sv_name|
+      raid = volumes[rg_name] || Ironfan::RaidGroup.new(:parent => self, :name => rg_name)
+      raid.receive!(attrs, &block)
+      raid.sub_volumes.each do |sv_name|
         volume(sv_name){ in_raid(rg_name) ; mountable(false) ; tags({}) }
       end
-      volumes[rg_name]
+      volumes[rg_name] = raid
     end
 
     #
