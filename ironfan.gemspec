@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "ironfan"
-  s.version = "3.2.0.multicloud.alpha1"
+  s.version = "3.2.0"
 
-  s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
+  s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Infochimps"]
-  s.date = "2012-06-25"
+  s.date = "2012-07-05"
   s.description = "Ironfan allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
   s.email = "coders@infochimps.com"
   s.extra_rdoc_files = [
@@ -62,7 +62,7 @@ Gem::Specification.new do |s|
     "lib/ironfan/compute.rb",
     "lib/ironfan/deprecated.rb",
     "lib/ironfan/discovery.rb",
-    "lib/ironfan/dsl_object.rb",
+    "lib/ironfan/dsl_builder.rb",
     "lib/ironfan/facet.rb",
     "lib/ironfan/fog_layer.rb",
     "lib/ironfan/private_key.rb",
@@ -84,7 +84,7 @@ Gem::Specification.new do |s|
   s.homepage = "http://infochimps.com/labs"
   s.licenses = ["apachev2"]
   s.require_paths = ["lib"]
-  s.rubygems_version = "1.8.15"
+  s.rubygems_version = "1.8.24"
   s.summary = "Ironfan allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
   s.test_files = ["spec/ironfan_spec.rb", "spec/spec_helper/dummy_chef.rb", "spec/ironfan/cluster_spec.rb", "spec/ironfan/server_slice_spec.rb", "spec/ironfan/server_spec.rb", "spec/ironfan/facet_spec.rb", "spec/spec_helper.rb", "spec/test_config.rb"]
 

@@ -1,3 +1,14 @@
+# v3.2.0: First refactoring pass in preparation for multi-cloud support
+* Rebuilt the internal models of Ironfan to use gorillib's Field/Model/Builder architecture.
+* [#145](https://github.com/infochimps-labs/ironfan/pull/145): node attribues should be 'normal', not 'override' -- they don't show up as printed on the node otherwise
+* [#144](https://github.com/infochimps-labs/ironfan/pull/144): knife cluster ssh sets exit status based on commands' exit status
+* [#139](https://github.com/infochimps-labs/ironfan/pull/139): Fix detection of hostname in cluster_launch
+
+# v3.1.6
+* [#136](https://github.com/infochimps-labs/ironfan/pull/136): Basic support for VPC
+* cleanup of gemspec version constraints, including move to chef 0.10.10
+* CentOS compatibility tweaks to several cookbooks
+
 # v3.1.5: A bug with quoting in bootstrap scripts
 
 * Bootstrap scripts with env vars were being interpolated twice, so the bootstrap script quoting was changed to use `'` (single-quote) semantics. I am a bit troubled, because I can't tell when this regression happened. I believe I introduced it while merging @gpaco's bootstrap scripts and didn't notice because the bug strikes most forcefully within the fenced-off 'Is ruby installed?' part. But there's a chance I just screwed over chef 0.10.04 users.
