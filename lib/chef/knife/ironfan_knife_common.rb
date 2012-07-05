@@ -163,6 +163,27 @@ module Ironfan
       ui.info("")
     end
 
+    # list of problems encountered
+    attr_accessor :problems
+    # register that a problem was encountered
+    def has_problem(desc)
+      (@problems||=[]) << desc
+    end
+    # healthy if no problems
+    def healthy?() problems.blank? ; end
+
+    def exit_if_unhealthy!
+      return if healthy?
+      problems.each do |problem|
+        if problem.respond_to?(:call)
+          problem.call
+        else
+          ui.warn(problem)
+        end
+      end
+      exit(2) if not healthy?
+    end
+
     #
     # Announce a new section of tasks
     #
