@@ -192,7 +192,6 @@ module Ironfan
       end
     end
 
-
     def sync_volume_attributes
       volumes.each_pair do |vol_name, vol|
         chef_node.normal[:volumes] ||= Mash.new
@@ -203,11 +202,11 @@ module Ironfan
     def set_chef_node_attributes
       step("  setting node runlist and essential attributes")
       @chef_node.run_list = Chef::RunList.new(*combined_run_list)
-      @chef_node.normal[:organization]   = organization if organization
-      @chef_node.normal[:permanent]      = cloud.permanent if cloud.permanent
-      @chef_node.override[:cluster_name] = cluster_name
-      @chef_node.override[:facet_name]   = facet_name
-      @chef_node.override[:facet_index]  = facet_index
+      @chef_node.normal[:organization] = organization if organization
+      @chef_node.normal[:permanent]    = cloud.permanent if cloud.permanent
+      @chef_node.normal[:cluster_name] = cluster_name
+      @chef_node.normal[:facet_name]   = facet_name
+      @chef_node.normal[:facet_index]  = facet_index
     end
 
     def set_chef_node_environment
