@@ -9,6 +9,8 @@ require 'gorillib/builder'
 require 'set'
 
 require 'ironfan/dsl_builder'
+require 'ironfan/dsl'
+
 require 'ironfan/security_group'
 require 'ironfan/cloud'
 require 'ironfan/compute'           # base class for machine attributes
@@ -27,6 +29,7 @@ require 'ironfan/fog_layer'         # interface to fog  for server actions
 require 'ironfan/deprecated'        # stuff slated to go away
 
 module Ironfan
+  @@clusters ||= Mash.new
 
   # path to search for cluster definition files
   def self.cluster_path
@@ -71,6 +74,13 @@ module Ironfan
   #
   def self.cluster(name, attrs={}, &block)
     name = name.to_sym
+    # Test the inactive DSL construction, compared to the active
+    i = ( @@clusters[name] ||= Ironfan::Dsl::Cluster.new(name) )
+    i.receive!(attrs, &block)
+    require 'gorillib/model/serialization'
+    require 'gorillib/serialization/to_wire'
+    pp i.to_wire
+
     cl = ( self.clusters[name] ||= Ironfan::Cluster.new(name) )
     cl.receive!(attrs, &block)
     cl

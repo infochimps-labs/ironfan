@@ -47,8 +47,8 @@ class Chef
         #
         if config[:verbosity] >= 2
           target.each do |svr|
-            Chef::Log.debug( "Server #{svr.name}: #{JSON.pretty_generate(svr.to_hash)}" )
-            Chef::Log.debug( "- cloud: #{JSON.pretty_generate(svr.cloud.to_hash)}" )
+            Chef::Log.debug( "Server #{svr.name}: #{JSON.pretty_generate(svr.to_wire)}" )
+            Chef::Log.debug( "- cloud: #{JSON.pretty_generate(svr.cloud.to_wire)}" )
             Chef::Log.debug( "- fog:   #{JSON.pretty_generate(svr.fog_launch_description)}" )
           end
         end
