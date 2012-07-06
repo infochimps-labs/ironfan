@@ -6,8 +6,8 @@ module Ironfan
   #
   #
   class ServerSlice < Ironfan::DslBuilderCollection
-    field :name, String
-    field :cluster, String
+    attr_accessor :name
+    attr_accessor :cluster
 
     def initialize cluster, servers
       super()

@@ -123,13 +123,11 @@ module Ironfan
     # Resolve:
     #
     def resolve!
-      facet.underlay            cluster
-      self.underlay             facet
+      facet.underlay              = cluster
+      self.underlay               = facet
 
-      #@settings[:run_list] = combined_run_list
-
-      facet.cloud.underlay      cluster.cloud
-      cloud.underlay            facet.cloud
+      facet.cloud.underlay        = cluster.cloud
+      cloud.underlay              = facet.cloud
 
       cloud.user_data({
           :chef_server            => chef_server_url,
