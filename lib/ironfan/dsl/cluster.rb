@@ -4,6 +4,8 @@ module Ironfan
       collection :facets,       Ironfan::Dsl::Facet,
           :resolution           => ->(f) { merge_resolve(f) }
 
+      def cluster_role()    layer_role;     end
+
       def initialize(builder_name, attrs={})
         name    builder_name
         super   attrs
