@@ -15,7 +15,7 @@ module Gorillib
     end
 
     def override_resolve(field_name)
-      result = read_set_or_underlay(field_name)
+      result = read_set_or_underlay_attribute(field_name)
       return result unless result.nil?
       read_unset_attribute(field_name)
     end
@@ -27,6 +27,12 @@ module Gorillib
       return result unless result.empty?
       read_unset_attribute(field_name)
     end
+    
+    def ignore_underlay_resolve(field_name)
+      result = read_set_attribute(field_name)
+      return result unless result.nil?
+      read_unset_attribute(field_name)
+    end
 
     def read_set_attribute(field_name)
       attr_name = "@#{field_name}"
@@ -35,10 +41,10 @@ module Gorillib
 
     def read_underlay_attribute(field_name)
       return if @underlay.nil?
-      underlay.read_set_or_underlay(field_name)
+      underlay.read_set_or_underlay_attribute(field_name)
     end
     
-    def read_set_or_underlay(field_name)
+    def read_set_or_underlay_attribute(field_name)
       result = read_set_attribute(field_name)
       return result unless result.nil?
       read_underlay_attribute(field_name)
