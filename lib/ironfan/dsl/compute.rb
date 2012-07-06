@@ -6,12 +6,9 @@ module Ironfan
       collection :clouds,       Ironfan::Dsl::Cloud,    :resolution => ->(f) { merge_resolve(f) }
       collection :volumes,      Ironfan::Dsl::Volume,   :resolution => ->(f) { merge_resolve(f) }
       magic      :environment,  Symbol
-      magic      :layer_role,   Ironfan::Dsl::Role,     :resolution => ->(f) { read_set_attribute(f) } # Don't underlay or default
-      
-      def initialize(*args)
-        layer_role      Ironfan::Dsl::Role.new
-        super(*args)
-      end
+      magic      :layer_role,   Ironfan::Dsl::Role,
+          :default      => Ironfan::Dsl::Role.new,
+          :resolution   => ->(f) { ignore_underlay_resolve(f) }
 
       # Add the given role/recipe to the run list. You can specify placement of
       # `:first`, `:normal` (or nil) or `:last`; the final runlist is assembled as

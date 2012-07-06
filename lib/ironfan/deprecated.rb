@@ -65,4 +65,24 @@ module Ironfan
       Ironfan.deprecated 'defaults'
     end
   end
+  
+  module Dsl
+    class Cloud
+      def defaults
+        Ironfan.deprecated 'defaults'
+      end
+    end
+    
+    class Compute
+      def cloud(provider=nil)
+        if provider.nil?
+          Ironfan.deprecated 'cloud(nil)','cloud(:ec2)'
+          provider = :ec2
+        end
+        super(provider)
+      end
+    end
+
+  end
+
 end
