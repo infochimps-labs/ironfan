@@ -6,8 +6,7 @@ module Gorillib
   end
   module Underlies
     include Gorillib::FancyBuilder
-
-    magic :underlay, Whatever
+    attr_accessor :underlay
 
     def read_attribute(field_name)
       field = self.class.fields[field_name] or return
@@ -16,19 +15,17 @@ module Gorillib
     end
 
     def override_resolve(field_name)
-      result = read_set_attribute(field_name)
-      return result unless result.nil?
-      result = read_underlay_attribute(field_name)
+      result = read_set_or_underlay(field_name)
       return result unless result.nil?
       read_unset_attribute(field_name)
     end
 
     def merge_resolve(field_name)
       result = self.class.fields[field_name].type.new
-      result.receive! read_unset_attribute(field_name) || {}
       result.receive! read_underlay_attribute(field_name) || {}
       result.receive! read_set_attribute(field_name) || {}
-      result
+      return result unless result.empty?
+      read_unset_attribute(field_name)
     end
 
     def read_set_attribute(field_name)
@@ -37,17 +34,14 @@ module Gorillib
     end
 
     def read_underlay_attribute(field_name)
-      return if field_name == :underlay
-      underlay.read_attribute(field_name) unless @underlay.nil?
+      return if @underlay.nil?
+      underlay.read_set_or_underlay(field_name)
     end
-
-    # Note: this overrides the regular :default behavior without calling super,
-    #   to avoid the writing back of the default attribute on a read. This 
-    #   probably breaks your method chaining, beware.
-    def read_unset_attribute(field_name)
-      field = self.class.fields[field_name]
-      return unless field.has_default?
-      attribute_default(field)
+    
+    def read_set_or_underlay(field_name)
+      result = read_set_attribute(field_name)
+      return result unless result.nil?
+      read_underlay_attribute(field_name)
     end
 
   end
