@@ -73,12 +73,13 @@ module Ironfan
   #
   #
   def self.cluster(name, attrs={}, &block)
-    name = name.to_sym
-    # Test the inactive DSL construction, compared to the active
-    i = ( @@clusters[name] ||= Ironfan::Dsl::Cluster.new(name) )
-    i.receive!(attrs, &block)
     require 'gorillib/model/serialization'
     require 'gorillib/serialization/to_wire'
+
+    name = name.to_sym
+    # Test the inactive DSL construction, compared to the active
+    i = ( @@clusters[name] ||= Ironfan::Dsl::Cluster.new({:name => name}) )
+    i.receive!(attrs, &block)
     pp i.to_wire
 
     cl = ( self.clusters[name] ||= Ironfan::Cluster.new(name) )

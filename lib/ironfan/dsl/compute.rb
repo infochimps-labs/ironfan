@@ -2,13 +2,19 @@ module Ironfan
   module Dsl
     class Compute < Ironfan::Dsl::Builder
       @@run_list_rank = 0
-      collection :run_list_items, Hash
-      collection :clouds,       Ironfan::Dsl::Cloud,    :resolution => ->(f) { merge_resolve(f) }
-      collection :volumes,      Ironfan::Dsl::Volume,   :resolution => ->(f) { merge_resolve(f) }
+      collection :run_list_items, Hash,                   :resolution => ->(f) { merge_resolve(f) }
+      # TODO: Fix to factory by provider, rather than hand-setting it here
+      collection :clouds,       Ironfan::Dsl::Ec2::Cloud, :resolution => ->(f) { merge_resolve(f) }
+      collection :volumes,      Ironfan::Dsl::Volume,     :resolution => ->(f) { merge_resolve(f) }
       magic      :environment,  Symbol
       magic      :layer_role,   Ironfan::Dsl::Role,
-          :default      => Ironfan::Dsl::Role.new,
-          :resolution   => ->(f) { ignore_underlay_resolve(f) }
+          :default      => Ironfan::Dsl::Role.new,        :resolution   => ->(f) { read_set_attribute(f) }
+
+      def initialize(*args,attrs,&block)
+        self.underlay = attrs[:owner]
+        super(*args,attrs,&block)
+        self
+      end
 
       # Add the given role/recipe to the run list. You can specify placement of
       # `:first`, `:normal` (or nil) or `:last`; the final runlist is assembled as
@@ -24,6 +30,15 @@ module Ironfan
       end
       def recipe(recipe_name, placement=nil)
         add_to_run_list(recipe_name, placement)
+      end
+
+      def raid_group(rg_name, attrs={}, &block)
+        raid = volumes[rg_name] || Ironfan::Dsl::RaidGroup.new
+        raid.receive!(attrs, &block)
+        raid.sub_volumes.each do |sv_name|
+          volume(sv_name){ in_raid(rg_name) ; mountable(false) ; tags({}) }
+        end
+        volumes[rg_name] = raid
       end
 
     protected

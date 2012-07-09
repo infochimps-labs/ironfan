@@ -6,10 +6,15 @@ module Ironfan
 
       def cluster_role()    layer_role;     end
 
-      def initialize(builder_name, attrs={})
-        name    builder_name
-        super   attrs
+      def expand_servers
+        facets.each_pair {|n,facet| facet.expand_servers }
       end
+      
+      def facet(*args)
+        pp args
+        super *args
+      end
+
     end
   end
 end
