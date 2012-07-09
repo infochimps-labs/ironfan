@@ -3,12 +3,18 @@
 #   for today.
 module Ironfan
   module Dsl
-    class Cloud < Ironfan::Dsl::Builder
+    module Cloud
+      class Base < Ironfan::Dsl::Builder
+        # Factory out to subclasses 
+        def self.receive(obj)
+          case obj[:name]
+          when :ec2     Ec2.new(obj)
+          else          raise "Unsupported cloud #{obj[:name]}"
+          end
+        end
+      end
 
-    end
-
-    module Ec2
-      class Cloud < Ironfan::Dsl::Cloud
+      class Ec2 < Base
         magic :permanent,                 Whatever,       :default => false
         magic :availability_zones,        Array
         magic :flavor,                    String
@@ -18,8 +24,8 @@ module Ironfan
         magic :chef_client_script,        String
         magic :mount_ephemerals,          Whatever       # TODO: This needs better handling
         collection :security_groups,      Ironfan::Dsl::Ec2::SecurityGroup
-
       end
+
     end
   end
 end

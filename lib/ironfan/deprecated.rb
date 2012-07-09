@@ -67,9 +67,11 @@ module Ironfan
   end
   
   module Dsl
-    class Cloud
-      def defaults
-        Ironfan.deprecated 'defaults'
+    module Cloud
+      class Base
+        def defaults
+          Ironfan.deprecated 'defaults'
+        end
       end
     end
     

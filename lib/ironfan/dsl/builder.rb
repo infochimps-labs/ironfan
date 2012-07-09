@@ -20,20 +20,14 @@ module Gorillib
     attr_accessor :underlay
 
     def resolve
-      result = underlay.resolve || this.class.new
-      current = to_wire
+      result = self.class.new
       self.class.fields.each_pair do |field_name,field|
-        # resolve its values using chosen resolution
-        # set the resulting field 
+        value = read_from_resolution(field_name)
+        value = read_unset_attribute(field_name) if value.nil?
+        result.write_attribute(field_name, value)
       end
+      result
     end
-
-#     def read_attribute(field_name)
-#       field = self.class.fields[field_name] or return
-#       result = read_from_resolution(field_name)
-#       return result unless result.to_s.empty?
-#       read_unset_attribute(field_name)
-#     end
 
     def merge_resolve(field_name)
       result = self.class.fields[field_name].type.new
@@ -54,8 +48,7 @@ module Gorillib
 
     def read_underlay_attribute(field_name)
       return if underlay.nil?
-      result = underlay.read_from_resolution(field_name)
-      return if result.nil?
+      underlay.read_from_resolution(field_name)
     end
 
     def read_set_or_underlay_attribute(field_name)
@@ -91,21 +84,5 @@ module Ironfan
       include Ironfan::Dsl::Hooks
     end
 
-    class BuilderCollection < Gorillib::ModelCollection
-      include Ironfan::Dsl::Hooks
-      include Enumerable
-  #     #
-  #     # Enumerable
-  #     #
-  #     def each(&block)
-  #       @servers.each(&block)
-  #     end
-  #     def length
-  #       @servers.length
-  #     end
-  #     def empty?
-  #       length == 0
-  #     end
-    end
   end
 end

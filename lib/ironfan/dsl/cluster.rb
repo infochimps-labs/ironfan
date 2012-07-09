@@ -9,11 +9,6 @@ module Ironfan
       def expand_servers
         facets.each_pair {|n,facet| facet.expand_servers }
       end
-      
-      def facet(*args)
-        pp args
-        super *args
-      end
 
     end
   end

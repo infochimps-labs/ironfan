@@ -77,10 +77,20 @@ module Ironfan
     require 'gorillib/serialization/to_wire'
 
     name = name.to_sym
+
     # Test the inactive DSL construction, compared to the active
     i = ( @@clusters[name] ||= Ironfan::Dsl::Cluster.new({:name => name}) )
     i.receive!(attrs, &block)
-    pp i.to_wire
+    i.expand_servers
+#     i.facets.each_pair do |fname,facet|
+#       facet.servers.each_pair do |sname, server|
+#         puts "#{i.name}-#{facet.name}-#{server.name}"
+#         pp server.resolve.to_wire
+#         puts
+#       end
+#     end
+#     puts "#{i.name} cluster:"
+#     pp i.resolve.to_wire
 
     cl = ( self.clusters[name] ||= Ironfan::Cluster.new(name) )
     cl.receive!(attrs, &block)

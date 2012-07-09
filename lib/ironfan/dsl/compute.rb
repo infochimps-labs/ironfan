@@ -2,17 +2,16 @@ module Ironfan
   module Dsl
     class Compute < Ironfan::Dsl::Builder
       @@run_list_rank = 0
-      collection :run_list_items, Hash,                   :resolution => ->(f) { merge_resolve(f) }
-      # TODO: Fix to factory by provider, rather than hand-setting it here
-      collection :clouds,       Ironfan::Dsl::Ec2::Cloud, :resolution => ->(f) { merge_resolve(f) }
-      collection :volumes,      Ironfan::Dsl::Volume,     :resolution => ->(f) { merge_resolve(f) }
+      collection :run_list_items, Hash,                    :resolution => ->(f) { merge_resolve(f) }
+      collection :clouds,       Ironfan::Dsl::Cloud::Base, :resolution => ->(f) { merge_resolve(f) }
+      collection :volumes,      Ironfan::Dsl::Volume,      :resolution => ->(f) { merge_resolve(f) }
       magic      :environment,  Symbol
       magic      :layer_role,   Ironfan::Dsl::Role,
-          :default      => Ironfan::Dsl::Role.new,        :resolution   => ->(f) { read_set_attribute(f) }
+          :default      => Ironfan::Dsl::Role.new,         :resolution => ->(f) { read_set_attribute(f) }
 
-      def initialize(*args,attrs,&block)
+      def initialize(attrs={},&block)
         self.underlay = attrs[:owner]
-        super(*args,attrs,&block)
+        super(attrs,&block)
         self
       end
 
