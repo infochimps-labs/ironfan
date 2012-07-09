@@ -1,6 +1,3 @@
-# TODO: This should get refactored into subclasses by provider, with a
-#   factory for the core that multiplexes out them. Building it EC2-specific
-#   for today.
 module Ironfan
   module Dsl
     module Cloud
@@ -8,8 +5,8 @@ module Ironfan
         # Factory out to subclasses 
         def self.receive(obj)
           case obj[:name]
-          when :ec2     Ec2.new(obj)
-          else          raise "Unsupported cloud #{obj[:name]}"
+          when :ec2;    Ec2.new(obj)
+          else;         raise "Unsupported cloud #{obj[:name]}"
           end
         end
       end
