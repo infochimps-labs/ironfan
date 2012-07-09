@@ -2,12 +2,12 @@ module Ironfan
   module Dsl
     class Compute < Ironfan::Dsl::Builder
       @@run_list_rank = 0
-      collection :run_list_items, Hash,                    :resolution => ->(f) { merge_resolve(f) }
-      collection :clouds,       Ironfan::Dsl::Cloud::Base, :resolution => ->(f) { merge_resolve(f) }
-      collection :volumes,      Ironfan::Dsl::Volume,      :resolution => ->(f) { merge_resolve(f) }
+      collection :run_list_items, Hash,                    :resolver => :merge_resolve
+      collection :clouds,       Ironfan::Dsl::Cloud::Base, :resolver => :merge_resolve
+      collection :volumes,      Ironfan::Dsl::Volume,      :resolver => :merge_resolve
       magic      :environment,  Symbol
       magic      :layer_role,   Ironfan::Dsl::Role,
-          :default      => Ironfan::Dsl::Role.new,         :resolution => ->(f) { read_set_attribute(f) }
+          :default      => Ironfan::Dsl::Role.new,         :resolver => :read_set_attribute
 
       def initialize(attrs={},&block)
         self.underlay = attrs[:owner]

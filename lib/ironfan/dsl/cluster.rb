@@ -2,7 +2,7 @@ module Ironfan
   module Dsl
     class Cluster < Ironfan::Dsl::Compute
       collection :facets,       Ironfan::Dsl::Facet,
-          :resolution           => ->(f) { merge_resolve(f) }
+          :resolver           => :merge_resolve
 
       def cluster_role()    layer_role;     end
 

@@ -1,19 +1,19 @@
 module Gorillib
   module Model
     Field.class_eval do
-      field :resolution, Whatever
+      field :resolver, Symbol, :default => :read_set_or_underlay_attribute
     end
   end
 
   # The attribute :underlay provides an object (preferably another
   #   Gorillib::Model or the like) that will respond with defaults. If 
-  #   fields are declared with a resolution lambda, it will apply that 
-  #   lambda in preference to the normal resolution rules (self.field
+  #   fields are declared with a resolver call, it will apply that 
+  #   call in preference to the normal resolver rules (self.field
   #   -> underlay.field -> self.field.default )
   #
-  # To provide resolution cleanly without read-write loops destroying 
-  #   the separation of concerns, the resolution has been broken from
-  #   the regular read-write accessors.
+  # To provide resolve cleanly without read-write loops destroying 
+  #   the separation of concerns, the resolve mechanism has been 
+  #   broken from the regular read-write accessors.
   #
   module Resolution
     include Gorillib::FancyBuilder
@@ -22,7 +22,7 @@ module Gorillib
     def resolve
       result = self.class.new
       self.class.fields.each_pair do |field_name,field|
-        value = read_from_resolution(field_name)
+        value = read_from_resolver(field_name)
         value = read_unset_attribute(field_name) if value.nil?
         result.write_attribute(field_name, value)
       end
@@ -35,10 +35,9 @@ module Gorillib
       result.receive! read_set_attribute(field_name) || {}
     end
 
-    def read_from_resolution(field_name)
+    def read_from_resolver(field_name)
       field = self.class.fields[field_name] or return
-      resolution = field.resolution || ->(f){ read_set_or_underlay_attribute(f) }
-      instance_exec(field_name, &resolution)
+      self.send(field.resolver, field_name)
     end
 
     def read_set_attribute(field_name)
@@ -48,7 +47,7 @@ module Gorillib
 
     def read_underlay_attribute(field_name)
       return if underlay.nil?
-      underlay.read_from_resolution(field_name)
+      underlay.read_from_resolver(field_name)
     end
 
     def read_set_or_underlay_attribute(field_name)
