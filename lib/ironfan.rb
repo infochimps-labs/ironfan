@@ -10,6 +10,7 @@ require 'set'
 
 require 'ironfan/dsl_builder'
 require 'ironfan/dsl'
+require 'ironfan/provider'
 
 require 'ironfan/security_group'
 require 'ironfan/cloud'
