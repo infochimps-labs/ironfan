@@ -21,7 +21,7 @@ module Gorillib
 
     def resolve
       result = self.class.new
-      self.class.fields.each_pair do |field_name,field|
+      self.class.fields.each do |field_name, field|
         value = read_from_resolver(field_name)
         value = read_unset_attribute(field_name) if value.nil?
         next if value.nil?

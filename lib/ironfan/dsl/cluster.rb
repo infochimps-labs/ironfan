@@ -7,7 +7,7 @@ module Ironfan
       def cluster_role()    layer_role;     end
 
       def expand_servers
-        facets.each_pair {|n,facet| facet.expand_servers }
+        facets.each {|facet| facet.expand_servers }
       end
 
     end

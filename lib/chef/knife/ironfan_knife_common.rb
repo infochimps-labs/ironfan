@@ -44,10 +44,10 @@ module Ironfan
       dsl = Ironfan.class_variable_get(:@@clusters)[cluster_name]
 #       pp dsl
 #       pp dsl.facets.values
-#       pp dsl.facet(:nfs).server(0).resolve.volumes.each_pair{|vn,v|p v.object_id}
-#       dsl.facets.each_pair{|fn,f| f.servers.each_pair{|sn,s| pp s.resolve.volumes.values.each{|v|p v.object_id} }}
+#       pp dsl.facet(:nfs).server(0).resolve.volumes.each{|vn,v|p v.object_id}
+#       dsl.facets.each{|fn,f| f.servers.each{|sn,s| pp s.resolve.volumes.values.each{|v|p v.object_id} }}
 #       pp dsl.facet(:nfs).server(0).resolve.volumes.values.each{|v|p v.object_id}
-#       dsl.facets.each_pair {|n,server| pp server}
+#       dsl.facets.each {|n,server| pp server}
 #       raise 'hell'
       broker = Ironfan::ProviderBroker.new
       machines = broker.discover(dsl)
