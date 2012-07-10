@@ -24,9 +24,21 @@ module Gorillib
       self.class.fields.each_pair do |field_name,field|
         value = read_from_resolver(field_name)
         value = read_unset_attribute(field_name) if value.nil?
-        result.write_attribute(field_name, value)
+        next if value.nil?
+        result.write_attribute(field_name, deep_copy(value))
       end
       result
+    end
+
+    # Make a clean deep-copy of the value, via gorillib semantics if 
+    #   possible, otherwise via marshalling
+    def deep_copy(value)
+      case
+      when ( value.respond_to? :to_wire and value.respond_to? :receive )
+        return value.class.receive(value.to_wire)
+      else
+        return Marshal.load(Marshal.dump(value))
+      end
     end
 
     def merge_resolve(field_name)
