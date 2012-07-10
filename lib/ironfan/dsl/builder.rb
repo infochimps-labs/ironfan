@@ -45,6 +45,7 @@ module Gorillib
       result = attribute_default(field) or field.type.new
       result.receive! read_underlay_attribute(field_name) || {}
       result.receive! read_set_attribute(field_name) || {}
+      result
     end
 
     def read_from_resolver(field_name)

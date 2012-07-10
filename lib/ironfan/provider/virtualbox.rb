@@ -1,16 +1,7 @@
 module Ironfan
   module Provider
-    module Chef
+    module VirtualBox
       class Connection < Ironfan::Provider::Connection
-      end
-
-      class Node
-      end
-
-      class Role
-      end
-
-      class Client
       end
     end
   end

@@ -50,8 +50,8 @@ module Ironfan
 #       dsl.facets.each {|n,server| pp server}
 #       raise 'hell'
       broker = Ironfan::ProviderBroker.new
-      machines = broker.discover(dsl)
-      result = machines.select(facet_name, slice_indexes)
+      broker.discover!(dsl)
+      machines = broker.slice(facet_name, slice_indexes)
 
       cluster.resolve!
       cluster.discover!

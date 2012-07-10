@@ -2,9 +2,10 @@ module Ironfan
   module Dsl
     class Cluster < Ironfan::Dsl::Compute
       collection :facets,       Ironfan::Dsl::Facet,
-          :resolver           => :merge_resolve
+          :resolver             => :merge_resolve
 
-      def cluster_role()    layer_role;     end
+      def cluster_role()        layer_role;     end
+      def full_name()           name;           end
 
       def expand_servers
         facets.each {|facet| facet.expand_servers }

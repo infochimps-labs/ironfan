@@ -54,12 +54,12 @@ module Ironfan
         # Use the selected cloud for this server
         unless use_cloud.nil?
           return cloud(use_cloud) if clouds.include? use_cloud
-          raise "Requested a cloud that is not defined"
+          raise "Requested a cloud (#{use_cloud}) that is not defined"
         end
 
         # Use the cloud marked default_cloud
         default = clouds.values.select{|c| c.default_cloud == true }
-        raise "More than one cloud marked default, bailing" if default.length > 1
+        raise "More than one cloud (#{default.map{|c| c.name}.join(', ')}) marked default" if default.length > 1
         return default[0] unless default.empty?
 
         # Use the first cloud defined

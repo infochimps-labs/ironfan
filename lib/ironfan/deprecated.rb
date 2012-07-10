@@ -1,7 +1,13 @@
 module Ironfan
   def self.deprecated call, replacement=nil
     correction = ", use #{replacement} instead" if replacement
-    ui.warn "The '#{call}' statement is deprecated #{caller(2).first.inspect}#{correction}"
+    ui.warn "The '#{call}' statement is deprecated#{correction} (in #{caller(2).first.inspect})"
+  end
+
+  def self.future call, replacement=nil
+    correction = ", we are ignoring it"
+    correction = ", use #{replacement} instead" if replacement
+    ui.warn "The '#{call}' statement isn't available yet#{correction} (in #{caller(2).first.inspect})"
   end
 
   class DslBuilder    
@@ -28,6 +34,9 @@ module Ironfan
       Ironfan.deprecated 'root_volume', 'volume(:root)'
       volume(:root, attrs, &block)
     end
+    def use_cloud(foo)
+      Ironfan.future 'use_cloud'
+    end
   end
 
   class Cluster
@@ -50,6 +59,12 @@ module Ironfan
     def composite_volumes
       Ironfan.deprecated 'composite_volumes', 'volumes'
       volumes
+    end
+  end
+
+  class CloudDsl::Base
+    def default_cloud(foo)
+      Ironfan.future 'default_cloud'
     end
   end
 

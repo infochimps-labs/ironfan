@@ -2,15 +2,16 @@ module Ironfan
   module Dsl
     module Cloud
       class Base < Ironfan::Dsl::Builder
-        magic :default_cloud,           :boolean,        :default => false
+        magic :default_cloud,           :boolean,       :default => false
+
         # Factory out to subclasses 
-        def self.receive(obj)
+        def self.receive(obj,&block)
           klass = case obj[:name]
             when :ec2;            Ec2
             when :virtualbox;     VirtualBox
             else;         raise "Unsupported cloud #{obj[:name]}"
             end
-          klass.new(obj)
+          klass.new(obj,&block)
         end
       end
 
