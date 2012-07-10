@@ -37,6 +37,22 @@ module Ironfan
       cluster_name, facet_name, slice_indexes = slice_string.split(/[\s\-]/, 3)
       ui.info("Inventorying servers in #{predicate_str(cluster_name, facet_name, slice_indexes)}")
       cluster = Ironfan.load_cluster(cluster_name)
+
+      # FIXME: Temporary discovery coding, running alongside current active cluster
+      #   to compare their results. This loads the parallel cluster definition that
+      #   was built via load_cluster above.
+      dsl = Ironfan.class_variable_get(:@@clusters)[cluster_name]
+#       pp dsl
+#       pp dsl.facets.values
+#       pp dsl.facet(:nfs).server(0).resolve.volumes.each_pair{|vn,v|p v.object_id}
+#       dsl.facets.each_pair{|fn,f| f.servers.each_pair{|sn,s| pp s.resolve.volumes.values.each{|v|p v.object_id} }}
+#       pp dsl.facet(:nfs).server(0).resolve.volumes.values.each{|v|p v.object_id}
+#       dsl.facets.each_pair {|n,server| pp server}
+#       raise 'hell'
+      broker = Ironfan::ProviderBroker.new
+      machines = broker.discover(dsl)
+      result = machines.select(facet_name, slice_indexes)
+
       cluster.resolve!
       cluster.discover!
       cluster.slice(facet_name, slice_indexes)
