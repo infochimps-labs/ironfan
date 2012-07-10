@@ -23,7 +23,6 @@ module Gorillib
       result = self.class.new
       self.class.fields.each do |field_name, field|
         value = read_from_resolver(field_name)
-        value = read_unset_attribute(field_name) if value.nil?
         next if value.nil?
         result.write_attribute(field_name, deep_copy(value))
       end
@@ -42,7 +41,8 @@ module Gorillib
     end
 
     def merge_resolve(field_name)
-      result = self.class.fields[field_name].type.new
+      field = self.class.fields[field_name] or return
+      result = attribute_default(field) or field.type.new
       result.receive! read_underlay_attribute(field_name) || {}
       result.receive! read_set_attribute(field_name) || {}
     end
