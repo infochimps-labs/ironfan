@@ -1,7 +1,7 @@
 module Ironfan
   module Dsl
     class Facet < Ironfan::Dsl::Compute
-      magic      :instances,    Integer
+      magic      :instances,    Integer,        :default => 1
       collection :servers,      Ironfan::Dsl::Server
 
       def facet_role()    layer_role;     end
