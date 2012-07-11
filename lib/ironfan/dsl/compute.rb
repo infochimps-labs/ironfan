@@ -2,6 +2,8 @@ module Ironfan
   module Dsl
     class Compute < Ironfan::Dsl::Builder
       @@run_list_rank = 0
+      field      :owner_name,   String
+
       # Resolve each of the following as a merge of their container's attributes and theirs
       collection :run_list_items, Hash,                    :resolver => :merge_resolve
       collection :clouds,       Ironfan::Dsl::Cloud::Base, :resolver => :merge_resolve
@@ -13,12 +15,19 @@ module Ironfan
 
       # Don't use the underlying container's attributes for the layer_role; it stands alone
       magic      :layer_role,   Ironfan::Dsl::Role,
-          :default      => Ironfan::Dsl::Role.new,         :resolver => :read_set_attribute
+                 :default    => Ironfan::Dsl::Role.new,    :resolver => :read_set_attribute
 
       def initialize(attrs={},&block)
-        self.underlay = attrs[:owner]
+        if attrs[:owner]
+          self.underlay   = attrs[:owner]
+          self.owner_name = attrs[:owner].full_name
+        end
         super(attrs,&block)
         self
+      end
+
+      def full_name
+        owner_name.nil? ? name : "#{owner_name}-#{name}"
       end
 
       # Add the given role/recipe to the run list. You can specify placement of

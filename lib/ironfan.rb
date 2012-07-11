@@ -82,7 +82,6 @@ module Ironfan
     # Test the inactive DSL construction, compared to the active
     i = ( @@clusters[name] ||= Ironfan::Dsl::Cluster.new({:name => name}) )
     i.receive!(attrs, &block)
-    i.expand_servers
 
     cl = ( self.clusters[name] ||= Ironfan::Cluster.new(name) )
     cl.receive!(attrs, &block)

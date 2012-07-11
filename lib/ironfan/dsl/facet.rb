@@ -1,8 +1,8 @@
 module Ironfan
   module Dsl
     class Facet < Ironfan::Dsl::Compute
-      magic      :instances,    Integer,        :default => 1
-      collection :servers,      Ironfan::Dsl::Server
+      magic      :instances,    Integer,                :default => 1
+      collection :servers,      Ironfan::Dsl::Server,   :resolver => :deep_resolve
 
       def facet_role()  layer_role;     end
       def full_name()   "#{underlay.full_name}-#{name}"; end
