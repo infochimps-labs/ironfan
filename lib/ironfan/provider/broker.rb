@@ -17,18 +17,25 @@ module Ironfan
           end
         the_module::Connection.new(obj,&block)
       end
-      
-      def discover_resources!
-        pp "Would discover resources for #{self.class} here, but chickening out instead"
-#         raise NotImplementedError, "discover_resources! not implemented for #{self.class}"
+
+      def discover!
+        raise NotImplementedError, "discover! not implemented for #{self.class}"
       end
     end
 
     class Machine
       include Gorillib::Builder
-
-#       field :expectation,       Ironfan::Dsl::Server
+      field :expectation,       Ironfan::Dsl::Server
 #       field :provider,          Ironfan::Provider::Connection
+    end
+    
+    class IaasConnection < Connection
+      collection :machines,     Ironfan::Provider::Machine
+      def discover_machines!
+        pp "Would discover resources for #{self.class} here, but chickening out instead"
+#         raise NotImplementedError, "discover_machines! not implemented for #{self.class}"
+      end
+
     end
 
   end
@@ -36,46 +43,61 @@ module Ironfan
   class ProviderBroker
     include Gorillib::Builder
     field :expectations,        Ironfan::Dsl::Cluster
+    field :chef,                Ironfan::ChefServer::Connection,
+          :default =>           Ironfan::ChefServer::Connection.new
     collection :providers,      Ironfan::Provider::Connection
-
-#     collection :machines,       Ironfan::Provider::Machine
-#     def initialize(*args,&block)
-#       super(*args,&block)
-#       expectations.key_method = :full_name
-#     end
+    collection :machines,       Ironfan::Provider::Machine
+    
+    def initialize(*args,&block)
+      super(*args,&block)
+      machines = Gorillib::ModelCollection.new(:object_id,Ironfan::Provider::Machine)
+    end
 
     def discover!(cluster_dsl)
-      # discover_ironfan!
       discover_expectations!(cluster_dsl)
-
-      ## Can I just push :chef into the provider stack first, and rely on consistent order
-      ##   of hashing to do it first?
-      # discover_chef_nodes!
-      ## Moving this before provider discovery; is this okay?
-      # discover_chef_clients!
-#       discover_chef_resources!
-
-      # discover_fog_servers!
       discover_provider_resources!
-
+      discover_machine_states!
       # discover_volumes!
-      #   # Walk the list of servers, asking each to discover its volumes.
 
       raise NotImplementedError, 'ProviderBroker.discover! not fully written yet'
     end
     
     def discover_expectations!(cluster)
-      cluster.expand_servers  # vivify each facet's Ironfan::Dsl::Server instances
+      cluster.expand_servers  # vivify each facet's Server instances
       self.expectations = cluster.resolve
     end
 
     def discover_provider_resources!
-      # Ensure all providers referenced by the DSL are all available
-      provider(:chef)
-      expectations.servers.each {|s| provider(s.selected_cloud.name) }
+      # Ensure all providers referenced by the DSL are available
+      expectations.servers.each {|server| provider_for(server) }
 
+      # Find all provider resources
       providers.each {|p| p.discover! }
     end
-    
+
+    def provider_for(server)
+      provider(server.selected_cloud.name)
+    end
+    def new_machine(server)
+      provider_for(server).new_machine(server)
+    end
+
+    # Correlate expectations with Chef resources, and IaaS machines 
+    #   and related Provider resources. Create "nonexistent" machines
+    #   for each un-satisfied server expectation.
+    def discover_machine_states!
+      expectations.servers.each do |server|
+        # node      = chef.find_node(server)
+        # instances = providers.map {|p| p.find_machines(server) }.flatten
+        # count = instances.length
+        # instances.each {|i| i.bogus = :duplicate }    if count > 1
+        # instances << new_machine(server)              if count == 0
+        # instances.each do |i|
+        #   i.expectation       = server
+        #   i.chef_node         = node
+        # end
+        # machines.receive! instances
+      end
+    end
   end
 end
