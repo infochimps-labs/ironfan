@@ -54,25 +54,25 @@ module Ironfan
     end
 
     def discover!(cluster_dsl)
-      discover_expectations!(cluster_dsl)
+      set_expectations!(cluster_dsl)
       discover_provider_resources!
       discover_machine_states!
-      # discover_volumes!
-
-      raise NotImplementedError, 'ProviderBroker.discover! not fully written yet'
     end
     
-    def discover_expectations!(cluster)
+    def set_expectations!(cluster)
       cluster.expand_servers  # vivify each facet's Server instances
       self.expectations = cluster.resolve
     end
 
     def discover_provider_resources!
+      # Get all relevant chef resources for the cluster
+      chef.discover! expectations
+
       # Ensure all providers referenced by the DSL are available
       expectations.servers.each {|server| provider_for(server) }
 
-      # Find all provider resources
-      providers.each {|p| p.discover! }
+      # Find all provider resources for the cluster
+      providers.each {|p| p.discover! expectations }
     end
 
     def provider_for(server)
@@ -87,8 +87,8 @@ module Ironfan
     #   for each un-satisfied server expectation.
     def discover_machine_states!
       expectations.servers.each do |server|
-        # node      = chef.find_node(server)
-        # instances = providers.map {|p| p.find_machines(server) }.flatten
+        node      = chef.find_node(server)
+        instances = providers.values.map {|p| p.find_machines(server) }.flatten
         # count = instances.length
         # instances.each {|i| i.bogus = :duplicate }    if count > 1
         # instances << new_machine(server)              if count == 0
@@ -98,6 +98,7 @@ module Ironfan
         # end
         # machines.receive! instances
       end
+      raise NotImplementedError, 'ProviderBroker.discover_machine_states! not fully written yet'
     end
   end
 end

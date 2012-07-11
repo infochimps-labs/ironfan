@@ -2,6 +2,14 @@ module Ironfan
   module ChefServer
 
     class Node < Ironfan::Provider::Resource
+      field    :native, Whatever
+      delegate :name,   :to => :native
+      
+      def initialize(chef_node,*args,&block)
+        super(*args,&block)
+        self.native = chef_node
+        self
+      end
     end
 
     class Role < Ironfan::Provider::Resource
@@ -11,26 +19,28 @@ module Ironfan
     end
 
     class Connection < Ironfan::Provider::Connection
-      collection :nodes, Node
+      collection :nodes, Ironfan::ChefServer::Node
 
-      def discover!
-        discover_nodes!
+      def discover!(cluster)
+        discover_nodes! cluster
         discover_clients!
       end
       
-      # Walk the list of chef nodes and
-      # * vivify the server,
-      # * associate the chef node
-      # * if the chef node knows about its instance id, memorize that for lookup
-      #   when we discover cloud instances.
-      def discover_nodes!
-        pp "Would discover resources nodes for #{self.class} here, but chickening out instead"
-        #raise NotImplementedError, "#{self.class}.discover_nodes! not written yet"
+      def discover_nodes!(cluster)
+        return nodes unless nodes.empty?
+        Chef::Search::Query.new.search(:node,"cluster_name:#{cluster.name}") do |n|
+          nodes << Node.new(n) unless n.blank?
+        end
+        nodes
+      end
+      
+      def find_node(server)
+        nodes[server.full_name]
       end
       
       # Walk the list of servers, asking each to discover its chef client.
       def discover_clients!
-        pp "Would discover resources clients for #{self.class} here, but chickening out instead"
+        pp "Would discover clients resources for #{self.class} here, but chickening out instead"
         #raise NotImplementedError, "#{self.class}.discover_clients! not written yet"
       end
     end

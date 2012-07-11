@@ -12,7 +12,7 @@ module Ironfan
       # Utility class to reference all servers from constituent facets
       def servers
         result = Gorillib::ModelCollection.new(:full_name,Ironfan::Dsl::Server)
-        facets.each {|f| result.receive!(f.servers) }
+        facets.each {|f| f.servers.each {|s| result << s} }
         result
       end
 

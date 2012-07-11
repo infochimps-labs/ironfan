@@ -2,16 +2,18 @@ module Ironfan
   module Ec2
 
     class Connection < Ironfan::Provider::IaasConnection
-      def discover!
-        discover_machines!
-        discover_ebs_volumes!
-      # Walk the list of servers, asking each to discover its volumes.
-        discover_security_groups!
-        discover_key_pairs!
-        discover_placement_groups!
+      def discover!(cluster)
+        discover_machines! cluster
+        #discover_ebs_volumes!
+          # Walk the list of servers, asking each to discover its volumes.
+        #discover_security_groups!
+        #discover_key_pairs!
+        #discover_placement_groups!
       end
       
-      def discover_machines!
+      def discover_machines!(cluster)
+        return machines unless machines.empty?
+        # @fog_servers ||= Ironfan.fog_servers.select{|fs| fs.key_name == cluster_name.to_s && (fs.state != "terminated") }
       end
     end
 
