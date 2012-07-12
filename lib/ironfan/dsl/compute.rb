@@ -27,7 +27,9 @@ module Ironfan
       end
 
       def full_name
-        owner_name.nil? ? name : "#{owner_name}-#{name}"
+        fn = name
+        fn = "#{owner_name}-#{name}" unless owner_name.nil?
+        fn.to_s
       end
 
       # Add the given role/recipe to the run list. You can specify placement of

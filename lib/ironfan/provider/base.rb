@@ -1,10 +1,9 @@
-# This class is intended to read in a cluster DSL description, and broker
-#   out to the various cloud providers to survey the existing machines and
-#   handle provider-specific amenities (SecurityGroup, Volume, etc.) for 
-#   them.
 module Ironfan
   module Provider
 
+    #
+    # Generic Resource and Connection
+    #
     class Resource
       include Gorillib::Builder
 #       field :provider,          Ironfan::Provider::Connection
@@ -27,20 +26,26 @@ module Ironfan
         raise NotImplementedError, "discover! not implemented for #{self.class}"
       end
     end
-    
-    require 'ironfan/provider/chef'
 
-    class Machine < Resource
-      field :expectation,       Ironfan::Dsl::Server
-      field :chef_node,         Ironfan::ChefServer::Node
-      field :chef_client,       Ironfan::ChefServer::Client
+    #
+    # Iaas Instance and Connection
+    #
+    class Instance < Resource
+      field    :native, Whatever
+
+      def initialize(fog_server=nil,*args,&block)
+        super(*args,&block)
+        self.native = fog_server
+        self
+      end
+
+      def key_method()  :object_id;     end
     end
     
     class IaasConnection < Connection
-      collection :machines,     Ironfan::Provider::Machine
+      collection :instances,    Ironfan::Provider::Instance
       def discover_machines!
-        pp "Would discover resources for #{self.class} here, but chickening out instead"
-#         raise NotImplementedError, "discover_machines! not implemented for #{self.class}"
+        raise NotImplementedError, "discover_machines! not implemented for #{self.class}"
       end
     end
 
