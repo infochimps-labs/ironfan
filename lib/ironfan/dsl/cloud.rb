@@ -31,7 +31,7 @@ module Ironfan
           return values if style == :minimal
 
           values["Flavor"] =            flavor
-          values["AZ"] =                availability_zones.first
+          values["AZ"] =                availability_zones.first unless availability_zones.nil?
           return values if style == :default
 
           values["Elastic IP"] =        public_ip if public_ip
