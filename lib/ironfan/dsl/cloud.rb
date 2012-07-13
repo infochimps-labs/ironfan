@@ -25,6 +25,7 @@ module Ironfan
         magic :chef_client_script,      String
         magic :mount_ephemerals,        Whatever       # TODO: This needs better handling
         collection :security_groups,    Ironfan::Dsl::Ec2::SecurityGroup
+        magic :public_ip,               String
       end
 
       class VirtualBox < Base

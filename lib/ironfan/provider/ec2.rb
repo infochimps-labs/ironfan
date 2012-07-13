@@ -12,7 +12,29 @@ module Ironfan
 
         def matches?(machine)
           native.id == machine.chef_node.native.ec2.instance_id && \
-            name == machine.expectation.full_name
+            name == machine.expected.full_name
+        end
+
+        def display_values(style)
+          values = {}
+          # style == :minimal
+          values["State"] =             native.state.to_sym
+          values["InstanceID"] =        native.id
+          values["Public IP"] =         native.public_ip_address
+          values["Private IP"] =        native.private_ip_address
+          values["Created On"] =        native.created_at.to_date
+          return values if style == :minimal
+
+          # style == :default
+          values["Flavor"] =            native.flavor_id
+          values["AZ"] =                native.availability_zone
+          return values if style == :default
+
+          # style == :expanded
+          values["Image"] =             native.image_id
+          values["Volumes"] =           "TODO"
+          values["SSH Key"] =           native.key_name
+          values
         end
       end
 

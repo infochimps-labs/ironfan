@@ -10,16 +10,51 @@ module Ironfan
     class Machine
       include Gorillib::Builder
       field :chef_node,         Ironfan::Provider::ChefServer::Node
-      field :expectation,       Ironfan::Dsl::Server
+      field :expected,          Ironfan::Dsl::Server
       field :instance,          Ironfan::Provider::Instance
       field :bogosity,          Symbol
 
-      def key_method()  :object_id;     end
+      def key_method()          :object_id;     end
+      def name()
+        return expected.full_name       unless expected.nil?
+        return chef_node.name           unless chef_node.nil?
+        return instance.name            unless instance.nil?
+        "unnamed:#{object_id}"
+      end
+
+      def display_values(style)
+        values =                {}
+        values["Name"] =        name
+        values["Chef?"] =       "no"            if chef_node.nil?
+        values["State"] =       "not running"   if instance.nil?
+
+        [ expected, chef_node, instance ].each do |source|
+          values.merge! source.display_values(style) unless source.nil?
+        end
+        values
+      end
+    end
+
+    class MachineCollection < Gorillib::ModelCollection
+      def initialize(key_meth=nil,obj_factory=nil)
+        obj_factory ||= Machine
+        super(key_meth, obj_factory)
+      end
+
+      def display(style)
+        defined_data = @clxn.map {|k,m| m.display_values(style) }
+        if defined_data.empty?
+          ui.info "Nothing to report"
+        else
+          headings = defined_data.map{|r| r.keys}.flatten.uniq
+          Formatador.display_compact_table(defined_data, headings.to_a)
+        end
+      end
     end
 
     class Conductor
       include Gorillib::Builder
-      field :expectations,      Ironfan::Dsl::Cluster
+      field :expected,          Ironfan::Dsl::Cluster
 
       field :chef,              Ironfan::Provider::ChefServer::Connection,
             :default =>         Ironfan::Provider::ChefServer::Connection.new
@@ -27,48 +62,48 @@ module Ironfan
 
       collection :machines,     Machine
 
-      def discover!(cluster_dsl)
-        set_expectations!(cluster_dsl)
+      def initialize(*args,&block)
+        super(*args,&block)
+        @machines =             MachineCollection.new
+      end
+
+      def discover!
         discover_resources!
         correlate_machines!
       end
 
-      def set_expectations!(cluster)
-        cluster.expand_servers  # vivify each facet's Server instances
-        self.expectations = cluster.resolve
+      def receive_expected(cluster)
+        cluster.expand_servers          # vivify each facet's Server instances
+        super(cluster.resolve)          # resolve the cluster attributes before saving
       end
 
       def discover_resources!
-        # Get all relevant chef resources for the cluster
-        chef.discover! expectations
+        # Get all relevant chef resources for the cluster.
+        chef.discover! expected
 
-        # Ensure all providers referenced by the DSL are available
-        expectations.servers.each {|server| provider_for(server) }
-
-        # Find all provider resources for the cluster
-        providers.each {|p| p.discover! expectations }
-      end
-
-      def provider_for(server)
-        provider(server.selected_cloud.name)
+        # Ensure all providers referenced by the DSL are available, and have
+        #   them each survey their applicable resources.
+        expected.servers.each {|server| provider(server.selected_cloud.name) }
+        providers.each {|p| p.discover! expected }
       end
 
       # Correlate expectations with Chef resources, and IaaS machines 
       #   and related Provider resources. Create "nonexistent" machines
       #   for each un-satisfied server expectation.
       def correlate_machines!
-        correlate_expectations!
+        expected_machines!
         correlate_nodes!
         correlate_instances!
       end
 
-      # for all expectations, set up a bare machine
-      def correlate_expectations!
-        expectations.servers.each do |server|
+      # for all expected, set up a bare machine
+      def expected_machines!
+        expected.servers.each do |server|
           m = Machine.new
-          m.expectation = server
+          m.expected = server
           machines << m
         end
+        machines
       end
 
       # for all chef nodes that match the cluster,
@@ -92,7 +127,7 @@ module Ironfan
       #     or make another and mark both :duplicate_instance
       #   or make a new machine and mark it :unexpected_instance
       def correlate_instances!
-        each_instance_of(expectations) do |instance|
+        each_instance_of(expected) do |instance|
           match = machines.values.select {|m| instance.matches? m }.first
           if match.nil?
             match = Machine.new
@@ -114,17 +149,25 @@ module Ironfan
         providers.values.map {|p| p.instances_of(expect) }.flatten
       end
 
-      # def slice facet_name=nil, slice_indexes=nil
-      #   return Ironfan::ServerSlice.new(self, self.servers) if facet_name.nil?
-      #   find_facet(facet_name).slice(slice_indexes)
-      # end
-      def slice facet_name=nil, slice_indexes=nil
-        return machines.values if facet_name.nil?
-        owner_name = "#{expectations.full_name}-#{facet_name}"
-        facet = machines.values.select {|m| m.expectation.owner_name == owner_name }
-        return facet if slice_indexes.nil?
-        facet.select {|m| slice_indexes.include? m.expectation.name.to_s }
-        # TODO: Fix this to include bogus machines
+      # Find all selected machines, as well as any bogus machines from discovery
+      def slice(facet_name=nil, slice_indexes=nil)
+        return machines if facet_name.nil?
+        result = MachineCollection.new
+
+        owner_name = "#{expected.full_name}-#{facet_name}"
+        facet = machines.values.select do |m| # Always show bogus nodes
+          !m.bogosity.nil? or m.expected.owner_name == owner_name
+        end
+        return result.receive! facet if slice_indexes.nil?
+
+        raise "Bad slice_indexes: #{slice_indexes}" if slice_indexes =~ /[^0-9\.,]/
+        slice_array = eval("[#{slice_indexes}]").map do |idx|
+          idx.class == Range ? idx.to_a : idx
+        end.flatten
+        servers = facet.select do |m|
+          !m.bogosity.nil? or slice_array.include? m.expected.index
+        end
+        result.receive! servers
       end
     end
 

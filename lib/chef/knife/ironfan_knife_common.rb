@@ -42,14 +42,13 @@ module Ironfan
       #   to compare their results. This loads the parallel cluster definition that
       #   was built via load_cluster above.
       dsl = Ironfan.class_variable_get(:@@clusters)[cluster_name]
-      conductor = Ironfan::Broker::Conductor.new
-      conductor.discover!(dsl)
-      pp conductor.slice(facet_name, slice_indexes)
-      raise NotImplementedError, "slice not fully implemented for #{self.class}"
-
-      cluster.resolve!
-      cluster.discover!
-      cluster.slice(facet_name, slice_indexes)
+      conductor = Ironfan::Broker::Conductor.new(:expected => dsl)
+      conductor.discover!
+      conductor.slice(facet_name, slice_indexes)
+# 
+#       cluster.resolve!
+#       cluster.discover!
+#       cluster.slice(facet_name, slice_indexes)
     end
 
     def predicate_str(cluster_name, facet_name, slice_indexes)

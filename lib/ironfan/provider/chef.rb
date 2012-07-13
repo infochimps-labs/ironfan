@@ -16,8 +16,15 @@ module Ironfan
         end
         
         def matches?(machine)
-          machine.expectation.full_name == name 
+          machine.expected.full_name == name 
         end
+
+        def display_values(style)
+          {
+            "Chef?" =>          native.nil? ? "no" : "yes"
+          }
+        end
+
       end
 
       class Role < Ironfan::Provider::Resource
@@ -35,7 +42,7 @@ module Ironfan
         collection :nodes,      Ironfan::Provider::ChefServer::Node
         collection :clients,    Ironfan::Provider::ChefServer::Client
 
-        def discover!(cluster)
+        def discover!(cluster) 
           discover_nodes! cluster
           discover_clients! cluster
         end
