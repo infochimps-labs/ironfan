@@ -3,6 +3,7 @@ module Ironfan
     class Compute < Ironfan::Dsl::Builder
       @@run_list_rank = 0
       field      :owner_name,   String
+      field      :name,         String
 
       # Resolve each of the following as a merge of their container's attributes and theirs
       collection :run_list_items, Hash,                    :resolver => :merge_resolve
@@ -29,7 +30,7 @@ module Ironfan
       def full_name
         fn = name
         fn = "#{owner_name}-#{name}" unless owner_name.nil?
-        fn.to_s
+        fn
       end
 
       # Add the given role/recipe to the run list. You can specify placement of
