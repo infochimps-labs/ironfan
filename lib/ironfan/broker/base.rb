@@ -22,14 +22,16 @@ module Ironfan
         "unnamed:#{object_id}"
       end
 
-      def display_values(style)
-        values =                {}
+      def display_values(style,values={})
+        available_styles = [:minimal,:default,:expanded]
+        raise "Bad display style #{style}" unless available_styles.include? style
+
         values["Name"] =        name
-        values["Chef?"] =       "no"            if chef_node.nil?
-        values["State"] =       "not running"   if instance.nil?
+        values["Chef?"] =       "no"
+        values["State"] =       "not running"
 
         [ expected, chef_node, instance ].each do |source|
-          values.merge! source.display_values(style) unless source.nil?
+          values = source.display_values(style, values) unless source.nil?
         end
         values
       end

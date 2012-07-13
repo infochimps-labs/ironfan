@@ -19,10 +19,9 @@ module Ironfan
           machine.expected.full_name == name 
         end
 
-        def display_values(style)
-          {
-            "Chef?" =>          native.nil? ? "no" : "yes"
-          }
+        def display_values(style,values={})
+          values["Chef?"] =     native.nil? ? "no" : "yes"
+          values
         end
 
       end

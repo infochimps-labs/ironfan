@@ -26,6 +26,17 @@ module Ironfan
         magic :mount_ephemerals,        Whatever       # TODO: This needs better handling
         collection :security_groups,    Ironfan::Dsl::Ec2::SecurityGroup
         magic :public_ip,               String
+
+        def display_values(style,values={})
+          return values if style == :minimal
+
+          values["Flavor"] =            flavor
+          values["AZ"] =                availability_zones.first
+          return values if style == :default
+
+          values["Elastic IP"] =        public_ip if public_ip
+          values
+        end
       end
 
       class VirtualBox < Base

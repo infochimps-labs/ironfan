@@ -15,8 +15,7 @@ module Ironfan
             name == machine.expected.full_name
         end
 
-        def display_values(style)
-          values = {}
+        def display_values(style,values={})
           # style == :minimal
           values["State"] =             native.state.to_sym
           values["InstanceID"] =        native.id
