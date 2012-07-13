@@ -7,6 +7,10 @@ module Ironfan
     class Resource
       include Gorillib::Builder
 #       field :provider,          Ironfan::Provider::Connection
+
+        def matches?(machine)
+          raise NotImplementedError, "matches? not implemented for #{self.class}"
+        end
     end
 
     class Connection
@@ -44,8 +48,8 @@ module Ironfan
     
     class IaasConnection < Connection
       collection :instances,    Ironfan::Provider::Instance
-      def discover_machines!
-        raise NotImplementedError, "discover_machines! not implemented for #{self.class}"
+      def discover_instances!
+        raise NotImplementedError, "discover_instances! not implemented for #{self.class}"
       end
     end
 
