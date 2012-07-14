@@ -42,6 +42,11 @@ class Chef
         :description => "Where to find the pid file. Typically /var/run/chef/client.pid (init.d) or /etc/sv/chef-client/supervise/pid (runit)",
         :default     => "/etc/sv/chef-client/supervise/pid"
 
+      option :log_file,
+        :long        => "--log_file",
+        :description => "Where to find the log file. Typically /var/run/chef/client.pid (init.d) or /etc/sv/chef-client/log/main/current (runit)",
+        :default     => "/etc/sv/chef-client/log/main/current"
+
       def run
         @name_args = [ @name_args.join('-') ]
         config[:display_target] = true
@@ -62,7 +67,7 @@ if sudo  -p 'knife sudo password: ' service chef-client status ; then
 
 # running
 pid_file="<%= config[:pid_file] %>"
-log_file=/var/log/chef/client.log
+log_file=<%= config[:log_file] %>
 
 declare tail_pid
 
@@ -76,7 +81,7 @@ trap "on_exit" EXIT ERR
 pipe=/tmp/pipe-$$
 mkfifo $pipe
 
-tail -fn0 "$log_file" > $pipe &
+tail -Fn0 "$log_file" > $pipe &
 
 tail_pid=$!
 
