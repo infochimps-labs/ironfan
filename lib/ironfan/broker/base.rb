@@ -34,9 +34,10 @@ module Ironfan
         [ server, node, instance ].each do |source|
           values = source.display_values(style, values) unless source.nil?
         end
-        values["Launchable"] =  launchable?
-        values["Bogus"] =       bogosity unless bogosity.nil?
-        values
+        values["Launchable"] =  launchable? ? "yes" : "no" if style == :expanded
+        values["Bogus"] =       bogosity
+        # Only show values that actually have something to show
+        values.select {|k,v| !v.to_s.empty?}
       end
 
       def server?()     !server.nil?;                   end
