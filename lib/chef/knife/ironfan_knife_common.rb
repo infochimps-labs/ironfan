@@ -38,7 +38,7 @@ module Ironfan
       ui.info("Inventorying servers in #{predicate_str(cluster_name, facet_name, slice_indexes)}")
       cluster = Ironfan.load_cluster(cluster_name)
 
-      conductor = Ironfan::Broker::Conductor.new(:expected => cluster)
+      conductor = Ironfan::Broker::Conductor.new(:cluster => cluster)
       conductor.discover!
       conductor.slice(facet_name, slice_indexes)
 # 

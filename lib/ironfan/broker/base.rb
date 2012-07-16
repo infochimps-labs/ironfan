@@ -9,16 +9,16 @@ module Ironfan
 
     class Machine
       include Gorillib::Builder
-      field :current,           Ironfan::Provider::Instance
-      field :expected,          Ironfan::Dsl::Server
-      field :remembered,        Ironfan::Provider::ChefServer::Node
+      field :instance,          Ironfan::Provider::Instance
+      field :server,            Ironfan::Dsl::Server
+      field :node,              Ironfan::Provider::ChefServer::Node
 
       field :bogosity,          Symbol
 
       def name()
-        return expected.full_name       unless expected.nil?
-        return remembered.name          unless remembered.nil?
-        return current.name             unless current.nil?
+        return server.fullname  if server?
+        return node.name        if node?
+        return instance.name    if instance?
         "unnamed:#{object_id}"
       end
 
@@ -31,10 +31,28 @@ module Ironfan
         values["Chef?"] =       "no"
         values["State"] =       "not running"
 
-        [ expected, remembered, current ].each do |source|
+        [ server, node, instance ].each do |source|
           values = source.display_values(style, values) unless source.nil?
         end
+        values["Launchable"] =  launchable?
         values
+      end
+
+      def server?()     !server.nil?;                   end
+      def node?()       !node.nil?;                     end
+      def instance?()   !instance.nil?;                 end
+
+      def created?()    instance? && instance.created?; end
+      def launchable?() not created?;                   end
+
+      def killable?
+        return false if permanent?
+        node? || created?
+      end
+
+      def permanent?
+        return false unless server.selected_cloud.respond_to? :permanent
+        [true, :true, 'true'].include? server.selected_cloud.permanent
       end
     end
 
@@ -51,11 +69,30 @@ module Ironfan
           Formatador.display_compact_table(defined_data, headings.to_a)
         end
       end
+
+      # TODO: these are shims that gorillib says not to use
+      def select(&block)
+        self.class.receive(@clxn.values.select(&block))
+      end
+      def none?(&block)
+        @clxn.values.none?(&block)
+      end
+      def map(&block)
+        @clxn.values.map(&block)
+      end
+
+      def bogus_servers
+        select(&:bogosity)
+      end
+
+      def joined_names
+        map(&:name).join(", ").gsub(/, ([^,]*)$/, ' and \1')
+      end
     end
 
     class Conductor
       include Gorillib::Builder
-      field :expected,          Ironfan::Dsl::Cluster
+      field :cluster,           Ironfan::Dsl::Cluster
 
       field :chef,              Ironfan::Provider::ChefServer::Connection,
             :default =>         Ironfan::Provider::ChefServer::Connection.new
@@ -73,22 +110,22 @@ module Ironfan
         correlate_machines!
       end
 
-      def receive_expected(cluster)
+      def receive_cluster(cluster)
         cluster.expand_servers          # vivify each facet's Servers
         super(cluster.resolve)          # resolve the cluster attributes before saving
       end
 
       def discover_resources!
         # Get all relevant chef resources for the cluster.
-        chef.discover! expected
+        chef.discover! cluster
 
         # Ensure all providers referenced by the DSL are available, and have
         #   them each survey their applicable resources.
-        expected.servers.each {|server| provider(server.selected_cloud.name) }
-        providers.each {|p| p.discover! expected }
+        cluster.servers.each {|server| provider(server.selected_cloud.name) }
+        providers.each {|p| p.discover! cluster }
       end
 
-      # Correlate expectations with Chef resources, and IaaS machines 
+      # Correlate servers with Chef resources, and IaaS machines 
       #   and related Provider resources. Create "nonexistent" machines
       #   for each un-satisfied server expectation.
       def correlate_machines!
@@ -97,11 +134,11 @@ module Ironfan
         correlate_instances!
       end
 
-      # for all expected, set up a bare machine
+      # for all server, set up a bare machine
       def expected_machines!
-        expected.servers.each do |server|
+        cluster.servers.each do |server|
           m = Machine.new
-          m.expected = server
+          m.server = server
           machines << m
         end
         machines
@@ -118,7 +155,7 @@ module Ironfan
             match.bogosity = :unexpected_node
             machines << match
           end
-          match.remembered = node
+          match.node = node
         end
       end
 
@@ -128,19 +165,19 @@ module Ironfan
       #     or make another and mark both :duplicate_instance
       #   or make a new machine and mark it :unexpected_instance
       def correlate_instances!
-        each_instance_of(expected) do |instance|
+        each_instance_of(cluster) do |instance|
           match = machines.values.select {|m| instance.matches? m }.first
           if match.nil?
             match = Machine.new
             match.bogosity = :unexpected_instance
             machines << match
           end
-          unless match.current.nil?
+          unless match.instance.nil?
             match.bogosity = :duplicate_instance
             copy = match.dup
             matches << copy
           end
-          match.current = instance
+          match.instance = instance
         end
       end
       def each_instance_of(expect,&block)
@@ -155,9 +192,9 @@ module Ironfan
         return machines if facet_name.nil?
         result = MachineCollection.new
 
-        owner_name = "#{expected.full_name}-#{facet_name}"
+        owner_name = "#{cluster.fullname}-#{facet_name}"
         facet = machines.values.select do |m| # Always show bogus nodes
-          !m.bogosity.nil? or m.expected.owner_name == owner_name
+          !m.bogosity.nil? or m.server.owner_name == owner_name
         end
         return result.receive! facet if slice_indexes.nil?
 
@@ -166,7 +203,7 @@ module Ironfan
           idx.class == Range ? idx.to_a : idx
         end.flatten
         servers = facet.select do |m|
-          !m.bogosity.nil? or slice_array.include? m.expected.index
+          !m.bogosity.nil? or slice_array.include? m.server.index
         end
         result.receive! servers
       end

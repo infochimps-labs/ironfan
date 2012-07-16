@@ -93,11 +93,11 @@ class Chef
         display(target)
       end
 
-      def display(target)
-        super(target, ["Name", "InstanceID", "State", "Flavor", "Image", "AZ", "Public IP", "Private IP", "Created At", 'Volumes', 'Elastic IP']) do |svr|
-          { 'launchable?' => (svr.launchable? ? "[blue]#{svr.launchable?}[reset]" : '-' ), }
-        end
-      end
+#       def display(target)
+#         super(target, ["Name", "InstanceID", "State", "Flavor", "Image", "AZ", "Public IP", "Private IP", "Created At", 'Volumes', 'Elastic IP']) do |svr|
+#           { 'launchable?' => (svr.launchable? ? "[blue]#{svr.launchable?}[reset]" : '-' ), }
+#         end
+#       end
 
       def perform_after_launch_tasks(server)
         # Wait for node creation on amazon side

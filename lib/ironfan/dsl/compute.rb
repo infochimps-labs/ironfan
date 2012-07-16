@@ -21,13 +21,13 @@ module Ironfan
       def initialize(attrs={},&block)
         if attrs[:owner]
           self.underlay   = attrs[:owner]
-          self.owner_name = attrs[:owner].full_name
+          self.owner_name = attrs[:owner].fullname
         end
         super(attrs,&block)
         self
       end
 
-      def full_name
+      def fullname
         fn = name
         fn = "#{owner_name}-#{name}" unless owner_name.nil?
         fn

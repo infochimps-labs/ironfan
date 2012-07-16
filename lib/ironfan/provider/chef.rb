@@ -14,21 +14,21 @@ module Ironfan
             :cookbook_collection, :cookbook_collection=, :couchdb, :couchdb=, 
             :couchdb_id, :couchdb_id=, :couchdb_rev, :couchdb_rev=, :create, 
             :default, :default_attrs, :default_attrs=, :default_unless, 
-            :delete_from_index, :destroy, :display_hash, :each, :each_attribute, 
-            :each_key, :each_value, :expand!, :find_file, :from_file, :has_key?, 
-            :include_attribute, :index_id, :index_id=, :index_object_type, :key?, 
-            :keys, :load_attribute_by_short_filename, :load_attributes, 
-            :method_missing, :name, :node, :normal, :normal_attrs, 
-            :normal_attrs=, :normal_unless, :override, :override_attrs, 
-            :override_attrs=, :override_unless, :recipe?, :recipe_list, 
-            :recipe_list=, :reset_defaults_and_overrides, :role?, :run_list, 
-            :run_list=, :run_list?, :run_state, :run_state=, :save, :set, 
-            :set_if_args, :set_or_return, :set_unless, :store, :tags, :to_hash, 
-            :update_from!, :validate, :with_indexer_metadata,
+            :delete_from_index, :destroy, :display_hash, :each, 
+            :each_attribute, :each_key, :each_value, :expand!, :find_file, 
+            :from_file, :has_key?, :include_attribute, :index_id, :index_id=, 
+            :index_object_type, :key?, :keys, :load_attribute_by_short_filename, 
+            :load_attributes, :method_missing, :name, :node, :normal, 
+            :normal_attrs, :normal_attrs=, :normal_unless, :override, 
+            :override_attrs, :override_attrs=, :override_unless, :recipe?, 
+            :recipe_list, :recipe_list=, :reset_defaults_and_overrides, :role?, 
+            :run_list, :run_list=, :run_list?, :run_state, :run_state=, :save, 
+            :set, :set_if_args, :set_or_return, :set_unless, :store, :tags, 
+            :to_hash, :update_from!, :validate, :with_indexer_metadata,
           :to => :adaptee
 
         def matches?(machine)
-          machine.expected.full_name == name 
+          machine.server.fullname == name 
         end
 
         def display_values(style,values={})
@@ -42,8 +42,13 @@ module Ironfan
       end
 
       class Client < Ironfan::Provider::Resource
-        field    :adaptee,       Whatever
-        delegate :name,         :to => :adaptee
+        delegate :add_to_index, :admin, :cdb_destroy, :cdb_save, 
+            :class_from_file, :couchdb, :couchdb=, :couchdb_id, :couchdb_id=, 
+            :couchdb_rev, :couchdb_rev=, :create, :create_keys, 
+            :delete_from_index, :destroy, :from_file, :index_id, :index_id=, 
+            :index_object_type, :name, :private_key, :public_key, :save, 
+            :set_or_return, :to_hash, :validate, :with_indexer_metadata,
+          :to => :adaptee
       end
 
       # 
@@ -67,7 +72,7 @@ module Ironfan
         end
         
         def find_node(server)
-          nodes[server.full_name]
+          nodes[server.fullname]
         end
         
         def discover_clients!(cluster)
