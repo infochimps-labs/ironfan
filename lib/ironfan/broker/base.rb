@@ -35,6 +35,7 @@ module Ironfan
           values = source.display_values(style, values) unless source.nil?
         end
         values["Launchable"] =  launchable?
+        values["Bogus"] =       bogosity unless bogosity.nil?
         values
       end
 
@@ -54,6 +55,9 @@ module Ironfan
         return false unless server.selected_cloud.respond_to? :permanent
         [true, :true, 'true'].include? server.selected_cloud.permanent
       end
+
+      def destroy_instance()    instance.destroy && instance = nil;     end
+      def destroy_node()        node.destroy && node = nil;             end
     end
 
     class MachineCollection < Gorillib::ModelCollection

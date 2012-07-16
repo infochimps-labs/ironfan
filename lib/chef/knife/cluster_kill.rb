@@ -52,7 +52,7 @@ class Chef
 
         if config[:chef]
           section("Killing Chef")
-          target.select(&:node?).each(&:destroy_chef)
+          target.select(&:node?).each(&:destroy_node)
         end
       end
 
@@ -63,11 +63,11 @@ class Chef
       end
 
       def confirm_execution(target)
-        chef_nodes      = target.map(&:node)
-        fog_servers     = target.map(&:instance)
+        nodes           = target.map(&:node)
+        instances       = target.map(&:instance)
         delete_message = [
-          (((!config[:chef])   || chef_nodes.empty?)  ? nil : "#{chef_nodes.length} chef nodes"),
-          (((!config[:cloud])  || fog_servers.empty?) ? nil : "#{fog_servers.length} fog servers") ].compact.join(" and ")
+          (((!config[:chef])   || nodes.empty?)  ? nil : "#{nodes.length} chef nodes"),
+          (((!config[:cloud])  || instances.empty?) ? nil : "#{instances.length} fog servers") ].compact.join(" and ")
         confirm_or_exit("Are you absolutely certain that you want to delete #{delete_message}? (Type 'Yes' to confirm) ", 'Yes')
       end
 

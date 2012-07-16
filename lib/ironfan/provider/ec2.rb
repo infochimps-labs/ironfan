@@ -47,8 +47,8 @@ module Ironfan
         #   why they should lack this information . . . 
         def matches?(machine)
           return false unless name == machine.server.fullname
-          return true if state == 'stopped'
-          id == machine.remembered[:ec2][:instance_id]
+          return true if %w[stopped terminated].include? state
+          id == machine.node[:ec2][:instance_id]
         end
 
         def created?
