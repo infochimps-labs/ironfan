@@ -54,6 +54,9 @@ module Ironfan
         def created?
           not ['terminated', 'shutting-down'].include? state
         end
+        def stopped?
+          state == "stopped"
+        end
 
         def display_values(style,values={})
           # style == :minimal

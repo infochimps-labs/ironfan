@@ -34,11 +34,15 @@ module Ironfan
         [ server, node, instance ].each do |source|
           values = source.display_values(style, values) unless source.nil?
         end
-        values["Launchable"] =  launchable? ? "yes" : "no" if style == :expanded
+        if style == :expanded
+          values["Startable"]  = display_boolean(stopped?)
+          values["Launchable"] = display_boolean(launchable?)
+        end
         values["Bogus"] =       bogosity
         # Only show values that actually have something to show
         values.select {|k,v| !v.to_s.empty?}
       end
+      def display_boolean(value)        value ? "yes" : "no";   end
 
       def server?()     !server.nil?;                   end
       def node?()       !node.nil?;                     end
@@ -46,6 +50,7 @@ module Ironfan
 
       def created?()    instance? && instance.created?; end
       def launchable?() not created?;                   end
+      def stopped?()    created? && instance.stopped?;  end
 
       def killable?
         return false if permanent?
