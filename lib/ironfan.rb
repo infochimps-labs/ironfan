@@ -82,12 +82,12 @@ module Ironfan
     name = name.to_sym
 
     # Test the inactive DSL construction, compared to the active
-    i = ( @@clusters[name] ||= Ironfan::Dsl::Cluster.new({:name => name}) )
-    i.receive!(attrs, &block)
-
-    cl = ( self.clusters[name] ||= Ironfan::Cluster.new(name) )
+    cl = ( @@clusters[name] ||= Ironfan::Dsl::Cluster.new({:name => name}) )
     cl.receive!(attrs, &block)
-    cl
+# 
+#     cl = ( self.clusters[name] ||= Ironfan::Cluster.new(name) )
+#     cl.receive!(attrs, &block)
+#     cl
   end
 
   #
@@ -107,9 +107,9 @@ module Ironfan
     Chef::Log.info("Loading cluster #{cluster_file}")
 
     require cluster_file
-    unless clusters[cluster_name] then  die("#{cluster_file} was supposed to have the definition for the #{cluster_name} cluster, but didn't") end
+    unless @@clusters[cluster_name] then  die("#{cluster_file} was supposed to have the definition for the #{cluster_name} cluster, but didn't") end
 
-    clusters[cluster_name]
+    @@clusters[cluster_name]
   end
 
   #

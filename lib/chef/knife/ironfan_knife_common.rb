@@ -38,11 +38,7 @@ module Ironfan
       ui.info("Inventorying servers in #{predicate_str(cluster_name, facet_name, slice_indexes)}")
       cluster = Ironfan.load_cluster(cluster_name)
 
-      # FIXME: Temporary discovery coding, running alongside current active cluster
-      #   to compare their results. This loads the parallel cluster definition that
-      #   was built via load_cluster above.
-      dsl = Ironfan.class_variable_get(:@@clusters)[cluster_name]
-      conductor = Ironfan::Broker::Conductor.new(:expected => dsl)
+      conductor = Ironfan::Broker::Conductor.new(:expected => cluster)
       conductor.discover!
       conductor.slice(facet_name, slice_indexes)
 # 
@@ -142,7 +138,7 @@ module Ironfan
     def run_bootstrap(node, hostname)
       bs = bootstrapper(node, hostname)
       if config[:skip].to_s == 'true'
-        ui.info "Skipping: bootstrapp #{hostname} with #{JSON.pretty_generate(bs.config)}"
+        ui.info "Skipping: bootstrap #{hostname} with #{JSON.pretty_generate(bs.config)}"
         return
       end
       begin
