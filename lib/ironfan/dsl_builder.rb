@@ -22,8 +22,8 @@ module Gorillib
 
     def merge_resolve(field_name)
       result = self.class.fields[field_name].type.new
-      result.receive! read_underlay_attribute(field_name) || {}
-      result.receive! read_set_attribute(field_name) || {}
+      result.receive! (read_underlay_attribute(field_name) || {})
+      result.receive! (read_set_attribute(field_name) || {})
       return result unless result.empty?
       read_unset_attribute(field_name)
     end

@@ -6,21 +6,33 @@ module Ironfan
       # Resources
       #
       class Node < Ironfan::Provider::Resource
-        field    :native,       Whatever
-        delegate :name,         :to => :native
-        
-        def initialize(chef_node,*args,&block)
-          super(*args,&block)
-          self.native = chef_node
-          self
-        end
-        
+        delegate :[], :[]=, :add_to_index, :apply_expansion_attributes, 
+            :attribute, :attribute=, :attribute?, :automatic_attrs, 
+            :automatic_attrs=, :cdb_destroy, :cdb_save, :chef_environment, 
+            :chef_server_rest, :class_from_file, :construct_attributes, 
+            :consume_attributes, :consume_external_attrs, :consume_run_list, 
+            :cookbook_collection, :cookbook_collection=, :couchdb, :couchdb=, 
+            :couchdb_id, :couchdb_id=, :couchdb_rev, :couchdb_rev=, :create, 
+            :default, :default_attrs, :default_attrs=, :default_unless, 
+            :delete_from_index, :destroy, :display_hash, :each, :each_attribute, 
+            :each_key, :each_value, :expand!, :find_file, :from_file, :has_key?, 
+            :include_attribute, :index_id, :index_id=, :index_object_type, :key?, 
+            :keys, :load_attribute_by_short_filename, :load_attributes, 
+            :method_missing, :name, :node, :normal, :normal_attrs, 
+            :normal_attrs=, :normal_unless, :override, :override_attrs, 
+            :override_attrs=, :override_unless, :recipe?, :recipe_list, 
+            :recipe_list=, :reset_defaults_and_overrides, :role?, :run_list, 
+            :run_list=, :run_list?, :run_state, :run_state=, :save, :set, 
+            :set_if_args, :set_or_return, :set_unless, :store, :tags, :to_hash, 
+            :update_from!, :validate, :with_indexer_metadata,
+          :to => :adaptee
+
         def matches?(machine)
           machine.expected.full_name == name 
         end
 
         def display_values(style,values={})
-          values["Chef?"] =     native.nil? ? "no" : "yes"
+          values["Chef?"] =     adaptee.nil? ? "no" : "yes"
           values
         end
 
@@ -30,8 +42,8 @@ module Ironfan
       end
 
       class Client < Ironfan::Provider::Resource
-        field    :native,       Whatever
-        delegate :name,         :to => :native
+        field    :adaptee,       Whatever
+        delegate :name,         :to => :adaptee
       end
 
       # 
@@ -48,8 +60,8 @@ module Ironfan
         
         def discover_nodes!(cluster)
           return nodes unless nodes.empty?
-          Chef::Search::Query.new.search(:node,"cluster_name:#{cluster.name}") do |n|
-            nodes << Node.new(n) unless n.blank?
+          Chef::Search::Query.new.search(:node,"cluster_name:#{cluster.name}") do |node|
+            nodes << Node.new(:adaptee => node) unless node.blank?
           end
           nodes
         end
@@ -66,18 +78,20 @@ module Ironfan
           # back.  FIXME: While the Opscode platform is 0.10.4 I have clientname
           # first (sorry, people of the future). When it switches to 0.10.8 we'll
           # reverse them (suck it people of the past).
-          chef_search = Chef::Search::Query.new
-          api_clients,x,y = chef_search.search(:client, "clientname:#{cluster.name}-*") ; api_clients.compact!
-          api_clients,x,y = chef_search.search(:client, "name:#{cluster.name}-*") if api_clients.blank?
+          api_clients = _find_clients(cluster.name,"clientname")
+          api_clients = _find_clients(cluster.name) if api_clients.blank?
           api_clients.each do |api_client|
             # Sometimes the server returns nil results on recently-expired clients
             next if api_client.nil?
             # Return values from Chef::Search seem to be inconsistent across chef
             # versions (sometimes a hash, sometimes an object)
             api_client = Chef::ApiClient.json_create(api_client) unless api_client.is_a?(Chef::ApiClient)
-            clients << Client.new(:native => api_client)
+            clients << Client.new(:adaptee => api_client)
           end
           clients
+        end
+        def _find_clients(name,key="name")
+          Chef::Search::Query.new.search(:client,"#{key}:#{name}-*")[0].compact
         end
       end
 

@@ -1,7 +1,7 @@
 # require 'ironfan/provider/chef'
 
 # This module is intended to read in a cluster DSL description, and broker
-#   out to the various cloud providers to survey the existing instances and
+#   out to the various cloud providers, to control instance life-cycle and
 #   handle provider-specific amenities (SecurityGroup, Volume, etc.) for 
 #   them.
 module Ironfan
@@ -9,16 +9,16 @@ module Ironfan
 
     class Machine
       include Gorillib::Builder
-      field :chef_node,         Ironfan::Provider::ChefServer::Node
+      field :current,           Ironfan::Provider::Instance
       field :expected,          Ironfan::Dsl::Server
-      field :instance,          Ironfan::Provider::Instance
+      field :remembered,        Ironfan::Provider::ChefServer::Node
+
       field :bogosity,          Symbol
 
-      def key_method()          :object_id;     end
       def name()
         return expected.full_name       unless expected.nil?
-        return chef_node.name           unless chef_node.nil?
-        return instance.name            unless instance.nil?
+        return remembered.name          unless remembered.nil?
+        return current.name             unless current.nil?
         "unnamed:#{object_id}"
       end
 
@@ -27,10 +27,11 @@ module Ironfan
         raise "Bad display style #{style}" unless available_styles.include? style
 
         values["Name"] =        name
+        # We expect these to be over-ridden by the contained classes
         values["Chef?"] =       "no"
         values["State"] =       "not running"
 
-        [ expected, chef_node, instance ].each do |source|
+        [ expected, remembered, current ].each do |source|
           values = source.display_values(style, values) unless source.nil?
         end
         values
@@ -38,10 +39,8 @@ module Ironfan
     end
 
     class MachineCollection < Gorillib::ModelCollection
-      def initialize(key_meth=nil,obj_factory=nil)
-        obj_factory ||= Machine
-        super(key_meth, obj_factory)
-      end
+      self.item_type =  Machine
+      self.key_method = :object_id
 
       def display(style)
         defined_data = @clxn.map {|k,m| m.display_values(style) }
@@ -75,7 +74,7 @@ module Ironfan
       end
 
       def receive_expected(cluster)
-        cluster.expand_servers          # vivify each facet's Server instances
+        cluster.expand_servers          # vivify each facet's Servers
         super(cluster.resolve)          # resolve the cluster attributes before saving
       end
 
@@ -112,18 +111,18 @@ module Ironfan
       #   find a machine that matches and attach,
       #   or make a new machine and mark it :unexpected_node
       def correlate_nodes!
-        chef.nodes.each do |chef_node|
-          match = machines.values.select {|m| chef_node.matches? m }.first
+        chef.nodes.each do |node|
+          match = machines.values.select {|m| node.matches? m }.first
           if match.nil?
             match = Machine.new
             match.bogosity = :unexpected_node
             machines << match
           end
-          match.chef_node = chef_node
+          match.remembered = node
         end
       end
 
-      # for each provider instances that matches the cluster,
+      # for each provider instance that matches the cluster,
       #   find a machine that matches
       #     attach instance to machine if there isn't one,
       #     or make another and mark both :duplicate_instance
@@ -136,12 +135,12 @@ module Ironfan
             match.bogosity = :unexpected_instance
             machines << match
           end
-          unless match.instance.nil?
+          unless match.current.nil?
             match.bogosity = :duplicate_instance
             copy = match.dup
             matches << copy
           end
-          match.instance = instance
+          match.current = instance
         end
       end
       def each_instance_of(expect,&block)

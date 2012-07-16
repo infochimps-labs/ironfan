@@ -1,3 +1,7 @@
+# Providers present a lightweight wrapper for various third-party services,
+#   such as Chef's node and client APIs, and Amazon's EC2 APIs. This allows
+#   Ironfan ask specialized questions (such as whether a given resource 
+#   matches
 module Ironfan
   module Provider
 
@@ -6,11 +10,11 @@ module Ironfan
     #
     class Resource
       include Gorillib::Builder
-#       field :provider,          Ironfan::Provider::Connection
+      field    :adaptee,        Whatever
 
-        def matches?(machine)
-          raise NotImplementedError, "matches? not implemented for #{self.class}"
-        end
+      def matches?(machine)
+        raise NotImplementedError, "matches? not implemented for #{self.class}"
+      end
     end
 
     class Connection
@@ -35,15 +39,6 @@ module Ironfan
     # Iaas Instance and Connection
     #
     class Instance < Resource
-      field    :native, Whatever
-
-      def initialize(fog_server=nil,*args,&block)
-        super(*args,&block)
-        self.native = fog_server
-        self
-      end
-
-      def key_method()  :object_id;     end
     end
     
     class IaasConnection < Connection
