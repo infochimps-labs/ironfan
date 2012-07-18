@@ -67,30 +67,6 @@ module Ironfan
       def destroy_instance()    instance.destroy && instance = nil;     end
       def destroy_node()        node.destroy && node = nil;             end
     end
-# 
-#     class MachineCollection < Gorillib::ModelCollection
-#       self.item_type =  Machine
-#       self.key_method = :object_id
-# 
-#       # TODO: these are shims that gorillib says not to use
-#       def select(&block)
-#         self.class.receive(@clxn.values.select(&block))
-#       end
-#       def none?(&block)
-#         @clxn.values.none?(&block)
-#       end
-#       def map(&block)
-#         @clxn.values.map(&block)
-#       end
-# 
-#       def bogus_servers
-#         select(&:bogosity)
-#       end
-# 
-#       def joined_names
-#         map(&:name).join(", ").gsub(/, ([^,]*)$/, ' and \1')
-#       end
-#     end
 
     class Conductor
       include Gorillib::Builder
@@ -106,7 +82,7 @@ module Ironfan
 
       def initialize(*args,&block)
         super(*args,&block)
-        @machines =             MachineCollection.new
+#         @machines =             MachineCollection.new
       end
 
       def discover!
@@ -219,7 +195,7 @@ module Ironfan
       end
 
       def display(style,&block)
-        defined_data = machines.map {|m| m.display_values(style) }
+        defined_data = machines.values.map {|m| m.display_values(style) }
         if defined_data.empty?
           ui.info "Nothing to report"
         else
