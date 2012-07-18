@@ -47,24 +47,28 @@ class Chef
       def perform_execution(target)
         if config[:cloud]
           section("Killing Cloud Machines")
-          target.select(&:instance?).each(&:destroy_instance)
+          target.machines.select(&:instance?).each(&:destroy_instance)
         end
 
         if config[:chef]
           section("Killing Chef")
-          target.select(&:node?).each(&:destroy_node)
+          target.machines.select(&:node?).each(&:destroy_node)
         end
       end
 
       def display(target, *args, &block)
         super
-        ui.info Formatador.display_line("servers with [red]'permanent=true'[reset] ignored: [blue]#{target.select(&:permanent?).map(&:fullname).inspect}[reset]. (To kill, change 'permanent' to false, run knife cluster sync, and re-try)") unless target.none?(&:permanent?)
-        ui.info Formatador.display_line("[red]Bogus servers detected[reset]: [blue]#{target.bogus_servers.map(&:fullname).inspect}[reset]") unless target.bogus_servers.empty?
+
+        permanent = target.machines.values.select(&:permanent?)
+        ui.info Formatador.display_line("servers with [red]'permanent=true'[reset] ignored: [blue]#{permanent.map(&:name).inspect}[reset]. (To kill, change 'permanent' to false, run knife cluster sync, and re-try)") unless permanent.empty?
+
+        bogus = target.machines.values.select(&:bogus?)
+        ui.info Formatador.display_line("[red]Bogus servers detected[reset]: [blue]#{bogus.map(&:name).inspect}[reset]") unless bogus.empty?
       end
 
       def confirm_execution(target)
-        nodes           = target.map(&:node)
-        instances       = target.map(&:instance)
+        nodes           = target.machines.map(&:node).compact
+        instances       = target.machines.map(&:instance).compact
         delete_message = [
           (((!config[:chef])   || nodes.empty?)  ? nil : "#{nodes.length} chef nodes"),
           (((!config[:cloud])  || instances.empty?) ? nil : "#{instances.length} fog servers") ].compact.join(" and ")

@@ -46,6 +46,7 @@ module Ironfan
         #   still match against remembered instance_id; no reason I can see
         #   why they should lack this information . . . 
         def matches?(machine)
+          return false unless machine.server    # unexpected, cannot match
           return false unless name == machine.server.fullname
           return true if %w[stopped terminated].include? state
           id == machine.node[:ec2][:instance_id]

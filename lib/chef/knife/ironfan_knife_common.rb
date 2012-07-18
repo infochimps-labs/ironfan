@@ -41,10 +41,6 @@ module Ironfan
       conductor = Ironfan::Broker::Conductor.new(:cluster => cluster)
       conductor.discover!
       conductor.slice(facet_name, slice_indexes)
-# 
-#       cluster.resolve!
-#       cluster.discover!
-#       cluster.slice(facet_name, slice_indexes)
     end
 
     def predicate_str(cluster_name, facet_name, slice_indexes)
@@ -72,14 +68,14 @@ module Ironfan
     #
     def get_relevant_slice( *predicate )
       full_target = get_slice( *predicate )
-      display(full_target) do |svr|
-        rel = relevant?(svr)
+      display(full_target) do |m|
+        rel = relevant?(m)
         { :relevant? => (rel ? "[blue]#{rel}[reset]" : '-' ) }
       end
-      full_target.select{|svr| relevant?(svr) }
+      full_target.select_machines{|m| relevant?(m) }
     end
 
-    # passes target to ClusterSlice#display, will show headings in server slice
+    # passes target to Broker::Conductor#display, will show headings in server slice
     # tables based on the --verbose flag
     def display(target, display_style=nil, &block)
       display_style ||= (config[:verbosity] == 0 ? :default : :expanded)

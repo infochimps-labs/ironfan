@@ -47,6 +47,7 @@ module Ironfan
       def server?()     !server.nil?;                   end
       def node?()       !node.nil?;                     end
       def instance?()   !instance.nil?;                 end
+      def bogus?()      !bogosity.nil?;                 end
 
       def created?()    instance? && instance.created?; end
       def launchable?() not created?;                   end
@@ -58,6 +59,7 @@ module Ironfan
       end
 
       def permanent?
+        return false unless server?
         return false unless server.selected_cloud.respond_to? :permanent
         [true, :true, 'true'].include? server.selected_cloud.permanent
       end
@@ -65,43 +67,35 @@ module Ironfan
       def destroy_instance()    instance.destroy && instance = nil;     end
       def destroy_node()        node.destroy && node = nil;             end
     end
-
-    class MachineCollection < Gorillib::ModelCollection
-      self.item_type =  Machine
-      self.key_method = :object_id
-
-      def display(style)
-        defined_data = @clxn.map {|k,m| m.display_values(style) }
-        if defined_data.empty?
-          ui.info "Nothing to report"
-        else
-          headings = defined_data.map{|r| r.keys}.flatten.uniq
-          Formatador.display_compact_table(defined_data, headings.to_a)
-        end
-      end
-
-      # TODO: these are shims that gorillib says not to use
-      def select(&block)
-        self.class.receive(@clxn.values.select(&block))
-      end
-      def none?(&block)
-        @clxn.values.none?(&block)
-      end
-      def map(&block)
-        @clxn.values.map(&block)
-      end
-
-      def bogus_servers
-        select(&:bogosity)
-      end
-
-      def joined_names
-        map(&:name).join(", ").gsub(/, ([^,]*)$/, ' and \1')
-      end
-    end
+# 
+#     class MachineCollection < Gorillib::ModelCollection
+#       self.item_type =  Machine
+#       self.key_method = :object_id
+# 
+#       # TODO: these are shims that gorillib says not to use
+#       def select(&block)
+#         self.class.receive(@clxn.values.select(&block))
+#       end
+#       def none?(&block)
+#         @clxn.values.none?(&block)
+#       end
+#       def map(&block)
+#         @clxn.values.map(&block)
+#       end
+# 
+#       def bogus_servers
+#         select(&:bogosity)
+#       end
+# 
+#       def joined_names
+#         map(&:name).join(", ").gsub(/, ([^,]*)$/, ' and \1')
+#       end
+#     end
 
     class Conductor
       include Gorillib::Builder
+      field :ui,                Whatever,       :default => ->{Ironfan.ui}
+
       field :cluster,           Ironfan::Dsl::Cluster
 
       field :chef,              Ironfan::Provider::ChefServer::Connection,
@@ -182,7 +176,7 @@ module Ironfan
             match.bogosity = :unexpected_instance
             machines << match
           end
-          unless match.instance.nil?
+          if match.instance?
             match.bogosity = :duplicate_instance
             copy = match.dup
             matches << copy
@@ -197,27 +191,46 @@ module Ironfan
         providers.values.map {|p| p.instances_of(expect) }.flatten
       end
 
-      # Find all selected machines, as well as any bogus machines from discovery
+      # Find all selected machines, as well as any bogus machines from discovery,
+      #   and return a new Broker that only handles those machines
       def slice(facet_name=nil, slice_indexes=nil)
-        return machines if facet_name.nil?
-        result = MachineCollection.new
-
-        owner_name = "#{cluster.fullname}-#{facet_name}"
-        facet = machines.values.select do |m| # Always show bogus nodes
-          !m.bogosity.nil? or m.server.owner_name == owner_name
+        return self if facet_name.nil?
+        result =        self.class.new
+        f_fullname =    cluster.facet(facet_name).fullname
+        slice_array =   build_slice_array(slice_indexes)
+        machines.each do |m|
+          result.machines << m if (m.bogus? or (        # bogus machine or
+            ( m.server.owner_name == f_fullname ) and   # facet match and
+              ( slice_array.include? m.server.index or  #   index match or
+                slice_indexes.nil? ) ) )                #   no indexes specified
         end
-        return result.receive! facet if slice_indexes.nil?
-
-        raise "Bad slice_indexes: #{slice_indexes}" if slice_indexes =~ /[^0-9\.,]/
-        slice_array = eval("[#{slice_indexes}]").map do |idx|
-          idx.class == Range ? idx.to_a : idx
-        end.flatten
-        servers = facet.select do |m|
-          !m.bogosity.nil? or slice_array.include? m.server.index
-        end
-        result.receive! servers
+        result
       end
-    end
+      def build_slice_array(slice_indexes)
+        return [] if slice_indexes.nil?
+        raise "Bad slice_indexes: #{slice_indexes}" if slice_indexes =~ /[^0-9\.,]/
+        eval("[#{slice_indexes}]").map {|idx| idx.class == Range ? idx.to_a : idx}.flatten
+      end
 
+      def select_machines(&block)
+        result =        self.class.new
+        machines.each {|m| result.machines << m if yield m }
+        result
+      end
+
+      def display(style,&block)
+        defined_data = machines.map {|m| m.display_values(style) }
+        if defined_data.empty?
+          ui.info "Nothing to report"
+        else
+          headings = defined_data.map{|r| r.keys}.flatten.uniq
+          Formatador.display_compact_table(defined_data, headings.to_a)
+        end
+      end
+      def joined_names
+        machines.map(&:name).join(", ").gsub(/, ([^,]*)$/, ' and \1')
+      end
+
+    end
   end
 end
