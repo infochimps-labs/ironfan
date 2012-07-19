@@ -1,7 +1,13 @@
 module Ironfan
   module Dsl
+
     class Cluster < Ironfan::Dsl::Compute
       collection :facets,       Ironfan::Dsl::Facet,   :resolver => :deep_resolve
+
+      def initialize(attrs={},&block)
+        self.cluster_role       Ironfan::Dsl::Role.new(:name => "#{attrs[:name]}_cluster")
+        super
+      end
 
       def expand_servers
         facets.each {|facet| facet.expand_servers }
@@ -13,13 +19,7 @@ module Ironfan
         facets.each {|f| f.servers.each {|s| result << s} }
         result
       end
-
-      def roles
-        result = [ cluster_role ]
-        result += facets.values.map {|f| f.facet_role}
-        result.compact
-      end
-
     end
+
   end
 end
