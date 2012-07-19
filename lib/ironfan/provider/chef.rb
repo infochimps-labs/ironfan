@@ -46,9 +46,7 @@ module Ironfan
           values
         end
 
-        def sync!(broker)
-          raise 'hand'
-        end
+        def sync!()     save;   end
       end
 
       class Role < Ironfan::Provider::Resource
@@ -139,10 +137,11 @@ module Ironfan
       def sync!(machines)
         sync_roles! machines
         machines.each do |machine|
-          _ensure_node machine
+          ensure_node machine
+          machine.node.sync!
 #           _ensure_client machine
-          machine.node.sync! machine
 #           machine.client.sync! machine
+          raise 'incomplete'
         end
       end
       def sync_roles!(machines)
@@ -155,25 +154,19 @@ module Ironfan
 
         defs.each{|d| Role.new(:expected => d).save}
       end
-#       def _ensure_client(machine)
-#         return machine.client unless machine.client.nil?
-#         native = Chef::ApiClient.new()
-#         machine.client = Ironfan::Provider::ChefServer::Client.new(:adaptee => native)
-#       end
-      def _ensure_node(machine)
+      def ensure_node(machine)
         return machine.node unless machine.node.nil?
 
         # step("  setting node runlist and essential attributes")
         node =                          Node.new(:name => machine.name)
         server =                        machine.server
         node.chef_environment =         server.environment
-        node.run_list =                 server.run_list
+        node.run_list.instance_eval     { @run_list_items = server.run_list }
         organization =                  Chef::Config.organization
         node.normal[:organization] =    organization unless organization.nil?
         node.normal[:cluster_name] =    server.cluster_name
         node.normal[:facet_name] =      server.facet_name
 
-        pp node
         machine.node = node
       end
     end

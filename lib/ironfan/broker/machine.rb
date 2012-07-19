@@ -73,6 +73,7 @@ module Ironfan
       delegate :first, :map,
           :to           => :values
 
+      # Return the selection inside another MachineCollection
       def select(&block)
         result          = self.class.new
         values.select(&block).each{|m| result << m}
