@@ -2,7 +2,6 @@ module Ironfan
   module Dsl
     class Compute < Ironfan::Dsl::Builder
       @@run_list_rank = 0
-      field      :owner_name,   String
       field      :name,         String
 
       # Resolve each of the following as a merge of their container's attributes and theirs
@@ -11,7 +10,7 @@ module Ironfan
       collection :volumes,      Ironfan::Dsl::Volume,      :resolver => :merge_resolve
       
       # Resolve these normally (overriding on each layer)
-      magic      :environment,  Symbol
+      magic      :environment,  Symbol,                    :default => :_default
       magic      :use_cloud,    Symbol
 
       # Don't use the underlying container's attributes for the layer_role; it stands alone
@@ -19,34 +18,27 @@ module Ironfan
                  :default    => Ironfan::Dsl::Role.new,    :resolver => :read_set_attribute
 
       def initialize(attrs={},&block)
-        if attrs[:owner]
-          self.underlay   = attrs[:owner]
-          self.owner_name = attrs[:owner].fullname
-        end
-        super(attrs,&block)
-        self
+        self.underlay   = attrs[:owner] if attrs[:owner]
+        super
       end
 
-      def fullname
-        fn = name
-        fn = "#{owner_name}-#{name}" unless owner_name.nil?
-        fn
-      end
+      def fullname()    name;   end
 
       # Add the given role/recipe to the run list. You can specify placement of
-      # `:first`, `:normal` (or nil) or `:last`; the final runlist is assembled as
-      #
-      # * run_list :first  items -- cluster, then facet, then server
-      # * run_list :normal items -- cluster, then facet, then server
-      # * run_list :last   items -- cluster, then facet, then server
-      #
-      # (see Ironfan::Server#combined_run_list for full details though)
-      #
+      #   `:first`, `:normal` (or nil) or `:last`; the final runlist is assembled
+      #   in order by placement, and then by source position.
       def role(role_name, placement=nil)
         add_to_run_list("role[#{role_name}]", placement)
       end
       def recipe(recipe_name, placement=nil)
         add_to_run_list(recipe_name, placement)
+      end
+      def run_list
+        mapper = run_list_items.values.map
+        result =  mapper.each {|i| i[:name] if i[:placement]==:first  }
+        result += mapper.each {|i| i[:name] if i[:placement]==:normal }
+        result += mapper.each {|i| i[:name] if i[:placement]==:last   }
+        result.compact
       end
 
       def raid_group(rg_name, attrs={}, &block)

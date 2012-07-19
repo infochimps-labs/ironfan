@@ -3,10 +3,10 @@
 #   Ironfan ask specialized questions (such as whether a given resource 
 #   matches
 module Ironfan
-  module Provider
+  class Provider
 
     #
-    # Generic Resource and Connection
+    # Resource
     #
     class Resource
       include Gorillib::Builder
@@ -15,38 +15,47 @@ module Ironfan
       def matches?(machine)
         raise NotImplementedError, "matches? not implemented for #{self.class}"
       end
-    end
-
-    class Connection
-      include Gorillib::Builder
-
-      def self.receive(obj,&block)
-        the_module = case obj[:name]
-          when :chef;           Chef
-          when :ec2;            Ec2
-          when :virtualbox;     VirtualBox
-          else;                 raise "Unsupported provider #{obj[:name]}"
-          end
-        the_module::Connection.new(obj,&block)
-      end
-
-      def discover!
-        raise NotImplementedError, "discover! not implemented for #{self.class}"
+      def sync!(broker)
+        raise NotImplementedError, "sync!(broker) not implemented for #{self.class}"
       end
     end
 
     #
-    # Iaas Instance and Connection
+    # Provider
+    #
+    include Gorillib::Builder
+    def self.receive(obj,&block)
+      klass = case obj[:name]
+        when :chef;           Chef
+        when :ec2;            Ec2
+        when :virtualbox;     VirtualBox
+        else;                 raise "Unsupported provider #{obj[:name]}"
+        end
+      klass.new(obj,&block)
+    end
+
+    def discover!
+      raise NotImplementedError, "discover! not implemented for #{self.class}"
+    end
+    def sync!(broker)
+      raise NotImplementedError, "sync!(broker) not implemented for #{self.class}"
+    end
+  end
+
+  class IaasProvider < Provider
+    #
+    # Instance
     #
     class Instance < Resource
     end
     
-    class IaasConnection < Connection
-      collection :instances,    Ironfan::Provider::Instance
-      def discover_instances!
-        raise NotImplementedError, "discover_instances! not implemented for #{self.class}"
-      end
+    #
+    # IaasProvider
+    #
+    collection :instances,    Instance
+    def discover_instances!
+      raise NotImplementedError, "discover_instances! not implemented for #{self.class}"
     end
-
   end
+
 end

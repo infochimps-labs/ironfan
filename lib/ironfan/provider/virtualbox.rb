@@ -1,18 +1,16 @@
 module Ironfan
-  module Provider
-    module VirtualBox
+  class Provider
+    class VirtualBox < Ironfan::IaasProvider
 
       # 
       # Resources
       #
-      class Instance < Ironfan::Provider::Instance
+      class Instance < Ironfan::IaasProvider::Instance
       end
 
       # 
-      # Connection
+      # Provider
       #
-      class Connection < Ironfan::Provider::IaasConnection
-      end
 
     end
   end

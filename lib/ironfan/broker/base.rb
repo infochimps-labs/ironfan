@@ -9,9 +9,10 @@ module Ironfan
 
     class Machine
       include Gorillib::Builder
-      field :instance,          Ironfan::Provider::Instance
+      field :instance,          Ironfan::IaasProvider::Instance
       field :server,            Ironfan::Dsl::Server
       field :node,              Ironfan::Provider::ChefServer::Node
+      field :client,            Ironfan::Provider::ChefServer::Client
 
       field :bogosity,          Symbol
 
@@ -74,9 +75,9 @@ module Ironfan
 
       field :cluster,           Ironfan::Dsl::Cluster
 
-      field :chef,              Ironfan::Provider::ChefServer::Connection,
-            :default =>         Ironfan::Provider::ChefServer::Connection.new
-      collection :providers,    Ironfan::Provider::Connection
+      field :chef,              Ironfan::Provider::ChefServer,
+            :default =>         Ironfan::Provider::ChefServer.new
+      collection :providers,    Ironfan::IaasProvider
 
       collection :machines,     Machine
 
@@ -171,12 +172,11 @@ module Ironfan
       #   and return a new Broker that only handles those machines
       def slice(facet_name=nil, slice_indexes=nil)
         return self if facet_name.nil?
-        result =        self.class.new
-        f_fullname =    cluster.facet(facet_name).fullname
+        result =        self.clean_copy
         slice_array =   build_slice_array(slice_indexes)
         machines.each do |m|
           result.machines << m if (m.bogus? or (        # bogus machine or
-            ( m.server.owner_name == f_fullname ) and   # facet match and
+            ( m.server.facet_name == facet_name ) and   # facet match and
               ( slice_array.include? m.server.index or  #   index match or
                 slice_indexes.nil? ) ) )                #   no indexes specified
         end
@@ -187,10 +187,16 @@ module Ironfan
         raise "Bad slice_indexes: #{slice_indexes}" if slice_indexes =~ /[^0-9\.,]/
         eval("[#{slice_indexes}]").map {|idx| idx.class == Range ? idx.to_a : idx}.flatten
       end
-
       def select_machines(&block)
-        result =        self.class.new
+        result = self.clean_copy
         machines.each {|m| result.machines << m if yield m }
+        result
+      end
+      def clean_copy
+        result =        self.class.new
+        [:cluster,:chef,:providers].each do |field|
+          result.write_attribute(field,self.read_attribute(field))
+        end
         result
       end
 
@@ -206,6 +212,9 @@ module Ironfan
       def joined_names
         machines.map(&:name).join(", ").gsub(/, ([^,]*)$/, ' and \1')
       end
+
+      def sync_to_chef()        chef.sync!(self);                       end
+      def sync_to_providers()   providers.each {|p| p.sync!(self)};     end
 
     end
   end

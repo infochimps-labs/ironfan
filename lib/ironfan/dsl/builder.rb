@@ -1,4 +1,16 @@
 module Gorillib
+
+  # Make a clean deep-copy of the value, via gorillib semantics if 
+  #   possible, otherwise via marshalling
+  def self.deep_copy(value)
+    case
+    when ( value.respond_to? :to_wire and value.respond_to? :receive )
+      return value.class.receive(value.to_wire)
+    else
+      return Marshal.load(Marshal.dump(value))
+    end
+  end
+
   module Model
     Field.class_eval do
       field :resolver, Symbol, :default => :read_set_or_underlay_attribute
@@ -31,17 +43,6 @@ module Gorillib
         result.write_attribute(field_name, value) unless value.nil?
       end
       result
-    end
-
-    # Make a clean deep-copy of the value, via gorillib semantics if 
-    #   possible, otherwise via marshalling
-    def deep_copy(value)
-      case
-      when ( value.respond_to? :to_wire and value.respond_to? :receive )
-        return value.class.receive(value.to_wire)
-      else
-        return Marshal.load(Marshal.dump(value))
-      end
     end
 
     def deep_resolve(field_name)

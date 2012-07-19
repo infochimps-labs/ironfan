@@ -65,15 +65,15 @@ class Chef
         #
         full_target = get_slice(*@name_args)
         display(full_target)
-        target = full_target.select(&:launchable?)
+        target = full_target.select_machines(&:launchable?)
 
-        warn_or_die_on_bogus_servers(full_target) unless full_target.bogus_servers.empty?
+        warn_or_die_on_bogus_servers(full_target) unless full_target.select_machines(&:bogus?).machines.empty?
 
-        die("", "#{ui.color("All servers are running -- not launching any.",:blue)}", "", 1) if target.empty?
+        die("", "#{ui.color("All servers are running -- not launching any.",:blue)}", "", 1) if target.machines.empty?
 
         # Pre-populate information in chef
-        section("Sync'ing to chef and cloud")
-        target.sync_to_cloud
+        section("Sync'ing to chef and providers")
+        target.sync_to_providers
         target.sync_to_chef
 
         # Launch servers

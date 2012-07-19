@@ -1,11 +1,11 @@
 module Ironfan
-  module Provider
-    module Ec2
+  class Provider
+    class Ec2 < Ironfan::IaasProvider
 
       # 
       # Resources
       #
-      class Instance < Ironfan::Provider::Instance
+      class Instance < Ironfan::IaasProvider::Instance
         delegate :_dump, :addresses, :ami_launch_index, :ami_launch_index=, 
             :architecture, :architecture=, :attributes, :availability_zone, 
             :availability_zone=, :block_device_mapping, :block_device_mapping=, 
@@ -79,6 +79,15 @@ module Ironfan
           values["SSH Key"] =           key_name
           values
         end
+
+        def sync!
+          puts "should make #{instance} look like #{server}, but cowardly chickening out instead"
+          # attach_volumes
+          # create_tags
+          # associate_public_ip
+          # ensure_placement_group
+          # set_instance_attributes
+        end
       end
 
       class EbsVolume < Ironfan::Provider::Resource
@@ -94,43 +103,57 @@ module Ironfan
       end
 
       # 
-      # Connection
+      # Provider
       #
-      class Connection < Ironfan::Provider::IaasConnection
-        field :adaptee, Whatever
+      field :adaptee, Whatever
 
-        def initialize(*args,&block)
-          super(*args,&block)
-          self.adaptee = Fog::Compute.new({
-            :provider              => 'AWS',
-            :aws_access_key_id     => Chef::Config[:knife][:aws_access_key_id],
-            :aws_secret_access_key => Chef::Config[:knife][:aws_secret_access_key],
-            :region                => Chef::Config[:knife][:region]
-          })
-        end
-
-        def discover!(cluster)
-          discover_instances! cluster
-          #discover_ebs_volumes!
-            # Walk the list of servers, asking each to discover its volumes.
-          #discover_security_groups!
-          #discover_key_pairs!
-          #discover_placement_groups!
-        end
-        
-        def discover_instances!(cluster)
-          return instances unless instances.empty?
-          adaptee.servers.each do |fs| 
-            instances << Instance.new(:adaptee => fs) unless fs.blank?
-          end
-          instances
-        end
-        
-        # An instance matches if the Name tag starts with the selector's fullname
-        def instances_of(selector)
-          instances.values.select {|i| i.name.match("^#{selector.fullname}") }
-        end
+      def initialize(*args,&block)
+        super
+        self.adaptee = Fog::Compute.new({
+          :provider              => 'AWS',
+          :aws_access_key_id     => Chef::Config[:knife][:aws_access_key_id],
+          :aws_secret_access_key => Chef::Config[:knife][:aws_secret_access_key],
+          :region                => Chef::Config[:knife][:region]
+        })
       end
+
+      def discover!(cluster)
+        discover_instances! cluster
+        #discover_ebs_volumes!
+          # Walk the list of servers, asking each to discover its volumes.
+        #discover_security_groups!
+        #discover_key_pairs!
+        #discover_placement_groups!
+      end
+      
+      def discover_instances!(cluster)
+        return instances unless instances.empty?
+        adaptee.servers.each do |fs| 
+          instances << Instance.new(:adaptee => fs) unless fs.blank?
+        end
+        instances
+      end
+      
+      # An instance matches if the Name tag starts with the selector's fullname
+      def instances_of(selector)
+        instances.values.select {|i| i.name.match("^#{selector.fullname}") }
+      end
+
+      def sync!(broker)
+        target = broker.select_machines{|m| m.instance.class == Instance}
+#         sync_keypairs! broker
+#         sync_security_groups! broker
+        target.machines.values.each{|m| m.sync! }
+      end
+#       def sync_keypairs
+#         step("ensuring keypairs exist")
+#         keypairs  = servers.map{|svr| [svr.cluster.cloud.keypair, svr.cloud.keypair] }.flatten.map(&:to_s).reject(&:blank?).uniq
+#         keypairs  = keypairs - Ironfan.fog_keypairs.keys
+#         keypairs.each do |keypair_name|
+#           keypair_obj = Ironfan::Ec2Keypair.create!(keypair_name)
+#           Ironfan.fog_keypairs[keypair_name] = keypair_obj
+#         end
+#       end
 
     end
   end
