@@ -140,13 +140,14 @@ module Ironfan
       end
 
       def sync!(machines)
-        # Only sync Ec2::Instances 
+        # Only sync Ec2::Instances
+        sync_keypairs! machines
+        sync_security_groups! machines
         target = machines.select{|m| m.instance.class == Instance}
-#         sync_keypairs! machines
-#         sync_security_groups! machines
-        target.each{|m| m.sync! }
+        target.each(&:sync!)
+        raise 'incomplete'
       end
-#       def sync_keypairs
+      def sync_keypairs!(machines)
 #         step("ensuring keypairs exist")
 #         keypairs  = servers.map{|svr| [svr.cluster.cloud.keypair, svr.cloud.keypair] }.flatten.map(&:to_s).reject(&:blank?).uniq
 #         keypairs  = keypairs - Ironfan.fog_keypairs.keys
@@ -154,7 +155,11 @@ module Ironfan
 #           keypair_obj = Ironfan::Ec2Keypair.create!(keypair_name)
 #           Ironfan.fog_keypairs[keypair_name] = keypair_obj
 #         end
-#       end
+        raise 'inimplemented'
+      end
+      def sync_security_groups!(machines)
+        raise 'inimplemented'
+      end
 
     end
   end
