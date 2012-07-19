@@ -14,8 +14,10 @@ module Ironfan
       magic      :use_cloud,    Symbol
 
       # Don't use the underlying container's attributes for the layer_role; it stands alone
-      magic      :layer_role,   Ironfan::Dsl::Role,
-                 :default    => Ironfan::Dsl::Role.new,    :resolver => :read_set_attribute
+#       member     :layer_role,   Ironfan::Dsl::Role,
+#                  :default    => Ironfan::Dsl::Role.new,    :resolver => :read_set_attribute
+      member     :cluster_role, Ironfan::Dsl::Role
+      member     :facet_role,   Ironfan::Dsl::Role
 
       def initialize(attrs={},&block)
         self.underlay   = attrs[:owner] if attrs[:owner]

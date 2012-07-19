@@ -3,17 +3,21 @@ module Ironfan
     class Cluster < Ironfan::Dsl::Compute
       collection :facets,       Ironfan::Dsl::Facet,   :resolver => :deep_resolve
 
-      def cluster_role()        layer_role;     end
-
       def expand_servers
         facets.each {|facet| facet.expand_servers }
       end
 
-      # Utility class to reference all servers from constituent facets
+      # Utility method to reference all servers from constituent facets
       def servers
         result = Gorillib::ModelCollection.new(:item_type => Ironfan::Dsl::Server, :key_method => :fullname)
         facets.each {|f| f.servers.each {|s| result << s} }
         result
+      end
+
+      def roles
+        result = [ cluster_role ]
+        result += facets.values.map {|f| f.facet_role}
+        result.compact
       end
 
     end

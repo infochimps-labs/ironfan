@@ -59,16 +59,16 @@ class Chef
       def display(target, *args, &block)
         super
 
-        permanent = target.machines.values.select(&:permanent?)
+        permanent = target.select(&:permanent?)
         ui.info Formatador.display_line("servers with [red]'permanent=true'[reset] ignored: [blue]#{permanent.map(&:name).inspect}[reset]. (To kill, change 'permanent' to false, run knife cluster sync, and re-try)") unless permanent.empty?
 
-        bogus = target.machines.values.select(&:bogus?)
+        bogus = target.select(&:bogus?)
         ui.info Formatador.display_line("[red]Bogus servers detected[reset]: [blue]#{bogus.map(&:name).inspect}[reset]") unless bogus.empty?
       end
 
       def confirm_execution(target)
-        nodes           = target.machines.map(&:node).compact
-        instances       = target.machines.map(&:instance).compact
+        nodes           = target.map(&:node).compact
+        instances       = target.map(&:instance).compact
         delete_message = [
           (((!config[:chef])   || nodes.empty?)  ? nil : "#{nodes.length} chef nodes"),
           (((!config[:cloud])  || instances.empty?) ? nil : "#{instances.length} fog servers") ].compact.join(" and ")

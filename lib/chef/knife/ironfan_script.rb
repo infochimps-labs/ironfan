@@ -38,6 +38,7 @@ module Ironfan
 
     def run
       load_ironfan
+
       die(banner) if @name_args.empty?
       configure_dry_run
 

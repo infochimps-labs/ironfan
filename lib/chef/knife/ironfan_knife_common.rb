@@ -2,6 +2,7 @@ require 'chef/knife'
 
 module Ironfan
   module KnifeCommon
+    attr_accessor :broker
 
     def self.load_deps
       require 'formatador'
@@ -17,6 +18,7 @@ module Ironfan
       Ironfan.ui          = self.ui
       self.config[:cloud] = Chef::Config[:cloud] if Chef::Config.has_key?(:cloud)
       Ironfan.chef_config = self.config
+      self.broker         = Ironfan::Broker.new
     end
 
     #
@@ -37,10 +39,8 @@ module Ironfan
       cluster_name, facet_name, slice_indexes = slice_string.split(/[\s\-]/, 3)
       ui.info("Inventorying servers in #{predicate_str(cluster_name, facet_name, slice_indexes)}")
       cluster = Ironfan.load_cluster(cluster_name)
-
-      conductor = Ironfan::Broker::Conductor.new(:cluster => cluster)
-      conductor.discover!
-      conductor.slice(facet_name, slice_indexes)
+      machines =  broker.discover! cluster
+      machines.slice(facet_name, slice_indexes)
     end
 
     def predicate_str(cluster_name, facet_name, slice_indexes)
@@ -79,7 +79,7 @@ module Ironfan
     # tables based on the --verbose flag
     def display(target, display_style=nil, &block)
       display_style ||= (config[:verbosity] == 0 ? :default : :expanded)
-      target.display(display_style, &block)
+      target.display(ui, display_style, &block)
     end
 
     #

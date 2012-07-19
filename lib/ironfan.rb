@@ -76,18 +76,10 @@ module Ironfan
   #
   #
   def self.cluster(name, attrs={}, &block)
-    require 'gorillib/model/serialization'
-    require 'gorillib/serialization/to_wire'
-
     name = name.to_sym
 
-    # Test the inactive DSL construction, compared to the active
     cl = ( @@clusters[name] ||= Ironfan::Dsl::Cluster.new({:name => name}) )
     cl.receive!(attrs, &block)
-# 
-#     cl = ( self.clusters[name] ||= Ironfan::Cluster.new(name) )
-#     cl.receive!(attrs, &block)
-#     cl
   end
 
   #
@@ -100,7 +92,7 @@ module Ironfan
   # @return [Ironfan::Cluster] the requested cluster
   def self.load_cluster(cluster_name)
     raise ArgumentError, "Please supply a cluster name" if cluster_name.to_s.empty?
-    return clusters[cluster_name] if clusters[cluster_name]
+    return @@clusters[cluster_name] if @@clusters[cluster_name]
 
     cluster_file = cluster_filenames[cluster_name] or die("Couldn't find a definition for #{cluster_name} in cluster_path: #{cluster_path.inspect}")
 

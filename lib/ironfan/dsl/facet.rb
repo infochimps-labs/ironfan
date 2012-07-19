@@ -11,7 +11,6 @@ module Ironfan
       end
 
       def fullname()    "#{cluster_name}-#{name}";      end
-      def facet_role()  layer_role;                     end
 
       def expand_servers
         for i in 0..(instances-1) do server(i); end

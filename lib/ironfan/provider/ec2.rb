@@ -139,11 +139,12 @@ module Ironfan
         instances.values.select {|i| i.name.match("^#{selector.fullname}") }
       end
 
-      def sync!(broker)
-        target = broker.select_machines{|m| m.instance.class == Instance}
-#         sync_keypairs! broker
-#         sync_security_groups! broker
-        target.machines.values.each{|m| m.sync! }
+      def sync!(machines)
+        # Only sync Ec2::Instances 
+        target = machines.select{|m| m.instance.class == Instance}
+#         sync_keypairs! machines
+#         sync_security_groups! machines
+        target.each{|m| m.sync! }
       end
 #       def sync_keypairs
 #         step("ensuring keypairs exist")

@@ -1,3 +1,7 @@
+require 'gorillib/model/serialization'
+require 'gorillib/serialization/to_wire'
+require 'gorillib/hash/deep_merge'
+
 module Gorillib
 
   # Make a clean deep-copy of the value, via gorillib semantics if 

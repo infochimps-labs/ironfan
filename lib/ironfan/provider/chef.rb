@@ -111,17 +111,24 @@ module Ironfan
         Chef::Search::Query.new.search(:client,"#{key}:#{name}-*")[0].compact
       end
 
-      def sync!(broker)
-        sync_roles! broker
-        broker.machines.each do |machine|
+      def sync!(machines)
+        sync_roles! machines
+        machines.each do |machine|
           _ensure_node machine
 #           _ensure_client machine
-          machine.node.sync! broker
-#           machine.client.sync! broker
+          machine.node.sync! machine
+#           machine.client.sync! machine
         end
       end
-      def sync_roles!(broker)
-        puts "should sync roles for a broker, but cowardly chickening out instead"
+      def sync_roles!(machines)
+        roles = []
+        machines.each do |m|
+          roles << m.server.cluster_role
+          roles << m.server.facet_role
+        end
+        pp roles.compact.uniq
+        raise 'hand'
+        puts "should sync roles for a MachineCollection, but cowardly chickening out instead"
       end
 #       def _ensure_client(machine)
 #         return machine.client unless machine.client.nil?

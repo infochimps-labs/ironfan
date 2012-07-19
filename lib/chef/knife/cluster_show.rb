@@ -46,7 +46,7 @@ class Chef
         # Dump entire contents of objects if -VV flag given
         #
         if config[:verbosity] >= 2
-          target.machines.each do |machine|
+          target.each do |machine|
             Chef::Log.debug( "Machine #{machine.name}: #{JSON.pretty_generate(machine.to_wire)}" )
           end
         end
