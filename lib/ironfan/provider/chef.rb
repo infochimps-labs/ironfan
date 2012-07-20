@@ -5,6 +5,26 @@ module Ironfan
       # 
       # Resources
       #
+      class Client < Ironfan::Provider::Resource
+        delegate :add_to_index, :admin, :cdb_destroy, :cdb_save, 
+            :class_from_file, :couchdb, :couchdb=, :couchdb_id, :couchdb_id=, 
+            :couchdb_rev, :couchdb_rev=, :create, :create_keys, 
+            :delete_from_index, :destroy, :from_file, :index_id, :index_id=, 
+            :index_object_type, :name, :private_key, :public_key, :save, 
+            :set_or_return, :to_hash, :validate, :with_indexer_metadata,
+          :to => :adaptee
+
+        # matches when client name equals the selector's fullname (strict), or
+        #   when name starts with fullname (non-strict)
+        def matches_dsl?(selector,options={:strict=>true})
+          return false if selector.nil?
+          case options[:strict]
+          when true;    name == selector.fullname
+          when false;   name.match("^#{selector.fullname}")
+          end
+        end
+      end
+
       class Node < Ironfan::Provider::Resource
         delegate :[], :[]=, :add_to_index, :apply_expansion_attributes,
             :attribute, :attribute=, :attribute?, :automatic_attrs,
@@ -27,18 +47,23 @@ module Ironfan
             :set, :set_if_args, :set_or_return, :set_unless, :store, :tags,
             :to_hash, :update_from!, :validate, :with_indexer_metadata,
           :to => :adaptee
+        field :client, Ironfan::Provider::ChefServer::Client
 
         def initialize(config)
-          super
-          if self.adaptee.nil?
-            self.adaptee = Chef::Node.build(config[:name]) unless config[:name].nil?
-            raise "Missing name or adaptee" if self.adaptee.nil?
+          if self.adaptee.nil? and not config[:name].nil?
+            self.adaptee = Chef::Node.build(config[:name])
           end
-          self
+          super
         end
 
-        def matches?(machine)
-          machine.server.fullname == name 
+        # matches when node name equals the selector's fullname (strict), or
+        #   when name starts with fullname (non-strict)
+        def matches_dsl?(selector,options={:strict=>true})
+          return false if selector.nil?
+          case options[:strict]
+          when true;    name == selector.fullname
+          when false;   name.match("^#{selector.fullname}")
+          end
         end
 
         def display_values(style,values={})
@@ -77,61 +102,67 @@ module Ironfan
         end
       end
 
-      class Client < Ironfan::Provider::Resource
-        delegate :add_to_index, :admin, :cdb_destroy, :cdb_save, 
-            :class_from_file, :couchdb, :couchdb=, :couchdb_id, :couchdb_id=, 
-            :couchdb_rev, :couchdb_rev=, :create, :create_keys, 
-            :delete_from_index, :destroy, :from_file, :index_id, :index_id=, 
-            :index_object_type, :name, :private_key, :public_key, :save, 
-            :set_or_return, :to_hash, :validate, :with_indexer_metadata,
-          :to => :adaptee
-      end
-
       # 
       # Provider
       #
       collection :nodes,      Ironfan::Provider::ChefServer::Node
       collection :clients,    Ironfan::Provider::ChefServer::Client
 
-      def discover!(cluster) 
+      def discover!(cluster)
         discover_nodes! cluster
         discover_clients! cluster
       end
       
       def discover_nodes!(cluster)
         return nodes unless nodes.empty?
-        Chef::Search::Query.new.search(:node,"cluster_name:#{cluster.name}") do |node|
+        Chef::Node.list(true).each_value do |node|
           nodes << Node.new(:adaptee => node) unless node.blank?
         end
         nodes
       end
       
-      def find_node(server)
-        nodes[server.fullname]
-      end
-      
       def discover_clients!(cluster)
         return clients unless clients.empty?
-        # Oh for fuck's sake -- the key used to index clients changed from
-        # 'clientname' in 0.10.4-and-prev to 'name' in 0.10.8. Rather than index
-        # both 'clientname' and 'name', they switched it -- so we have to fall
-        # back.  FIXME: While the Opscode platform is 0.10.4 I have clientname
-        # first (sorry, people of the future). When it switches to 0.10.8 we'll
-        # reverse them (suck it people of the past).
-        api_clients = _find_clients(cluster.name,"clientname")
-        api_clients = _find_clients(cluster.name) if api_clients.blank?
-        api_clients.each do |api_client|
-          # Sometimes the server returns nil results on recently-expired clients
-          next if api_client.nil?
-          # Return values from Chef::Search seem to be inconsistent across chef
-          # versions (sometimes a hash, sometimes an object)
-          api_client = Chef::ApiClient.json_create(api_client) unless api_client.is_a?(Chef::ApiClient)
-          clients << Client.new(:adaptee => api_client)
+        Chef::ApiClient.list(true).each_value do |api_client|
+          clients << Client.new(:adaptee => api_client) unless api_client.blank?
         end
         clients
       end
-      def _find_clients(name,key="name")
-        Chef::Search::Query.new.search(:client,"#{key}:#{name}-*")[0].compact
+       
+      # for all chef nodes that match the cluster,
+      #   find a machine that matches and attach,
+      #   or make a new machine and mark it :unexpected_node
+      # for all chef clients that match
+      #   
+      def correlate(cluster,machines)
+        nodes_matching(cluster).each do |node|
+          match = machines.select {|m| node.matches_dsl? m.server }.first
+          if match.nil?
+            fake = Ironfan::Broker::Machine.new
+            fake.bogosity = :unexpected_node
+            machines << fake
+          else
+            match.node = node
+          end
+        end
+        clients_matching(cluster).each do |client|
+          match = machines.select {|m| client.matches_dsl? m.server }.first
+          if match.nil?
+            fake = Ironfan::Broker::Machine.new
+            fake.name = client.name
+            fake.bogosity = :unexpected_client
+            machines << fake
+          else
+            match.node.client = client
+          end
+        end
+        machines
+      end
+      def nodes_matching(selector)
+        nodes.values.select {|n| n.matches_dsl?(selector,:strict=>false) }
+      end
+      def clients_matching(selector)
+        clients.values.select {|c| c.matches_dsl?(selector,:strict=>false) }
       end
 
       def sync!(machines)

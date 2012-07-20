@@ -12,12 +12,15 @@ module Ironfan
       field :node,              Ironfan::Provider::ChefServer::Node
       field :client,            Ironfan::Provider::ChefServer::Client
 
+      # Only used for bogus servers
+      field :name,              String
       field :bogosity,          Symbol
 
       def name()
         return server.fullname  if server?
         return node.name        if node?
         return instance.name    if instance?
+        return @name            if @name
         "unnamed:#{object_id}"
       end
 

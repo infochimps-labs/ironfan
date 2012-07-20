@@ -81,7 +81,7 @@ module Ironfan
         end
 
         def sync!
-          puts "should make #{instance} look like #{server}, but cowardly chickening out instead"
+          raise "should make #{instance} look like #{server}, but cowardly chickening out instead"
           # attach_volumes
           # create_tags
           # associate_public_ip
@@ -138,6 +138,29 @@ module Ironfan
       def instances_of(selector)
         instances.values.select {|i| i.name.match("^#{selector.fullname}") }
       end
+
+      # for each instance that matches the cluster,
+      #   find a machine that matches
+      #     attach instance to machine if there isn't one,
+      #     or make another and mark both :duplicate_instance
+      #   or make a new machine and mark it :unexpected_instance
+      def correlate(cluster,machines)
+        instances_of(cluster).each do |instance|
+          match = machines.values.select {|m| instance.matches? m }.first
+          if match.nil?
+            match = Ironfan::Broker::Machine.new
+            match.bogosity = :unexpected_instance
+            machines << match
+          end
+          if match.instance?
+            match.bogosity = :duplicate_instance
+            copy = match.dup
+            matches << copy
+          end
+          match.instance = instance
+        end
+      end
+
 
       def sync!(machines)
         # Only sync Ec2::Instances

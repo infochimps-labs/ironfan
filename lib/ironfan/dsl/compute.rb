@@ -13,9 +13,6 @@ module Ironfan
       magic      :environment,  Symbol,                    :default => :_default
       magic      :use_cloud,    Symbol
 
-      # Don't use the underlying container's attributes for the layer_role; it stands alone
-#       member     :layer_role,   Ironfan::Dsl::Role,
-#                  :default    => Ironfan::Dsl::Role.new,    :resolver => :read_set_attribute
       member     :cluster_role, Ironfan::Dsl::Role
       member     :facet_role,   Ironfan::Dsl::Role
 
