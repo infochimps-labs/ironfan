@@ -81,12 +81,13 @@ module Ironfan
         end
 
         def sync!
-          raise "should make #{instance} look like #{server}, but cowardly chickening out instead"
-          # attach_volumes
-          # create_tags
-          # associate_public_ip
-          # ensure_placement_group
-          # set_instance_attributes
+          raise "unimplemented"
+#       step "Syncing to cloud"
+#       attach_volumes
+#       create_tags
+#       associate_public_ip
+#       ensure_placement_group
+#       set_instance_attributes
         end
       end
 
@@ -152,17 +153,20 @@ module Ironfan
             match.bogosity = :unexpected_instance
             machines << match
           end
-          if match.instance?
+          if match.include? :instance
             match.bogosity = :duplicate_instance
             copy = match.dup
-            matches << copy
+            machines << copy
           end
-          match.instance = instance
+          match[:instance] = instance
         end
       end
 
 
       def sync!(machines)
+#       sync_keypairs
+#       sync_security_groups
+#       delegate_to_servers( :sync_to_cloud )
         # Only sync Ec2::Instances
         sync_keypairs! machines
         sync_security_groups! machines

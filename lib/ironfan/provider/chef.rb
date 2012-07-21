@@ -75,7 +75,7 @@ module Ironfan
       end
 
       class Role < Ironfan::Provider::Resource
-      delegate :active_run_list_for, :add_to_index, :cdb_destroy, :cdb_save,
+        delegate :active_run_list_for, :add_to_index, :cdb_destroy, :cdb_save,
           :chef_server_rest, :class_from_file, :couchdb, :couchdb=,
           :couchdb_id, :couchdb_id=, :couchdb_rev, :couchdb_rev=, :create,
           :default_attributes, :delete_from_index, :description, :destroy,
@@ -120,7 +120,7 @@ module Ironfan
         end
         nodes
       end
-      
+
       def discover_clients!(cluster)
         return clients unless clients.empty?
         Chef::ApiClient.list(true).each_value do |api_client|
@@ -128,7 +128,7 @@ module Ironfan
         end
         clients
       end
-       
+
       # for all chef nodes that match the cluster,
       #   find a machine that matches and attach,
       #   or make a new machine and mark it :unexpected_node
@@ -142,7 +142,7 @@ module Ironfan
             fake.bogosity = :unexpected_node
             machines << fake
           else
-            match.node = node
+            match[:node] = node
           end
         end
         clients_matching(cluster).each do |client|
@@ -153,7 +153,7 @@ module Ironfan
             fake.bogosity = :unexpected_client
             machines << fake
           else
-            match.node.client = client
+            match[:client] = client
           end
         end
         machines
@@ -169,9 +169,9 @@ module Ironfan
         sync_roles! machines
         machines.each do |machine|
           ensure_node machine
-          machine.node.sync!
+          machine[:node].sync!
 #           _ensure_client machine
-#           machine.client.sync! machine
+#           machine[:client].sync! machine
           raise 'incomplete'
         end
       end
@@ -186,7 +186,7 @@ module Ironfan
         defs.each{|d| Role.new(:expected => d).save}
       end
       def ensure_node(machine)
-        return machine.node unless machine.node.nil?
+        return machine[:node] if machine.includes? :node
 
         # step("  setting node runlist and essential attributes")
         node =                          Node.new(:name => machine.name)
@@ -198,7 +198,7 @@ module Ironfan
         node.normal[:cluster_name] =    server.cluster_name
         node.normal[:facet_name] =      server.facet_name
 
-        machine.node = node
+        machine[:node] = node
       end
     end
 

@@ -7,10 +7,10 @@ module Ironfan
 
     class Machine
       include Gorillib::Builder
-      field :instance,          Ironfan::IaasProvider::Instance
+      collection :rscs,         Ironfan::Provider::Resource
       field :server,            Ironfan::Dsl::Server
-      field :node,              Ironfan::Provider::ChefServer::Node
-      field :client,            Ironfan::Provider::ChefServer::Client
+      delegate :[],:[]=,:include?,
+          :to =>                :rscs
 
       # Only used for bogus servers
       field :name,              String
@@ -18,8 +18,8 @@ module Ironfan
 
       def name()
         return server.fullname  if server?
-        return node.name        if node?
-        return instance.name    if instance?
+        return node.name        if include? :node
+        return instance.name    if include? :instance
         return @name            if @name
         "unnamed:#{object_id}"
       end
@@ -33,8 +33,9 @@ module Ironfan
         values["Chef?"] =       "no"
         values["State"] =       "not running"
 
-        [ server, node, instance ].each do |source|
-          values = source.display_values(style, values) unless source.nil?
+        values = server.display_values(style, values) unless server.nil?
+        [ :node, :instance ].each do |source|
+          values = rscs[source].display_values(style, values) if include? source
         end
         if style == :expanded
           values["Startable"]  = display_boolean(stopped?)
@@ -46,14 +47,18 @@ module Ironfan
       end
       def display_boolean(value)        value ? "yes" : "no";   end
 
+      #
+      # Status flags
+      #
       def server?()     !server.nil?;                   end
-      def node?()       !node.nil?;                     end
-      def instance?()   !instance.nil?;                 end
       def bogus?()      !bogosity.nil?;                 end
-
-      def created?()    instance? && instance.created?; end
+      def created?()
+        include?(:instance) && rscs[:instance].created?
+      end
+      def stopped?()
+        created? && rscs[:instance].stopped?
+      end
       def launchable?() not created?;                   end
-      def stopped?()    created? && instance.stopped?;  end
 
       def killable?
         return false if permanent?
@@ -66,8 +71,8 @@ module Ironfan
         [true, :true, 'true'].include? server.selected_cloud.permanent
       end
 
-      def destroy_instance()    instance.destroy && instance = nil;     end
-      def destroy_node()        node.destroy && node = nil;             end
+#       def destroy_instance()    instance.destroy && instance = nil;     end
+#       def destroy_node()        node.destroy && node = nil;             end
     end
 
     class MachineCollection < Gorillib::ModelCollection

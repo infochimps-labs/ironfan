@@ -54,9 +54,14 @@ module Ironfan
     end
 
     def sync_to_chef(machines)
+#       sync_roles
+#       delegate_to_servers( :sync_to_chef )
       chef.sync!(machines)
     end
     def sync_to_providers(machines)
+#       sync_keypairs
+#       sync_security_groups
+#       delegate_to_servers( :sync_to_cloud )
       providers.each {|p| p.sync!(machines)}
     end
 
