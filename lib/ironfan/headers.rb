@@ -10,7 +10,7 @@ module Ironfan
 
   class Broker < Builder
     class Machine < Builder; end
-    class MachineCollection < Gorillib::ModelCollection; end
+    class Machines < Gorillib::ModelCollection; end
   end
 
   class Dsl < Builder
@@ -31,6 +31,7 @@ module Ironfan
 
   class Provider < Builder
     class Resource < Builder; end
+    class ResourceCollection < Gorillib::ModelCollection; end
   end
   class IaasProvider < Provider
     class Instance < Resource; end
@@ -38,11 +39,14 @@ module Ironfan
   class Provider
     class ChefServer < Ironfan::Provider
       class Client < Ironfan::Provider::Resource; end
+      class Clients < Ironfan::Provider::ResourceCollection; end
       class Node < Ironfan::Provider::Resource; end
+      class Nodes < Ironfan::Provider::ResourceCollection; end
       class Role < Ironfan::Provider::Resource; end
     end
     class Ec2 < Ironfan::IaasProvider
       class Instance < Ironfan::IaasProvider::Instance; end
+      class Instances < Ironfan::Provider::ResourceCollection; end
       class EbsVolume < Ironfan::Provider::Resource; end
       class SecurityGroup < Ironfan::Provider::Resource; end
       class KeyPair < Ironfan::Provider::Resource; end

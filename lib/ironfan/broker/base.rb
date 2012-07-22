@@ -9,14 +9,15 @@ module Ironfan
           :default =>         Ironfan::Provider::ChefServer.new
     collection :providers,    Ironfan::IaasProvider
 
-    # Take in a Dsl::Cluster, return a MachineCollection populated with
+    # Take in a Dsl::Cluster, return Machines populated with
     #   all discovered resources that correlate
     def discover!(cluster)
       cluster.expand_servers
       resolved = cluster.resolve
 
       discover_resources! resolved
-      correlate_machines resolved
+      machines = correlate_machines resolved
+      validate(machines)
     end
 
     def discover_resources!(cluster)
@@ -29,19 +30,24 @@ module Ironfan
       providers.each {|p| p.discover! cluster }
     end
 
-    # Correlate servers with Chef resources, and IaaS machines 
-    #   and related Provider resources. Create "nonexistent" machines
-    #   for each un-satisfied server expectation.
+    # Correlate servers with Chef and IaaS resources
     def correlate_machines(cluster)
       machines = expected_machines(cluster)
-      chef.correlate(cluster,machines)
-      providers.each{|p| p.correlate(cluster,machines)}
+      chef.correlate!(cluster,machines)
+      providers.each{|p| p.correlate!(cluster,machines)}
+      machines
+    end
+
+    # Compare the results
+    def validate(machines)
+      chef.validate! machines
+      providers.each{|p| p.validate!(machines)}
       machines
     end
 
     # for all servers, set up a bare machine
     def expected_machines(cluster)
-      machines = MachineCollection.new
+      machines = Machines.new
       cluster.servers.each do |server|
         m = Machine.new
         m.server = server

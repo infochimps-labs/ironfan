@@ -5,6 +5,8 @@
 module Ironfan
 
   class Provider < Builder
+    field :types,      Array
+
     def self.receive(obj,&block)
       obj[:_type] = case obj[:name]
         when    :chef;          Chef
@@ -15,27 +17,62 @@ module Ironfan
       super
     end
 
-    def discover!
-      raise NotImplementedError, "discover! not implemented for #{self.class}"
+    def discover!(cluster)
+      types.each {|type| self.send(type).discover!(cluster) }
     end
+
+    def correlate!(cluster,machines)
+      types.each {|type| self.send(type).correlate!(cluster,machines) }
+    end
+
+    def validate!(machines)
+      types.each {|type| self.send(type).validate!(machines) }
+    end
+
     def sync!(broker)
       raise NotImplementedError, "sync!(broker) not implemented for #{self.class}"
     end
 
-    class Resource
-      include Gorillib::Builder
+    class Resource < Builder
       field             :adaptee,       Whatever
-      field             :owner,         Provider
-      collection        :users,         Ironfan::Broker::Machine
+#       field             :owner,         Provider
+      field             :users,         Array,          :default => []
+      field             :bogus,         Array,          :default => []
 
-      def matches?(machine)
-        raise NotImplementedError, "matches? not implemented for #{self.class}"
-      end
-      def sync!(broker)
-        raise NotImplementedError, "sync!(broker) not implemented for #{self.class}"
-      end
+      def bogus?()      !bogus.empty?;                  end
+
+#       def matches?(machine)
+#         raise NotImplementedError, "matches? not implemented for #{self.class}"
+#       end
+# 
+#       def sync!(broker)
+#         raise NotImplementedError, "sync!(broker) not implemented for #{self.class}"
+#       end
+# 
+#       def validate!(machines)
+#         # Override in subclasses
+#       end
     end
 
+    class ResourceCollection < Gorillib::ModelCollection
+      self.key_method = :name
+
+      # Find all resources of this type that match this cluster
+      def discover!(cluster)
+        raise NotImplementedError, "matches? not implemented for #{self.class}"
+      end
+
+      # Connect discovered resources to the machines
+      def correlate!(cluster,machines)
+        raise NotImplementedError, "matches? not implemented for #{self.class}"
+      end
+
+      # Review all machines and resources, faking new machines as necessary
+      #   to display bogus resources
+      def validate!(machines)
+        # Override in subclasses
+      end
+    end
   end
 
   class IaasProvider < Provider

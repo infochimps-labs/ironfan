@@ -39,16 +39,6 @@ module Ironfan
           tags["Name"] || tags["name"]
         end
 
-        # TODO: Fix the situation with stopped machines, such that they can
-        #   still match against remembered instance_id; no reason I can see
-        #   why they should lack this information . . . 
-        def matches?(machine)
-          return false unless machine.server    # unexpected, cannot match
-          return false unless name == machine.server.fullname
-          return true if %w[stopped terminated].include? state
-          id == machine.node[:ec2][:instance_id]
-        end
-
         def created?
           not ['terminated', 'shutting-down'].include? state
         end
@@ -76,15 +66,53 @@ module Ironfan
           values["SSH Key"] =           key_name
           values
         end
+      end
 
-        def sync!
-          raise "unimplemented"
-#       step "Syncing to cloud"
-#       attach_volumes
-#       create_tags
-#       associate_public_ip
-#       ensure_placement_group
-#       set_instance_attributes
+      class Instances < Ironfan::Provider::ResourceCollection
+        self.item_type =        Instance
+
+        def discover!(cluster)
+          Ironfan::Provider::Ec2.connection.servers.each do |fs|
+            next if fs.blank?
+            i = Instance.new(:adaptee => fs)
+            # Already have a instance by this name
+            if self.include? i.name
+              i.bogus <<                :duplicate_instances
+              self[i.name].bogus <<     :duplicate_instances
+              self["#{i.name}-dup:#{i.object_id}"] = i
+            else
+              self << i
+            end
+          end
+        end
+
+        def correlate!(cluster,machines)
+          # Match each machine to its corresponding instance
+          machines.each do |machine|
+            next unless self.include? machine.server.fullname
+            instance =          self[machine.server.fullname]
+            machine.bogus +=    instance.bogus
+            instance.users <<   machine.object_id
+            machine[:instance] = instance
+          end
+          # Find instances that haven't matched, but should have
+          self.each do |instance|
+            next unless instance.users.empty?
+            next unless instance.name.match("^#{cluster.name}")
+            instance.bogus <<   :unexpected_instance
+          end
+        end
+
+        def validate!(machines)
+          values.select(&:bogus?).each do |instance|
+            next unless instance.users.empty?
+            fake =              Ironfan::Broker::Machine.new
+            fake[:instance] =   instance
+            fake.name =         instance.name
+            fake.bogus +=       instance.bogus
+            instance.users <<   fake.object_id
+            machines <<         fake
+          end
         end
       end
 

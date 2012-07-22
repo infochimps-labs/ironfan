@@ -5,6 +5,10 @@ module Ironfan
       class SecurityGroup < Ironfan::Provider::Resource
       end
 
+      class SecurityGroups < Ironfan::Provider::ResourceCollection
+        self.item_type =        SecurityGroup
+      end
+
     end
   end
 end

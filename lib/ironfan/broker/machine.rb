@@ -6,14 +6,14 @@ module Ironfan
   class Broker
 
     class Machine < Builder
-      collection :rscs,         Ironfan::Provider::Resource
+      collection :resources,    Ironfan::Provider::Resource
       field :server,            Ironfan::Dsl::Server
       delegate :[],:[]=,:include?,
-          :to =>                :rscs
+          :to =>                :resources
 
       # Only used for bogus servers
       field :name,              String
-      field :bogosity,          Symbol
+      field :bogus,             Array,          :default => []
 
       def name()
         return server.fullname  if server?
@@ -32,13 +32,13 @@ module Ironfan
 
         values = server.display_values(style, values) unless server.nil?
         [ :node, :instance ].each do |source|
-          values = rscs[source].display_values(style, values) if include? source
+          values = self[source].display_values(style, values) if include? source
         end
         if style == :expanded
           values["Startable"]  = display_boolean(stopped?)
           values["Launchable"] = display_boolean(launchable?)
         end
-        values["Bogus"] =       bogosity
+        values["Bogus"] =       bogus.join(',')
         # Only show values that actually have something to show
         values.select {|k,v| !v.to_s.empty?}
       end
@@ -48,14 +48,14 @@ module Ironfan
       # Status flags
       #
       def server?()     !server.nil?;                   end
-      def bogus?()      !bogosity.nil?;                 end
+      def bogus?()      !bogus.empty?;                  end
       def created?()
-        include?(:instance) && rscs[:instance].created?
+        include?(:instance) && self[:instance].created?
       end
       def stopped?()
-        created? && rscs[:instance].stopped?
+        created? && self[:instance].stopped?
       end
-      def launchable?() not created?;                   end
+      def launchable?() not bogus? and not created?;    end
 
       def killable?
         return false if permanent?
@@ -68,17 +68,15 @@ module Ironfan
         [true, :true, 'true'].include? server.selected_cloud.permanent
       end
 
-#       def destroy_instance()    instance.destroy && instance = nil;     end
-#       def destroy_node()        node.destroy && node = nil;             end
     end
 
-    class MachineCollection < Gorillib::ModelCollection
+    class Machines < Gorillib::ModelCollection
       self.item_type    = Machine
       self.key_method   = :object_id
       delegate :first, :map,
           :to           => :values
 
-      # Return the selection inside another MachineCollection
+      # Return the selection inside another Machines
       def select(&block)
         result          = self.class.new
         values.select(&block).each{|m| result << m}

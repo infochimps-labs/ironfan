@@ -22,6 +22,34 @@ module Ironfan
         end
       end
 
+      class Clients < Ironfan::Provider::ResourceCollection
+        self.item_type =        Client
+        self.key_method =       :name
+
+        def discover!(cluster)
+          nameq = "name:#{cluster.name}-* OR clientname:#{cluster.name}-*"
+          Chef::Search::Query.new.search(:client, nameq) do |client|
+            self << Client.new(:adaptee => client) unless client.blank?
+          end
+        end
+
+        def correlate!(cluster,machines)
+          machines.each do |machine|
+            if include? machine.server.fullname
+              machine[:client] = self[machine.server.fullname]
+              machine[:client].users << machine.object_id
+            end
+          end
+        end
+
+        def validate!(machines)
+          machines.each do |machine|
+            next unless machine[:node] and not machine[:client]
+            machine.bogus << :node_without_client
+          end
+        end
+      end
+
     end
   end
 end

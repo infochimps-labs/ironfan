@@ -60,6 +60,26 @@ module Ironfan
         end
       end
 
+      class Nodes < Ironfan::Provider::ResourceCollection
+        self.item_type =        Node
+        self.key_method =       :name
+
+        def discover!(cluster)
+          Chef::Search::Query.new.search(:node, "name:#{cluster.name}-*") do |node|
+            self << Node.new(:adaptee => node) unless node.blank?
+          end
+        end
+
+        def correlate!(cluster,machines)
+          machines.each do |machine|
+            if include? machine.server.fullname
+              machine[:node] = self[machine.server.fullname]
+              machine[:node].users << machine.object_id
+            end
+          end
+        end
+      end
+
     end
   end
 end
