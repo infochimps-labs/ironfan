@@ -4,7 +4,6 @@
 #   matches
 module Ironfan
   class Provider
-
     include Gorillib::Builder
     def self.receive(obj,&block)
       obj[:_type] = case obj[:name]
@@ -36,21 +35,16 @@ module Ironfan
         raise NotImplementedError, "sync!(broker) not implemented for #{self.class}"
       end
     end
+
   end
 
   class IaasProvider < Provider
-    #
-    # Instance
-    #
-    class Instance < Resource
-    end
-    
-    #
-    # IaasProvider
-    #
-    collection :instances,    Instance
+    collection          :instances,     Instance
     def discover_instances!
       raise NotImplementedError, "discover_instances! not implemented for #{self.class}"
+    end
+
+    class Instance < Resource
     end
   end
 

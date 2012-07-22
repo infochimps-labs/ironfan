@@ -1,5 +1,6 @@
 module Ironfan
   module Dsl
+
     class Ec2 < Cloud
       magic :permanent,               :boolean,       :default => false
       magic :availability_zones,      Array
@@ -38,5 +39,6 @@ module Ironfan
       end
 
     end
+
   end
 end

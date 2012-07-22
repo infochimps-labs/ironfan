@@ -1,5 +1,6 @@
 module Ironfan
   module Dsl
+
     class Cloud < Ironfan::Dsl::Builder
       magic :default_cloud,           :boolean,       :default => false
 
@@ -12,9 +13,6 @@ module Ironfan
         end unless native?(obj)
         super
       end
-    end
-
-    class VirtualBox < Cloud
     end
 
   end
