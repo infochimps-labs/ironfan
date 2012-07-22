@@ -5,10 +5,13 @@
 module Ironfan
 
   class Provider < Builder
-    field :types,      Array
-    field :discover,   Array,   :default =>->{types}
-    field :correlate,  Array,   :default =>->{types}
-    field :validate,   Array,   :default =>->{types}
+    field :types,       Array
+    # Discovery
+    field :discover,    Array,  :default =>->{types}
+    field :correlate,   Array,  :default =>->{discover}
+    field :validate,    Array,  :default =>->{correlate}
+    # Synchronization
+    field :sync,        Array,  :default =>->{types}
 
     def self.receive(obj,&block)
       obj[:_type] = case obj[:name]
@@ -20,9 +23,11 @@ module Ironfan
       super
     end
 
-    def delegate_to_resources(types,*args,&block)
+    def delegate_to_resources(types,call,*args)
       types.each do |type|
-        self.send(type).instance_eval {|i| yield(i,*args) }
+        self.send(type).instance_eval do |i|
+          i.send(call,*args) if i.respond_to? call
+        end
       end
     end
 
@@ -30,7 +35,7 @@ module Ironfan
       method = "#{action.to_s}!".to_sym
       define_method method do |*args|
         collections = read_attribute(action)
-        delegate_to_resources(collections,*args,&method)
+        delegate_to_resources(collections,method,*args)
       end
     end
 
@@ -55,16 +60,15 @@ module Ironfan
         raise NotImplementedError, "discover! not implemented for #{self.class}"
       end
 
-      # Connect discovered resources to the machines
+      # Connect discovered resources to the machines, adding fake machines to
+      #   hold extraneous resources (if warranted)
       def correlate!(cluster,machines)
         raise NotImplementedError, "correlate! not implemented for #{self.class}"
       end
 
-      # Review all machines and resources, faking new machines as necessary
-      #   to display bogus resources
-      def validate!(machines)
-        # Override in subclasses
-      end
+      # Optional final review of machines and resources, to ensure correlation
+      #   between important parts (like Chef::Client and Chef::Node)
+      #def validate!(machines); end
     end
   end
 

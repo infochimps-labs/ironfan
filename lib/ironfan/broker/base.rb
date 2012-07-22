@@ -9,14 +9,19 @@ module Ironfan
           :default =>         Ironfan::Provider::ChefServer.new
     collection :providers,    Ironfan::IaasProvider
 
+    #
+    #   DISCOVERY
+    #
+
     # Take in a Dsl::Cluster, return Machines populated with
-    #   all discovered resources that correlate
+    #   all discovered resources that correlate, plus bogus machines
+    #   corresponding to 
     def discover!(cluster)
       cluster.expand_servers
       resolved = cluster.resolve
 
-      discover_resources! resolved
-      machines = correlate_machines resolved
+      discover_resources!(resolved)
+      machines = correlate_machines(resolved)
       validate(machines)
     end
 
@@ -38,10 +43,10 @@ module Ironfan
       machines
     end
 
-    # Compare the results
+    # Double-check the results for correct relationships between resources
     def validate(machines)
       chef.validate! machines
-      providers.each{|p| p.validate!(machines)}
+      providers.each{|p| p.validate!(machines) if p.respond_to? :validate! }
       machines
     end
 
@@ -56,11 +61,16 @@ module Ironfan
       machines
     end
 
+    #
+    #   SYNC
+    #
+
     def sync_to_chef(machines)
 #       sync_roles
 #       delegate_to_servers( :sync_to_chef )
       chef.sync!(machines)
     end
+
     def sync_to_providers(machines)
 #       sync_keypairs
 #       sync_security_groups
