@@ -134,7 +134,7 @@ module Ironfan
         end
         instances
       end
-      
+
       # An instance matches if the Name tag starts with the selector's fullname
       def instances_of(selector)
         instances.values.select {|i| i.name.match("^#{selector.fullname}") }
@@ -150,6 +150,7 @@ module Ironfan
           match = machines.values.select {|m| instance.matches? m }.first
           if match.nil?
             match = Ironfan::Broker::Machine.new
+            match.name     = instance.name
             match.bogosity = :unexpected_instance
             machines << match
           end
@@ -170,7 +171,7 @@ module Ironfan
         # Only sync Ec2::Instances
         sync_keypairs! machines
         sync_security_groups! machines
-        target = machines.select{|m| m.instance.class == Instance}
+        target = machines.select{|m| m[:instance].class == Instance}
         target.each(&:sync!)
         raise 'incomplete'
       end
@@ -182,10 +183,10 @@ module Ironfan
 #           keypair_obj = Ironfan::Ec2Keypair.create!(keypair_name)
 #           Ironfan.fog_keypairs[keypair_name] = keypair_obj
 #         end
-        raise 'inimplemented'
+        raise 'unimplemented'
       end
       def sync_security_groups!(machines)
-        raise 'inimplemented'
+        raise 'unimplemented'
       end
 
     end

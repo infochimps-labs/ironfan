@@ -18,8 +18,6 @@ module Ironfan
 
       def name()
         return server.fullname  if server?
-        return node.name        if include? :node
-        return instance.name    if include? :instance
         return @name            if @name
         "unnamed:#{object_id}"
       end

@@ -72,7 +72,7 @@ module Ironfan
         rel = relevant?(m)
         { :relevant? => (rel ? "[blue]#{rel}[reset]" : '-' ) }
       end
-      full_target.select_machines{|m| relevant?(m) }
+      full_target.select{|m| relevant?(m) }
     end
 
     # passes target to Broker::Conductor#display, will show headings in server slice

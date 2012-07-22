@@ -50,10 +50,10 @@ module Ironfan
         field :client, Ironfan::Provider::ChefServer::Client
 
         def initialize(config)
+          super
           if self.adaptee.nil? and not config[:name].nil?
             self.adaptee = Chef::Node.build(config[:name])
           end
-          super
         end
 
         # matches when node name equals the selector's fullname (strict), or
@@ -71,7 +71,16 @@ module Ironfan
           values
         end
 
-        def sync!()     save;   end
+        def sync!(machine)
+          server =                        machine.server
+          node.chef_environment =         server.environment
+          node.run_list.instance_eval     { @run_list_items = server.run_list }
+          organization =                  Chef::Config.organization
+          node.normal[:organization] =    organization unless organization.nil?
+          node.normal[:cluster_name] =    server.cluster_name
+          node.normal[:facet_name] =      server.facet_name
+          save
+        end
       end
 
       class Role < Ironfan::Provider::Resource
@@ -133,18 +142,8 @@ module Ironfan
       #   find a machine that matches and attach,
       #   or make a new machine and mark it :unexpected_node
       # for all chef clients that match
-      #   
+      #     find a machine that matches and attach,
       def correlate(cluster,machines)
-        nodes_matching(cluster).each do |node|
-          match = machines.select {|m| node.matches_dsl? m.server }.first
-          if match.nil?
-            fake = Ironfan::Broker::Machine.new
-            fake.bogosity = :unexpected_node
-            machines << fake
-          else
-            match[:node] = node
-          end
-        end
         clients_matching(cluster).each do |client|
           match = machines.select {|m| client.matches_dsl? m.server }.first
           if match.nil?
@@ -156,22 +155,33 @@ module Ironfan
             match[:client] = client
           end
         end
+        nodes_matching(cluster).each do |node|
+          match = machines.select {|m| node.matches_dsl? m.server }.first
+          if match.nil?
+            fake = Ironfan::Broker::Machine.new
+            fake.name = node.name
+            fake.bogosity = :unexpected_node
+            machines << fake
+          else
+            match[:node] = node
+          end
+        end
         machines
       end
       def nodes_matching(selector)
-        nodes.values.select {|n| n.matches_dsl?(selector,:strict=>false) }
+        nodes.values.select {|n| n.matches_dsl? selector, :strict=>false }
       end
       def clients_matching(selector)
-        clients.values.select {|c| c.matches_dsl?(selector,:strict=>false) }
+        clients.values.select {|c| c.matches_dsl? selector, :strict=>false }
       end
 
       def sync!(machines)
         sync_roles! machines
         machines.each do |machine|
           ensure_node machine
-          machine[:node].sync!
-#           _ensure_client machine
-#           machine[:client].sync! machine
+          machine[:node].sync! machine
+          ensure_client machine
+          machine[:client].sync! machine
           raise 'incomplete'
         end
       end
@@ -186,19 +196,8 @@ module Ironfan
         defs.each{|d| Role.new(:expected => d).save}
       end
       def ensure_node(machine)
-        return machine[:node] if machine.includes? :node
-
-        # step("  setting node runlist and essential attributes")
-        node =                          Node.new(:name => machine.name)
-        server =                        machine.server
-        node.chef_environment =         server.environment
-        node.run_list.instance_eval     { @run_list_items = server.run_list }
-        organization =                  Chef::Config.organization
-        node.normal[:organization] =    organization unless organization.nil?
-        node.normal[:cluster_name] =    server.cluster_name
-        node.normal[:facet_name] =      server.facet_name
-
-        machine[:node] = node
+        return machine[:node] if machine.include? :node
+        machine[:node] = node(machine.name)
       end
     end
 
