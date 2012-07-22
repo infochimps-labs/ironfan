@@ -19,7 +19,7 @@ module Ironfan
       end
 
       class Ec2 < Base
-        magic :permanent,               Whatever,       :default => false
+        magic :permanent,               :boolean,       :default => false
         magic :availability_zones,      Array
         magic :flavor,                  String
         magic :backing,                 String

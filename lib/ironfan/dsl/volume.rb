@@ -3,20 +3,20 @@ module Ironfan
     class Volume < Ironfan::Dsl::Builder
       magic     :attachable,            String,   :default => 'ebs'
       magic     :availability_zone,     String
-      magic     :create_at_launch,      Whatever, :default => false  # FIXME: Boolean?
+      magic     :create_at_launch,      :boolean, :default => false
       magic     :device,                String
-      magic     :formattable,           Whatever, :default => false  # FIXME: Boolean?
+      magic     :formattable,           :boolean, :default => false
       magic     :fstype,                String,   :default => 'xfs'
-      magic     :in_raid,               Whatever, :default => false  # FIXME: Boolean?
-      magic     :keep,                  Whatever, :default => true   # FIXME: Boolean?
+      magic     :in_raid,               :boolean, :default => false
+      magic     :keep,                  :boolean, :default => true
       magic     :mount_dump,            String
       magic     :mount_pass,            String
       magic     :mount_options,         String,   :default => 'defaults,nouuid,noatime'
       magic     :mount_point,           String
-      magic     :mountable,             Whatever, :default => true
+      magic     :mountable,             :boolean, :default => true
       magic     :size,                  String
       magic     :volume_id,             String
-      magic     :resizable,             Whatever, :default => false  # FIXME: Boolean?
+      magic     :resizable,             :boolean, :default => false
       magic     :snapshot_id,           String
       magic     :snapshot_name,         String
       magic     :tags,                  Hash,     :default => {}
@@ -32,8 +32,8 @@ module Ironfan
       magic     :read_ahead,            String
 
       # Overrides of Volume field defaults
-      magic     :attachable,            Whatever, :default => false
-      magic     :formattable,           Whatever, :default => true
+      magic     :attachable,            :boolean, :default => false
+      magic     :formattable,           :boolean, :default => true
       magic     :mount_options,         String,   :default => 'defaults,nobootwait,noatime,nouuid,comment=ironfan'
     end
   end
