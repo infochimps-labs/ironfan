@@ -62,16 +62,18 @@ module Ironfan
     end
   end
 
-  class CloudDsl::Base
-    def default_cloud(foo)
-      Ironfan.future 'default_cloud'
+  module CloudDsl
+    class Base
+      def default_cloud(foo)
+        Ironfan.future 'default_cloud'
+      end
     end
-  end
 
-  class CloudDsl::Ec2
-    def elastic_ip(*args, &block)
-      Ironfan.deprecated 'elastic_ip', 'public_ip'
-      public_ip(*args, &block)
+    class Ec2
+      def elastic_ip(*args, &block)
+        Ironfan.deprecated 'elastic_ip', 'public_ip'
+        public_ip(*args, &block)
+      end
     end
   end
 

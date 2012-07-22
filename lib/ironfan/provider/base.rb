@@ -25,9 +25,9 @@ module Ironfan
 
     class Resource
       include Gorillib::Builder
-      field     :adaptee,       Whatever
-      field     :owner,         Provider
-      field     :machine,       Whatever
+      field             :adaptee,       Whatever
+      field             :owner,         Provider
+      collection        :users,         Ironfan::Broker::Machine
 
       def matches?(machine)
         raise NotImplementedError, "matches? not implemented for #{self.class}"
