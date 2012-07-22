@@ -6,6 +6,9 @@ module Ironfan
 
   class Provider < Builder
     field :types,      Array
+    field :discover,   Array,   :default =>->{types}
+    field :correlate,  Array,   :default =>->{types}
+    field :validate,   Array,   :default =>->{types}
 
     def self.receive(obj,&block)
       obj[:_type] = case obj[:name]
@@ -17,16 +20,18 @@ module Ironfan
       super
     end
 
-    def discover!(cluster)
-      types.each {|type| self.send(type).discover!(cluster) }
+    def delegate_to_resources(types,*args,&block)
+      types.each do |type|
+        self.send(type).instance_eval {|i| yield(i,*args) }
+      end
     end
 
-    def correlate!(cluster,machines)
-      types.each {|type| self.send(type).correlate!(cluster,machines) }
-    end
-
-    def validate!(machines)
-      types.each {|type| self.send(type).validate!(machines) }
+    [:discover,:correlate,:validate].each do |action|
+      method = "#{action.to_s}!".to_sym
+      define_method method do |*args|
+        collections = read_attribute(action)
+        delegate_to_resources(collections,*args,&method)
+      end
     end
 
     def sync!(broker)
@@ -35,23 +40,11 @@ module Ironfan
 
     class Resource < Builder
       field             :adaptee,       Whatever
-#       field             :owner,         Provider
       field             :users,         Array,          :default => []
       field             :bogus,         Array,          :default => []
 
       def bogus?()      !bogus.empty?;                  end
 
-#       def matches?(machine)
-#         raise NotImplementedError, "matches? not implemented for #{self.class}"
-#       end
-# 
-#       def sync!(broker)
-#         raise NotImplementedError, "sync!(broker) not implemented for #{self.class}"
-#       end
-# 
-#       def validate!(machines)
-#         # Override in subclasses
-#       end
     end
 
     class ResourceCollection < Gorillib::ModelCollection
@@ -59,12 +52,12 @@ module Ironfan
 
       # Find all resources of this type that match this cluster
       def discover!(cluster)
-        raise NotImplementedError, "matches? not implemented for #{self.class}"
+        raise NotImplementedError, "discover! not implemented for #{self.class}"
       end
 
       # Connect discovered resources to the machines
       def correlate!(cluster,machines)
-        raise NotImplementedError, "matches? not implemented for #{self.class}"
+        raise NotImplementedError, "correlate! not implemented for #{self.class}"
       end
 
       # Review all machines and resources, faking new machines as necessary

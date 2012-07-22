@@ -2,9 +2,10 @@ module Ironfan
   class Provider
 
     class Ec2 < Ironfan::IaasProvider
-      field :types,    Array,  :default => 
-#         [ :instances, :ebs_volumes, :security_groups, :key_pairs, :placement_groups ]
-        [ :instances ]
+      field :types,    Array,  :default =>
+        [ :instances, :ebs_volumes, :security_groups, :key_pairs, :placement_groups ]
+#       field :types,    Array,  :default => [ :instances, :ebs_volumes ]
+#       field :discover, Array,  :default =>->{types + []}
 
       collection :instances,            Ironfan::Provider::Ec2::Instance
       collection :ebs_volumes,          Ironfan::Provider::Ec2::EbsVolume
