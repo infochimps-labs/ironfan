@@ -1,5 +1,5 @@
 module Ironfan
-  module Dsl
+  class Dsl
 
     class Ec2 < Cloud
       magic :permanent,               :boolean,       :default => false
@@ -24,7 +24,7 @@ module Ironfan
         values
       end
 
-      class SecurityGroup < Ironfan::Dsl::Builder
+      class SecurityGroup < Ironfan::Dsl
         field :group_authorized_by,     Array, :default => []
         field :range_authorizations,    Array, :default => []
 

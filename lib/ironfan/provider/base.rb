@@ -3,8 +3,8 @@
 #   Ironfan ask specialized questions (such as whether a given resource 
 #   matches
 module Ironfan
-  class Provider
-    include Gorillib::Builder
+
+  class Provider < Builder
     def self.receive(obj,&block)
       obj[:_type] = case obj[:name]
         when    :chef;          Chef

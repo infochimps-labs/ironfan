@@ -4,10 +4,7 @@
 #   them.
 module Ironfan
 
-  class Broker
-    include Gorillib::Builder
-    field :ui,                Whatever,       :default => ->{Ironfan.ui}
-
+  class Broker < Builder
     field :chef,              Ironfan::Provider::ChefServer,
           :default =>         Ironfan::Provider::ChefServer.new
     collection :providers,    Ironfan::IaasProvider
@@ -64,7 +61,6 @@ module Ironfan
 #       delegate_to_servers( :sync_to_cloud )
       providers.each {|p| p.sync!(machines)}
     end
-
   end
 
 end

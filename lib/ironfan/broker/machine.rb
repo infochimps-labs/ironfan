@@ -5,8 +5,7 @@
 module Ironfan
   class Broker
 
-    class Machine
-      include Gorillib::Builder
+    class Machine < Builder
       collection :rscs,         Ironfan::Provider::Resource
       field :server,            Ironfan::Dsl::Server
       delegate :[],:[]=,:include?,

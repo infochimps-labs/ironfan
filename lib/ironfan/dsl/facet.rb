@@ -1,5 +1,6 @@
 module Ironfan
-  module Dsl
+  class Dsl
+
     class Facet < Ironfan::Dsl::Compute
       magic      :instances,    Integer,                :default => 1
       collection :servers,      Ironfan::Dsl::Server,   :resolver => :deep_resolve
@@ -19,5 +20,6 @@ module Ironfan
       end
 
     end
+
   end
 end

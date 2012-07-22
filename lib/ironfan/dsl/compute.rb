@@ -1,6 +1,7 @@
 module Ironfan
-  module Dsl
-    class Compute < Ironfan::Dsl::Builder
+  class Dsl
+
+    class Compute < Ironfan::Dsl
       @@run_list_rank = 0
       field      :name,         String
 
@@ -77,7 +78,7 @@ module Ironfan
         @@run_list_rank += 1
         run_list_items[item] = { :name => item, :rank => @@run_list_rank, :placement => placement }
       end
-
     end
+
   end
 end

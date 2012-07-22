@@ -1,6 +1,7 @@
 module Ironfan
-  module Dsl
-    class Volume < Ironfan::Dsl::Builder
+  class Dsl
+
+    class Volume < Ironfan::Dsl
       magic     :attachable,            String,   :default => 'ebs'
       magic     :availability_zone,     String
       magic     :create_at_launch,      :boolean, :default => false
@@ -21,6 +22,7 @@ module Ironfan
       magic     :snapshot_name,         String
       magic     :tags,                  Hash,     :default => {}
     end
+
     class RaidGroup < Volume
       # volumes that comprise this raid group
       magic     :sub_volumes,           Array,    :default => []
@@ -36,5 +38,6 @@ module Ironfan
       magic     :formattable,           :boolean, :default => true
       magic     :mount_options,         String,   :default => 'defaults,nobootwait,noatime,nouuid,comment=ironfan'
     end
+
   end
 end

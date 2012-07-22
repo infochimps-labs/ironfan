@@ -10,7 +10,7 @@ module Ironfan
     ui.warn "The '#{call}' statement isn't available yet#{correction} (in #{caller(2).first.inspect})"
   end
 
-  module Dsl
+  class Dsl
     class Cloud
       def defaults
         Ironfan.deprecated 'defaults'

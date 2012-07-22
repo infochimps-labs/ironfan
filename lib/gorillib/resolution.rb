@@ -32,6 +32,7 @@ module Gorillib
   #   broken from the regular read-write accessors.
   #
   module Resolution
+    extend  Gorillib::Concern
     include Gorillib::FancyBuilder
     attr_accessor :underlay
 
@@ -95,33 +96,6 @@ module Gorillib
       return result unless result.nil?
       read_underlay_attribute(field_name)
     end
-
   end
-end
 
-module Ironfan
-  module Dsl
-    #
-    # This class is intended as a drop-in replacement for DslObject, using 
-    #   Gorillib::Builder setup, instead its half-baked predecessor.
-    #
-    module Hooks
-      def self.ui() Ironfan.ui ; end
-      def ui()      Ironfan.ui ; end
-
-      # helper method for turning exceptions into warnings
-      def safely(*args, &block) Ironfan.safely(*args, &block) ; end
-
-      def step(desc, *style)
-        ui.info("  #{"%-15s" % (name.to_s+":")}\t#{ui.color(desc.to_s, *style)}")
-      end
-    end
-
-    class Builder
-      include Gorillib::FancyBuilder
-      include Gorillib::Resolution
-      include Ironfan::Dsl::Hooks
-    end
-
-  end
 end

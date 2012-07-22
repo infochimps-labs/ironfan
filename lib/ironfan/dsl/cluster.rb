@@ -1,5 +1,5 @@
 module Ironfan
-  module Dsl
+  class Dsl
 
     class Cluster < Ironfan::Dsl::Compute
       collection :facets,       Ironfan::Dsl::Facet,   :resolver => :deep_resolve

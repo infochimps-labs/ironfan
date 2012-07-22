@@ -1,7 +1,7 @@
 module Ironfan
-  module Dsl
+  class Dsl
 
-    class Cloud < Ironfan::Dsl::Builder
+    class Cloud < Ironfan::Dsl
       magic :default_cloud,           :boolean,       :default => false
 
       # Factory out to subclasses 

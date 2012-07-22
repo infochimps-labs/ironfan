@@ -1,5 +1,5 @@
 module Ironfan
-  module Dsl
+  class Dsl
 
     class Server < Ironfan::Dsl::Compute
       field      :cluster_name, String

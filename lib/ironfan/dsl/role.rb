@@ -1,7 +1,7 @@
 module Ironfan
-  module Dsl
+  class Dsl
 
-    class Role < Ironfan::Dsl::Builder
+    class Role < Ironfan::Dsl
       magic     :override_attributes, Hash, :default => {}
       magic     :default_attributes,  Hash, :default => {}
 

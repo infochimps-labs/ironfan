@@ -1,20 +1,4 @@
-require 'chef/mash'
-require 'chef/config'
-#
-require 'gorillib/metaprogramming/class_attribute'
-require 'gorillib/hash/reverse_merge'
-require 'gorillib/object/blank'
-require 'gorillib/hash/compact'
-require 'gorillib/builder'
-require 'set'
-
-require 'ironfan/headers'
-require 'ironfan/dsl'
-require 'ironfan/provider'
-require 'ironfan/broker'
-
-#
-require 'ironfan/deprecated'        # stuff slated to go away
+require 'ironfan/requirements'
 
 module Ironfan
   @@clusters ||= Mash.new
