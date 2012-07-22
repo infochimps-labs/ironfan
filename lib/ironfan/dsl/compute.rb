@@ -6,7 +6,7 @@ module Ironfan
 
       # Resolve each of the following as a merge of their container's attributes and theirs
       collection :run_list_items, Hash,                    :resolver => :merge_resolve
-      collection :clouds,       Ironfan::Dsl::Cloud::Base, :resolver => :merge_resolve
+      collection :clouds,       Ironfan::Dsl::Cloud,       :resolver => :merge_resolve
       collection :volumes,      Ironfan::Dsl::Volume,      :resolver => :merge_resolve
       
       # Resolve these normally (overriding on each layer)

@@ -21,16 +21,14 @@ module Ironfan
     class Facet < Ironfan::Dsl::Compute; end
     class Server < Ironfan::Dsl::Compute; end
 
-    module Cloud
-      class Base < Ironfan::Dsl::Builder; end
-      class Ec2 < Base; end
-      class VirtualBox < Base; end
-    end
     class Role < Ironfan::Dsl::Builder; end
     class Volume < Ironfan::Dsl::Builder; end
-    module Ec2
+
+    class Cloud < Ironfan::Dsl::Builder; end
+    class Ec2 < Cloud
       class SecurityGroup < Ironfan::Dsl::Builder; end
     end
+    class VirtualBox < Cloud; end
   end
 
   class Broker
