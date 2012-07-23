@@ -23,6 +23,10 @@ module Ironfan
 
         def correlate!(cluster,machines)
         end
+
+        def sync!(machines)
+          raise 'unimplemented'
+        end
       end
 
     end

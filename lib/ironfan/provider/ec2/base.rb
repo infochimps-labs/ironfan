@@ -2,23 +2,26 @@ module Ironfan
   class Provider
 
     class Ec2 < Ironfan::IaasProvider
-      field :types,    Array,  :default =>
-        [ :instances, :ebs_volumes, :security_groups, :key_pairs, :placement_groups ]
-      field :discover,    Array,  :default => [ :instances ]
+      field :types,     Array,  :default => 
+        [ :instances, :ebs_volumes, :elastic_ips, :key_pairs,
+          :placement_groups, :security_groups ]
+      field :discover,  Array,  :default => [ :instances ]
 
       collection :instances,            Ironfan::Provider::Ec2::Instance
       collection :ebs_volumes,          Ironfan::Provider::Ec2::EbsVolume
+      collection :elastic_ips,          Ironfan::Provider::Ec2::ElasticIp
       collection :key_pairs,            Ironfan::Provider::Ec2::KeyPair
       collection :placement_groups,     Ironfan::Provider::Ec2::PlacementGroup
       collection :security_groups,      Ironfan::Provider::Ec2::SecurityGroup
 
       def initialize(*args,&block)
         super
-        @instances =            Ironfan::Provider::Ec2::Instances.new
         @ebs_volumes =          Ironfan::Provider::Ec2::EbsVolumes.new
-        @security_groups =      Ironfan::Provider::Ec2::SecurityGroups.new
+        @elastic_ips =          Ironfan::Provider::Ec2::ElasticIps.new
+        @instances =            Ironfan::Provider::Ec2::Instances.new
         @key_pairs =            Ironfan::Provider::Ec2::KeyPairs.new
         @placement_groups =     Ironfan::Provider::Ec2::PlacementGroups.new
+        @security_groups =      Ironfan::Provider::Ec2::SecurityGroups.new
       end
 
       def self.connection
@@ -30,29 +33,17 @@ module Ironfan
         })
       end
 
-#       def sync!(machines)
-# #       sync_keypairs
-# #       sync_security_groups
-# #       delegate_to_servers( :sync_to_cloud )
-#         # Only sync Ec2::Instances
-#         sync_keypairs! machines
-#         sync_security_groups! machines
-#         target = machines.select{|m| m[:instance].class == Instance}
-#         target.each(&:sync!)
-#         raise 'incomplete'
-#       end
-#       def sync_keypairs!(machines)
-# #         step("ensuring keypairs exist")
-# #         keypairs  = servers.map{|svr| [svr.cluster.cloud.keypair, svr.cloud.keypair] }.flatten.map(&:to_s).reject(&:blank?).uniq
-# #         keypairs  = keypairs - Ironfan.fog_keypairs.keys
-# #         keypairs.each do |keypair_name|
-# #           keypair_obj = Ironfan::Ec2Keypair.create!(keypair_name)
-# #           Ironfan.fog_keypairs[keypair_name] = keypair_obj
-# #         end
-#         raise 'unimplemented'
-#       end
-#       def sync_security_groups!(machines)
-#         raise 'unimplemented'
+#       def self.ensure_tags(tags,fog)
+#         tags_to_create = tags.reject{|key, val| fog.tags[key] == val.to_s }
+#         return if tags_to_create.empty?
+#         # step("  tagging #{fog.name} with #{tags_to_create.inspect}", :green)
+#         tags_to_create.each do |key, value|
+#           Chef::Log.debug( "tagging #{fog.name} with #{key} = #{value}" )
+#           safely do
+#             config = {:key => key, :value => value.to_s, :resource_id => fog.id }
+#             connection.tags.create(config)
+#           end
+#         end
 #       end
     end
 

@@ -67,6 +67,7 @@ module Ironfan
       def node
         self[:node]
       end
+
       #
       # Status flags
       #

@@ -31,7 +31,7 @@ module Ironfan
       end
     end
 
-    [:discover,:correlate,:validate].each do |action|
+    [:discover,:correlate,:validate,:sync].each do |action|
       method = "#{action.to_s}!".to_sym
       define_method method do |*args|
         collections = read_attribute(action)
@@ -39,15 +39,12 @@ module Ironfan
       end
     end
 
-    def sync!(broker)
-      raise NotImplementedError, "sync!(broker) not implemented for #{self.class}"
-    end
-
     class Resource < Builder
       field             :adaptee,       Whatever
       field             :users,         Array,          :default => []
       field             :bogus,         Array,          :default => []
-      field             :owner,         Whatever
+
+      attr_accessor     :owner
 
       def bogus?()      !bogus.empty?;                  end
 
@@ -70,15 +67,15 @@ module Ironfan
       # Optional final review of machines and resources, to ensure correlation
       #   between important parts (like Chef::Client and Chef::Node)
       #def validate!(machines); end
+
+      def sync!(cluster)
+        raise NotImplementedError, "sync! not implemented for #{self.class}"
+      end
     end
   end
 
   class IaasProvider < Provider
     collection          :instances,     Instance
-
-    def discover_instances!
-      raise NotImplementedError, "discover_instances! not implemented for #{self.class}"
-    end
 
     class Instance < Resource
       def remove!

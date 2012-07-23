@@ -43,14 +43,21 @@ module Ironfan
       class Node < Ironfan::Provider::Resource; end
       class Nodes < Ironfan::Provider::ResourceCollection; end
       class Role < Ironfan::Provider::Resource; end
+      class Roles < Ironfan::Provider::ResourceCollection; end
     end
     class Ec2 < Ironfan::IaasProvider
+      class EbsVolume < Ironfan::Provider::Resource; end
+      class EbsVolumes < Ironfan::Provider::ResourceCollection; end
+      class ElasticIp < Ironfan::Provider::Resource; end
+      class ElasticIps < Ironfan::Provider::ResourceCollection; end
       class Instance < Ironfan::IaasProvider::Instance; end
       class Instances < Ironfan::Provider::ResourceCollection; end
-      class EbsVolume < Ironfan::Provider::Resource; end
-      class SecurityGroup < Ironfan::Provider::Resource; end
       class KeyPair < Ironfan::Provider::Resource; end
+      class KeyPairs < Ironfan::Provider::ResourceCollection; end
       class PlacementGroup < Ironfan::Provider::Resource; end
+      class PlacementGroups < Ironfan::Provider::ResourceCollection; end
+      class SecurityGroup < Ironfan::Provider::Resource; end
+      class SecurityGroups < Ironfan::Provider::ResourceCollection; end
     end
     class VirtualBox < Ironfan::IaasProvider
       class Instance < Ironfan::IaasProvider::Instance; end

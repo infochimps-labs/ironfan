@@ -52,6 +52,10 @@ module Ironfan
             end
           end
         end
+
+        def sync!(machines)
+          raise 'unimplemented'
+        end
       end
 
     end
