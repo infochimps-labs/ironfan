@@ -65,6 +65,11 @@ module Ironfan
           values["SSH Key"] =           key_name
           values
         end
+
+        def remove!
+          self.destroy
+          self.owner.delete(self.name)
+        end
       end
 
       class Instances < Ironfan::Provider::ResourceCollection
@@ -74,6 +79,7 @@ module Ironfan
           Ironfan::Provider::Ec2.connection.servers.each do |fs|
             next if fs.blank?
             i = Instance.new(:adaptee => fs)
+            i.owner = self
             # Already have a instance by this name
             if self.include? i.name
               i.bogus <<                :duplicate_instances

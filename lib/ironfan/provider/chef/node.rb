@@ -58,6 +58,11 @@ module Ironfan
           node.normal[:facet_name] =      server.facet_name
           save
         end
+
+        def remove!
+          self.destroy
+          self.owner.delete(self.name)
+        end
       end
 
       class Nodes < Ironfan::Provider::ResourceCollection
@@ -66,7 +71,8 @@ module Ironfan
 
         def discover!(cluster)
           Chef::Search::Query.new.search(:node, "name:#{cluster.name}-*") do |node|
-            self << Node.new(:adaptee => node) unless node.blank?
+            attrs = {:adaptee => node,:owner => self}
+            self << Node.new(attrs) unless node.blank?
           end
         end
 

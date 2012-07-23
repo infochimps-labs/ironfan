@@ -1,7 +1,7 @@
 require 'ironfan/requirements'
 
 module Ironfan
-  @@clusters ||= Mash.new
+  @@clusters ||= Hash.new
 
   # path to search for cluster definition files
   def self.cluster_path
@@ -15,7 +15,7 @@ module Ironfan
   #
   # Delegates
   def self.clusters
-    Chef::Config[:clusters] ||= Mash.new
+    Chef::Config[:clusters] ||= Hash.new
   end
 
   def self.ui=(ui) @ui = ui ; end
@@ -60,17 +60,18 @@ module Ironfan
   #
   # @return [Ironfan::Cluster] the requested cluster
   def self.load_cluster(cluster_name)
+    cluster = cluster_name.to_sym
     raise ArgumentError, "Please supply a cluster name" if cluster_name.to_s.empty?
-    return @@clusters[cluster_name] if @@clusters[cluster_name]
+    return @@clusters[cluster] if @@clusters[cluster]
 
     cluster_file = cluster_filenames[cluster_name] or die("Couldn't find a definition for #{cluster_name} in cluster_path: #{cluster_path.inspect}")
 
     Chef::Log.info("Loading cluster #{cluster_file}")
 
     require cluster_file
-    unless @@clusters[cluster_name] then  die("#{cluster_file} was supposed to have the definition for the #{cluster_name} cluster, but didn't") end
+    unless @@clusters[cluster] then  die("#{cluster_file} was supposed to have the definition for the #{cluster_name} cluster, but didn't") end
 
-    @@clusters[cluster_name]
+    @@clusters[cluster]
   end
 
   #

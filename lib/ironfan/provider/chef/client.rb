@@ -11,14 +11,9 @@ module Ironfan
             :set_or_return, :to_hash, :validate, :with_indexer_metadata,
           :to => :adaptee
 
-        # matches when client name equals the selector's fullname (strict), or
-        #   when name starts with fullname (non-strict)
-        def matches_dsl?(selector,options={:strict=>true})
-          return false if selector.nil?
-          case options[:strict]
-          when true;    name == selector.fullname
-          when false;   name.match("^#{selector.fullname}")
-          end
+        def remove!
+          self.destroy
+          self.owner.delete(self.name)
         end
       end
 
@@ -29,7 +24,8 @@ module Ironfan
         def discover!(cluster)
           nameq = "name:#{cluster.name}-* OR clientname:#{cluster.name}-*"
           Chef::Search::Query.new.search(:client, nameq) do |client|
-            self << Client.new(:adaptee => client) unless client.blank?
+            attrs = {:adaptee => client, :owner => self}
+            self << Client.new(attrs) unless client.blank?
           end
         end
 

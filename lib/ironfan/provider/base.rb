@@ -47,6 +47,7 @@ module Ironfan
       field             :adaptee,       Whatever
       field             :users,         Array,          :default => []
       field             :bogus,         Array,          :default => []
+      field             :owner,         Whatever
 
       def bogus?()      !bogus.empty?;                  end
 
@@ -74,11 +75,15 @@ module Ironfan
 
   class IaasProvider < Provider
     collection          :instances,     Instance
+
     def discover_instances!
       raise NotImplementedError, "discover_instances! not implemented for #{self.class}"
     end
 
     class Instance < Resource
+      def remove!
+        raise NotImplementedError, "remove! not implemented for #{self.class}"
+      end
     end
   end
 

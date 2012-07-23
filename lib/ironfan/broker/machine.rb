@@ -45,27 +45,62 @@ module Ironfan
       def display_boolean(value)        value ? "yes" : "no";   end
 
       #
+      # Actions
+      #
+      def remove_instance!
+        resources.delete(:instance).remove!
+      end
+      def remove_node!
+        resources.delete(:client).remove! if client?
+        resources.delete(:node).remove! if node?
+      end
+
+      #
+      # Accessors
+      #
+      def client
+        self[:client]
+      end
+      def instance
+        self[:instance]
+      end
+      def node
+        self[:node]
+      end
+      #
       # Status flags
       #
-      def server?()     !server.nil?;                   end
-      def bogus?()      !bogus.empty?;                  end
+      def bogus?
+        not bogus.empty?
+      end
+      def client?
+        not client.nil?
+      end
       def created?()
-        include?(:instance) && self[:instance].created?
+        instance? and self[:instance].created?
       end
-      def stopped?()
-        created? && self[:instance].stopped?
+      def instance?()
+        not instance.nil?
       end
-      def launchable?() not bogus? and not created?;    end
-
       def killable?
-        return false if permanent?
-        node? || created?
+        not permanent? and (node? or created?)
       end
-
+      def launchable?()
+        not bogus? and not created?
+      end
+      def node?()
+        not node.nil?
+      end
       def permanent?
         return false unless server?
         return false unless server.selected_cloud.respond_to? :permanent
         [true, :true, 'true'].include? server.selected_cloud.permanent
+      end
+      def server?
+        not server.nil?
+      end
+      def stopped?()
+        created? and self[:instance].stopped?
       end
 
     end
@@ -112,7 +147,7 @@ module Ironfan
         end
       end
       def joined_names
-        machines.map(&:name).join(", ").gsub(/, ([^,]*)$/, ' and \1')
+        values.map(&:name).join(", ").gsub(/, ([^,]*)$/, ' and \1')
       end
     end
 
