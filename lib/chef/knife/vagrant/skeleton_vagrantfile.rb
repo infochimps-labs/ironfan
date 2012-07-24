@@ -32,16 +32,16 @@ Vagrant::Config.run do |config|
   # learn more abt vagrant to figure out where.
   #
 
-  # TODO: FIXME: WTF is this hoary horseshit? At *least* do it by cluster-facet, 
+  # TODO: FIXME: WTF is this hoary horseshit? At *least* do it by cluster-facet,
   #   not just facet (especially since the examples given are all *clusters*)
   def ip_for(svr)
     "#{Chef::Config.host_network_base}.#{(Chef::Config.host_network_ip_mapping[svr.facet_name] || 30) + svr.facet_index}"
   end
 
   # FIXME: things like this should be imputed by the `cloud` statement
-  ram_mb           = 640
+  ram_mb           = Chef::Config.vagrant_ram_mb || 640
   video_ram_mb     = 10
-  cores            = 2
+  cores            = Chef::Config.vagrant_cores  || 2
 
   # ===========================================================================
   #
