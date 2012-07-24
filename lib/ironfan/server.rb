@@ -197,6 +197,10 @@ module Ironfan
     #
     def composite_volumes
       vols = {}
+      self.volumes.each do |vol_name, vol|
+        vols[vol_name]         ||= self.volumes[vol_name].dup
+        vols[vol_name].reverse_merge!(vol)
+      end
       facet.volumes.each do |vol_name, vol|
         self.volumes[vol_name] ||= Ironfan::Volume.new(:parent => self, :name => vol_name)
         vols[vol_name]         ||= self.volumes[vol_name].dup

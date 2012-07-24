@@ -28,6 +28,7 @@ module Ironfan
       :formattable      => false,
       :in_raid          => false,
     }
+    def self.defaults(hsh) VOLUME_DEFAULTS.merge(hsh) ; end
 
     # Snapshot for snapshot_name method.
     # Set your own by adding
