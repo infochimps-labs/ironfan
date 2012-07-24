@@ -45,7 +45,7 @@ module Ironfan
           state == "stopped"
         end
 
-        def display_values(style,values={})
+        def to_display(style,values={})
           # style == :minimal
           values["State"] =             state.to_sym
           values["InstanceID"] =        id

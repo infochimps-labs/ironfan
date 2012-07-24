@@ -33,10 +33,10 @@ module Ironfan
           end
         end
 
-#         def display_values(style,values={})
-#           values["Chef?"] =     adaptee.nil? ? "no" : "yes"
-#           values
-#         end
+        def to_display(style,values={})
+          values["Chef?"] =     adaptee.nil? ? "no" : "yes"
+          values
+        end
 
 #         def sync!(machine)
 #           organization =                Chef::Config.organization

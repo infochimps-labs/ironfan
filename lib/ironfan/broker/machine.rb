@@ -40,7 +40,7 @@ module Ironfan
         values["Bogus"] =       bogus.join(',')
 
         # Only show values that actually have something to show
-        values.delete_if! {|k,v| v.to_s.empty?}
+        values.delete_if {|k,v| v.to_s.empty?}
         values
       end
       def display_boolean(value)        value ? "yes" : "no";   end
@@ -48,13 +48,13 @@ module Ironfan
       #
       # Actions
       #
-      def remove_instance!
-        resources.delete(:instance).remove!
-      end
-      def remove_node!
-        resources.delete(:client).remove! if client?
-        resources.delete(:node).remove! if node?
-      end
+#       def remove_instance!
+#         resources.delete(:instance).remove!
+#       end
+#       def remove_node!
+#         resources.delete(:client).remove! if client?
+#         resources.delete(:node).remove! if node?
+#       end
 
       #
       # Accessors
