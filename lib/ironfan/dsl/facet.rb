@@ -15,7 +15,7 @@ module Ironfan
 
       def fullname()            "#{cluster_name}-#{name}";      end
 
-      def expand_servers
+      def expand_servers!
         for i in 0..(instances-1) do server(i); end
       end
 

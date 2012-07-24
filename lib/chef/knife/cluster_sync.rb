@@ -40,11 +40,11 @@ class Chef
         :boolean     => true
 
 
-      def relevant?(server)
+      def relevant?(machine)
         if config[:sync_all]
-          not server.bogus?
+          not machine.bogus?
         else
-          server.created? && server.in_chef?
+          machine.created? or machine.node?
         end
       end
 
@@ -53,8 +53,8 @@ class Chef
           sync_to_chef target
         else Chef::Log.debug("Skipping sync to chef") ; end
 
-        if config[:cloud] && target.any?(&:in_cloud?)
-          sync_to_cloud target
+        if config[:cloud] && target.any?(&:instance?)
+          sync_to_providers target
         else Chef::Log.debug("Skipping sync to cloud") ; end
       end
 
@@ -64,12 +64,12 @@ class Chef
           return
         end
         ui.info "Syncing to Chef:"
-        target.sync_to_chef
+        broker.sync_to_chef target
       end
 
-      def sync_to_cloud(target)
+      def sync_to_providers(target)
         ui.info "Syncing to cloud:"
-        target.sync_to_cloud
+        broker.sync_to_providers target
       end
 
     end

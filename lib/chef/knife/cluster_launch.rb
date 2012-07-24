@@ -73,72 +73,63 @@ class Chef
 
         # Pre-populate information in chef
         section("Sync'ing to chef and providers")
-        broker.sync_to_providers target
-        broker.sync_to_chef target
+        broker.save! target
 
         # Launch machines
-        section("Launching machines", :green)
-        broker.create_servers target
+        broker.create! target
 
-        ui.info("")
-        display(target)
-
-        # As each server finishes, configure it
-        watcher_threads = target.parallelize do |svr|
-          perform_after_launch_tasks(svr)
-        end
-
-        progressbar_for_threads(watcher_threads)
+#         # As each server finishes, configure it
+#         watcher_threads = target.parallelize do |svr|
+#           perform_after_launch_tasks(svr)
+#         end
+#
+#         progressbar_for_threads(watcher_threads)
 
         display(target)
       end
 
-#       def display(target)
-#         super(target, ["Name", "InstanceID", "State", "Flavor", "Image", "AZ", "Public IP", "Private IP", "Created At", 'Volumes', 'Elastic IP']) do |svr|
-#           { 'launchable?' => (svr.launchable? ? "[blue]#{svr.launchable?}[reset]" : '-' ), }
+#
+#       def perform_after_launch_tasks(server)
+#         # Wait for node creation on amazon side
+#         server.fog_server.wait_for{ ready? }
+#
+#         # Try SSH
+#         unless config[:dry_run]
+#           nil until tcp_test_ssh(server.fog_server.dns_name){ sleep @initial_sleep_delay ||= 10  }
+#         end
+#
+#         # Make sure our list of volumes is accurate
+#         Ironfan.fetch_fog_volumes
+#         server.discover_volumes!
+#
+#         # Attach volumes, etc
+#         server.sync_to_cloud
+#
+#         # Run Bootstrap
+#         if config[:bootstrap]
+#           run_bootstrap(server, server.fog_server.dns_name)
 #         end
 #       end
-
-      def perform_after_launch_tasks(server)
-        # Wait for node creation on amazon side
-        server.fog_server.wait_for{ ready? }
-
-        # Try SSH
-        unless config[:dry_run]
-          nil until tcp_test_ssh(server.fog_server.dns_name){ sleep @initial_sleep_delay ||= 10  }
-        end
-
-        # Make sure our list of volumes is accurate
-        Ironfan.fetch_fog_volumes
-        server.discover_volumes!
-
-        # Attach volumes, etc
-        server.sync_to_cloud
-
-        # Run Bootstrap
-        if config[:bootstrap]
-          run_bootstrap(server, server.fog_server.dns_name)
-        end
-      end
-
-      def tcp_test_ssh(hostname)
-        tcp_socket = TCPSocket.new(hostname, 22)
-        readable = IO.select([tcp_socket], nil, nil, 5)
-        if readable
-          Chef::Log.debug("sshd accepting connections on #{hostname}, banner is #{tcp_socket.gets}")
-          yield
-          true
-        else
-          false
-        end
-      rescue Errno::ETIMEDOUT
-        false
-      rescue Errno::ECONNREFUSED
-        sleep 2
-        false
-      ensure
-        tcp_socket && tcp_socket.close
-      end
+#
+#       def tcp_test_ssh(hostname)
+#         tcp_socket = TCPSocket.new(hostname, 22)
+#         readable = IO.select([tcp_socket], nil, nil, 5)
+#         if readable
+#           Chef::Log.debug("sshd accepting connections on #{hostname}, banner is #{tcp_socket.gets}")
+#           yield
+#           true
+#         else
+#           false
+#         end
+#       rescue Errno::ETIMEDOUT
+#         false
+#       rescue Errno::ECONNREFUSED
+#         sleep 2
+#         false
+#       ensure
+#         tcp_socket && tcp_socket.close
+#       end
+#
 
       def warn_or_die_on_bogus_servers(target)
         ui.info("")

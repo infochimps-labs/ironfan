@@ -37,13 +37,6 @@ module Ironfan
             end
           end
         end
-
-        def validate!(machines)
-          machines.each do |machine|
-            next unless machine[:node] and not machine[:client]
-            machine.bogus << :node_without_client
-          end
-        end
       end
 
     end

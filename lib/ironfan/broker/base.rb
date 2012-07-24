@@ -8,6 +8,25 @@ module Ironfan
     field :chef,              Ironfan::Provider::ChefServer,
           :default =>         Ironfan::Provider::ChefServer.new
     collection :providers,    Ironfan::IaasProvider
+    def all_providers() [chef, providers.values].flatten; end
+
+    def create!(machines)
+      section("Launching machines", :green)
+      ui.info("")
+      display machines
+      create_dependencies! machines
+      create_instances! machines
+      save! machines
+    end
+    # TODO: Parallelize
+    def create_dependencies!(machines)
+      all_providers.each do {|p| p.create_dependencies! machines}
+    end
+    # Do serially ensure node is created before instance
+    def create_instances!(machines)
+      chef.create_instances! machines
+      providers.each do {|p| p.create_instances! machines}
+    end
 
     #
     #   DISCOVERY
@@ -17,47 +36,21 @@ module Ironfan
     #   all discovered resources that correlate, plus bogus machines
     #   corresponding to 
     def discover!(cluster)
-      cluster.expand_servers
-      resolved = cluster.resolve
-
-      discover_resources!(resolved)
-      machines = correlate_machines(resolved)
-      validate(machines)
-    end
-
-    def discover_resources!(cluster)
-      # Get all relevant chef resources for the cluster.
-      chef.discover! cluster
-
       # Ensure all providers referenced by the DSL are available, and have
       #   them each survey their applicable resources.
-      cluster.servers.each {|server| provider(server.selected_cloud.name) }
-      providers.each {|p| p.discover! cluster }
-    end
+      cluster.each {|server| provider(server.selected_cloud.name) }
 
-    # Correlate servers with Chef and IaaS resources
-    def correlate_machines(cluster)
-      machines = expected_machines(cluster)
-      chef.correlate!(cluster,machines)
-      providers.each{|p| p.correlate!(cluster,machines)}
-      machines
-    end
-
-    # Double-check the results for correct relationships between resources
-    def validate(machines)
-      chef.validate! machines
-      providers.each{|p| p.validate!(machines) if p.respond_to? :validate! }
-      machines
-    end
-
-    # for all servers, set up a bare machine
-    def expected_machines(cluster)
+      # for all servers, set up a bare machine
       machines = Machines.new
-      cluster.servers.each do |server|
+      cluster.resolve.servers.each do |server| # Get fully resolved servers
         m = Machine.new
         m.server = server
         machines << m
       end
+
+      all_providers.each do {|p| p.load! machines }
+      all_providers.each do {|p| p.correlate! machines }
+      all_providers.each do {|p| p.validate! machines }
       machines
     end
 
@@ -65,18 +58,23 @@ module Ironfan
     #   SYNC
     #
 
-    def sync_to_chef(machines)
-#       sync_roles
-#       delegate_to_servers( :sync_to_chef )
-      chef.sync!(machines)
+    # TODO: Parallelize
+    def save!(machines)
+      all_providers.each do {|p| p.save! machines }
     end
 
-    def sync_to_providers(machines)
-#       sync_keypairs
-#       sync_security_groups
-#       delegate_to_servers( :sync_to_cloud )
-      providers.each {|p| p.sync!(machines)}
-    end
+#     def sync_to_chef(machines)
+#       providers.each {|p| p.pre_sync!(machines)}
+#       chef.sync!(machines)
+#     end
+# 
+#     def sync_to_providers(machines)
+# #       sync_keypairs
+# #       sync_security_groups
+# #       delegate_to_servers( :sync_to_cloud )
+#       providers.each {|p| p.sync!(machines)}
+#       raise 'incomplete?'
+#     end
   end
 
 end

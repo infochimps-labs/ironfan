@@ -30,6 +30,36 @@ module Ironfan
         end
       end
 
+      class Roles < Ironfan::Provider::ResourceCollection
+        self.item_type =        Ironfan::Provider::ChefServer::Role
+
+        def sync!(machines)
+          # Collect all relevant Dsl::Roles from the machines
+          defs = []
+          machines.each do |m|
+            defs << m.server.cluster_role
+            defs << m.server.facet_role
+          end
+          # Handle each specific definition only once
+          defs.compact.uniq.each do |d|
+            self << Ironfan::Provider::ChefServer::Role.new(:expected => d)
+          end
+          # Save all roles to the server
+          each(&:save)
+        end
+
+#       def sync_roles!(machines)
+#         defs = []
+#         machines.each do |m|
+#           defs << m.server.cluster_role
+#           defs << m.server.facet_role
+#         end
+#         defs = defs.compact.uniq
+#
+#         defs.each{|d| Role.new(:expected => d).save}
+#       end
+      end
+
     end
   end
 end

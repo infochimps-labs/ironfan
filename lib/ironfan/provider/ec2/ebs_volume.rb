@@ -16,45 +16,81 @@ module Ironfan
           :to => :adaptee
 
         def name
-          tags["Name"] || tags["name"]
+          tags["Name"] || tags["name"] || id
+        end
+
+        def annotate(machine)
         end
       end
 
       class EbsVolumes < Ironfan::Provider::ResourceCollection
         self.item_type =        EbsVolume
-        
-        def discover!(cluster)
+
+        def discover!(cluster=nil)
           Ironfan::Provider::Ec2.connection.volumes.each do |vol|
             next if vol.blank?
-            v = EbsVolume.new(:adaptee => vol)
+            ebs = EbsVolume.new(:adaptee => vol)
             # Already have a volume by this name
-            if self.include? v.name
-              v.bogus <<                :duplicate_volumes
-              self[v.name].bogus <<     :duplicate_volumes
-              self["#{v.name}-dup:#{v.object_id}"] = v
+            if include? ebs.name
+              ebs.bogus <<              :duplicate_volumes
+              self[ebs.name].bogus <<   :duplicate_volumes
+              dup_index =               "#{ebs.name}-dup:#{ebs.object_id}"
+              self[dup_index] =         ebs
             else
-              self << v
+              self <<                   ebs
             end
           end
         end
 
-        def correlate!(cluster,machines)
+        def correlate!(cluster=nil,machines={})
           machines.each do |machine|
             server = machine.server
             server.volumes.each do |volume|
-              ebs_name =        "#{server.fullname}-#{volume.name}"
-              next unless self.include? ebs_name
-              ebs =             self[ebs_name]
-              machine.bogus +=  ebs.bogus
-              ebs.users <<      machine.object_id
-              res_name =        "ebs_#{ebs_name}".to_sym
-              machine[res_name] = ebs
+              next unless volume.attachable == :ebs
+              ebs_name =                "#{server.fullname}-#{volume.name}"
+              unless include? ebs_name or include? volume.volume_id
+                Chef::Log.debug("Volume not found: #{ebs_name}")
+                next
+              end
+              ebs =                     self[ebs_name]
+              machine.bogus +=          ebs.bogus
+              ebs.users <<              machine.object_id
+              res_name =                "ebs_#{ebs_name}".to_sym
+              machine[:ebs_volumes] ||= EbsVolumes.new
+              machine[:ebs_volumes] <<  ebs
             end
           end
         end
 
+        # def attach_volumes
+        #   return unless in_cloud?
+        #   discover_volumes!
+        #   return if volumes.empty?
+        #   step("  attaching volumes")
+        #   volumes.each_pair do |vol_name, vol|
+        #     next if vol.volume_id.blank? || (vol.attachable != :ebs)
+        #     if (not vol.in_cloud?) then  Chef::Log.debug("Volume not found: #{vol.desc}") ; next ; end
+        #     if (vol.has_server?)   then check_server_id_pairing(vol.fog_volume, vol.desc) ; next ; end
+        #     step("  - attaching #{vol.desc} -- #{vol.inspect}", :blue)
+        #     safely do
+        #       vol.fog_volume.device = vol.device
+        #       vol.fog_volume.server = fog_server
+        #     end
+        #   end
+        # end
         def sync!(machines)
-          raise 'unimplemented'
+          discover!
+          correlate!(nil,machines)
+          machines.select{|m| m[:ebs_volumes]}.each do |machine|
+            Ironfan.step(machine.name,"attaching EBS volumes",:blue)
+            machine[:ebs_volumes].each do |volume|
+            end
+#               unless 
+#               
+#               pp volume
+#             end
+          end
+          raise 'unfinished'
         end
       end
 

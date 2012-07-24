@@ -128,23 +128,19 @@ module Ironfan
               'name' =>         machine.name,
               'Name' =>         machine.name
             }
-#             Ironfan::Provider::Ec2.ensure_tags(tags,machine.instance)
-# 
-#             # the EC2 API does not surface disable_api_termination as a value, so we
-#             # have to set it every time.
-#             permanent = machine.server.cloud.permanent
-#             desc = "termination flag #{permanent} for #{machine.name}"
-#             safely do
-#             #   step("  setting #{desc}", :blue)
-#               unless_dry_run do
-#                 Ironfan.fog_connection.modify_instance_attribute(self.fog_server.id, {
-#                     'DisableApiTermination.Value' => permanent?, })
-#               end
-#               true
-#             end
+            Ec2.ensure_tags(tags,machine.instance)
+
+            # the EC2 API does not surface disable_api_termination as a value, so we
+            # have to set it every time.
+            permanent = machine.server.cloud.permanent
+            Ironfan.step(machine.name, "setting termination flag #{permanent}", :blue)
+            Ironfan.unless_dry_run do
+              Ironfan.safely do
+                Ec2.connection.modify_instance_attribute( machine.instance.id,
+                  {'DisableApiTermination.Value' => machine.permanent?, })
+              end
+            end
           end
-          pp machines
-          raise 'incomplete'
         end
       end
 

@@ -49,13 +49,22 @@ module Ironfan
         end
 
         def sync!(machine)
-          server =                        machine.server
-          node.chef_environment =         server.environment
-          node.run_list.instance_eval     { @run_list_items = server.run_list }
-          organization =                  Chef::Config.organization
-          node.normal[:organization] =    organization unless organization.nil?
-          node.normal[:cluster_name] =    server.cluster_name
-          node.normal[:facet_name] =      server.facet_name
+          organization =                Chef::Config.organization
+          normal[:organization] =       organization unless organization.nil?
+
+          server =                      machine.server
+          chef_environment =            server.environment
+          run_list.instance_eval        { @run_list_items = server.run_list }
+          normal[:cluster_name] =       server.cluster_name
+          normal[:facet_name] =         server.facet_name
+          normal[:permanent] =          machine.permanent?
+
+          # TODO: delete unless found useful
+          machine.resources.each do |resource|
+            next unless resource.respond_to? :annotate
+            resource.annotate machine
+            raise 'hunh'
+          end
           save
         end
 
@@ -82,6 +91,20 @@ module Ironfan
               machine[:node] = self[machine.server.fullname]
               machine[:node].users << machine.object_id
             end
+          end
+        end
+
+        def sync!(machines)
+          machines.each do |machine|
+            next unless machine.node?
+            machine.node.sync! machine
+          end
+        end
+
+        def validate!(machines)
+          machines.each do |machine|
+            next unless machine[:node] and not machine[:client]
+            machine.bogus << :node_without_client
           end
         end
       end

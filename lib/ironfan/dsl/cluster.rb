@@ -7,10 +7,12 @@ module Ironfan
       def initialize(attrs={},&block)
         self.cluster_role       Ironfan::Dsl::Role.new(:name => "#{attrs[:name]}_cluster")
         super
+        self.expand_servers!
       end
 
-      def expand_servers
-        facets.each {|facet| facet.expand_servers }
+      def expand_servers!
+        facets.each {|facet| facet.expand_servers! }
+        servers
       end
 
       # Utility method to reference all servers from constituent facets

@@ -71,6 +71,9 @@ module Ironfan
     require cluster_file
     unless @@clusters[cluster] then  die("#{cluster_file} was supposed to have the definition for the #{cluster_name} cluster, but didn't") end
 
+    # Flesh out the expected servers listed in the facets
+    @@clusters[cluster].expand_servers!
+
     @@clusters[cluster]
   end
 
@@ -116,5 +119,27 @@ module Ironfan
       Chef::Log.error( boom )
       Chef::Log.error( boom.backtrace.join("\n") )
     end
+  end
+
+  #
+  # Utility to show a step of the overall process
+  #
+  def self.step(name, desc, *style)
+    ui.info("  #{"%-15s" % (name.to_s+":")}\t#{ui.color(desc.to_s, *style)}")
+  end
+
+  #
+  # Utility to do mock out a step during a dry-run
+  #
+  def self.unless_dry_run
+    if dry_run?
+      ui.info("      ... but not really")
+      return nil
+    else
+      yield
+    end
+  end
+  def self.dry_run?
+    chef_config[:dry_run]
   end
 end

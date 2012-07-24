@@ -78,7 +78,7 @@ module Ironfan
         not client.nil?
       end
       def created?()
-        instance? and self[:instance].created?
+        instance? and instance.created?
       end
       def instance?()
         not instance.nil?
@@ -109,7 +109,7 @@ module Ironfan
     class Machines < Gorillib::ModelCollection
       self.item_type    = Machine
       self.key_method   = :object_id
-      delegate :first, :map,
+      delegate :first, :map, :any?,
           :to           => :values
 
       # Return the selection inside another Machines
