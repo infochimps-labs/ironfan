@@ -9,14 +9,14 @@ module Ironfan
     #
     # Utility to handle simple delegation to multiple targets
     #
-    def delegate_to(targets,calls)
-      targets = [targets] unless params.is_a? Array
-      targets.each do |target|
-        calls.each do |call,params|
-          params = [params] unless params.is_a? Array
-          target.send(call,*params)
-        end
-      end
+    def delegate_to(targets,call)
+      method,params =   call.shift
+      params =          [params] unless params.is_a? Array
+      targets =         [targets] unless targets.is_a? Array
+      targets.each {|target| target.send(method,*params)}
+    end
+    def unimplemented(call)
+      raise NotImplementedError, "#{call} not implemented for #{self.class}"
     end
   end
 

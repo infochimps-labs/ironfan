@@ -13,7 +13,7 @@ module Ironfan
       collection :security_groups,    Ironfan::Dsl::Ec2::SecurityGroup
       magic :public_ip,               String
 
-      def display_values(style,values={})
+      def to_display(style,values={})
         return values if style == :minimal
 
         values["Flavor"] =            flavor

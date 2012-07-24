@@ -16,8 +16,8 @@ module Ironfan
       def fullname()    "#{cluster_name}-#{facet_name}-#{name}";        end
       def index()       name.to_i;                                      end
 
-      def display_values(style,values={})
-        selected_cloud.display_values(style,values)
+      def to_display(style,values={})
+        selected_cloud.to_display(style,values)
 
         return values if style == :minimal
 

@@ -79,7 +79,8 @@ module Ironfan
     # tables based on the --verbose flag
     def display(target, display_style=nil, &block)
       display_style ||= (config[:verbosity] == 0 ? :default : :expanded)
-      target.display(ui, display_style, &block)
+#       target.display(ui, display_style, &block)
+      broker.display(target,display_style)
     end
 
     #

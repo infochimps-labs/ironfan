@@ -11,25 +11,29 @@ module Ironfan
             :set_or_return, :to_hash, :validate, :with_indexer_metadata,
           :to => :adaptee
 
-        def remove!
-          self.destroy
-          self.owner.delete(self.name)
-        end
+#         def remove!
+#           self.destroy
+#           self.owner.delete(self.name)
+#         end
       end
 
       class Clients < Ironfan::Provider::ResourceCollection
         self.item_type =        Client
         self.key_method =       :name
 
-        def discover!(cluster)
-          nameq = "name:#{cluster.name}-* OR clientname:#{cluster.name}-*"
+        #
+        # Discovery
+        #
+        def load!(machines)
+          name = machines.cluster.name
+          nameq = "name:#{name}-* OR clientname:#{name}-*"
           Chef::Search::Query.new.search(:client, nameq) do |client|
             attrs = {:adaptee => client, :owner => self}
             self << Client.new(attrs) unless client.blank?
           end
         end
 
-        def correlate!(cluster,machines)
+        def correlate!(machines)
           machines.each do |machine|
             if include? machine.server.fullname
               machine[:client] = self[machine.server.fullname]
@@ -37,6 +41,16 @@ module Ironfan
             end
           end
         end
+
+        # 
+        # Manipulation
+        #
+
+        # def create!(machines)             end
+
+        # def destroy!(machines)            end
+
+        # def save!(machines)               end
       end
 
     end

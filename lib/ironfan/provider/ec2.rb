@@ -16,14 +16,35 @@ module Ironfan
 
       def initialize(*args,&block)
         super
-        @ebs_volumes =          Ironfan::Provider::Ec2::EbsVolumes.new
-        @elastic_ips =          Ironfan::Provider::Ec2::ElasticIps.new
-        @instances =            Ironfan::Provider::Ec2::Instances.new
-        @key_pairs =            Ironfan::Provider::Ec2::KeyPairs.new
-        @placement_groups =     Ironfan::Provider::Ec2::PlacementGroups.new
-        @security_groups =      Ironfan::Provider::Ec2::SecurityGroups.new
+        @ebs_volumes =                  Ironfan::Provider::Ec2::EbsVolumes.new
+        @elastic_ips =                  Ironfan::Provider::Ec2::ElasticIps.new
+        @instances =                    Ironfan::Provider::Ec2::Instances.new
+        @key_pairs =                    Ironfan::Provider::Ec2::KeyPairs.new
+        @placement_groups =             Ironfan::Provider::Ec2::PlacementGroups.new
+        @security_groups =              Ironfan::Provider::Ec2::SecurityGroups.new
       end
 
+      #
+      # Discovery
+      #
+      def load!(machines)
+        targets = [ instances, ebs_volumes ]
+        delegate_to targets, :load! => machines
+      end
+
+      def correlate!(machines)
+        targets = [ instances, ebs_volumes ]
+        delegate_to targets, :correlate! => machines
+      end
+
+      # nothing here actually needs validation, currently
+      def validate!(machines)
+        #delegate_to ebs_volumes, :validate! => machines
+      end
+
+      # 
+      # Manipulation
+      #
       def create_dependencies!(machines)
         targets = [ ebs_volumes, key_pairs, security_groups ]
         delegate_to targets, :create! => machines
@@ -33,18 +54,21 @@ module Ironfan
         delegate_to instances, :create! => machines
       end
 
+      def destroy!(machines)
+        delegate_to [ instances, ebs_volumes ], :destroy! => machines
+      end
+
       def save!(machines)
         targets = [ instances, ebs_volumes, security_groups ]
         delegate_to targets, :save! => machines
       end
 
-      def load!(machines)
-        targets = [ instances, ebs_volumes ]
-        delegate_to targets, :load! => machines
+      def start_instances!(machines)
+        delegate_to instances, :start! => machines
       end
-      def correlate!(machines)
-      end
-      def validate!(machines)
+
+      def stop_instances!(machines)
+        delegate_to instances, :stop! => machines
       end
 
       #

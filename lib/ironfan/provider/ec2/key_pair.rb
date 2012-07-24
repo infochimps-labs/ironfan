@@ -15,18 +15,21 @@ module Ironfan
       class KeyPairs < Ironfan::Provider::ResourceCollection
         self.item_type =        KeyPair
 
-        def discover!(cluster)
+        def load!(cluster)
           Ironfan::Provider::Ec2.connection.key_pairs.each do |kp|
             self << KeyPair.new(:adaptee => kp) unless kp.blank?
           end
         end
 
-        def correlate!(cluster,machines)
-        end
+        #
+        # Manipulation
+        #
 
-        def sync!(machines)
-          raise 'unimplemented'
-        end
+        #def create!(machines)             end
+
+        #def destroy!(machines)            end
+
+        #def save!(machines)               end
       end
 
     end

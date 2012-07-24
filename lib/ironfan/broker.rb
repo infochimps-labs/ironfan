@@ -11,45 +11,25 @@ module Ironfan
 
     def all_providers() [chef, providers.values].flatten; end
 
-    def create!(machines)
-      section("Launching machines", :green)
-      ui.info("")
-      display machines
-      create_dependencies! machines
-      create_instances! machines
-      save! machines
-    end
-
-    # TODO: Parallelize
-    def create_dependencies!(machines)
-      delegate_to all_providers, :create_dependencies! => machines
-    end
-    # Do serially ensure node is created before instance
-    def create_instances!(machines)
-      chef.create_instances! machines
-      providers.each {|p| p.create_instances! machines}
-    end
-
     #
-    #   DISCOVERY
+    #   PUBLIC METHODS
     #
 
     # Take in a Dsl::Cluster, return Machines populated with
     #   all discovered resources that correlate, plus bogus machines
     #   corresponding to 
     def discover!(cluster)
+      machines =                Machines.new
+
       # Get fully resolved servers
-      servers = cluster.resolve.servers
+      machines.cluster =        cluster.resolve
+      servers =                 machines.cluster.servers
 
-      servers.each {|server|  }
-
-      machines = Machines.new
       servers.each do |server|
-        # ensure that the chosen provider is available
+        # ensure that each chosen provider is available
         provider(server.selected_cloud.name)
 
         # set up a bare machine
-#         machine().server = server
         m = Machine.new
         m.server = server
         machines << m
@@ -61,27 +41,77 @@ module Ironfan
       machines
     end
 
-    #
-    #   SYNC
-    #
+    def display(machines,style)
+      defined_data = machines.map {|m| m.to_display(style) }
+      if defined_data.empty?
+        ui.info "Nothing to report"
+      else
+        headings = defined_data.map{|r| r.keys}.flatten.uniq
+        Formatador.display_compact_table(defined_data, headings.to_a)
+      end
+    end
+#     def display(ui, style,&block)
+#       defined_data = map {|m| m.display_values(style) }
+#       if defined_data.empty?
+#         ui.info "Nothing to report"
+#       else
+#         headings = defined_data.map{|r| r.keys}.flatten.uniq
+#         Formatador.display_compact_table(defined_data, headings.to_a)
+#       end
+#     end
+#     def joined_names
+#       values.map(&:name).join(", ").gsub(/, ([^,]*)$/, ' and \1')
+#     end
+
+
+    def kill!(machines)
+      delegate_to all_providers, :destroy! => machines
+    end
+
+    def launch!(machines)
+      section("Launching machines", :green)
+      ui.info("")
+      display machines
+      sync_to_chef! machines
+      create_dependencies! machines
+      create_instances! machines
+      sync! machines
+    end
+
+    def stop!(machines)
+      delegate_to providers.values, :stop_instances! => machines
+      sync_to_chef! machines
+    end
+
+    def start!(machines)
+      sync_to_chef! machines
+      create_dependencies! machines
+      delegate_to providers.values, :start_instances! => machines
+      sync! machines
+    end
 
     # TODO: Parallelize
-    def save!(machines)
+    def sync!(machines)
       delegate_to all_providers, :save! => machines
     end
 
-#     def sync_to_chef(machines)
-#       providers.each {|p| p.pre_sync!(machines)}
-#       chef.sync!(machines)
-#     end
-# 
-#     def sync_to_providers(machines)
-# #       sync_keypairs
-# #       sync_security_groups
-# #       delegate_to_servers( :sync_to_cloud )
-#       providers.each {|p| p.sync!(machines)}
-#       raise 'incomplete?'
-#     end
+    #
+    #   PERSONAL METHODS
+    #
+
+    def sync_to_chef!(machines)
+      delegate_to chef, :save! => machines
+    end
+
+    def create_dependencies!(machines)
+      delegate_to all_providers, :create_dependencies! => machines
+    end
+
+    # Do serially ensure node is created before instance
+    def create_instances!(machines)
+      delegate_to chef, :create_instances! => machines
+      delegate_to providers.values, :create_instances! => machines
+    end
   end
 
 end

@@ -66,16 +66,16 @@ module Ironfan
           values
         end
 
-        def remove!
-          self.destroy
-          self.owner.delete(self.name)
-        end
+#         def remove!
+#           self.destroy
+#           self.owner.delete(self.name)
+#         end
       end
 
       class Instances < Ironfan::Provider::ResourceCollection
         self.item_type =        Instance
 
-        def discover!(cluster)
+        def load!(machines)
           Ironfan::Provider::Ec2.connection.servers.each do |fs|
             next if fs.blank?
             i = Instance.new(:adaptee => fs)
@@ -91,7 +91,7 @@ module Ironfan
           end
         end
 
-        def correlate!(cluster,machines)
+        def correlate!(machines)
           # Match each machine to its corresponding instance
           machines.each do |machine|
             next unless self.include? machine.server.fullname
@@ -105,7 +105,7 @@ module Ironfan
           #   attach to for display
           self.each do |instance|
             next unless instance.users.empty?
-            if instance.name.match("^#{cluster.name}")
+            if instance.name.match("^#{machines.cluster.name}")
               instance.bogus << :unexpected_instance
             end
             next unless instance.bogus?
@@ -118,7 +118,16 @@ module Ironfan
           end
         end
 
-        def sync!(machines)
+
+        #
+        # Manipulation
+        #
+
+        #def create!(machines)             end
+
+        #def destroy!(machines)            end
+
+        def save!(machines)
           machines.each do |machine|
             next unless machine.instance?
             tags = {

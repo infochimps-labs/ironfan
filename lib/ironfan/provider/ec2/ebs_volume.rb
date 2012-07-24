@@ -18,15 +18,15 @@ module Ironfan
         def name
           tags["Name"] || tags["name"] || id
         end
-
-        def annotate(machine)
-        end
       end
 
       class EbsVolumes < Ironfan::Provider::ResourceCollection
         self.item_type =        EbsVolume
 
-        def discover!(cluster=nil)
+        #
+        # Discovery
+        #
+        def load!(machines)
           Ironfan::Provider::Ec2.connection.volumes.each do |vol|
             next if vol.blank?
             ebs = EbsVolume.new(:adaptee => vol)
@@ -42,17 +42,37 @@ module Ironfan
           end
         end
 
-        def correlate!(cluster=nil,machines={})
+        def correlate!(machines)
           machines.each do |machine|
-            server = machine.server
-            server.volumes.each do |volume|
+            machine.server.volumes.each do |volume|
               next unless volume.attachable == :ebs
-              ebs_name =                "#{server.fullname}-#{volume.name}"
-              unless include? ebs_name or include? volume.volume_id
-                Chef::Log.debug("Volume not found: #{ebs_name}")
+
+              chef =                    machine.node[:volumes][volume.name]
+              chef_volume_id =          chef.volume_id if chef.has_key? :volume_id
+              ebs_name =                "#{machine.server.fullname}-#{volume.name}"
+
+              volume_id =               volume.volume_id
+              volume_id ||=             chef_volume_id
+
+              # Volumes may match against name derived from the cluster definition,
+              #   or volume_id from the cluster definition or node
+              case
+              when (include? ebs_name)
+                ebs =                   self[ebs_name]
+              when (volume_id and include? volume_id)
+                ebs =                   self[volume_id]
+              else
+                log_message = "Volume not found: name = #{ebs_name}"
+                log_message += ", volume_id = #{volume_id}"
+                Chef::Log.debug(log_message)
                 next
               end
-              ebs =                     self[ebs_name]
+
+              # Make sure all the volume_ids match
+              [ ebs.id, volume.volume_id, chef_volume_id ].compact.each do |id|
+                id == volume_id or ebs.bogus << :volume_id_mismatch
+              end
+
               machine.bogus +=          ebs.bogus
               ebs.users <<              machine.object_id
               res_name =                "ebs_#{ebs_name}".to_sym
@@ -61,6 +81,16 @@ module Ironfan
             end
           end
         end
+
+        #
+        # Manipulation
+        #
+
+        #def create!(machines)             end
+
+        #def destroy!(machines)            end
+
+        #def save!(machines)               end
 
         # def attach_volumes
         #   return unless in_cloud?
@@ -78,20 +108,18 @@ module Ironfan
         #     end
         #   end
         # end
-        def sync!(machines)
-          discover!
-          correlate!(nil,machines)
-          machines.select{|m| m[:ebs_volumes]}.each do |machine|
-            Ironfan.step(machine.name,"attaching EBS volumes",:blue)
-            machine[:ebs_volumes].each do |volume|
-            end
-#               unless 
-#               
-#               pp volume
-#             end
-          end
-          raise 'unfinished'
-        end
+
+        # def sync!(machines)
+        #   discover!
+        #   correlate!(nil,machines)
+        #   machines.select{|m| m[:ebs_volumes]}.each do |machine|
+        #     Ironfan.step(machine.name,"attaching EBS volumes",:blue)
+        #     machine[:ebs_volumes].each do |volume|
+        #
+        #     end
+        #   end
+        #   raise 'unfinished'
+        # end
       end
 
     end

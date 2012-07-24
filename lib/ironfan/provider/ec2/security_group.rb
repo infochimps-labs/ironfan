@@ -16,18 +16,21 @@ module Ironfan
       class SecurityGroups < Ironfan::Provider::ResourceCollection
         self.item_type =        SecurityGroup
 
-        def discover!(cluster)
+        def load!(cluster)
           Ironfan::Provider::Ec2.connection.security_groups.each do |sg|
             self << SecurityGroup.new(:adaptee => sg) unless sg.blank?
           end
         end
 
-        def correlate!(cluster,machines)
-        end
+        #
+        # Manipulation
+        #
 
-        def sync!(machines)
-          raise 'unimplemented'
-        end
+        #def create!(machines)             end
+
+        #def destroy!(machines)            end
+
+        #def save!(machines)               end
       end
 
     end

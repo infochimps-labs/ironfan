@@ -21,7 +21,7 @@ module Ironfan
         "unnamed:#{object_id}"
       end
 
-      def display_values(style,values={})
+      def to_display(style,values={})
         available_styles = [:minimal,:default,:expanded]
         raise "Bad display style #{style}" unless available_styles.include? style
 
@@ -30,17 +30,18 @@ module Ironfan
         values["Chef?"] =       "no"
         values["State"] =       "not running"
 
-        values = server.display_values(style, values) unless server.nil?
-        [ :node, :instance ].each do |source|
-          values = self[source].display_values(style, values) if include? source
-        end
+        delegate_to [ server,self[:node],self[:instance] ],
+            :to_display => [ style, values ]
+
         if style == :expanded
           values["Startable"]  = display_boolean(stopped?)
           values["Launchable"] = display_boolean(launchable?)
         end
         values["Bogus"] =       bogus.join(',')
+
         # Only show values that actually have something to show
-        values.select {|k,v| !v.to_s.empty?}
+        values.delete_if! {|k,v| v.to_s.empty?}
+        values
       end
       def display_boolean(value)        value ? "yes" : "no";   end
 
@@ -111,18 +112,25 @@ module Ironfan
       self.key_method   = :object_id
       delegate :first, :map, :any?,
           :to           => :values
+      attr_accessor     :cluster
 
       # Return the selection inside another Machines
       def select(&block)
-        result          = self.class.new
+        result = empty_copy
         values.select(&block).each{|m| result << m}
+        result
+      end
+
+      def empty_copy
+        result          = self.class.new
+        result.cluster  = self.cluster unless self.cluster.nil?
         result
       end
 
       # Find all selected machines, as well as any bogus machines from discovery
       def slice(facet_name=nil, slice_indexes=nil)
         return self if (facet_name.nil? and slice_indexes.nil?)
-        result          = self.class.new
+        result          = empty_copy
         slice_array     = build_slice_array(slice_indexes)
         each do |m|
           result << m if (m.bogus? or (                 # bogus machine or
@@ -136,19 +144,6 @@ module Ironfan
         return [] if slice_indexes.nil?
         raise "Bad slice_indexes: #{slice_indexes}" if slice_indexes =~ /[^0-9\.,]/
         eval("[#{slice_indexes}]").map {|idx| idx.class == Range ? idx.to_a : idx}.flatten
-      end
-
-      def display(ui, style,&block)
-        defined_data = map {|m| m.display_values(style) }
-        if defined_data.empty?
-          ui.info "Nothing to report"
-        else
-          headings = defined_data.map{|r| r.keys}.flatten.uniq
-          Formatador.display_compact_table(defined_data, headings.to_a)
-        end
-      end
-      def joined_names
-        values.map(&:name).join(", ").gsub(/, ([^,]*)$/, ' and \1')
       end
     end
 
