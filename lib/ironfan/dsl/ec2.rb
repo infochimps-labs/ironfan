@@ -25,6 +25,7 @@ module Ironfan
       end
 
       class SecurityGroup < Ironfan::Dsl
+        field :name,                    String
         field :group_authorized_by,     Array, :default => []
         field :range_authorizations,    Array, :default => []
 

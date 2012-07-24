@@ -28,7 +28,7 @@ module Ironfan
       # Discovery
       #
       def load!(machines)
-        targets = [ instances, ebs_volumes ]
+        targets = [ instances, ebs_volumes, security_groups ]
         delegate_to targets, :load! => machines
       end
 
@@ -55,7 +55,7 @@ module Ironfan
       end
 
       def destroy!(machines)
-        delegate_to [ instances, ebs_volumes ], :destroy! => machines
+        delegate_to instances, :destroy! => machines
       end
 
       def save!(machines)

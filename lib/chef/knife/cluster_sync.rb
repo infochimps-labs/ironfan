@@ -64,12 +64,12 @@ class Chef
           return
         end
         ui.info "Syncing to Chef:"
-        broker.sync_to_chef target
+        broker.sync_to_chef! target
       end
 
       def sync_to_providers(target)
         ui.info "Syncing to cloud:"
-        broker.sync_to_providers target
+        broker.sync_to_providers! target
       end
 
     end

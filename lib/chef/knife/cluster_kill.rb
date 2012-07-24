@@ -47,12 +47,12 @@ class Chef
       def perform_execution(target)
         if config[:cloud]
           section("Killing Cloud Machines")
-          target.select(&:instance?).each(&:remove_instance!)
+          broker.kill! target, :providers
         end
 
         if config[:chef]
           section("Killing Chef")
-          target.select(&:node?).each(&:remove_node!)
+          broker.kill! target, :chef
         end
       end
 

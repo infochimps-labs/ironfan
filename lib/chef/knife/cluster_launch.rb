@@ -73,10 +73,13 @@ class Chef
 
         # Pre-populate information in chef
         section("Sync'ing to chef and providers")
-        broker.save! target
+        broker.sync! target
 
         # Launch machines
-        broker.create! target
+        ui.info("")
+        section("Launching machines", :green)
+        display(target)
+        broker.launch! target
 
 #         # As each server finishes, configure it
 #         watcher_threads = target.parallelize do |svr|

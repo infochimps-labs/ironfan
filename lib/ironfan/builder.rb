@@ -15,9 +15,6 @@ module Ironfan
       targets =         [targets] unless targets.is_a? Array
       targets.each {|target| target.send(method,*params)}
     end
-    def unimplemented(call)
-      raise NotImplementedError, "#{call} not implemented for #{self.class}"
-    end
   end
 
 end

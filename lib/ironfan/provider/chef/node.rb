@@ -38,25 +38,19 @@ module Ironfan
           values
         end
 
-#         def sync!(machine)
-#           organization =                Chef::Config.organization
-#           normal[:organization] =       organization unless organization.nil?
-# 
-#           server =                      machine.server
-#           chef_environment =            server.environment
-#           run_list.instance_eval        { @run_list_items = server.run_list }
-#           normal[:cluster_name] =       server.cluster_name
-#           normal[:facet_name] =         server.facet_name
-#           normal[:permanent] =          machine.permanent?
-# 
-#           # TODO: delete unless found useful
-#           machine.resources.each do |resource|
-#             next unless resource.respond_to? :annotate
-#             resource.annotate machine
-#             raise 'hunh'
-#           end
-#           save
-#         end
+        def save!(machine)
+          organization =                Chef::Config.organization
+          normal[:organization] =       organization unless organization.nil?
+
+          server =                      machine.server
+          chef_environment =            server.environment
+          run_list.instance_eval        { @run_list_items = server.run_list }
+          normal[:cluster_name] =       server.cluster_name
+          normal[:facet_name] =         server.facet_name
+          normal[:permanent] =          machine.permanent?
+
+          save
+        end
 
 #         def remove!
 #           self.destroy
@@ -95,12 +89,25 @@ module Ironfan
           end
         end
 
-#         def sync!(machines)
-#           machines.each do |machine|
-#             next unless machine.node?
-#             machine.node.sync! machine
-#           end
-#         end
+        #
+        # Manipulation
+        #
+
+        # def create!(machines)             end
+
+        def destroy!(machines)
+          machines.each do |machine|
+            next unless machine.node?
+            @clxn.delete(machine.node.name)
+            machine.node.destroy
+          end
+        end
+
+        def save!(machines)
+          temp = machines.values.select(&:node?)
+          temp.each {|machine| machine.node.save! machine }
+          machines
+        end
 
       end
 

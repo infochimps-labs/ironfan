@@ -30,7 +30,7 @@ module Ironfan
         values["Chef?"] =       "no"
         values["State"] =       "not running"
 
-        delegate_to [ server,self[:node],self[:instance] ],
+        delegate_to [ server, node, instance ].compact,
             :to_display => [ style, values ]
 
         if style == :expanded
@@ -98,11 +98,14 @@ module Ironfan
         return false unless server.selected_cloud.respond_to? :permanent
         [true, :true, 'true'].include? server.selected_cloud.permanent
       end
+      def running?
+        instance? and instance.running?
+      end
       def server?
         not server.nil?
       end
       def stopped?()
-        created? and self[:instance].stopped?
+        instance? and instance.stopped?
       end
 
     end
@@ -144,6 +147,11 @@ module Ironfan
         return [] if slice_indexes.nil?
         raise "Bad slice_indexes: #{slice_indexes}" if slice_indexes =~ /[^0-9\.,]/
         eval("[#{slice_indexes}]").map {|idx| idx.class == Range ? idx.to_a : idx}.flatten
+      end
+
+      # Utility function to provide a human-readable list of names
+      def joined_names
+        values.map(&:name).join(", ").gsub(/, ([^,]*)$/, ' and \1')
       end
     end
 

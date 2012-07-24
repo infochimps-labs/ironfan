@@ -9,8 +9,6 @@ module Ironfan
           :default =>         Ironfan::Provider::ChefServer.new
     collection :providers,    Ironfan::IaasProvider
 
-    def all_providers() [chef, providers.values].flatten; end
-
     #
     #   PUBLIC METHODS
     #
@@ -50,28 +48,18 @@ module Ironfan
         Formatador.display_compact_table(defined_data, headings.to_a)
       end
     end
-#     def display(ui, style,&block)
-#       defined_data = map {|m| m.display_values(style) }
-#       if defined_data.empty?
-#         ui.info "Nothing to report"
-#       else
-#         headings = defined_data.map{|r| r.keys}.flatten.uniq
-#         Formatador.display_compact_table(defined_data, headings.to_a)
-#       end
-#     end
-#     def joined_names
-#       values.map(&:name).join(", ").gsub(/, ([^,]*)$/, ' and \1')
-#     end
 
-
-    def kill!(machines)
-      delegate_to all_providers, :destroy! => machines
+    def kill!(machines,selector=nil)
+      targets = case selector
+        when nil        then all_providers
+        when :chef      then chef
+        when :providers then providers.values
+      end
+        
+      delegate_to targets, :destroy! => machines
     end
 
     def launch!(machines)
-      section("Launching machines", :green)
-      ui.info("")
-      display machines
       sync_to_chef! machines
       create_dependencies! machines
       create_instances! machines
@@ -94,14 +82,18 @@ module Ironfan
     def sync!(machines)
       delegate_to all_providers, :save! => machines
     end
+    def sync_to_chef!(machines)
+      delegate_to chef, :save! => machines
+    end
+    def sync_to_providers!(machines)
+      delegate_to providers.values, :save! => machines
+    end
 
     #
     #   PERSONAL METHODS
     #
 
-    def sync_to_chef!(machines)
-      delegate_to chef, :save! => machines
-    end
+    def all_providers() [chef, providers.values].flatten; end
 
     def create_dependencies!(machines)
       delegate_to all_providers, :create_dependencies! => machines

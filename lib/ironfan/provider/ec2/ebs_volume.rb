@@ -14,6 +14,7 @@ module Ironfan
             :snapshot_id, :snapshot_id=, :snapshots, :state, :state=,
             :symbolize_keys, :tags, :tags=, :wait_for,
           :to => :adaptee
+        field :dsl_volume,        Ironfan::Dsl::Volume
 
         def name
           tags["Name"] || tags["name"] || id
@@ -43,12 +44,16 @@ module Ironfan
         end
 
         def correlate!(machines)
+          Chef::Log.debug("starting ebs_volumes.correlate!")
           machines.each do |machine|
             machine.server.volumes.each do |volume|
-              next unless volume.attachable == :ebs
+              unless volume.attachable == 'ebs'
+                Chef::Log.debug("Ignoring non-EBS volume = #{volume}")
+                next
+              end
 
-              chef =                    machine.node[:volumes][volume.name]
-              chef_volume_id =          chef.volume_id if chef.has_key? :volume_id
+              chef =                    machine.node[:volumes][volume.name] rescue nil
+              chef_volume_id =          chef.volume_id if (chef and chef.has_key? :volume_id)
               ebs_name =                "#{machine.server.fullname}-#{volume.name}"
 
               volume_id =               volume.volume_id
@@ -68,13 +73,14 @@ module Ironfan
                 next
               end
 
-              # Make sure all the volume_ids match
+              # Make sure all the known volume_ids match
               [ ebs.id, volume.volume_id, chef_volume_id ].compact.each do |id|
                 id == volume_id or ebs.bogus << :volume_id_mismatch
               end
 
               machine.bogus +=          ebs.bogus
               ebs.users <<              machine.object_id
+              ebs.dsl_volume =          volume
               res_name =                "ebs_#{ebs_name}".to_sym
               machine[:ebs_volumes] ||= EbsVolumes.new
               machine[:ebs_volumes] <<  ebs
@@ -90,36 +96,25 @@ module Ironfan
 
         #def destroy!(machines)            end
 
-        #def save!(machines)               end
+        def save!(machines)
+          ebs_machines = machines.select {|m| m[:ebs_volumes] and m.running? }
+          ebs_machines.each do |machine|
+            ebs_vols = machine[:ebs_volumes].values.select do |ebs|
+              ebs.server_id != machine.instance.id
+            end
+            next if ebs_vols.empty?     # nothing needs attaching
+            Ironfan.step(machine.name,"attaching EBS volumes",:blue)
+            ebs_vols.each do |ebs|
+              Ironfan.step(machine.name, "  - attaching #{ebs.name}", :blue)
+              Ironfan.safely do
+                ebs.device =            ebs.dsl_volume.device
+                ebs.server =            machine.instance.adaptee
+              end
+            end
+          end
+          machines
+        end
 
-        # def attach_volumes
-        #   return unless in_cloud?
-        #   discover_volumes!
-        #   return if volumes.empty?
-        #   step("  attaching volumes")
-        #   volumes.each_pair do |vol_name, vol|
-        #     next if vol.volume_id.blank? || (vol.attachable != :ebs)
-        #     if (not vol.in_cloud?) then  Chef::Log.debug("Volume not found: #{vol.desc}") ; next ; end
-        #     if (vol.has_server?)   then check_server_id_pairing(vol.fog_volume, vol.desc) ; next ; end
-        #     step("  - attaching #{vol.desc} -- #{vol.inspect}", :blue)
-        #     safely do
-        #       vol.fog_volume.device = vol.device
-        #       vol.fog_volume.server = fog_server
-        #     end
-        #   end
-        # end
-
-        # def sync!(machines)
-        #   discover!
-        #   correlate!(nil,machines)
-        #   machines.select{|m| m[:ebs_volumes]}.each do |machine|
-        #     Ironfan.step(machine.name,"attaching EBS volumes",:blue)
-        #     machine[:ebs_volumes].each do |volume|
-        #
-        #     end
-        #   end
-        #   raise 'unfinished'
-        # end
       end
 
     end

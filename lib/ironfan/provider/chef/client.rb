@@ -46,9 +46,20 @@ module Ironfan
         # Manipulation
         #
 
-        # def create!(machines)             end
+        def create!(machines)
+          machines.each do |machine|
+            next if machine.client?
+            raise 'incomplete' # http://rubydoc.info/gems/chef/Chef/ApiClient
+          end
+        end
 
-        # def destroy!(machines)            end
+        def destroy!(machines)
+          machines.each do |machine|
+            next unless machine.client?
+            @clxn.delete(machine.client.name)
+            machine.client.destroy
+          end
+        end
 
         # def save!(machines)               end
       end

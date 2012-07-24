@@ -41,6 +41,9 @@ module Ironfan
         def created?
           not ['terminated', 'shutting-down'].include? state
         end
+        def running?
+          state == "running"
+        end
         def stopped?
           state == "stopped"
         end
@@ -125,7 +128,13 @@ module Ironfan
 
         #def create!(machines)             end
 
-        #def destroy!(machines)            end
+        def destroy!(machines)
+          machines.each do |machine|
+            next unless machine.instance?
+            @clxn.delete(machine.instance.name)
+            machine.instance.destroy
+          end
+        end
 
         def save!(machines)
           machines.each do |machine|
@@ -141,7 +150,8 @@ module Ironfan
 
             # the EC2 API does not surface disable_api_termination as a value, so we
             # have to set it every time.
-            permanent = machine.server.cloud.permanent
+            permanent = machine.server.cloud(:ec2).permanent
+            next unless machine.created?
             Ironfan.step(machine.name, "setting termination flag #{permanent}", :blue)
             Ironfan.unless_dry_run do
               Ironfan.safely do
