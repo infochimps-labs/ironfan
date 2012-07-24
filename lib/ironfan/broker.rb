@@ -8,6 +8,7 @@ module Ironfan
     field :chef,              Ironfan::Provider::ChefServer,
           :default =>         Ironfan::Provider::ChefServer.new
     collection :providers,    Ironfan::IaasProvider
+
     def all_providers() [chef, providers.values].flatten; end
 
     def create!(machines)
@@ -18,14 +19,15 @@ module Ironfan
       create_instances! machines
       save! machines
     end
+
     # TODO: Parallelize
     def create_dependencies!(machines)
-      all_providers.each do {|p| p.create_dependencies! machines}
+      delegate_to all_providers, :create_dependencies! => machines
     end
     # Do serially ensure node is created before instance
     def create_instances!(machines)
       chef.create_instances! machines
-      providers.each do {|p| p.create_instances! machines}
+      providers.each {|p| p.create_instances! machines}
     end
 
     #
@@ -36,21 +38,26 @@ module Ironfan
     #   all discovered resources that correlate, plus bogus machines
     #   corresponding to 
     def discover!(cluster)
-      # Ensure all providers referenced by the DSL are available, and have
-      #   them each survey their applicable resources.
-      cluster.each {|server| provider(server.selected_cloud.name) }
+      # Get fully resolved servers
+      servers = cluster.resolve.servers
 
-      # for all servers, set up a bare machine
+      servers.each {|server|  }
+
       machines = Machines.new
-      cluster.resolve.servers.each do |server| # Get fully resolved servers
+      servers.each do |server|
+        # ensure that the chosen provider is available
+        provider(server.selected_cloud.name)
+
+        # set up a bare machine
+#         machine().server = server
         m = Machine.new
         m.server = server
         machines << m
       end
 
-      all_providers.each do {|p| p.load! machines }
-      all_providers.each do {|p| p.correlate! machines }
-      all_providers.each do {|p| p.validate! machines }
+      delegate_to all_providers, :load! => machines
+      delegate_to all_providers, :correlate! => machines
+      delegate_to all_providers, :validate! => machines
       machines
     end
 
@@ -60,7 +67,7 @@ module Ironfan
 
     # TODO: Parallelize
     def save!(machines)
-      all_providers.each do {|p| p.save! machines }
+      delegate_to all_providers, :save! => machines
     end
 
 #     def sync_to_chef(machines)

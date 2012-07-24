@@ -53,6 +53,7 @@ module Ironfan
       # TODO: Expand the logic here to include CLI parameters, probably by injecting
       #   the CLI as a layer in the underlay structure
       def selected_cloud
+        pp self
         raise "No clouds defined, cannot select a cloud" if clouds.length == 0
 
         # Use the selected cloud for this server

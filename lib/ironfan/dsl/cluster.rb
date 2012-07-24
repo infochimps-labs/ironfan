@@ -5,8 +5,8 @@ module Ironfan
       collection :facets,       Ironfan::Dsl::Facet,   :resolver => :deep_resolve
 
       def initialize(attrs={},&block)
-        self.cluster_role       Ironfan::Dsl::Role.new(:name => "#{attrs[:name]}_cluster")
         super
+        self.cluster_role       Ironfan::Dsl::Role.new(:name => "#{attrs[:name]}_cluster")
         self.expand_servers!
       end
 
