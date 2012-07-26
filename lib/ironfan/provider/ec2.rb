@@ -46,8 +46,8 @@ module Ironfan
       # Manipulation
       #
       def create_dependencies!(machines)
-        targets = [ ebs_volumes, key_pairs, security_groups ]
-        delegate_to(targets) { create! machines }
+#         targets = [ key_pairs, security_groups ]
+#         delegate_to(targets) { create! machines }
       end
 
       def create_instances!(machines)

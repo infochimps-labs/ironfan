@@ -55,8 +55,8 @@ module Ironfan
 
     def launch!(machines)
       sync! machines, :providers => :chef
-      create_dependencies! machines
-      create_instances! machines
+      delegate_to(all_providers) { create_dependencies! machines }
+      delegate_to(all_iaas) { create_instances! machines }
       sync! machines
     end
 
@@ -66,7 +66,7 @@ module Ironfan
     end
 
     def start!(machines)
-      create_dependencies! machines
+      delegate_to(all_providers) { create_dependencies! machines }
       sync! machines, :providers => :chef
       delegate_to(all_iaas) { start_instances! machines }
       sync! machines
@@ -98,16 +98,6 @@ module Ironfan
           providers[selector]
         end
       end.flatten.uniq
-    end
-
-    def create_dependencies!(machines)
-      delegate_to(all_providers) { create_dependencies! machines }
-    end
-
-    # Do serially to ensure node is created before instance needs it
-    def create_instances!(machines)
-      delegate_to(chef) { create_instances! machines }
-      delegate_to(all_iaas) { create_instances! machines }
     end
   end
 

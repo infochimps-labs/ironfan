@@ -1,7 +1,3 @@
-# This module is intended to read in a cluster DSL description, and broker
-#   out to the various cloud providers, to control instance life-cycle and
-#   handle provider-specific amenities (SecurityGroup, Volume, etc.) for 
-#   them.
 module Ironfan
   class Broker
 

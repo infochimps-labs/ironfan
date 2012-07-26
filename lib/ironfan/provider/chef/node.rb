@@ -24,13 +24,10 @@ module Ironfan
             :set, :set_if_args, :set_or_return, :set_unless, :store, :tags,
             :to_hash, :update_from!, :validate, :with_indexer_metadata,
           :to => :adaptee
-        field :client, Ironfan::Provider::ChefServer::Client
 
-        def initialize(config)
+        def initialize(*args)
           super
-          if self.adaptee.nil? and not config[:name].nil?
-            self.adaptee = Chef::Node.build(config[:name])
-          end
+          self.adaptee ||= Chef::Node.new
         end
 
         def to_display(style,values={})
@@ -39,6 +36,21 @@ module Ironfan
         end
 
         def save!(machine)
+          prepare_from machine
+          save
+        end
+
+        def create!(machine)
+          prepare_from machine
+
+          client = machine[:client]
+          unless File.exists?(client.key_filename)
+            raise("Cannot create chef node #{name} -- client #{@chef_client} exists but no client key found in #{client.key_filename}.")
+          end
+          ChefServer.rest_connect(client).post_rest("nodes", adaptee)
+        end
+
+        def prepare_from(machine)
           organization =                Chef::Config.organization
           normal[:organization] =       organization unless organization.nil?
 
@@ -48,14 +60,7 @@ module Ironfan
           normal[:cluster_name] =       server.cluster_name
           normal[:facet_name] =         server.facet_name
           normal[:permanent] =          machine.permanent?
-
-          save
         end
-
-#         def remove!
-#           self.destroy
-#           self.owner.delete(self.name)
-#         end
       end
 
       class Nodes < Ironfan::Provider::ResourceCollection
@@ -67,9 +72,12 @@ module Ironfan
         #
         def load!(machines)
           query = "name:#{machines.cluster.name}-*"
-          Chef::Search::Query.new.search(:node,query) do |node|
-            attrs = {:adaptee => node,:owner => self}
-            self << Node.new(attrs) unless node.blank?
+          Chef::Search::Query.new.search(:node,query) do |raw|
+            next if raw.blank?
+            node = Node.new
+            node.adaptee = raw
+            node.owner = self
+            self << node
           end
         end
 
@@ -92,8 +100,16 @@ module Ironfan
         #
         # Manipulation
         #
-
-        # def create!(machines)             end
+        def create!(machines)
+          machines.each do |machine|
+            next if machine.node?
+            node = Node.new
+            node.name         machine.server.fullname
+            node.create!      machine
+            machine[:node] =  node
+            self <<           node
+          end
+        end
 
         def destroy!(machines)
           machines.each do |machine|

@@ -2,9 +2,6 @@ module Ironfan
   class Provider
 
     class ChefServer < Ironfan::Provider
-      field :types,     Array,  :default => [ :nodes, :clients ]
-      field :sync,      Array,  :default => [ :roles, :nodes ]
-
       collection :clients,      Ironfan::Provider::ChefServer::Client
       collection :nodes,        Ironfan::Provider::ChefServer::Node
       collection :roles,        Ironfan::Provider::ChefServer::Role
@@ -16,6 +13,14 @@ module Ironfan
         @roles =                Ironfan::Provider::ChefServer::Roles.new
       end
 
+      def self.rest_connect(client=nil)
+        params = [ Chef::Config[:chef_server_url] ]
+        if client
+          params << client.name
+          params << client.key_filename
+        end
+        Chef::REST.new(*params)
+      end
       #
       # Discovery
       #
@@ -35,11 +40,7 @@ module Ironfan
       # Manipulation
       #
       def create_dependencies!(machines)
-        delegate_to(clients) { create! machines }
-      end
-
-      def create_instances!(machines)
-        delegate_to(nodes) { create! machines }
+        delegate_to([clients,nodes]) { create! machines }
       end
 
       def destroy!(machines)

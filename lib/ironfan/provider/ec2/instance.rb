@@ -125,8 +125,13 @@ module Ironfan
         #
         # Manipulation
         #
-
-        #def create!(machines)             end
+        def create!(machines)
+          machines.each do |machine|
+            next if machine.instance?
+            pp machine
+          end
+          raise 'incomplete'
+        end
 
         def destroy!(machines)
           machines.each do |machine|

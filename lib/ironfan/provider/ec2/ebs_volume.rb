@@ -92,26 +92,29 @@ module Ironfan
         # Manipulation
         #
 
-        def create!(machines)
-          # determine create-able Dsl::Volumes
-          dsl_vols = machines.map do |m|
-            m.server.volumes.values.select do |v|
-              v.attachable == 'ebs' and v.create_at_launch
-            end
-          end.flatten.compact
-
-          # remove those already created
-          machines.map do |m|
-            m[:ebs_volumes].values rescue nil
-          end.flatten.compact.each do |ebs_vol|
-            dsl_vols.delete(ebs_vol.dsl_volume)
-          end
-
-          dsl_vols.each do |dsl_vol|
-            pp dsl_vol
-          end
-          raise 'incomplete'
-        end
+        # # Ironfan currently only creates EbsVolumes via flags on the instance
+        # #   launch, so there's no need for this at the moment
+        # def create!(machines)
+        #   # determine create-able Dsl::Volumes
+        #   dsl_vols = machines.map do |m|
+        #     m.server.volumes.values.select do |v|
+        #       v.attachable == 'ebs' and v.create_at_launch
+        #     end
+        #   end.flatten.compact
+        #
+        #   # ignore those already created
+        #   machines.map do |m|
+        #     m[:ebs_volumes].values rescue nil
+        #   end.flatten.compact.each do |ebs_vol|
+        #     dsl_vols.delete(ebs_vol.dsl_volume)
+        #   end
+        #
+        #   # create the remaining machines
+        #   dsl_vols.each do |dsl_vol|
+        #     pp dsl_vol
+        #   end
+        #   raise 'incomplete'
+        # end
 
         #def destroy!(machines)            end
 
