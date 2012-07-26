@@ -29,17 +29,17 @@ module Ironfan
       #
       def load!(machines)
         targets = [ instances, ebs_volumes, security_groups ]
-        delegate_to targets, :load! => machines
+        delegate_to(targets) { load! machines }
       end
 
       def correlate!(machines)
         targets = [ instances, ebs_volumes ]
-        delegate_to targets, :correlate! => machines
+        delegate_to(targets) { correlate! machines }
       end
 
       # nothing here actually needs validation, currently
       def validate!(machines)
-        #delegate_to ebs_volumes, :validate! => machines
+        #delegate_to(ebs_volumes) { validate! machines }
       end
 
       # 
@@ -47,28 +47,28 @@ module Ironfan
       #
       def create_dependencies!(machines)
         targets = [ ebs_volumes, key_pairs, security_groups ]
-        delegate_to targets, :create! => machines
+        delegate_to(targets) { create! machines }
       end
 
       def create_instances!(machines)
-        delegate_to instances, :create! => machines
+        delegate_to(instances) { create! machines }
       end
 
       def destroy!(machines)
-        delegate_to instances, :destroy! => machines
+        delegate_to(instances) { destroy! machines }
       end
 
       def save!(machines)
         targets = [ instances, ebs_volumes, security_groups ]
-        delegate_to targets, :save! => machines
+        delegate_to(targets) { save! machines }
       end
 
       def start_instances!(machines)
-        delegate_to instances, :start! => machines
+        delegate_to(instances) { start! machines }
       end
 
       def stop_instances!(machines)
-        delegate_to instances, :stop! => machines
+        delegate_to(instances) { stop! machines }
       end
 
       #

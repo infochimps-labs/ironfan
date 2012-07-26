@@ -92,13 +92,29 @@ module Ironfan
         # Manipulation
         #
 
-        #def create!(machines)             end
+        def create!(machines)
+          # determine create-able Dsl::Volumes
+          dsl_vols = machines.map do |m|
+            m.server.volumes.values.select do |v|
+              v.attachable == 'ebs' and v.create_at_launch
+            end
+          end.flatten.compact
+          # remove those already created
+          ebs_vols = machines.map {|m| m[:ebs_volumes].values }.flatten.compact
+          ebs_vols.each {|ebs_vol| dsl_vols.delete(ebs_vol.dsl_volume) }
+
+          dsl_vols.each do |dsl_vol|
+            pp dsl_vol
+          end
+          raise 'incomplete'
+        end
 
         #def destroy!(machines)            end
 
         def save!(machines)
           ebs_machines = machines.select {|m| m[:ebs_volumes] and m.running? }
           ebs_machines.each do |machine|
+            # Only attach volumes if they aren't already attached
             ebs_vols = machine[:ebs_volumes].values.select do |ebs|
               ebs.server_id != machine.instance.id
             end

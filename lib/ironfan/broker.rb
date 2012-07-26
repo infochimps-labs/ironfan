@@ -33,9 +33,9 @@ module Ironfan
         machines << m
       end
 
-      delegate_to all_providers, :load! => machines
-      delegate_to all_providers, :correlate! => machines
-      delegate_to all_providers, :validate! => machines
+      delegate_to(all_providers) { load! machines }
+      delegate_to(all_providers) { correlate! machines }
+      delegate_to(all_providers) { validate! machines }
       machines
     end
 
@@ -49,60 +49,65 @@ module Ironfan
       end
     end
 
-    def kill!(machines,selector=nil)
-      targets = case selector
-        when nil        then all_providers
-        when :chef      then chef
-        when :providers then providers.values
-      end
-        
-      delegate_to targets, :destroy! => machines
+    def kill!(machines,options)
+      delegate_to(chosen_providers(options)) { destroy! machines }
     end
 
     def launch!(machines)
-      sync_to_chef! machines
+      sync! machines, :providers => :chef
       create_dependencies! machines
       create_instances! machines
       sync! machines
     end
 
     def stop!(machines)
-      delegate_to providers.values, :stop_instances! => machines
-      sync_to_chef! machines
+      delegate_to(all_iaas) { stop_instances! machines }
+      sync! machines, :providers => :chef
     end
 
     def start!(machines)
-      sync_to_chef! machines
       create_dependencies! machines
-      delegate_to providers.values, :start_instances! => machines
+      sync! machines, :providers => :chef
+      delegate_to(all_iaas) { start_instances! machines }
       sync! machines
     end
 
     # TODO: Parallelize
-    def sync!(machines)
-      delegate_to all_providers, :save! => machines
-    end
-    def sync_to_chef!(machines)
-      delegate_to chef, :save! => machines
-    end
-    def sync_to_providers!(machines)
-      delegate_to providers.values, :save! => machines
+    def sync!(machines,options)
+      delegate_to(chosen_providers(options)) { save! machines }
     end
 
     #
     #   PERSONAL METHODS
     #
 
-    def all_providers() [chef, providers.values].flatten; end
+    def all_providers() [chef, all_iaas].flatten;       end
+    def all_iaas()      providers.values;               end
 
-    def create_dependencies!(machines)
-      delegate_to all_providers, :create_dependencies! => machines
+    def chosen_providers(options={})
+      choice = options[:providers] or :all
+      return all_providers if choice == :all
+
+      # options[:providers] can be a choice or an array of choices
+      [ choice ].flatten.map do |selector|
+        case selector
+        when :chef      then chef
+        when :iaas      then all_iaas
+        else
+          raise "Invalid provider: #{selector}" unless providers.include? selector
+          providers[selector]
+        end
+      end.flatten.uniq
     end
 
-    # Do serially ensure node is created before instance
+    def create_dependencies!(machines)
+      delegate_to(all_providers) { create_dependencies! machines }
+    end
+
+    # Do serially to ensure node is created before instance needs it
     def create_instances!(machines)
-      delegate_to chef, :create_instances! => machines
-      delegate_to providers.values, :create_instances! => machines
+      delegate_to(chef) { create_instances! machines }
+      delegate_to(all_iaas) { create_instances! machines }
     end
   end
 

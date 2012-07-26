@@ -50,26 +50,18 @@ class Chef
 
       def perform_execution(target)
         if config[:chef]
-          sync_to_chef target
+          if config[:dry_run]
+            ui.info "(can't do a dry-run when syncing to chef -- skipping)"
+          else 
+            ui.info "Syncing to Chef:"
+            broker.sync! target, :providers => :chef
+          end
         else Chef::Log.debug("Skipping sync to chef") ; end
 
         if config[:cloud] && target.any?(&:instance?)
-          sync_to_providers target
+          ui.info "Syncing to cloud:"
+            broker.sync! target, :providers => :iaas
         else Chef::Log.debug("Skipping sync to cloud") ; end
-      end
-
-      def sync_to_chef(target)
-        if config[:dry_run]
-          ui.info "(can't do a dry-run when syncing to chef -- skipping)"
-          return
-        end
-        ui.info "Syncing to Chef:"
-        broker.sync_to_chef! target
-      end
-
-      def sync_to_providers(target)
-        ui.info "Syncing to cloud:"
-        broker.sync_to_providers! target
       end
 
     end

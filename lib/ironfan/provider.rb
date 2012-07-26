@@ -32,6 +32,10 @@ module Ironfan
     # def create_instances!(machines)     end
     # def destroy!(machines)              end
     # def save!(machines)                 end
+    #
+    # #
+    # # Instance Manipulation
+    # #
     # def start_instances!(machines)      end
     # def stop_instances!(machines)       end
 
@@ -65,51 +69,19 @@ module Ironfan
       # def create!(machines)             end
       # def destroy!(machines)            end
       # def save!(machines)               end
+      #
+      # #
+      # # Instance Manipulation
+      # #
+      # def start!(machines)              end
+      # def stop!(machines)               end
     end
   end
 
   class IaasProvider < Provider
     collection          :instances,     Instance
 
-    #
-    #   EXPECTED CALL-SIGN
-    #
-    # #
-    # # Discovery
-    # #
-    # def load!(machines)                 end
-    # def correlate!(machines)            end
-    # def validate!(machines)             end
-    #
-    # #
-    # # Manipulation
-    # #
-    # def create_dependencies!(machines)  end
-    # def create_instances!(machines)     end
-    # def destroy!(machines)              end
-    # def save!(machines)                 end
-    # def start_instances!(machines)      end
-    # def stop_instances!(machines)       end
-
     class Instance < Resource
-      #
-      #   EXPECTED CALL-SIGN
-      #
-      # #
-      # # Discovery
-      # #
-      # def load!(machines)               end
-      # def correlate!(machines)          end
-      # def validate!(machines)           end
-      #
-      # #
-      # # Manipulation
-      # #
-      # def create!(machines)             end
-      # def destroy!(machines)            end
-      # def save!(machines)               end
-      # def start!(machines)              end
-      # def stop!(machines)               end
     end
   end
 

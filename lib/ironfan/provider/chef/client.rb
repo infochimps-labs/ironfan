@@ -10,11 +10,6 @@ module Ironfan
             :index_object_type, :name, :private_key, :public_key, :save, 
             :set_or_return, :to_hash, :validate, :with_indexer_metadata,
           :to => :adaptee
-
-#         def remove!
-#           self.destroy
-#           self.owner.delete(self.name)
-#         end
       end
 
       class Clients < Ironfan::Provider::ResourceCollection

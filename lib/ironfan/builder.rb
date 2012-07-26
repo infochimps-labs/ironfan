@@ -9,11 +9,9 @@ module Ironfan
     #
     # Utility to handle simple delegation to multiple targets
     #
-    def delegate_to(targets,call)
-      method,params =   call.shift
-      params =          [params] unless params.is_a? Array
-      targets =         [targets] unless targets.is_a? Array
-      targets.each {|target| target.send(method,*params)}
+    def delegate_to(targets,options={},&block)
+      raise 'missing block' unless block_given?
+      [targets].flatten.each {|target| target.instance_eval &block }
     end
   end
 

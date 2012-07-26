@@ -22,16 +22,18 @@ module Ironfan
       end
 
       def to_display(style,values={})
-        available_styles = [:minimal,:default,:expanded]
-        raise "Bad display style #{style}" unless available_styles.include? style
+        unless [:minimal,:default,:expanded].include? style
+          raise "Bad display style #{style}"
+        end
 
         values["Name"] =        name
         # We expect these to be over-ridden by the contained classes
         values["Chef?"] =       "no"
         values["State"] =       "not running"
 
-        delegate_to [ server, node, instance ].compact,
-            :to_display => [ style, values ]
+        delegate_to([ server, node, instance ].compact) do
+          to_display style, values
+        end
 
         if style == :expanded
           values["Startable"]  = display_boolean(stopped?)

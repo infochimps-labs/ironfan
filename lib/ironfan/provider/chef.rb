@@ -20,34 +20,34 @@ module Ironfan
       # Discovery
       #
       def load!(machines)
-        delegate_to [nodes, clients], :load! => machines
+        delegate_to([nodes, clients]) { load! machines }
       end
 
       def correlate!(machines)
-        delegate_to [nodes, clients], :correlate! => machines
+        delegate_to([nodes, clients]) { correlate! machines }
       end
 
       def validate!(machines)
-        delegate_to nodes, :validate! => machines
+        delegate_to(nodes) { validate! machines }
       end
 
       # 
       # Manipulation
       #
       def create_dependencies!(machines)
-        delegate_to clients, :create! => machines
+        delegate_to(clients) { create! machines }
       end
 
       def create_instances!(machines)
-        delegate_to nodes, :create! => machines
+        delegate_to(nodes) { create! machines }
       end
 
       def destroy!(machines)
-        delegate_to [nodes, clients], :destroy! => machines
+        delegate_to([nodes, clients]) { destroy! machines }
       end
 
       def save!(machines)
-        delegate_to [nodes, roles], :save! => machines
+        delegate_to([nodes, roles]) { save! machines }
       end
 
     end
