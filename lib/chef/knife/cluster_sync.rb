@@ -60,7 +60,7 @@ class Chef
 
         if config[:cloud] && target.any?(&:instance?)
           ui.info "Syncing to cloud:"
-            broker.sync! target, :providers => :iaas
+          broker.sync! target, :providers => :iaas
         else Chef::Log.debug("Skipping sync to cloud") ; end
       end
 

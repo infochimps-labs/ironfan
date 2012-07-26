@@ -99,9 +99,13 @@ module Ironfan
               v.attachable == 'ebs' and v.create_at_launch
             end
           end.flatten.compact
+
           # remove those already created
-          ebs_vols = machines.map {|m| m[:ebs_volumes].values }.flatten.compact
-          ebs_vols.each {|ebs_vol| dsl_vols.delete(ebs_vol.dsl_volume) }
+          machines.map do |m|
+            m[:ebs_volumes].values rescue nil
+          end.flatten.compact.each do |ebs_vol|
+            dsl_vols.delete(ebs_vol.dsl_volume)
+          end
 
           dsl_vols.each do |dsl_vol|
             pp dsl_vol

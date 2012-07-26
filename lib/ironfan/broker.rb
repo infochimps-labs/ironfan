@@ -73,7 +73,7 @@ module Ironfan
     end
 
     # TODO: Parallelize
-    def sync!(machines,options)
+    def sync!(machines,options={})
       delegate_to(chosen_providers(options)) { save! machines }
     end
 
@@ -85,7 +85,7 @@ module Ironfan
     def all_iaas()      providers.values;               end
 
     def chosen_providers(options={})
-      choice = options[:providers] or :all
+      choice = options[:providers] || :all
       return all_providers if choice == :all
 
       # options[:providers] can be a choice or an array of choices
