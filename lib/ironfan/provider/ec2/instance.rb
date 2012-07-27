@@ -35,7 +35,8 @@ module Ironfan
           :to => :adaptee
 
         def name
-          tags["Name"] || tags["name"] rescue id
+          return id if tags.empty?
+          tags["Name"] || tags["name"] || id
         end
 
         def public_hostname()   public_ip_address;      end
@@ -126,7 +127,7 @@ module Ironfan
         def create!(machines)
           machines.each do |machine|
             next if machine.instance? and machine.instance.created?
-            # step(" creating cloud server", :green)
+            Ironfan.step(machine.name,"creating cloud server", :green)
             # lint_fog
             launch_desc = fog_launch_description(machine)
             Chef::Log.debug(JSON.pretty_generate(launch_desc))
@@ -136,6 +137,31 @@ module Ironfan
               instance = Instance.new(:adaptee => fog_server)
               machine[:instance] = instance
               self[machine.name] = instance
+
+              fog_server.wait_for { ready? }
+
+              # tag the machine correctly
+              tags = {
+                'cluster' =>      machine.server.cluster_name,
+                'facet' =>        machine.server.facet_name,
+                'index' =>        machine.server.index,
+                'name' =>         machine.name,
+                'Name' =>         machine.name,
+              }
+              Ec2.ensure_tags(tags,machine.instance)
+
+              # tag the new volumes correctly
+              instance.volumes.each do |v|
+                ebs_vol = Ec2::EbsVolume.new(:adaptee => v)
+                dsl_vol = machine.server.volumes.values.select do |d|
+                  d.device == ebs_vol.device
+                end.first
+                vol_name = if dsl_vol then "#{machine.name}-#{dsl_vol.name}"
+                           else            "#{machine.name}-root"; end
+                tags['name'] = vol_name
+                tags['Name'] = vol_name
+                Ec2.ensure_tags(tags,ebs_vol)
+              end
             end
           end
         end
@@ -159,7 +185,7 @@ module Ironfan
           # else               user_data_hsh[:validation_key] = cloud.validation_key ; end
 
           # Fog does not actually create tags when it creates a server; 
-          #  they and permanence is applied during sync
+          #  they and permanence are applied during sync
           keypair = cloud.keypair || machine.server.cluster_name
           description = {
             :image_id             => cloud.image_id,
@@ -212,22 +238,15 @@ module Ironfan
             next unless machine.instance?
             @clxn.delete(machine.instance.name)
             machine.instance.destroy
-            # machine.delete(:instance)         # show the terminating node
+            # show the node as shutting down
+            machine.instance.reload
+            # machine.delete(:instance)
           end
         end
 
         def save!(machines)
           machines.each do |machine|
             next unless machine.instance?
-            tags = {
-              'cluster' =>      machine.server.cluster_name,
-              'facet' =>        machine.server.facet_name,
-              'index' =>        machine.server.index,
-              'name' =>         machine.name,
-              'Name' =>         machine.name
-            }
-            Ec2.ensure_tags(tags,machine.instance)
-
             # the EC2 API does not surface disable_api_termination as a value, so we
             # have to set it every time.
             permanent = machine.server.cloud(:ec2).permanent

@@ -3,6 +3,9 @@
 #   handle provider-specific amenities (SecurityGroup, Volume, etc.) for 
 #   them.
 module Ironfan
+  def self.broker
+    @@broker ||= Ironfan::Broker.new
+  end
 
   class Broker < Builder
     field :chef,              Ironfan::Provider::ChefServer,

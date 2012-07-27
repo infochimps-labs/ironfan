@@ -87,6 +87,7 @@ module Ironfan
       def self.ensure_tags(tags,fog)
         tags.delete_if {|k, v| fog.tags[k] == v.to_s  rescue false }
         return if tags.empty?
+
         Ironfan.step(fog.name,"tagging with #{tags.inspect}", :green)
         tags.each do |k, v|
           Chef::Log.debug( "tagging #{fog.name} with #{k} = #{v}" )

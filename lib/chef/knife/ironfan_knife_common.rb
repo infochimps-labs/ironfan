@@ -18,7 +18,7 @@ module Ironfan
       Ironfan.ui          = self.ui
       self.config[:cloud] = Chef::Config[:cloud] if Chef::Config.has_key?(:cloud)
       Ironfan.chef_config = self.config
-      self.broker         = Ironfan::Broker.new
+      self.broker         = Ironfan.broker
     end
 
     #

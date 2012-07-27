@@ -116,8 +116,8 @@ class Chef
         configure_session
 
         case @name_args[1]
+        when "screen",nil   then screen
         when "interactive"  then interactive
-        when "screen"       then screen
         when "tmux"         then tmux
         when "macterm"      then macterm
         when "cssh"         then cssh
