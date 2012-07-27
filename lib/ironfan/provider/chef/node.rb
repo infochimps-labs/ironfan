@@ -47,7 +47,7 @@ module Ironfan
           unless File.exists?(client.key_filename)
             raise("Cannot create chef node #{name} -- client #{@chef_client} exists but no client key found in #{client.key_filename}.")
           end
-          ChefServer.rest_connect(client).post_rest("nodes", adaptee)
+          ChefServer.post_rest("nodes", adaptee, :client => client)
         end
 
         def prepare_from(machine)
@@ -72,7 +72,7 @@ module Ironfan
         #
         def load!(machines)
           query = "name:#{machines.cluster.name}-*"
-          Chef::Search::Query.new.search(:node,query) do |raw|
+          ChefServer.search(:node,query) do |raw|
             next if raw.blank?
             node = Node.new
             node.adaptee = raw
@@ -116,6 +116,7 @@ module Ironfan
             next unless machine.node?
             @clxn.delete(machine.node.name)
             machine.node.destroy
+            machine.delete(:node)
           end
         end
 

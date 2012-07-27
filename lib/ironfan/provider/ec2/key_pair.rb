@@ -16,7 +16,7 @@ module Ironfan
         self.item_type =        KeyPair
 
         def load!(cluster)
-          Ironfan::Provider::Ec2.connection.key_pairs.each do |kp|
+          Ec2.connection.key_pairs.each do |kp|
             self << KeyPair.new(:adaptee => kp) unless kp.blank?
           end
         end

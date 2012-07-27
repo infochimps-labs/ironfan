@@ -19,6 +19,10 @@ module Ironfan
         def name
           tags["Name"] || tags["name"] || id
         end
+
+        def ephemeral_device?
+          false
+        end
       end
 
       class EbsVolumes < Ironfan::Provider::ResourceCollection
@@ -28,7 +32,7 @@ module Ironfan
         # Discovery
         #
         def load!(machines)
-          Ironfan::Provider::Ec2.connection.volumes.each do |vol|
+          Ec2.connection.volumes.each do |vol|
             next if vol.blank?
             ebs = EbsVolume.new(:adaptee => vol)
             # Already have a volume by this name
@@ -45,7 +49,7 @@ module Ironfan
 
         def correlate!(machines)
           Chef::Log.debug("starting ebs_volumes.correlate!")
-          machines.each do |machine|
+          machines.select(&:server?).each do |machine|
             machine.server.volumes.each do |volume|
               unless volume.attachable == 'ebs'
                 Chef::Log.debug("Ignoring non-EBS volume = #{volume}")

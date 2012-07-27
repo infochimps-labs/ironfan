@@ -85,13 +85,13 @@ module Ironfan
 
       # Ensure that a fog object (instance, volume, etc.) has the proper tags on it
       def self.ensure_tags(tags,fog)
-        tags_to_create = tags.reject{|key, val| fog.tags[key] == val.to_s }
-        return if tags_to_create.empty?
-        Ironfan.step(fog.name,"tagging with #{tags_to_create.inspect}", :green)
-        tags_to_create.each do |key, value|
-          Chef::Log.debug( "tagging #{fog.name} with #{key} = #{value}" )
+        tags.delete_if {|k, v| fog.tags[k] == v.to_s  rescue false }
+        return if tags.empty?
+        Ironfan.step(fog.name,"tagging with #{tags.inspect}", :green)
+        tags.each do |k, v|
+          Chef::Log.debug( "tagging #{fog.name} with #{k} = #{v}" )
           Ironfan.safely do
-            config = {:key => key, :value => value.to_s, :resource_id => fog.id }
+            config = {:key => k, :value => v.to_s, :resource_id => fog.id }
             connection.tags.create(config)
           end
         end

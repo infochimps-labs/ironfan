@@ -41,22 +41,16 @@ class Chef
         :description => "The attribute to use for opening the connection - default is fqdn (ec2 users may prefer cloud.public_hostname)"
 
       def configure_session
-        target = get_slice(@name_args[0]).select(&:sshable?)
+        target = get_slice(@name_args[0]).select(&:running?)
 
         display(target) if config[:verbose] || config[:display_target]
 
         config[:attribute]     ||= Chef::Config[:knife][:ssh_address_attribute] || "fqdn"
         config[:ssh_user]      ||= Chef::Config[:knife][:ssh_user]
-        config[:identity_file] ||= target.ssh_identity_file
+#        config[:identity_file] ||= target.ssh_identity_file
 
-        @action_nodes = target.chef_nodes
-        addresses = target.servers.map do |svr|
-          address = svr.public_hostname
-          if address.blank? && (svr.chef_node)
-            address = format_for_display( svr.chef_node )[config[:attribute]]
-          end
-          address
-        end.compact
+#         @action_nodes = target.chef_nodes
+        addresses = target.map {|m| m.instance.public_hostname }.compact
 
         (ui.fatal("No nodes returned from search!"); exit 10) if addresses.nil? || addresses.length == 0
 

@@ -72,8 +72,8 @@ class Chef
         die("", "#{ui.color("All machines are running -- not launching any.",:blue)}", "", 1) if target.empty?
 
         # Pre-populate information in chef
-        section("Sync'ing to chef and providers")
-        broker.sync! target
+        section("Syncing to chef")
+        broker.sync! target, :providers => :chef
 
         # Launch machines
         ui.info("")

@@ -19,7 +19,7 @@ module Ironfan
 
         def load!(cluster)
           self.account_id = Chef::Config[:knife][:aws_account_id]
-          Ironfan::Provider::Ec2.connection.security_groups.each do |sg|
+          Ec2.connection.security_groups.each do |sg|
             self << SecurityGroup.new(:adaptee => sg) unless sg.blank?
           end
         end

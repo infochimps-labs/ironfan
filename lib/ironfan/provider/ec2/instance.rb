@@ -34,9 +34,11 @@ module Ironfan
             :vpc_id=, :wait_for,
           :to => :adaptee
 
-        def name()
-          tags["Name"] || tags["name"]
+        def name
+          tags["Name"] || tags["name"] rescue id
         end
+
+        def public_hostname()   public_ip_address;      end
 
         def created?
           not ['terminated', 'shutting-down'].include? state
@@ -68,28 +70,25 @@ module Ironfan
           values["SSH Key"] =           key_name
           values
         end
-
-#         def remove!
-#           self.destroy
-#           self.owner.delete(self.name)
-#         end
       end
 
       class Instances < Ironfan::Provider::ResourceCollection
         self.item_type =        Instance
 
         def load!(machines)
-          Ironfan::Provider::Ec2.connection.servers.each do |fs|
+          Ec2.connection.servers.each do |fs|
             next if fs.blank?
             i = Instance.new(:adaptee => fs)
             i.owner = self
-            # Already have a instance by this name
+            # Already have a running instance by this name
             if self.include? i.name
               i.bogus <<                :duplicate_instances
               self[i.name].bogus <<     :duplicate_instances
-              self["#{i.name}-dup:#{i.object_id}"] = i
-            else
+              self["#{i.name}-dup:#{i.id}"] = i
+            elsif i.created?
               self << i
+            else
+              self["#{i.name}-term:#{i.id}"] = i
             end
           end
         end
@@ -103,13 +102,13 @@ module Ironfan
             instance.users <<   machine.object_id
             machine[:instance] = instance
           end
-          # Find instances that haven't matched, but should have,
-          #   make sure all bogus instances have a machine to
-          #   attach to for display
+          # Find active instances that haven't matched, but should have,
+          #   make sure all bogus instances have a machine to attach to
+          #   for display purposes
           self.each do |instance|
-            next unless instance.users.empty?
+            next unless instance.users.empty? and instance.name
             if instance.name.match("^#{machines.cluster.name}")
-              instance.bogus << :unexpected_instance
+              instance.bogus << :unexpected_instance 
             end
             next unless instance.bogus?
             fake =              Ironfan::Broker::Machine.new
@@ -121,16 +120,91 @@ module Ironfan
           end
         end
 
-
         #
         # Manipulation
         #
         def create!(machines)
           machines.each do |machine|
-            next if machine.instance?
-            pp machine
+            next if machine.instance? and machine.instance.created?
+            # step(" creating cloud server", :green)
+            # lint_fog
+            launch_desc = fog_launch_description(machine)
+            Chef::Log.debug(JSON.pretty_generate(launch_desc))
+
+            Ironfan.safely do
+              fog_server = Ec2.connection.servers.create(launch_desc)
+              instance = Instance.new(:adaptee => fog_server)
+              machine[:instance] = instance
+              self[machine.name] = instance
+            end
           end
-          raise 'incomplete'
+        end
+        def fog_launch_description(machine)
+          cloud =                       machine.server.selected_cloud
+          user_data_hsh =               {
+            :chef_server =>             Chef::Config[:chef_server_url],
+            #:validation_client_name =>  Chef::Config[:validation_client_name],
+            #
+            :node_name =>               machine.name,
+            :organization =>            Chef::Config[:organization],
+            :cluster_name =>            machine.server.cluster_name,
+            :facet_name =>              machine.server.facet_name,
+            :facet_index =>             machine.server.index,
+            :client_key =>              machine[:client].private_key
+          }
+
+          ## This snippet is saved for if/when we ever go back to instances
+          ##   creating nodes; currently, the client key must be known locally
+          # if client_key then user_data_hsh[:client_key] = client_key
+          # else               user_data_hsh[:validation_key] = cloud.validation_key ; end
+
+          # Fog does not actually create tags when it creates a server; 
+          #  they and permanence is applied during sync
+          keypair = cloud.keypair || machine.server.cluster_name
+          description = {
+            :image_id             => cloud.image_id,
+            :flavor_id            => cloud.flavor,
+            :vpc_id               => cloud.vpc,
+            :subnet_id            => cloud.subnet,
+            :groups               => cloud.security_groups.keys,
+            :key_name             => keypair.to_s,
+            :user_data            => JSON.pretty_generate(user_data_hsh),
+            :block_device_mapping => block_device_mapping(machine),
+            :availability_zone    => cloud.default_availability_zone,
+            :monitoring           => cloud.monitoring,
+          }
+
+          if cloud.flavor_info[:placement_groupable]
+            ui.warn "1.3.1 and earlier versions of Fog don't correctly support placement groups, so your nodes will land willy-nilly. We're working on a fix"
+            description[:placement] = { 'groupName' => cloud.placement_group.to_s }
+          end
+          description
+        end
+        # An array of hashes with dorky-looking keys, just like Fog wants it.
+        def block_device_mapping(machine)
+          volumes = machine.server.volumes.values
+          return {} if volumes.empty?
+          volumes.map do |volume|
+            hsh = { 'DeviceName' => volume.device }
+            if volume.attachable == 'ephemeral'
+              hsh['VirtualName'] = volume.volume_id
+            elsif create_at_launch?(volume)
+              if volume.snapshot_id.blank? && volume.size.blank?
+                raise "Must specify a size or a snapshot ID for #{volume}"
+              end
+              hsh['Ebs.SnapshotId'] = volume.snapshot_id if volume.snapshot_id.present?
+              hsh['Ebs.VolumeSize'] = volume.size.to_s   if volume.size.present?
+              hsh['Ebs.DeleteOnTermination'] = (not volume.keep).to_s
+            else
+              next
+            end
+            hsh
+          end.compact
+        end
+        # TODO: Rework this so that it's actually aware of the volumes' creation status
+        def create_at_launch?(volume)
+          #raise "incomplete"
+          volume.volume_id.blank? && volume.create_at_launch
         end
 
         def destroy!(machines)
@@ -138,6 +212,7 @@ module Ironfan
             next unless machine.instance?
             @clxn.delete(machine.instance.name)
             machine.instance.destroy
+            # machine.delete(:instance)         # show the terminating node
           end
         end
 
@@ -171,3 +246,4 @@ module Ironfan
     end
   end
 end
+

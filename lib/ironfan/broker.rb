@@ -54,7 +54,6 @@ module Ironfan
     end
 
     def launch!(machines)
-      sync! machines, :providers => :chef
       delegate_to(all_providers) { create_dependencies! machines }
       delegate_to(all_iaas) { create_instances! machines }
       sync! machines

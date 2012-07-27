@@ -16,7 +16,7 @@ module Ironfan
         self.item_type =        PlacementGroup
 
         def discover!(cluster)
-          result = Ironfan::Provider::Ec2.connection.describe_placement_groups
+          result = Ec2.connection.describe_placement_groups
           result.body["placementGroupSet"].each do |pg|
             self << PlacementGroup.new(:adaptee => pg) unless pg.blank?
           end

@@ -9,7 +9,7 @@ module Ironfan
       collection :run_list_items, Hash,                    :resolver => :merge_resolve
       collection :clouds,       Ironfan::Dsl::Cloud,       :resolver => :merge_resolve
       collection :volumes,      Ironfan::Dsl::Volume,      :resolver => :merge_resolve
-      
+
       # Resolve these normally (overriding on each layer)
       magic      :environment,  Symbol,                    :default => :_default
       magic      :use_cloud,    Symbol

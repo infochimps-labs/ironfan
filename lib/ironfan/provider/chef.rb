@@ -13,14 +13,6 @@ module Ironfan
         @roles =                Ironfan::Provider::ChefServer::Roles.new
       end
 
-      def self.rest_connect(client=nil)
-        params = [ Chef::Config[:chef_server_url] ]
-        if client
-          params << client.name
-          params << client.key_filename
-        end
-        Chef::REST.new(*params)
-      end
       #
       # Discovery
       #
@@ -51,6 +43,21 @@ module Ironfan
         delegate_to([nodes, roles]) { save! machines }
       end
 
+      #
+      # Utility functions
+      #
+      def self.post_rest(type, content, options={})
+        params = [ Chef::Config[:chef_server_url] ]
+        if options[:client]
+          params << options[:client].name
+          params << options[:client].key_filename
+        end
+        Chef::REST.new(*params).post_rest(type,content)
+      end
+
+      def self.search(*params,&block)
+        Chef::Search::Query.new.search(*params,&block)
+      end
     end
 
   end

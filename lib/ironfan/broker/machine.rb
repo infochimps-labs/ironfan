@@ -4,14 +4,14 @@ module Ironfan
     class Machine < Builder
       collection :resources,    Ironfan::Provider::Resource
       field :server,            Ironfan::Dsl::Server
-      delegate :[],:[]=,:include?,
+      delegate :[],:[]=,:include?,:delete,
           :to =>                :resources
 
       # Only used for bogus servers
       field :name,              String
       field :bogus,             Array,          :default => []
 
-      def name()
+      def name
         return server.fullname  if server?
         return @name            if @name
         "unnamed:#{object_id}"
@@ -44,17 +44,6 @@ module Ironfan
       def display_boolean(value)        value ? "yes" : "no";   end
 
       #
-      # Actions
-      #
-#       def remove_instance!
-#         resources.delete(:instance).remove!
-#       end
-#       def remove_node!
-#         resources.delete(:client).remove! if client?
-#         resources.delete(:node).remove! if node?
-#       end
-
-      #
       # Accessors
       #
       def client
@@ -76,19 +65,19 @@ module Ironfan
       def client?
         not client.nil?
       end
-      def created?()
+      def created?
         instance? and instance.created?
       end
-      def instance?()
+      def instance?
         not instance.nil?
       end
       def killable?
         not permanent? and (node? or created?)
       end
-      def launchable?()
+      def launchable?
         not bogus? and not created?
       end
-      def node?()
+      def node?
         not node.nil?
       end
       def permanent?
@@ -102,7 +91,7 @@ module Ironfan
       def server?
         not server.nil?
       end
-      def stopped?()
+      def stopped?
         instance? and instance.stopped?
       end
 

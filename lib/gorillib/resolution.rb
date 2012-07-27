@@ -70,10 +70,23 @@ module Gorillib
 
     def merge_resolve(field_name)
       field = self.class.fields[field_name] or return
-      result = attribute_default(field) or field.type.new
-      result.receive! read_underlay_attribute(field_name) || {}
-      result.receive! read_set_attribute(field_name) || {}
+      result = field.type.new
+      merge_values(result,read_underlay_attribute(field_name))
+      merge_values(result,read_set_attribute(field_name))
       result
+    end
+
+    def merge_values(target, value=nil)
+      value ||= {}
+      if target.is_a? Gorillib::Collection
+        value.each_pair do |k,v|
+          if target[k] then     target[k].receive! v
+          else                  target[k] = v
+          end
+        end
+      else
+        target.receive! value
+      end
     end
 
     def read_from_resolver(field_name)
