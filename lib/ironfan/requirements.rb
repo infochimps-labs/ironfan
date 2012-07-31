@@ -45,6 +45,7 @@ require 'ironfan/provider/virtualbox/instance'
 # Broker classes to coordinate DSL expectations and provider resources
 require 'ironfan/broker'
 require 'ironfan/broker/machine'
+require 'ironfan/broker/storage'
 
 
 # Calls that are slated to go away

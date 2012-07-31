@@ -11,6 +11,8 @@ module Ironfan
   class Broker < Builder
     class Machine < Builder; end
     class Machines < Gorillib::ModelCollection; end
+    class Storage < Builder; end
+    class Storages < Gorillib::ModelCollection; end
   end
 
   class Dsl < Builder
