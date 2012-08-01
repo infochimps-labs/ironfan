@@ -20,21 +20,10 @@ module Ironfan
     #   all discovered resources that correlate, plus bogus machines
     #   corresponding to 
     def discover!(cluster)
-      machines =                Machines.new
-
-      # Get fully resolved servers
-      machines.cluster =        cluster.resolve
-      servers =                 machines.cluster.servers
-
-      servers.each do |server|
-        # ensure that each chosen provider is available
-        provider(server.selected_cloud.name)
-
-        # set up a bare machine
-        m = Machine.new
-        m.server = server
-        machines << m
-      end
+      # Get fully resolved servers, and build Machines using them
+      machines = Machines.new(:cluster => cluster.resolve)
+      # ensure that each chosen provider is available
+      machines.each {|m| provider(m.server.selected_cloud.name) }
 
       delegate_to(all_providers) { load! machines }
       delegate_to(all_providers) { correlate! machines }
@@ -52,8 +41,14 @@ module Ironfan
       end
     end
 
-    def kill!(machines,options)
-      delegate_to(chosen_providers(options)) { destroy! machines }
+    def kill!(machines,options={:providers=>:all})
+      providers = options[:providers]
+      if providers == :all or providers == :iaas
+        delegate_to(all_iaas) { destroy! machines }
+      end
+      if providers == :all or providers == :chef
+        delegate_to(chef) { destroy! machines }
+      end
     end
 
     def launch!(machines)
@@ -69,14 +64,21 @@ module Ironfan
 
     def start!(machines)
       delegate_to(all_providers) { create_dependencies! machines }
-      sync! machines, :providers => :chef
+#      sync! machines, :providers => :chef
       delegate_to(all_iaas) { start_instances! machines }
       sync! machines
     end
 
-    # TODO: Parallelize
+    # Save chef last, to ensure all other providers have recorded
+    #   their values into the attributes appropriately
     def sync!(machines,options={})
-      delegate_to(chosen_providers(options)) { save! machines }
+      providers = options[:providers]
+      if providers == :all or providers == :iaas
+        delegate_to(all_iaas) { save! machines }
+      end
+      if providers == :all or providers == :chef
+        delegate_to(chef) { save! machines }
+      end
     end
 
     #
@@ -85,22 +87,6 @@ module Ironfan
 
     def all_providers() [chef, all_iaas].flatten;       end
     def all_iaas()      providers.values;               end
-
-    def chosen_providers(options={})
-      choice = options[:providers] || :all
-      return all_providers if choice == :all
-
-      # options[:providers] can be a choice or an array of choices
-      [ choice ].flatten.map do |selector|
-        case selector
-        when :chef      then chef
-        when :iaas      then all_iaas
-        else
-          raise "Invalid provider: #{selector}" unless providers.include? selector
-          providers[selector]
-        end
-      end.flatten.uniq
-    end
   end
 
 end

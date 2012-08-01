@@ -3,6 +3,7 @@ module Ironfan
 
     class Machine < Builder
       collection :resources,    Ironfan::Provider::Resource
+      collection :stores,       Ironfan::Broker::Store
       field :server,            Ironfan::Dsl::Server
       delegate :[],:[]=,:include?,:delete,
           :to =>                :resources
@@ -10,6 +11,14 @@ module Ironfan
       # Only used for bogus servers
       field :name,              String
       field :bogus,             Array,          :default => []
+
+      def initialize(*args)
+        super
+        @stores =             Ironfan::Broker::Stores.new
+        server.volumes.values.each do |volume|
+          self.store(volume.name).volume = volume
+        end if server
+      end
 
       def name
         return server.fullname  if server?
@@ -54,6 +63,9 @@ module Ironfan
       end
       def node
         self[:node]
+      end
+      def node=(value)
+        self[:node]= value
       end
 
       #
@@ -104,7 +116,21 @@ module Ironfan
           :to           => :values
       attr_accessor     :cluster
 
-      # Return the selection inside another Machines
+      def initialize(*args)
+        super
+        options = args.pop or return
+        self.cluster = options[:cluster]
+        create_expected!
+      end
+
+      # set up new machines for each server in the cluster definition
+      def create_expected!
+        self.cluster.servers.each do |server|
+          self << Machine.new(:server => server)
+        end unless self.cluster.nil?
+      end
+
+      # Return the selection inside another Machines collection
       def select(&block)
         result = empty_copy
         values.select(&block).each{|m| result << m}
