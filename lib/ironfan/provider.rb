@@ -53,6 +53,13 @@ module Ironfan
     class ResourceCollection < Gorillib::ModelCollection
       self.key_method = :name
 
+      # Register and return the (adapted) object with the collection
+      def register!(native)
+        result = self.item_type.new(:adaptee => native)
+        self << result unless result.nil?
+        result
+      end
+
       #
       #   EXPECTED CALL-SIGN
       #
