@@ -1,6 +1,10 @@
 module Ironfan
   class Dsl
 
+    class Compute < Ironfan::Dsl
+      def ec2()                         cloud(:ec2);    end
+    end
+
     class Ec2 < Cloud
       magic :availability_zones,        Array,          :default => ['us-east-1d']
       magic :backing,                   String,         :default => 'ebs'
