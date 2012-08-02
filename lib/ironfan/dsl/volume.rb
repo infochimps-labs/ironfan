@@ -2,6 +2,8 @@ module Ironfan
   class Dsl
 
     class Volume < Ironfan::Dsl
+      field     :name,                  String
+
       magic     :attachable,            String,   :default => 'ebs'
       magic     :availability_zone,     String
       magic     :create_at_launch,      :boolean, :default => false

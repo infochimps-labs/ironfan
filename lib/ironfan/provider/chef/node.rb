@@ -60,6 +60,8 @@ module Ironfan
           normal[:cluster_name] =       server.cluster_name
           normal[:facet_name] =         server.facet_name
           normal[:permanent] =          machine.permanent?
+          normal[:volumes] =            {}
+          machine.stores.each {|v| normal[:volumes][v.name] = v.node}
         end
       end
 
@@ -84,15 +86,18 @@ module Ironfan
         def correlate!(machines)
           machines.each do |machine|
             if include? machine.server.fullname
-              machine[:node] = self[machine.server.fullname]
-              machine[:node].users << machine.object_id
+              machine.node = self[machine.server.fullname]
+              machine.node['volumes'].each do |name,volume|
+                machine.store(name).node.merge! volume
+              end
+              machine.node.users << machine.object_id
             end
           end
         end
 
         def validate!(machines)
           machines.each do |machine|
-            next unless machine[:node] and not machine[:client]
+            next unless machine.node and not machine[:client]
             machine.bogus << :node_without_client
           end
         end
@@ -106,7 +111,7 @@ module Ironfan
             node = Node.new
             node.name         machine.server.fullname
             node.create!      machine
-            machine[:node] =  node
+            machine.node =  node
             self <<           node
           end
         end

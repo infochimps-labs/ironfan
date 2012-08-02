@@ -2,7 +2,7 @@ module Ironfan
   class Dsl
 
     class Compute < Ironfan::Dsl
-      def ec2()                         cloud(:ec2);    end
+      def ec2(*attrs,&block)            cloud(:ec2,*attrs,&block);      end
     end
 
     class Ec2 < Cloud
@@ -15,7 +15,7 @@ module Ironfan
       magic :image_name,                String
       magic :image_id,                  String
       magic :keypair,                   Whatever
-      magic :mount_ephemerals,          Whatever       # TODO: This needs better handling?
+      magic :mount_ephemerals,          Hash,           :default => {}
       magic :monitoring,                String
       magic :permanent,                 :boolean,       :default => false
       magic :public_ip,                 String
@@ -60,6 +60,35 @@ module Ironfan
           return nil
         end
         Chef::Config[:ec2_flavor_info][flavor]
+      end
+
+      def implied_volumes
+        result = []
+        if backing == 'ebs'
+          result << Ironfan::Dsl::Volume.new(:name => 'root') do
+            device      '/dev/sda1'
+            fstype      'ext3'
+            keep        false
+            mount_point '/'
+          end
+        end
+        return result unless (mount_ephemerals and (flavor_info[:ephemeral_volumes] > 0))
+
+        layout = {  0 => ['/dev/sdb','/mnt'],
+                    1 => ['/dev/sdc','/mnt2'],
+                    2 => ['/dev/sdd','/mnt3'],
+                    3 => ['/dev/sde','/mnt4']   }
+        ( 0 .. (flavor_info[:ephemeral_volumes]-1) ).each do |idx|
+          dev, mnt = layout[idx]
+          ephemeral = Ironfan::Dsl::Volume.new(:name => "ephemeral#{idx}") do
+            device        dev
+            mount_point   mnt
+            tags({:bulk => true, :local => true, :fallback => true})
+          end
+          ephemeral.receive! mount_ephemerals
+          result << ephemeral
+        end
+        result
       end
 
       class SecurityGroup < Ironfan::Dsl

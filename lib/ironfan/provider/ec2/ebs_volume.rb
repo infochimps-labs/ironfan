@@ -56,38 +56,39 @@ module Ironfan
                 next
               end
 
-              chef =                    machine.node[:volumes][volume.name] rescue nil
-              chef_volume_id =          chef.volume_id if (chef and chef.has_key? :volume_id)
-              ebs_name =                "#{machine.server.fullname}-#{volume.name}"
+              store =           machine.store(volume.name)
+              store.node =      machine.node[:volumes][volume.name].to_hash rescue {}
+              if store.node.has_key? :volume_id
+                node_volume_id = store.node[:volume_id]
+              end
+              ebs_name =        "#{machine.server.fullname}-#{volume.name}"
 
-              volume_id =               volume.volume_id
-              volume_id ||=             chef_volume_id
+              volume_id =       volume.volume_id
+              volume_id ||=     node_volume_id
 
               # Volumes may match against name derived from the cluster definition,
               #   or volume_id from the cluster definition or node
               case
               when (include? ebs_name)
-                ebs =                   self[ebs_name]
+                ebs =           self[ebs_name]
               when (volume_id and include? volume_id)
-                ebs =                   self[volume_id]
+                ebs =           self[volume_id]
               else
-                log_message = "Volume not found: name = #{ebs_name}"
-                log_message += ", volume_id = #{volume_id}"
+                log_message =   "Volume not found: name = #{ebs_name}"
+                log_message +=  ", volume_id = #{volume_id}"
                 Chef::Log.debug(log_message)
                 next
               end
 
               # Make sure all the known volume_ids match
-              [ ebs.id, volume.volume_id, chef_volume_id ].compact.each do |id|
+              [ ebs.id, volume.volume_id, node_volume_id ].compact.each do |id|
                 id == volume_id or ebs.bogus << :volume_id_mismatch
-              end
+              end if volume_id
 
-              machine.bogus +=          ebs.bogus
-              ebs.users <<              machine.object_id
-              ebs.dsl_volume =          volume
-              res_name =                "ebs_#{ebs_name}".to_sym
-              machine[:ebs_volumes] ||= EbsVolumes.new
-              machine[:ebs_volumes] <<  ebs
+              machine.bogus +=  ebs.bogus
+              ebs.users <<      machine.object_id
+              store.volume =    volume
+              store.disk =      ebs
             end
           end
         end
@@ -98,45 +99,26 @@ module Ironfan
 
         # # Ironfan currently only creates EbsVolumes via flags on the instance
         # #   launch, so there's no need for this at the moment
-        # def create!(machines)
-        #   # determine create-able Dsl::Volumes
-        #   dsl_vols = machines.map do |m|
-        #     m.server.volumes.values.select do |v|
-        #       v.attachable == 'ebs' and v.create_at_launch
-        #     end
-        #   end.flatten.compact
-        #
-        #   # ignore those already created
-        #   machines.map do |m|
-        #     m[:ebs_volumes].values rescue nil
-        #   end.flatten.compact.each do |ebs_vol|
-        #     dsl_vols.delete(ebs_vol.dsl_volume)
-        #   end
-        #
-        #   # create the remaining machines
-        #   dsl_vols.each do |dsl_vol|
-        #     pp dsl_vol
-        #   end
-        #   raise 'incomplete'
-        # end
+        # def create!(machines)         end
 
-        #def destroy!(machines)            end
+        #def destroy!(machines)         end
 
         def save!(machines)
-          ebs_machines = machines.select {|m| m[:ebs_volumes] and m.running? }
-          ebs_machines.each do |machine|
-            # Only attach volumes if they aren't already attached
-            ebs_vols = machine[:ebs_volumes].values.select do |ebs|
-              ebs.server_id != machine.instance.id
-            end
-            next if ebs_vols.empty?     # nothing needs attaching
-            Ironfan.step(machine.name,"attaching EBS volumes",:blue)
-            ebs_vols.each do |ebs|
-              Ironfan.step(machine.name, "  - attaching #{ebs.name}", :blue)
-              Ironfan.safely do
-                ebs.device =            ebs.dsl_volume.device
-                ebs.server =            machine.instance.adaptee
+          machines.each do |machine|
+            Ironfan.step(machine.name,"syncing EBS volumes",:blue)
+            machine.stores.each do |store|
+              # Only worry about machines with ebs volumes
+              ebs = store.disk or next
+              # Only attach volumes if they aren't already attached
+              if ebs.server_id.nil?
+                Ironfan.step(machine.name, "  - attaching #{ebs.name}", :blue)
+                Ironfan.safely do
+                  ebs.device =          store.volume.device
+                  ebs.server =          machine.instance.adaptee
+                end
               end
+              # Record the volume information in chef
+              store.node['volume_id'] =  ebs.id
             end
           end
           machines

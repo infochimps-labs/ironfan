@@ -28,17 +28,35 @@ module Ironfan
         # Manipulation
         #
 
-        #def create!(machines)             end
+        # FIXME: This should actually be deeper, using
+        #   implied_security_groups ala implied_volumes
+        def create!(machines)
+          raise 'needs refactoring'
+          groups = machines.values.map do |machine|
+            server = machine.server
+            facet_group = "#{server.cluster_name}-#{server.facet_name}"
+            [ server.cluster_name, facet_group ]
+          end.flatten.uniq
+          groups.delete_if {|g| not self[g].nil? }
+          return if groups.empty?
+          Ironfan.step(machines.cluster.name, "creating security groups", :blue)
+          groups.each do |group|
+            Ironfan.step(group, "creating #{group} security group", :blue)
+            Ec2.connection.create_security_group(group,"Ironfan created group #{group}")
+          end
+          load!(machines.cluster)
+        end
 
         #def destroy!(machines)            end
 
         def save!(machines)
-          Ironfan.step(machines.cluster.name, "ensuring security groups are set", :blue)
           dsl_groups = machines.map do |m|
             next unless m.server and m.server.clouds.include?(:ec2) \
               and not m.server.cloud(:ec2).security_groups.empty?
             m.server.cloud(:ec2).security_groups.values
           end.flatten.compact.uniq
+          return if dsl_groups.empty?
+          Ironfan.step(machines.cluster.name, "ensuring security group permissions", :blue)
           dsl_groups.each do |dsl_group|
             dsl_group.group_authorized_by.each do |other_group|
               next unless fog_group = self[other_group]

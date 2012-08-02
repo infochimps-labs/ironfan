@@ -14,10 +14,13 @@ module Ironfan
 
       def initialize(*args)
         super
-        @stores =             Ironfan::Broker::Stores.new
-        server.volumes.values.each do |volume|
-          self.store(volume.name).volume = volume
-        end if server
+        @stores =       Ironfan::Broker::Stores.new
+        return unless server
+        volumes =       server.volumes.values
+        if server.selected_cloud.respond_to? :implied_volumes
+          volumes +=    server.selected_cloud.implied_volumes
+        end
+        volumes.each {|v| self.store(v.name).volume = v}
       end
 
       def name

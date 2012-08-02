@@ -71,7 +71,7 @@ module Ironfan
 
     # Save chef last, to ensure all other providers have recorded
     #   their values into the attributes appropriately
-    def sync!(machines,options={})
+    def sync!(machines,options={:providers => :all})
       providers = options[:providers]
       if providers == :all or providers == :iaas
         delegate_to(all_iaas) { save! machines }

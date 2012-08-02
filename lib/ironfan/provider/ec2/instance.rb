@@ -150,14 +150,15 @@ module Ironfan
               }
               Ec2.ensure_tags(tags,machine.instance)
 
-              # tag the new volumes correctly
+              # register the new volumes for later save!, and tag appropriately
               instance.volumes.each do |v|
-                ebs_vol = Ec2::EbsVolume.new(:adaptee => v)
-                dsl_vol = machine.server.volumes.values.select do |d|
-                  d.device == ebs_vol.device
+                ebs_vol = Ironfan.broker.provider(:ec2).ebs_volumes.register!(v)
+                store = machine.stores.values.select do |store|
+                  store.volume.device == ebs_vol.device
                 end.first
-                vol_name = if dsl_vol then "#{machine.name}-#{dsl_vol.name}"
-                           else            "#{machine.name}-root"; end
+                store.disk = ebs_vol
+
+                vol_name = "#{machine.name}-#{store.volume.name}"
                 tags['name'] = vol_name
                 tags['Name'] = vol_name
                 Ec2.ensure_tags(tags,ebs_vol)
@@ -166,7 +167,7 @@ module Ironfan
           end
         end
         def fog_launch_description(machine)
-          cloud =                       machine.server.selected_cloud
+          cloud =                       machine.server.cloud(:ec2)
           user_data_hsh =               {
             :chef_server =>             Chef::Config[:chef_server_url],
             #:validation_client_name =>  Chef::Config[:validation_client_name],
@@ -208,13 +209,14 @@ module Ironfan
         end
         # An array of hashes with dorky-looking keys, just like Fog wants it.
         def block_device_mapping(machine)
-          volumes = machine.server.volumes.values
-          return {} if volumes.empty?
-          volumes.map do |volume|
+          machine.stores.values.map do |store|
+            next if store.disk  # Don't create any disc already satisfied
+            volume = store.volume or next
             hsh = { 'DeviceName' => volume.device }
             if volume.attachable == 'ephemeral'
               hsh['VirtualName'] = volume.volume_id
-            elsif create_at_launch?(volume)
+            # if set for creation at launch (and not already created)
+            elsif store.node[:volume_id].blank? && volume.create_at_launch
               if volume.snapshot_id.blank? && volume.size.blank?
                 raise "Must specify a size or a snapshot ID for #{volume}"
               end
@@ -226,11 +228,6 @@ module Ironfan
             end
             hsh
           end.compact
-        end
-        # TODO: Rework this so that it's actually aware of the volumes' creation status
-        def create_at_launch?(volume)
-          #raise "incomplete"
-          volume.volume_id.blank? && volume.create_at_launch
         end
 
         def destroy!(machines)
