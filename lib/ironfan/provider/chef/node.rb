@@ -111,7 +111,7 @@ module Ironfan
             node = Node.new
             node.name         machine.server.fullname
             node.create!      machine
-            machine.node =  node
+            machine.node =    node
             self <<           node
           end
         end

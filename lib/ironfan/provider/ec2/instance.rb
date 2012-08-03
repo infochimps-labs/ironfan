@@ -135,34 +135,34 @@ module Ironfan
             Ironfan.safely do
               fog_server = Ec2.connection.servers.create(launch_desc)
               instance = Instance.new(:adaptee => fog_server)
-              machine[:instance] = instance
+              machine.instance = instance
               self[machine.name] = instance
 
               fog_server.wait_for { ready? }
+            end
 
-              # tag the machine correctly
-              tags = {
-                'cluster' =>      machine.server.cluster_name,
-                'facet' =>        machine.server.facet_name,
-                'index' =>        machine.server.index,
-                'name' =>         machine.name,
-                'Name' =>         machine.name,
-              }
-              Ec2.ensure_tags(tags,machine.instance)
+            # tag the machine correctly
+            tags = {
+              'cluster' =>      machine.server.cluster_name,
+              'facet' =>        machine.server.facet_name,
+              'index' =>        machine.server.index,
+              'name' =>         machine.name,
+              'Name' =>         machine.name,
+            }
+            Ec2.ensure_tags(tags,machine.instance)
 
-              # register the new volumes for later save!, and tag appropriately
-              instance.volumes.each do |v|
-                ebs_vol = Ironfan.broker.provider(:ec2).ebs_volumes.register!(v)
-                store = machine.stores.values.select do |store|
-                  store.volume.device == ebs_vol.device
-                end.first
-                store.disk = ebs_vol
+            # register the new volumes for later save!, and tag appropriately
+            machine.instance.volumes.each do |v|
+              ebs_vol = Ironfan.broker.provider(:ec2).ebs_volumes.register!(v)
+              store = machine.stores.values.select do |store|
+                store.volume.device == ebs_vol.device
+              end.first
+              store.disk = ebs_vol
 
-                vol_name = "#{machine.name}-#{store.volume.name}"
-                tags['name'] = vol_name
-                tags['Name'] = vol_name
-                Ec2.ensure_tags(tags,ebs_vol)
-              end
+              vol_name = "#{machine.name}-#{store.volume.name}"
+              tags['name'] = vol_name
+              tags['Name'] = vol_name
+              Ec2.ensure_tags(tags,ebs_vol)
             end
           end
         end

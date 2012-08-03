@@ -25,21 +25,19 @@ module Ironfan
       end
       collection :security_groups,      Ironfan::Dsl::Ec2::SecurityGroup
       magic :ssh_user,                  String,         :default => 'ubuntu'
-      magic :ssh_identity_dir,          String,         :default => Chef::Config.ec2_key_dir
+      magic :ssh_identity_dir,          String,         :default => ->{ Chef::Config.ec2_key_dir }
       magic :ssh_identity_file,         String #, :default => "#{keypair}.pem"
       magic :subnet,                    String
-      magic :validation_key,            String,         :default => IO.read(Chef::Config.validation_key) rescue ''
+      magic :validation_key,            String,         :default => ->{ IO.read(Chef::Config.validation_key) rescue '' }
       magic :vpc,                       String
 
       def ec2_image_info
         keys = [region, flavor_info[:bits], backing, image_name]
-        Chef::Config[:ec2_image_info][ keys ]
+        Chef::Config[:ec2_image_info][ keys ] || {}
       end
 
       def image_id
-        result = read_attribute(:image_id)
-        return result unless result.nil?
-        ec2_image_info[:image_id] unless ec2_image_info.nil?
+        result = read_attribute(:image_id) || ec2_image_info[:image_id]
       end
 
       def to_display(style,values={})
@@ -66,10 +64,10 @@ module Ironfan
         result = []
         if backing == 'ebs'
           result << Ironfan::Dsl::Volume.new(:name => 'root') do
-            device      '/dev/sda1'
-            fstype      'ext3'
-            keep        false
-            mount_point '/'
+            device              '/dev/sda1'
+            fstype              'ext4'
+            keep                false
+            mount_point         '/'
           end
         end
         return result unless (mount_ephemerals and (flavor_info[:ephemeral_volumes] > 0))
@@ -81,8 +79,11 @@ module Ironfan
         ( 0 .. (flavor_info[:ephemeral_volumes]-1) ).each do |idx|
           dev, mnt = layout[idx]
           ephemeral = Ironfan::Dsl::Volume.new(:name => "ephemeral#{idx}") do
-            device        dev
-            mount_point   mnt
+            attachable          'ephemeral'
+            fstype              'ext3'
+            device              dev
+            mount_point         mnt
+            mount_options       'defaults,noatime'
             tags({:bulk => true, :local => true, :fallback => true})
           end
           ephemeral.receive! mount_ephemerals
@@ -99,10 +100,12 @@ module Ironfan
         def authorize_port_range(range, cidr_ip = '0.0.0.0/0', ip_protocol = 'tcp')
           range = (range .. range) if range.is_a?(Integer)
           range_authorizations << [range, cidr_ip, ip_protocol]
+          range_authorizations.compact!
         end
 
         def authorized_by_group(other_name)
           group_authorized_by << other_name.to_s
+          group_authorized_by.compact!
         end
       end
 

@@ -44,7 +44,7 @@ module Gorillib
     def resolve
       result = self.class.new
       self.class.fields.each do |field_name, field|
-        value = read_from_resolver(field_name)
+        value = read_resolved_attribute(field_name)
         result.write_attribute(field_name, value) unless value.nil?
       end
       result
@@ -89,7 +89,7 @@ module Gorillib
       end
     end
 
-    def read_from_resolver(field_name)
+    def read_resolved_attribute(field_name)
       field = self.class.fields[field_name] or return
       self.send(field.resolver, field_name)
     end
@@ -101,7 +101,7 @@ module Gorillib
 
     def read_underlay_attribute(field_name)
       return if underlay.nil?
-      underlay.read_from_resolver(field_name)
+      underlay.read_resolved_attribute(field_name)
     end
 
     def read_set_or_underlay_attribute(field_name)

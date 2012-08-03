@@ -64,6 +64,9 @@ module Ironfan
       def instance
         self[:instance]
       end
+      def instance=(value)
+        self[:instance] = value
+      end
       def node
         self[:node]
       end

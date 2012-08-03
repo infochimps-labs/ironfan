@@ -98,6 +98,12 @@ module Ironfan
           end
         end
       end
+
+      def self.applicable(machines)
+        machines.values.select do |machine|
+          machine.server and machine.server.clouds.include?(:ec2)
+        end
+      end
     end
 
   end
