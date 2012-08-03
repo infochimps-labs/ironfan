@@ -75,10 +75,11 @@ module Ironfan
         #
         # Discovery
         #
-        def self.load!(computers)
+        def self.load!(computers=nil)
           Ec2.connection.servers.each do |fs|
             machine = new(:adaptee => fs)
             if recall? machine.name
+              raise 'duplicate'
               machine.bogus <<                 :duplicate_machines
               recall(machine.name).bogus <<    :duplicate_machines
               remember machine, :append_id => "duplicate:#{machine.id}"
@@ -90,77 +91,72 @@ module Ironfan
           end
         end
 
-        def self.correlate!(computers)
-          computers.each do |computer|
-            next unless recall? computer.server.fullname
-            machine =          recall computer.server.fullname
-            machine.users <<   computer.object_id
-            computer[:machine] = machine
-          end
+        def self.correlate!(computer)
+          return unless recall? computer.server.fullname
+          machine =             recall computer.server.fullname
+          machine.owner =       computer
+          computer[:machine] =  machine
         end
 
-        def self.validate!(computers)
-          # Find active machines that haven't matched, but should have,
-          #   make sure all bogus machines have a computer to attach to
-          #   for display purposes
+        # Find active machines that haven't matched, but should have,
+        #   make sure all bogus machines have a computer to attach to
+        #   for display purposes
+        def self.validate_resources!(computers)
           recall.each_value do |machine|
-            next unless machine.users.empty? and machine.name
+            next unless machine.owner.nil? and machine.name
             if machine.name.match("^#{computers.cluster.name}")
               machine.bogus << :unexpected_machine
             end
             next unless machine.bogus?
-            fake =              Ironfan::Broker::Computer.new
-            fake[:machine] =   machine
-            fake.name =         machine.name
-            machine.users <<   fake.object_id
-            computers <<         fake
+            fake =                Ironfan::Broker::Computer.new
+            fake[:machine] =      machine
+            fake.name =           machine.name
+            machine.owner =       fake
+            computers <<          fake
           end
         end
 
         #
         # Manipulation
         #
-        def self.create!(computers)
-          # FIXME: Computers.each
-          computers.each do |computer|
-            next if computer.machine? and computer.machine.created?
-            Ironfan.step(computer.name,"creating cloud machine", :green)
-            # lint_fog
-            launch_desc = fog_launch_description(computer)
-            Chef::Log.debug(JSON.pretty_generate(launch_desc))
+        def self.create!(computer)
+          return if computer.machine? and computer.machine.created?
+          Ironfan.step(computer.name,"creating cloud machine", :green)
+          # lint_fog
+          launch_desc = fog_launch_description(computer)
+          Chef::Log.debug(JSON.pretty_generate(launch_desc))
 
-            Ironfan.safely do
-              fog_server = Ec2.connection.servers.create(launch_desc)
-              machine = Machine.new(:adaptee => fog_server)
-              computer.machine = machine
-              remember machine, :id => computer.name
+          Ironfan.safely do
+            fog_server = Ec2.connection.servers.create(launch_desc)
+            machine = Machine.new(:adaptee => fog_server)
+            computer.machine = machine
+            remember machine, :id => computer.name
 
-              fog_server.wait_for { ready? }
-            end
+            fog_server.wait_for { ready? }
+          end
 
-            # tag the computer correctly
-            tags = {
-              'cluster' =>      computer.server.cluster_name,
-              'facet' =>        computer.server.facet_name,
-              'index' =>        computer.server.index,
-              'name' =>         computer.name,
-              'Name' =>         computer.name,
-            }
-            Ec2.ensure_tags(tags,computer.machine)
+          # tag the computer correctly
+          tags = {
+            'cluster' =>      computer.server.cluster_name,
+            'facet' =>        computer.server.facet_name,
+            'index' =>        computer.server.index,
+            'name' =>         computer.name,
+            'Name' =>         computer.name,
+          }
+          Ec2.ensure_tags(tags,computer.machine)
 
-            # register the new volumes for later save!, and tag appropriately
-            computer.machine.volumes.each do |v|
-              ebs_vol = Ec2::EbsVolume.register v
-              drive = computer.drives.values.select do |drive|
-                drive.volume.device == ebs_vol.device
-              end.first
-              drive.disk = ebs_vol
+          # register the new volumes for later save!, and tag appropriately
+          computer.machine.volumes.each do |v|
+            ebs_vol = Ec2::EbsVolume.register v
+            drive = computer.drives.values.select do |drive|
+              drive.volume.device == ebs_vol.device
+            end.first
+            drive.disk = ebs_vol
 
-              vol_name = "#{computer.name}-#{drive.volume.name}"
-              tags['name'] = vol_name
-              tags['Name'] = vol_name
-              Ec2.ensure_tags(tags,ebs_vol)
-            end
+            vol_name = "#{computer.name}-#{drive.volume.name}"
+            tags['name'] = vol_name
+            tags['Name'] = vol_name
+            Ec2.ensure_tags(tags,ebs_vol)
           end
         end
         def self.fog_launch_description(computer)
@@ -227,30 +223,24 @@ module Ironfan
           end.compact
         end
 
-        def self.destroy!(computers)
-          # FIXME: Computers.each
-          computers.each do |computer|
-            next unless computer.machine?
-            forget computer.machine.name
-            computer.machine.destroy
-            computer.machine.reload            # show the node as shutting down
-          end
+        def self.destroy!(computer)
+          return unless computer.machine?
+          forget computer.machine.name
+          computer.machine.destroy
+          computer.machine.reload            # show the node as shutting down
         end
 
-        def self.save!(computers)
-          # FIXME: Computers.each
-          computers.each do |computer|
-            next unless computer.machine?
-            # the EC2 API does not surface disable_api_termination as a value, so we
-            # have to set it every time.
-            permanent = computer.server.cloud(:ec2).permanent
-            next unless computer.created?
-            Ironfan.step(computer.name, "setting termination flag #{permanent}", :blue)
-            Ironfan.unless_dry_run do
-              Ironfan.safely do
-                Ec2.connection.modify_instance_attribute( computer.machine.id,
-                  {'DisableApiTermination.Value' => computer.permanent?, })
-              end
+        def self.save!(computer)
+          return unless computer.machine?
+          # the EC2 API does not surface disable_api_termination as a value, so we
+          # have to set it every time.
+          permanent = computer.server.cloud(:ec2).permanent
+          return unless computer.created?
+          Ironfan.step(computer.name, "setting termination flag #{permanent}", :blue)
+          Ironfan.unless_dry_run do
+            Ironfan.safely do
+              Ec2.connection.modify_instance_attribute( computer.machine.id,
+                {'DisableApiTermination.Value' => computer.permanent?, })
             end
           end
         end

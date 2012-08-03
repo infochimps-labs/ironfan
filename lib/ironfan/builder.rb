@@ -7,8 +7,10 @@ module Ironfan
     def ui()      Ironfan.ui ; end
 
     #
-    # Utility to handle simple delegation to multiple targets
-    #
+    # Utilities 
+    # 
+
+    # simple delegation to multiple targets
     def delegate_to(targets,options={},&block)
       raise 'missing block' unless block_given?
       [targets].flatten.each {|target| target.instance_eval &block }

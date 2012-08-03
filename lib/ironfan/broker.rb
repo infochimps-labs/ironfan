@@ -25,8 +25,10 @@ module Ironfan
       # ensure that each chosen provider is available
       computers.each {|m| provider(m.server.selected_cloud.name) }
 
-      delegate_to(all_providers) { load! computers }
-      delegate_to(all_providers) { correlate! computers }
+      delegate_to(all_providers) do
+        load! computers
+        correlate! computers
+      end
       delegate_to(all_providers) { validate! computers }
       computers
     end
@@ -41,18 +43,12 @@ module Ironfan
       end
     end
 
-    def kill!(computers,options={:providers=>:all})
-      providers = options[:providers]
-      if providers == :all or providers == :iaas
-        delegate_to(all_iaas) { destroy! computers }
-      end
-      if providers == :all or providers == :chef
-        delegate_to(chef) { destroy! computers }
-      end
+    def kill!(computers,options={})
+      delegate_to_chosen_providers(options) { destroy_machines! computers }
     end
 
     def launch!(computers)
-      delegate_to(all_providers) { create_dependencies! computers }
+      delegate_to(all_providers) { ensure_prerequisites! computers }
       delegate_to(all_iaas) { create_machines! computers }
       sync! computers
     end
@@ -63,22 +59,13 @@ module Ironfan
     end
 
     def start!(computers)
-      delegate_to(all_providers) { create_dependencies! computers }
-#      sync! computers, :providers => :chef
+      delegate_to(all_providers) { ensure_prerequisites! computers }
       delegate_to(all_iaas) { start_machines! computers }
       sync! computers
     end
 
-    # Save chef last, to ensure all other providers have recorded
-    #   their values into the attributes appropriately
-    def sync!(computers,options={:providers => :all})
-      providers = options[:providers]
-      if providers == :all or providers == :iaas
-        delegate_to(all_iaas) { save! computers }
-      end
-      if providers == :all or providers == :chef
-        delegate_to(chef) { save! computers }
-      end
+    def sync!(computers,options={})
+      delegate_to_chosen_providers(options) { save! computers }
     end
 
     #
@@ -87,6 +74,19 @@ module Ironfan
 
     def all_providers() [chef, all_iaas].flatten;       end
     def all_iaas()      providers.values;               end
+    # Target chef last, to ensure all other providers have recorded
+    #   their values into the attributes appropriately
+    def delegate_to_chosen_providers(options={:providers => :all},&block)
+      case options[:providers]
+      when :all
+        delegate_to all_iaas, &block
+        delegate_to chef, &block
+      when :iaas      then all_iaas
+        delegate_to all_iaas, &block
+      when :chef      then chef
+        delegate_to chef, &block
+      end
+    end
   end
 
 end

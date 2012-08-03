@@ -48,44 +48,33 @@ module Ironfan
           end
         end
 
-        def self.correlate!(computers)
-          # FIXME: Computers.each
-          computers.each do |computer|
-            if recall? computer.server.fullname
-              computer[:client] = recall computer.server.fullname
-              computer[:client].users << computer.object_id
-            end
+        def self.correlate!(computer)
+          if recall? computer.server.fullname
+            computer[:client] = recall computer.server.fullname
+            computer[:client].owner = computer
           end
         end
 
         # 
         # Manipulation
         #
-        def self.create!(computers)
-          # FIXME: Computers.each
-          computers.each do |computer|
-            next if computer.client?
-            client = Client.new
-            client.name         computer.server.fullname
-            client.admin        false
-            client.create!
-            computer[:client] =  client
-            remember             client
-          end
+        def self.create!(computer)
+          return if computer.client?
+          client = Client.new
+          client.name         computer.server.fullname
+          client.admin        false
+          client.create!
+          computer[:client] =  client
+          remember             client
         end
 
-        def self.destroy!(computers)
-          # FIXME: Computers.each
-          computers.each do |computer|
-            next unless computer.client?
-            forget computer.client.name
-            computer.client.destroy
-            File.delete(computer.client.key_filename)
-            computer.delete(:client)
-          end
+        def self.destroy!(computer)
+          return unless computer.client?
+          forget computer.client.name
+          computer.client.destroy
+          File.delete(computer.client.key_filename)
+          computer.delete(:client)
         end
-
-        # def self.save!(computers)               end
       end
 
     end

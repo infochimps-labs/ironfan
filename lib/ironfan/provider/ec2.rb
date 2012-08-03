@@ -3,57 +3,13 @@ module Ironfan
 
     class Ec2 < Ironfan::IaasProvider
 
-
-      def resources()
+      def resources
         # [ Machine, EbsVolume, ElasticIp, KeyPair, PlacementGroup, SecurityGroup ]
         [ Machine, EbsVolume, KeyPair, SecurityGroup ]
       end
 
-      #
-      # Discovery
-      #
-      def load!(computers)
-        delegate_to(resources) { load! computers }
-      end
-
-      def correlate!(computers)
-        targets = [ Machine, EbsVolume ]
-        delegate_to(targets) { correlate! computers }
-      end
-
-      # nothing here actually needs validation, currently
-      def validate!(computers)
-        delegate_to(Machine) { validate! computers }
-      end
-
-      # 
-      # Manipulation
-      #
-      def create_dependencies!(computers)
-        targets = [ KeyPair, SecurityGroup ]
-        #targets = [ SecurityGroup ]
-        delegate_to(targets) { create! computers }
-      end
-
-      def create_machines!(computers)
-        delegate_to(Machine) { create! computers }
-      end
-
-      def destroy!(computers)
-        delegate_to(Machine) { destroy! computers }
-      end
-
-      def save!(computers)
-        targets = [ Machine, EbsVolume, SecurityGroup ]
-        delegate_to(targets) { save! computers }
-      end
-
-      def start_machines!(computers)
-        delegate_to(Machine) { start! computers }
-      end
-
-      def stop_machines!(computers)
-        delegate_to(Machine) { stop! computers }
+      def conterminous_with_machine
+        []
       end
 
       #
@@ -87,10 +43,8 @@ module Ironfan
         end
       end
 
-      def self.applicable(computers)
-        computers.values.select do |computer|
-          computer.server and computer.server.clouds.include?(:ec2)
-        end
+      def self.applicable(computer)
+        computer.server and computer.server.clouds.include?(:ec2)
       end
     end
 

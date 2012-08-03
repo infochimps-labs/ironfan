@@ -23,7 +23,7 @@ module Ironfan
         #
         # Discovery
         #
-        def self.load!(cluster)
+        def self.load!(computers=nil)
           Ec2.connection.key_pairs.each do |keypair|
             register keypair unless keypair.blank?
           end
@@ -33,19 +33,15 @@ module Ironfan
         # Manipulation
         #
 
-        def self.create!(computers)
-          name = computers.cluster.name
+        def self.create!(computer)
+          name = computer.cluster_name
           return if recall? name
           Ironfan.step(name, "creating key pair for #{name}", :blue)
           result = Ec2.connection.create_key_pair(name)
           private_key = result.body["keyMaterial"]
-          load! computers.cluster       # Reload to get the native object
+          load!  # Reload to get the native object
           recall(name).private_key = private_key
         end
-
-        #def destroy!(computers)            end
-
-        #def save!(computers)               end
 
         #
         # Utility

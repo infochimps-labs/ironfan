@@ -157,7 +157,6 @@ module Ironfan
         result          = empty_copy
         slice_array     = build_slice_array(slice_indexes)
         each do |m|
-          pp m
           result << m if (m.bogus? or (                 # bogus computer or
             ( m.server.facet_name == facet_name ) and   # facet match and
               ( slice_array.include? m.server.index or  #   index match or

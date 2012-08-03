@@ -29,19 +29,19 @@ module Ironfan
           self
         end
 
-        def self.save!(computers)
-          # Collect all relevant Dsl::Roles from the computers
-          defs = []
-          computers.each do |m|
-            defs << m.server.cluster_role
-            defs << m.server.facet_role
+        #
+        # Manipulation
+        #
+        def self.save!(computer)
+          dsl_roles = []
+          dsl_roles << computer.server.cluster_role
+          dsl_roles << computer.server.facet_role
+
+          dsl_roles.each do |dsl_role|
+            next if recall? dsl_role.name       # Handle each role only once
+            role = remember new(:expected => dsl_role)
+            role.save
           end
-          # Handle each specific definition only once
-          defs.compact.uniq.each do |d|
-            remember Ironfan::Provider::ChefServer::Role.new(:expected => d)
-          end
-          # Save all roles to the server
-          recall.each_value(&:save)
         end
       end
 

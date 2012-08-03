@@ -77,57 +77,43 @@ module Ironfan
           end
         end
 
-        def self.correlate!(computers)
-          # FIXME: Computers.each
-          computers.each do |computer|
-            if recall? computer.server.fullname
-              computer.node = recall computer.server.fullname
-              computer.node['volumes'].each do |name,volume|
-                computer.drive(name).node.merge! volume
-              end
-              computer.node.users << computer.object_id
+        def self.correlate!(computer)
+          if recall? computer.server.fullname
+            computer.node = recall computer.server.fullname
+            computer.node['volumes'].each do |name,volume|
+              computer.drive(name).node.merge! volume
             end
+            computer.node.owner = computer
           end
         end
 
-        def self.validate!(computers)
-          # FIXME: Computers.each
-          computers.each do |computer|
-            next unless computer.node and not computer[:client]
-            computer.node.bogus << :node_without_client
-          end
+        def self.validate!(computer)
+          return unless computer.node and not computer[:client]
+          computer.node.bogus << :node_without_client
         end
 
         #
         # Manipulation
         #
-        def self.create!(computers)
-          # FIXME: Computers.each
-          computers.each do |computer|
-            next if computer.node?
-            node = Node.new
-            node.name           computer.server.fullname
-            node.create!        computer
-            computer.node =     node
-            remember            node
-          end
+        def self.create!(computer)
+          return if computer.node?
+          node = Node.new
+          node.name           computer.server.fullname
+          node.create!        computer
+          computer.node =     node
+          remember            no
         end
 
-        def self.destroy!(computers)
-          # FIXME: Computers.each
-          computers.each do |computer|
-            next unless computer.node?
-            forget computer.node.name
-            computer.node.destroy
-            computer.delete(:node)
-          end
+        def self.destroy!(computer)
+          return unless computer.node?
+          forget computer.node.name
+          computer.node.destroy
+          computer.delete(:node)
         end
 
-        def self.save!(computers)
-          # FIXME: Computers.each
-          temp = computers.values.select(&:node?)
-          temp.each {|computer| computer.node.save! computer }
-          computers
+        def self.save!(computer)
+          return unless computer.node?
+          computer.node.save! computer
         end
 
       end

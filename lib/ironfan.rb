@@ -142,4 +142,9 @@ module Ironfan
   def self.dry_run?
     chef_config[:dry_run]
   end
+
+  # Intentionally skipping an implied step 
+  def self.noop(source,method,*params)
+    Chef::Log.debug("Nothing to do for #{source}.#{method}(#{params.join(',')}), skipping")
+  end
 end

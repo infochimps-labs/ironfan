@@ -3,34 +3,13 @@ module Ironfan
 
     class ChefServer < Ironfan::Provider
 
-      #
-      # Discovery
-      #
-      def load!(computers)
-        delegate_to([Node, Client]) { load! computers }
+      
+      def resources
+        [ Client, Node, Role ]
       end
 
-      def correlate!(computers)
-        delegate_to([Node, Client]) { correlate! computers }
-      end
-
-      def validate!(computers)
-        delegate_to(Node) { validate! computers }
-      end
-
-      # 
-      # Manipulation
-      #
-      def create_dependencies!(computers)
-        delegate_to([Client,Node]) { create! computers }
-      end
-
-      def destroy!(computers)
-        delegate_to([Node, Client]) { destroy! computers }
-      end
-
-      def save!(computers)
-        delegate_to([Node, Role]) { save! computers }
+      def conterminous_with_machine
+        [ Client, Node ]
       end
 
       #

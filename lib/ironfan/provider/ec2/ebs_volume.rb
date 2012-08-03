@@ -27,7 +27,7 @@ module Ironfan
         #
         # Discovery
         #
-        def self.load!(computers)
+        def self.load!(computers=nil)
           Ec2.connection.volumes.each do |vol|
             next if vol.blank?
             ebs = EbsVolume.new(:adaptee => vol)
@@ -42,50 +42,47 @@ module Ironfan
           end
         end
 
-        def self.correlate!(computers)
-          Chef::Log.debug("starting ebs_volumes.correlate!")
-          # FIXME: Computers.each
-          computers.select(&:server?).each do |computer|
-            computer.server.volumes.each do |volume|
-              unless volume.attachable.to_s == 'ebs'
-                Chef::Log.debug("Ignoring non-EBS volume = #{volume}")
-                next
-              end
-
-              drive =           computer.drive(volume.name)
-              drive.node =      computer.node[:volumes][volume.name].to_hash rescue {}
-              if drive.node.has_key? :volume_id
-                node_volume_id = drive.node[:volume_id]
-              end
-              ebs_name =        "#{computer.server.fullname}-#{volume.name}"
-
-              volume_id =       volume.volume_id
-              volume_id ||=     node_volume_id
-
-              # Volumes may match against name derived from the cluster definition,
-              #   or volume_id from the cluster definition or node
-              case
-              when (recall? ebs_name)
-                ebs =           recall ebs_name
-              when (volume_id and recall? volume_id)
-                ebs =           recall volume_id
-              else
-                log_message =   "Volume not found: name = #{ebs_name}"
-                log_message +=  ", volume_id = #{volume_id}"
-                Chef::Log.debug(log_message)
-                next
-              end
-
-              # Make sure all the known volume_ids match
-              [ ebs.id, volume.volume_id, node_volume_id ].compact.each do |id|
-                id == volume_id or ebs.bogus << :volume_id_mismatch
-              end if volume_id
-
-              computer.bogus +=  ebs.bogus
-              ebs.users <<      computer.object_id
-              drive.volume =    volume
-              drive.disk =      ebs
+        def self.correlate!(computer)
+          return unless computer.server?
+          computer.server.volumes.each do |volume|
+            unless volume.attachable.to_s == 'ebs'
+              Chef::Log.debug("Ignoring non-EBS volume = #{volume}")
+              next
             end
+
+            drive =             computer.drive(volume.name)
+            drive.node =        computer.node[:volumes][volume.name].to_hash rescue {}
+            if drive.node.has_key? :volume_id
+              node_volume_id =  drive.node[:volume_id]
+            end
+            ebs_name =          "#{computer.server.fullname}-#{volume.name}"
+
+            volume_id =         volume.volume_id
+            volume_id ||=       node_volume_id
+
+            # Volumes may match against name derived from the cluster definition,
+            #   or volume_id from the cluster definition or node
+            case
+            when (recall? ebs_name)
+              ebs =             recall ebs_name
+            when (volume_id and recall? volume_id)
+              ebs =             recall volume_id
+            else
+              log_message =     "Volume not found: name = #{ebs_name}"
+              log_message +=    ", volume_id = #{volume_id}"
+              Chef::Log.debug(log_message)
+              next
+            end
+
+            # Make sure all the known volume_ids match
+            [ ebs.id, volume.volume_id, node_volume_id ].compact.each do |id|
+              id == volume_id or ebs.bogus << :volume_id_mismatch
+            end if volume_id
+
+            computer.bogus +=   ebs.bogus
+            ebs.owner =         computer.object_id
+            drive.volume =      volume
+            drive.disk =        ebs
           end
         end
 
@@ -93,34 +90,23 @@ module Ironfan
         # Manipulation
         #
 
-        # # Ironfan currently only creates EbsVolumes via flags on the machine
-        # #   launch, so there's no need for this at the moment
-        # def create!(computers)         end
-
-        #def destroy!(computers)         end
-
-        def self.save!(computers)
-          # FIXME: Computers.each
-          computers.each do |computer|
-            Ironfan.step(computer.name,"syncing EBS volumes",:blue)
-            computer.drives.each do |drive|
-              # Only worry about computers with ebs volumes
-              ebs = drive.disk or next
-              # Only attach volumes if they aren't already attached
-              if ebs.server_id.nil?
-                Ironfan.step(computer.name, "  - attaching #{ebs.name}", :blue)
-                Ironfan.safely do
-                  ebs.device =          drive.volume.device
-                  ebs.server =          computer.machine.adaptee
-                end
+        def self.save!(computer)
+          Ironfan.step(computer.name,"syncing EBS volumes",:blue)
+          computer.drives.each do |drive|
+            # Only worry about computers with ebs volumes
+            ebs = drive.disk or next
+            # Only attach volumes if they aren't already attached
+            if ebs.server_id.nil?
+              Ironfan.step(computer.name, "  - attaching #{ebs.name}", :blue)
+              Ironfan.safely do
+                ebs.device =          drive.volume.device
+                ebs.server =          computer.machine.adaptee
               end
-              # Record the volume information in chef
-              drive.node['volume_id'] =  ebs.id
             end
+            # Record the volume information in chef
+            drive.node['volume_id'] =  ebs.id
           end
-          computers
         end
-
       end
 
     end

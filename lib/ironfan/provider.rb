@@ -15,37 +15,78 @@ module Ironfan
       super
     end
 
-    #   
-    #   EXPECTED CALL-SIGN
+    def resources
+      raise "missing #{self.class}.resources declaration"
+    end
+
+    def conterminous_with_machine
+      Chef::Log.debug "no resources elected to die with Machines in #{self.class}"
+      []
+    end
+
     #
-    # #
-    # # Discovery
-    # #
-    # def load!(computers)                 end
-    # def correlate!(computers)            end
-    # def validate!(computers)             end
+    # Discovery
     #
-    # #
-    # # Manipulation
-    # #
-    # def create_dependencies!(computers)  end
-    # def create_machines!(computers)     end
-    # def destroy!(computers)              end
-    # def save!(computers)                 end
+    def load!(computers)
+      delegate_to(resources) { load! computers }
+    end
+
+    def correlate!(computers)
+      computers.each do |computer|
+        delegate_to(resources) { correlate! computer }
+      end
+    end
+
+    def validate!(computers)
+      computers.each do |computer|
+        delegate_to(resources) { validate_computer! computer }
+      end
+      delegate_to(resources) { validate_resources! computers }
+    end
+
     #
-    # #
-    # # Machine Manipulation
-    # #
-    # def start_machines!(computers)      end
-    # def stop_machines!(computers)       end
+    # Manipulation
+    #
+    def ensure_prerequisites!(computers)
+      computers.each do |computer|
+        delegate_to(resources) { create! computer }
+      end
+    end
+
+    def destroy_machines!(computers)
+      computers.each do |computer|
+        delegate_to(conterminous_with_machine) { destroy! computer }
+      end
+    end
+
+    def save!(computers)
+      computers.each do |computer|
+        delegate_to(resources) { save! computer }
+      end
+    end
 
     class Resource < Builder
       @@known = {}
       field             :adaptee,       Whatever
-      field             :users,         Array,          :default => []
       field             :bogus,         Array,          :default => []
+      attr_accessor     :owner
 
       def bogus?()      !bogus.empty?;                  end
+
+      #
+      # Discovery
+      #
+      def self.load!(*p)                Ironfan.noop(self,__method__,*p);   end
+      def self.correlate!(*p)           Ironfan.noop(self,__method__,*p);   end
+      def self.validate_computer!(*p)   Ironfan.noop(self,__method__,*p);   end
+      def self.validate_resources!(*p)  Ironfan.noop(self,__method__,*p);   end
+
+      #
+      # Manipulation
+      #
+      def self.create!(*p)              Ironfan.noop(self,__method__,*p);   end
+      def self.save!(*p)                Ironfan.noop(self,__method__,*p);   end
+      def self.destroy!(*p)             Ironfan.noop(self,__method__,*p);   end
 
       #
       # Utilities
@@ -67,7 +108,8 @@ module Ironfan
       end
 
       def self.recall(id=nil)
-        self.known[id] or self.known
+        return self.known if id.nil?
+        self.known[id]
       end
 
       def self.forget(id)
@@ -83,7 +125,54 @@ module Ironfan
   end
 
   class IaasProvider < Provider
-    collection          :machines,     Machine
+    def machine_class
+      self.class.const_get(:Machine)
+    end
+
+    #
+    # Manipulation
+    #
+    def ensure_prerequisites!(computers)
+      # Create all things that aren't machines
+      targets = resources.reject {|type| type < IaasProvider::Machine}
+      computers.each do |computer|
+        delegate_to(targets) { create! computer }
+      end
+    end
+
+    def create_machines!(computers)
+      computers.each do |computer|
+        delegate_to(machine_class) { create! computer }
+      end
+    end
+
+    def destroy_machines!(computers)
+      targets = conterminous_with_machine + [ machine_class ]
+      computers.each do |computer|
+        delegate_to(targets) { destroy! computer }
+      end
+    end
+
+    def save!(computers)
+      computers.each do |computer|
+        delegate_to(resources) { save! computer }
+      end
+    end
+
+    #
+    # Machine Manipulation
+    #
+    def start_machines!(computers)
+      computers.each do |computer|
+        delegate_to(machine_class) { start! computer }
+      end
+    end
+
+    def stop_machines!(computers)
+      computers.each do |computer|
+        delegate_to(machine_class) { stop! computer }
+      end
+    end
 
     class Machine < Resource
     end
