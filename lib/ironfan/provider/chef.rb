@@ -2,45 +2,35 @@ module Ironfan
   class Provider
 
     class ChefServer < Ironfan::Provider
-      collection :clients,      Ironfan::Provider::ChefServer::Client
-      collection :nodes,        Ironfan::Provider::ChefServer::Node
-      collection :roles,        Ironfan::Provider::ChefServer::Role
-
-      def initialize
-        super
-        @clients =              Ironfan::Provider::ChefServer::Clients.new
-        @nodes =                Ironfan::Provider::ChefServer::Nodes.new
-        @roles =                Ironfan::Provider::ChefServer::Roles.new
-      end
 
       #
       # Discovery
       #
-      def load!(machines)
-        delegate_to([nodes, clients]) { load! machines }
+      def load!(computers)
+        delegate_to([Node, Client]) { load! computers }
       end
 
-      def correlate!(machines)
-        delegate_to([nodes, clients]) { correlate! machines }
+      def correlate!(computers)
+        delegate_to([Node, Client]) { correlate! computers }
       end
 
-      def validate!(machines)
-        delegate_to(nodes) { validate! machines }
+      def validate!(computers)
+        delegate_to(Node) { validate! computers }
       end
 
       # 
       # Manipulation
       #
-      def create_dependencies!(machines)
-        delegate_to([clients,nodes]) { create! machines }
+      def create_dependencies!(computers)
+        delegate_to([Client,Node]) { create! computers }
       end
 
-      def destroy!(machines)
-        delegate_to([nodes, clients]) { destroy! machines }
+      def destroy!(computers)
+        delegate_to([Node, Client]) { destroy! computers }
       end
 
-      def save!(machines)
-        delegate_to([nodes, roles]) { save! machines }
+      def save!(computers)
+        delegate_to([Node, Role]) { save! computers }
       end
 
       #

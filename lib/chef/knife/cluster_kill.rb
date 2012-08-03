@@ -30,7 +30,7 @@ class Chef
         :default     => false
       option :cloud,
         :long        => '--[no-]cloud',
-        :description => "Kill machines from cloud (default is yes, terminate machines; use --no-cloud to skip)",
+        :description => "Kill computers from cloud (default is yes, terminate computers; use --no-cloud to skip)",
         :boolean     => true,
         :default     => true
       option :chef,
@@ -46,7 +46,7 @@ class Chef
       # Execute every last mf'ing one of em
       def perform_execution(target)
         if config[:cloud]
-          section("Killing Cloud Machines")
+          section("Killing Cloud Computers")
           broker.kill! target, :providers => :iaas
         end
 
@@ -68,10 +68,10 @@ class Chef
 
       def confirm_execution(target)
         nodes           = target.map(&:node).compact
-        instances       = target.map(&:instance).compact
+        machines       = target.map(&:machine).compact
         delete_message = [
           (((!config[:chef])   || nodes.empty?)  ? nil : "#{nodes.length} chef nodes"),
-          (((!config[:cloud])  || instances.empty?) ? nil : "#{instances.length} fog servers") ].compact.join(" and ")
+          (((!config[:cloud])  || machines.empty?) ? nil : "#{machines.length} fog servers") ].compact.join(" and ")
         confirm_or_exit("Are you absolutely certain that you want to delete #{delete_message}? (Type 'Yes' to confirm) ", 'Yes')
       end
 

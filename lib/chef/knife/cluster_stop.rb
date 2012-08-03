@@ -28,7 +28,7 @@ class Chef
       end
 
       def perform_execution(target)
-        section("Stopping machines")
+        section("Stopping computers")
         super(target)
         section("Announcing Chef nodes as stopped")
         target.send(:delegate_to_servers, :announce_as_stopped)

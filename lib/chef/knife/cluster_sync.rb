@@ -21,7 +21,7 @@ require File.expand_path('ironfan_script', File.dirname(File.realdirpath(__FILE_
 class Chef
   class Knife
     class ClusterSync < Ironfan::Script
-      import_banner_and_options(Ironfan::Script, :description => "Update chef server and cloud machines with current cluster definition")
+      import_banner_and_options(Ironfan::Script, :description => "Update chef server and cloud computers with current cluster definition")
 
       option :cloud,
         :long        => "--[no-]cloud",
@@ -40,11 +40,11 @@ class Chef
         :boolean     => true
 
 
-      def relevant?(machine)
+      def relevant?(computer)
         if config[:sync_all]
-          not machine.bogus?
+          not computer.bogus?
         else
-          machine.created? or machine.node?
+          computer.created? or computer.node?
         end
       end
 
@@ -58,7 +58,7 @@ class Chef
           end
         else Chef::Log.debug("Skipping sync to chef") ; end
 
-        if config[:cloud] && target.any?(&:instance?)
+        if config[:cloud] && target.any?(&:machine?)
           ui.info "Syncing to cloud:"
           broker.sync! target, :providers => :iaas
         else Chef::Log.debug("Skipping sync to cloud") ; end

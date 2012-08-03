@@ -31,7 +31,7 @@ class Chef
 
       option :cloud,
         :long        => "--[no-]cloud",
-        :description => "Look up machines on AWS cloud (default is yes, look up machines; use --no-cloud to skip)",
+        :description => "Look up computers on AWS cloud (default is yes, look up computers; use --no-cloud to skip)",
         :default     => true,
         :boolean     => true
 
@@ -52,7 +52,7 @@ class Chef
         # Commands to try:
         #   nn = Chef::Node.load('node-name')
         #   cluster_nodes = cluster.servers.map(&:chef_node)
-        #   fog_machines  = cluster.servers.map(&:fog_server)
+        #   fog_computers  = cluster.servers.map(&:fog_server)
         #
         binding.pry
       end

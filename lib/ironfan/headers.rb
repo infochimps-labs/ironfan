@@ -9,10 +9,9 @@ module Ironfan
   end
 
   class Broker < Builder
-    class Machine < Builder; end
-    class Machines < Gorillib::ModelCollection; end
-    class Store < Builder; end
-    class Stores < Gorillib::ModelCollection; end
+    class Computer < Builder; end
+    class Computers < Gorillib::ModelCollection; end
+    class Drive < Builder; end
   end
 
   class Dsl < Builder
@@ -33,36 +32,26 @@ module Ironfan
 
   class Provider < Builder
     class Resource < Builder; end
-    class ResourceCollection < Gorillib::ModelCollection; end
   end
   class IaasProvider < Provider
-    class Instance < Resource; end
+    class Machine < Resource; end
   end
   class Provider
     class ChefServer < Ironfan::Provider
       class Client < Ironfan::Provider::Resource; end
-      class Clients < Ironfan::Provider::ResourceCollection; end
       class Node < Ironfan::Provider::Resource; end
-      class Nodes < Ironfan::Provider::ResourceCollection; end
       class Role < Ironfan::Provider::Resource; end
-      class Roles < Ironfan::Provider::ResourceCollection; end
     end
     class Ec2 < Ironfan::IaasProvider
       class EbsVolume < Ironfan::Provider::Resource; end
-      class EbsVolumes < Ironfan::Provider::ResourceCollection; end
       class ElasticIp < Ironfan::Provider::Resource; end
-      class ElasticIps < Ironfan::Provider::ResourceCollection; end
-      class Instance < Ironfan::IaasProvider::Instance; end
-      class Instances < Ironfan::Provider::ResourceCollection; end
+      class Machine < Ironfan::IaasProvider::Machine; end
       class KeyPair < Ironfan::Provider::Resource; end
-      class KeyPairs < Ironfan::Provider::ResourceCollection; end
       class PlacementGroup < Ironfan::Provider::Resource; end
-      class PlacementGroups < Ironfan::Provider::ResourceCollection; end
       class SecurityGroup < Ironfan::Provider::Resource; end
-      class SecurityGroups < Ironfan::Provider::ResourceCollection; end
     end
     class VirtualBox < Ironfan::IaasProvider
-      class Instance < Ironfan::IaasProvider::Instance; end
+      class Machine < Ironfan::IaasProvider::Machine; end
     end
   end
 

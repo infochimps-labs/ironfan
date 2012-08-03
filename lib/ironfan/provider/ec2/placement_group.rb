@@ -10,23 +10,12 @@ module Ironfan
         def name()
           self["groupName"]
         end
-      end
 
-      class PlacementGroups < Ironfan::Provider::ResourceCollection
-        self.item_type =        PlacementGroup
-
-        def discover!(cluster)
+        def self.load!(cluster)
           result = Ec2.connection.describe_placement_groups
-          result.body["placementGroupSet"].each do |pg|
-            self << PlacementGroup.new(:adaptee => pg) unless pg.blank?
+          result.body["placementGroupSet"].each do |group|
+            register group unless group.blank?
           end
-        end
-
-        def correlate!(cluster,machines)
-        end
-
-        def sync!(machines)
-          raise 'unimplemented'
         end
       end
 

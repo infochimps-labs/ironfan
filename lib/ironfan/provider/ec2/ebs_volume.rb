@@ -23,45 +23,41 @@ module Ironfan
         def ephemeral_device?
           false
         end
-      end
-
-      class EbsVolumes < Ironfan::Provider::ResourceCollection
-        self.item_type =        EbsVolume
 
         #
         # Discovery
         #
-        def load!(machines)
+        def self.load!(computers)
           Ec2.connection.volumes.each do |vol|
             next if vol.blank?
             ebs = EbsVolume.new(:adaptee => vol)
             # Already have a volume by this name
-            if include? ebs.name
+            if recall? ebs.name
               ebs.bogus <<              :duplicate_volumes
-              self[ebs.name].bogus <<   :duplicate_volumes
-              dup_index =               "#{ebs.name}-dup:#{ebs.object_id}"
-              self[dup_index] =         ebs
+              recall(ebs.name).bogus << :duplicate_volumes
+              remember ebs, :append_id => "duplicate:#{ebs.id}"
             else
-              self <<                   ebs
+              remember ebs
             end
           end
         end
 
-        def correlate!(machines)
+        def self.correlate!(computers)
           Chef::Log.debug("starting ebs_volumes.correlate!")
-          machines.select(&:server?).each do |machine|
-            machine.server.volumes.each do |volume|
-              unless volume.attachable == 'ebs'
+          # FIXME: Computers.each
+          computers.select(&:server?).each do |computer|
+            computer.server.volumes.each do |volume|
+              unless volume.attachable.to_s == 'ebs'
                 Chef::Log.debug("Ignoring non-EBS volume = #{volume}")
                 next
               end
 
-              store =           machine.store(volume.name)
-              store.node =      machine.node[:volumes][volume.name].to_hash rescue {}
-              if store.node.has_key? :volume_id
-                node_volume_id = store.node[:volume_id]
+              drive =           computer.drive(volume.name)
+              drive.node =      computer.node[:volumes][volume.name].to_hash rescue {}
+              if drive.node.has_key? :volume_id
+                node_volume_id = drive.node[:volume_id]
               end
-              ebs_name =        "#{machine.server.fullname}-#{volume.name}"
+              ebs_name =        "#{computer.server.fullname}-#{volume.name}"
 
               volume_id =       volume.volume_id
               volume_id ||=     node_volume_id
@@ -69,10 +65,10 @@ module Ironfan
               # Volumes may match against name derived from the cluster definition,
               #   or volume_id from the cluster definition or node
               case
-              when (include? ebs_name)
-                ebs =           self[ebs_name]
-              when (volume_id and include? volume_id)
-                ebs =           self[volume_id]
+              when (recall? ebs_name)
+                ebs =           recall ebs_name
+              when (volume_id and recall? volume_id)
+                ebs =           recall volume_id
               else
                 log_message =   "Volume not found: name = #{ebs_name}"
                 log_message +=  ", volume_id = #{volume_id}"
@@ -85,10 +81,10 @@ module Ironfan
                 id == volume_id or ebs.bogus << :volume_id_mismatch
               end if volume_id
 
-              machine.bogus +=  ebs.bogus
-              ebs.users <<      machine.object_id
-              store.volume =    volume
-              store.disk =      ebs
+              computer.bogus +=  ebs.bogus
+              ebs.users <<      computer.object_id
+              drive.volume =    volume
+              drive.disk =      ebs
             end
           end
         end
@@ -97,31 +93,32 @@ module Ironfan
         # Manipulation
         #
 
-        # # Ironfan currently only creates EbsVolumes via flags on the instance
+        # # Ironfan currently only creates EbsVolumes via flags on the machine
         # #   launch, so there's no need for this at the moment
-        # def create!(machines)         end
+        # def create!(computers)         end
 
-        #def destroy!(machines)         end
+        #def destroy!(computers)         end
 
-        def save!(machines)
-          machines.each do |machine|
-            Ironfan.step(machine.name,"syncing EBS volumes",:blue)
-            machine.stores.each do |store|
-              # Only worry about machines with ebs volumes
-              ebs = store.disk or next
+        def self.save!(computers)
+          # FIXME: Computers.each
+          computers.each do |computer|
+            Ironfan.step(computer.name,"syncing EBS volumes",:blue)
+            computer.drives.each do |drive|
+              # Only worry about computers with ebs volumes
+              ebs = drive.disk or next
               # Only attach volumes if they aren't already attached
               if ebs.server_id.nil?
-                Ironfan.step(machine.name, "  - attaching #{ebs.name}", :blue)
+                Ironfan.step(computer.name, "  - attaching #{ebs.name}", :blue)
                 Ironfan.safely do
-                  ebs.device =          store.volume.device
-                  ebs.server =          machine.instance.adaptee
+                  ebs.device =          drive.volume.device
+                  ebs.server =          computer.machine.adaptee
                 end
               end
               # Record the volume information in chef
-              store.node['volume_id'] =  ebs.id
+              drive.node['volume_id'] =  ebs.id
             end
           end
-          machines
+          computers
         end
 
       end

@@ -28,24 +28,20 @@ module Ironfan
           raise "Missing adaptee" if self.adaptee.nil?
           self
         end
-      end
 
-      class Roles < Ironfan::Provider::ResourceCollection
-        self.item_type =        Ironfan::Provider::ChefServer::Role
-
-        def save!(machines)
-          # Collect all relevant Dsl::Roles from the machines
+        def self.save!(computers)
+          # Collect all relevant Dsl::Roles from the computers
           defs = []
-          machines.each do |m|
+          computers.each do |m|
             defs << m.server.cluster_role
             defs << m.server.facet_role
           end
           # Handle each specific definition only once
           defs.compact.uniq.each do |d|
-            self << Ironfan::Provider::ChefServer::Role.new(:expected => d)
+            remember Ironfan::Provider::ChefServer::Role.new(:expected => d)
           end
           # Save all roles to the server
-          each(&:save)
+          recall.each_value(&:save)
         end
       end
 

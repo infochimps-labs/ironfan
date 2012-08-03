@@ -44,7 +44,7 @@ module Ironfan
 
       target = get_relevant_slice(* @name_args)
 
-      die("No machines to #{sub_command}, exiting", 1) if target.empty?
+      die("No computers to #{sub_command}, exiting", 1) if target.empty?
 
       ui.info(["\n",
           ui.color("Running #{sub_command}", :cyan),

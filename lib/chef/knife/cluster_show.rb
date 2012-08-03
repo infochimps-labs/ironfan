@@ -30,7 +30,7 @@ class Chef
 
       option :cloud,
         :long        => "--[no-]cloud",
-        :description => "Look up machines on AWS cloud (default is yes, look up machines; use --no-cloud to skip)",
+        :description => "Look up computers on AWS cloud (default is yes, look up computers; use --no-cloud to skip)",
         :default     => true,
         :boolean     => true
 
@@ -46,8 +46,8 @@ class Chef
         # Dump entire contents of objects if -VV flag given
         #
         if config[:verbosity] >= 2
-          target.each do |machine|
-            Chef::Log.debug( "Machine #{machine.name}: #{JSON.pretty_generate(machine.to_wire)}" )
+          target.each do |computer|
+            Chef::Log.debug( "Computer #{computer.name}: #{JSON.pretty_generate(computer.to_wire)}" )
           end
         end
 

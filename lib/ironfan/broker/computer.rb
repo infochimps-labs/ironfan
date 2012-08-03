@@ -1,9 +1,9 @@
 module Ironfan
   class Broker
 
-    class Machine < Builder
+    class Computer < Builder
       collection :resources,    Ironfan::Provider::Resource
-      collection :stores,       Ironfan::Broker::Store
+      collection :drives,       Ironfan::Broker::Drive
       field :server,            Ironfan::Dsl::Server
       delegate :[],:[]=,:include?,:delete,
           :to =>                :resources
@@ -14,13 +14,12 @@ module Ironfan
 
       def initialize(*args)
         super
-        @stores =       Ironfan::Broker::Stores.new
         return unless server
         volumes =       server.volumes.values
         if server.selected_cloud.respond_to? :implied_volumes
           volumes +=    server.selected_cloud.implied_volumes
         end
-        volumes.each {|v| self.store(v.name).volume = v}
+        volumes.each {|v| self.drive(v.name).volume = v}
       end
 
       def name
@@ -39,7 +38,7 @@ module Ironfan
         values["Chef?"] =       "no"
         values["State"] =       "not running"
 
-        delegate_to([ server, node, instance ].compact) do
+        delegate_to([ server, node, machine ].compact) do
           to_display style, values
         end
 
@@ -58,14 +57,17 @@ module Ironfan
       #
       # Accessors
       #
+      def bogus
+        resources.values.map(&:bogus).flatten
+      end
       def client
         self[:client]
       end
-      def instance
-        self[:instance]
+      def machine
+        self[:machine]
       end
-      def instance=(value)
-        self[:instance] = value
+      def machine=(value)
+        self[:machine] = value
       end
       def node
         self[:node]
@@ -78,16 +80,16 @@ module Ironfan
       # Status flags
       #
       def bogus?
-        not bogus.empty?
+        resources.values.any?(&:bogus?)
       end
       def client?
         not client.nil?
       end
       def created?
-        instance? and instance.created?
+        machine? and machine.created?
       end
-      def instance?
-        not instance.nil?
+      def machine?
+        not machine.nil?
       end
       def killable?
         not permanent? and (node? or created?)
@@ -104,19 +106,19 @@ module Ironfan
         [true, :true, 'true'].include? server.selected_cloud.permanent
       end
       def running?
-        instance? and instance.running?
+        machine? and machine.running?
       end
       def server?
         not server.nil?
       end
       def stopped?
-        instance? and instance.stopped?
+        machine? and machine.stopped?
       end
 
     end
 
-    class Machines < Gorillib::ModelCollection
-      self.item_type    = Machine
+    class Computers < Gorillib::ModelCollection
+      self.item_type    = Computer
       self.key_method   = :object_id
       delegate :first, :map, :any?,
           :to           => :values
@@ -129,14 +131,14 @@ module Ironfan
         create_expected!
       end
 
-      # set up new machines for each server in the cluster definition
+      # set up new computers for each server in the cluster definition
       def create_expected!
         self.cluster.servers.each do |server|
-          self << Machine.new(:server => server)
+          self << Computer.new(:server => server)
         end unless self.cluster.nil?
       end
 
-      # Return the selection inside another Machines collection
+      # Return the selection inside another Computers collection
       def select(&block)
         result = empty_copy
         values.select(&block).each{|m| result << m}
@@ -149,13 +151,14 @@ module Ironfan
         result
       end
 
-      # Find all selected machines, as well as any bogus machines from discovery
+      # Find all selected computers, as well as any bogus computers from discovery
       def slice(facet_name=nil, slice_indexes=nil)
         return self if (facet_name.nil? and slice_indexes.nil?)
         result          = empty_copy
         slice_array     = build_slice_array(slice_indexes)
         each do |m|
-          result << m if (m.bogus? or (                 # bogus machine or
+          pp m
+          result << m if (m.bogus? or (                 # bogus computer or
             ( m.server.facet_name == facet_name ) and   # facet match and
               ( slice_array.include? m.server.index or  #   index match or
                 slice_indexes.nil? ) ) )                #   no indexes specified

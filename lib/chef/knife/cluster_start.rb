@@ -28,7 +28,7 @@ class Chef
       end
 
       def perform_execution(target)
-        section("Starting machines")
+        section("Starting computers")
         super(target)
         section("Announcing Chef nodes as started")
         target.send(:delegate_to_servers, :announce_as_started)

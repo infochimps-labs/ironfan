@@ -30,7 +30,7 @@ class Chef
         Chef::Knife::ClusterBootstrap.load_deps
       end
 
-      banner "knife cluster launch      CLUSTER[-FACET[-INDEXES]] (options) - Creates chef node and chef apiclient, pre-populates chef node, and instantiates in parallel their cloud machines. With --bootstrap flag, will ssh in to machines as they become ready and launch the bootstrap process"
+      banner "knife cluster launch      CLUSTER[-FACET[-INDEXES]] (options) - Creates chef node and chef apiclient, pre-populates chef node, and instantiates in parallel their cloud computers. With --bootstrap flag, will ssh in to computers as they become ready and launch the bootstrap process"
       [ :ssh_port, :ssh_user, :ssh_password, :identity_file, :use_sudo,
         :prerelease, :bootstrap_version, :template_file, :distro,
         :bootstrap_runs_chef_client, :host_key_verify
@@ -69,15 +69,15 @@ class Chef
 
         warn_or_die_on_bogus_servers(full_target) unless full_target.select(&:bogus?).empty?
 
-        die("", "#{ui.color("All machines are running -- not launching any.",:blue)}", "", 1) if target.empty?
+        die("", "#{ui.color("All computers are running -- not launching any.",:blue)}", "", 1) if target.empty?
 
         # Pre-populate information in chef
         section("Syncing to chef")
         broker.sync! target, :providers => :chef
 
-        # Launch machines
+        # Launch computers
         ui.info("")
-        section("Launching machines", :green)
+        section("Launching computers", :green)
         display(target)
         broker.launch! target
 

@@ -2,7 +2,7 @@ module Ironfan
   class Provider
     class VirtualBox
 
-      class Instance < Ironfan::IaasProvider::Instance
+      class Machine < Ironfan::IaasProvider::Machine
       end
 
     end

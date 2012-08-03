@@ -39,8 +39,8 @@ module Ironfan
       cluster_name, facet_name, slice_indexes = slice_string.split(/[\s\-]/, 3)
       ui.info("Inventorying servers in #{predicate_str(cluster_name, facet_name, slice_indexes)}")
       cluster = Ironfan.load_cluster(cluster_name)
-      machines =  broker.discover! cluster
-      machines.slice(facet_name, slice_indexes)
+      computers =  broker.discover! cluster
+      computers.slice(facet_name, slice_indexes)
     end
 
     def predicate_str(cluster_name, facet_name, slice_indexes)

@@ -2,74 +2,58 @@ module Ironfan
   class Provider
 
     class Ec2 < Ironfan::IaasProvider
-      field :types,     Array,  :default => 
-        [ :instances, :ebs_volumes, :elastic_ips, :key_pairs,
-          :placement_groups, :security_groups ]
-      field :discover,  Array,  :default => [ :instances ]
 
-      collection :instances,            Ironfan::Provider::Ec2::Instance
-      collection :ebs_volumes,          Ironfan::Provider::Ec2::EbsVolume
-      collection :elastic_ips,          Ironfan::Provider::Ec2::ElasticIp
-      collection :key_pairs,            Ironfan::Provider::Ec2::KeyPair
-      collection :placement_groups,     Ironfan::Provider::Ec2::PlacementGroup
-      collection :security_groups,      Ironfan::Provider::Ec2::SecurityGroup
 
-      def initialize(*args,&block)
-        super
-        @ebs_volumes =                  Ironfan::Provider::Ec2::EbsVolumes.new
-        @elastic_ips =                  Ironfan::Provider::Ec2::ElasticIps.new
-        @instances =                    Ironfan::Provider::Ec2::Instances.new
-        @key_pairs =                    Ironfan::Provider::Ec2::KeyPairs.new
-        @placement_groups =             Ironfan::Provider::Ec2::PlacementGroups.new
-        @security_groups =              Ironfan::Provider::Ec2::SecurityGroups.new
+      def resources()
+        # [ Machine, EbsVolume, ElasticIp, KeyPair, PlacementGroup, SecurityGroup ]
+        [ Machine, EbsVolume, KeyPair, SecurityGroup ]
       end
 
       #
       # Discovery
       #
-      def load!(machines)
-        targets = [ instances, ebs_volumes, security_groups, key_pairs ]
-        delegate_to(targets) { load! machines }
+      def load!(computers)
+        delegate_to(resources) { load! computers }
       end
 
-      def correlate!(machines)
-        targets = [ instances, ebs_volumes ]
-        delegate_to(targets) { correlate! machines }
+      def correlate!(computers)
+        targets = [ Machine, EbsVolume ]
+        delegate_to(targets) { correlate! computers }
       end
 
       # nothing here actually needs validation, currently
-      def validate!(machines)
-        #delegate_to(ebs_volumes) { validate! machines }
+      def validate!(computers)
+        delegate_to(Machine) { validate! computers }
       end
 
       # 
       # Manipulation
       #
-      def create_dependencies!(machines)
-        targets = [ key_pairs, security_groups ]
-        #targets = [ security_groups ]
-        delegate_to(targets) { create! machines }
+      def create_dependencies!(computers)
+        targets = [ KeyPair, SecurityGroup ]
+        #targets = [ SecurityGroup ]
+        delegate_to(targets) { create! computers }
       end
 
-      def create_instances!(machines)
-        delegate_to(instances) { create! machines }
+      def create_machines!(computers)
+        delegate_to(Machine) { create! computers }
       end
 
-      def destroy!(machines)
-        delegate_to(instances) { destroy! machines }
+      def destroy!(computers)
+        delegate_to(Machine) { destroy! computers }
       end
 
-      def save!(machines)
-        targets = [ instances, ebs_volumes, security_groups ]
-        delegate_to(targets) { save! machines }
+      def save!(computers)
+        targets = [ Machine, EbsVolume, SecurityGroup ]
+        delegate_to(targets) { save! computers }
       end
 
-      def start_instances!(machines)
-        delegate_to(instances) { start! machines }
+      def start_machines!(computers)
+        delegate_to(Machine) { start! computers }
       end
 
-      def stop_instances!(machines)
-        delegate_to(instances) { stop! machines }
+      def stop_machines!(computers)
+        delegate_to(Machine) { stop! computers }
       end
 
       #
@@ -83,8 +67,12 @@ module Ironfan
           :region                => Chef::Config[:knife][:region]
         })
       end
+      
+      def self.aws_account_id()
+        Chef::Config[:knife][:aws_account_id]
+      end
 
-      # Ensure that a fog object (instance, volume, etc.) has the proper tags on it
+      # Ensure that a fog object (machine, volume, etc.) has the proper tags on it
       def self.ensure_tags(tags,fog)
         tags.delete_if {|k, v| fog.tags[k] == v.to_s  rescue false }
         return if tags.empty?
@@ -99,9 +87,9 @@ module Ironfan
         end
       end
 
-      def self.applicable(machines)
-        machines.values.select do |machine|
-          machine.server and machine.server.clouds.include?(:ec2)
+      def self.applicable(computers)
+        computers.values.select do |computer|
+          computer.server and computer.server.clouds.include?(:ec2)
         end
       end
     end

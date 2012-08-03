@@ -33,19 +33,19 @@ require 'ironfan/provider/chef/role'
 
 require 'ironfan/provider/ec2'
 require 'ironfan/provider/ec2/ebs_volume'
-require 'ironfan/provider/ec2/instance'
+require 'ironfan/provider/ec2/machine'
 require 'ironfan/provider/ec2/key_pair'
 require 'ironfan/provider/ec2/placement_group'
 require 'ironfan/provider/ec2/security_group'
 
 require 'ironfan/provider/virtualbox'
-require 'ironfan/provider/virtualbox/instance'
+require 'ironfan/provider/virtualbox/machine'
 
 
 # Broker classes to coordinate DSL expectations and provider resources
 require 'ironfan/broker'
-require 'ironfan/broker/machine'
-require 'ironfan/broker/store'
+require 'ironfan/broker/computer'
+require 'ironfan/broker/drive'
 
 
 # Calls that are slated to go away

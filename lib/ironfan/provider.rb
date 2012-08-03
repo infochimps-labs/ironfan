@@ -21,74 +21,71 @@ module Ironfan
     # #
     # # Discovery
     # #
-    # def load!(machines)                 end
-    # def correlate!(machines)            end
-    # def validate!(machines)             end
+    # def load!(computers)                 end
+    # def correlate!(computers)            end
+    # def validate!(computers)             end
     #
     # #
     # # Manipulation
     # #
-    # def create_dependencies!(machines)  end
-    # def create_instances!(machines)     end
-    # def destroy!(machines)              end
-    # def save!(machines)                 end
+    # def create_dependencies!(computers)  end
+    # def create_machines!(computers)     end
+    # def destroy!(computers)              end
+    # def save!(computers)                 end
     #
     # #
-    # # Instance Manipulation
+    # # Machine Manipulation
     # #
-    # def start_instances!(machines)      end
-    # def stop_instances!(machines)       end
+    # def start_machines!(computers)      end
+    # def stop_machines!(computers)       end
 
     class Resource < Builder
+      @@known = {}
       field             :adaptee,       Whatever
       field             :users,         Array,          :default => []
       field             :bogus,         Array,          :default => []
 
-      attr_accessor     :owner
-
       def bogus?()      !bogus.empty?;                  end
 
-    end
-
-    class ResourceCollection < Gorillib::ModelCollection
-      self.key_method = :name
-
-      # Register and return the (adapted) object with the collection
-      def register!(native)
-        result = self.item_type.new(:adaptee => native)
-        self << result unless result.nil?
-        result
+      #
+      # Utilities
+      #
+      def self.remember(resource,options={})
+        index = options[:id] || resource.name
+        index += options[:append_id] if options[:append_id]
+        self.known[index] = resource
       end
 
-      #
-      #   EXPECTED CALL-SIGN
-      #
-      # #
-      # # Discovery
-      # #
-      # def load!(machines)               end
-      # def correlate!(machines)          end
-      # def validate!(machines)           end
-      #
-      # #
-      # # Manipulation
-      # #
-      # def create!(machines)             end
-      # def destroy!(machines)            end
-      # def save!(machines)               end
-      #
-      # #
-      # # Instance Manipulation
-      # #
-      # def start!(machines)              end
-      # def stop!(machines)               end
+      # Register and return the (adapted) object with the collection
+      def self.register(native)
+        result = new(:adaptee => native)
+        remember result unless result.nil?
+      end
+
+      def self.recall?(id)
+        self.known.include? id
+      end
+
+      def self.recall(id=nil)
+        self.known[id] or self.known
+      end
+
+      def self.forget(id)
+        self.known.delete(id)
+      end
+
+      # Provide a separate namespace in @@known for each subclass
+      def self.known
+        @@known[self.name] ||= {}
+      end
     end
+
   end
 
   class IaasProvider < Provider
-    collection          :instances,     Instance
+    collection          :machines,     Machine
 
-    class Instance < Resource
+    class Machine < Resource
     end
   end
 

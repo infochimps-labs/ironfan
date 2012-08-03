@@ -11,7 +11,11 @@ module Ironfan
             :to_hash, :validate, :with_indexer_metadata,
           :to => :adaptee
         field :key_filename,    String,
-            :default => ->{ "#{Clients.key_dir}/client-#{name}.pem" }
+            :default => ->{ "#{Client.key_dir}/client-#{name}.pem" }
+
+        def self.key_dir
+          Chef::Config.client_key_dir || "/tmp/#{ENV['USER']}-client_keys"
+        end
 
         def initialize(*args)
           super
@@ -32,32 +36,24 @@ module Ironfan
           end
           adaptee.private_key(body)
         end
-      end
 
-      class Clients < Ironfan::Provider::ResourceCollection
-        self.item_type =        Client
-        self.key_method =       :name
-
-        def self.key_dir
-          Chef::Config.client_key_dir || "/tmp/#{ENV['USER']}-client_keys"
-        end
         #
         # Discovery
         #
-        def load!(machines)
-          name = machines.cluster.name
+        def self.load!(computers)
+          name = computers.cluster.name
           nameq = "name:#{name}-* OR clientname:#{name}-*"
           ChefServer.search(:client, nameq) do |client|
-            attrs = {:adaptee => client, :owner => self}
-            self << Client.new(attrs) unless client.blank?
+            register client unless client.blank?
           end
         end
 
-        def correlate!(machines)
-          machines.each do |machine|
-            if include? machine.server.fullname
-              machine[:client] = self[machine.server.fullname]
-              machine[:client].users << machine.object_id
+        def self.correlate!(computers)
+          # FIXME: Computers.each
+          computers.each do |computer|
+            if recall? computer.server.fullname
+              computer[:client] = recall computer.server.fullname
+              computer[:client].users << computer.object_id
             end
           end
         end
@@ -65,29 +61,31 @@ module Ironfan
         # 
         # Manipulation
         #
-        def create!(machines)
-          machines.each do |machine|
-            next if machine.client?
+        def self.create!(computers)
+          # FIXME: Computers.each
+          computers.each do |computer|
+            next if computer.client?
             client = Client.new
-            client.name         machine.server.fullname
+            client.name         computer.server.fullname
             client.admin        false
             client.create!
-            machine[:client] =  client
-            self <<             client
+            computer[:client] =  client
+            remember             client
           end
         end
 
-        def destroy!(machines)
-          machines.each do |machine|
-            next unless machine.client?
-            @clxn.delete(machine.client.name)
-            machine.client.destroy
-            File.delete(machine.client.key_filename)
-            machine.delete(:client)
+        def self.destroy!(computers)
+          # FIXME: Computers.each
+          computers.each do |computer|
+            next unless computer.client?
+            forget computer.client.name
+            computer.client.destroy
+            File.delete(computer.client.key_filename)
+            computer.delete(:client)
           end
         end
 
-        # def save!(machines)               end
+        # def self.save!(computers)               end
       end
 
     end
