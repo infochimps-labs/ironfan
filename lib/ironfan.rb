@@ -5,11 +5,12 @@ require 'gorillib/metaprogramming/class_attribute'
 require 'gorillib/hash/reverse_merge'
 require 'gorillib/object/blank'
 require 'gorillib/hash/compact'
+require 'gorillib/builder'
 require 'set'
 
-require 'ironfan/dsl_object'
-require 'ironfan/cloud'
+require 'ironfan/dsl_builder'
 require 'ironfan/security_group'
+require 'ironfan/cloud'
 require 'ironfan/compute'           # base class for machine attributes
 require 'ironfan/facet'             # similar machines within a cluster
 require 'ironfan/cluster'           # group of machines with a common mission
@@ -70,8 +71,8 @@ module Ironfan
   #
   def self.cluster(name, attrs={}, &block)
     name = name.to_sym
-    cl = ( self.clusters[name] ||= Ironfan::Cluster.new(name, attrs) )
-    cl.configure(&block)
+    cl = ( self.clusters[name] ||= Ironfan::Cluster.new(name) )
+    cl.receive!(attrs, &block)
     cl
   end
 

@@ -7,15 +7,20 @@ module Ironfan
   # or if it exists in the real world (as revealed by Fog)
   #
   class Server < Ironfan::ComputeBuilder
-    attr_reader   :cluster, :facet, :facet_index, :tags
-    attr_accessor :chef_node, :fog_server
+    magic :cluster, Cluster
+    magic :facet, Facet
+    magic :facet_index, Integer
+    attr_reader :tags
+
+    magic :chef_node, Whatever, :default => -> owner,name { owner.cluster.find_node(name) || false }
+    attr_accessor :fog_server
 
     @@all ||= Mash.new
 
     def initialize facet, idx
-      @cluster     = facet.cluster
-      @facet       = facet
-      @facet_index = idx
+      cluster           facet.cluster
+      facet             facet
+      facet_index       idx
       @fullname    = [cluster_name, facet_name, facet_index].join('-')
       super(@fullname)
       @tags = { "name" => name, "cluster" => cluster_name, "facet"   => facet_name, "index" => facet_index, }
@@ -40,13 +45,13 @@ module Ironfan
       Ironfan::ServerSlice.new(cluster, [self])
     end
 
-    def bogosity val=nil
-      @settings[:bogosity] = val  if not val.nil?
-      return @settings[:bogosity] if not @settings[:bogosity].nil?
-      return :bogus_facet         if facet.bogus?
-      # return :out_of_range      if (self.facet_index.to_i >= facet.instances)
-      false
-    end
+#     def bogosity val=nil
+#       @settings[:bogosity] = val  if not val.nil?
+#       return @settings[:bogosity] if not @settings[:bogosity].nil?
+#       return :bogus_facet         if facet.bogus?
+#       # return :out_of_range      if (self.facet_index.to_i >= facet.instances)
+#       false
+#     end
 
     def in_cloud?
       !! fog_server
@@ -85,7 +90,7 @@ module Ironfan
     end
 
     def permanent?
-      !! self.cloud.permanent
+      [true, :true, 'true'].include?(self.cloud.permanent)
     end
 
     def killable?
@@ -118,13 +123,12 @@ module Ironfan
     # Resolve:
     #
     def resolve!
-      reverse_merge!(facet)
-      reverse_merge!(cluster)
-      @settings[:run_list] = combined_run_list
-      #
-      cloud.reverse_merge!(facet.cloud)
-      cloud.reverse_merge!(cluster.cloud)
-      #
+      facet.underlay              = cluster
+      self.underlay               = facet
+
+      facet.cloud.underlay        = cluster.cloud
+      cloud.underlay              = facet.cloud
+
       cloud.user_data({
           :chef_server            => chef_server_url,
           :validation_client_name => validation_client_name,
@@ -185,36 +189,6 @@ module Ironfan
         cg[:last],   fg[:last],   sg[:last], ].flatten.compact.uniq
     end
 
-    #
-    # This prepares a composited view of the volumes -- it shows the cluster
-    # definition overlaid by the facet definition overlaid by the server
-    # definition.
-    #
-    # This method *does* auto-vivify an empty volume declaration on the server,
-    # but doesn't modify it.
-    #
-    # This code is pretty smelly, but so is the resolve! behavior. advice welcome.
-    #
-    def composite_volumes
-      vols = {}
-      self.volumes.each do |vol_name, vol|
-        vols[vol_name]         ||= self.volumes[vol_name].dup
-        vols[vol_name].reverse_merge!(vol)
-      end
-      facet.volumes.each do |vol_name, vol|
-        self.volumes[vol_name] ||= Ironfan::Volume.new(:parent => self, :name => vol_name)
-        vols[vol_name]         ||= self.volumes[vol_name].dup
-        vols[vol_name].reverse_merge!(vol)
-      end
-      cluster.volumes.each do |vol_name, vol|
-        self.volumes[vol_name] ||= Ironfan::Volume.new(:parent => self, :name => vol_name)
-        vols[vol_name]         ||= self.volumes[vol_name].dup
-        vols[vol_name].reverse_merge!(vol)
-      end
-      vols.each{|vol_name, vol| vol.availability_zone self.default_availability_zone }
-      vols
-    end
-
     # FIXME -- this will break on some edge case wehre a bogus node is
     # discovered after everything is resolve!d
     def default_availability_zone
@@ -269,7 +243,7 @@ module Ironfan
       return unless created?
       step("  labeling servers and volumes")
       fog_create_tags(fog_server, self.fullname, tags)
-      composite_volumes.each do |vol_name, vol|
+      volumes.each_pair do |vol_name, vol|
         if vol.fog_volume
           fog_create_tags(vol.fog_volume, vol.desc,
             { "server" => self.fullname, "name" => "#{name}-#{vol.name}", "device" => vol.device, "mount_point" => vol.mount_point, "cluster" => cluster_name, "facet"   => facet_name, "index"   => facet_index, })
@@ -278,7 +252,7 @@ module Ironfan
     end
 
     def block_device_mapping
-      composite_volumes.values.map(&:block_device_mapping).compact
+      volumes.values.map(&:block_device_mapping).compact
     end
 
     # ugh. non-dry below.

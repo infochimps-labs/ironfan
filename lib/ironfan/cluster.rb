@@ -51,7 +51,7 @@ module Ironfan
     def facet(facet_name, attrs={}, &block)
       facet_name = facet_name.to_sym
       @facets[facet_name] ||= Ironfan::Facet.new(self, facet_name)
-      @facets[facet_name].configure(attrs, &block)
+      @facets[facet_name].receive!(attrs, &block)
       @facets[facet_name]
     end
 
@@ -103,7 +103,7 @@ module Ironfan
     # Create a security group named for the cluster
     # that is friends with everything in the cluster
     def create_cluster_security_group
-      clname = self.name # put it in scope
+      clname = self.name.to_s # put it in scope
       cloud.security_group(clname){ authorize_group(clname) }
     end
 

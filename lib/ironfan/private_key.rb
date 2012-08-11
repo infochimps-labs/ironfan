@@ -5,7 +5,7 @@ module Ironfan
   # A private key -- chef client key, ssh key, etc.
   #
   # The key is a pro
-  class PrivateKey < Ironfan::DslObject
+  class PrivateKey < Ironfan::DslBuilder
     attr_reader   :name
     attr_reader   :proxy
     attr_reader   :on_update

@@ -5,32 +5,24 @@ module Ironfan
   # The idea is we want to be able to smoothly roll up settings
   #
   #
-  class ServerSlice < Ironfan::DslObject
-    attr_reader :name, :servers, :cluster
+  class ServerSlice < Ironfan::DslBuilderCollection
+    attr_accessor :name
+    attr_accessor :cluster
 
     def initialize cluster, servers
       super()
-      @name    = "#{cluster.name} slice"
-      @cluster = cluster
-      @servers = servers
+      self.name    = "#{cluster.name} slice"
+      self.cluster = cluster
+      receive!(servers)
     end
 
-    #
-    # Enumerable
-    #
-    include Enumerable
-    def each(&block)
-      @servers.each(&block)
+    def servers
+      @clxn.values
     end
-    def length
-      @servers.length
-    end
-    def empty?
-      length == 0
-    end
+
     [:select, :find_all, :reject, :detect, :find, :drop_while].each do |method|
       define_method(method) do |*args, &block|
-        ServerSlice.new cluster, @servers.send(method, *args, &block)
+        ServerSlice.new cluster, servers.send(method, *args, &block)
       end
     end
     # true if slice contains a server with the given fullname (if arg is a
@@ -197,7 +189,7 @@ module Ironfan
           hsh["State"] = "not running"
         end
         hsh['Volumes'] = []
-        svr.composite_volumes.each do |name, vol|
+        svr.volumes.each_pair do |name, vol|
           if    vol.ephemeral_device? then next
           elsif vol.volume_id         then hsh['Volumes'] << vol.volume_id
           elsif vol.create_at_launch? then hsh['Volumes'] << vol.snapshot_id

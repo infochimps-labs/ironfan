@@ -3,7 +3,9 @@ source "http://rubygems.org"
 gem 'chef',          ">= 0.10.4"
 gem 'fog',           "~> 1.2"
 gem 'formatador',    "~> 0.2"
-gem 'gorillib',      "~> 0.1"
+gem 'gorillib',      "~> 0.4", 
+    :git          => "https://github.com/infochimps-labs/gorillib.git",
+    :branch       => "version_1"
 
 group :development do
   gem 'bundler',     ">= 1.1"

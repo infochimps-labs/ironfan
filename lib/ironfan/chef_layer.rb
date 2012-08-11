@@ -73,12 +73,12 @@ module Ironfan
       @chef_client = cluster.find_client(fullname) || false
     end
 
-    # The chef node, if it already exists in the server.
-    # Use the 'ensure' method to create/update it.
-    def chef_node
-      return @chef_node unless @chef_node.nil?
-      @chef_node   = cluster.find_node(fullname) || false
-    end
+#     # The chef node, if it already exists in the server.
+#     # Use the 'ensure' method to create/update it.
+#     def chef_node
+#       return @chef_node unless @chef_node.nil?
+#       @chef_node   = cluster.find_node(fullname) || false
+#     end
 
     # true if chef client is created and discovered
     def chef_client?
@@ -193,15 +193,15 @@ module Ironfan
     end
 
     def sync_volume_attributes
-      composite_volumes.each do |vol_name, vol|
+      volumes.each_pair do |vol_name, vol|
         chef_node.normal[:volumes] ||= Mash.new
-        chef_node.normal[:volumes][vol_name] = vol.to_mash.compact
+        chef_node.normal[:volumes][vol_name] = vol.attributes.compact
       end
     end
 
     def set_chef_node_attributes
       step("  setting node runlist and essential attributes")
-      @chef_node.run_list = Chef::RunList.new(*@settings[:run_list])
+      @chef_node.run_list = Chef::RunList.new(*combined_run_list)
       @chef_node.normal[:organization] = organization if organization
       @chef_node.normal[:permanent]    = cloud.permanent if cloud.permanent
       @chef_node.normal[:cluster_name] = cluster_name

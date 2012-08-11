@@ -1,18 +1,23 @@
+require 'ironfan/volume'            # configure external and internal volumes
 module Ironfan
   #
   # Base class allowing us to layer settings for facet over cluster
   #
-  class ComputeBuilder < Ironfan::DslObject
-    attr_reader :cloud, :volumes, :chef_roles
-    has_keys :name, :bogosity, :environment
+  class ComputeBuilder < Ironfan::DslBuilder
+    magic :name, String
+    magic :bogosity, String, :default => false
+    magic :environment, String
+    collection :volumes, Ironfan::Volume, :resolution => ->(f) { merge_resolve(f) }
+
+    attr_reader :cloud, :chef_roles
     @@role_implications ||= Mash.new
     @@run_list_rank     ||= 0
 
     def initialize(builder_name, attrs={})
       super(attrs)
-      set :name, builder_name
+      name      builder_name
       @run_list_info = attrs[:run_list] || Mash.new
-      @volumes = Mash.new
+      @clouds  = Mash.new
     end
 
     # set the bogosity to a descriptive reason. Anything truthy implies bogusness
@@ -36,11 +41,18 @@ module Ironfan
     #     region         'us-east-1d'
     #   end
     #
-    def cloud(cloud_provider=nil, attrs={}, &block)
-      raise "Only have ec2 so far" if cloud_provider && (cloud_provider != :ec2)
-      @cloud ||= Ironfan::Cloud::Ec2.new(self)
-      @cloud.configure(attrs, &block)
-      @cloud
+    def cloud(cloud_provider=:ec2, attrs={}, &block)
+      case cloud_provider
+      when :ec2
+        klass = Ironfan::CloudDsl::Ec2
+      when :virtualbox
+        klass = Ironfan::CloudDsl::VirtualBox
+      else
+        raise "Only have EC2 and VirtualBox so far"
+      end
+      @clouds[cloud_provider] ||= klass.new(self)
+      @clouds[cloud_provider].receive!(attrs, &block)
+      @clouds[cloud_provider]
     end
 
     # sugar for cloud(:ec2)
@@ -48,39 +60,13 @@ module Ironfan
       cloud(:ec2, attrs, &block)
     end
 
-    # Magic method to describe a volume
-    # * returns the named volume, creating it if necessary.
-    # * executes the block (if any) in the volume's context
-    #
-    # @example
-    #   # a 1 GB volume at '/data' from the given snapshot
-    #   volume(:data) do
-    #     size        1
-    #     mount_point '/data'
-    #     snapshot_id 'snap-12345'
-    #   end
-    #
-    # @param volume_name [String] an arbitrary handle -- you can use the device
-    #   name, or a descriptive symbol.
-    # @param attrs [Hash] a hash of attributes to pass down.
-    #
-    def volume(volume_name, attrs={}, &block)
-      volumes[volume_name] ||= Ironfan::Volume.new(:parent => self, :name => volume_name)
-      volumes[volume_name].configure(attrs, &block)
-      volumes[volume_name]
-    end
-
     def raid_group(rg_name, attrs={}, &block)
-      volumes[rg_name] ||= Ironfan::RaidGroup.new(:parent => self, :name => rg_name)
-      volumes[rg_name].configure(attrs, &block)
-      volumes[rg_name].sub_volumes.each do |sv_name|
+      raid = volumes[rg_name] || Ironfan::RaidGroup.new(:parent => self, :name => rg_name)
+      raid.receive!(attrs, &block)
+      raid.sub_volumes.each do |sv_name|
         volume(sv_name){ in_raid(rg_name) ; mountable(false) ; tags({}) }
       end
-      volumes[rg_name]
-    end
-
-    def root_volume(attrs={}, &block)
-      volume(:root, attrs, &block)
+      volumes[rg_name] = raid
     end
 
     #

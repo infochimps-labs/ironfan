@@ -33,6 +33,7 @@ module Ironfan
         :key_name             => cloud.keypair.to_s,
         # Fog does not actually create tags when it creates a server.
         :tags                 => {
+          :name               => self.fullname,
           :cluster            => cluster_name,
           :facet              => facet_name,
           :index              => facet_index, },
@@ -72,11 +73,12 @@ module Ironfan
     end
 
     def discover_volumes!
-      composite_volumes.each do |vol_name, vol|
-        my_vol = volumes[vol_name]
-        next if my_vol.fog_volume
+      result = self.class.fields[:volumes].type.new
+      volumes.each_pair do |vol_name, definition|
+        next if definition.fog_volume
         next if Ironfan.chef_config[:cloud] == false
-        my_vol.fog_volume = Ironfan.fog_volumes.find do |fv|
+        vol = definition.dup
+        vol.fog_volume = Ironfan.fog_volumes.find do |fv|
           ( # matches the explicit volume id
             (vol.volume_id && (fv.id == vol.volume_id)    ) ||
             # OR this server's machine exists, and this volume is attached to
@@ -90,19 +92,21 @@ module Ironfan
               (fv.tags['device'] == vol.device.to_s) )
             )
         end
-        next unless my_vol.fog_volume
-        my_vol.volume_id(my_vol.fog_volume.id)                        unless my_vol.volume_id.present?
-        my_vol.availability_zone(my_vol.fog_volume.availability_zone) unless my_vol.availability_zone.present?
-        check_server_id_pairing(my_vol.fog_volume, my_vol.desc)
+        next unless vol.fog_volume
+        vol.volume_id(vol.fog_volume.id)                        unless vol.volume_id.present?
+        vol.availability_zone(vol.fog_volume.availability_zone) unless vol.availability_zone.present?
+        check_server_id_pairing(vol.fog_volume, vol.desc)
+        result << vol
       end
+      write_attribute(:volumes,result)
     end
 
     def attach_volumes
       return unless in_cloud?
       discover_volumes!
-      return if composite_volumes.empty?
+      return if volumes.empty?
       step("  attaching volumes")
-      composite_volumes.each do |vol_name, vol|
+      volumes.each_pair do |vol_name, vol|
         next if vol.volume_id.blank? || (vol.attachable != :ebs)
         if (not vol.in_cloud?) then  Chef::Log.debug("Volume not found: #{vol.desc}") ; next ; end
         if (vol.has_server?)   then check_server_id_pairing(vol.fog_volume, vol.desc) ; next ; end
