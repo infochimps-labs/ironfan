@@ -87,7 +87,7 @@ module Ironfan
           end
         end
 
-        def self.validate!(computer)
+        def self.validate_computer!(computer)
           return unless computer.node and not computer[:client]
           computer.node.bogus << :node_without_client
         end
