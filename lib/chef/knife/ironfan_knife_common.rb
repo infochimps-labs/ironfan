@@ -124,7 +124,7 @@ module Ironfan
       bootstrap.config[:attribute]      = config[:attribute]
       bootstrap.config[:identity_file]  = config[:identity_file]  || Ironfan::HostKey.new(server.cloud.target_key).filename
       bootstrap.config[:distro]         = config[:distro]         || server.cloud.bootstrap_distro
-      bootstrap.config[:use_sudo]       = true unless config[:use_sudo] == false
+      bootstrap.config[:use_sudo]       = Chef::Config[:use_sudo]
       bootstrap.config[:chef_node_name] = server.fullname
       bootstrap.config[:client_key]     = server.client_key.body  if server.client_key.body
 
