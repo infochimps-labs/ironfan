@@ -34,7 +34,7 @@ module Ironfan
         #
 
         def self.create!(computer)
-          name = computer.cluster_name
+          name = computer.server.cluster_name
           return if recall? name
           Ironfan.step(name, "creating key pair for #{name}", :blue)
           result = Ec2.connection.create_key_pair(name)

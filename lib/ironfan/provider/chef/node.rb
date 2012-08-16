@@ -101,7 +101,7 @@ module Ironfan
           node.name           computer.server.fullname
           node.create!        computer
           computer.node =     node
-          remember            no
+          remember            node
         end
 
         def self.destroy!(computer)
