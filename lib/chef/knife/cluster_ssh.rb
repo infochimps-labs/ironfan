@@ -50,7 +50,7 @@ class Chef
 #        config[:identity_file] ||= target.ssh_identity_file
 
 #         @action_nodes = target.chef_nodes
-        addresses = target.map {|m| m.instance.public_hostname }.compact
+        addresses = target.map {|c| c.machine.public_hostname }.compact
 
         (ui.fatal("No nodes returned from search!"); exit 10) if addresses.nil? || addresses.length == 0
 
