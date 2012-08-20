@@ -30,12 +30,12 @@ module Ironfan
           return unless Ec2.applicable computer
  
           ensure_groups(computer)
-          groups = computer.server.cloud(:ec2).security_groups.keys
+          groups = computer.server.cloud(:ec2).security_groups.keys.map{|k| k.to_s}.uniq
           # Only handle groups that don't already exist
           groups.delete_if {|group| recall? group.to_s }
           return if groups.empty?
-          
-          Ironfan.step(computer.cluster_name, "creating security groups", :blue)
+
+          Ironfan.step(computer.server.cluster_name, "creating security groups", :blue)
           groups.each do |group|
             Ironfan.step(group, "  creating #{group} security group", :blue)
             Ec2.connection.create_security_group(group.to_s,"Ironfan created group #{group}")
