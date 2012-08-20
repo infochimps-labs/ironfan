@@ -39,7 +39,7 @@ module Ironfan
           tags["Name"] || tags["name"] || id
         end
 
-        def public_hostname()   public_ip_address;      end
+        def public_hostname()           dns_name;      end
 
         def created?
           not ['terminated', 'shutting-down'].include? state
