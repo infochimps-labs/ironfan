@@ -64,6 +64,11 @@ module Ironfan
           computer.drives.each {|v| normal[:volumes][v.name] = v.node}
         end
 
+        def announce_state state
+          set[:state] = state
+          save
+        end
+
         #
         # Discovery
         #

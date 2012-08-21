@@ -51,6 +51,16 @@ module Ironfan
           state == "stopped"
         end
 
+        def start
+          adaptee.start
+          adaptee.wait_for{ state == 'pending' }
+        end
+
+        def stop
+          adaptee.stop
+          adaptee.wait_for{ state == 'stopping' }
+        end
+
         def to_display(style,values={})
           # style == :minimal
           values["State"] =             state.to_sym

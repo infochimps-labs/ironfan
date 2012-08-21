@@ -81,12 +81,14 @@ class Chef
         display(target)
         broker.launch! target
 
-#         # As each server finishes, configure it
-#         watcher_threads = target.parallelize do |svr|
-#           perform_after_launch_tasks(svr)
-#         end
-#
-#         progressbar_for_threads(watcher_threads)
+        # TODO:
+        # target.launch
+        # # As each server finishes, configure it
+        # watcher_threads = target.parallelize do |svr|
+        #   perform_after_launch_tasks(svr)
+        # end
+        #
+        # progressbar_for_threads(watcher_threads)
 
         display(target)
       end

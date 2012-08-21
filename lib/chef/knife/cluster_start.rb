@@ -24,14 +24,12 @@ class Chef
       import_banner_and_options(Ironfan::Script)
 
       def relevant?(server)
-        server.startable?
+        server.stopped?
       end
 
       def perform_execution(target)
         section("Starting computers")
         super(target)
-        section("Announcing Chef nodes as started")
-        target.send(:delegate_to_servers, :announce_as_started)
       end
 
     end

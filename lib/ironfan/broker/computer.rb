@@ -28,6 +28,35 @@ module Ironfan
         "unnamed:#{object_id}"
       end
 
+      # #
+      # # Discovery
+      # #
+      # correlate
+      # validate
+
+      # #
+      # # Manipulation
+      # # 
+      # destroy
+      # create
+      def stop
+        machine.stop
+        node.announce_state :stopped
+      end
+
+      def start
+        #ensure_machine_dependencies
+        machine.start
+        node.announce_state :started
+      end
+      # start
+      # save
+
+      # #
+      # # Display
+      # # 
+      # to_display
+
       def to_display(style,values={})
         unless [:minimal,:default,:expanded].include? style
           raise "Bad display style #{style}"
@@ -129,6 +158,16 @@ module Ironfan
         options = args.pop or return
         self.cluster = options[:cluster]
         create_expected!
+      end
+
+      #
+      # Commands
+      #
+      def start
+        values.each {|computer| computer.start }
+      end
+      def stop
+        values.each {|computer| computer.stop }
       end
 
       # set up new computers for each server in the cluster definition
