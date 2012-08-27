@@ -83,7 +83,7 @@ module Ironfan
     #
     # @return [Ironfan::ServerSlice] the requested slice
     def slice facet_name=nil, slice_indexes=nil
-      return Ironfan::ServerSlice.new(self, self.servers) if facet_name.nil?
+      return servers if facet_name.nil?
       find_facet(facet_name).slice(slice_indexes)
     end
 
