@@ -31,6 +31,8 @@ module Ironfan
       magic :validation_key,            String,         :default => ->{ IO.read(Chef::Config.validation_key) rescue '' }
       magic :vpc,                       String
 
+      magic :provider,                  Ironfan::Provider,      :default => Ironfan::Provider::Ec2
+
       def ec2_image_info
         keys = [region, flavor_info[:bits], backing, image_name]
         Chef::Config[:ec2_image_info][ keys ] || {}

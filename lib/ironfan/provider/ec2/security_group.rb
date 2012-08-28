@@ -13,10 +13,17 @@ module Ironfan
           :to => :adaptee
         field :ensured,        :boolean,       :default => false
 
+        def self.shared?()      true;   end
+        def self.multiple?()    true;   end
+        def self.resource_type()        :security_group;   end
+        def self.expected_ids(computer)
+          computer.server.cloud(:ec2).security_groups.keys.map{|k| k.to_s}.uniq
+        end
+
         #
         # Discovery
         #
-        def self.load!(computers=nil)
+        def self.load!(cluster=nil)
           Ec2.connection.security_groups.each do |sg|
             remember SecurityGroup.new(:adaptee => sg) unless sg.blank?
           end
@@ -59,7 +66,7 @@ module Ironfan
             dsl_group.group_authorized_by.each do |other_group|
               Ironfan.step(dsl_group.name, "  ensuring access to #{other_group}", :blue)
               options = {:group => "#{Ec2.aws_account_id}:#{dsl_group.name}"}
-              safely_authorize_all(other_group,1..65535,options)
+              safely_authorize(other_group,1..65535,options)
             end
 
             dsl_group.range_authorizations.each do |range_auth|
@@ -67,7 +74,7 @@ module Ironfan
               step_message = "  ensuring #{protocol} access from #{cidr} to #{range}"
               Ironfan.step(dsl_group.name, step_message, :blue)
               options = {:cidr_ip => cidr, :ip_protocol => protocol}
-              safely_authorize_all(dsl_group.name,range,options)
+              safely_authorize(dsl_group.name,range,options)
             end
           end
         end
@@ -80,6 +87,7 @@ module Ironfan
           # Ensure the security_groups include those for cluster & facet
           # FIXME: This violates the DSL's immutability; it should be
           #   something calculated from within the DSL construction
+          Chef::Log.warn("CODE SMELL: violation of DSL immutability: #{caller}")
           cloud = computer.server.cloud(:ec2)
           c_group = cloud.security_group(computer.server.cluster_name)
           c_group.authorized_by_group(c_group.name)
@@ -87,13 +95,16 @@ module Ironfan
           cloud.security_group(facet_name)
         end
 
-        def self.safely_authorize_all(group_name,range,options)
+        # Try an authorization, ignoring duplicates (this is easier than correlating).
+        # Do so for both TCP and UDP, unless only one is specified
+        def self.safely_authorize(group_name,range,options)
+          unless options[:ip_protocol]
+            safely_authorize(group_name,range,options.merge(:ip_protocol => 'tcp'))
+            safely_authorize(group_name,range,options.merge(:ip_protocol => 'udp'))
+            return
+          end
+
           fog_group = recall(group_name) or raise "unrecognized group: #{group_name}"
-          safely_authorize(fog_group,range,options)
-          safely_authorize(fog_group,range,options.merge(:ip_protocol => 'udp'))
-        end
-        # Try an authorization, ignoring duplicates (this is easier than correlating)
-        def self.safely_authorize(fog_group,range,options)
           begin
             fog_group.authorize_port_range(range,options)
           rescue Fog::Compute::AWS::Error => e      # InvalidPermission.Duplicate

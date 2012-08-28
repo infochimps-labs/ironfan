@@ -13,6 +13,8 @@ module Ironfan
         end unless native?(obj)
         super
       end
+
+      def implied_volumes()     Ironfan.noop(self,__method__,*p);      end
     end
 
   end

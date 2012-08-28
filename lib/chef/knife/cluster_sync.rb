@@ -54,13 +54,13 @@ class Chef
             ui.info "(can't do a dry-run when syncing to chef -- skipping)"
           else 
             ui.info "Syncing to Chef:"
-            broker.sync! target, :providers => :chef
+            target.save :providers => :chef
           end
         else Chef::Log.debug("Skipping sync to chef") ; end
 
         if config[:cloud] && target.any?(&:machine?)
           ui.info "Syncing to cloud:"
-          broker.sync! target, :providers => :iaas
+          target.save :providers => :iaas
         else Chef::Log.debug("Skipping sync to cloud") ; end
       end
 

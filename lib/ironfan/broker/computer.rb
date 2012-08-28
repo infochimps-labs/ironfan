@@ -2,8 +2,9 @@ module Ironfan
   class Broker
 
     class Computer < Builder
-      collection :resources,    Ironfan::Provider::Resource
+      collection :resources,    Whatever
       collection :drives,       Ironfan::Broker::Drive
+      collection :providers,    Ironfan::Provider
       field :server,            Ironfan::Dsl::Server
       delegate :[],:[]=,:include?,:delete,
           :to =>                :resources
@@ -14,12 +15,12 @@ module Ironfan
 
       def initialize(*args)
         super
+        providers[:chef] ||=    Ironfan::Provider::ChefServer
         return unless server
-        volumes =       server.volumes.values
-        if server.selected_cloud.respond_to? :implied_volumes
-          volumes +=    server.selected_cloud.implied_volumes
-        end
-        volumes.each {|v| self.drive(v.name).volume = v}
+        providers[:iaas] =      server.selected_cloud.provider
+        volumes =               server.volumes.values
+        volumes +=              server.implied_volumes
+        volumes.each { |v| self.drive v.name, :volume => v }
       end
 
       def name
@@ -28,35 +29,107 @@ module Ironfan
         "unnamed:#{object_id}"
       end
 
-      # #
-      # # Discovery
-      # #
-      # correlate
-      # validate
+      #
+      # Discovery
+      #
+      def correlate
+        chosen_resources.each do |res|
+          unless res.respond_to? :expected_ids
+            Chef::Log.warn("FIXME: Using correlate! instead of on_correlate in #{res}")
+            res.correlate! self
+            return
+          end
+        
+          res.expected_ids(self).each do |id|
+            next unless res.recall? id
 
-      # #
-      # # Manipulation
-      # # 
-      # destroy
-      # create
+            recalled =            res.recall id
+            recalled.users <<     self
+
+            target =              res.resource_type.to_s
+            target +=             "__#{id}" if res.multiple?
+            self[target.to_sym] = recalled
+
+            recalled.on_correlate(self)
+          end
+        end
+      end
+
+      def correlate_with(res)
+      end
+
+      def validate
+        computer = self
+        Ironfan.delegate_to(chosen_resources) { validate_computer! computer }
+      end
+
+      #
+      # Manipulation
+      #
+      def kill(options={})
+        target_resources = chosen_resources(options)
+        resources.each do |res|
+          next unless target_resources.include? res.class
+          res.destroy unless res.shared?
+        end
+      end
+
+      def launch
+        ensure_dependencies
+        providers[:iaas].machine_class.create! self
+        save
+      end
+
       def stop
         machine.stop
         node.announce_state :stopped
       end
 
       def start
-        #ensure_machine_dependencies
+        ensure_dependencies
         machine.start
         node.announce_state :started
+        save
       end
-      # start
-      # save
 
-      # #
-      # # Display
-      # # 
-      # to_display
+      def save(options={})
+        chosen_resources(options).each {|res| res.save! self}
+      end
 
+      #
+      # Utility
+      #
+      def chosen_providers(options={})
+        case options[:providers]
+        when :all,nil   then    [:chef,:iaas]
+        else                    [ (options[:providers]) ]
+        end
+      end
+
+      def chosen_resources(options={})
+        chosen_providers(options).map do |name|
+          providers[name].resources
+        end.flatten
+      end
+
+      def ensure_dependencies
+        chosen_resources.each do |res|
+#           ensure_resource res unless res < Ironfan::IaasProvider::Machine
+          res.create! self unless res < Ironfan::IaasProvider::Machine
+        end
+      end
+
+#       def ensure_resource(type)
+#         if type.multiple?
+#           existing = resources[type.resource_id]
+#         else
+#           
+#         end
+#       end
+
+      #
+      # Display
+      #
       def to_display(style,values={})
         unless [:minimal,:default,:expanded].include? style
           raise "Bad display style #{style}"
@@ -160,14 +233,38 @@ module Ironfan
         create_expected!
       end
 
+      # 
+      # Discovery
       #
-      # Commands
+      def correlate
+        values.each {|computer| computer.correlate }
+      end
+
+      def validate
+        providers = values.map {|c| c.providers.values}.flatten
+        computers = self
+
+        Ironfan.delegate_to(values)     { validate }
+        Ironfan.delegate_to(providers)  { validate computers }
+      end
+
       #
+      # Manipulation
+      #
+      def kill(options={})
+        Ironfan.delegate_to(values)     { kill(options) }
+      end
+      def launch
+        Ironfan.delegate_to(values)     { launch }
+      end
+      def save(options={})
+        Ironfan.delegate_to(values)     { save(options) }
+      end
       def start
-        values.each {|computer| computer.start }
+        Ironfan.delegate_to(values)     { start }
       end
       def stop
-        values.each {|computer| computer.stop }
+        Ironfan.delegate_to(values)     { stop }
       end
 
       # set up new computers for each server in the cluster definition

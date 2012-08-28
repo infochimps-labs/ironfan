@@ -30,7 +30,7 @@ class Chef
         :default     => false
       option :cloud,
         :long        => '--[no-]cloud',
-        :description => "Kill computers from cloud (default is yes, terminate computers; use --no-cloud to skip)",
+        :description => "Kill machines from cloud (default is yes, terminate machines; use --no-cloud to skip)",
         :boolean     => true,
         :default     => true
       option :chef,
@@ -47,12 +47,12 @@ class Chef
       def perform_execution(target)
         if config[:cloud]
           section("Killing Cloud Computers")
-          broker.kill! target, :providers => :iaas
+          target.kill :providers => :iaas
         end
 
         if config[:chef]
           section("Killing Chef")
-          broker.kill! target, :providers => :chef
+          target.kill :providers => :chef
         end
       end
 

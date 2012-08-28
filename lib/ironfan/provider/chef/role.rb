@@ -14,7 +14,16 @@ module Ironfan
           :with_indexer_metadata,
         :to => :adaptee
 
-        def initialize(config)
+        def self.shared?()      true;   end
+        def self.multiple?()    true;   end
+#         def self.resource_type()        self;   end
+        def self.resource_type()        :role;   end
+        def self.expected_ids(computer)
+          [ computer.server.cluster_role.name.to_s,
+            computer.server.facet_role.name.to_s ]
+        end
+
+        def initialize(config={})
           super
           if self.adaptee.nil? and not config[:expected].nil?
             expected = config[:expected]
@@ -27,6 +36,16 @@ module Ironfan
           end
           raise "Missing adaptee" if self.adaptee.nil?
           self
+        end
+
+        # 
+        # Discovery
+        #
+        def self.load!(cluster)
+          ChefServer.search(:role,"name:#{cluster.name}_*") do |raw|
+            next if raw.blank?
+            remember Role.new(:adaptee => raw)
+          end
         end
 
         #

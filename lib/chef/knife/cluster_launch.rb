@@ -73,16 +73,16 @@ class Chef
 
         # Pre-populate information in chef
         section("Syncing to chef")
-        broker.sync! target, :providers => :chef
+        target.save :providers => :chef
 
         # Launch computers
         ui.info("")
         section("Launching computers", :green)
         display(target)
-        broker.launch! target
+        target.launch
 
+        Chef::Debug.warn("Need to set up target.parallelize")
         # TODO:
-        # target.launch
         # # As each server finishes, configure it
         # watcher_threads = target.parallelize do |svr|
         #   perform_after_launch_tasks(svr)

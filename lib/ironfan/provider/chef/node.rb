@@ -30,6 +30,12 @@ module Ironfan
           self.adaptee ||= Chef::Node.new
         end
 
+        def self.shared?()              false;  end
+        def self.multiple?()            false;  end
+#         def self.resource_type()        self;   end
+        def self.resource_type()        :node;   end
+        def self.expected_ids(computer) [computer.server.fullname];   end
+
         def to_display(style,values={})
           values["Chef?"] =     adaptee.nil? ? "no" : "yes"
           values
@@ -69,12 +75,15 @@ module Ironfan
           save
         end
 
+        def conterminous_with_machine?
+          true
+        end
+
         #
         # Discovery
         #
-        def self.load!(computers)
-          query = "name:#{computers.cluster.name}-*"
-          ChefServer.search(:node,query) do |raw|
+        def self.load!(cluster=nil)
+          ChefServer.search(:node,"name:#{cluster.name}-*") do |raw|
             next if raw.blank?
             node = Node.new
             node.adaptee = raw
@@ -82,13 +91,9 @@ module Ironfan
           end
         end
 
-        def self.correlate!(computer)
-          if recall? computer.server.fullname
-            computer.node = recall computer.server.fullname
-            computer.node['volumes'].each do |name,volume|
-              computer.drive(name).node.merge! volume
-            end
-            computer.node.owner = computer
+        def on_correlate(computer)
+          self['volumes'].each do |name,volume|
+            computer.drive(name).node.merge! volume
           end
         end
 

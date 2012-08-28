@@ -12,6 +12,11 @@ module Ironfan
         field :key_filename,    String,
             :default => ->{ "#{KeyPair.key_dir}/#{name}.pem" }
 
+        def self.shared?()      true;   end
+        def self.multiple?()    false;  end
+        def self.resource_type()        :key_pair;   end
+        def self.expected_ids(computer)   [computer.server.cluster_name];   end
+
         def private_key
           File.open(key_filename, "rb").read
         end
@@ -23,7 +28,7 @@ module Ironfan
         #
         # Discovery
         #
-        def self.load!(computers=nil)
+        def self.load!(cluster=nil)
           Ec2.connection.key_pairs.each do |keypair|
             register keypair unless keypair.blank?
           end

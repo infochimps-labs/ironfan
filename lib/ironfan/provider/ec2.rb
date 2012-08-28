@@ -3,13 +3,8 @@ module Ironfan
 
     class Ec2 < Ironfan::IaasProvider
 
-      def resources
-        # [ Machine, EbsVolume, ElasticIp, KeyPair, PlacementGroup, SecurityGroup ]
+      def self.resources
         [ Machine, EbsVolume, KeyPair, SecurityGroup ]
-      end
-
-      def conterminous_with_machine
-        []
       end
 
       #

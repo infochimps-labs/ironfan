@@ -34,6 +34,13 @@ module Ironfan
             :vpc_id=, :wait_for,
           :to => :adaptee
 
+
+        def self.shared?()      false;  end
+        def self.multiple?()    false;  end
+#        def self.resource_type()        Ironfan::IaasProvider::Machine;   end
+        def self.resource_type()        :machine;   end
+        def self.expected_ids(computer) [computer.server.fullname];   end
+
         def name
           return id if tags.empty?
           tags["Name"] || tags["name"] || id
@@ -85,7 +92,7 @@ module Ironfan
         #
         # Discovery
         #
-        def self.load!(computers=nil)
+        def self.load!(cluster=nil)
           Ec2.connection.servers.each do |fs|
             machine = new(:adaptee => fs)
             if recall? machine.name
@@ -101,19 +108,12 @@ module Ironfan
           end
         end
 
-        def self.correlate!(computer)
-          return unless recall? computer.server.fullname
-          machine =             recall computer.server.fullname
-          machine.owner =       computer
-          computer[:machine] =  machine
-        end
-
         # Find active machines that haven't matched, but should have,
         #   make sure all bogus machines have a computer to attach to
         #   for display purposes
         def self.validate_resources!(computers)
           recall.each_value do |machine|
-            next unless machine.owner.nil? and machine.name
+            next unless machine.users.empty? and machine.name
             if machine.name.match("^#{computers.cluster.name}")
               machine.bogus << :unexpected_machine
             end
@@ -121,7 +121,7 @@ module Ironfan
             fake =                Ironfan::Broker::Computer.new
             fake[:machine] =      machine
             fake.name =           machine.name
-            machine.owner =       fake
+            machine.users <<      fake
             computers <<          fake
           end
         end
@@ -130,6 +130,7 @@ module Ironfan
         # Manipulation
         #
         def self.create!(computer)
+          Chef::Log.warn("CODE SMELL: overly large method: #{caller}")
           return if computer.machine? and computer.machine.created?
           Ironfan.step(computer.name,"creating cloud machine", :green)
           # lint_fog
@@ -182,11 +183,6 @@ module Ironfan
             :facet_index =>             computer.server.index,
             :client_key =>              computer[:client].private_key
           }
-
-          ## This snippet is saved for if/when we ever go back to machines
-          ##   creating nodes; currently, the client key must be known locally
-          # if client_key then user_data_hsh[:client_key] = client_key
-          # else               user_data_hsh[:validation_key] = cloud.validation_key ; end
 
           # Fog does not actually create tags when it creates a server;
           #  they and permanence are applied during sync

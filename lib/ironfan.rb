@@ -24,6 +24,11 @@ module Ironfan
   def self.chef_config=(cc) @chef_config = cc ; end
   def self.chef_config()    @chef_config      ; end
 
+# simple delegation to multiple targets
+  def self.delegate_to(targets,options={},&block)
+    raise 'missing block' unless block_given?
+    [targets].flatten.each {|target| target.instance_eval &block }
+  end
   #
   # Defines a cluster with the given name.
   #

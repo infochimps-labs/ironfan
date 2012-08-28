@@ -2,14 +2,9 @@ module Ironfan
   class Provider
 
     class ChefServer < Ironfan::Provider
-
       
-      def resources
+      def self.resources
         [ Client, Node, Role ]
-      end
-
-      def conterminous_with_machine
-        [ Client, Node ]
       end
 
       #

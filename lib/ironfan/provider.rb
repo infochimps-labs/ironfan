@@ -15,63 +15,40 @@ module Ironfan
       super
     end
 
-    def resources
+    def resources()     self.class.resources;   end
+    def self.resources
       raise "missing #{self.class}.resources declaration"
-    end
-
-    def conterminous_with_machine
-      Chef::Log.debug "no resources elected to die with Machines in #{self.class}"
-      []
     end
 
     #
     # Discovery
     #
-    def load!(computers)
-      delegate_to(resources) { load! computers }
+    def self.load(cluster)
+      Ironfan.delegate_to(resources) { load! cluster }
     end
 
-    def correlate!(computers)
-      computers.each do |computer|
-        delegate_to(resources) { correlate! computer }
-      end
+    def self.validate(computers)
+      Ironfan.delegate_to(resources) { validate_resources! computers }
     end
 
-    def validate!(computers)
-      computers.each do |computer|
-        delegate_to(resources) { validate_computer! computer }
-      end
-      delegate_to(resources) { validate_resources! computers }
-    end
-
-    #
-    # Manipulation
-    #
-    def ensure_prerequisites!(computers)
-      computers.each do |computer|
-        delegate_to(resources) { create! computer }
-      end
-    end
-
-    def destroy_machines!(computers)
-      computers.each do |computer|
-        delegate_to(conterminous_with_machine) { destroy! computer }
-      end
-    end
-
-    def save!(computers)
-      computers.each do |computer|
-        delegate_to(resources) { save! computer }
-      end
-    end
 
     class Resource < Builder
       @@known = {}
       field             :adaptee,       Whatever
       field             :bogus,         Array,          :default => []
       attr_accessor     :owner
+      attr_accessor     :users
+      def users()       @users ||= [];  end;
 
-      def bogus?()      !bogus.empty?;                  end
+      def bogus?()                      !bogus.empty?;          end
+
+      #
+      # Flags
+      # 
+      # Non-shared resources live and die with the computer
+      def self.shared?()                true;                   end
+      # Can multiple instances of this resource be associated with the computer?
+      def self.multiple?()              false;                  end
 
       #
       # Discovery
@@ -80,6 +57,8 @@ module Ironfan
       def self.correlate!(*p)           Ironfan.noop(self,__method__,*p);   end
       def self.validate_computer!(*p)   Ironfan.noop(self,__method__,*p);   end
       def self.validate_resources!(*p)  Ironfan.noop(self,__method__,*p);   end
+
+      def on_correlate(*p)              Ironfan.noop(self,__method__,*p);   end
 
       #
       # Manipulation
@@ -91,6 +70,11 @@ module Ironfan
       #
       # Utilities
       #
+      [:load!,:correlate!,:validate_computer!,:validate_resources!,
+       :create!,:save!,:destroy!].each do |method_name|
+        define_method(method_name) {|*p| self.class.send(method_name,*p) }
+      end
+
       def self.remember(resource,options={})
         index = options[:id] || resource.name
         index += options[:append_id] if options[:append_id]
@@ -125,8 +109,8 @@ module Ironfan
   end
 
   class IaasProvider < Provider
-    def machine_class
-      self.class.const_get(:Machine)
+    def self.machine_class
+      self.const_get(:Machine)
     end
 
     #
@@ -140,41 +124,15 @@ module Ironfan
       end
     end
 
-    def create_machines!(computers)
-      computers.each do |computer|
-        delegate_to(machine_class) { create! computer }
-      end
-    end
-
-    def destroy_machines!(computers)
-      targets = conterminous_with_machine + [ machine_class ]
-      computers.each do |computer|
-        delegate_to(targets) { destroy! computer }
-      end
-    end
-
     def save!(computers)
       computers.each do |computer|
         delegate_to(resources) { save! computer }
       end
     end
 
-    #
-    # Machine Manipulation
-    #
-    def start_machines!(computers)
-      computers.each do |computer|
-        delegate_to(machine_class) { start! computer }
-      end
-    end
-
-    def stop_machines!(computers)
-      computers.each do |computer|
-        delegate_to(machine_class) { stop! computer }
-      end
-    end
-
     class Machine < Resource
+      # A Machine lives and dies with its Computer
+      def self.shared?()        false;                   end
     end
   end
 

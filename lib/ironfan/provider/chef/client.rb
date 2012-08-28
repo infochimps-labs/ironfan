@@ -13,19 +13,18 @@ module Ironfan
         field :key_filename,    String,
             :default => ->{ "#{Client.key_dir}/client-#{name}.pem" }
 
-        def self.key_dir
-          Chef::Config.client_key_dir || "/tmp/#{ENV['USER']}-client_keys"
-        end
-
         def initialize(*args)
           super
           self.adaptee ||= Chef::ApiClient.new
         end
 
-        def create!
-          params = {:name => self.name, :admin => self.admin, :private_key => true }
-          result = ChefServer.post_rest("clients", params)
-          self.private_key(result["private_key"])
+        def self.shared?()              false;  end
+        def self.multiple?()            false;  end
+        def self.resource_type()        :client;                        end
+        def self.expected_ids(computer) [computer.server.fullname];     end
+
+        def self.key_dir
+          Chef::Config.client_key_dir || "/tmp/#{ENV['USER']}-client_keys"
         end
 
         def private_key(body=nil)
@@ -40,18 +39,10 @@ module Ironfan
         #
         # Discovery
         #
-        def self.load!(computers)
-          name = computers.cluster.name
-          nameq = "name:#{name}-* OR clientname:#{name}-*"
+        def self.load!(cluster=nil)
+          nameq = "name:#{cluster.name}-* OR clientname:#{cluster.name}-*"
           ChefServer.search(:client, nameq) do |client|
             register client unless client.blank?
-          end
-        end
-
-        def self.correlate!(computer)
-          if recall? computer.server.fullname
-            computer[:client] = recall computer.server.fullname
-            computer[:client].owner = computer
           end
         end
 
@@ -63,7 +54,11 @@ module Ironfan
           client = Client.new
           client.name         computer.server.fullname
           client.admin        false
-          client.create!
+
+          params = {:name => client.name, :admin => client.admin, :private_key => true }
+          result = ChefServer.post_rest("clients", params)
+          client.private_key(result["private_key"])
+
           computer[:client] =  client
           remember             client
         end
