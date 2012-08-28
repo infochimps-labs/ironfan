@@ -70,8 +70,8 @@ module Ironfan
       #
       # Utilities
       #
-      [:load!,:correlate!,:validate_computer!,:validate_resources!,
-       :create!,:save!,:destroy!].each do |method_name|
+      [:shared?, :multiple?, :load!,:correlate!,:validate_computer!,
+       :validate_resources!,:create!,:save!,:destroy!].each do |method_name|
         define_method(method_name) {|*p| self.class.send(method_name,*p) }
       end
 
