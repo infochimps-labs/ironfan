@@ -96,7 +96,7 @@ module Ironfan
         vol.volume_id(vol.fog_volume.id)                        unless vol.volume_id.present?
         vol.availability_zone(vol.fog_volume.availability_zone) unless vol.availability_zone.present?
         check_server_id_pairing(vol.fog_volume, vol.desc)
-        result << vol
+        result[vol.name] = vol
       end
       write_attribute(:volumes,result)
     end

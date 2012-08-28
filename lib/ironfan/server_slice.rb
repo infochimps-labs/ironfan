@@ -10,6 +10,8 @@ module Ironfan
     attr_accessor :cluster
 
     def initialize cluster, servers
+      @item_type = Ironfan::Server
+      @key_method = :name
       super()
       self.name    = "#{cluster.name} slice"
       self.cluster = cluster

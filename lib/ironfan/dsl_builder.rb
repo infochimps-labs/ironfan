@@ -21,7 +21,11 @@ module Gorillib
     end
 
     def merge_resolve(field_name)
-      result = self.class.fields[field_name].type.new
+      attr = {}
+      if self.class.fields[field_name].respond_to? :item_type
+        attr[:item_type] = self.class.fields[field_name].item_type
+      end
+      result = self.class.fields[field_name].type.new(attr)
       result.receive! read_underlay_attribute(field_name) || {}
       result.receive! read_set_attribute(field_name) || {}
       return result unless result.empty?
