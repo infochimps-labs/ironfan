@@ -81,7 +81,7 @@ class Chef
         display(target)
         target.launch
 
-        Chef::Debug.warn("Need to set up target.parallelize")
+        Chef::Log.warn("Need to set up target.parallelize")
         # TODO:
         # # As each server finishes, configure it
         # watcher_threads = target.parallelize do |svr|
