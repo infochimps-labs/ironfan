@@ -81,9 +81,9 @@ module Gorillib
       if target.is_a? Gorillib::Collection
         value.each_pair do |k,v|
           existing = target[k]
-          if existing && existing.respond_to :receive
+          if existing && existing.respond_to?(:receive!)
             target[k].receive! v
-          elsif existing && existing.respond_to :merge!
+          elsif existing && existing.respond_to?(:merge!)
             target[k].merge! v
           else
             target[k] = v
