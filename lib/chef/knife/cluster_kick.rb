@@ -44,8 +44,8 @@ class Chef
 
       option :log_file,
         :long        => "--log_file",
-        :description => "Where to find the log file. Typically /var/run/chef/client.pid (init.d) or /etc/sv/chef-client/log/main/current (runit)",
-        :default     => "/etc/sv/chef-client/log/main/current"
+        :description => "Where to find the log file. Typically /var/log/chef/client.log",
+        :default     => "/var/log/chef/client.log"
 
       def run
         @name_args = [ @name_args.join('-') ]
