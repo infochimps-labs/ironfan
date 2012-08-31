@@ -65,30 +65,30 @@ sudo -p 'knife sudo password: ' true
 
 if sudo  -p 'knife sudo password: ' service chef-client status ; then
 
-# running
-pid_file="<%= config[:pid_file] %>"
-log_file=<%= config[:log_file] %>
+  # running
+  pid_file="<%= config[:pid_file] %>"
+  log_file=<%= config[:log_file] %>
 
-declare tail_pid
+  declare tail_pid
 
-on_exit() {
-  rm -f $pipe
-  [ -n "$tail_pid" ] && kill $tail_pid
-}
+  on_exit() {
+    rm -f $pipe
+  }
 
-trap "on_exit" EXIT ERR
+  trap "on_exit" EXIT ERR
 
-pipe=/tmp/pipe-$$
-mkfifo $pipe
+  pipe=/tmp/pipe-$$
+  mkfifo $pipe
 
-tail -Fn0 "$log_file" > $pipe &
+  tail -Fn0 "$log_file" > $pipe &
 
-tail_pid=$!
+  tail_pid=$!
 
-pid="$(sudo -p 'knife sudo password: ' cat $pid_file)"
-sudo -p 'knife sudo password: ' kill -USR1 "$pid"
-sed -r "/(ERROR: Sleeping for [0-9]+ seconds before trying again|INFO: Report handlers complete)\$/{q}" $pipe
-
+  pid="$(sudo -p 'knife sudo password: ' cat $pid_file)"
+  sudo -p 'knife sudo password: ' kill -USR1 "$pid"
+  GOOD_RESULT='INFO: Report handlers complete\$'
+  BAD_RESULT='ERROR: Sleeping for [0-9]+ seconds before trying again\$'
+  sed -r -e "/$GOOD_RESULT/{q 0}" -e"/$BAD_RESULT/{q 1}" $pipe
 else
   echo -e "****\n\nchef-client daemon not running, invoking chef-client directly\n\n****\n"
   sudo -p 'knife sudo password: ' chef-client
