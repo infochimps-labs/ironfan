@@ -1,4 +1,11 @@
-# v3.2.0: First refactoring pass in preparation for multi-cloud support
+# v4.0.0
+## beta 1 ##
+* Major refactoring of core code to allow for multicloud support
+* Removed role_implications; these can be handled by explicit ec2.security_group calls for now, and will be replaced by more general component-based code in future
+* Added default_cloud flag to cloud statement, added use_cloud statement to compute components (cluster/facet/server), will add command line option to allow override of both
+
+# v3.2.0
+* First refactoring pass in preparation for multi-cloud support
 * Rebuilt the internal models of Ironfan to use gorillib's Field/Model/Builder architecture.
 * [#145](https://github.com/infochimps-labs/ironfan/pull/145): node attribues should be 'normal', not 'override' -- they don't show up as printed on the node otherwise
 * [#144](https://github.com/infochimps-labs/ironfan/pull/144): knife cluster ssh sets exit status based on commands' exit status
