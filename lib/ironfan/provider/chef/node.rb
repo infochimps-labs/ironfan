@@ -92,6 +92,7 @@ module Ironfan
         end
 
         def on_correlate(computer)
+          return unless self['volumes']
           self['volumes'].each do |name,volume|
             computer.drive(name).node.merge! volume
           end

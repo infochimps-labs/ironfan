@@ -22,5 +22,11 @@ module Ironfan
       end
     end
 
+    class Volume
+      def defaults
+        Ironfan.deprecated 'defaults'
+      end
+    end
+
   end
 end

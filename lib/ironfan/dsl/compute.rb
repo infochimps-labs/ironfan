@@ -42,7 +42,7 @@ module Ironfan
       end
 
       def raid_group(rg_name, attrs={}, &block)
-        raid = volumes[rg_name] || Ironfan::Dsl::RaidGroup.new
+        raid = volumes[rg_name] || Ironfan::Dsl::RaidGroup.new(:name => rg_name)
         raid.receive!(attrs, &block)
         raid.sub_volumes.each do |sv_name|
           volume(sv_name){ in_raid(rg_name) ; mountable(false) ; tags({}) }
