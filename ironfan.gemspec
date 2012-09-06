@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "ironfan"
-  s.version = "4.0.0.beta1"
+  s.version = "4.0.0"
 
-  s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
+  s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Infochimps"]
-  s.date = "2012-08-31"
+  s.date = "2012-09-06"
   s.description = "Ironfan allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
   s.email = "coders@infochimps.com"
   s.extra_rdoc_files = [
@@ -108,7 +108,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<chef>, [">= 0.10.4"])
       s.add_runtime_dependency(%q<fog>, ["~> 1.2"])
       s.add_runtime_dependency(%q<formatador>, ["~> 0.2"])
-      s.add_runtime_dependency(%q<gorillib>, ["~> 0.4"])
+      s.add_runtime_dependency(%q<gorillib>, ["~> 0.4.2"])
       s.add_development_dependency(%q<bundler>, ["~> 1.1"])
       s.add_development_dependency(%q<rake>, [">= 0"])
       s.add_development_dependency(%q<rspec>, ["~> 2.8"])
@@ -120,7 +120,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<chef>, [">= 0.10.4"])
       s.add_dependency(%q<fog>, ["~> 1.2"])
       s.add_dependency(%q<formatador>, ["~> 0.2"])
-      s.add_dependency(%q<gorillib>, ["~> 0.4"])
+      s.add_dependency(%q<gorillib>, ["~> 0.4.2"])
       s.add_dependency(%q<bundler>, ["~> 1.1"])
       s.add_dependency(%q<rake>, [">= 0"])
       s.add_dependency(%q<rspec>, ["~> 2.8"])
@@ -133,7 +133,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<chef>, [">= 0.10.4"])
     s.add_dependency(%q<fog>, ["~> 1.2"])
     s.add_dependency(%q<formatador>, ["~> 0.2"])
-    s.add_dependency(%q<gorillib>, ["~> 0.4"])
+    s.add_dependency(%q<gorillib>, ["~> 0.4.2"])
     s.add_dependency(%q<bundler>, ["~> 1.1"])
     s.add_dependency(%q<rake>, [">= 0"])
     s.add_dependency(%q<rspec>, ["~> 2.8"])

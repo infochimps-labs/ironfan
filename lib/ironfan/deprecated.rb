@@ -1,13 +1,8 @@
 module Ironfan
   def self.deprecated call, replacement=nil
-    correction = ", use #{replacement} instead" if replacement
-    ui.warn "The '#{call}' statement is deprecated#{correction} (in #{caller(2).first.inspect})"
-  end
-
-  def self.future call, replacement=nil
-    correction = ", we are ignoring it"
-    correction = ", use #{replacement} instead" if replacement
-    ui.warn "The '#{call}' statement isn't available yet#{correction} (in #{caller(2).first.inspect})"
+    correction = ", " if replacement
+    ui.error "The '#{call}' statement is deprecated#{correction} (in #{caller(2).first.inspect}). It looks like you are using an outdated DSL definition: please see https://github.com/infochimps-labs/ironfan/wiki/Upgrading-to-v4 for all the necessary upgrade steps."
+    exit(1)
   end
 
   class Dsl
@@ -20,7 +15,7 @@ module Ironfan
     class Compute
       def cloud(provider=nil)
         if provider.nil?
-          Ironfan.deprecated 'cloud(nil)','cloud(:ec2)'
+          Ironfan.deprecated 'cloud(nil)','use cloud(:ec2) instead'
           provider = :ec2
         end
         super(provider)

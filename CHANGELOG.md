@@ -1,6 +1,7 @@
-# v4.0.0.beta1:  major refactoring to allow multicloud support
-* Removed role_implications: these can be handled by explicit ec2.security_group calls for now, and will be replaced by more general component-based code in future
-* Added default_cloud flag to cloud statement, added use_cloud statement to compute components (cluster/facet/server), will add command line option to allow override of both
+# v4.0.0:  Major refactoring to allow multicloud support
+* First pass at a provider plugin API, with EC2 as the working example.
+* Removed role_implications: these can be handled by explicit ec2.security_group calls for now. See https://github.com/infochimps-labs/ironfan/wiki/Upgrading-to-v4 for more details.
+* Added default_cloud flag to cloud statement (sets that cloud as the default one, if there are multiple clouds available), added use_cloud statement to compute components (cluster/facet/server) which overrides those defaults. There are plans for a command-line override, as well.
 
 # v3.2.0: First refactoring pass in preparation for multi-cloud support
 * Rebuilt the internal models of Ironfan to use gorillib's Field/Model/Builder architecture.
