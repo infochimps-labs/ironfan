@@ -103,11 +103,13 @@ module Ironfan
           range = (range .. range) if range.is_a?(Integer)
           range_authorizations << [range, cidr_ip, ip_protocol]
           range_authorizations.compact!
+          range_authorizations.uniq!
         end
 
         def authorized_by_group(other_name)
           group_authorized_by << other_name.to_s
           group_authorized_by.compact!
+          group_authorized_by.uniq!
         end
       end
 

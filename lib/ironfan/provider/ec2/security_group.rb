@@ -37,7 +37,7 @@ module Ironfan
           return unless Ec2.applicable computer
  
           ensure_groups(computer)
-          groups = computer.server.cloud(:ec2).security_groups.keys.map{|k| k.to_s}.uniq
+          groups = self.expected_ids(computer)
           # Only handle groups that don't already exist
           groups.delete_if {|group| recall? group.to_s }
           return if groups.empty?
