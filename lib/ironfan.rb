@@ -24,11 +24,21 @@ module Ironfan
   def self.chef_config=(cc) @chef_config = cc ; end
   def self.chef_config()    @chef_config      ; end
 
-# simple delegation to multiple targets
+  # simple delegation to multiple targets
   def self.delegate_to(targets,options={},&block)
     raise 'missing block' unless block_given?
     [targets].flatten.each {|target| target.instance_eval &block }
   end
+
+  # delegate to multiple targets in parallel
+  def self.parallelize(targets,options={},&block)
+    raise 'missing block' unless block_given?
+    [targets].flatten.map do |t|
+      sleep(0.1) # avoid hammering with simultaneous requests
+      Thread.new(t) {|t| t.instance_eval &block }
+    end.each(&:join)
+  end
+
   #
   # Defines a cluster with the given name.
   #

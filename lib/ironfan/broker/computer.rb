@@ -237,7 +237,7 @@ module Ironfan
       # Discovery
       #
       def correlate
-        values.each {|computer| computer.correlate }
+        Ironfan.delegate_to(values)     { correlate }
       end
 
       def validate
@@ -252,20 +252,24 @@ module Ironfan
       # Manipulation
       #
       def kill(options={})
-        Ironfan.delegate_to(values)     { kill(options) }
+        Ironfan.parallelize(values) { kill(options) }
       end
       def launch
-        Ironfan.delegate_to(values)     { launch }
+        Ironfan.parallelize(values) { launch }
       end
       def save(options={})
-        Ironfan.delegate_to(values)     { save(options) }
+        Ironfan.parallelize(values) { save(options) }
       end
       def start
-        Ironfan.delegate_to(values)     { start }
+        Ironfan.parallelize(values) { start }
       end
       def stop
-        Ironfan.delegate_to(values)     { stop }
+        Ironfan.parallelize(values) { stop }
       end
+
+      #
+      # Utility
+      #
 
       # set up new computers for each server in the cluster definition
       def create_expected!
@@ -306,7 +310,7 @@ module Ironfan
         eval("[#{slice_indexes}]").map {|idx| idx.class == Range ? idx.to_a : idx}.flatten
       end
 
-      # Utility function to provide a human-readable list of names
+      # provide a human-readable list of names
       def joined_names
         values.map(&:name).join(", ").gsub(/, ([^,]*)$/, ' and \1')
       end
