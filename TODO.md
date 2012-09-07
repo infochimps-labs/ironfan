@@ -2,48 +2,10 @@
 
 * We should use the `Fog::Compute::AWS::FLAVORS` constant that [fog defines](http://rubydoc.info/github/fog/fog/master/Fog/Compute/AWS) in the cloud code (instead of the one we put there)
 
-* All over the place there is the following construct (absolutely necessary, absolutely horrid):
-
-      foo = Mash.new().merge(node[:system]).merge(node[:system][:component])
-      
-  You might look at this and think "gee I know a much simpler way to do that". That simpler way does not work; this way does.
-
-  I propose adding a 'smush' method to `silverware/libraries/cookbook_utils`: 
-  
-      ```ruby
-      module Ironfan::CookbookUtils
-        module_function
-        
-        # Merge the given objects (node attributes, hashes, or anything
-        # else with `#to_hash`) into a combined `Mash` object. Objects 
-        # given later in the list 'win' over objects given earlier.
-        #
-        # @examples
-        #   template_vars = Ironfan::CookbookUtils.smush( node[:flume], node[:flume][:agent], :zookeeper_port => node[:zookeeper][:port] )
-        #
-        # @param [Array[#to_hash]] smushables -- any number of things that respond to `#to_hash`
-        #
-        def smush(*smushables)
-          result = Mash.new
-          smushables.compact.each do |smushable|
-            result.merge! smushable.to_hash
-          end
-          result
-        end
-        
-      end
-
-  (obviously the hard part is not writing the method, it's applying it to all the cookbooks.)
-
 
 
 ### Knife commands
-
-* reify notion of 'homebase'; cluster commands work off it
 * move away from referring to Chef::Config everywhere; 
-
-
-
 
 
 # Old Issues Triage
@@ -52,7 +14,7 @@ From https://github.com/infochimps-labs/ironfan/issues/102 with love. Deleted ow
 ## Must Do
 * merge volumes into silverware. merge ebs_volumes into ec2 cookbook 
 * Basic CI testing of cookbooks 
-* RSpecs for silverback (lib and knife tools) 
+* RSpecs for ironfan (lib and knife tools)
 * RSpecs for silverware are mostly in place -- ensure they are. 
 * push cookbooks to community.opscode.com  
 * refine and explain updated git workflow
@@ -60,18 +22,12 @@ From https://github.com/infochimps-labs/ironfan/issues/102 with love. Deleted ow
 ## Docco
 Use the [opscode EC2 fast start](http://wiki.opscode.com/display/chef/EC2+Bootstrap+Fast+Start+Guide) as a guide -- our getting started should start at the same place, and cover the same detail as the EC2 bootstrap guide.
 
-* Clear description of metadiscovery
+* Clear description of discovery
 * make sure README files in cookbooks aren’t wildly inaccurate
-* Carry out setup directions, ensure they work:
-  - cluster_chef if you’re using our homebase
-  - cluster_chef if you’re using opscode’s homebase
-* local vagrant environment 
 * hadoop cluster bootstrapping
 
 ## Piddly Shit
-
 * standardize the `zabbix` cookbook (no more /opt, etc -- more in the TODO)
-* volumes don't deep merge -- eg you have to mount_ephemerals in the facet if you modify htem
 * kill_old_service should disable services (may be leaving /etc/rc.d cruft).
 * kill old service doesn't go the first time. why?
 * chef client/server cookbook: set chef user UID / GID; client can set log directory
@@ -81,8 +37,6 @@ Use the [opscode EC2 fast start](http://wiki.opscode.com/display/chef/EC2+Bootst
 * style-guide alignment (prefix_root becomes prefix)
 
 ## Really Want
-
-* unify the hashlike underpinning to be same across silverware & cluster_chef. Make sure we love (or accept) all the differences between it and Gorrillib’s, and between it and Chef’s.
 * Keys are transmitted in databags, using a helper, and not in node attributes
 * easy to create a dummy node (load balancer, external resource, etc)
 * components can have arbitrary attributes (kinda. they take an `:info` param, behavior which may change later)
@@ -138,11 +92,9 @@ Use the [opscode EC2 fast start](http://wiki.opscode.com/display/chef/EC2+Bootst
 * move cluster discovery to cloud class.
 * Server#normalize! doesn’t imprint object (ie. server attributes poke through to the facet & cluster, rather than being *set* on the object)
 * The fact you can only see one cluster at a time is stupid.
-* security group pairing is sucky.
 * ubuntu home drive bullshit
 * Finer-grained security group control (eg nfs server only opens a couple ports, not all)
 * nfs recipe uses discovery right (thus allowing more than one NFS share to exist in the universe)
-* roles UGGGHHHHAERWSDFKHSBLAH
 
 ## Ponies!
 * sync cookbooks up/down to `infochimps-cookbooks/` 
@@ -152,4 +104,3 @@ Use the [opscode EC2 fast start](http://wiki.opscode.com/display/chef/EC2+Bootst
 * spot pricing
 * rackspace compatibility
 * cookbook munger reads comments in attributes file to populate metadata.rb
-* `gem install ironfan; ironfan install` checks everything out
