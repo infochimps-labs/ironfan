@@ -1,3 +1,12 @@
+# v4.0.2: Parallel calls working once more
+* Added Ironfan.parallelize, to run the basic cluster commands in parallel against their servers
+* Make security_group range and group authorizations store only unique values
+
+# v4.0.1: Minor bug-fixes
+* Don't attempt to correlate the node volumes hash unless it's set
+* RaidGroup declared by the DSL should get a name (so it can be indexed correctly)
+* Volume.defaults is deprecated
+
 # v4.0.0:  Major refactoring to allow multicloud support
 * First pass at a provider plugin API, with EC2 as the working example.
 * Removed role_implications: these can be handled by explicit ec2.security_group calls for now. See https://github.com/infochimps-labs/ironfan/wiki/Upgrading-to-v4 for more details.
