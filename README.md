@@ -45,4 +45,4 @@ Ironfan consists of the following Toolset:
 
 ### Getting Help
 * Feel free to contact us at info@infochimps.com or 855-DATA-FUN
-* Also, you invited to a [private consultation](http://www.infochimps.com/free-big-data-consultation?utm_source=git&utm_medium=referral&utm_campaign=consult) with Infochimps founders on your big data project.
+* Also, you're invited to a [private consultation](http://www.infochimps.com/free-big-data-consultation?utm_source=git&utm_medium=referral&utm_campaign=consult) with Infochimps founders on your big data project.
