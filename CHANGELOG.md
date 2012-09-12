@@ -1,3 +1,7 @@
+# v4.0.3: correcting EBS volume issues
+* Volume information should now be correctly saving to Chef nodes
+* Keep flag now respected correctly for EBS root volumes
+
 # v4.0.2: Parallel calls working once more
 * Added Ironfan.parallelize, to run the basic cluster commands in parallel against their servers
 * Make security_group range and group authorizations store only unique values
