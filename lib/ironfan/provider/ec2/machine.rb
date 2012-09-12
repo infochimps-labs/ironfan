@@ -165,8 +165,11 @@ module Ironfan
             drive.disk = ebs_vol
 
             vol_name = "#{computer.name}-#{drive.volume.name}"
+            tags['server'] = computer.name
             tags['name'] = vol_name
             tags['Name'] = vol_name
+            tags['mount_point'] = drive.volume.mount_point
+            tags['device'] = drive.volume.device
             Ec2.ensure_tags(tags,ebs_vol)
           end
         end
@@ -222,8 +225,7 @@ module Ironfan
               hsh['Ebs.SnapshotId'] = volume.snapshot_id if volume.snapshot_id.present?
               hsh['Ebs.VolumeSize'] = volume.size.to_s   if volume.size.present?
               hsh['Ebs.DeleteOnTermination'] = (not volume.keep).to_s
-            else
-              next
+            else next
             end
             hsh
           end.compact

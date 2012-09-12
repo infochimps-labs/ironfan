@@ -54,7 +54,6 @@ module Ironfan
       # Discovery
       #
       def self.load!(*p)                Ironfan.noop(self,__method__,*p);   end
-      def self.correlate!(*p)           Ironfan.noop(self,__method__,*p);   end
       def self.validate_computer!(*p)   Ironfan.noop(self,__method__,*p);   end
       def self.validate_resources!(*p)  Ironfan.noop(self,__method__,*p);   end
 
@@ -70,7 +69,7 @@ module Ironfan
       #
       # Utilities
       #
-      [:shared?, :multiple?, :load!,:correlate!,:validate_computer!,
+      [:shared?, :multiple?, :load!,:validate_computer!,
        :validate_resources!,:create!,:save!,:destroy!].each do |method_name|
         define_method(method_name) {|*p| self.class.send(method_name,*p) }
       end

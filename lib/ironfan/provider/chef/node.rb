@@ -67,7 +67,7 @@ module Ironfan
           normal[:facet_name] =         server.facet_name
           normal[:permanent] =          computer.permanent?
           normal[:volumes] =            {}
-          computer.drives.each {|v| normal[:volumes][v.name] = v.node}
+          computer.drives.each {|d| normal[:volumes][d.name] = d.node}
         end
 
         def announce_state state

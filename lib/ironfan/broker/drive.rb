@@ -8,11 +8,11 @@ module Ironfan
 
       field :name,              String
 
-      def volume=(value)
-        super
-        return unless value
-        # inscribe the cluster DSL values into chef attributes
-        volume.attributes.each_pair {|k,v| node[k.to_s] = v }
+      # A drive should include volume attributes in any node references
+      def node()
+        result = super
+        result.merge! volume.attributes unless volume.nil?
+        result
       end
 
     end

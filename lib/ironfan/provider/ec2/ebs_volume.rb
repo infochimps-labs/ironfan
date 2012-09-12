@@ -16,19 +16,24 @@ module Ironfan
           :to => :adaptee
         field :dsl_volume,        Ironfan::Dsl::Volume
 
-        def self.shared?()      false;  end
+        def self.shared?()      true;   end
         def self.multiple?()    true;   end
         def self.resource_type()        :ebs_volume;   end
         def self.expected_ids(computer)
           computer.server.volumes.values.map do |volume|
             saved = computer.node[:volumes][volume.name][:volume_id] rescue nil
             ebs_name = "#{computer.server.fullname}-#{volume.name}"
-            [ volume.volume_id, saved, ebs_name]
+            [ volume.volume_id, saved, ebs_name ]
           end.flatten.compact
         end
 
         def name
           tags["Name"] || tags["name"] || id
+        end
+
+        def drivename
+          return id unless tags.key? "Name"
+          tags["Name"].split('-').pop
         end
 
         def ephemeral_device?
@@ -54,59 +59,22 @@ module Ironfan
         end
 
         def on_correlate(computer)
-          Chef::Log.warn("ebs_volume::on_correlate is incomplete")
+          drive = computer.drive(drivename)
+          drive.disk = self
+          drive.node = computer.node[:volumes][drivename].to_hash rescue {}
+          drive
         end
 
-#         def self.correlate!(computer)
-#           Chef::Log.warn("CODE SMELL: overly large method: #{caller}")
-#           return unless computer.server?
-#           computer.server.volumes.each do |volume|
-#             unless volume.attachable.to_s == 'ebs'
-#               Chef::Log.debug("Ignoring non-EBS volume = #{volume}")
-#               next
-#             end
-# 
-#             drive =             computer.drive(volume.name)
-#             drive.node =        computer.node[:volumes][volume.name].to_hash rescue {}
-#             if drive.node.has_key? :volume_id
-#               node_volume_id =  drive.node[:volume_id]
-#             end
-#             ebs_name =          "#{computer.server.fullname}-#{volume.name}"
-# 
-#             volume_id =         volume.volume_id
-#             volume_id ||=       node_volume_id
-# 
-#             # Volumes may match against name derived from the cluster definition,
-#             #   or volume_id from the cluster definition or node
-#             case
-#             when (recall? ebs_name)
-#               ebs =             recall ebs_name
-#             when (volume_id and recall? volume_id)
-#               ebs =             recall volume_id
-#             else
-#               log_message =     "Volume not found: name = #{ebs_name}"
-#               log_message +=    ", volume_id = #{volume_id}"
-#               Chef::Log.debug(log_message)
-#               next
-#             end
-# 
-#             # Make sure all the known volume_ids match
-#             [ ebs.id, volume.volume_id, node_volume_id ].compact.each do |id|
-#               id == volume_id or ebs.bogus << :volume_id_mismatch
-#             end if volume_id
-# 
-#             computer.bogus +=   ebs.bogus
-#             ebs.owner =         computer.object_id
-#             drive.volume =      volume
-#             drive.disk =        ebs
-#           end
-#         end
         def self.validate_computer!(computer)
-          Chef::Log.warn("ebs_volume::validate_computer! is incomplete")
-#             # Make sure all the known volume_ids match
-#             [ ebs.id, volume.volume_id, node_volume_id ].compact.each do |id|
-#               id == volume_id or ebs.bogus << :volume_id_mismatch
-#             end if volume_id
+          computer.drives.each do |drive|
+            next unless drive.disk.class == EbsVolume
+            [ (drive.node['volume_id'] rescue nil),
+              (drive.volume.volume_id  rescue nil)
+            ].compact.each do |id|
+              Chef::Log.debug "checking #{id} against ebs_volume id #{drive.disk.id}"
+              id == drive.disk.id or drive.disk.bogus << :volume_id_mismatch
+            end
+          end
         end
 
         #
@@ -126,8 +94,6 @@ module Ironfan
                 ebs.server =          computer.machine.adaptee
               end
             end
-            # Record the volume information in chef
-            drive.node['volume_id'] =  ebs.id
           end
         end
       end

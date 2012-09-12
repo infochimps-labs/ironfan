@@ -34,12 +34,6 @@ module Ironfan
       #
       def correlate
         chosen_resources.each do |res|
-          unless res.respond_to? :expected_ids
-            Chef::Log.warn("FIXME: Using correlate! instead of on_correlate in #{res}")
-            res.correlate! self
-            return
-          end
-        
           res.expected_ids(self).each do |id|
             next unless res.recall? id
 
@@ -53,9 +47,6 @@ module Ironfan
             recalled.on_correlate(self)
           end
         end
-      end
-
-      def correlate_with(res)
       end
 
       def validate
