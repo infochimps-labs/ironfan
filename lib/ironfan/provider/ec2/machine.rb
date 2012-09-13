@@ -158,6 +158,7 @@ module Ironfan
 
           # register the new volumes for later save!, and tag appropriately
           computer.machine.volumes.each do |v|
+            Chef::Log.warn "CODE SMELL: Machine is too familiar with EbsVolume problems"
             ebs_vol = Ec2::EbsVolume.register v
             drive = computer.drives.values.select do |drive|
               drive.volume.device == ebs_vol.device
@@ -211,6 +212,7 @@ module Ironfan
         end
         # An array of hashes with dorky-looking keys, just like Fog wants it.
         def self.block_device_mapping(computer)
+          Chef::Log.warn "CODE SMELL: Machine is too familiar with EbsVolume problems"
           computer.drives.values.map do |drive|
             next if drive.disk  # Don't create any disc already satisfied
             volume = drive.volume or next

@@ -23,6 +23,16 @@ module Ironfan
       magic     :snapshot_id,           String
       magic     :snapshot_name,         String
       magic     :tags,                  Hash,     :default => {}
+
+      VOLUME_IDS ||= {}
+      VOLUME_IDS.merge!({
+        :blank_xfs       => 'snap-d9c1edb1',
+      })
+
+      def snapshot_id
+        Chef::Log.warn("CODE SMELL: EBS specific information in Dsl::Volume::VOLUME_IDS")
+        super || VOLUME_IDS[snapshot_name]
+      end
     end
 
     class RaidGroup < Volume
