@@ -124,7 +124,7 @@ class Chef
 
         case @name_args[1]
         when "interactive"  then interactive
-        when "screen"       then screen
+        when "screen",nil   then screen
         when "tmux"         then tmux
         when "macterm"      then macterm
         when "cssh"         then cssh
