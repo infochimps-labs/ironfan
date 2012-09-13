@@ -56,7 +56,7 @@ module Ironfan
   protected
 
     def fog_servers
-      @fog_servers ||= Ironfan.fog_servers.select{|fs| fs.key_name == cluster_name.to_s && (fs.state != "terminated") }
+      @fog_servers ||= Ironfan.fog_servers.select{|fs| fs.tags['cluster'] == cluster_name.to_s && (fs.state != "terminated") }
     end
 
     # Walk the list of chef nodes and
