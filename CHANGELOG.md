@@ -1,3 +1,7 @@
+# v4.0.4: further EBS bugfixes
+* Made launch correctly create and tag secondary EBS volumes
+* Adding some more warnings of code smells where separation of concerns has become blurry
+
 # v4.0.3: correcting EBS volume issues
 * Volume information should now be correctly saving to Chef nodes
 * Keep flag now respected correctly for EBS root volumes
