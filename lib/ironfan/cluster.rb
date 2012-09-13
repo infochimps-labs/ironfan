@@ -50,7 +50,7 @@ module Ironfan
     #
     def facet(facet_name, attrs={}, &block)
       facet_name = facet_name.to_sym
-      @facets[facet_name] ||= Ironfan::Facet.new(self, facet_name)
+      @facets[facet_name] ||= Ironfan::Facet.new(self, facet_name, attrs)
       @facets[facet_name].receive!(attrs, &block)
       @facets[facet_name]
     end
