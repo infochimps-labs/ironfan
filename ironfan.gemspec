@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Infochimps"]
-  s.date = "2012-06-19"
+  s.date = "2012-09-13"
   s.description = "Ironfan allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
   s.email = "coders@infochimps.com"
   s.extra_rdoc_files = [
@@ -85,7 +85,7 @@ Gem::Specification.new do |s|
   s.homepage = "http://infochimps.com/labs"
   s.licenses = ["apachev2"]
   s.require_paths = ["lib"]
-  s.rubygems_version = "1.8.15"
+  s.rubygems_version = "1.8.24"
   s.summary = "Ironfan allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
   s.test_files = ["spec/ironfan_spec.rb", "spec/spec_helper/dummy_chef.rb", "spec/ironfan/cluster_spec.rb", "spec/ironfan/server_slice_spec.rb", "spec/ironfan/server_spec.rb", "spec/ironfan/facet_spec.rb", "spec/spec_helper.rb", "spec/test_config.rb"]
 
@@ -93,7 +93,7 @@ Gem::Specification.new do |s|
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
-      s.add_runtime_dependency(%q<chef>, ["~> 0.10.4"])
+      s.add_runtime_dependency(%q<chef>, ["> 0.10.4"])
       s.add_runtime_dependency(%q<fog>, ["~> 1.2.0"])
       s.add_runtime_dependency(%q<formatador>, ["~> 0.2.1"])
       s.add_runtime_dependency(%q<gorillib>, ["~> 0.1.7"])
@@ -103,7 +103,7 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<yard>, ["~> 0.6"])
       s.add_development_dependency(%q<redcarpet>, ["~> 2"])
     else
-      s.add_dependency(%q<chef>, ["~> 0.10.4"])
+      s.add_dependency(%q<chef>, ["> 0.10.4"])
       s.add_dependency(%q<fog>, ["~> 1.2.0"])
       s.add_dependency(%q<formatador>, ["~> 0.2.1"])
       s.add_dependency(%q<gorillib>, ["~> 0.1.7"])
@@ -114,7 +114,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<redcarpet>, ["~> 2"])
     end
   else
-    s.add_dependency(%q<chef>, ["~> 0.10.4"])
+    s.add_dependency(%q<chef>, ["> 0.10.4"])
     s.add_dependency(%q<fog>, ["~> 1.2.0"])
     s.add_dependency(%q<formatador>, ["~> 0.2.1"])
     s.add_dependency(%q<gorillib>, ["~> 0.1.7"])
