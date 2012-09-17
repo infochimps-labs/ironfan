@@ -1,3 +1,6 @@
+* Fix for snapshot_id setting in cluster DSL
+
+
 # v4.0.4: further EBS bugfixes
 * Made launch correctly create and tag secondary EBS volumes
 * Adding some more warnings of code smells where separation of concerns has become blurry
