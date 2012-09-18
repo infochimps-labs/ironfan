@@ -96,6 +96,7 @@ module Ironfan
 
       class SecurityGroup < Ironfan::Dsl
         field :name,                    String
+        field :group_authorized,        Array, :default => []
         field :group_authorized_by,     Array, :default => []
         field :range_authorizations,    Array, :default => []
 
@@ -110,6 +111,12 @@ module Ironfan
           group_authorized_by << other_name.to_s
           group_authorized_by.compact!
           group_authorized_by.uniq!
+        end
+
+        def authorize_group(other_name)
+          group_authorized << other_name.to_s
+          group_authorized.compact!
+          group_authorized.uniq!
         end
       end
 

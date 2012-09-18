@@ -1,19 +1,20 @@
+# v4.0.5: security_group bug-fixes
 * Fix for snapshot_id setting in cluster DSL
+* Reinstated missing group_authorized capability
 
-
-# v4.0.4: further EBS bugfixes
+# v4.0.4: volume bug-fixes
 * Made launch correctly create and tag secondary EBS volumes
 * Adding some more warnings of code smells where separation of concerns has become blurry
 
-# v4.0.3: correcting EBS volume issues
+# v4.0.3: volume bug-fixes
 * Volume information should now be correctly saving to Chef nodes
 * Keep flag now respected correctly for EBS root volumes
 
-# v4.0.2: Parallel calls working once more
+# v4.0.2: parallelize bug-fixes
 * Added Ironfan.parallelize, to run the basic cluster commands in parallel against their servers
 * Make security_group range and group authorizations store only unique values
 
-# v4.0.1: Minor bug-fixes
+# v4.0.1: volume bug-fixes
 * Don't attempt to correlate the node volumes hash unless it's set
 * RaidGroup declared by the DSL should get a name (so it can be indexed correctly)
 * Volume.defaults is deprecated

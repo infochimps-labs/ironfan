@@ -57,12 +57,20 @@ module Ironfan
           security_groups = computer.server.cloud(:ec2).security_groups.values
           dsl_groups = security_groups.select do |dsl_group|
             not (recall? dsl_group or recall(dsl_group.name).ensured) and \
-            not (dsl_group.range_authorizations + dsl_group.group_authorized_by).empty?
+            not (dsl_group.range_authorizations +
+                 dsl_group.group_authorized_by +
+                 dsl_group.group_authorized).empty?
           end.compact
           return if dsl_groups.empty?
 
           Ironfan.step(computer.server.cluster_name, "ensuring security group permissions", :blue)
           dsl_groups.each do |dsl_group|
+            dsl_group.group_authorized.each do |other_group|
+              Ironfan.step(dsl_group.name, "  ensuring access from #{other_group}", :blue)
+              options = {:group => "#{Ec2.aws_account_id}:#{other_group}"}
+              safely_authorize(dsl_group.name,1..65535,options)
+            end
+
             dsl_group.group_authorized_by.each do |other_group|
               Ironfan.step(dsl_group.name, "  ensuring access to #{other_group}", :blue)
               options = {:group => "#{Ec2.aws_account_id}:#{dsl_group.name}"}
