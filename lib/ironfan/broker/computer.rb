@@ -51,7 +51,7 @@ module Ironfan
 
       def validate
         computer = self
-        Ironfan.delegate_to(chosen_resources) { validate_computer! computer }
+        chosen_resources.each {|r| r.validate_computer! computer }
       end
 
       #
@@ -131,8 +131,8 @@ module Ironfan
         values["Chef?"] =       "no"
         values["State"] =       "not running"
 
-        delegate_to([ server, node, machine ].compact) do
-          to_display style, values
+        [ server, node, machine ].compact.each do |part|
+          part.to_display style, values
         end
 
         if style == :expanded
@@ -228,34 +228,34 @@ module Ironfan
       # Discovery
       #
       def correlate
-        Ironfan.delegate_to(values)     { correlate }
+        values.each {|c| c.correlate }
       end
 
       def validate
         providers = values.map {|c| c.providers.values}.flatten
         computers = self
 
-        Ironfan.delegate_to(values)     { validate }
-        Ironfan.delegate_to(providers)  { validate computers }
+        values.each {|c| c.validate }
+        providers.each {|p| p.validate computers }
       end
 
       #
       # Manipulation
       #
       def kill(options={})
-        Ironfan.parallelize(values) { kill(options) }
+        Ironfan.parallel(values) {|c| c.kill(options) }
       end
       def launch
-        Ironfan.parallelize(values) { launch }
+        Ironfan.parallel(values) {|c| c. launch }
       end
       def save(options={})
-        Ironfan.parallelize(values) { save(options) }
+        Ironfan.parallel(values) {|c| c. save(options) }
       end
       def start
-        Ironfan.parallelize(values) { start }
+        Ironfan.parallel(values) {|c| c. start }
       end
       def stop
-        Ironfan.parallelize(values) { stop }
+        Ironfan.parallel(values) {|c| c. stop }
       end
 
       #

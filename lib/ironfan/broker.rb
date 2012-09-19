@@ -16,7 +16,7 @@ module Ironfan
       computers = Computers.new(:cluster => cluster.resolve)
       providers = computers.map{|c| c.providers.values}.flatten.uniq
 
-      delegate_to(providers) { load cluster }
+      providers.each {|p| p.load cluster }
       computers.correlate
       computers.validate
       computers

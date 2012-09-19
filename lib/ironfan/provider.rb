@@ -24,11 +24,11 @@ module Ironfan
     # Discovery
     #
     def self.load(cluster)
-      Ironfan.delegate_to(resources) { load! cluster }
+      resources.each {|r| r.load! cluster }
     end
 
     def self.validate(computers)
-      Ironfan.delegate_to(resources) { validate_resources! computers }
+      resources.each {|r| r.validate_resources! computers }
     end
 
 
@@ -119,13 +119,13 @@ module Ironfan
       # Create all things that aren't machines
       targets = resources.reject {|type| type < IaasProvider::Machine}
       computers.each do |computer|
-        delegate_to(targets) { create! computer }
+        targets.each {|r| r.create! computer }
       end
     end
 
     def save!(computers)
       computers.each do |computer|
-        delegate_to(resources) { save! computer }
+        targets.each {|r| r.save! computer }
       end
     end
 
