@@ -29,7 +29,7 @@ module Ironfan
     raise 'missing block' unless block_given?
     [targets].flatten.map do |target|
       sleep(0.1) # avoid hammering with simultaneous requests
-      Thread.new(t) {|t| yield target }
+      Thread.new(target) {|target| yield target }
     end.each(&:join) # wait for all the blocks to return
   end
 
