@@ -1,7 +1,7 @@
-# v4.0.7:
+# v4.0.8:
 * Removed .delegates_to, .parallelize in favor of manual delegation (via .each) and .parallel, to remove assumption that calls must be in the context of the individual object (preparation for fixing bootstrapping)
 * Adding cluster and facet roles to server run list (fixes #160)
-* Fixed blocking bug in launch (bad version 4.0.6)
+* Fixed blocking bugs in launch (bad versions 4.0.6 & 4.0.7)
 
 # v4.0.5: security_group bug-fixes
 * Fix for snapshot_id setting in cluster DSL
