@@ -29,7 +29,7 @@ module Ironfan
         :blank_xfs       => 'snap-d9c1edb1',
       })
 
-      def snapshot_id(id)
+      def snapshot_id(*)
         Chef::Log.warn("CODE SMELL: EBS specific information in Dsl::Volume::VOLUME_IDS")
         super || VOLUME_IDS[snapshot_name]
       end
