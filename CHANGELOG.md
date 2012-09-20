@@ -1,5 +1,6 @@
-# v4.0.6: fixing bootstrap for `knife cluster launch`
-* Removed .delegates_to, .parallelize in favor of manual delegation (via .each) and .parallel, to remove assumption that calls must be in the context of the individual object
+# v4.0.6:
+* Removed .delegates_to, .parallelize in favor of manual delegation (via .each) and .parallel, to remove assumption that calls must be in the context of the individual object (preparation for fixing bootstrapping)
+* Adding cluster and facet roles to server run list (fixes #160)
 
 # v4.0.5: security_group bug-fixes
 * Fix for snapshot_id setting in cluster DSL

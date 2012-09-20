@@ -9,6 +9,9 @@ module Ironfan
         unless attrs[:owner].nil?
           self.cluster_name =   attrs[:owner].cluster_name
           self.facet_name =     attrs[:owner].name
+
+          self.role     self.cluster_name,              :last
+          self.role     attrs[:owner].facet_role.name,  :last
         end
         super
       end
