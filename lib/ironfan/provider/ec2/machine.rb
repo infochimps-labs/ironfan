@@ -89,6 +89,10 @@ module Ironfan
           values
         end
 
+        def ssh_key
+          keypair = cloud.keypair || computer.server.cluster_name
+        end
+
         #
         # Discovery
         #

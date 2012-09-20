@@ -60,9 +60,8 @@ class Chef
 
       def perform_execution(target)
         # Execute across all servers in parallel
-        threads = target.servers.map{ |server| Thread.new(server) { |svr| run_bootstrap(svr, svr.public_hostname) } }
-        # Wait for the threads to finish and return the array of thread's exit value
-        threads.map{ |t| t.join.value }
+        Ironfan.parallel(target.values) {|computer| run_bootstrap(computer)}
+#         threads = target.servers.map{ |server| Thread.new(server) { |svr| run_bootstrap(svr, svr.public_hostname) } }
       end
 
       def confirm_execution(target)

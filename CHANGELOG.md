@@ -1,3 +1,6 @@
+# v4.0.9:
+* Making bootstrap work again (fixes #159)
+
 # v4.0.8:
 * Removed .delegates_to, .parallelize in favor of manual delegation (via .each) and .parallel, to remove assumption that calls must be in the context of the individual object (preparation for fixing bootstrapping)
 * Adding cluster and facet roles to server run list (fixes #160)

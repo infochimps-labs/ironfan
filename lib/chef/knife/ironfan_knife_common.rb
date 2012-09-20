@@ -51,8 +51,8 @@ module Ironfan
     end
 
     # method to nodes should be filtered on
-    def relevant?(server)
-      server.exists?
+    def relevant?(computer)
+      computer.running?
     end
 
     # override in subclass to confirm risky actions
@@ -114,28 +114,33 @@ module Ironfan
       ui.info ''
     end
 
-    def bootstrapper(server, hostname)
+    def bootstrapper(computer)
+      server = computer.server
+      cloud = server.selected_cloud
+      hostname = computer.machine.dns_name
+
       bootstrap = Chef::Knife::Bootstrap.new
       bootstrap.config.merge!(config)
 
       bootstrap.name_args               = [ hostname ]
-      bootstrap.config[:node]           = server
-      bootstrap.config[:run_list]       = server.combined_run_list
-      bootstrap.config[:ssh_user]       = config[:ssh_user]       || server.cloud.ssh_user
+      bootstrap.config[:computer]       = computer
+      bootstrap.config[:server]         = server
+      bootstrap.config[:run_list]       = server.run_list
+      bootstrap.config[:ssh_user]       = config[:ssh_user]       || cloud.ssh_user
       bootstrap.config[:attribute]      = config[:attribute]
-      bootstrap.config[:identity_file]  = config[:identity_file]  || server.cloud.ssh_identity_file
-      bootstrap.config[:distro]         = config[:distro]         || server.cloud.bootstrap_distro
+      bootstrap.config[:identity_file]  = config[:identity_file]  || computer.ssh_identity_file
+      bootstrap.config[:distro]         = config[:distro]         || cloud.bootstrap_distro
       bootstrap.config[:use_sudo]       = true unless config[:use_sudo] == false
       bootstrap.config[:chef_node_name] = server.fullname
-      bootstrap.config[:client_key]     = server.client_key.body  if server.client_key.body
+      bootstrap.config[:client_key]     = ( computer.client.private_key rescue nil )
 
       bootstrap
     end
 
-    def run_bootstrap(node, hostname)
-      bs = bootstrapper(node, hostname)
+    def run_bootstrap(computer)
+      bs = bootstrapper(computer)
       if config[:skip].to_s == 'true'
-        ui.info "Skipping: bootstrap #{hostname} with #{JSON.pretty_generate(bs.config)}"
+        ui.info "Skipping: bootstrap #{computer.name} with #{JSON.pretty_generate(bs.config)}"
         return
       end
       begin
@@ -144,7 +149,7 @@ module Ironfan
         ui.warn e
         ui.warn e.backtrace
         ui.warn ""
-        ui.warn node.inspect
+        ui.warn computer.inspect
         ui.warn ""
       end
     end

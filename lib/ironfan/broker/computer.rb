@@ -110,6 +110,18 @@ module Ironfan
         end
       end
 
+      def chef_client_script_content
+        cloud = server.selected_cloud
+        return @chef_client_script_content if @chef_client_script_content
+        return unless cloud.chef_client_script
+        script_filename = File.expand_path("../../../config/#{cloud.chef_client_script}", File.dirname(File.realdirpath(__FILE__)))
+        @chef_client_script_content = Ironfan.safely{ File.read(script_filename) }
+      end
+
+      def ssh_identity_file
+        resources[:key_pair].key_filename
+      end
+
 #       def ensure_resource(type)
 #         if type.multiple?
 #           existing = resources[type.resource_id]

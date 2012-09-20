@@ -5,7 +5,7 @@ bash <<'EOF' || echo "Chef bootstrap failed!"
 #
 # * installs ruby 1.9.2 (not 1.8.7) from source
 # * upgrades rubygems rather than installing from source
-# * pushes the node identity into the first-boot.json
+# * pushes the computer identity into the first-boot.json
 # * installs the chef-client service and kicks off the first run of chef
 
 set -e
@@ -127,13 +127,13 @@ echo -e "`date` \n\n**** \n**** Creating chef client script:\n****\n"
 (
 cat <<'EOP'
 <%= config_content %>
-<%= @config[:node].chef_client_script_content %>
+<%= @config[:computer].chef_client_script_content %>
 EOP
 ) > /etc/chef/client.rb
 
 (
 cat <<'EOP'
-<%= { "run_list" => @run_list, "cluster_name" => @config[:node].cluster_name, "facet_name" => @config[:node].facet_name, "facet_index" => @config[:node].facet_index }.to_json %>
+<%= { "run_list" => @run_list, "cluster_name" => @config[:server].cluster_name, "facet_name" => @config[:server].facet_name, "facet_index" => @config[:server].index }.to_json %>
 EOP
 ) > /etc/chef/first-boot.json
 
