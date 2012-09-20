@@ -10,7 +10,7 @@ module Ironfan
           self.cluster_name =   attrs[:owner].cluster_name
           self.facet_name =     attrs[:owner].name
 
-          self.role     self.cluster_name,              :last
+          self.role     "#{self.cluster_name}_cluster", :last
           self.role     attrs[:owner].facet_role.name,  :last
         end
         super
