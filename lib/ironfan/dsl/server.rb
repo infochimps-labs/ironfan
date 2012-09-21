@@ -28,6 +28,13 @@ module Ironfan
         values["Env"] =         environment
         values
       end
+
+      # @returns [Hash{String, Array}] of 'what you did wrong' => [relevant, info]
+      def lint
+        errors = []
+        errors['missing cluster/facet/server'] = [cluster_name, facet_name, name] unless (cluster_name && facet_name && name)
+        errors
+      end
     end
 
   end
