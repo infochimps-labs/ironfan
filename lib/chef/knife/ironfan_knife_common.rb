@@ -203,6 +203,19 @@ module Ironfan
       Ironfan.die(*args)
     end
 
+    def parse_options(*)
+      workaround_bundler_issue_2102
+      super
+    end
+
+    # Work around a bug in bundler -- restores your ability to see backtraces
+    # (see https://github.com/infochimps-labs/ironfan/issues/166)
+    #
+    # Args of exactly '-Z' or '-ZZ' will be turned into '-V' and '-VV' resp.
+    def workaround_bundler_issue_2102
+      ARGV.each_with_index{|arg, idx| case arg when '-Z' then ARGV[idx] = '-V' when '-ZZ' then ARGV[idx] = '-VV' when 'ssh' then break ; end }
+    end
+
     module ClassMethods
       def sub_command
         self.to_s.gsub(/^.*::/, '').gsub(/^Cluster/, '').downcase
