@@ -12,6 +12,7 @@ module Ironfan
       magic :chef_client_script,        String
       magic :default_availability_zone, String,         :default => ->{availability_zones.first}
       magic :flavor,                    String,         :default => 't1.micro'
+      magic :bits,                      Integer,        :default => ->{ flavor_info[:bits] }
       magic :image_name,                String
       magic :image_id,                  String
       magic :keypair,                   Whatever
@@ -34,8 +35,11 @@ module Ironfan
       magic :provider,                  Ironfan::Provider,      :default => Ironfan::Provider::Ec2
 
       def ec2_image_info
-        keys = [region, flavor_info[:bits], backing, image_name]
-        Chef::Config[:ec2_image_info][ keys ] || {}
+        bit_str = "#{self.bits.to_i}-bit" # correct for legacy image info.
+        keys = [region, bit_str, backing, image_name]
+        info = Chef::Config[:ec2_image_info][ keys ]
+        ui.warn("Can't find image for #{[region, bits.to_s, backing, image_name].inspect}") if info.blank?
+        return info || {}
       end
 
       def image_id
@@ -127,20 +131,22 @@ end
 
 Chef::Config[:ec2_flavor_info] ||= {}
 Chef::Config[:ec2_flavor_info].merge!({
-  't1.micro'    => { :price => 0.02,  :bits => '64-bit', :ram =>    686, :cores => 1, :core_size => 0.25, :inst_disks => 0, :inst_disk_size =>    0, :ephemeral_volumes => 0 },
-  'm1.small'    => { :price => 0.08,  :bits => '64-bit', :ram =>   1740, :cores => 1, :core_size => 1,    :inst_disks => 1, :inst_disk_size =>  160, :ephemeral_volumes => 1 },
-  'm1.medium'   => { :price => 0.165, :bits => '32-bit', :ram =>   3840, :cores => 2, :core_size => 1,    :inst_disks => 1, :inst_disk_size =>  410, :ephemeral_volumes => 1 },
-  'c1.medium'   => { :price => 0.17,  :bits => '32-bit', :ram =>   1740, :cores => 2, :core_size => 2.5,  :inst_disks => 1, :inst_disk_size =>  350, :ephemeral_volumes => 1 },
-  'm1.large'    => { :price => 0.32,  :bits => '64-bit', :ram =>   7680, :cores => 2, :core_size => 2,    :inst_disks => 2, :inst_disk_size =>  850, :ephemeral_volumes => 2 },
-  'm2.xlarge'   => { :price => 0.45,  :bits => '64-bit', :ram =>  18124, :cores => 2, :core_size => 3.25, :inst_disks => 1, :inst_disk_size =>  420, :ephemeral_volumes => 1 },
-  'c1.xlarge'   => { :price => 0.64,  :bits => '64-bit', :ram =>   7168, :cores => 8, :core_size => 2.5,  :inst_disks => 4, :inst_disk_size => 1690, :ephemeral_volumes => 4 },
-  'm1.xlarge'   => { :price => 0.66,  :bits => '64-bit', :ram =>  15360, :cores => 4, :core_size => 2,    :inst_disks => 4, :inst_disk_size => 1690, :ephemeral_volumes => 4 },
-  'm2.2xlarge'  => { :price => 0.90,  :bits => '64-bit', :ram =>  35020, :cores => 4, :core_size => 3.25, :inst_disks => 2, :inst_disk_size =>  850, :ephemeral_volumes => 2 },
-  'm2.4xlarge'  => { :price => 1.80,  :bits => '64-bit', :ram =>  70041, :cores => 8, :core_size => 3.25, :inst_disks => 4, :inst_disk_size => 1690, :ephemeral_volumes => 4 },
-  'cc1.4xlarge' => { :price => 1.30,  :bits => '64-bit', :ram =>  23552, :cores => 8, :core_size => 4.19, :inst_disks => 4, :inst_disk_size => 1690, :ephemeral_volumes => 2, :placement_groupable => true, :virtualization => 'hvm' },
-  'cc1.8xlarge' => { :price => 2.40,  :bits => '64-bit', :ram =>  61952, :cores =>16, :core_size => 5.50, :inst_disks => 8, :inst_disk_size => 3370, :ephemeral_volumes => 4, :placement_groupable => true, :virtualization => 'hvm' },
-  'cg1.4xlarge' => { :price => 2.10,  :bits => '64-bit', :ram =>  22528, :cores => 8, :core_size => 4.19, :inst_disks => 4, :inst_disk_size => 1690, :ephemeral_volumes => 2, :placement_groupable => true, :virtualization => 'hvm' },
-})
+    # 32-or-64: m1.small, m1.medium, t1.micro, c1.medium
+    't1.micro'    => { :price => 0.02,  :bits => 64, :ram =>    686, :cores => 1, :core_size => 0.25, :inst_disks => 0, :inst_disk_size =>    0, :ephemeral_volumes => 0 },
+    'm1.small'    => { :price => 0.08,  :bits => 64, :ram =>   1740, :cores => 1, :core_size => 1,    :inst_disks => 1, :inst_disk_size =>  160, :ephemeral_volumes => 1 },
+    'm1.medium'   => { :price => 0.165, :bits => 32, :ram =>   3840, :cores => 2, :core_size => 1,    :inst_disks => 1, :inst_disk_size =>  410, :ephemeral_volumes => 1 },
+    'c1.medium'   => { :price => 0.17,  :bits => 32, :ram =>   1740, :cores => 2, :core_size => 2.5,  :inst_disks => 1, :inst_disk_size =>  350, :ephemeral_volumes => 1 },
+    #
+    'm1.large'    => { :price => 0.32,  :bits => 64, :ram =>   7680, :cores => 2, :core_size => 2,    :inst_disks => 2, :inst_disk_size =>  850, :ephemeral_volumes => 2 },
+    'm2.xlarge'   => { :price => 0.45,  :bits => 64, :ram =>  18124, :cores => 2, :core_size => 3.25, :inst_disks => 1, :inst_disk_size =>  420, :ephemeral_volumes => 1 },
+    'c1.xlarge'   => { :price => 0.64,  :bits => 64, :ram =>   7168, :cores => 8, :core_size => 2.5,  :inst_disks => 4, :inst_disk_size => 1690, :ephemeral_volumes => 4 },
+    'm1.xlarge'   => { :price => 0.66,  :bits => 64, :ram =>  15360, :cores => 4, :core_size => 2,    :inst_disks => 4, :inst_disk_size => 1690, :ephemeral_volumes => 4 },
+    'm2.2xlarge'  => { :price => 0.90,  :bits => 64, :ram =>  35020, :cores => 4, :core_size => 3.25, :inst_disks => 2, :inst_disk_size =>  850, :ephemeral_volumes => 2 },
+    'm2.4xlarge'  => { :price => 1.80,  :bits => 64, :ram =>  70041, :cores => 8, :core_size => 3.25, :inst_disks => 4, :inst_disk_size => 1690, :ephemeral_volumes => 4 },
+    'cc1.4xlarge' => { :price => 1.30,  :bits => 64, :ram =>  23552, :cores => 8, :core_size => 4.19, :inst_disks => 4, :inst_disk_size => 1690, :ephemeral_volumes => 2, :placement_groupable => true, :virtualization => 'hvm' },
+    'cc1.8xlarge' => { :price => 2.40,  :bits => 64, :ram =>  61952, :cores =>16, :core_size => 5.50, :inst_disks => 8, :inst_disk_size => 3370, :ephemeral_volumes => 4, :placement_groupable => true, :virtualization => 'hvm' },
+    'cg1.4xlarge' => { :price => 2.10,  :bits => 64, :ram =>  22528, :cores => 8, :core_size => 4.19, :inst_disks => 4, :inst_disk_size => 1690, :ephemeral_volumes => 2, :placement_groupable => true, :virtualization => 'hvm' },
+  })
 
 Chef::Config[:ec2_image_info] ||= {}
 Chef::Config[:ec2_image_info].merge!({

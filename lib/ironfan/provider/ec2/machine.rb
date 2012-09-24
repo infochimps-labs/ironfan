@@ -122,11 +122,11 @@ module Ironfan
               machine.bogus << :unexpected_machine
             end
             next unless machine.bogus?
-            fake =                Ironfan::Broker::Computer.new
-            fake[:machine] =      machine
-            fake.name =           machine.name
-            machine.users <<      fake
-            computers <<          fake
+            fake           = Ironfan::Broker::Computer.new
+            fake[:machine] = machine
+            fake.name      = machine.name
+            machine.users << fake
+            computers     << fake
           end
         end
 
@@ -137,7 +137,10 @@ module Ironfan
           Chef::Log.warn("CODE SMELL: overly large method: #{caller}")
           return if computer.machine? and computer.machine.created?
           Ironfan.step(computer.name,"creating cloud machine", :green)
-          # lint_fog
+          #
+          errors = lint(computer)
+          if errors.present? then raise ArgumentError, "Failed validation: #{errors.inspect}" ; end
+          #
           launch_desc = fog_launch_description(computer)
           Chef::Log.debug(JSON.pretty_generate(launch_desc))
 
@@ -178,6 +181,19 @@ module Ironfan
             Ec2.ensure_tags(tags,ebs_vol)
           end
         end
+
+        # @returns [Hash{String, Array}] of 'what you did wrong' => [relevant, info]
+        def self.lint(computer)
+          cloud = computer.server.cloud(:ec2)
+          info  = [computer.name, cloud.inspect]
+          errors = {}
+          server_errors = computer.server.lint
+          errors["Unhappy Server"] = server_errors if server_errors.present?
+          errors["No AMI found"] = info if cloud.image_id.blank?
+          errors['Missing private_key'] = info if computer[:client].private_key.blank?
+          errors
+        end
+
         def self.fog_launch_description(computer)
           cloud =                       computer.server.cloud(:ec2)
           user_data_hsh =               {
@@ -214,6 +230,7 @@ module Ironfan
           end
           description
         end
+
         # An array of hashes with dorky-looking keys, just like Fog wants it.
         def self.block_device_mapping(computer)
           Chef::Log.warn "CODE SMELL: Machine is too familiar with EbsVolume problems"
@@ -263,4 +280,3 @@ module Ironfan
     end
   end
 end
-
