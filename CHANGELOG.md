@@ -1,5 +1,6 @@
 # v4.0.10
 * Splat the args to DSL::Volume.snapshot_id so we can call it properly (fixes #161)
+* cloud(:ec2) lets you declare bitness (fixes #147)
 
 # v4.0.9:
 * Making bootstrap work again (fixes #159)
