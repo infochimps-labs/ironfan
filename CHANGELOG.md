@@ -1,6 +1,8 @@
-# v4.0.10
+# v4.1.0: several bug-fixes and code cleanup
 * Splat the args to DSL::Volume.snapshot_id so we can call it properly (fixes #161)
 * cloud(:ec2) lets you declare bitness (fixes #147)
+* Better logging; errors within Ironfan.parallel don't crash the world (pull #167)
+* Like any good hitman, knife cluster kill should 'take care of' errant clients (pull #168)
 
 # v4.0.9:
 * Making bootstrap work again (fixes #159)
