@@ -29,6 +29,9 @@ module Ironfan
         values
       end
 
+      # we should always show up in owners' inspect string
+      def inspect_compact ; inspect ; end
+
       # @returns [Hash{String, Array}] of 'what you did wrong' => [relevant, info]
       def lint
         errors = []

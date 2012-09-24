@@ -2,7 +2,8 @@ module Ironfan
   class Provider
 
     class ChefServer < Ironfan::Provider
-      
+      self.handle = :chef
+
       def self.resources
         [ Client, Node, Role ]
       end

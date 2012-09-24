@@ -1,9 +1,10 @@
 # Providers present a lightweight wrapper for various third-party services,
 #   such as Chef's node and client APIs, and Amazon's EC2 APIs. This allows
-#   Ironfan ask specialized questions (such as whether a given resource 
+#   Ironfan ask specialized questions (such as whether a given resource
 #   matches
 module Ironfan
   class Provider < Builder
+    class_attribute :handle
 
     def self.receive(obj,&block)
       obj[:_type] = case obj[:name]
@@ -42,9 +43,11 @@ module Ironfan
 
       def bogus?()                      !bogus.empty?;          end
 
+      def self.handle ; name.to_s.gsub(/.*::/,'').to_sym ; end
+
       #
       # Flags
-      # 
+      #
       # Non-shared resources live and die with the computer
       def self.shared?()                true;                   end
       # Can multiple instances of this resource be associated with the computer?
@@ -82,8 +85,9 @@ module Ironfan
 
       # Register and return the (adapted) object with the collection
       def self.register(native)
-        result = new(:adaptee => native)
-        remember result unless result.nil?
+        result = new(:adaptee => native) or return
+        remember result
+        result
       end
 
       def self.recall?(id)

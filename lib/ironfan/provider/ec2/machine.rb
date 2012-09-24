@@ -93,10 +93,16 @@ module Ironfan
           keypair = cloud.keypair || computer.server.cluster_name
         end
 
+        def to_s
+          "<%-15s %-12s %-25s %-25s %-15s %-15s %-12s %-12s %s:%s>" % [
+            self.class.handle, id, created_at, tags['name'], private_ip_address, public_ip_address, flavor_id, availability_zone, key_name, groups.join(',') ]
+        end
+
         #
         # Discovery
         #
         def self.load!(cluster=nil)
+          Ironfan.substep(cluster.name, "machines")
           Ec2.connection.servers.each do |fs|
             machine = new(:adaptee => fs)
             if recall? machine.name
@@ -109,6 +115,7 @@ module Ironfan
             else
               remember machine, :append_id => "terminated:#{machine.id}"
             end
+            Chef::Log.debug("Loaded #{machine}")
           end
         end
 
@@ -134,7 +141,7 @@ module Ironfan
         # Manipulation
         #
         def self.create!(computer)
-          Chef::Log.warn("CODE SMELL: overly large method: #{caller}")
+          Ironfan.todo("CODE SMELL: overly large method: #{caller}")
           return if computer.machine? and computer.machine.created?
           Ironfan.step(computer.name,"creating cloud machine", :green)
           #
@@ -165,7 +172,7 @@ module Ironfan
 
           # register the new volumes for later save!, and tag appropriately
           computer.machine.volumes.each do |v|
-            Chef::Log.warn "CODE SMELL: Machine is too familiar with EbsVolume problems"
+            Ironfan.todo "CODE SMELL: Machine is too familiar with EbsVolume problems"
             ebs_vol = Ec2::EbsVolume.register v
             drive = computer.drives.values.select do |drive|
               drive.volume.device == ebs_vol.device
@@ -233,7 +240,7 @@ module Ironfan
 
         # An array of hashes with dorky-looking keys, just like Fog wants it.
         def self.block_device_mapping(computer)
-          Chef::Log.warn "CODE SMELL: Machine is too familiar with EbsVolume problems"
+          Ironfan.todo "CODE SMELL: Machine is too familiar with EbsVolume problems"
           computer.drives.values.map do |drive|
             next if drive.disk  # Don't create any disc already satisfied
             volume = drive.volume or next

@@ -2,6 +2,7 @@ module Ironfan
   class Provider
 
     class Ec2 < Ironfan::IaasProvider
+      self.handle = :ec2
 
       def self.resources
         [ Machine, EbsVolume, KeyPair, SecurityGroup ]
@@ -18,7 +19,7 @@ module Ironfan
           :region                => Chef::Config[:knife][:region]
         })
       end
-      
+
       def self.aws_account_id()
         Chef::Config[:knife][:aws_account_id]
       end

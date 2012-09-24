@@ -1,6 +1,6 @@
 # This module is intended to read in a cluster DSL description, and broker
 #   out to the various cloud providers, to control instance life-cycle and
-#   handle provider-specific amenities (SecurityGroup, Volume, etc.) for 
+#   handle provider-specific amenities (SecurityGroup, Volume, etc.) for
 #   them.
 module Ironfan
   def self.broker
@@ -10,15 +10,21 @@ module Ironfan
   class Broker < Builder
     # Take in a Dsl::Cluster, return Computers populated with
     #   all discovered resources that correlate, plus bogus computers
-    #   corresponding to 
+    #   corresponding to
     def discover!(cluster)
       # Get fully resolved servers, and build Computers using them
       computers = Computers.new(:cluster => cluster.resolve)
-      providers = computers.map{|c| c.providers.values}.flatten.uniq
-
-      providers.each {|p| p.load cluster }
+      #
+      providers = computers.map{|c| c.providers.values }.flatten.uniq
+      providers.each do |provider|
+        Ironfan.step cluster.name, "Loading #{provider.handle}", :cyan
+        provider.load cluster
+      end
+      #
+      Ironfan.step cluster.name, "Reconciling truth with beauty", :cyan
       computers.correlate
       computers.validate
+      #
       computers
     end
 

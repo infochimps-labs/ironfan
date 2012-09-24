@@ -25,12 +25,18 @@ module Ironfan
   def self.chef_config()    @chef_config      ; end
 
   # execute against multiple targets in parallel
-  def self.parallel(targets,options={})
+  def self.parallel(targets)
     raise 'missing block' unless block_given?
-    [targets].flatten.map do |target|
+    results = []
+    [targets].flatten.each_with_index.map do |target, idx|
       sleep(0.1) # avoid hammering with simultaneous requests
-      Thread.new(target) {|target| yield target }
+      Thread.new(target) do |target|
+        results[idx] = safely(target.inspect) do
+          yield target
+        end
+      end
     end.each(&:join) # wait for all the blocks to return
+    results
   end
 
   #
@@ -120,13 +126,15 @@ module Ironfan
   #     Ironfan.fog_connection.associate_address(self.fog_server.id, address)
   #   end
   #
-  def self.safely
+  def self.safely(info="")
     begin
       yield
-    rescue StandardError => boom
-      ui.info( boom )
-      Chef::Log.error( boom )
-      Chef::Log.error( boom.backtrace.join("\n") )
+    rescue StandardError => err
+      ui.warn("Error running #{info}:")
+      ui.warn(err)
+      Chef::Log.error( err )
+      Chef::Log.error( err.backtrace.join("\n") )
+      return err
     end
   end
 
@@ -135,6 +143,15 @@ module Ironfan
   #
   def self.step(name, desc, *style)
     ui.info("  #{"%-15s" % (name.to_s+":")}\t#{ui.color(desc.to_s, *style)}")
+  end
+
+  def self.substep(name, desc)
+    step(name, "  - #{desc}", :gray) if chef_config[:verbosity] >= 1
+  end
+
+  # Output a TODO to the logs if you've switched on pestering
+  def self.todo(*args)
+    Chef::Log.debug(*args) if Chef::Config[:show_todo]
   end
 
   #
@@ -152,8 +169,8 @@ module Ironfan
     chef_config[:dry_run]
   end
 
-  # Intentionally skipping an implied step 
+  # Intentionally skipping an implied step
   def self.noop(source,method,*params)
-    Chef::Log.debug("Nothing to do for #{source}.#{method}(#{params.join(',')}), skipping")
+    # Chef::Log.debug("#{method} is a no-op for #{source} -- skipping (#{params.join(',')})")
   end
 end
