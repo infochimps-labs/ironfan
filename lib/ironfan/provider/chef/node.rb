@@ -30,6 +30,11 @@ module Ironfan
           self.adaptee ||= Chef::Node.new
         end
 
+        def to_s
+          "<%-15s %-23s %s>" % [
+            self.class.handle, name, run_list]
+        end
+
         def self.shared?()              false;  end
         def self.multiple?()            false;  end
 #         def self.resource_type()        self;   end
@@ -85,11 +90,9 @@ module Ironfan
         def self.load!(cluster=nil)
           Ironfan.substep(cluster.name, "nodes")
           ChefServer.search(:node,"name:#{cluster.name}-*") do |raw|
-            next if raw.blank?
-            node = Node.new
-            node.adaptee = raw
-            remember node
-            Chef::Log.debug("Loaded #{node.inspect}")
+            next unless raw.present?
+            node = register(raw)
+            Chef::Log.debug("Loaded #{node}")
           end
         end
 

@@ -18,6 +18,11 @@ module Ironfan
           self.adaptee ||= Chef::ApiClient.new
         end
 
+        def to_s
+          "<%-15s %-23s %s>" % [
+            self.class.handle, name, key_filename]
+        end
+
         def self.shared?()              false;  end
         def self.multiple?()            false;  end
         def self.resource_type()        :client;                        end
@@ -42,9 +47,10 @@ module Ironfan
         def self.load!(cluster=nil)
           Ironfan.substep(cluster.name, "chef clients")
           nameq = "name:#{cluster.name}-* OR clientname:#{cluster.name}-*"
-          ChefServer.search(:client, nameq) do |client|
-            register client unless client.blank?
-            Chef::Log.debug("Loaded #{client.inspect}")
+          ChefServer.search(:client, nameq) do |raw|
+            next unless raw.present?
+            client = register(raw)
+            Chef::Log.debug("Loaded #{client}")
           end
         end
 

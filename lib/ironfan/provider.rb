@@ -85,8 +85,9 @@ module Ironfan
 
       # Register and return the (adapted) object with the collection
       def self.register(native)
-        result = new(:adaptee => native)
-        remember result unless result.nil?
+        result = new(:adaptee => native) or return
+        remember result
+        result
       end
 
       def self.recall?(id)
