@@ -2,7 +2,7 @@ module Ironfan
   def self.deprecated call, replacement=nil
     correction = ", " if replacement
     ui.error "The '#{call}' statement is deprecated#{correction} (in #{caller(2).first.inspect}). It looks like you are using an outdated DSL definition: please see https://github.com/infochimps-labs/ironfan/wiki/Upgrading-to-v4 for all the necessary upgrade steps."
-    exit(1)
+    raise StandardError, "Deprecated call to #{call} - #{replacement}", caller
   end
 
   class Dsl
@@ -11,7 +11,7 @@ module Ironfan
         Ironfan.deprecated 'defaults'
       end
     end
-    
+
     class Compute
       def cloud(provider=nil)
         if provider.nil?
