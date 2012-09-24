@@ -119,25 +119,24 @@ module Ironfan
     end
 
     def bootstrapper(computer)
-      server = computer.server
-      cloud = server.selected_cloud
-      hostname = computer.machine.dns_name
-
+      server   = computer.server
+      hostname = computer.dns_name
+      #
       bootstrap = Chef::Knife::Bootstrap.new
       bootstrap.config.merge!(config)
-
+      #
       bootstrap.name_args               = [ hostname ]
       bootstrap.config[:computer]       = computer
       bootstrap.config[:server]         = server
       bootstrap.config[:run_list]       = server.run_list
-      bootstrap.config[:ssh_user]       = config[:ssh_user]       || cloud.ssh_user
+      bootstrap.config[:ssh_user]       = config[:ssh_user]       || computer.ssh_user
       bootstrap.config[:attribute]      = config[:attribute]
       bootstrap.config[:identity_file]  = config[:identity_file]  || computer.ssh_identity_file
-      bootstrap.config[:distro]         = config[:distro]         || cloud.bootstrap_distro
+      bootstrap.config[:distro]         = config[:distro]         || computer.bootstrap_distro
       bootstrap.config[:use_sudo]       = true unless config[:use_sudo] == false
       bootstrap.config[:chef_node_name] = server.fullname
       bootstrap.config[:client_key]     = ( computer.client.private_key rescue nil )
-
+      #
       bootstrap
     end
 
@@ -147,14 +146,11 @@ module Ironfan
         ui.info "Skipping: bootstrap #{computer.name} with #{JSON.pretty_generate(bs.config)}"
         return
       end
-      begin
+      #
+      Ironfan.step(computer.name, "Running bootstrap")
+      Chef::Log.info("Bootstrapping:\n  Computer #{computer}\n  Bootstrap config #{bs.config}")
+      Ironfan.safely([computer, bs.config].inspect) do
         bs.run
-      rescue StandardError => e
-        ui.warn e
-        ui.warn e.backtrace
-        ui.warn ""
-        ui.warn computer.inspect
-        ui.warn ""
       end
     end
 

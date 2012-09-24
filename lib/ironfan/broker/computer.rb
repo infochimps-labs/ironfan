@@ -61,10 +61,11 @@ module Ironfan
         target_resources = chosen_resources(options)
         resources.each do |res|
           next unless target_resources.include? res.class
+          descriptor = "#{res.class} named #{res.name}"
           if res.shared?
-            Chef::Log.debug("Not killing shared resource #{res}")
+            Chef::Log.debug("Not killing shared resource #{descriptor}")
           else
-            Ironfan.step(self.name, "Killing #{res}")
+            Ironfan.step(self.name, "Killing #{descriptor}")
             res.destroy
           end
         end
@@ -174,12 +175,6 @@ module Ironfan
       def bogus
         resources.values.map(&:bogus).flatten
       end
-      def machine
-        self[:machine]
-      end
-      def machine=(value)
-        self[:machine] = value
-      end
       def node
         self[:node]
       end
@@ -194,6 +189,19 @@ module Ironfan
         self[:client]
       end
       def private_key ; client? ? client.private_key : nil ; end
+
+      #
+      # Machine
+      #
+      def machine
+        self[:machine]
+      end
+      def machine=(value)
+        self[:machine] = value
+      end
+      def dns_name         ; machine? ? machine.dns_name : nil ; end
+      def ssh_user         ; (server && server.selected_cloud) ? server.selected_cloud.ssh_user : nil ; end
+      def bootstrap_distro ; (server && server.selected_cloud) ? server.selected_cloud.bootstrap_distro   : nil ; end
 
       #
       # Status flags

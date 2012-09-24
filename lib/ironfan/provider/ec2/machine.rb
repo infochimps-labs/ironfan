@@ -148,7 +148,7 @@ module Ironfan
           errors = lint(computer)
           if errors.present? then raise ArgumentError, "Failed validation: #{errors.inspect}" ; end
           #
-          launch_desc = fog_launch_description(computer)
+          launch_desc = launch_description(computer)
           Chef::Log.debug(JSON.pretty_generate(launch_desc))
 
           Ironfan.safely do
@@ -197,34 +197,34 @@ module Ironfan
           server_errors = computer.server.lint
           errors["Unhappy Server"] = server_errors if server_errors.present?
           errors["No AMI found"] = info if cloud.image_id.blank?
-          errors['Missing private_key'] = info if computer[:client].private_key.blank?
+          errors['Missing client']      = info            unless computer.client?
+          errors['Missing private_key'] = computer.client unless computer.private_key
           errors
         end
 
-        def self.fog_launch_description(computer)
-          cloud =                       computer.server.cloud(:ec2)
+        def self.launch_description(computer)
+          cloud = computer.server.cloud(:ec2)
           user_data_hsh =               {
             :chef_server =>             Chef::Config[:chef_server_url],
-            #:validation_client_name =>  Chef::Config[:validation_client_name],
+            # :validation_client_name => Chef::Config[:validation_client_name],
             #
             :node_name =>               computer.name,
             :organization =>            Chef::Config[:organization],
             :cluster_name =>            computer.server.cluster_name,
             :facet_name =>              computer.server.facet_name,
             :facet_index =>             computer.server.index,
-            :client_key =>              computer[:client].private_key
+            :client_key =>              computer.private_key
           }
 
           # Fog does not actually create tags when it creates a server;
           #  they and permanence are applied during sync
-          keypair = cloud.keypair || computer.server.cluster_name
           description = {
             :image_id             => cloud.image_id,
             :flavor_id            => cloud.flavor,
             :vpc_id               => cloud.vpc,
             :subnet_id            => cloud.subnet,
             :groups               => cloud.security_groups.keys,
-            :key_name             => keypair.to_s,
+            :key_name             => cloud.ssh_key_name(computer),
             :user_data            => JSON.pretty_generate(user_data_hsh),
             :block_device_mapping => block_device_mapping(computer),
             :availability_zone    => cloud.default_availability_zone,
