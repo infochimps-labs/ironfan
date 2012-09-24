@@ -21,7 +21,7 @@ module Ironfan
         provider.load cluster
       end
       #
-      Ironfan.step cluster.name, "Reconciling truth with beauty", :cyan
+      Ironfan.step cluster.name, "Reconciling DSL and provider information", :cyan
       computers.correlate
       computers.validate
       #
