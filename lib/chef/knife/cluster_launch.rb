@@ -79,10 +79,11 @@ class Chef
         ui.info("")
         section("Launching computers", :green)
         display(target)
-        target.launch
+        launched = target.launch
 
         # As each server finishes, configure it
-        Ironfan.parallel(target.values) do |computer|
+        Ironfan.parallel(launched) do |computer|
+          if (computer.is_a?(Exception)) then ui.warn "Error launching #{computer.inspect}; skipping after-launch tasks."; next; end
           perform_after_launch_tasks(computer)
         end
         # progressbar_for_threads(watcher_threads)
