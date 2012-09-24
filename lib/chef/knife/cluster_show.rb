@@ -22,6 +22,7 @@ class Chef
   class Knife
     class ClusterShow < Knife
       include Ironfan::KnifeCommon
+
       deps do
         Ironfan::KnifeCommon.load_deps
       end
@@ -46,8 +47,12 @@ class Chef
         # Dump entire contents of objects if -VV flag given
         #
         if config[:verbosity] >= 2
+          Chef::Log.info( ["", "*"*50, "", "Chef Config", ""].join("\n") )
+          Chef::Log.info( JSON.pretty_generate(config) )
+
           target.each do |computer|
-            Chef::Log.debug( "Computer #{computer.name}: #{JSON.pretty_generate(computer.to_wire)}" )
+            Chef::Log.info( ["", "*"*50, "", "Computer #{computer.name}:", ""].join("\n") )
+            Chef::Log.info( JSON.pretty_generate(computer.to_wire) )
           end
         end
 
