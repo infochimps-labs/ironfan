@@ -6,33 +6,29 @@ module Ironfan
     end
 
     class Ec2 < Cloud
-      magic :keypair,                   Whatever
-      magic :flavor,                    String,         :default => 't1.micro'
+      magic :availability_zones,        Array,          :default => ['us-east-1d']
       magic :backing,                   String,         :default => 'ebs'
-      magic :image_name,                String
-      magic :image_id,                  String
       magic :bits,                      Integer,        :default => ->{ flavor_info[:bits] }
-      magic :chef_client_script,        String
       magic :bootstrap_distro,          String,         :default => ->{ image_info[:bootstrap_distro] }
+      magic :chef_client_script,        String
+      magic :default_availability_zone, String,         :default => ->{ availability_zones.first }
+      magic :flavor,                    String,         :default => 't1.micro'
+      magic :image_id,                  String
+      magic :image_name,                String
+      magic :keypair,                   Whatever
+      magic :monitoring,                String
+      magic :mount_ephemerals,          Hash,           :default => {}
+      magic :permanent,                 :boolean,       :default => false
+      magic :placement_group,           String
+      magic :provider,                  Ironfan::Provider,      :default => Ironfan::Provider::Ec2
+      magic :public_ip,                 String
+      magic :region,                    String,         :default => ->{ default_region }
       magic :ssh_user,                  String,         :default => ->{ image_info[:ssh_user] }
       magic :ssh_identity_dir,          String,         :default => ->{ Chef::Config.ec2_key_dir }
-      #
-      magic :availability_zones,        Array,          :default => ['us-east-1d']
-      magic :default_availability_zone, String,         :default => ->{ availability_zones.first }
-      magic :region,                    String,         :default => ->{ default_region }
-      #
-      magic :mount_ephemerals,          Hash,           :default => {}
-      magic :monitoring,                String
-      magic :permanent,                 :boolean,       :default => false
-      magic :public_ip,                 String
-      magic :placement_group,           String
       collection :security_groups,      Ironfan::Dsl::Ec2::SecurityGroup
-      #
       magic :subnet,                    String
       magic :validation_key,            String,         :default => ->{ IO.read(Chef::Config.validation_key) rescue '' }
       magic :vpc,                       String
-      #
-      magic :provider,                  Ironfan::Provider,      :default => Ironfan::Provider::Ec2
 
       def image_info
         bit_str = "#{self.bits.to_i}-bit" # correct for legacy image info.
