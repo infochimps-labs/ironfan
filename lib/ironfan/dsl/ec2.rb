@@ -6,35 +6,35 @@ module Ironfan
     end
 
     class Ec2 < Cloud
-      magic :availability_zones,        Array,          :default => ['us-east-1d']
-      magic :backing,                   String,         :default => 'ebs'
-      magic :bootstrap_distro,          String
-      magic :chef_client_script,        String
-      magic :default_availability_zone, String,         :default => ->{availability_zones.first}
+      magic :keypair,                   Whatever
       magic :flavor,                    String,         :default => 't1.micro'
-      magic :bits,                      Integer,        :default => ->{ flavor_info[:bits] }
+      magic :backing,                   String,         :default => 'ebs'
       magic :image_name,                String
       magic :image_id,                  String
-      magic :keypair,                   Whatever
+      magic :bits,                      Integer,        :default => ->{ flavor_info[:bits] }
+      magic :chef_client_script,        String
+      magic :bootstrap_distro,          String,         :default => ->{ image_info[:bootstrap_distro] }
+      magic :ssh_user,                  String,         :default => ->{ image_info[:ssh_user] }
+      magic :ssh_identity_dir,          String,         :default => ->{ Chef::Config.ec2_key_dir }
+      #
+      magic :availability_zones,        Array,          :default => ['us-east-1d']
+      magic :default_availability_zone, String,         :default => ->{ availability_zones.first }
+      magic :region,                    String,         :default => ->{ default_region }
+      #
       magic :mount_ephemerals,          Hash,           :default => {}
       magic :monitoring,                String
       magic :permanent,                 :boolean,       :default => false
       magic :public_ip,                 String
       magic :placement_group,           String
-      magic :region,                    String,         :default => -> do
-        default_availability_zone.gsub(/^(\w+-\w+-\d)[a-z]/, '\1') if default_availability_zone
-      end
       collection :security_groups,      Ironfan::Dsl::Ec2::SecurityGroup
-      magic :ssh_user,                  String,         :default => 'ubuntu'
-      magic :ssh_identity_dir,          String,         :default => ->{ Chef::Config.ec2_key_dir }
-      magic :ssh_identity_file,         String #, :default => "#{keypair}.pem"
+      #
       magic :subnet,                    String
       magic :validation_key,            String,         :default => ->{ IO.read(Chef::Config.validation_key) rescue '' }
       magic :vpc,                       String
-
+      #
       magic :provider,                  Ironfan::Provider,      :default => Ironfan::Provider::Ec2
 
-      def ec2_image_info
+      def image_info
         bit_str = "#{self.bits.to_i}-bit" # correct for legacy image info.
         keys = [region, bit_str, backing, image_name]
         info = Chef::Config[:ec2_image_info][ keys ]
@@ -43,7 +43,15 @@ module Ironfan
       end
 
       def image_id
-        result = read_attribute(:image_id) || ec2_image_info[:image_id]
+        result = read_attribute(:image_id) || image_info[:image_id]
+      end
+
+      def ssh_key_name(computer)
+        keypair ? keypair.to_s : computer.server.cluster_name
+      end
+
+      def default_region
+        default_availability_zone ? default_availability_zone.gsub(/^(\w+-\w+-\d)[a-z]/, '\1') : nil
       end
 
       def to_display(style,values={})
