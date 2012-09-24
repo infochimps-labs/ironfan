@@ -2,16 +2,16 @@ module Ironfan
   class Broker
 
     class Computer < Builder
+
+      field :server,            Ironfan::Dsl::Server
       collection :resources,    Whatever
       collection :drives,       Ironfan::Broker::Drive
       collection :providers,    Ironfan::Provider
-      field :server,            Ironfan::Dsl::Server
-      delegate :[],:[]=,:include?,:delete,
-          :to =>                :resources
+      delegate :[], :[]=, :include?, :delete, :to => :resources
 
       # Only used for bogus servers
       field :name,              String
-      field :bogus,             Array,          :default => []
+      field :bogus,             Array,  :default => []
 
       def initialize(*args)
         super
@@ -67,8 +67,9 @@ module Ironfan
 
       def launch
         ensure_dependencies
-        providers[:iaas].machine_class.create! self
+        iaas_provider.machine_class.create! self
         save
+        self
       end
 
       def stop
@@ -86,6 +87,9 @@ module Ironfan
       def save(options={})
         chosen_resources(options).each {|res| res.save! self}
       end
+
+      def chef_provider ; providers[:chef] ; end
+      def iaas_provider ; providers[:iaas] ; end
 
       #
       # Utility
@@ -105,7 +109,7 @@ module Ironfan
 
       def ensure_dependencies
         chosen_resources.each do |res|
-#           ensure_resource res unless res < Ironfan::IaasProvider::Machine
+          # ensure_resource res unless res < Ironfan::IaasProvider::Machine
           res.create! self unless res < Ironfan::IaasProvider::Machine
         end
       end
@@ -126,7 +130,7 @@ module Ironfan
 #         if type.multiple?
 #           existing = resources[type.resource_id]
 #         else
-#           
+#
 #         end
 #       end
 
@@ -165,9 +169,6 @@ module Ironfan
       def bogus
         resources.values.map(&:bogus).flatten
       end
-      def client
-        self[:client]
-      end
       def machine
         self[:machine]
       end
@@ -180,6 +181,14 @@ module Ironfan
       def node=(value)
         self[:node]= value
       end
+
+      #
+      # client
+      #
+      def client
+        self[:client]
+      end
+      def private_key ; client? ? client.private_key : nil ; end
 
       #
       # Status flags
@@ -220,14 +229,22 @@ module Ironfan
         machine? and machine.stopped?
       end
 
+      # @return [Boolean] true if machine is likely to be reachable by ssh
+      def sshable?
+        # if there's any hope of success, give it a try.
+        running? || node?
+      end
+
+      def to_s
+        "<#{self.class}(server=#{server}, resources=#{resources && resources.inspect_compact}, providers=#{providers && providers.inspect_compact})>"
+      end
     end
 
     class Computers < Gorillib::ModelCollection
-      self.item_type    = Computer
-      self.key_method   = :object_id
-      delegate :first, :map, :any?,
-          :to           => :values
-      attr_accessor     :cluster
+      self.item_type  = Computer
+      self.key_method = :object_id
+      delegate        :first, :map, :any?, :to => :values
+      attr_accessor   :cluster
 
       def initialize(*args)
         super
@@ -236,19 +253,19 @@ module Ironfan
         create_expected!
       end
 
-      # 
+      #
       # Discovery
       #
       def correlate
-        values.each {|c| c.correlate }
+        values.each{|c| c.correlate }
       end
 
       def validate
         providers = values.map {|c| c.providers.values}.flatten
         computers = self
 
-        values.each {|c| c.validate }
-        providers.each {|p| p.validate computers }
+        values.each{|c|    c.validate }
+        providers.each{|p| p.validate computers }
       end
 
       #
@@ -258,16 +275,16 @@ module Ironfan
         Ironfan.parallel(values) {|c| c.kill(options) }
       end
       def launch
-        Ironfan.parallel(values) {|c| c. launch }
+        Ironfan.parallel(values) {|c| c.launch }
       end
       def save(options={})
-        Ironfan.parallel(values) {|c| c. save(options) }
+        Ironfan.parallel(values) {|c| c.save(options) }
       end
       def start
-        Ironfan.parallel(values) {|c| c. start }
+        Ironfan.parallel(values) {|c| c.start }
       end
       def stop
-        Ironfan.parallel(values) {|c| c. stop }
+        Ironfan.parallel(values) {|c| c.stop }
       end
 
       #
@@ -307,6 +324,7 @@ module Ironfan
         end
         result
       end
+
       def build_slice_array(slice_indexes)
         return [] if slice_indexes.nil?
         raise "Bad slice_indexes: #{slice_indexes}" if slice_indexes =~ /[^0-9\.,]/
@@ -316,6 +334,10 @@ module Ironfan
       # provide a human-readable list of names
       def joined_names
         values.map(&:name).join(", ").gsub(/, ([^,]*)$/, ' and \1')
+      end
+
+      def to_s
+        "#{self.class}[#{values.map(&:name).join(",")}]"
       end
     end
 

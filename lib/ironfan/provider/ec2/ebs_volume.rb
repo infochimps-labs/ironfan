@@ -16,6 +16,11 @@ module Ironfan
           :to => :adaptee
         field :dsl_volume,        Ironfan::Dsl::Volume
 
+        def to_s
+          "<%-15s %-12s %-25s %-32s %-10s %-12s %-15s %-5s %s:%s>" % [
+            self.class.handle, id, created_at, tags['name'], state, device, tags['mount_point'], size, server_id, attached_at ]
+        end
+
         def self.shared?()      true;   end
         def self.multiple?()    true;   end
         def self.resource_type()        :ebs_volume;   end
@@ -44,6 +49,7 @@ module Ironfan
         # Discovery
         #
         def self.load!(cluster=nil)
+          Ironfan.substep(cluster.name, "volumes")
           Ec2.connection.volumes.each do |vol|
             next if vol.blank?
             ebs = EbsVolume.new(:adaptee => vol)
@@ -55,6 +61,7 @@ module Ironfan
             else
               remember ebs
             end
+            Chef::Log.debug("Loaded #{ebs}")
           end
         end
 

@@ -84,6 +84,7 @@ class Chef
         # As each server finishes, configure it
         Ironfan.parallel(launched) do |computer|
           if (computer.is_a?(Exception)) then ui.warn "Error launching #{computer.inspect}; skipping after-launch tasks."; next; end
+          Ironfan.step(computer.name, 'launching', :white)
           perform_after_launch_tasks(computer)
         end
         # progressbar_for_threads(watcher_threads)
@@ -92,12 +93,14 @@ class Chef
       end
 
       def perform_after_launch_tasks(computer)
+        Ironfan.step(computer.name, 'waiting for ready', :white)
         # Wait for machine creation on amazon side
 #         server.fog_server.wait_for{ ready? }
         computer.machine.wait_for{ ready? }
 
         # Try SSH
         unless config[:dry_run]
+          Ironfan.step(computer.name, 'trying ssh', :white)
 #           nil until tcp_test_ssh(server.fog_server.dns_name){ sleep @initial_sleep_delay ||= 10  }
           nil until tcp_test_ssh(computer.machine.dns_name){ sleep @initial_sleep_delay ||= 10  }
         end
@@ -108,11 +111,14 @@ class Chef
 
         # Attach volumes, etc
 #         server.sync_to_cloud
+        Ironfan.step(computer.name, 'final provisioning', :white)
         computer.save
 
         # Run Bootstrap
-        Chef::Log.warn "UNTESTED --bootstrap"
-        run_bootstrap(computer) if config[:bootstrap]
+        if config[:bootstrap]
+          Chef::Log.warn "UNTESTED --bootstrap"
+          run_bootstrap(computer)
+        end
       end
 
       def tcp_test_ssh(hostname)

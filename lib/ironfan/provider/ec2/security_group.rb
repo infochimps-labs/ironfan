@@ -24,8 +24,28 @@ module Ironfan
         # Discovery
         #
         def self.load!(cluster=nil)
-          Ec2.connection.security_groups.each do |sg|
-            remember SecurityGroup.new(:adaptee => sg) unless sg.blank?
+          Ironfan.substep(cluster.name, "security groups")
+
+          Ec2.connection.security_groups.each do |raw|
+            next if raw.blank?
+            sg = SecurityGroup.new(:adaptee => raw)
+            remember(sg)
+            Chef::Log.debug("Loaded #{sg}")
+          end
+        end
+
+        def to_s
+          if ip_permissions.present?
+            perm_str = ip_permissions.map{|perm|
+              "%s:%s-%s (%s | %s)" % [
+                perm['ipProtocol'], perm['fromPort'], perm['toPort'],
+                perm['groups'  ].map{|el| el['groupName'] }.join(','),
+                perm['ipRanges'].map{|el| el['cidrIp']    }.join(','),
+              ]
+            }
+            return "<%-15s %-12s %-25s %s>" % [ self.class.handle, group_id, name, perm_str]
+          else
+            return "<%-15s %-12s %s>" % [ self.class.handle, group_id, name ]
           end
         end
 
@@ -35,7 +55,7 @@ module Ironfan
 
         def self.create!(computer)
           return unless Ec2.applicable computer
- 
+
           ensure_groups(computer)
           groups = self.expected_ids(computer)
           # Only handle groups that don't already exist
@@ -95,7 +115,7 @@ module Ironfan
           # Ensure the security_groups include those for cluster & facet
           # FIXME: This violates the DSL's immutability; it should be
           #   something calculated from within the DSL construction
-          Chef::Log.warn("CODE SMELL: violation of DSL immutability: #{caller}")
+          Ironfan.todo("CODE SMELL: violation of DSL immutability: #{caller}")
           cloud = computer.server.cloud(:ec2)
           c_group = cloud.security_group(computer.server.cluster_name)
           c_group.authorized_by_group(c_group.name)

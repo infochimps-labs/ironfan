@@ -30,7 +30,7 @@ module Ironfan
       })
 
       def snapshot_id(*)
-        Chef::Log.warn("CODE SMELL: EBS specific information in Dsl::Volume::VOLUME_IDS")
+        Ironfan.todo("CODE SMELL: EBS specific information in Dsl::Volume::VOLUME_IDS")
         super || VOLUME_IDS[snapshot_name]
       end
     end

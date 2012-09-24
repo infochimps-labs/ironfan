@@ -42,19 +42,48 @@ class Chef
         # Load the cluster/facet/slice/whatever
         target = get_slice(* @name_args)
 
+        dump_command_config
+        dump_chef_config
         #
-        # Dump entire contents of objects if -VV flag given
-        #
-        if config[:verbosity] >= 2
-          target.each do |computer|
-            Chef::Log.debug( "Computer #{computer.name}: #{JSON.pretty_generate(computer.to_wire)}" )
-          end
+        target.each do |computer|
+          dump_computer(computer)
         end
 
         # Display same
         display(target)
-
       end
+
+    protected
+
+      def dump_computer(computer)
+        with_verbosity 1 do
+          dump("Computer #{computer.name} (#{computer.class})", computer.to_wire)
+        end
+      end
+
+      def dump_command_config
+        with_verbosity 2 do
+          Chef::Log.info( ["", "*"*50, "", "Command Config", ""].join("\n") )
+          dump("Command config", self.config)
+        end
+      end
+
+      def dump_chef_config
+        with_verbosity 2 do
+          chef_config_hash = Hash[Chef::Config.keys.map{|key| [key, Chef::Config[key]]}]
+          dump("Chef Config", chef_config_hash)
+        end
+      end
+
+      def dump(title, hsh)
+        Chef::Log.info( ["", "*"*50, "", "#{title}: ", ""].join("\n") )
+        Chef::Log.info( MultiJson.dump(hsh, pretty: true ) )
+      end
+
+      def with_verbosity(num)
+        yield if config[:verbosity] >= num
+      end
+
     end
   end
 end

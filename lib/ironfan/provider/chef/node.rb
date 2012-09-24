@@ -83,11 +83,13 @@ module Ironfan
         # Discovery
         #
         def self.load!(cluster=nil)
+          Ironfan.substep(cluster.name, "nodes")
           ChefServer.search(:node,"name:#{cluster.name}-*") do |raw|
             next if raw.blank?
             node = Node.new
             node.adaptee = raw
             remember node
+            Chef::Log.debug("Loaded #{node.inspect}")
           end
         end
 

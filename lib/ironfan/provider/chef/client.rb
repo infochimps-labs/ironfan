@@ -3,11 +3,11 @@ module Ironfan
     class ChefServer
 
       class Client < Ironfan::Provider::Resource
-        delegate :add_to_index, :admin, :cdb_destroy, :cdb_save, 
-            :class_from_file, :couchdb, :couchdb=, :couchdb_id, :couchdb_id=, 
-            :couchdb_rev, :couchdb_rev=, :create, :create_keys, 
-            :delete_from_index, :destroy, :from_file, :index_id, :index_id=, 
-            :index_object_type, :name, :public_key, :save, :set_or_return, 
+        delegate :add_to_index, :admin, :cdb_destroy, :cdb_save,
+            :class_from_file, :couchdb, :couchdb=, :couchdb_id, :couchdb_id=,
+            :couchdb_rev, :couchdb_rev=, :create, :create_keys,
+            :delete_from_index, :destroy, :from_file, :index_id, :index_id=,
+            :index_object_type, :name, :public_key, :save, :set_or_return,
             :to_hash, :validate, :with_indexer_metadata,
           :to => :adaptee
         field :key_filename,    String,
@@ -40,13 +40,15 @@ module Ironfan
         # Discovery
         #
         def self.load!(cluster=nil)
+          Ironfan.substep(cluster.name, "chef clients")
           nameq = "name:#{cluster.name}-* OR clientname:#{cluster.name}-*"
           ChefServer.search(:client, nameq) do |client|
             register client unless client.blank?
+            Chef::Log.debug("Loaded #{client.inspect}")
           end
         end
 
-        # 
+        #
         # Manipulation
         #
         def self.create!(computer)

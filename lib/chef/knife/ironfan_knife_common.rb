@@ -37,9 +37,13 @@ module Ironfan
         ui.warn("Please specify server slices joined by dashes and not separate args:\n\n  knife cluster #{sub_command} #{slice_string}\n\n")
       end
       cluster_name, facet_name, slice_indexes = slice_string.split(/[\s\-]/, 3)
-      ui.info("Inventorying servers in #{predicate_str(cluster_name, facet_name, slice_indexes)}")
-      cluster = Ironfan.load_cluster(cluster_name)
+      desc = predicate_str(cluster_name, facet_name, slice_indexes)
+      #
+      ui.info("Inventorying servers in #{desc}")
+      cluster   = Ironfan.load_cluster(cluster_name)
       computers =  broker.discover! cluster
+      Chef::Log.info("Inventoried #{computers.size} computers")
+      #
       computers.slice(facet_name, slice_indexes)
     end
 
@@ -80,7 +84,7 @@ module Ironfan
     def display(target, display_style=nil, &block)
       display_style ||= (config[:verbosity] == 0 ? :default : :expanded)
 #       target.display(ui, display_style, &block)
-      broker.display(target,display_style)
+      broker.display(target, display_style)
     end
 
     #

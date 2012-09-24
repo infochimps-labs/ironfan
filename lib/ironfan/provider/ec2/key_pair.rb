@@ -25,12 +25,18 @@ module Ironfan
           File.open(key_filename, "w", 0600){|f| f.print( body ) }
         end
 
+        def to_s
+          "<%-15s %-12s>" % [self.class.handle, name]
+        end
+
         #
         # Discovery
         #
         def self.load!(cluster=nil)
+          Ironfan.substep(cluster.name, "keypairs")
           Ec2.connection.key_pairs.each do |keypair|
             register keypair unless keypair.blank?
+            Chef::Log.debug("Loaded <%-15s %s>" % [handle, keypair.name])
           end
         end
 

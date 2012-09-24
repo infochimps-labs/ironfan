@@ -149,6 +149,11 @@ module Ironfan
     step(name, "  - #{desc}", :gray) if chef_config[:verbosity] >= 1
   end
 
+  # Output a TODO to the logs if you've switched on pestering
+  def self.todo(*args)
+    Chef::Log.debug(*args) if Chef::Config[:show_todo]
+  end
+
   #
   # Utility to do mock out a step during a dry-run
   #

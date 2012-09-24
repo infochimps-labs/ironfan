@@ -38,13 +38,15 @@ module Ironfan
           self
         end
 
-        # 
+        #
         # Discovery
         #
         def self.load!(cluster)
+          Ironfan.substep(cluster.name, "roles")
           ChefServer.search(:role,"name:#{cluster.name}_*") do |raw|
             next if raw.blank?
             remember Role.new(:adaptee => raw)
+            Chef::Log.debug("Loaded #{raw.inspect}")
           end
         end
 
