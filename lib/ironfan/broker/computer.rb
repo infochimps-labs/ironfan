@@ -61,7 +61,12 @@ module Ironfan
         target_resources = chosen_resources(options)
         resources.each do |res|
           next unless target_resources.include? res.class
-          res.destroy unless res.shared?
+          if res.shared?
+            Chef::Log.debug("Not killing shared resource #{res}")
+          else
+            Ironfan.step(self.name, "Killing #{res}")
+            res.destroy
+          end
         end
       end
 
@@ -206,7 +211,7 @@ module Ironfan
         not machine.nil?
       end
       def killable?
-        not permanent? and (node? or created?)
+        not permanent? and (node? || client? || created?)
       end
       def launchable?
         not bogus? and not created?
