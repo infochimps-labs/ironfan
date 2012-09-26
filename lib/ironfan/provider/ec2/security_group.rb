@@ -24,7 +24,7 @@ module Ironfan
         # Discovery
         #
         def self.load!(cluster=nil)
-          Ironfan.substep(cluster.name, "security groups")
+          Ironfan.substep(cluster && cluster.name, "security groups")
 
           Ec2.connection.security_groups.each do |raw|
             next if raw.blank?
