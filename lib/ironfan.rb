@@ -64,6 +64,7 @@ module Ironfan
 
     cl = ( @@clusters[name] ||= Ironfan::Dsl::Cluster.new({:name => name}) )
     cl.receive!(attrs, &block)
+    cl
   end
 
   #
