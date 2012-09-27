@@ -17,6 +17,7 @@ describe Ironfan::Dsl::Cluster do
       end
     end
     
+    its(:environment) { should eql :dev }
     its(:run_list) { should eql ["role[systemwide]"] }
   end
 end
