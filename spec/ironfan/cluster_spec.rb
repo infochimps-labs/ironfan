@@ -3,21 +3,23 @@ require 'spec_helper'
 require 'ironfan'
 
 describe Ironfan::Dsl::Cluster do
-  describe 'run lists' do
-    subject do
-      Ironfan.cluster 'foo' do
-        environment :dev
-        
-        role :systemwide
-        
-        facet :bar do
-          instances 1
-          role :nfs_client, :first
-        end
-      end
+  subject do
+    Ironfan.cluster 'foo' do
+      environment :dev
+
+      role :generic
+
+      role :is_last, :last
+      role :is_first, :first
     end
-    
-    its(:environment) { should eql :dev }
-    its(:run_list) { should eql ["role[systemwide]"] }
   end
+
+  its(:environment) { should eql :dev }
+
+  its(:run_list) { should eql [
+    "role[is_first]",
+    "role[generic]",
+    "role[is_last]"
+    ]
+  }
 end
