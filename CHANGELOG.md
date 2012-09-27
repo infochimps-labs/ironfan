@@ -1,3 +1,7 @@
+# v4.1.1: fixing 'rake spec'
+* Remove all defunct tests and start fresh (fixes #137)
+* Failing spec for #158 
+
 # v4.1.0: several bug-fixes and code cleanup
 * Splat the args to DSL::Volume.snapshot_id so we can call it properly (fixes #161)
 * cloud(:ec2) lets you declare bitness (fixes #147)
