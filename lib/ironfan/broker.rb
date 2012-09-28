@@ -13,7 +13,7 @@ module Ironfan
     #   corresponding to
     def discover!(cluster)
       # Get fully resolved servers, and build Computers using them
-      computers = Computers.new(:cluster => cluster.resolve)
+      computers = Computers.new(:cluster => cluster)
       #
       providers = computers.map{|c| c.providers.values }.flatten.uniq
       Ironfan.parallel(providers) do |provider|
