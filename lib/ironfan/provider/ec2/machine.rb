@@ -102,7 +102,6 @@ module Ironfan
         # Discovery
         #
         def self.load!(cluster=nil)
-          Ironfan.substep(cluster.name, "machines")
           Ec2.connection.servers.each do |fs|
             machine = new(:adaptee => fs)
             if recall? machine.name

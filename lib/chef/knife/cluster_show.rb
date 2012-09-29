@@ -56,8 +56,12 @@ class Chef
     protected
 
       def dump_computer(computer)
+        header = "Computer #{computer.name} (#{computer.class})"
         with_verbosity 1 do
-          dump("Computer #{computer.name} (#{computer.class})", computer.to_wire)
+          Chef::Log.info(header)
+        end
+        with_verbosity 2 do
+          dump(header, computer.to_wire)
         end
       end
 
