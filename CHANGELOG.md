@@ -1,3 +1,9 @@
+# v4.2.0:
+* providers now load in parallel
+* substeps announcements for load are now done in provider, not individual resources
+* only dump computers full information on -VV
+* more cleanup of new specs
+
 # v4.1.1: fixing 'rake spec'
 * Remove all defunct tests and start fresh (fixes #137)
 * Failing spec for #158 
