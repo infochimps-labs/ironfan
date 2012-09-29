@@ -25,7 +25,7 @@ module Ironfan
     # Discovery
     #
     def self.load(cluster)
-      resources.each do |r|
+      Ironfan.parallel (resources) do |r|
         type = r.resource_type.to_s
         Ironfan.substep(cluster.name, "loading #{type}s")
         r.load! cluster

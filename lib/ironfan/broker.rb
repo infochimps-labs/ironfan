@@ -16,7 +16,7 @@ module Ironfan
       computers = Computers.new(:cluster => cluster.resolve)
       #
       providers = computers.map{|c| c.providers.values }.flatten.uniq
-      providers.each do |provider|
+      Ironfan.parallel(providers) do |provider|
         Ironfan.step cluster.name, "Loading #{provider.handle}", :cyan
         provider.load cluster
       end
