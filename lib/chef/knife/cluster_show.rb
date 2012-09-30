@@ -35,6 +35,7 @@ class Chef
         :boolean     => true
 
       def run
+        with_verbosity(1){ config[:include_terminated] }
         load_ironfan
         die(banner) if @name_args.empty?
         configure_dry_run
