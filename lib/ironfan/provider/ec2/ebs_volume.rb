@@ -49,7 +49,7 @@ module Ironfan
         # Discovery
         #
         def self.load!(cluster=nil)
-          Ironfan.substep(cluster.name, "volumes")
+          Ironfan.substep(cluster ? cluster.name : 'all', "volumes")
           Ec2.connection.volumes.each do |vol|
             next if vol.blank?
             ebs = EbsVolume.new(:adaptee => vol)

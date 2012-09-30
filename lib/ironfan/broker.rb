@@ -8,9 +8,9 @@ module Ironfan
   end
 
   class Broker < Builder
-    # Take in a Dsl::Cluster, return Computers populated with
-    #   all discovered resources that correlate, plus bogus computers
-    #   corresponding to
+    # Take in a Dsl::Cluster; return Computers populated with all discovered
+    #   resources that correlate; computers corresponding to partial or
+    #   unrecognizable resources are labeled as bogus.
     def discover!(cluster)
       # Get fully resolved servers, and build Computers using them
       computers = Computers.new(:cluster => cluster.resolve)
@@ -39,5 +39,4 @@ module Ironfan
     end
 
   end
-
 end

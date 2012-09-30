@@ -45,7 +45,7 @@ module Ironfan
         # Discovery
         #
         def self.load!(cluster=nil)
-          Ironfan.substep(cluster.name, "chef clients")
+          Ironfan.substep(cluster ? cluster.name : 'all', "chef clients")
           nameq = "name:#{cluster.name}-* OR clientname:#{cluster.name}-*"
           ChefServer.search(:client, nameq) do |raw|
             next unless raw.present?

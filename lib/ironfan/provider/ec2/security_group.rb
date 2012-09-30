@@ -24,7 +24,7 @@ module Ironfan
         # Discovery
         #
         def self.load!(cluster=nil)
-          Ironfan.substep(cluster.name, "security groups")
+          Ironfan.substep(cluster ? cluster.name : 'all', "security groups")
 
           Ec2.connection.security_groups.each do |raw|
             next if raw.blank?
@@ -65,7 +65,12 @@ module Ironfan
           Ironfan.step(computer.server.cluster_name, "creating security groups", :blue)
           groups.each do |group|
             Ironfan.step(group, "  creating #{group} security group", :blue)
-            Ec2.connection.create_security_group(group.to_s,"Ironfan created group #{group}")
+            begin
+              Ec2.connection.create_security_group(group.to_s,"Ironfan created group #{group}")
+            rescue Fog::Compute::AWS::Error => e # InvalidPermission.Duplicate
+              Chef::Log.info("ignoring security group error: #{e}")
+              sleep 0.5  # quit racing so hard
+            end
           end
           load! # Get the native groups via reload
         end
@@ -136,7 +141,7 @@ module Ironfan
           begin
             fog_group.authorize_port_range(range,options)
           rescue Fog::Compute::AWS::Error => e      # InvalidPermission.Duplicate
-            Chef::Log.debug("ignoring #{e}")
+            Chef::Log.info("ignoring #{e}")
           end
         end
       end

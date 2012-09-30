@@ -16,7 +16,7 @@ module Ironfan
         end
 
         def self.load!(cluster)
-          Ironfan.substep(cluster.name, "placement groups")
+          Ironfan.substep(cluster ? cluster.name : 'all', "placement groups")
           result = Ec2.connection.describe_placement_groups
           result.body["placementGroupSet"].each do |group|
             register group unless group.blank?

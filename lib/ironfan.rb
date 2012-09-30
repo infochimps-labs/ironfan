@@ -29,7 +29,7 @@ module Ironfan
     raise 'missing block' unless block_given?
     results = []
     [targets].flatten.each_with_index.map do |target, idx|
-      sleep(0.1) # avoid hammering with simultaneous requests
+      sleep(0.25) # avoid hammering with simultaneous requests
       Thread.new(target) do |target|
         results[idx] = safely(target.inspect) do
           yield target
