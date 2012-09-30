@@ -128,8 +128,12 @@ module Ironfan
         @chef_client_script_content = Ironfan.safely{ File.read(script_filename) }
       end
 
+      def keypair
+        resources[:keypair]
+      end
+
       def ssh_identity_file
-        resources[:key_pair].key_filename
+        keypair && keypair.key_filename
       end
 
 #       def ensure_resource(type)

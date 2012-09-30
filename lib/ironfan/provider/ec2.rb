@@ -5,7 +5,7 @@ module Ironfan
       self.handle = :ec2
 
       def self.resources
-        [ Machine, EbsVolume, KeyPair, SecurityGroup ]
+        [ Machine, EbsVolume, Keypair, SecurityGroup ]
       end
 
       #

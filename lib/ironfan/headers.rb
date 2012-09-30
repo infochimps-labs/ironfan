@@ -46,7 +46,7 @@ module Ironfan
       class EbsVolume < Ironfan::Provider::Resource; end
       class ElasticIp < Ironfan::Provider::Resource; end
       class Machine < Ironfan::IaasProvider::Machine; end
-      class KeyPair < Ironfan::Provider::Resource; end
+      class Keypair < Ironfan::Provider::Resource; end
       class PlacementGroup < Ironfan::Provider::Resource; end
       class SecurityGroup < Ironfan::Provider::Resource; end
     end

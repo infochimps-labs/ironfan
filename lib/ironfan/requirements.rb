@@ -34,7 +34,7 @@ require 'ironfan/provider/chef/role'
 require 'ironfan/provider/ec2'
 require 'ironfan/provider/ec2/ebs_volume'
 require 'ironfan/provider/ec2/machine'
-require 'ironfan/provider/ec2/key_pair'
+require 'ironfan/provider/ec2/keypair'
 require 'ironfan/provider/ec2/placement_group'
 require 'ironfan/provider/ec2/security_group'
 

@@ -34,7 +34,6 @@ module Ironfan
             :vpc_id=, :wait_for,
           :to => :adaptee
 
-
         def self.shared?()      false;  end
         def self.multiple?()    false;  end
 #        def self.resource_type()        Ironfan::IaasProvider::Machine;   end
@@ -46,7 +45,8 @@ module Ironfan
           tags["Name"] || tags["name"] || id
         end
 
-        def public_hostname()           dns_name;      end
+        def public_hostname  ; dns_name ; end
+        def keypair          ; key_pair ; end
 
         def created?
           not ['terminated', 'shutting-down'].include? state

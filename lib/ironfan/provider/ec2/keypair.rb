@@ -2,7 +2,7 @@ module Ironfan
   class Provider
     class Ec2
 
-      class KeyPair < Ironfan::Provider::Resource
+      class Keypair < Ironfan::Provider::Resource
         delegate :_dump, :collection, :collection=, :connection,
             :connection=, :destroy, :fingerprint, :fingerprint=, :identity,
             :identity=, :name, :name=, :new_record?, :public_key,
@@ -10,12 +10,14 @@ module Ironfan
             :symbolize_keys, :wait_for, :writable?, :write,
           :to => :adaptee
         field :key_filename,    String,
-            :default => ->{ "#{KeyPair.key_dir}/#{name}.pem" }
+            :default => ->{ "#{Keypair.key_dir}/#{name}.pem" }
 
-        def self.shared?()      true;   end
-        def self.multiple?()    false;  end
-        def self.resource_type()        :key_pair;   end
-        def self.expected_ids(computer)   [computer.server.cluster_name];   end
+        def self.shared?       ; true     ; end
+        def self.multiple?     ; false    ; end
+        def self.resource_type ; :keypair ; end
+        def self.expected_ids(computer)
+          [computer.server.cluster_name]
+        end
 
         def private_key
           File.open(key_filename, "rb").read
