@@ -66,6 +66,11 @@ module Ironfan
           end
         end
 
+        def receive_adaptee(obj)
+          obj = Ec2.connection.volumes.new(obj) if obj.is_a?(Hash)
+          super
+        end
+
         def on_correlate(computer)
           drive = computer.drive(drivename)
           drive.disk = self

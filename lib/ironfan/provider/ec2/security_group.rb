@@ -33,6 +33,11 @@ module Ironfan
           end
         end
 
+        def receive_adaptee(obj)
+          obj = Ec2.connection.security_groups.new(obj) if obj.is_a?(Hash)
+          super
+        end
+
         def to_s
           if ip_permissions.present?
             perm_str = ip_permissions.map{|perm|

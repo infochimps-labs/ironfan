@@ -1,14 +1,24 @@
 module Ironfan
   class Dsl
 
+    class RunListItem < Hash
+      Gorillib::Factory.register_factory(self, [self])
+      def name
+        self[:name]
+      end
+      def self.receive(hsh)
+        new.merge!(hsh.symbolize_keys)
+      end
+    end
+
     class Compute < Ironfan::Dsl
       @@run_list_rank = 0
       field      :name,         String
 
       # Resolve each of the following as a merge of their container's attributes and theirs
-      collection :run_list_items, Hash,                    :resolver => :merge_resolve
-      collection :clouds,       Ironfan::Dsl::Cloud,       :resolver => :merge_resolve
-      collection :volumes,      Ironfan::Dsl::Volume,      :resolver => :merge_resolve
+      collection :run_list_items, RunListItem,             :resolver => :merge_resolve, :key_method => :name
+      collection :clouds,       Ironfan::Dsl::Cloud,       :resolver => :merge_resolve, :key_method => :name
+      collection :volumes,      Ironfan::Dsl::Volume,      :resolver => :merge_resolve, :key_method => :name
 
       # Resolve these normally (overriding on each layer)
       magic      :environment,  Symbol,                    :default => :_default

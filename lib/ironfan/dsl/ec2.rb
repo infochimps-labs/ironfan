@@ -15,17 +15,17 @@ module Ironfan
       magic :flavor,                    String,         :default => 't1.micro'
       magic :image_id,                  String
       magic :image_name,                String
-      magic :keypair,                   Whatever
+      magic :keypair,                   String
       magic :monitoring,                String
       magic :mount_ephemerals,          Hash,           :default => {}
       magic :permanent,                 :boolean,       :default => false
       magic :placement_group,           String
-      magic :provider,                  Ironfan::Provider,      :default => Ironfan::Provider::Ec2
+      magic :provider,                  Whatever,       :default => Ironfan::Provider::Ec2
       magic :public_ip,                 String
       magic :region,                    String,         :default => ->{ default_region }
       magic :ssh_user,                  String,         :default => ->{ image_info[:ssh_user] }
       magic :ssh_identity_dir,          String,         :default => ->{ Chef::Config.ec2_key_dir }
-      collection :security_groups,      Ironfan::Dsl::Ec2::SecurityGroup
+      collection :security_groups,      Ironfan::Dsl::Ec2::SecurityGroup, :key_method => :name
       magic :subnet,                    String
       magic :validation_key,            String,         :default => ->{ IO.read(Chef::Config.validation_key) rescue '' }
       magic :vpc,                       String
@@ -100,6 +100,14 @@ module Ironfan
           result << ephemeral
         end
         result
+      end
+
+      def receive_provider(obj)
+        if obj.is_a?(String)
+          write_attribute :provider, Gorillib::Inflector.constantize(Gorillib::Inflector.camelize(obj.gsub(/\./, '/')))
+        else
+          super(obj)
+        end
       end
 
       class SecurityGroup < Ironfan::Dsl

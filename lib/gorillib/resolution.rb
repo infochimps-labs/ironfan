@@ -4,7 +4,7 @@ require 'gorillib/hash/deep_merge'
 
 module Gorillib
 
-  # Make a clean deep-copy of the value, via gorillib semantics if 
+  # Make a clean deep-copy of the value, via gorillib semantics if
   #   possible, otherwise via marshalling
   def self.deep_copy(value)
     case
@@ -36,7 +36,7 @@ module Gorillib
             else
               write_attribute(collection_field_name, coll)
             end
-          rescue StandardError => err ; err.polish("#{self.class} #{collection_field_name} collection on #{args}'") rescue nil ; raise ; end
+          rescue StandardError => err ; err.polish("#{self.class} #{collection_field_name} collection on #{coll}'") rescue nil ; raise ; end
         end
       end
     end
@@ -44,13 +44,13 @@ module Gorillib
   end
 
   # The attribute :underlay provides an object (preferably another
-  #   Gorillib::Model or the like) that will resolve stacked 
-  #   defaults. If fields are declared with a :resolver, it will 
+  #   Gorillib::Model or the like) that will resolve stacked
+  #   defaults. If fields are declared with a :resolver, it will
   #   apply that call in preference the default rules (self.field
   #   -> underlay.field -> self.field.default )
   #
-  # To provide resolve cleanly without read-write loops destroying 
-  #   the separation of concerns, the resolve mechanism has been 
+  # To provide resolve cleanly without read-write loops destroying
+  #   the separation of concerns, the resolve mechanism has been
   #   broken from the regular read-write accessors.
   #
   module Resolution
@@ -59,9 +59,9 @@ module Gorillib
     attr_accessor :underlay
 
     # Return a fully-resolved copy of this object. All objects
-    #   referenced will be clean deep_copies, and will lack the 
+    #   referenced will be clean deep_copies, and will lack the
     #   :underlay accessor. This is by design, to prevent self-
-    #   referential loops (parent->collection->child->owner) 
+    #   referential loops (parent->collection->child->owner)
     #   when deep_coping.
     def resolve
       result = self.class.new
@@ -91,7 +91,7 @@ module Gorillib
       end
       result
     end
-    
+
     def resolve_value(value)
       return if value.nil?
       return value.resolve if value.respond_to? :resolve

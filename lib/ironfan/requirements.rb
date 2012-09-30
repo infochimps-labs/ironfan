@@ -2,10 +2,8 @@
 require 'gorillib/builder'
 require 'gorillib/resolution'
 
-
 # Pre-declaration of class hierarchy
 require 'ironfan/headers'
-
 
 # DSL for cluster descriptions
 require 'ironfan/dsl'

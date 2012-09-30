@@ -45,9 +45,12 @@ class Chef
         cluster = target.cluster
 
         ui.info("")
-        ui.info("You are in a cluster. There is a sign overhead reading '#{ui.color(@name_args.first, :yellow)}'.")
-        ui.info("Next to you a burly man in a greasy apron sharpens his cleaver, and a lissom princess performs treacherous origami.")
-        ui.info("It is Pitch Dark. You are likely to be eaten by a grue.") if target.select(&:running?).empty?
+        ui.info([
+            ui.color("You are in a cluster. There is a sign overhead reading '", :magenta),
+            ui.color(@name_args.first, :yellow, :bold),
+            ui.color("'.\nNext to you a burly man in a greasy apron sharpens his cleaver, \nand a lissom princess performs treacherous origami.", :magenta)
+            ].join)
+        ui.info(ui.color("It is Pitch Dark. You are likely to be eaten by a grue.", :black, :bold)) if target.select(&:running?).empty?
 
         # Commands to try:
         #   nn = Chef::Node.load('node-name')

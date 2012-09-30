@@ -6,13 +6,17 @@ module Ironfan
   class Provider < Builder
     class_attribute :handle
 
-    def self.receive(obj,&block)
-      obj[:_type] = case obj[:name]
-        when    :chef;          Chef
-        when    :ec2;           Ec2
-        when    :virtualbox;    VirtualBox
-        else;   raise "Unsupported provider #{obj[:name]}"
-      end unless native?(obj)
+    def self.receive(obj, &block)
+      if obj.is_a?(Hash)
+        obj = obj.symbolize_keys
+        obj[:_type] =
+          case obj[:name]
+          when :chef        then Chef
+          when :ec2         then Ec2
+          when :virtualbox  then VirtualBox
+          else raise "Unsupported provider #{obj[:name]}"
+          end
+      end
       super
     end
 
@@ -49,6 +53,11 @@ module Ironfan
       def bogus?()                      !bogus.empty?;          end
 
       def self.handle ; name.to_s.gsub(/.*::/,'').to_sym ; end
+
+      def self.receive(obj)
+        obj = obj.symbolize_keys if obj.is_a?(Hash)
+        super(obj)
+      end
 
       #
       # Flags

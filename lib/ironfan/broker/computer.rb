@@ -4,9 +4,9 @@ module Ironfan
     class Computer < Builder
 
       field :server,            Ironfan::Dsl::Server
-      collection :resources,    Whatever
-      collection :drives,       Ironfan::Broker::Drive
-      collection :providers,    Ironfan::Provider
+      collection :resources,    Ironfan::Provider::Resource, :key_method => :name
+      collection :drives,       Ironfan::Broker::Drive,      :key_method => :name
+      collection :providers,    Whatever,                    :key_method => :name
       delegate :[], :[]=, :include?, :delete, :to => :resources
 
       # Only used for bogus servers
@@ -21,6 +21,7 @@ module Ironfan
         volumes =               server.volumes.values
         volumes +=              server.implied_volumes
         volumes.each { |v| self.drive v.name, :volume => v }
+      rescue StandardError => err ; err.polish("#{self.class} on #{args}'") rescue nil ; raise
       end
 
       def name
@@ -128,14 +129,6 @@ module Ironfan
         @chef_client_script_content = Ironfan.safely{ File.read(script_filename) }
       end
 
-      def keypair
-        resources[:keypair]
-      end
-
-      def ssh_identity_file
-        keypair && keypair.key_filename
-      end
-
 #       def ensure_resource(type)
 #         if type.multiple?
 #           existing = resources[type.resource_id]
@@ -186,6 +179,8 @@ module Ironfan
         self[:node]= value
       end
 
+      def environment ; server && server.environment ; end
+
       #
       # client
       #
@@ -204,8 +199,20 @@ module Ironfan
         self[:machine] = value
       end
       def dns_name         ; machine? ? machine.dns_name : nil ; end
-      def ssh_user         ; (server && server.selected_cloud) ? server.selected_cloud.ssh_user : nil ; end
       def bootstrap_distro ; (server && server.selected_cloud) ? server.selected_cloud.bootstrap_distro   : nil ; end
+
+      def keypair
+        resources[:keypair]
+      end
+
+      def ssh_user         ; (server && server.selected_cloud) ? server.selected_cloud.ssh_user : nil ; end
+
+      def ssh_identity_file
+        if    keypair                         then keypair.key_filename
+        elsif server && server.selected_cloud then server.selected_cloud.ssh_identity_file(self)
+        else nil
+        end
+      end
 
       #
       # Status flags
@@ -250,6 +257,14 @@ module Ironfan
       def sshable?
         # if there's any hope of success, give it a try.
         running? || node?
+      end
+
+      def receive_providers(objs)
+        objs = objs.map do |obj|
+          if obj.is_a?(String) then obj = Gorillib::Inflector.constantize(Gorillib::Inflector.camelize(obj.gsub(/\./, '/'))) ; end
+          obj
+        end
+        super(objs)
       end
 
       def to_s
@@ -302,6 +317,10 @@ module Ironfan
       end
       def stop
         Ironfan.parallel(values) {|c| c.stop }
+      end
+
+      def environments
+        map{|comp| comp.environment }.uniq
       end
 
       #
