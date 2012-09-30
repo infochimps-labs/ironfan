@@ -25,7 +25,12 @@ module Ironfan
     # Discovery
     #
     def self.load(cluster)
-      resources.each {|r| r.load! cluster }
+      Ironfan.parallel (resources) do |r|
+        type = r.resource_type.to_s
+        Ironfan.substep(cluster.name, "loading #{type}s")
+        r.load! cluster
+        Ironfan.substep(cluster.name, "loaded #{type}s")
+      end
     end
 
     def self.validate(computers)

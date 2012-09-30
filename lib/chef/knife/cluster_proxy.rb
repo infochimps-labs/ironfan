@@ -48,7 +48,7 @@ class Chef
         :default     => '6666'
 
       def relevant?(server)
-        server.sshable?
+        server.machine.running?
       end
 
       def perform_execution(target)
@@ -62,7 +62,7 @@ class Chef
       def command_for_target(svr)
         config[:attribute]       ||= Chef::Config[:knife][:ssh_address_attribute] || "fqdn"
         config[:ssh_user]        ||= Chef::Config[:knife][:ssh_user]
-        config[:identity_file]   ||= svr.cloud.ssh_identity_file
+        config[:identity_file]   ||= svr.server.cloud.ssh_identity_file
         config[:host_key_verify] ||= Chef::Config[:knife][:host_key_verify] || (not config[:no_host_key_verify]) # pre-vs-post 0.10.4
 
         address = svr.public_hostname

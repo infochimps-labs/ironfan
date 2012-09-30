@@ -19,6 +19,28 @@ module Gorillib
     Field.class_eval do
       field :resolver, Symbol, :default => :read_set_or_underlay_attribute
     end
+
+    # Modifies the Gorillib metaprogramming to handle deep recursion on
+    # Gorillib::Model collections which would prefer to handle arbitrarily
+    # complex resolution requirements via their (custom) receive! method
+    module ClassMethods
+      def define_collection_receiver(field)
+       collection_field_name = field.name; collection_type = field.type
+        # @param  [Array[Object],Hash[Object]] the collection to merge
+        # @return [Gorillib::Collection] the updated collection
+        define_meta_module_method("receive_#{collection_field_name}", true) do |coll, &block|
+          begin
+            existing = read_attribute(collection_field_name)
+            if existing and (not collection_type.native?(coll) or existing.respond_to?(:receive!))
+              existing.receive!(coll, &block)
+            else
+              write_attribute(collection_field_name, coll)
+            end
+          rescue StandardError => err ; err.polish("#{self.class} #{collection_field_name} collection on #{args}'") rescue nil ; raise ; end
+        end
+      end
+    end
+
   end
 
   # The attribute :underlay provides an object (preferably another
@@ -48,6 +70,14 @@ module Gorillib
         result.write_attribute(field_name, value) unless value.nil?
       end
       result
+    end
+
+    def resolve!
+      resolved = resolve
+      self.class.fields.each do |field_name, field|
+        write_attribute(field_name, resolved.send(field_name.to_sym))
+      end
+      self
     end
 
     def deep_resolve(field_name)
@@ -106,7 +136,7 @@ module Gorillib
 
     def read_underlay_attribute(field_name)
       return if underlay.nil?
-      underlay.read_resolved_attribute(field_name)
+      Gorillib.deep_copy(underlay.read_resolved_attribute(field_name))
     end
 
     def read_set_or_underlay_attribute(field_name)

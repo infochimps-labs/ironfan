@@ -52,6 +52,7 @@ module Ironfan
           Ironfan.substep(cluster ? cluster.name : 'all', "volumes")
           Ec2.connection.volumes.each do |vol|
             next if vol.blank?
+            # FIXME: need to skip 'deleting' volumes
             ebs = EbsVolume.new(:adaptee => vol)
             # Already have a volume by this name
             if recall? ebs.name

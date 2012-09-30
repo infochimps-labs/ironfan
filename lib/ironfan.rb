@@ -62,8 +62,13 @@ module Ironfan
   def self.cluster(name, attrs={}, &block)
     name = name.to_sym
 
-    cl = ( @@clusters[name] ||= Ironfan::Dsl::Cluster.new({:name => name}) )
-    cl.receive!(attrs, &block)
+    @@clusters[name] ||=
+      begin
+        cl = Ironfan::Dsl::Cluster.new({:name => name})
+        cl.receive!(attrs, &block)
+        cl.expand_servers!
+        cl.resolve
+      end
   end
 
   #
@@ -85,9 +90,6 @@ module Ironfan
 
     require cluster_file
     unless @@clusters[cluster] then  die("#{cluster_file} was supposed to have the definition for the #{cluster_name} cluster, but didn't") end
-
-    # Flesh out the expected servers listed in the facets
-    @@clusters[cluster].expand_servers!
 
     @@clusters[cluster]
   end

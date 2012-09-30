@@ -46,9 +46,10 @@ module Ironfan
         #
         # Discovery
         #
-        def self.load!(cluster)
+        def self.load!(cluster=nil)
           Ironfan.substep(cluster ? cluster.name : 'all', "roles")
-          ChefServer.search(:role,"name:#{cluster.name}_*") do |raw|
+          query = cluster ? "name:#{cluster.name}-*" : nil
+          ChefServer.search(:role,query) do |raw|
             next unless raw.present?
             role = register(raw)
             Chef::Log.debug("Loaded #{role}")

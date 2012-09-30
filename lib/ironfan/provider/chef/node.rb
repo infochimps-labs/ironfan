@@ -89,7 +89,8 @@ module Ironfan
         #
         def self.load!(cluster=nil)
           Ironfan.substep(cluster ? cluster.name : 'all', "nodes")
-          ChefServer.search(:node,"name:#{cluster.name}-*") do |raw|
+          query = cluster ? "name:#{cluster.name}-*" : nil
+          ChefServer.search(:node, query) do |raw|
             next unless raw.present?
             node = register(raw)
             Chef::Log.debug("Loaded #{node}")

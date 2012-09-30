@@ -1,13 +1,25 @@
-require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
+require 'spec_helper'
 
-require IRONFAN_DIR("lib/ironfan")
+require 'ironfan'
 
-describe Ironfan::Cluster do
-  describe 'discover!' do
-    let(:cluster){ get_example_cluster(:monkeyballs) }
+describe Ironfan::Dsl::Cluster do
+  subject do
+    Ironfan.cluster 'foo' do
+      environment :dev
 
-    it 'enumerates chef nodes' do
-      cluster.discover!
+      role :generic
+
+      role :is_last, :last
+      role :is_first, :first
     end
   end
+
+  its(:environment) { should eql :dev }
+
+  its(:run_list) { should eql [
+    "role[is_first]",
+    "role[generic]",
+    "role[is_last]"
+    ]
+  }
 end

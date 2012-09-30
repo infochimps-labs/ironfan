@@ -15,7 +15,7 @@ module Ironfan
           "<%-15s %-12s %-12s>" % [ self.class.handle, '', name ]
         end
 
-        def self.load!(cluster)
+        def self.load!(cluster=nil)
           Ironfan.substep(cluster ? cluster.name : 'all', "placement groups")
           result = Ec2.connection.describe_placement_groups
           result.body["placementGroupSet"].each do |group|
