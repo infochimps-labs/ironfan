@@ -1,0 +1,330 @@
+[
+  {
+    "server": {
+      "name": "0",
+      "run_list_items": [
+        {
+          "name": "role[ssh]",
+          "rank": 1,
+          "placement": "normal"
+        },
+        {
+          "name": "role[gunbai_cluster]",
+          "rank": 2,
+          "placement": "last"
+        },
+        {
+          "name": "role[gunbai_hub]",
+          "rank": 3,
+          "placement": "last"
+        }
+      ],
+      "clouds": [
+        {
+          "name": "ec2",
+          "default_cloud": false,
+          "availability_zones": [
+            "us-east-1d"
+          ],
+          "backing": "ebs",
+          "bits": 64,
+          "bootstrap_distro": "ubuntu10.04-ironfan",
+          "chef_client_script": "client.rb",
+          "default_availability_zone": "us-east-1d",
+          "flavor": "t1.micro",
+          "image_id": null,
+          "image_name": "natty",
+          "keypair": null,
+          "monitoring": null,
+          "mount_ephemerals": {
+
+          },
+          "permanent": false,
+          "placement_group": null,
+          "provider": "Ironfan::Provider::Ec2",
+          "public_ip": null,
+          "region": "us-east-1",
+          "ssh_user": "ubuntu",
+          "ssh_identity_dir": "/Users/flip/ics/sysadmin/enterprise-homebase/knife/credentials/ec2_keys",
+          "security_groups": [
+            {
+              "name": "ssh",
+              "group_authorized": [
+
+              ],
+              "group_authorized_by": [
+
+              ],
+              "range_authorizations": [
+                [
+                  "22..22",
+                  "0.0.0.0/0",
+                  "tcp"
+                ]
+              ],
+              "_type": "ironfan.dsl.ec2.security_group"
+            }
+          ],
+          "subnet": null,
+          "validation_key": "-----BEGIN RSA PRIVATE KEY-----\nSNIP\n-----END RSA PRIVATE KEY-----\n",
+          "vpc": null,
+          "_type": "ironfan.dsl.ec2"
+        }
+      ],
+      "volumes": [
+
+      ],
+      "environment": "dev",
+      "use_cloud": null,
+      "cluster_role": {
+        "name": "gunbai_cluster",
+        "override_attributes": {
+
+        },
+        "default_attributes": {
+
+        },
+        "_type": "ironfan.dsl.role"
+      },
+      "facet_role": {
+        "name": "gunbai_hub",
+        "override_attributes": {
+
+        },
+        "default_attributes": {
+
+        },
+        "_type": "ironfan.dsl.role"
+      },
+      "cluster_name": "gunbai",
+      "facet_name": "hub",
+      "_type": "ironfan.dsl.server"
+    },
+    "resources": [
+      {
+        "adaptee": {"name":"gunbai","fingerprint":"a2:9a:15:b3:bc:95:68:99:2c:91:43:9c:3b:6b:99:00:11:e9:b2:5e"},
+        "bogus": [
+
+        ],
+        "key_filename": "/Users/flip/ics/sysadmin/enterprise-homebase/knife/credentials/ec2_keys/gunbai.pem",
+        "_type": "ironfan.provider.ec2.keypair"
+      },
+      {
+        "adaptee": {"ip_permissions":[{"groups":[],"ipRanges":[{"cidrIp":"0.0.0.0/0"}],"ipProtocol":"tcp","fromPort":22,"toPort":22}],"ip_permissions_egress":[],"owner_id":"689981200839","group_id":"sg-a0f174c9","name":"ssh","description":"cluster_chef+generated+group+ssh"},
+        "bogus": [
+
+        ],
+        "ensured": false,
+        "_type": "ironfan.provider.ec2.security_group"
+      }
+    ],
+    "drives": [
+      {
+        "node": {
+
+        },
+        "disk": null,
+        "volume": {
+          "name": "root",
+          "attachable": "ebs",
+          "availability_zone": null,
+          "create_at_launch": false,
+          "device": "/dev/sda1",
+          "formattable": false,
+          "fstype": "ext4",
+          "in_raid": false,
+          "keep": false,
+          "mount_dump": null,
+          "mount_pass": null,
+          "mount_options": "defaults,nouuid,noatime",
+          "mount_point": "/",
+          "mountable": true,
+          "size": null,
+          "volume_id": null,
+          "resizable": false,
+          "snapshot_id": null,
+          "snapshot_name": null,
+          "tags": {
+
+          },
+          "_type": "ironfan.dsl.volume"
+        },
+        "name": "root",
+        "_type": "ironfan.broker.drive"
+      }
+    ],
+    "providers": [
+      "Ironfan::Provider::ChefServer",
+      "Ironfan::Provider::Ec2"
+    ],
+    "name": null,
+    "bogus": [
+
+    ],
+    "_type": "ironfan.broker.computer"
+  },
+  {
+    "server": {
+      "name": "0",
+      "run_list_items": [
+        {
+          "name": "role[ssh]",
+          "rank": 1,
+          "placement": "normal"
+        },
+        {
+          "name": "role[gunbai_cluster]",
+          "rank": 4,
+          "placement": "last"
+        },
+        {
+          "name": "role[gunbai_spoke]",
+          "rank": 5,
+          "placement": "last"
+        }
+      ],
+      "clouds": [
+        {
+          "name": "ec2",
+          "default_cloud": false,
+          "availability_zones": [
+            "us-east-1d"
+          ],
+          "backing": "ebs",
+          "bits": 64,
+          "bootstrap_distro": "ubuntu10.04-ironfan",
+          "chef_client_script": "client.rb",
+          "default_availability_zone": "us-east-1d",
+          "flavor": "t1.micro",
+          "image_id": null,
+          "image_name": "natty",
+          "keypair": null,
+          "monitoring": null,
+          "mount_ephemerals": {
+
+          },
+          "permanent": false,
+          "placement_group": null,
+          "provider": "Ironfan::Provider::Ec2",
+          "public_ip": null,
+          "region": "us-east-1",
+          "ssh_user": "ubuntu",
+          "ssh_identity_dir": "/Users/flip/ics/sysadmin/enterprise-homebase/knife/credentials/ec2_keys",
+          "security_groups": [
+            {
+              "name": "ssh",
+              "group_authorized": [
+
+              ],
+              "group_authorized_by": [
+
+              ],
+              "range_authorizations": [
+                [
+                  "22..22",
+                  "0.0.0.0/0",
+                  "tcp"
+                ]
+              ],
+              "_type": "ironfan.dsl.ec2.security_group"
+            }
+          ],
+          "subnet": null,
+          "validation_key": "-----BEGIN RSA PRIVATE KEY-----\nSNIP\n-----END RSA PRIVATE KEY-----\n",
+          "vpc": null,
+          "_type": "ironfan.dsl.ec2"
+        }
+      ],
+      "volumes": [
+
+      ],
+      "environment": "dev",
+      "use_cloud": null,
+      "cluster_role": {
+        "name": "gunbai_cluster",
+        "override_attributes": {
+
+        },
+        "default_attributes": {
+
+        },
+        "_type": "ironfan.dsl.role"
+      },
+      "facet_role": {
+        "name": "gunbai_spoke",
+        "override_attributes": {
+
+        },
+        "default_attributes": {
+
+        },
+        "_type": "ironfan.dsl.role"
+      },
+      "cluster_name": "gunbai",
+      "facet_name": "spoke",
+      "_type": "ironfan.dsl.server"
+    },
+    "resources": [
+      {
+        "adaptee": {"name":"gunbai","fingerprint":"a2:3b:9a:15:b3:bc:95:68:99:9e:2c:91:43:9c:6b:a5:6f:e9:b2:5e"},
+        "bogus": [
+
+        ],
+        "key_filename": "/Users/flip/ics/sysadmin/enterprise-homebase/knife/credentials/ec2_keys/gunbai.pem",
+        "_type": "ironfan.provider.ec2.keypair"
+      },
+      {
+        "adaptee": {"ip_permissions":[{"groups":[],"ipRanges":[{"cidrIp":"0.0.0.0/0"}],"ipProtocol":"tcp","fromPort":22,"toPort":22}],"ip_permissions_egress":[],"owner_id":"689981200839","group_id":"sg-a0f174c9","name":"ssh","description":"cluster_chef+generated+group+ssh"},
+        "bogus": [
+
+        ],
+        "ensured": false,
+        "_type": "ironfan.provider.ec2.security_group"
+      }
+    ],
+    "drives": [
+      {
+        "node": {
+
+        },
+        "disk": null,
+        "volume": {
+          "name": "root",
+          "attachable": "ebs",
+          "availability_zone": null,
+          "create_at_launch": false,
+          "device": "/dev/sda1",
+          "formattable": false,
+          "fstype": "ext4",
+          "in_raid": false,
+          "keep": false,
+          "mount_dump": null,
+          "mount_pass": null,
+          "mount_options": "defaults,nouuid,noatime",
+          "mount_point": "/",
+          "mountable": true,
+          "size": null,
+          "volume_id": null,
+          "resizable": false,
+          "snapshot_id": null,
+          "snapshot_name": null,
+          "tags": {
+
+          },
+          "_type": "ironfan.dsl.volume"
+        },
+        "name": "root",
+        "_type": "ironfan.broker.drive"
+      }
+    ],
+    "providers": [
+      "Ironfan::Provider::ChefServer",
+      "Ironfan::Provider::Ec2"
+    ],
+    "name": null,
+    "bogus": [
+
+    ],
+    "_type": "ironfan.broker.computer"
+  }
+]
