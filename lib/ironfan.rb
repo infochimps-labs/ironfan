@@ -15,7 +15,7 @@ module Ironfan
   #
   # Delegates
   def self.clusters
-    Chef::Config[:clusters] ||= Hash.new
+    @@clusters
   end
 
   def self.ui=(ui) @ui = ui ; end
@@ -61,14 +61,15 @@ module Ironfan
   #
   def self.cluster(name, attrs={}, &block)
     name = name.to_sym
-
-    @@clusters[name] ||=
-      begin
-        cl = Ironfan::Dsl::Cluster.new({:name => name})
-        cl.receive!(attrs, &block)
-        cl.expand_servers!
-        cl.resolve
-      end
+    # If this is being called as Ironfan.cluster('foo') with no additional arguments,
+    # return the cached cluster object if it exists
+    if @@clusters[name] and attrs.empty? and not block_given?
+      return @@clusters[name]
+    else # Otherwise we're being asked to (re)initialize and cache a cluster definition
+      cl = Ironfan::Dsl::Cluster.new(:name => name)
+      cl.receive!(attrs, &block)
+      @@clusters[name] = cl.resolve
+    end
   end
 
   #

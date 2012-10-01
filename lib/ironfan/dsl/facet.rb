@@ -11,14 +11,10 @@ module Ironfan
         self.name               = attrs[:name] unless attrs[:name].nil?
         self.facet_role         Ironfan::Dsl::Role.new(:name => fullname.sub('-','_'))
         super
+        for i in 0 .. instances-1; server(i); end
       end
 
       def fullname()            "#{cluster_name}-#{name}";      end
-
-      def expand_servers!
-        resolve
-        for i in 0..(instances-1) do server(i).resolve!; end
-      end
 
     end
 
