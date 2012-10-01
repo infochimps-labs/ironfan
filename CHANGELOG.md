@@ -1,5 +1,14 @@
+# v4.2.2: @mrflip rocks the house
+* Terminated machines are not bogus (fixes #165)
+* Ignore deleting, deleted, or errored volumes in discovery
+* Rescue on duplicate security groups; don't die logging on full 'load!'
+* Changed key_pair to keypair, as per the DSL
+* Specs for scripts (but not really)
+* Model cleanup -- now mostly round-trip to JSON
+* knife cluster bootstrap sets Chef::Config[:environment] (fixes #148)
+
 # v4.2.1: @nickmarden rocks the house
-* More correct merging of cluster and facet objects, with specs
+* Correct merging of cluster and facet objects, with specs (fixes #158)
 * Circumvent memory bloat by resolving just once
 
 # v4.2.0:
