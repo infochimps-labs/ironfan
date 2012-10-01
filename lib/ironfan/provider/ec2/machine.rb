@@ -102,18 +102,18 @@ module Ironfan
         # Discovery
         #
         def self.load!(cluster=nil)
-          Ironfan.substep(cluster ? cluster.name : 'all', "machines")
           Ec2.connection.servers.each do |fs|
             machine = new(:adaptee => fs)
-            if recall? machine.name
+            if (not machine.created?)
+              next unless Ironfan.chef_config[:include_terminated]
+              remember machine, :append_id => "terminated:#{machine.id}"
+            elsif recall? machine.name
               raise 'duplicate'
               machine.bogus <<                 :duplicate_machines
               recall(machine.name).bogus <<    :duplicate_machines
               remember machine, :append_id => "duplicate:#{machine.id}"
-            elsif machine.created?
+            else # never seen it
               remember machine
-            else
-              remember machine, :append_id => "terminated:#{machine.id}"
             end
             Chef::Log.debug("Loaded #{machine}")
           end
@@ -168,7 +168,7 @@ module Ironfan
             'name' =>         computer.name,
             'Name' =>         computer.name,
           }
-          Ec2.ensure_tags(tags,computer.machine)
+          Ec2.ensure_tags(tags, computer.machine)
 
           # register the new volumes for later save!, and tag appropriately
           computer.machine.volumes.each do |v|

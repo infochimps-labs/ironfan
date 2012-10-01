@@ -24,8 +24,6 @@ module Ironfan
         # Discovery
         #
         def self.load!(cluster=nil)
-          Ironfan.substep(cluster ? cluster.name : 'all', "security groups")
-
           Ec2.connection.security_groups.each do |raw|
             next if raw.blank?
             sg = SecurityGroup.new(:adaptee => raw)

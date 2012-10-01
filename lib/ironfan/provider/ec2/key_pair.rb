@@ -33,7 +33,6 @@ module Ironfan
         # Discovery
         #
         def self.load!(cluster=nil)
-          Ironfan.substep(cluster ? cluster.name : 'all', "keypairs")
           Ec2.connection.key_pairs.each do |keypair|
             register keypair unless keypair.blank?
             Chef::Log.debug("Loaded <%-15s %s>" % [handle, keypair.name])
