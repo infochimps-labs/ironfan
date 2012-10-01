@@ -12,6 +12,7 @@ module Ironfan
     #   resources that correlate; computers corresponding to partial or
     #   unrecognizable resources are labeled as bogus.
     def discover!(cluster)
+
       # Get fully resolved servers, and build Computers using them
       computers = Computers.new(:cluster => cluster)
       #
@@ -22,6 +23,7 @@ module Ironfan
       end
       #
       Ironfan.step cluster.name, "Reconciling DSL and provider information", :cyan
+
       computers.correlate
       computers.validate
       #

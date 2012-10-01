@@ -85,7 +85,10 @@ Gem::Specification.new do |s|
     "lib/ironfan/provider/virtualbox/machine.rb",
     "lib/ironfan/requirements.rb",
     "spec/ironfan/cluster_spec.rb",
+<<<<<<< HEAD
     "spec/ironfan/ec2/cloud_provider_spec.rb",
+=======
+>>>>>>> origin/model_cleanup
     "spec/ironfan/ec2/security_group_spec.rb",
     "spec/spec_helper.rb",
     "spec/spec_helper/dummy_chef.rb",
@@ -97,7 +100,11 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   s.rubygems_version = "1.8.24"
   s.summary = "Ironfan allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
+<<<<<<< HEAD
   s.test_files = ["spec/spec_helper/dummy_chef.rb", "spec/ironfan/cluster_spec.rb", "spec/ironfan/ec2/cloud_provider_spec.rb", "spec/ironfan/ec2/security_group_spec.rb", "spec/spec_helper.rb", "spec/test_config.rb"]
+=======
+  s.test_files = ["spec/spec_helper/dummy_chef.rb", "spec/ironfan/cluster_spec.rb", "spec/ironfan/ec2/security_group_spec.rb", "spec/spec_helper.rb", "spec/test_config.rb"]
+>>>>>>> origin/model_cleanup
 
   if s.respond_to? :specification_version then
     s.specification_version = 3

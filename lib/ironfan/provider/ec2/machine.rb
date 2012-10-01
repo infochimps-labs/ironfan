@@ -119,6 +119,11 @@ module Ironfan
           end
         end
 
+        def receive_adaptee(obj)
+          obj = Ec2.connection.servers.new(obj) if obj.is_a?(Hash)
+          super
+        end
+
         # Find active machines that haven't matched, but should have,
         #   make sure all bogus machines have a computer to attach to
         #   for display purposes

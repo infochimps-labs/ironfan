@@ -9,8 +9,8 @@ module Ironfan
             :public_key=, :reload, :requires, :requires_one, :save,
             :symbolize_keys, :wait_for, :writable?, :write,
           :to => :adaptee
-        field :key_filename,    String,
-            :default => ->{ "#{Keypair.key_dir}/#{name}.pem" }
+
+        field :key_filename,    String, :default => ->{ "#{Keypair.key_dir}/#{name}.pem" }
 
         def self.shared?       ; true     ; end
         def self.multiple?     ; false    ; end
@@ -41,6 +41,11 @@ module Ironfan
           end
         end
 
+        def receive_adaptee(obj)
+          obj = Ec2.connection.key_pairs.new(obj) if obj.is_a?(Hash)
+          super
+        end
+
         #
         # Manipulation
         #
@@ -65,6 +70,7 @@ module Ironfan
           warn "Please set 'ec2_key_dir' in your knife.rb. Will use #{dir} as a default"
           dir
         end
+
       end
 
     end

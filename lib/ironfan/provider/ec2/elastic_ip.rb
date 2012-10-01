@@ -3,7 +3,6 @@ module Ironfan
     class Ec2
 
       class ElasticIp < Ironfan::Provider::Resource
-
       end
     end
   end

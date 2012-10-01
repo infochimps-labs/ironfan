@@ -1,5 +1,5 @@
 module Ironfan
-  module Dsl
+  class Dsl
 
     class VirtualBox < Cloud
     end

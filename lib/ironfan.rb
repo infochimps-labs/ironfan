@@ -80,19 +80,19 @@ module Ironfan
   # doesn't define the requested cluster.
   #
   # @return [Ironfan::Cluster] the requested cluster
-  def self.load_cluster(cluster_name)
-    cluster = cluster_name.to_sym
-    raise ArgumentError, "Please supply a cluster name" if cluster_name.to_s.empty?
-    return @@clusters[cluster] if @@clusters[cluster]
+  def self.load_cluster(name)
+    name = name.to_sym
+    raise ArgumentError, "Please supply a cluster name" if name.to_s.empty?
+    return @@clusters[name] if @@clusters[name]
 
-    cluster_file = cluster_filenames[cluster_name] or die("Couldn't find a definition for #{cluster_name} in cluster_path: #{cluster_path.inspect}")
+    cluster_file = cluster_filenames[name] or raise("Couldn't find a definition for #{name} in cluster_path: #{cluster_path.inspect}")
 
     Chef::Log.info("Loading cluster #{cluster_file}")
 
     require cluster_file
-    unless @@clusters[cluster] then  die("#{cluster_file} was supposed to have the definition for the #{cluster_name} cluster, but didn't") end
+    unless @@clusters[name] then  die("#{cluster_file} was supposed to have the definition for the #{name} cluster, but didn't") end
 
-    @@clusters[cluster]
+    @@clusters[name]
   end
 
   #
@@ -105,7 +105,7 @@ module Ironfan
     cluster_path.each do |cp_dir|
       Dir[ File.join(cp_dir, '*.rb') ].each do |filename|
         cluster_name = File.basename(filename).gsub(/\.rb$/, '')
-        @cluster_filenames[cluster_name] ||= filename
+        @cluster_filenames[cluster_name.to_sym] ||= filename
       end
     end
     @cluster_filenames
@@ -149,7 +149,11 @@ module Ironfan
   end
 
   def self.substep(name, desc)
-    step(name, "  - #{desc}", :gray) if chef_config[:verbosity] >= 1
+    step(name, "  - #{desc}", :gray) if verbosity >= 1
+  end
+
+  def self.verbosity
+    chef_config[:verbosity].to_i
   end
 
   # Output a TODO to the logs if you've switched on pestering
