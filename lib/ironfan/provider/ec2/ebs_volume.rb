@@ -51,6 +51,7 @@ module Ironfan
         def self.load!(cluster=nil)
           Ec2.connection.volumes.each do |vol|
             next if vol.blank?
+            next if %w[deleting deleted error].include?(vol.state.to_s)
             ebs = EbsVolume.new(:adaptee => vol)
             # Already have a volume by this name
             if recall? ebs.name
