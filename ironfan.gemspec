@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = "ironfan"
-  s.version = "4.2.1"
+  s.version = "4.2.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Infochimps"]
@@ -77,18 +77,19 @@ Gem::Specification.new do |s|
     "lib/ironfan/provider/ec2.rb",
     "lib/ironfan/provider/ec2/ebs_volume.rb",
     "lib/ironfan/provider/ec2/elastic_ip.rb",
-    "lib/ironfan/provider/ec2/key_pair.rb",
+    "lib/ironfan/provider/ec2/keypair.rb",
     "lib/ironfan/provider/ec2/machine.rb",
     "lib/ironfan/provider/ec2/placement_group.rb",
     "lib/ironfan/provider/ec2/security_group.rb",
     "lib/ironfan/provider/virtualbox.rb",
     "lib/ironfan/provider/virtualbox/machine.rb",
     "lib/ironfan/requirements.rb",
+    "spec/chef/cluster_bootstrap_spec.rb",
+    "spec/fixtures/gunbai.rb",
+    "spec/fixtures/gunbai_slice.json",
     "spec/ironfan/cluster_spec.rb",
-<<<<<<< HEAD
+    "spec/ironfan/ec2/cloud_provider.rb",
     "spec/ironfan/ec2/cloud_provider_spec.rb",
-=======
->>>>>>> origin/model_cleanup
     "spec/ironfan/ec2/security_group_spec.rb",
     "spec/spec_helper.rb",
     "spec/spec_helper/dummy_chef.rb",
@@ -100,11 +101,7 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   s.rubygems_version = "1.8.24"
   s.summary = "Ironfan allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
-<<<<<<< HEAD
-  s.test_files = ["spec/spec_helper/dummy_chef.rb", "spec/ironfan/cluster_spec.rb", "spec/ironfan/ec2/cloud_provider_spec.rb", "spec/ironfan/ec2/security_group_spec.rb", "spec/spec_helper.rb", "spec/test_config.rb"]
-=======
-  s.test_files = ["spec/spec_helper/dummy_chef.rb", "spec/ironfan/cluster_spec.rb", "spec/ironfan/ec2/security_group_spec.rb", "spec/spec_helper.rb", "spec/test_config.rb"]
->>>>>>> origin/model_cleanup
+  s.test_files = ["spec/spec_helper/dummy_chef.rb", "spec/ironfan/cluster_spec.rb", "spec/ironfan/ec2/cloud_provider_spec.rb", "spec/ironfan/ec2/security_group_spec.rb", "spec/ironfan/ec2/cloud_provider.rb", "spec/chef/cluster_bootstrap_spec.rb", "spec/fixtures/gunbai_slice.json", "spec/fixtures/gunbai.rb", "spec/spec_helper.rb", "spec/test_config.rb"]
 
   if s.respond_to? :specification_version then
     s.specification_version = 3
