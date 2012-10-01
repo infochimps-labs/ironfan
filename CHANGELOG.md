@@ -1,3 +1,7 @@
+# v4.2.1: @nickmarden rocks the house
+* More correct merging of cluster and facet objects, with specs
+* Circumvent memory bloat by resolving just once
+
 # v4.2.0:
 * providers now load in parallel
 * substeps announcements for load are now done in provider, not individual resources
