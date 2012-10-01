@@ -45,9 +45,8 @@ module Ironfan
         # Discovery
         #
         def self.load!(cluster=nil)
-          Ironfan.substep(cluster ? cluster.name : 'all', "chef clients")
-          nameq = "name:#{cluster.name}-* OR clientname:#{cluster.name}-*"
-          ChefServer.search(:client, nameq) do |raw|
+          query = cluster && "name:#{cluster.name}-* OR clientname:#{cluster.name}-*"
+          ChefServer.search(:client, query) do |raw|
             next unless raw.present?
             client = register(raw)
             Chef::Log.debug("Loaded #{client}")

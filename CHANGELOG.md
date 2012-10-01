@@ -1,3 +1,17 @@
+# v4.2.1: @nickmarden rocks the house
+* More correct merging of cluster and facet objects, with specs
+* Circumvent memory bloat by resolving just once
+
+# v4.2.0:
+* providers now load in parallel
+* substeps announcements for load are now done in provider, not individual resources
+* only dump computers full information on -VV
+* more cleanup of new specs
+
+# v4.1.1: fixing 'rake spec'
+* Remove all defunct tests and start fresh (fixes #137)
+* Failing spec for #158 
+
 # v4.1.0: several bug-fixes and code cleanup
 * Splat the args to DSL::Volume.snapshot_id so we can call it properly (fixes #161)
 * cloud(:ec2) lets you declare bitness (fixes #147)
