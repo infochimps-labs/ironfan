@@ -1,3 +1,8 @@
+# v4.2.3
+* Making aws_account_id unnecessary for security groups (its not needed by newer Fog)
+* Removed redundant cloud_provider.rb (thanks @nickmarden)
+* Use Chef::Node-friendly semantics for chef_environment (thanks @nickmarden)
+
 # v4.2.2: @mrflip rocks the house
 * Terminated machines are not bogus (fixes #165)
 * Ignore deleting, deleted, or errored volumes in discovery
