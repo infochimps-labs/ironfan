@@ -95,14 +95,12 @@ module Ironfan
           dsl_groups.each do |dsl_group|
             dsl_group.group_authorized.each do |other_group|
               Ironfan.step(dsl_group.name, "  ensuring access from #{other_group}", :blue)
-              options = {:group => "#{Ec2.aws_account_id}:#{other_group}"}
-              safely_authorize(dsl_group.name,1..65535,options)
+              safely_authorize(dsl_group.name, 1..65535, :group => other_group)
             end
 
             dsl_group.group_authorized_by.each do |other_group|
               Ironfan.step(dsl_group.name, "  ensuring access to #{other_group}", :blue)
-              options = {:group => "#{Ec2.aws_account_id}:#{dsl_group.name}"}
-              safely_authorize(other_group,1..65535,options)
+              safely_authorize(other_group, 1..65535, :group => dsl_group.name)
             end
 
             dsl_group.range_authorizations.each do |range_auth|
