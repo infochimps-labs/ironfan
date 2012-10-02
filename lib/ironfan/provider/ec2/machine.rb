@@ -236,16 +236,11 @@ module Ironfan
             :monitoring           => cloud.monitoring,
           }
 
-          case cloud.vpc.nil?   # Groups are different in a VPC (sigh)
-          when true
-            description[:groups] = cloud.security_groups.keys
-          else
-            description[:security_group_ids] = cloud.security_groups.keys.map do |g|
-              SecurityGroup.recall("#{cloud.vpc}:#{g}").group_id
-            end
+          # VPC security_groups can only be addressed by id, not name
+          description[:security_group_ids] = cloud.security_groups.keys.map do |g|
+            group_name = cloud.vpc.nil? ? g.to_s : "#{cloud.vpc}:#{g}"
+            SecurityGroup.recall(group_name).group_id
           end
-#           pp description
-#           raise 'hell'
 
           if cloud.flavor_info[:placement_groupable]
             ui.warn "1.3.1 and earlier versions of Fog don't correctly support placement groups, so your nodes will land willy-nilly. We're working on a fix"
