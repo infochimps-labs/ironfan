@@ -221,6 +221,7 @@ module Ironfan
             :client_key =>              computer.private_key
           }
 
+
           # Fog does not actually create tags when it creates a server;
           #  they and permanence are applied during sync
           description = {
@@ -228,13 +229,23 @@ module Ironfan
             :flavor_id            => cloud.flavor,
             :vpc_id               => cloud.vpc,
             :subnet_id            => cloud.subnet,
-            :groups               => cloud.security_groups.keys,
             :key_name             => cloud.ssh_key_name(computer),
             :user_data            => JSON.pretty_generate(user_data_hsh),
             :block_device_mapping => block_device_mapping(computer),
             :availability_zone    => cloud.default_availability_zone,
             :monitoring           => cloud.monitoring,
           }
+
+          case cloud.vpc.nil?   # Groups are different in a VPC (sigh)
+          when true
+            description[:groups] = cloud.security_groups.keys
+          else
+            description[:security_group_ids] = cloud.security_groups.keys.map do |g|
+              SecurityGroup.recall("#{cloud.vpc}:#{g}").group_id
+            end
+          end
+#           pp description
+#           raise 'hell'
 
           if cloud.flavor_info[:placement_groupable]
             ui.warn "1.3.1 and earlier versions of Fog don't correctly support placement groups, so your nodes will land willy-nilly. We're working on a fix"

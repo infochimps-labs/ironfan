@@ -17,7 +17,15 @@ module Ironfan
         def self.multiple?()    true;   end
         def self.resource_type()        :security_group;   end
         def self.expected_ids(computer)
-          computer.server.cloud(:ec2).security_groups.keys.map{|k| k.to_s}.uniq
+          ec2 = computer.server.cloud(:ec2)
+          ec2.security_groups.keys.map do |name|
+            ec2.vpc ? "#{ec2.vpc}:#{name.to_s}" : name.to_s
+          end.uniq
+        end
+
+        def name()
+          return adaptee.name if adaptee.vpc_id.nil?
+          "#{adaptee.vpc_id}:#{adaptee.name}"
         end
 
         #
@@ -28,7 +36,7 @@ module Ironfan
             next if raw.blank?
             sg = SecurityGroup.new(:adaptee => raw)
             remember(sg)
-            Chef::Log.debug("Loaded #{sg}")
+            Chef::Log.debug("Loaded #{sg}: #{sg.inspect}")
           end
         end
 
@@ -69,7 +77,10 @@ module Ironfan
           groups.each do |group|
             Ironfan.step(group, "  creating #{group} security group", :blue)
             begin
-              Ec2.connection.create_security_group(group.to_s,"Ironfan created group #{group}")
+              tokens    = group.to_s.split(':')
+              group_id  = tokens.pop
+              vpc_id    = tokens.pop
+              Ec2.connection.create_security_group(group_id,"Ironfan created group #{group_id}",vpc_id)
             rescue Fog::Compute::AWS::Error => e # InvalidPermission.Duplicate
               Chef::Log.info("ignoring security group error: #{e}")
               sleep 0.5  # quit racing so hard
