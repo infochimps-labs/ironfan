@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "ironfan"
-  s.version = "4.2.2"
+  s.version = "4.2.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Infochimps"]
-  s.date = "2012-10-01"
+  s.date = "2012-10-02"
   s.description = "Ironfan allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
   s.email = "coders@infochimps.com"
   s.extra_rdoc_files = [
@@ -88,7 +88,6 @@ Gem::Specification.new do |s|
     "spec/fixtures/gunbai.rb",
     "spec/fixtures/gunbai_slice.json",
     "spec/ironfan/cluster_spec.rb",
-    "spec/ironfan/ec2/cloud_provider.rb",
     "spec/ironfan/ec2/cloud_provider_spec.rb",
     "spec/ironfan/ec2/security_group_spec.rb",
     "spec/spec_helper.rb",
@@ -101,7 +100,7 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   s.rubygems_version = "1.8.24"
   s.summary = "Ironfan allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
-  s.test_files = ["spec/spec_helper/dummy_chef.rb", "spec/ironfan/cluster_spec.rb", "spec/ironfan/ec2/cloud_provider_spec.rb", "spec/ironfan/ec2/security_group_spec.rb", "spec/ironfan/ec2/cloud_provider.rb", "spec/chef/cluster_bootstrap_spec.rb", "spec/fixtures/gunbai_slice.json", "spec/fixtures/gunbai.rb", "spec/spec_helper.rb", "spec/test_config.rb"]
+  s.test_files = ["spec/spec_helper/dummy_chef.rb", "spec/ironfan/cluster_spec.rb", "spec/ironfan/ec2/cloud_provider_spec.rb", "spec/ironfan/ec2/security_group_spec.rb", "spec/chef/cluster_bootstrap_spec.rb", "spec/fixtures/gunbai_slice.json", "spec/fixtures/gunbai.rb", "spec/spec_helper.rb", "spec/test_config.rb"]
 
   if s.respond_to? :specification_version then
     s.specification_version = 3
