@@ -89,11 +89,17 @@ module Ironfan
           load! # Get the native groups via reload
         end
 
+        def self.recall_with_vpc(name,vpc_id=nil)
+          group_name = vpc_id.nil? ? name : "#{vpc_id}:#{name}"
+          recall(group_name)
+        end
+
         def self.save!(computer)
           return unless Ec2.applicable computer
+          cloud = computer.server.cloud(:ec2)
 
           create!(computer)            # Make sure the security groups exist
-          security_groups = computer.server.cloud(:ec2).security_groups.values
+          security_groups = cloud.security_groups.values
           dsl_groups = security_groups.select do |dsl_group|
             not (recall? dsl_group or recall(dsl_group.name).ensured) and \
             not (dsl_group.range_authorizations +
@@ -104,14 +110,19 @@ module Ironfan
 
           Ironfan.step(computer.server.cluster_name, "ensuring security group permissions", :blue)
           dsl_groups.each do |dsl_group|
+            dsl_group_fog = recall_with_vpc(dsl_group.name,cloud.vpc)
             dsl_group.group_authorized.each do |other_group|
+              other_group_fog = recall_with_vpc(other_group,cloud.vpc)
               Ironfan.step(dsl_group.name, "  ensuring access from #{other_group}", :blue)
-              safely_authorize(dsl_group.name, 1..65535, :group => other_group)
+              options = {:group => other_group_fog.group_id}
+              safely_authorize(dsl_group_fog, 1..65535, options)
             end
 
             dsl_group.group_authorized_by.each do |other_group|
+              other_group_fog = recall_with_vpc(other_group,cloud.vpc)
               Ironfan.step(dsl_group.name, "  ensuring access to #{other_group}", :blue)
-              safely_authorize(other_group, 1..65535, :group => dsl_group.name)
+              options = {:group => dsl_group_fog.group_id}
+              safely_authorize(other_group_fog, 1..65535, options)
             end
 
             dsl_group.range_authorizations.each do |range_auth|
@@ -119,7 +130,7 @@ module Ironfan
               step_message = "  ensuring #{protocol} access from #{cidr} to #{range}"
               Ironfan.step(dsl_group.name, step_message, :blue)
               options = {:cidr_ip => cidr, :ip_protocol => protocol}
-              safely_authorize(dsl_group.name,range,options)
+              safely_authorize(dsl_group_fog, range, options)
             end
           end
         end
@@ -142,14 +153,13 @@ module Ironfan
 
         # Try an authorization, ignoring duplicates (this is easier than correlating).
         # Do so for both TCP and UDP, unless only one is specified
-        def self.safely_authorize(group_name,range,options)
+        def self.safely_authorize(fog_group,range,options)
           unless options[:ip_protocol]
-            safely_authorize(group_name,range,options.merge(:ip_protocol => 'tcp'))
-            safely_authorize(group_name,range,options.merge(:ip_protocol => 'udp'))
+            safely_authorize(fog_group,range,options.merge(:ip_protocol => 'tcp'))
+            safely_authorize(fog_group,range,options.merge(:ip_protocol => 'udp'))
             return
           end
 
-          fog_group = recall(group_name) or raise "unrecognized group: #{group_name}"
           begin
             fog_group.authorize_port_range(range,options)
           rescue Fog::Compute::AWS::Error => e      # InvalidPermission.Duplicate

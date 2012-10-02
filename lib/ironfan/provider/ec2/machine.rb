@@ -236,7 +236,7 @@ module Ironfan
             :monitoring           => cloud.monitoring,
           }
 
-          # VPC security_groups can only be addressed by id, not name
+          # VPC security_groups can only be addressed by id (not name)
           description[:security_group_ids] = cloud.security_groups.keys.map do |g|
             group_name = cloud.vpc.nil? ? g.to_s : "#{cloud.vpc}:#{g}"
             SecurityGroup.recall(group_name).group_id
