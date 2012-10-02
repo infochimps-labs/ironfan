@@ -6,7 +6,7 @@ module Ironfan
         delegate :[], :[]=, :add_to_index, :apply_expansion_attributes,
             :attribute, :attribute=, :attribute?, :automatic_attrs,
             :automatic_attrs=, :cdb_destroy, :cdb_save, :chef_environment,
-            :chef_environment=, :chef_server_rest, :class_from_file,
+            :chef_server_rest, :class_from_file,
             :construct_attributes, :consume_attributes,
             :consume_external_attrs, :consume_run_list, :cookbook_collection,
             :cookbook_collection=, :couchdb, :couchdb=, :couchdb_id,
@@ -64,9 +64,8 @@ module Ironfan
         def prepare_from(computer)
           organization =                Chef::Config.organization
           normal[:organization] =       organization unless organization.nil?
-
           server =                      computer.server
-          chef_environment =            server.environment
+          chef_environment(server.environment.to_s)
           run_list.instance_eval        { @run_list_items = server.run_list }
           normal[:cluster_name] =       server.cluster_name
           normal[:facet_name] =         server.facet_name
