@@ -1,3 +1,7 @@
+# v4.3.0: VPC support
+* Launch instances in pre-existing VPC and subnet, with group support
+* Refactored security_group to handle VPC groups (which must use ID, not name)
+
 # v4.2.3
 * Making aws_account_id unnecessary for security groups (its not needed by newer Fog)
 * Removed redundant cloud_provider.rb (thanks @nickmarden)
