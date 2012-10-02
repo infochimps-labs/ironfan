@@ -62,7 +62,7 @@ module Ironfan
         target_resources = chosen_resources(options)
         resources.each do |res|
           next unless target_resources.include? res.class
-          descriptor = "#{res.class} named #{res.name}"
+          descriptor = "#{res.class.resource_type} named #{res.name}"
           if res.shared?
             Chef::Log.debug("Not killing shared resource #{descriptor}")
           else
