@@ -15,6 +15,8 @@ module Ironfan
         facets.each {|f| f.servers.each {|s| result << s} }
         result
       end
+
+      def cluster_name()        name;   end
     end
 
   end
