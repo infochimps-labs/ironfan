@@ -1,3 +1,6 @@
+# v4.3.2:
+* Adding cluster_name to cluster, to allow consistent semantics whether in cluster or facet
+
 # v4.3.1:
 * Correcting fullname to full_name for DSL::Compute children (this allows security_group(full_name) inside of facets)
 
