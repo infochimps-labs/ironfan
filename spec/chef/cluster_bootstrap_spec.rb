@@ -46,6 +46,6 @@ describe Chef::Knife::ClusterBootstrap do
 
   # it 'loads computers from json' do
   #   computers.length.should == 2
-  #   computers.first.server.fullname.should == 'gunbai-hub-0'
+  #   computers.first.server.full_name.should == 'gunbai-hub-0'
   # end
 end

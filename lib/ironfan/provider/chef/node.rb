@@ -39,7 +39,7 @@ module Ironfan
         def self.multiple?()            false;  end
 #         def self.resource_type()        self;   end
         def self.resource_type()        :node;   end
-        def self.expected_ids(computer) [computer.server.fullname];   end
+        def self.expected_ids(computer) [computer.server.full_name];   end
 
         def to_display(style,values={})
           values["Chef?"] =     adaptee.nil? ? "no" : "yes"
@@ -113,7 +113,7 @@ module Ironfan
         def self.create!(computer)
           return if computer.node?
           node = Node.new
-          node.name           computer.server.fullname
+          node.name           computer.server.full_name
           node.create!        computer
           computer.node =     node
           remember            node

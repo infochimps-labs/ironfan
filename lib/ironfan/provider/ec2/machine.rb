@@ -38,7 +38,7 @@ module Ironfan
         def self.multiple?()    false;  end
 #        def self.resource_type()        Ironfan::IaasProvider::Machine;   end
         def self.resource_type()        :machine;   end
-        def self.expected_ids(computer) [computer.server.fullname];   end
+        def self.expected_ids(computer) [computer.server.full_name];   end
 
         def name
           return id if tags.empty?

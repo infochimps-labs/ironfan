@@ -134,7 +134,7 @@ module Ironfan
       bootstrap.config[:identity_file]  = config[:identity_file]  || computer.ssh_identity_file
       bootstrap.config[:distro]         = config[:distro]         || computer.bootstrap_distro
       bootstrap.config[:use_sudo]       = true unless config[:use_sudo] == false
-      bootstrap.config[:chef_node_name] = server.fullname
+      bootstrap.config[:chef_node_name] = server.full_name
       bootstrap.config[:client_key]     = ( computer.client.private_key rescue nil )
       #
       bootstrap

@@ -26,7 +26,7 @@ module Ironfan
         def self.shared?()              false;  end
         def self.multiple?()            false;  end
         def self.resource_type()        :client;                        end
-        def self.expected_ids(computer) [computer.server.fullname];     end
+        def self.expected_ids(computer) [computer.server.full_name];     end
 
         def self.key_dir
           Chef::Config.client_key_dir || "/tmp/#{ENV['USER']}-client_keys"
@@ -59,7 +59,7 @@ module Ironfan
         def self.create!(computer)
           return if computer.client?
           client = Client.new
-          client.name         computer.server.fullname
+          client.name         computer.server.full_name
           client.admin        false
 
           params = {:name => client.name, :admin => client.admin, :private_key => true }

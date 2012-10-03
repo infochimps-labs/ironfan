@@ -11,7 +11,7 @@ module Ironfan
 
       # Utility method to reference all servers from constituent facets
       def servers
-        result = Gorillib::ModelCollection.new(:item_type => Ironfan::Dsl::Server, :key_method => :fullname)
+        result = Gorillib::ModelCollection.new(:item_type => Ironfan::Dsl::Server, :key_method => :full_name)
         facets.each {|f| f.servers.each {|s| result << s} }
         result
       end

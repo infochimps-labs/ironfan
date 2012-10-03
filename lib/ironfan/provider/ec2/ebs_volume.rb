@@ -27,7 +27,7 @@ module Ironfan
         def self.expected_ids(computer)
           computer.server.volumes.values.map do |volume|
             saved = computer.node[:volumes][volume.name][:volume_id] rescue nil
-            ebs_name = "#{computer.server.fullname}-#{volume.name}"
+            ebs_name = "#{computer.server.full_name}-#{volume.name}"
             [ volume.volume_id, saved, ebs_name ]
           end.flatten.compact
         end

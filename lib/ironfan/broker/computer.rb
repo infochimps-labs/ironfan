@@ -25,7 +25,7 @@ module Ironfan
       end
 
       def name
-        return server.fullname  if server?
+        return server.full_name if server?
         return @name            if @name
         "unnamed:#{object_id}"
       end

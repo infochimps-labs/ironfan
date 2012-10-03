@@ -16,7 +16,7 @@ module Ironfan
         super
       end
 
-      def fullname()            "#{cluster_name}-#{facet_name}-#{name}";        end
+      def full_name()           "#{cluster_name}-#{facet_name}-#{name}";        end
       def index()               name.to_i;                                      end
       def implied_volumes()     selected_cloud.implied_volumes;                 end
 

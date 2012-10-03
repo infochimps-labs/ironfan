@@ -9,12 +9,12 @@ module Ironfan
       def initialize(attrs={},&block)
         self.cluster_name       = attrs[:owner].name unless attrs[:owner].nil?
         self.name               = attrs[:name] unless attrs[:name].nil?
-        self.facet_role         Ironfan::Dsl::Role.new(:name => fullname.sub('-','_'))
+        self.facet_role         Ironfan::Dsl::Role.new(:name => full_name.sub('-','_'))
         super
         for i in 0 .. instances-1; server(i); end
       end
 
-      def fullname()            "#{cluster_name}-#{name}";      end
+      def full_name()           "#{cluster_name}-#{name}";      end
 
     end
 

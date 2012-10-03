@@ -32,7 +32,7 @@ module Ironfan
         super
       end
 
-      def fullname()    name;   end
+      def full_name()   name;   end
 
       # Add the given role/recipe to the run list. You can specify placement of
       #   `:first`, `:normal` (or nil) or `:last`; the final runlist is assembled
