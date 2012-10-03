@@ -1,3 +1,6 @@
+# v4.3.1:
+* Correcting fullname to full_name for DSL::Compute children (this allows security_group(full_name) inside of facets)
+
 # v4.3.0: VPC support
 * Launch instances in pre-existing VPC and subnet, with group support
 * Refactored security_group to handle VPC groups (which must use ID, not name)
