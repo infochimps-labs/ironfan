@@ -63,7 +63,8 @@ module Ironfan
     name = name.to_sym
     # If this is being called as Ironfan.cluster('foo') with no additional arguments,
     # return the cached cluster object if it exists
-    if @@clusters[name] and attrs.empty? and not block_given?
+    if @@clusters[name]
+      @@clusters[name].receive!(attrs, &block)
       return @@clusters[name]
     else # Otherwise we're being asked to (re)initialize and cache a cluster definition
       cl = Ironfan::Dsl::Cluster.new(:name => name)
