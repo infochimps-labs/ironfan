@@ -1,3 +1,8 @@
+# v4.3.3:
+* Fixed "Terminated machines don't show up even with -VV" (#180)
+* Removing superfluous old steps from cluster_launch
+* Stringification of attributes and in_raid type
+
 # v4.3.2:
 * Adding cluster_name to cluster, to allow consistent semantics whether in cluster or facet
 
