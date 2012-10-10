@@ -11,9 +11,6 @@ module Ironfan
       magic     :formattable,           :boolean, :default => false
       magic     :fstype,                String,   :default => 'xfs'
       magic     :in_raid,               String
-
-      puts "jbro-ironfan"
-
       magic     :keep,                  :boolean, :default => true
       magic     :mount_dump,            String
       magic     :mount_pass,            String

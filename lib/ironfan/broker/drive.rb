@@ -10,8 +10,9 @@ module Ironfan
 
       # A drive should include volume attributes in any node references
       def node()
-        result = super
-        result.merge! volume.attributes unless volume.nil?
+        result = super.stringify_keys
+        result.merge! volume.compact_attributes.stringify_keys unless volume.nil?
+        puts [self, volume, volume && volume.compact_attributes].inspect
         result
       end
 
