@@ -87,7 +87,6 @@ class Chef
           Ironfan.step(computer.name, 'launching', :white)
           perform_after_launch_tasks(computer)
         end
-        # progressbar_for_threads(watcher_threads)
 
         display(target)
       end
@@ -95,22 +94,14 @@ class Chef
       def perform_after_launch_tasks(computer)
         Ironfan.step(computer.name, 'waiting for ready', :white)
         # Wait for machine creation on amazon side
-#         server.fog_server.wait_for{ ready? }
         computer.machine.wait_for{ ready? }
 
         # Try SSH
         unless config[:dry_run]
           Ironfan.step(computer.name, 'trying ssh', :white)
-#           nil until tcp_test_ssh(server.fog_server.dns_name){ sleep @initial_sleep_delay ||= 10  }
           nil until tcp_test_ssh(computer.machine.dns_name){ sleep @initial_sleep_delay ||= 10  }
         end
 
-#         # Make sure our list of volumes is accurate
-#         Ironfan.fetch_fog_volumes
-#         server.discover_volumes!
-
-        # Attach volumes, etc
-#         server.sync_to_cloud
         Ironfan.step(computer.name, 'final provisioning', :white)
         computer.save
 
