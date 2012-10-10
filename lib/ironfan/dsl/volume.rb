@@ -10,7 +10,7 @@ module Ironfan
       magic     :device,                String
       magic     :formattable,           :boolean, :default => false
       magic     :fstype,                String,   :default => 'xfs'
-      magic     :in_raid,               :boolean, :default => false
+      magic     :in_raid,               String
       magic     :keep,                  :boolean, :default => true
       magic     :mount_dump,            String
       magic     :mount_pass,            String
