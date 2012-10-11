@@ -1,3 +1,6 @@
+# v4.3.4:
+* whoops. actually want attributes, not compact_attributes (#191)
+
 # v4.3.3:
 * Fixed "Terminated machines don't show up even with -VV" (#180)
 * Removing superfluous old steps from cluster_launch
