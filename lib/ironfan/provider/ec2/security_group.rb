@@ -11,7 +11,6 @@ module Ironfan
             :requires_one, :revoke_group_and_owner, :revoke_port_range, :save,
             :symbolize_keys, :vpc_id, :vpc_id=, :wait_for,
           :to => :adaptee
-        field :ensured,        :boolean,       :default => false
 
         def self.shared?()      true;   end
         def self.multiple?()    true;   end
@@ -101,7 +100,7 @@ module Ironfan
           create!(computer)            # Make sure the security groups exist
           security_groups = cloud.security_groups.values
           dsl_groups = security_groups.select do |dsl_group|
-            not (recall? dsl_group or recall(dsl_group.name).ensured) and \
+            not (recall_with_vpc(dsl_group,cloud.vpc)) and \
             not (dsl_group.range_authorizations +
                  dsl_group.group_authorized_by +
                  dsl_group.group_authorized).empty?
