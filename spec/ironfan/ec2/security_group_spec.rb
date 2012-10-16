@@ -99,12 +99,6 @@ describe Ironfan::Dsl::Cluster do
 
         end
       end
-
-
-    end
-
-    describe 'clouds' do
-
     end
   end
 end
