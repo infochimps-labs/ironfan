@@ -132,6 +132,40 @@ module Ironfan
       def self.known
         @@known[self.name] ||= {}
       end
+
+      def self.patiently(name, error_class, options={})
+        options[:message]    ||= 'ignoring %s'
+        options[:wait_time]  ||= 1
+        options[:max_tries]  ||= 10
+
+        success = false
+        tries   = 0
+        until success or (tries > options[:max_tries]) do
+          begin
+            result = yield
+            success = true # If we made it to this line, the yield didn't raise an exception
+          rescue error_class => e
+            tries += 1
+            if options[:ignore] and options[:ignore].call(e)
+              success = true
+              Ironfan.substep(name, options[:message] % e.message, options[:display] ? :red : :gray)
+            else
+              Ironfan.substep(name, options[:message] % e.message, options[:display] ? :red : :gray)
+              Ironfan.substep(name, "sleeping #{options[:sleep_time]} second(s) before trying again")
+              sleep options[:wait_time]
+              result = e
+            end
+          end
+        end
+
+        if success
+          return result
+        else
+          ui.warn("Gave up after #{options[:max_tries]} attempts to execute #{name} code")
+          raise result
+        end
+      end
+
     end
 
   end

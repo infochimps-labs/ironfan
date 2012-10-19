@@ -1,3 +1,5 @@
+require 'digest/md5'
+
 module Ironfan
   class Dsl
 
@@ -12,7 +14,9 @@ module Ironfan
       magic :bootstrap_distro,          String,         :default => ->{ image_info[:bootstrap_distro] }
       magic :chef_client_script,        String
       magic :default_availability_zone, String,         :default => ->{ availability_zones.first }
+      collection :elastic_load_balancers,  Ironfan::Dsl::Ec2::ElasticLoadBalancer, :key_method => :name
       magic :flavor,                    String,         :default => 't1.micro'
+      collection :iam_server_certificates, Ironfan::Dsl::Ec2::IamServerCertificate, :key_method => :name
       magic :image_id,                  String
       magic :image_name,                String
       magic :keypair,                   String
@@ -23,9 +27,9 @@ module Ironfan
       magic :provider,                  Whatever,       :default => Ironfan::Provider::Ec2
       magic :public_ip,                 String
       magic :region,                    String,         :default => ->{ default_region }
+      collection :security_groups,      Ironfan::Dsl::Ec2::SecurityGroup, :key_method => :name
       magic :ssh_user,                  String,         :default => ->{ image_info[:ssh_user] }
       magic :ssh_identity_dir,          String,         :default => ->{ Chef::Config.ec2_key_dir }
-      collection :security_groups,      Ironfan::Dsl::Ec2::SecurityGroup, :key_method => :name
       magic :subnet,                    String
       magic :validation_key,            String,         :default => ->{ IO.read(Chef::Config.validation_key) rescue '' }
       magic :vpc,                       String
@@ -134,6 +138,133 @@ module Ironfan
           group_authorized.compact!
           group_authorized.uniq!
         end
+      end
+
+      class ElasticLoadBalancer
+
+        class HealthCheck < Ironfan::Dsl
+          magic :ping_protocol,         String,      :default => 'HTTP'
+          magic :ping_port,             Integer,     :default => 80
+          magic :ping_path,             String,      :default => '/'
+          magic :timeout,               Integer,     :default => 5
+          magic :interval,              Integer,     :default => 30
+          magic :unhealthy_threshold,   Integer,     :default => 2
+          magic :healthy_threshold,     Integer,     :default => 10
+
+          def target
+            if %w[ HTTP HTTPS ].include?(self.ping_protocol)
+              "#{self.ping_protocol}:#{self.ping_port}#{self.ping_path}"
+            else
+              "#{self.ping_protocol}:#{self.ping_port}"
+            end
+          end
+
+          def to_fog
+            health_check       = {
+              'HealthyThreshold'   => healthy_threshold,
+              'Timeout'            => timeout,
+              'UnhealthyThreshold' => unhealthy_threshold,
+              'Interval'           => interval,
+              'Target'             => target
+            }
+          end
+
+        end
+
+        # SSL ciphers susceptible to the BEAST attack
+        BEAST_VULNERABLE_CIPHERS = %w[
+          Protocol-SSLv2
+          ADH-AES128-SHA
+          ADH-AES256-SHA
+          ADH-CAMELLIA128-SHA
+          ADH-CAMELLIA256-SHA
+          ADH-DES-CBC-SHA
+          ADH-DES-CBC3-SHA
+          ADH-RC4-MD5
+          ADH-SEED-SHA
+          AES128-SHA
+          AES256-SHA
+          DES-CBC-MD5
+          DES-CBC-SHA
+          DES-CBC3-MD5
+          DES-CBC3-SHA
+          DHE-DSS-AES128-SHA
+          DHE-DSS-AES256-SHA
+          DHE-RSA-AES128-SHA
+          DHE-RSA-AES256-SHA
+          EDH-DSS-DES-CBC-SHA
+          EDH-DSS-DES-CBC3-SHA
+          EDH-RSA-DES-CBC-SHA
+          EDH-RSA-DES-CBC3-SHA
+          EXP-ADH-DES-CBC-SHA
+          EXP-ADH-RC4-MD5
+          EXP-DES-CBC-SHA
+          EXP-EDH-DSS-DES-CBC-SHA
+          EXP-EDH-RSA-DES-CBC-SHA
+          EXP-KRB5-DES-CBC-MD5
+          EXP-KRB5-DES-CBC-SHA
+          EXP-KRB5-RC2-CBC-MD5
+          EXP-KRB5-RC2-CBC-SHA
+          EXP-RC2-CBC-MD5
+          IDEA-CBC-SHA
+          KRB5-DES-CBC-MD5
+          KRB5-DES-CBC-SHA
+          KRB5-DES-CBC3-MD5
+          KRB5-DES-CBC3-SHA
+          PSK-3DES-EDE-CBC-SHA
+          PSK-AES128-CBC-SHA
+          PSK-AES256-CBC-SHA
+          RC2-CBC-MD5
+        ]
+
+        field  :name,               String
+        field  :port_mappings,      Array, :default => []
+        magic  :disallowed_ciphers, Array, :default => BEAST_VULNERABLE_CIPHERS
+        member :health_check,       HealthCheck
+
+        def map_port(load_balancer_protocol = 'HTTP', load_balancer_port = 80, internal_protocol = 'HTTP', internal_port = 80, iam_server_certificate = nil)
+          port_mappings << [ load_balancer_protocol, load_balancer_port, internal_protocol, internal_port, iam_server_certificate ]
+          port_mappings.compact!
+          port_mappings.uniq!
+        end
+
+        def ssl_policy_to_fog
+          result = Hash[ *disallowed_ciphers.collect { |c| [ c, false ] }.flatten ]
+          return {
+            :name       => Digest::MD5.hexdigest("#{disallowed_ciphers.sort.join('')}"),
+            :attributes => result,
+          }
+        end
+
+        def listeners_to_fog(cert_lookup)
+          port_mappings.map do |pm|
+            result = {
+              'Protocol'         => pm[0], # load_balancer_protocl
+              'LoadBalancerPort' => pm[1], # load_balancer_port
+              'InstanceProtocol' => pm[2], # internal_protocol
+              'InstancePort'     => pm[3], # internal_port
+            }
+            result['SSLCertificateId'] = cert_lookup[pm[4]] if pm[4]
+            result
+          end
+        end
+
+      end
+
+      # Although it is unreasonable to talk about an IAM Server Certificate object
+      # without a certificate or private_key field value, we also allow users to
+      # simply specify the arn of an existing IAM Server Certificate so that their
+      # web server certificate is not required to be present in their recipes repo,
+      # for security purposes. In that case the :arn field would be non-nil while
+      # the :certificate and :private_key fields would be nil, which hints to the
+      # EC2 Provider code that it should attempt to validate the existence of the
+      # IAM Server Certificate in the EC2 cloud rather than trying to create it.
+      class IamServerCertificate < Ironfan::Dsl
+        field  :name,                   String
+        magic  :arn,                    String,                         :default => nil
+        magic  :certificate,            String,                         :default => nil # Actually a PEM encoding
+        magic  :private_key,            String,                         :default => nil # Actually a PEM encoding
+        magic  :certificate_chain,      String,                         :default => nil # Actually a PEM encoding
       end
 
     end

@@ -159,11 +159,10 @@ module Ironfan
             return
           end
 
-          begin
+          self.patiently(fog_group.name, Fog::Compute::AWS::Error, :ignore => Proc.new { |e| e.message =~ /InvalidPermission\.Duplicate/ }) do
             fog_group.authorize_port_range(range,options)
-          rescue Fog::Compute::AWS::Error => e      # InvalidPermission.Duplicate
-            Chef::Log.info("ignoring #{e}")
           end
+
         end
       end
 

@@ -242,6 +242,14 @@ module Ironfan
             SecurityGroup.recall(group_name).group_id
           end
 
+          description[:iam_server_certificates] = cloud.iam_server_certificates.values.map do |cert|
+            IamServerCertificate.recall(IamServerCertificate.full_name(computer, cert))
+          end.compact.map(&:name)
+
+          description[:elastic_load_balancers] = cloud.elastic_load_balancers.values.map do |elb|
+            ElasticLoadBalancer.recall(ElasticLoadBalancer.full_name(computer, elb))
+          end.compact.map(&:name)
+
           if cloud.flavor_info[:placement_groupable]
             ui.warn "1.3.1 and earlier versions of Fog don't correctly support placement groups, so your nodes will land willy-nilly. We're working on a fix"
             description[:placement] = { 'groupName' => cloud.placement_group.to_s }
