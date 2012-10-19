@@ -119,9 +119,9 @@ class Chef
 }\n}
       end
 
-
-
-
+      def aggregates?
+        false
+      end
     end
   end
 end

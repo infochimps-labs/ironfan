@@ -31,6 +31,7 @@ module Ironfan
     def self.load(cluster)
       Ironfan.parallel (resources) do |r|
         type = r.resource_type.to_s
+        r.forget!
         Ironfan.substep(cluster.name, "loading #{type}s")
         r.load! cluster
         Ironfan.substep(cluster.name, "loaded #{type}s")
@@ -41,6 +42,11 @@ module Ironfan
       resources.each {|r| r.validate_resources! computers }
     end
 
+    def self.aggregate!(computers)
+      resources.each do |r|
+        r.aggregate!(computers) if r.shared?
+      end
+    end
 
     class Resource < Builder
       @@known = {}
@@ -81,15 +87,16 @@ module Ironfan
       #
       def self.create!(*p)              Ironfan.noop(self,__method__,*p);   end
       def self.save!(*p)                Ironfan.noop(self,__method__,*p);   end
+      def self.aggregate!(*p)           Ironfan.noop(self,__method__,*p);   end
       def self.destroy!(*p)             Ironfan.noop(self,__method__,*p);   end
 
       #
       # Utilities
       #
       [:shared?, :multiple?, :load!,:validate_computer!,
-       :validate_resources!,:create!,:save!,:destroy!].each do |method_name|
-        define_method(method_name) {|*p| self.class.send(method_name,*p) }
-      end
+       :validate_resources!,:create!,:save!,:aggregate!,:destroy!].each do |method_name|
+         define_method(method_name) {|*p| self.class.send(method_name,*p) }
+       end
 
       def self.remember(resource,options={})
         index = options[:id] || resource.name
@@ -111,6 +118,10 @@ module Ironfan
       def self.recall(id=nil)
         return self.known if id.nil?
         self.known[id]
+      end
+
+      def self.forget!
+        @@known[self.name] = { }
       end
 
       def self.forget(id)

@@ -148,8 +148,8 @@ module Ironfan
     ui.info("  #{"%-15s" % (name.to_s+":")}\t#{ui.color(desc.to_s, *style)}")
   end
 
-  def self.substep(name, desc)
-    step(name, "  - #{desc}", :gray) if verbosity >= 1
+  def self.substep(name, desc, color = :gray)
+    step(name, "  - #{desc}", color) if (verbosity >= 1 or color != :gray)
   end
 
   def self.verbosity

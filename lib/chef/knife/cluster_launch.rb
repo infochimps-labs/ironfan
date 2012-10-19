@@ -88,6 +88,11 @@ class Chef
           perform_after_launch_tasks(computer)
         end
 
+        if healthy?
+          ui.info "Applying aggregations:"
+          all_computers(*@name_args).aggregate
+        end
+
         display(target)
       end
 

@@ -31,12 +31,7 @@ module Ironfan
     #
     # @return [Ironfan::ServerSlice] the requested slice
     def get_slice(slice_string, *args)
-      if not args.empty?
-        slice_string = [slice_string, args].flatten.join("-")
-        ui.info("")
-        ui.warn("Please specify server slices joined by dashes and not separate args:\n\n  knife cluster #{sub_command} #{slice_string}\n\n")
-      end
-      cluster_name, facet_name, slice_indexes = slice_string.split(/[\s\-]/, 3)
+      cluster_name, facet_name, slice_indexes = pick_apart(slice_string, *args)
       desc = predicate_str(cluster_name, facet_name, slice_indexes)
       #
       ui.info("Inventorying servers in #{desc}")
@@ -45,6 +40,22 @@ module Ironfan
       Chef::Log.info("Inventoried #{computers.size} computers")
       #
       computers.slice(facet_name, slice_indexes)
+    end
+
+    def all_computers(slice_string, *args)
+      cluster_name, facet_name, slice_indexes = pick_apart(slice_string, *args)
+      computers = broker.discover! Ironfan.load_cluster(cluster_name)
+      ui.info("Loaded information for #{computers.size} computer(s) in cluster #{cluster_name}")
+      computers
+    end
+
+    def pick_apart(slice_string, *args)
+      if not args.empty?
+        slice_string = [slice_string, args].flatten.join("-")
+        ui.info("")
+        ui.warn("Please specify server slices joined by dashes and not separate args:\n\n  knife cluster #{sub_command} #{slice_string}\n\n")
+      end
+      slice_string.split(/[\s\-]/, 3)
     end
 
     def predicate_str(cluster_name, facet_name, slice_indexes)

@@ -293,11 +293,16 @@ module Ironfan
       end
 
       def validate
-        providers = values.map {|c| c.providers.values}.flatten
         computers = self
-
         values.each{|c|    c.validate }
-        providers.each{|p| p.validate computers }
+        values.map {|c| c.providers.values}.flatten.uniq.each {|p| p.validate computers }
+      end
+
+      def aggregate
+        computers = self
+        provider_keys = values.map {|c| c.chosen_providers({ :providers => :iaas})}.flatten.uniq
+        providers     = provider_keys.map { |pk| values.map { |c| c.providers[pk] } }.flatten.uniq
+        providers.each { |p| p.aggregate! computers }
       end
 
       #
