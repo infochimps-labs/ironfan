@@ -63,7 +63,7 @@ module Ironfan
 
       def flavor_info
         if not Chef::Config[:ec2_flavor_info].has_key?(flavor)
-          ui.warn("Unknown machine image flavor '#{val}'")
+          ui.warn("Unknown machine image flavor '#{flavor}'")
           list_flavors
           return nil
         end
