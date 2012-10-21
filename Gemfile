@@ -29,4 +29,5 @@ group :test do
   gem 'guard-rspec'
   gem 'guard-yard'
   gem 'ruby_gntp'
+  gem 'ruby-debug19'
 end
