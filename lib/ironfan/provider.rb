@@ -31,6 +31,7 @@ module Ironfan
     def self.load(cluster)
       Ironfan.parallel (resources) do |r|
         type = r.resource_type.to_s
+        r.forget!
         Ironfan.substep(cluster.name, "loading #{type}s")
         r.load! cluster
         Ironfan.substep(cluster.name, "loaded #{type}s")
@@ -41,6 +42,11 @@ module Ironfan
       resources.each {|r| r.validate_resources! computers }
     end
 
+    def self.aggregate!(computers)
+      resources.each do |r|
+        r.aggregate!(computers) if r.shared?
+      end
+    end
 
     class Resource < Builder
       @@known = {}
@@ -81,15 +87,16 @@ module Ironfan
       #
       def self.create!(*p)              Ironfan.noop(self,__method__,*p);   end
       def self.save!(*p)                Ironfan.noop(self,__method__,*p);   end
+      def self.aggregate!(*p)           Ironfan.noop(self,__method__,*p);   end
       def self.destroy!(*p)             Ironfan.noop(self,__method__,*p);   end
 
       #
       # Utilities
       #
       [:shared?, :multiple?, :load!,:validate_computer!,
-       :validate_resources!,:create!,:save!,:destroy!].each do |method_name|
-        define_method(method_name) {|*p| self.class.send(method_name,*p) }
-      end
+       :validate_resources!,:create!,:save!,:aggregate!,:destroy!].each do |method_name|
+         define_method(method_name) {|*p| self.class.send(method_name,*p) }
+       end
 
       def self.remember(resource,options={})
         index = options[:id] || resource.name
@@ -113,6 +120,10 @@ module Ironfan
         self.known[id]
       end
 
+      def self.forget!
+        @@known[self.name] = { }
+      end
+
       def self.forget(id)
         self.known.delete(id)
       end
@@ -121,6 +132,40 @@ module Ironfan
       def self.known
         @@known[self.name] ||= {}
       end
+
+      def self.patiently(name, error_class, options={})
+        options[:message]    ||= 'ignoring %s'
+        options[:wait_time]  ||= 1
+        options[:max_tries]  ||= 10
+
+        success = false
+        tries   = 0
+        until success or (tries > options[:max_tries]) do
+          begin
+            result = yield
+            success = true # If we made it to this line, the yield didn't raise an exception
+          rescue error_class => e
+            tries += 1
+            if options[:ignore] and options[:ignore].call(e)
+              success = true
+              Ironfan.substep(name, options[:message] % e.message, options[:display] ? :red : :gray)
+            else
+              Ironfan.substep(name, options[:message] % e.message, options[:display] ? :red : :gray)
+              Ironfan.substep(name, "sleeping #{options[:sleep_time]} second(s) before trying again")
+              sleep options[:wait_time]
+              result = e
+            end
+          end
+        end
+
+        if success
+          return result
+        else
+          ui.warn("Gave up after #{options[:max_tries]} attempts to execute #{name} code")
+          raise result
+        end
+      end
+
     end
 
   end

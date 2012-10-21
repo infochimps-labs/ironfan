@@ -44,26 +44,44 @@ module Ironfan
 
       target = get_relevant_slice(* @name_args)
 
-      die("No computers to #{sub_command}, exiting", 1) if target.empty?
-
-      ui.info(["\n",
-          ui.color("Running #{sub_command}", :cyan),
-          " on #{target.joined_names}..."].join())
-      unless config[:yes]
-        ui.info("")
-        confirm_execution(target)
+      unless target.empty?
+        ui.info(["\n",
+                 ui.color("Running #{sub_command}", :cyan),
+                 " on #{target.joined_names}..."].join())
+        unless config[:yes]
+          ui.info("")
+          confirm_execution(target)
+        end
+        #
+        perform_execution(target)
       end
-      #
-      perform_execution(target)
-      ui.info("")
-      ui.info "Finished! Current state:"
-      display(target)
+
+      if healthy? and aggregates? and (aggregates_on_noop? or not target.empty?)
+        ui.info "Applying aggregations:"
+        all_computers(*@name_args).aggregate
+      end
+
+      if target.empty?
+        ui.warn("No computers to #{sub_command}")
+      else
+        ui.info("")
+        ui.info "Finished! Current state:"
+        display(target)
+      end
       #
       exit_if_unhealthy!
     end
 
     def perform_execution(target)
       target.send(sub_command)
+    end
+
+    def aggregates?
+      true
+    end
+
+    def aggregates_on_noop?
+      false
     end
   end
 end

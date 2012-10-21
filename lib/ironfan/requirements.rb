@@ -35,6 +35,8 @@ require 'ironfan/provider/ec2/machine'
 require 'ironfan/provider/ec2/keypair'
 require 'ironfan/provider/ec2/placement_group'
 require 'ironfan/provider/ec2/security_group'
+require 'ironfan/provider/ec2/elastic_load_balancer'
+require 'ironfan/provider/ec2/iam_server_certificate'
 
 require 'ironfan/provider/virtualbox'
 require 'ironfan/provider/virtualbox/machine'

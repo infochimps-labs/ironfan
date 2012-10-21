@@ -72,6 +72,10 @@ RSpec::Core::RakeTask.new(:rcov) do |spec|
   spec.rcov_opts = %w[ --exclude .rvm --no-comments --text-summary ]
 end
 
+RSpec::Core::RakeTask.new(:integration) do |spec|
+  spec.pattern = 'spec/integration/**/*_spec.rb'
+end
+
 # ---------------------------------------------------------------------------
 #
 # Yard -- documentation
