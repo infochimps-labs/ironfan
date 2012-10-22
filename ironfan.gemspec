@@ -87,6 +87,36 @@ Gem::Specification.new do |s|
     "lib/ironfan/provider/virtualbox.rb",
     "lib/ironfan/provider/virtualbox/machine.rb",
     "lib/ironfan/requirements.rb",
+    "notes/Home.md",
+    "notes/INSTALL-cloud_setup.md",
+    "notes/INSTALL.md",
+    "notes/Ironfan-Roadmap.md",
+    "notes/advanced-superpowers.md",
+    "notes/aws_servers.jpg",
+    "notes/aws_user_key.png",
+    "notes/cookbook-versioning.md",
+    "notes/core_concepts.md",
+    "notes/declaring_volumes.md",
+    "notes/design_notes-aspect_oriented_devops.md",
+    "notes/design_notes-ci_testing.md",
+    "notes/design_notes-cookbook_event_ordering.md",
+    "notes/design_notes-meta_discovery.md",
+    "notes/ec2-pricing_and_capacity.md",
+    "notes/ec2-pricing_and_capacity.numbers",
+    "notes/homebase-layout.txt",
+    "notes/knife-cluster-commands.md",
+    "notes/named-cloud-objects.md",
+    "notes/opscode_org_key.png",
+    "notes/opscode_user_key.png",
+    "notes/philosophy.md",
+    "notes/rake_tasks.md",
+    "notes/renamed-recipes.txt",
+    "notes/silverware.md",
+    "notes/style_guide.md",
+    "notes/tips_and_troubleshooting.md",
+    "notes/version-3_2.md",
+    "notes/walkthrough-hadoop.md",
+    "notes/walkthrough-web.md",
     "spec/chef/cluster_bootstrap_spec.rb",
     "spec/fixtures/ec2/elb/snakeoil.crt",
     "spec/fixtures/ec2/elb/snakeoil.key",
@@ -115,7 +145,7 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   s.rubygems_version = "1.8.24"
   s.summary = "Ironfan allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
-  s.test_files = ["spec/spec_helper/dummy_chef.rb", "spec/integration/spec_helper/launch_cluster.rb", "spec/integration/minimal-chef-repo/roles/systemwide.rb", "spec/integration/minimal-chef-repo/environments/_default.json", "spec/integration/minimal-chef-repo/chefignore", "spec/integration/minimal-chef-repo/knife/knife.rb", "spec/integration/minimal-chef-repo/knife/credentials/knife-user-ironfantester.rb", "spec/integration/minimal-chef-repo/knife/credentials/knife-org.rb", "spec/integration/minimal-chef-repo/tasks/chef_config.rake", "spec/integration/spec/elb_build_spec.rb", "spec/integration/spec_helper.rb", "spec/ironfan/cluster_spec.rb", "spec/ironfan/ec2/cloud_provider_spec.rb", "spec/ironfan/ec2/elb_spec.rb", "spec/ironfan/ec2/security_group_spec.rb", "spec/chef/cluster_bootstrap_spec.rb", "spec/fixtures/gunbai_slice.json", "spec/fixtures/ec2/elb/snakeoil.key", "spec/fixtures/ec2/elb/snakeoil.crt", "spec/fixtures/gunbai.rb", "spec/spec_helper.rb", "spec/test_config.rb"]
+  s.test_files = ["spec/spec_helper/dummy_chef.rb", "spec/integration/spec_helper/launch_cluster.rb", "spec/integration/minimal-chef-repo/roles/systemwide.rb", "spec/integration/minimal-chef-repo/environments/_default.json", "spec/integration/minimal-chef-repo/chefignore", "spec/integration/minimal-chef-repo/knife/knife.rb", "spec/integration/minimal-chef-repo/knife/credentials/knife-user-ironfantester.rb", "spec/integration/minimal-chef-repo/knife/credentials/knife-org.rb", "spec/integration/spec/elb_build_spec.rb", "spec/integration/spec_helper.rb", "spec/ironfan/cluster_spec.rb", "spec/ironfan/ec2/cloud_provider_spec.rb", "spec/ironfan/ec2/elb_spec.rb", "spec/ironfan/ec2/security_group_spec.rb", "spec/chef/cluster_bootstrap_spec.rb", "spec/fixtures/gunbai_slice.json", "spec/fixtures/ec2/elb/snakeoil.key", "spec/fixtures/ec2/elb/snakeoil.crt", "spec/fixtures/gunbai.rb", "spec/spec_helper.rb", "spec/test_config.rb"]
 
   if s.respond_to? :specification_version then
     s.specification_version = 3
