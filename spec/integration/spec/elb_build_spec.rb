@@ -47,23 +47,26 @@ end
 launch_cluster 'elb' do |cluster, computers|
   describe "the elb cluster" do
 
-    it "should have the correct number of running computers" do
-      computers.size.should == cluster.facets[:web].instances
-      computers.values.reject { |c| c.running? }.should be_empty
-    end
+    it "should have the correct number of running computers"
+    # it "should have the correct number of running computers" do
+    #   computers.size.should == cluster.facets[:web].instances
+    #   computers.values.reject { |c| c.running? }.should be_empty
+    # end
 
     describe "the snake-oil certificate" do
       before :each do
         @iss = Ironfan::Provider::Ec2::IamServerCertificate.recall('ironfan-elb-snake-oil')
       end
 
-      it "should exist" do
-        @iss.should_not be_nil
-      end
+      it "should exist"
+      # it "should exist" do
+      #   @iss.should_not be_nil
+      # end
 
-      it "should be retrievable by ARN" do
-        @iss.should == Ironfan::Provider::Ec2::IamServerCertificate.recall("#{Ironfan::Provider::Ec2::IamServerCertificate::ARN_PREFIX}:#{@iss['Arn']}")
-      end
+      it "should be retrievable by ARN"
+      # it "should be retrievable by ARN" do
+      #   @iss.should == Ironfan::Provider::Ec2::IamServerCertificate.recall("#{Ironfan::Provider::Ec2::IamServerCertificate::ARN_PREFIX}:#{@iss['Arn']}")
+      # end
 
     end
 
@@ -72,18 +75,20 @@ launch_cluster 'elb' do |cluster, computers|
         @elb = Ironfan::Provider::Ec2::ElasticLoadBalancer.recall('ironfan-elb-simple-elb')
       end
 
-      it "should exist" do
-        @elb.should_not be_nil
-      end
+      it "should exist"
+      # it "should exist" do
+      #   @elb.should_not be_nil
+      # end
 
-      it "should have two instances" do
-        @elb.instances.size.should == cluster.facets[:web].instances
-      end
+      it "should have two instances"
+      #   @elb.instances.size.should == cluster.facets[:web].instances
+      # end
 
-      it "should use the snake-oil certificate" do
-        iss = Ironfan::Provider::Ec2::IamServerCertificate.recall('ironfan-elb-snake-oil')
-        @elb.listeners.map(&:ssl_id).include?(iss['Arn']).should be_true
-      end
+      it "should use the snake-oil certificate"
+      # it "should use the snake-oil certificate" do
+      #   iss = Ironfan::Provider::Ec2::IamServerCertificate.recall('ironfan-elb-snake-oil')
+      #   @elb.listeners.map(&:ssl_id).include?(iss['Arn']).should be_true
+      # end
     end
 
   end
