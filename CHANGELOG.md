@@ -1,3 +1,10 @@
+# v4.4.0: @nickmarden adds ELB support, broader spec coverage
+* Security groups: removing ensured field (never set, causing bug), making selection use VPC if applicable
+* Spec coverage for full cluster launch process
+* IAMServerCertificate and ElasticLoadBalancer support for EC2
+* Support for cluster-wide resource aggregation
+* Fixes a bug that occurs when you fat-finger a flavor name
+
 # v4.3.4:
 * whoops. actually want attributes, not compact_attributes (#191)
 
