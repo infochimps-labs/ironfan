@@ -1,3 +1,6 @@
+# v4.4.1:
+* Re-enables integration specs, explicitly excluding them from "rake spec" (@nickmarden)
+
 # v4.4.0: @nickmarden adds ELB support, broader spec coverage
 * Security groups: removing ensured field (never set, causing bug), making selection use VPC if applicable
 * Spec coverage for full cluster launch process
