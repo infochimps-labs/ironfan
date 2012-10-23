@@ -3,6 +3,9 @@ module Ironfan
     class Ec2
 
       class SecurityGroup < Ironfan::Provider::Resource
+
+        WIDE_OPEN = Range.new(1,65535)
+
         delegate :_dump, :authorize_group_and_owner, :authorize_port_range,
             :collection, :collection=, :connection, :connection=, :description,
             :description=, :destroy, :group_id, :group_id=, :identity,
@@ -114,14 +117,14 @@ module Ironfan
               other_group_fog = recall_with_vpc(other_group,cloud.vpc)
               Ironfan.step(dsl_group.name, "  ensuring access from #{other_group}", :blue)
               options = {:group => other_group_fog.group_id}
-              safely_authorize(dsl_group_fog, 1..65535, options)
+              safely_authorize(dsl_group_fog, WIDE_OPEN, options)
             end
 
             dsl_group.group_authorized_by.each do |other_group|
               other_group_fog = recall_with_vpc(other_group,cloud.vpc)
               Ironfan.step(dsl_group.name, "  ensuring access to #{other_group}", :blue)
               options = {:group => dsl_group_fog.group_id}
-              safely_authorize(other_group_fog, 1..65535, options)
+              safely_authorize(other_group_fog, WIDE_OPEN, options)
             end
 
             dsl_group.range_authorizations.each do |range_auth|
@@ -156,6 +159,7 @@ module Ironfan
           unless options[:ip_protocol]
             safely_authorize(fog_group,range,options.merge(:ip_protocol => 'tcp'))
             safely_authorize(fog_group,range,options.merge(:ip_protocol => 'udp'))
+            safely_authorize(fog_group,Range.new(-1,-1),options.merge(:ip_protocol => 'icmp')) if(range == WIDE_OPEN)
             return
           end
 
