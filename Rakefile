@@ -64,7 +64,9 @@ Jeweler::RubygemsDotOrgTasks.new
 #
 # RSpec -- testing
 #
-RSpec::Core::RakeTask.new(:spec)
+RSpec::Core::RakeTask.new(:spec) do |spec|
+  spec.pattern = 'spec/{ironfan,chef,ironfan/*}/*_spec.rb'
+end
 
 RSpec::Core::RakeTask.new(:rcov) do |spec|
   spec.pattern = 'spec/**/*_spec.rb'
