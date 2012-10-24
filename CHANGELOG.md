@@ -1,3 +1,7 @@
+# v4.4.2:
+* Support for intra-cluster ICMP and specs to prove it (thanks @nickmarden)
+* Knife bash completion script: see config/knife.bash.README.md for installation (thanks @schade)
+
 # v4.4.1:
 * Re-enables integration specs, explicitly excluding them from "rake spec" (@nickmarden)
 
