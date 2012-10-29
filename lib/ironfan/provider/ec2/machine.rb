@@ -130,7 +130,7 @@ module Ironfan
         def self.validate_resources!(computers)
           recall.each_value do |machine|
             next unless machine.users.empty? and machine.name
-            if machine.name.match("^#{computers.cluster.name}")
+            if machine.name.match("^#{computers.cluster.name}-")
               machine.bogus << :unexpected_machine
             end
             next unless machine.bogus?
