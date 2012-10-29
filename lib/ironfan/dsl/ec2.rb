@@ -38,7 +38,7 @@ module Ironfan
         bit_str = "#{self.bits.to_i}-bit" # correct for legacy image info.
         keys = [region, bit_str, backing, image_name]
         info = Chef::Config[:ec2_image_info][ keys ]
-        ui.warn("Can't find image for #{[region, bits.to_s, backing, image_name].inspect}") if info.blank?
+        ui.warn("Can't find image for #{[region, bit_str, backing, image_name].inspect}") if info.blank?
         return info || {}
       end
 
