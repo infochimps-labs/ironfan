@@ -36,6 +36,7 @@ module Ironfan
       #
       ui.info("Inventorying servers in #{desc}")
       cluster   = Ironfan.load_cluster(cluster_name)
+      Chef::Config[:knife][:region] = cluster.servers.to_a.first.cloud(:ec2).region
       computers =  broker.discover! cluster
       Chef::Log.info("Inventoried #{computers.size} computers")
       #
