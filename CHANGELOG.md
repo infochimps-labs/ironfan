@@ -1,3 +1,7 @@
+# v4.4.3:
+* workaround to make ec2 regions respect the cluster's region/AZ preference
+* Making validation scope name prefix properly (fixes #201)
+
 # v4.4.2:
 * Support for intra-cluster ICMP and specs to prove it (thanks @nickmarden)
 * Knife bash completion script: see config/knife.bash.README.md for installation (thanks @schade)
