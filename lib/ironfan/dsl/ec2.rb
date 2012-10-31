@@ -415,4 +415,14 @@ Chef::Config[:ec2_image_info].merge!({
   %w[ us-west-2            32-bit  instance        oneiric    ] => { :image_id => 'ami-f49a17c4', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
   %w[ us-west-2            64-bit  ebs             oneiric    ] => { :image_id => 'ami-ec9a17dc', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
   %w[ us-west-2            64-bit  instance        oneiric    ] => { :image_id => 'ami-fe9a17ce', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+
+
+  #
+  # Pangolin (Ubuntu 11.10)
+  #
+  %w[ us-east-1            32-bit  ebs             pangolin    ] => { :image_id => 'ami-3b4ff252', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+  %w[ us-east-1            64-bit  ebs             pangolin    ] => { :image_id => 'ami-3d4ff254', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+  # # These images will only work once http://askubuntu.com/questions/209844/latest-ec2-ubuntu-instance-seems-broken is fixed
+  # %w[ us-east-1            32-bit  ebs             pangolin    ] => { :image_id => 'ami-9878c0f1', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+  # %w[ us-east-1            64-bit  ebs             pangolin    ] => { :image_id => 'ami-9c78c0f5', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
 })
