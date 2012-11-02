@@ -62,10 +62,10 @@ class Chef
       def command_for_target(svr)
         config[:attribute]       ||= Chef::Config[:knife][:ssh_address_attribute] || "fqdn"
         config[:ssh_user]        ||= Chef::Config[:knife][:ssh_user]
-        config[:identity_file]   ||= svr.server.cloud.ssh_identity_file
+        #config[:identity_file]   ||= svr.server.selected_cloud.ssh_identity_file
         config[:host_key_verify] ||= Chef::Config[:knife][:host_key_verify] || (not config[:no_host_key_verify]) # pre-vs-post 0.10.4
 
-        address = svr.public_hostname
+        address = svr.machine.public_hostname
         if address.blank? && (svr.chef_node)
           address = format_for_display( svr.chef_node )[config[:attribute]]
         end
