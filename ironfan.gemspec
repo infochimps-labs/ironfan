@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "ironfan"
-  s.version = "4.4.3"
+  s.version = "4.5.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Infochimps"]
-  s.date = "2012-10-31"
+  s.date = "2012-11-07"
   s.description = "Ironfan allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
   s.email = "coders@infochimps.com"
   s.extra_rdoc_files = [
@@ -35,11 +35,11 @@ Gem::Specification.new do |s|
     "config/knife.bash.README.md",
     "config/proxy.pac",
     "config/ubuntu10.04-ironfan.erb",
-    "config/ubuntu11.10-ironfan.erb",
+    "config/ubuntu12.04-ironfan.erb",
     "ironfan.gemspec",
     "lib/chef/knife/bootstrap/centos6.2-ironfan.erb",
     "lib/chef/knife/bootstrap/ubuntu10.04-ironfan.erb",
-    "lib/chef/knife/bootstrap/ubuntu11.10-ironfan.erb",
+    "lib/chef/knife/bootstrap/ubuntu12.04-ironfan.erb",
     "lib/chef/knife/cluster_bootstrap.rb",
     "lib/chef/knife/cluster_kick.rb",
     "lib/chef/knife/cluster_kill.rb",
