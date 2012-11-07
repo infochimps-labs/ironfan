@@ -1,3 +1,10 @@
+# v4.5.0: upgraded to 12.04 bootstrap
+* First stab at 12.04 from @nickmarden's pull #171 - uses omnibus, not autobuild ruby
+* Removed bad 11.10 bootstrap script - used incompatible ruby install
+* Cleanup knife cluster proxy (may help #162)
+* Added ec2 hints for ohai (fixes #204)
+* chef-client runs once on boot only
+
 # v4.4.3:
 * workaround to make ec2 regions respect the cluster's region/AZ preference
 * Making validation scope name prefix properly (fixes #201)
