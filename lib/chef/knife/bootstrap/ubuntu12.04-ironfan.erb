@@ -18,7 +18,7 @@ date > /etc/box_build_time
 
 echo -e "`date` \n\n**** \n**** apt update:\n****\n"
 apt-get --force-yes -y update
-apt-get --force-yes -y upgrade
+apt-get --force-yes -y dist-upgrade
 
 echo -e "`date` \n\n**** \n**** Installing base packages:\n****\n"
 apt-get --force-yes -y install build-essential make wget curl runit zlib1g-dev libssl-dev openssl libcurl4-openssl-dev libxml2-dev libxslt-dev libyaml-dev libreadline6 libreadline6-dev
@@ -44,9 +44,15 @@ if [ ! -f /opt/chef/bin/chef-client ]; then
   curl -L http://www.opscode.com/chef/install.sh | sudo bash
 fi
 
-# Set up the system to use the installed ruby and gem
-ln -nfs /opt/chef/embedded/bin/ruby /usr/bin/ruby
-ln -nfs /opt/chef/embedded/bin/gem /usr/bin/gem
+# Include the omnibus' path in the system-wide path, to allow use of
+#   its executables (gem, ruby, bundler, etc.)
+(
+cat <<'EOP'
+PATH="/opt/chef/embedded/bin/:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games"
+EOP
+) >> /etc/environment
+. /etc/environment
+
 
 gem install extlib bundler json right_aws pry fog
 
@@ -88,7 +94,7 @@ EOP
 
 (
 cat <<'EOP'
-<%= { "run_list" => @run_list, "cluster_name" => @config[:server].cluster_name, "facet_name" => @config[:server].facet_name, "facet_index" => @config[:server].index }.to_json %>
+<%= { "cluster_name" => @config[:server].cluster_name, "facet_name" => @config[:server].facet_name, "facet_index" => @config[:server].index, "environment" => @config[:server].environment }.to_json%>
 EOP
 ) > /etc/chef/first-boot.json
 
