@@ -1,3 +1,7 @@
+# v4.5.1:
+* Clean up on 12.04 template - do dist-upgrade, include omnibus bin in $PATH, nicer first-boot.json
+* Removing superfluous raise on duplicate machines during load
+
 # v4.5.0: upgraded to 12.04 bootstrap
 * First stab at 12.04 from @nickmarden's pull #171 - uses omnibus, not autobuild ruby
 * Removed bad 11.10 bootstrap script - used incompatible ruby install
