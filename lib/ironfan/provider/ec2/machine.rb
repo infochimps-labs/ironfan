@@ -108,7 +108,6 @@ module Ironfan
               next unless Ironfan.chef_config[:include_terminated]
               remember machine, :append_id => "terminated:#{machine.id}"
             elsif recall? machine.name
-              raise 'duplicate'
               machine.bogus <<                 :duplicate_machines
               recall(machine.name).bogus <<    :duplicate_machines
               remember machine, :append_id => "duplicate:#{machine.id}"
