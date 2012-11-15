@@ -47,12 +47,6 @@ module Ironfan
         result = read_attribute(:image_id) || image_info[:image_id]
       end
 
-      def elastic_ip(address)
-        Ironfan.safely do
-          Ironfan.fog_connection.associate_address(self.fog_server.id, address)
-        end
-      end
-
       def ssh_key_name(computer)
         keypair ? keypair.to_s : computer.server.cluster_name
       end
@@ -68,7 +62,8 @@ module Ironfan
         values["AZ"] =                default_availability_zone
         return values if style == :default
 
-        values["Elastic IP"] =        public_ip if public_ip
+        # values["Elastic IP"] =        public_ip if public_ip
+        values["Elastic IP"] =        elastic_ip if elastic_ip
         values
       end
 

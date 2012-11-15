@@ -32,6 +32,12 @@ module Ironfan
         super
       end
 
+      def elastic_ip(address)
+        Ironfan.safely do
+          Ironfan.fog_connection.associate_address(self.fog_server.id, address)
+        end
+      end
+
       def full_name()   name;   end
 
       # Add the given role/recipe to the run list. You can specify placement of
