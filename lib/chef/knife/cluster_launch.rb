@@ -71,6 +71,13 @@ class Chef
 
         die("", "#{ui.color("All computers are running -- not launching any.",:blue)}", "", 1) if target.empty?
 
+        # If a bootstrap was requested, ensure that we will be able to perform the
+        # bootstrap *before* trying to launch all of the servers in target. This
+        # will save the user a lot of time if they've made a configuration mistake
+        if config[:bootstrap]
+          ensure_common_environment(target)
+        end
+
         # Pre-populate information in chef
         section("Syncing to chef")
         target.save :providers => :chef
