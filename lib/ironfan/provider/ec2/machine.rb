@@ -87,6 +87,7 @@ module Ironfan
           values["Volumes"] =           volumes.map(&:id).join(', ')
           values["SSH Key"] =           key_name
           values
+          pp(public_ip_address)
         end
 
         def ssh_key

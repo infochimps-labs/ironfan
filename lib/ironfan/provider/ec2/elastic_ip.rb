@@ -4,7 +4,8 @@ module Ironfan
 
       class ElasticIp < Ironfan::Provider::Resource
       	delegate :allocate_address, :associate_address, :describe_addresses
-      	field :domain,			Ironfan::DSL::Compute
+      	:to => :adaptee
+      	field :domain,			String, 			:default =>  'standard'
       end
     end
   end
