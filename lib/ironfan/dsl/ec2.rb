@@ -5,14 +5,6 @@ module Ironfan
 
     class Compute < Ironfan::Dsl
       def ec2(*attrs,&block)            cloud(:ec2,*attrs,&block);      end
-
-      def elastic_ip(address)
-        pp(self.fog_connection)
-        pp(self.fog_server)
-        Ironfan.safely do
-          Ironfan.fog_connection.associate_address(self.fog_server.id, address)
-        end
-      end
     end
 
     class Ec2 < Cloud
