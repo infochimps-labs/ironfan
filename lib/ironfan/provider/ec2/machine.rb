@@ -87,6 +87,7 @@ module Ironfan
           values["Volumes"] =           volumes.map(&:id).join(', ')
           values["SSH Key"] =           key_name
           values
+          pp(public_ip_address)
         end
 
         def ssh_key
@@ -159,6 +160,8 @@ module Ironfan
             fog_server = Ec2.connection.servers.create(launch_desc)
             machine = Machine.new(:adaptee => fog_server)
             computer.machine = machine
+            # set elastic_ip here?
+            # machine.ip = elastic_ip if elastic_ip
             remember machine, :id => computer.name
 
             fog_server.wait_for { ready? }
@@ -236,7 +239,7 @@ module Ironfan
             :user_data            => JSON.pretty_generate(user_data_hsh),
             :block_device_mapping => block_device_mapping(computer),
             :availability_zone    => cloud.default_availability_zone,
-            :monitoring           => cloud.monitoring,
+            :monitoring           => cloud.monitoring
           }
 
           # VPC security_groups can only be addressed by id (not name)
