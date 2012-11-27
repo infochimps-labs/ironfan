@@ -1,4 +1,16 @@
 bash -c '
+
+##
+# EXPERIMENTAL
+##
+# This code was submitted as an alternative to the per-distribution scripts, just after a new bootstrap
+# (Ubuntu 12.04) was put into production at Infochimps; therefore, we have had no time to validate it
+# internally. Please exercise caution in applying it.
+#
+# Submitter: Ryan Schlesinger (https://github.com/ryansch)
+# Source: https://github.com/infochimps-labs/ironfan/pull/212
+# 
+
 <%= "export http_proxy=\"#{knife_config[:bootstrap_proxy]}\"" if knife_config[:bootstrap_proxy] -%>
 
 exists() {
