@@ -59,7 +59,7 @@ class Chef
       end
 
       def perform_execution(target)
-        reconcile_chef_config(target)
+        ensure_common_environment(target)
         # Execute across all servers in parallel
         Ironfan.parallel(target.values) {|computer| run_bootstrap(computer)}
 #         threads = target.servers.map{ |server| Thread.new(server) { |svr| run_bootstrap(svr, svr.public_hostname) } }
@@ -68,18 +68,6 @@ class Chef
       def confirm_execution(target)
         ui.info "Bootstrapping the node redoes its initial setup -- only do this on an aborted launch."
         confirm_or_exit("Are you absolutely certain that you want to perform this action? (Type 'Yes' to confirm) ", 'Yes')
-      end
-
-    protected
-
-      def reconcile_chef_config(target)
-        environments = target.environments
-        if environments.length > 1
-          ui.error "You cannot bootstrap machines in multiple chef environments: got #{environments.inspect} from #{target.map(&:name)}"
-          ui.error "Re-run this command on each subgroup of machines that share an environment"
-          raise StandardError, "Cannot bootstrap multiple chef environments"
-        end
-        Chef::Config[:environment] = environments.first
       end
 
     end
