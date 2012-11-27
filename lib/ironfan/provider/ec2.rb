@@ -5,7 +5,7 @@ module Ironfan
       self.handle = :ec2
 
       def self.resources
-        [ Machine, EbsVolume, Keypair, SecurityGroup, IamServerCertificate, ElasticLoadBalancer ]
+        [ Machine, ElasticIp, EbsVolume, Keypair, SecurityGroup, IamServerCertificate, ElasticLoadBalancer ]
       end
 
       #
@@ -15,12 +15,12 @@ module Ironfan
         @@connection ||= Fog::Compute.new(self.aws_credentials.merge({ :provider => 'AWS' }))
       end
 
-      def self.eip 
-        c ||= Fog::Compute.new(self.aws_credentials.merge({ :provider => 'AWS' }))
-        address = c.addresses.create
-        address.server = server
-        server.reload
-      end
+#      def self.eip 
+#        c ||= Fog::Compute.new(self.aws_credentials.merge({ :provider => 'AWS' }))
+#        address = c.addresses.create
+#        address.server = server
+#        server.reload
+#      end
 
       def self.elb
         @@elb ||= Fog::AWS::ELB.new(self.aws_credentials)
