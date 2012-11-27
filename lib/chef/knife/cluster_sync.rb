@@ -41,11 +41,9 @@ class Chef
 
 
       def relevant?(computer)
-        if config[:sync_all]
-          not computer.bogus?
-        else
-          computer.created? or computer.node?
-        end
+        return false    if computer.bogus?
+        return true     if config[:sync_all]
+        computer.created? or computer.node?
       end
 
       def perform_execution(target)
