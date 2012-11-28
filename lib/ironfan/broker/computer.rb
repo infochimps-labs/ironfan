@@ -301,7 +301,7 @@ module Ironfan
       def aggregate
         computers = self
         provider_keys = values.map {|c| c.chosen_providers({ :providers => :iaas})}.flatten.uniq
-        providers     = provider_keys.map { |pk| values.map { |c| c.providers[pk] } }.flatten.uniq
+        providers     = provider_keys.map { |pk| values.map { |c| c.providers[pk] } }.flatten.compact.uniq
         providers.each { |p| p.aggregate! computers }
       end
 

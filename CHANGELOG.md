@@ -1,3 +1,8 @@
+# v4.5.2:
+* 'knife cluster launch --bootstrap' should ensure that Chef::Config[:environment] is set, just as 'knife cluster bootstrap' does
+* Cleaning up knife commands to skip bogus servers (fixes #213)
+* EXPERIMENTAL: Adding (cross-platform) ironfaned chef omnibus bootstrap
+
 # v4.5.1:
 * Clean up on 12.04 template - do dist-upgrade, include omnibus bin in $PATH, nicer first-boot.json
 * Removing superfluous raise on duplicate machines during load

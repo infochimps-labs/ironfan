@@ -237,5 +237,18 @@ module Ironfan
         extend ClassMethods
       end
     end
+
+    protected
+
+    def ensure_common_environment(target)
+      environments = target.environments
+      if environments.length > 1
+        ui.error "You cannot bootstrap machines in multiple chef environments: got #{environments.inspect} from #{target.map(&:name)}"
+        ui.error "Re-run this command on each subgroup of machines that share an environment"
+        raise StandardError, "Cannot bootstrap multiple chef environments"
+      end
+      Chef::Config[:environment] = environments.first
+    end
+
   end
 end

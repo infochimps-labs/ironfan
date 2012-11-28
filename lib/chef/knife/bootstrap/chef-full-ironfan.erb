@@ -1,0 +1,97 @@
+bash -c '
+
+##
+# EXPERIMENTAL
+##
+# This code was submitted as an alternative to the per-distribution scripts, just after a new bootstrap
+# (Ubuntu 12.04) was put into production at Infochimps; therefore, we have had no time to validate it
+# internally. Please exercise caution in applying it.
+#
+# Submitter: Ryan Schlesinger (https://github.com/ryansch)
+# Source: https://github.com/infochimps-labs/ironfan/pull/212
+# 
+
+<%= "export http_proxy=\"#{knife_config[:bootstrap_proxy]}\"" if knife_config[:bootstrap_proxy] -%>
+
+exists() {
+  if command -v $1 &>/dev/null
+  then
+    return 0
+  else
+    return 1
+  fi
+}
+
+install_sh="http://opscode.com/chef/install.sh"
+version_string="-v <%= chef_version %>"
+
+if ! exists /usr/bin/chef-client; then
+  if exists wget; then
+    bash <(wget <%= "--proxy=on " if knife_config[:bootstrap_proxy] %> ${install_sh} -O -) ${version_string}
+  else
+    if exists curl; then
+      bash <(curl -L <%= "--proxy=on " if knife_config[:bootstrap_proxy] %> ${install_sh}) ${version_string}
+    fi
+  fi
+fi
+
+mkdir -p /etc/chef
+
+<%- if @config[:client_key] %>
+(
+cat <<'EOP'
+<%= @config[:client_key] %>
+EOP
+) > /tmp/client.pem
+awk NF /tmp/client.pem > /etc/chef/client.pem
+rm /tmp/client.pem
+chmod 0600 /etc/chef/client.pem
+<%- else %>
+(
+cat <<'EOP'
+<%= validation_key %>
+EOP
+) > /tmp/validation.pem
+awk NF /tmp/validation.pem > /etc/chef/validation.pem
+rm /tmp/validation.pem
+chmod 0600 /etc/chef/validation.pem
+<% end -%>
+
+<% if @chef_config[:encrypted_data_bag_secret] -%>
+(
+cat <<'EOP'
+<%= encrypted_data_bag_secret %>
+EOP
+) > /tmp/encrypted_data_bag_secret
+awk NF /tmp/encrypted_data_bag_secret > /etc/chef/encrypted_data_bag_secret
+rm /tmp/encrypted_data_bag_secret
+chmod 0600 /etc/chef/encrypted_data_bag_secret
+<% end -%>
+
+<%# Generate Ohai Hints -%>
+<% unless @chef_config[:knife][:hints].nil? || @chef_config[:knife][:hints].empty? -%>
+mkdir -p /etc/chef/ohai/hints
+
+<% @chef_config[:knife][:hints].each do |name, hash| -%>
+(
+cat <<'EOP'
+<%= hash.to_json %>
+EOP
+) > /etc/chef/ohai/hints/<%= name %>.json
+<% end -%>
+<% end -%>
+
+(
+cat <<'EOP'
+<%= config_content %>
+<%= @config[:computer].chef_client_script_content %>
+EOP
+) > /etc/chef/client.rb
+
+(
+cat <<'EOP'
+<%= { "run_list" => @run_list, "cluster_name" => @config[:server].cluster_name, "facet_name" => @config[:server].facet_name, "facet_index" => @config[:server].index }.to_json %>
+EOP
+) > /etc/chef/first-boot.json
+
+<%= start_chef %>'
