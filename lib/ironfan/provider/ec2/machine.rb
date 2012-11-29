@@ -87,7 +87,6 @@ module Ironfan
           values["Volumes"] =           volumes.map(&:id).join(', ')
           values["SSH Key"] =           key_name
           values
-          pp(public_ip_address)
         end
 
         def ssh_key
@@ -161,7 +160,8 @@ module Ironfan
             machine = Machine.new(:adaptee => fog_server)
             computer.machine = machine
             # set elastic_ip here?
-            # machine.ip = elastic_ip if elastic_ip
+            #pp computer.machine.public_ip_address
+            #computer.machine.public_ip_address = computer.server.ec2.public_ip unless computer.server.ec2.public_ip.nil?
             remember machine, :id => computer.name
 
             fog_server.wait_for { ready? }

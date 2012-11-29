@@ -61,7 +61,7 @@ module Ironfan
         values["AZ"] =                default_availability_zone
         return values if style == :default
 
-        values["Stable IP"] =        public_ip if public_ip
+        values["Public IP"] =        public_ip if public_ip
         values
       end
 
