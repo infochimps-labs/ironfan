@@ -13,7 +13,7 @@ module Ironfan
         def self.shared?()              true;          end
         def self.multiple?()            false;          end
         def self.resource_type()        :elastic_ip;    end
-        def self.expected_ids(computer) [ computer.server.ec2.public_ip ]; end
+        def self.expected_ids(computer) [ computer.server.ec2.public_ip ]; pp computer.server.ec2.public_ip; end
 
         def name()                      adaptee.public_ip ;     end
 
@@ -33,6 +33,7 @@ module Ironfan
             register eip
             Chef::Log.debug("Loaded #{eip}")
           end
+          pp adaptee
         end
 
         def self.attach()

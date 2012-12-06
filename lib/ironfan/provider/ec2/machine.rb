@@ -160,7 +160,8 @@ module Ironfan
             machine = Machine.new(:adaptee => fog_server)
             computer.machine = machine
             # set elastic_ip here?
-            #pp computer.machine.public_ip_address
+            pp machine #.public_ip_address
+            pp public_ip
             #computer.machine.public_ip_address = computer.server.ec2.public_ip unless computer.server.ec2.public_ip.nil?
             remember machine, :id => computer.name
 
@@ -250,6 +251,10 @@ module Ironfan
 
           description[:iam_server_certificates] = cloud.iam_server_certificates.values.map do |cert|
             IamServerCertificate.recall(IamServerCertificate.full_name(computer, cert))
+          end.compact.map(&:name)
+
+          description[:elastic_ip] = cloud.addresses.values.map do |eip|
+            ElasticIp.recall(ElasticIp.public_ip(computer, eip))
           end.compact.map(&:name)
 
           description[:elastic_load_balancers] = cloud.elastic_load_balancers.values.map do |elb|
