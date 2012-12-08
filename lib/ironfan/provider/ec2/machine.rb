@@ -102,6 +102,7 @@ module Ironfan
         # Discovery
         #
         def self.load!(cluster=nil)
+          raise hell
           Ec2.connection.servers.each do |fs|
             machine = new(:adaptee => fs)
             if (not machine.created?)
@@ -116,6 +117,10 @@ module Ironfan
             end
             Chef::Log.debug("Loaded #{machine}")
           end
+          pp computer.machine.addresses
+          pp computer.machine.public_ip_address
+          pp computer.machine.id
+          raise hell
         end
 
         def receive_adaptee(obj)
@@ -160,13 +165,15 @@ module Ironfan
             machine = Machine.new(:adaptee => fog_server)
             computer.machine = machine
             # set elastic_ip here?
-            pp machine #.public_ip_address
-            pp public_ip
-            #computer.machine.public_ip_address = computer.server.ec2.public_ip unless computer.server.ec2.public_ip.nil?
+            # computer.machine.associate_address = computer.server.ec2.public_ip unless computer.server.ec2.public_ip.nil?
             remember machine, :id => computer.name
 
             fog_server.wait_for { ready? }
           end
+          pp computer.machine.addresses
+          pp computer.machine.public_ip_address
+          pp computer.machine.id
+          raise hell
 
           # tag the computer correctly
           tags = {
@@ -228,7 +235,6 @@ module Ironfan
             :client_key =>              computer.private_key
           }
 
-
           # Fog does not actually create tags when it creates a server;
           #  they and permanence are applied during sync
           description = {
@@ -254,7 +260,7 @@ module Ironfan
           end.compact.map(&:name)
 
           description[:elastic_ip] = cloud.addresses.values.map do |eip|
-            ElasticIp.recall(ElasticIp.public_ip(computer, eip))
+            ElasticIp.recall(ElasticIp.associate_address(computer, eip))
           end.compact.map(&:name)
 
           description[:elastic_load_balancers] = cloud.elastic_load_balancers.values.map do |elb|
@@ -302,6 +308,12 @@ module Ironfan
           return unless computer.machine?
           # the EC2 API does not surface disable_api_termination as a value, so we
           # have to set it every time.
+
+          pp computer.machine.addresses
+          pp computer.machine.public_ip_address
+          pp computer.machine.id
+          raise hell
+
           permanent = computer.server.cloud(:ec2).permanent
           return unless computer.created?
           Ironfan.step(computer.name, "setting termination flag #{permanent}", :blue)

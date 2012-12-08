@@ -10,16 +10,12 @@ module Ironfan
             :public_ip=, :save, :server=, :server, :server_id, :server_id=,
         :to => :adaptee
  
-        def self.shared?()              true;          end
-        def self.multiple?()            false;          end
-        def self.resource_type()        :elastic_ip;    end
-        def self.expected_ids(computer) [ computer.server.ec2.public_ip ]; pp computer.server.ec2.public_ip; end
+        def self.shared?()              true;                               end
+        def self.multiple?()            false;                              end
+        def self.resource_type()        :elastic_ip;                        end
+        def self.expected_ids(computer) [ computer.server.ec2.public_ip ];  end
 
-        def name()                      adaptee.public_ip ;     end
-
-        Ec2.connection.servers.each do |m|
-          pp m.id, m.state, m.public_ip_address if m.state != "terminated"
-        end
+        def name()                      adaptee.public_ip ;                 end
 
         # FIXME: This is very broken, but somehow works around the breakage
         def self.new(*args)
@@ -35,12 +31,7 @@ module Ironfan
           end
           pp adaptee
         end
-
-        def self.attach()
-          Ec2.connection.addresses.each do |eip|
-            eip.associate_address(eip.id, adaptee.public_ip) unless eip.public_ip_address.nil?
-        end
-          
+  
         end
       end
     end

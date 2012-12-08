@@ -87,6 +87,10 @@ class Chef
         section("Launching computers", :green)
         display(target)
         launched = target.launch
+        pp computer.machine.addresses
+        pp computer.machine.public_ip_address
+        pp computer.machine.id
+        raise hell
 
         # As each server finishes, configure it
         Ironfan.parallel(launched) do |computer|
@@ -107,6 +111,8 @@ class Chef
         Ironfan.step(computer.name, 'waiting for ready', :white)
         # Wait for machine creation on amazon side
         computer.machine.wait_for{ ready? }
+        pp computer.machine.id
+        raise hell
 
         # Try SSH
         unless config[:dry_run]
@@ -116,6 +122,7 @@ class Chef
 
         Ironfan.step(computer.name, 'final provisioning', :white)
         computer.save
+        pp computer.machine.id
 
         # Run Bootstrap
         if config[:bootstrap]
