@@ -6,7 +6,7 @@ gem 'formatador',    "~> 0.2"
 gem 'gorillib',      "~> 0.4.2"
 
 group :development do
-  gem 'bundler',     "~> 1.1"
+  gem 'bundler',     "~> 1.0"
   gem 'rake'
   gem 'rspec',       "~> 2.8"
   gem 'yard',        ">= 0.7"
