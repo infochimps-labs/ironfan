@@ -14,6 +14,7 @@ module Ironfan
       magic :bootstrap_distro,          String,         :default => ->{ image_info[:bootstrap_distro] }
       magic :chef_client_script,        String
       magic :default_availability_zone, String,         :default => ->{ availability_zones.first }
+      magic :domain,                    String,         :default => 'standard'
       collection :elastic_load_balancers,  Ironfan::Dsl::Ec2::ElasticLoadBalancer, :key_method => :name
       magic :flavor,                    String,         :default => 't1.micro'
       collection :iam_server_certificates, Ironfan::Dsl::Ec2::IamServerCertificate, :key_method => :name
@@ -25,7 +26,7 @@ module Ironfan
       magic :permanent,                 :boolean,       :default => false
       magic :placement_group,           String
       magic :provider,                  Whatever,       :default => Ironfan::Provider::Ec2
-      magic :public_ip,                 String
+      magic :elastic_ip,                String
       magic :region,                    String,         :default => ->{ default_region }
       collection :security_groups,      Ironfan::Dsl::Ec2::SecurityGroup, :key_method => :name
       magic :ssh_user,                  String,         :default => ->{ image_info[:ssh_user] }
@@ -61,7 +62,7 @@ module Ironfan
         values["AZ"] =                default_availability_zone
         return values if style == :default
 
-        values["Elastic IP"] =        public_ip if public_ip
+        values["Public IP"] =        elastic_ip if elastic_ip
         values
       end
 

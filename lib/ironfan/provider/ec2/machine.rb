@@ -71,8 +71,8 @@ module Ironfan
         def to_display(style,values={})
           # style == :minimal
           values["State"] =             state.to_sym
-          values["MachineID"] =        id
-          values["Public IP"] =         public_ip_address
+          values["MachineID"] =         id
+          values["Public IP"] =         public_ip_address 
           values["Private IP"] =        private_ip_address
           values["Created On"] =        created_at.to_date
           return values if style == :minimal
@@ -163,7 +163,7 @@ module Ironfan
 
             fog_server.wait_for { ready? }
           end
-
+          
           # tag the computer correctly
           tags = {
             'cluster' =>      computer.server.cluster_name,
@@ -224,7 +224,6 @@ module Ironfan
             :client_key =>              computer.private_key
           }
 
-
           # Fog does not actually create tags when it creates a server;
           #  they and permanence are applied during sync
           description = {
@@ -236,7 +235,7 @@ module Ironfan
             :user_data            => JSON.pretty_generate(user_data_hsh),
             :block_device_mapping => block_device_mapping(computer),
             :availability_zone    => cloud.default_availability_zone,
-            :monitoring           => cloud.monitoring,
+            :monitoring           => cloud.monitoring
           }
 
           # VPC security_groups can only be addressed by id (not name)

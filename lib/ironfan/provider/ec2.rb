@@ -5,7 +5,7 @@ module Ironfan
       self.handle = :ec2
 
       def self.resources
-        [ Machine, EbsVolume, Keypair, SecurityGroup, IamServerCertificate, ElasticLoadBalancer ]
+        [ Machine, ElasticIp, EbsVolume, Keypair, SecurityGroup, IamServerCertificate, ElasticLoadBalancer ]
       end
 
       #
