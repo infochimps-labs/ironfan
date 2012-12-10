@@ -129,6 +129,11 @@ _knife() {
         COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
         return 0
         ;;
+    *knife_cluster_launch|*knife_cluster_show|*knife_cluster_edit)
+        _chef_completion_cache -c ${words[0]}_cluster "${words[0]} cluster list|awk '{ print $1 }'"
+        COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+        return 0
+        ;;
     *knife_environment_show|*knife_environment_edit|*knife_environment_delete)
         _chef_completion_cache -c ${words[0]}_environments "${words[0]} environment list|${SED} -r -e 's/[\"\ ,]//g' -e '/[^0-9A-Za-z._-]+/d'"
         COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )

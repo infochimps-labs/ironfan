@@ -1,4 +1,4 @@
-require 'chef/knife'
+ require 'chef/knife'
 
 module Ironfan
   module KnifeCommon
