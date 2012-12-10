@@ -71,7 +71,7 @@ module Ironfan
         def to_display(style,values={})
           # style == :minimal
           values["State"] =             state.to_sym
-          values["MachineID"] =        id
+          values["MachineID"] =         id
           values["Public IP"] =         public_ip_address
           values["Private IP"] =        private_ip_address
           values["Created On"] =        created_at.to_date
@@ -102,12 +102,12 @@ module Ironfan
         # Discovery
         #
         def self.load!(cluster=nil)
-          raise hell
           Ec2.connection.servers.each do |fs|
             machine = new(:adaptee => fs)
             if (not machine.created?)
               next unless Ironfan.chef_config[:include_terminated]
               remember machine, :append_id => "terminated:#{machine.id}"
+              raise hell
             elsif recall? machine.name
               machine.bogus <<                 :duplicate_machines
               recall(machine.name).bogus <<    :duplicate_machines
@@ -117,10 +117,6 @@ module Ironfan
             end
             Chef::Log.debug("Loaded #{machine}")
           end
-          pp computer.machine.addresses
-          pp computer.machine.public_ip_address
-          pp computer.machine.id
-          raise hell
         end
 
         def receive_adaptee(obj)
@@ -164,17 +160,11 @@ module Ironfan
             fog_server = Ec2.connection.servers.create(launch_desc)
             machine = Machine.new(:adaptee => fog_server)
             computer.machine = machine
-            # set elastic_ip here?
-            # computer.machine.associate_address = computer.server.ec2.public_ip unless computer.server.ec2.public_ip.nil?
             remember machine, :id => computer.name
 
             fog_server.wait_for { ready? }
           end
-          pp computer.machine.addresses
-          pp computer.machine.public_ip_address
-          pp computer.machine.id
-          raise hell
-
+          
           # tag the computer correctly
           tags = {
             'cluster' =>      computer.server.cluster_name,
@@ -259,9 +249,9 @@ module Ironfan
             IamServerCertificate.recall(IamServerCertificate.full_name(computer, cert))
           end.compact.map(&:name)
 
-          description[:elastic_ip] = cloud.addresses.values.map do |eip|
-            ElasticIp.recall(ElasticIp.associate_address(computer, eip))
-          end.compact.map(&:name)
+#          description[:elastic_ip] = cloud.addresses.values.map do |eip|
+#            ElasticIp.recall(ElasticIp.associate_address(computer, eip))
+#          end.compact.map(&:name)
 
           description[:elastic_load_balancers] = cloud.elastic_load_balancers.values.map do |elb|
             ElasticLoadBalancer.recall(ElasticLoadBalancer.full_name(computer, elb))
@@ -308,12 +298,6 @@ module Ironfan
           return unless computer.machine?
           # the EC2 API does not surface disable_api_termination as a value, so we
           # have to set it every time.
-
-          pp computer.machine.addresses
-          pp computer.machine.public_ip_address
-          pp computer.machine.id
-          raise hell
-
           permanent = computer.server.cloud(:ec2).permanent
           return unless computer.created?
           Ironfan.step(computer.name, "setting termination flag #{permanent}", :blue)
