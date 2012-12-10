@@ -14,7 +14,7 @@ module Ironfan
       magic :bootstrap_distro,          String,         :default => ->{ image_info[:bootstrap_distro] }
       magic :chef_client_script,        String
       magic :default_availability_zone, String,         :default => ->{ availability_zones.first }
-      magic :elastic_ip,                String
+      magic :domain,                    String,         :default => 'standard'
       collection :elastic_load_balancers,  Ironfan::Dsl::Ec2::ElasticLoadBalancer, :key_method => :name
       magic :flavor,                    String,         :default => 't1.micro'
       collection :iam_server_certificates, Ironfan::Dsl::Ec2::IamServerCertificate, :key_method => :name
@@ -26,7 +26,7 @@ module Ironfan
       magic :permanent,                 :boolean,       :default => false
       magic :placement_group,           String
       magic :provider,                  Whatever,       :default => Ironfan::Provider::Ec2
-      magic :public_ip,                 String
+      magic :elastic_ip,                String
       magic :region,                    String,         :default => ->{ default_region }
       collection :security_groups,      Ironfan::Dsl::Ec2::SecurityGroup, :key_method => :name
       magic :ssh_user,                  String,         :default => ->{ image_info[:ssh_user] }
@@ -62,8 +62,7 @@ module Ironfan
         values["AZ"] =                default_availability_zone
         return values if style == :default
 
-        # values["Elastic IP"] =        public_ip if public_ip
-        values["Elastic IP"] =        elastic_ip if elastic_ip
+        values["Public IP"] =        elastic_ip if elastic_ip
         values
       end
 
@@ -279,8 +278,8 @@ Chef::Config[:ec2_flavor_info].merge!({
     # 32-or-64: m1.small, m1.medium, t1.micro, c1.medium
     't1.micro'    => { :price => 0.02,  :bits => 64, :ram =>    686, :cores => 1, :core_size => 0.25, :inst_disks => 0, :inst_disk_size =>    0, :ephemeral_volumes => 0 },
     'm1.small'    => { :price => 0.08,  :bits => 64, :ram =>   1740, :cores => 1, :core_size => 1,    :inst_disks => 1, :inst_disk_size =>  160, :ephemeral_volumes => 1 },
-    'm1.medium'   => { :price => 0.165, :bits => 32, :ram =>   3840, :cores => 2, :core_size => 1,    :inst_disks => 1, :inst_disk_size =>  410, :ephemeral_volumes => 1 },
-    'c1.medium'   => { :price => 0.17,  :bits => 32, :ram =>   1740, :cores => 2, :core_size => 2.5,  :inst_disks => 1, :inst_disk_size =>  350, :ephemeral_volumes => 1 },
+    'm1.medium'   => { :price => 0.165, :bits => 64, :ram =>   3840, :cores => 2, :core_size => 1,    :inst_disks => 1, :inst_disk_size =>  410, :ephemeral_volumes => 1 },
+    'c1.medium'   => { :price => 0.17,  :bits => 64, :ram =>   1740, :cores => 2, :core_size => 2.5,  :inst_disks => 1, :inst_disk_size =>  350, :ephemeral_volumes => 1 },
     #
     'm1.large'    => { :price => 0.32,  :bits => 64, :ram =>   7680, :cores => 2, :core_size => 2,    :inst_disks => 2, :inst_disk_size =>  850, :ephemeral_volumes => 2 },
     'm2.xlarge'   => { :price => 0.45,  :bits => 64, :ram =>  18124, :cores => 2, :core_size => 3.25, :inst_disks => 1, :inst_disk_size =>  420, :ephemeral_volumes => 1 },

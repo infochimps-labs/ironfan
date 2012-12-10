@@ -71,8 +71,8 @@ module Ironfan
         def to_display(style,values={})
           # style == :minimal
           values["State"] =             state.to_sym
-          values["MachineID"] =        id
-          values["Public IP"] =         public_ip_address
+          values["MachineID"] =         id
+          values["Public IP"] =         public_ip_address 
           values["Private IP"] =        private_ip_address
           values["Created On"] =        created_at.to_date
           return values if style == :minimal
@@ -87,7 +87,6 @@ module Ironfan
           values["Volumes"] =           volumes.map(&:id).join(', ')
           values["SSH Key"] =           key_name
           values
-          pp(public_ip_address)
         end
 
         def ssh_key
@@ -160,13 +159,11 @@ module Ironfan
             fog_server = Ec2.connection.servers.create(launch_desc)
             machine = Machine.new(:adaptee => fog_server)
             computer.machine = machine
-            # set elastic_ip here?
-            # machine.ip = elastic_ip if elastic_ip
             remember machine, :id => computer.name
 
             fog_server.wait_for { ready? }
           end
-
+          
           # tag the computer correctly
           tags = {
             'cluster' =>      computer.server.cluster_name,
@@ -226,7 +223,6 @@ module Ironfan
             :facet_index =>             computer.server.index,
             :client_key =>              computer.private_key
           }
-
 
           # Fog does not actually create tags when it creates a server;
           #  they and permanence are applied during sync
