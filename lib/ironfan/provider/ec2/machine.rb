@@ -72,7 +72,7 @@ module Ironfan
           # style == :minimal
           values["State"] =             state.to_sym
           values["MachineID"] =         id
-          values["Public IP"] =         public_ip_address
+          values["Public IP"] =         public_ip_address 
           values["Private IP"] =        private_ip_address
           values["Created On"] =        created_at.to_date
           return values if style == :minimal
@@ -107,7 +107,6 @@ module Ironfan
             if (not machine.created?)
               next unless Ironfan.chef_config[:include_terminated]
               remember machine, :append_id => "terminated:#{machine.id}"
-              raise hell
             elsif recall? machine.name
               machine.bogus <<                 :duplicate_machines
               recall(machine.name).bogus <<    :duplicate_machines
@@ -248,10 +247,6 @@ module Ironfan
           description[:iam_server_certificates] = cloud.iam_server_certificates.values.map do |cert|
             IamServerCertificate.recall(IamServerCertificate.full_name(computer, cert))
           end.compact.map(&:name)
-
-#          description[:elastic_ip] = cloud.addresses.values.map do |eip|
-#            ElasticIp.recall(ElasticIp.associate_address(computer, eip))
-#          end.compact.map(&:name)
 
           description[:elastic_load_balancers] = cloud.elastic_load_balancers.values.map do |elb|
             ElasticLoadBalancer.recall(ElasticLoadBalancer.full_name(computer, elb))
