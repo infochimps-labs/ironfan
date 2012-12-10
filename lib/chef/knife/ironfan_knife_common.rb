@@ -140,7 +140,6 @@ module Ironfan
       bootstrap.name_args               = [ hostname ]
       bootstrap.config[:computer]       = computer
       bootstrap.config[:server]         = server
-      bootstrap.config[:elastic_ip]     = server.associate_address(elastic_ip)
       bootstrap.config[:run_list]       = server.run_list
       bootstrap.config[:ssh_user]       = config[:ssh_user]       || computer.ssh_user
       bootstrap.config[:attribute]      = config[:attribute]
