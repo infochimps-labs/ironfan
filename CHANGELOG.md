@@ -1,3 +1,7 @@
+# v4.6.0
+* Elastic IP attachment and SSH support (changes ec2.public_ip to ec2.elastic_ip for clarity - thanks @schade)
+* Expanded development dependencies, to allow avoiding bundler verbosity bug by rolling back to older version
+
 # v4.5.2:
 * 'knife cluster launch --bootstrap' should ensure that Chef::Config[:environment] is set, just as 'knife cluster bootstrap' does
 * Cleaning up knife commands to skip bogus servers (fixes #213)
