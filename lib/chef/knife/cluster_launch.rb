@@ -71,6 +71,13 @@ class Chef
 
         die("", "#{ui.color("All computers are running -- not launching any.",:blue)}", "", 1) if target.empty?
 
+        # If a bootstrap was requested, ensure that we will be able to perform the
+        # bootstrap *before* trying to launch all of the servers in target. This
+        # will save the user a lot of time if they've made a configuration mistake
+        if config[:bootstrap]
+          ensure_common_environment(target)
+        end
+
         # Pre-populate information in chef
         section("Syncing to chef")
         target.save :providers => :chef
@@ -80,7 +87,6 @@ class Chef
         section("Launching computers", :green)
         display(target)
         launched = target.launch
-
         # As each server finishes, configure it
         Ironfan.parallel(launched) do |computer|
           if (computer.is_a?(Exception)) then ui.warn "Error launching #{computer.inspect}; skipping after-launch tasks."; next; end
@@ -100,7 +106,7 @@ class Chef
         Ironfan.step(computer.name, 'waiting for ready', :white)
         # Wait for machine creation on amazon side
         computer.machine.wait_for{ ready? }
-
+        
         # Try SSH
         unless config[:dry_run]
           Ironfan.step(computer.name, 'trying ssh', :white)
@@ -109,7 +115,7 @@ class Chef
 
         Ironfan.step(computer.name, 'final provisioning', :white)
         computer.save
-
+        
         # Run Bootstrap
         if config[:bootstrap]
           Chef::Log.warn "UNTESTED --bootstrap"
