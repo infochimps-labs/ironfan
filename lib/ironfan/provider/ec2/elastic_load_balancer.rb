@@ -101,8 +101,8 @@ module Ironfan
           # Did the list of availability zones for this ELB change?
           if availability_zones != elb.availability_zones.sort
             Ironfan.step(elb.name, "  updating availability zones to #{availability_zones.join(', ')}", :blue)
-            to_add    = [ availability_zones - elb.availability_zones ]
-            to_remove = [ elb.availability_zones - availability_zones ]
+            to_add    = availability_zones - elb.availability_zones
+            to_remove = elb.availability_zones - availability_zones
             elb.enable_availability_zones(to_add) unless to_add.empty?
             elb.disable_availability_zones(to_remove) unless to_remove.empty?
           end
