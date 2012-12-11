@@ -51,11 +51,12 @@ module Ironfan
 
         def self.save!(computer)
           return unless computer.created?
-          elastic_ip = computer.server.ec2.elastic_ip
-          Ironfan.step(computer.name, "associating Elastic IP #{elastic_ip}", :blue)
-          Ironfan.unless_dry_run do
-            Ironfan.safely do
-              Ec2.connection.associate_address( computer.machine.id, elastic_ip )
+          if elastic_ip = computer.server.ec2.elastic_ip
+            Ironfan.step(computer.name, "associating Elastic IP #{elastic_ip}", :blue)
+              Ironfan.unless_dry_run do
+                Ironfan.safely do
+                Ec2.connection.associate_address( computer.machine.id, elastic_ip )
+              end
             end
           end
         end
