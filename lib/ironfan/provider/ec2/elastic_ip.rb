@@ -50,7 +50,7 @@ module Ironfan
         #
 
         def self.save!(computer)
-          return unless computer.created?
+          return unless (computer.created? and not computer.server.ec2.elastic_ip.nil?)
           elastic_ip = computer.server.ec2.elastic_ip
           Ironfan.step(computer.name, "associating Elastic IP #{elastic_ip}", :blue)
           Ironfan.unless_dry_run do
