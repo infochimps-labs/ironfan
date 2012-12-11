@@ -1,4 +1,8 @@
-# v4.6.0
+# v4.6.1:
+* Fixes nested array bug when computing list of AZs for an ELB (thanks @nickmarden)
+* Cleaning up overzealous Elastic IP inclusion (alternative fix to #222, thanks @nickmarden)
+
+# v4.6.0:
 * Elastic IP attachment and SSH support (changes ec2.public_ip to ec2.elastic_ip for clarity - thanks @schade)
 * Expanded development dependencies, to allow avoiding bundler verbosity bug by rolling back to older version
 
