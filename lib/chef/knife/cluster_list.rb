@@ -27,23 +27,30 @@ class Chef
         require 'formatador'
       end
 
-      banner "knife cluster list (options)"
+      banner 'knife cluster list (options)'
 
+      option :facets,
+        :long        => '--with-facets',
+        :description => 'List cluster facets along with names and paths',
+        :default     => false,
+        :boolean     => true
+      
       def run
         load_ironfan
         configure_dry_run
 
-        hash = Ironfan.cluster_filenames
-
-        table = []
-        hash.keys.sort.each do |key|
-          table.push( { :cluster => key, :path => hash[key] } )
+        data = Ironfan.cluster_filenames.map do |name, path|
+          as_table = { :cluster => name, :path => path }
+          if config[:facets]
+            facets = Ironfan.load_cluster(name).facets.to_a.map(&:name).join(', ')
+            as_table.merge!(:facets => facets)
+          end
+          as_table
         end
 
         ui.info "Cluster Path: #{ Ironfan.cluster_path.join ", " }"
-
-        Formatador.display_compact_table(table, [:cluster,:path])
-
+        headers = config[:facets] ? [:cluster, :facets, :path] : [:cluster, :path] 
+        Formatador.display_compact_table(data, headers)
       end
     end
   end
