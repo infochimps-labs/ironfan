@@ -4,7 +4,7 @@ module Ironfan
 
       class ElasticIp < Ironfan::Provider::Resource
       	delegate :addresses, :associate_address, :allocation_id, 
-            :allocation_id=, :destroy, :domain, :domain=, 
+            :allocation_id=, :allocate_address, :destroy, :domain, :domain=, 
             :describe_addresses, :disassociate_address, :domain, :id,
             :network_interface_id, :network_interface_id=, :public_ip, 
             :public_ip=, :public_ip_address, :save, :server=, :server, :server_id, 
@@ -35,7 +35,7 @@ module Ironfan
           end
 
           cluster.servers.each do |s|
-            next if s.ec2.elastic_ip.nil?
+            next if not s.ec2.include?(:elastic_ip)
             if recall? s.ec2.elastic_ip
               Chef::Log.debug( "Cluster elastic_ip matches #{s.ec2.elastic_ip}" )
             else
@@ -50,8 +50,28 @@ module Ironfan
         #
 
         def self.save!(computer)
-          return unless (computer.created? and not computer.server.ec2.elastic_ip.nil?)
-          elastic_ip = computer.server.ec2.elastic_ip
+          return unless computer.created?
+          # instead of just returning if the elastic_ip is blank we first test if the symbol exists and wether an actual 
+          # address exists in the collection; All three require the presence of elastic_ip in the facet definition.
+          return unless computer.server.ec2.include?(:elastic_ip)
+            if computer.server.ec2.elastic_ip.nil?
+              # First,  :elastic_ip is set, no address is currently allocated for this connection's owner 
+              # NOTE: We cannot specifiy an address to create, but after a reload we can then load the first available.
+              if computer.server.addresses.nil?
+                Ec2.connection.allocate_address
+                load! 
+                elastic_ip = computer.server.addresses.first.public_ip
+                Chef::Log.debug( "allocating new Elastic IP address" )
+              else
+                # Second, :elastic_ip is set, has an address available to use but has no set value available in facet definition.
+                elastic_ip = computer.server.addresses.first.public_ip
+                Chef::Log.debug( "using first available Elastic IP address" )
+            else
+              # Third,  :elastic_ip is set, has an address available to use and has a set value available in facet definition. 
+              elastic_ip = computer.server.ec2.elastic_ip
+              Chef::Log.debug( "using requested Elastic IP address" )
+            end
+          end
           Ironfan.step(computer.name, "associating Elastic IP #{elastic_ip}", :blue)
           Ironfan.unless_dry_run do
             Ironfan.safely do
