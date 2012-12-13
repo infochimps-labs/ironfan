@@ -31,6 +31,7 @@ class Chef
 
       option :facets,
         :long        => '--with-facets',
+        :short       => '-f',
         :description => 'List cluster facets along with names and paths',
         :default     => false,
         :boolean     => true
