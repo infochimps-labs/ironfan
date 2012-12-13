@@ -30,7 +30,11 @@ module Ironfan
             #   is passed to knife and aids in troubleshooting any refusal to
             #   attach Elastic IPs
             Chef::Log.debug( "AWS domain: #{eip.domain}" )
-            Chef::Log.debug( "available ip match: #{eip.public_ip}" )
+            if eip.public_ip.nil?
+              Chef::Log.debug( "no Elastic IPs currently allocated" )
+            else
+              Chef::Log.debug( "available ip match: #{eip.public_ip}" )
+            end
             Chef::Log.debug( "----------------------" )
           end
 
