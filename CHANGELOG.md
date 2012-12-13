@@ -1,3 +1,6 @@
+# v4.6.2:
+* Added a -f/--with-facet option to knife cluster list
+
 # v4.6.1:
 * Fixes nested array bug when computing list of AZs for an ELB (thanks @nickmarden)
 * Cleaning up overzealous Elastic IP inclusion (alternative fix to #222, thanks @nickmarden)
