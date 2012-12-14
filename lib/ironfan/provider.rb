@@ -42,6 +42,12 @@ module Ironfan
       resources.each {|r| r.validate_resources! computers }
     end
 
+    def self.prepare!(computers)
+      resources.each do |r|
+        r.prepare!(computers) if r.shared?
+      end
+    end
+
     def self.aggregate!(computers)
       resources.each do |r|
         r.aggregate!(computers) if r.shared?
@@ -87,14 +93,15 @@ module Ironfan
       #
       def self.create!(*p)              Ironfan.noop(self,__method__,*p);   end
       def self.save!(*p)                Ironfan.noop(self,__method__,*p);   end
+      def self.prepare!(*p)             Ironfan.noop(self,__method__,*p);   end
       def self.aggregate!(*p)           Ironfan.noop(self,__method__,*p);   end
       def self.destroy!(*p)             Ironfan.noop(self,__method__,*p);   end
 
       #
       # Utilities
       #
-      [:shared?, :multiple?, :load!,:validate_computer!,
-       :validate_resources!,:create!,:save!,:aggregate!,:destroy!].each do |method_name|
+      [:shared?, :multiple?, :load!,:validate_computer!, :validate_resources!,
+       :create!, :save!, :prepare!, :aggregate!, :destroy!].each do |method_name|
          define_method(method_name) {|*p| self.class.send(method_name,*p) }
        end
 
