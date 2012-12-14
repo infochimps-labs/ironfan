@@ -82,6 +82,11 @@ class Chef
         section("Syncing to chef")
         target.save :providers => :chef
 
+        unless target.empty?
+          ui.info "Preparing shared resources:"
+          all_computers(*@name_args).prepare
+        end
+
         # Launch computers
         ui.info("")
         section("Launching computers", :green)
