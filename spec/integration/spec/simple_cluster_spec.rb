@@ -17,6 +17,7 @@ Ironfan.cluster "simple" do
 
   facet :web do
     instances 1
+    cloud(:ec2).security_group(:web).authorize_group :web_clients
   end
 
   facet :db do
@@ -35,12 +36,18 @@ launch_cluster 'simple' do |cluster, computers|
 
     describe "the web facet security groups" do
       subject { cluster.facets[:web].server(0).cloud(:ec2).security_groups.keys.map(&:to_s).sort }
-      it { should == %w[ simple simple-web ssh systemwide ] }
+      it { should == %w[ simple simple-web ssh systemwide web ] }
     end
 
     describe "the db facet security groups" do
       subject { cluster.facets[:db].server(0).cloud(:ec2).security_groups.keys.map(&:to_s).sort }
       it { should == %w[ simple simple-db ssh systemwide ] }
+    end
+
+    describe "the passively created security groups" do
+      it "should include the :web_clients group" do
+        Ironfan::Provider::Ec2::SecurityGroup.recall('web_clients').should_not be_nil
+      end
     end
 
     describe "the cluster-wide security group" do

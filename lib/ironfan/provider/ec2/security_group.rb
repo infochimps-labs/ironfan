@@ -20,22 +20,18 @@ module Ironfan
         def self.resource_type()        :security_group;   end
         def self.expected_ids(computer)
           ec2 = computer.server.cloud(:ec2)
-          ec2.security_groups.keys.map do |name|
-            ec2.vpc ? "#{ec2.vpc}:#{name.to_s}" : name.to_s
-          end.uniq
+          ec2.security_groups.keys.map { |name| group_name_with_vpc(name,ec2.vpc) }.uniq
         end
 
         def name()
-          return adaptee.name if adaptee.vpc_id.nil?
-          "#{adaptee.vpc_id}:#{adaptee.name}"
+          self.class.group_name_with_vpc(adaptee.name, adaptee.vpc_id)
         end
 
         #
         # Discovery
         #
         def self.load!(cluster=nil)
-          Ec2.connection.security_groups.each do |raw|
-            next if raw.blank?
+          Ec2.connection.security_groups.reject { |raw| raw.blank? }.each do |raw|
             sg = SecurityGroup.new(:adaptee => raw)
             remember(sg)
             Chef::Log.debug("Loaded #{sg}: #{sg.inspect}")
@@ -66,17 +62,73 @@ module Ironfan
         # Manipulation
         #
 
-        def self.create!(computer)
-          return unless Ec2.applicable computer
+        def self.prepare!(computers)
 
-          ensure_groups(computer)
-          groups = self.expected_ids(computer)
-          # Only handle groups that don't already exist
-          groups.delete_if {|group| recall? group.to_s }
-          return if groups.empty?
+          # Create any groups that don't yet exist, and ensure any authorizations
+          # that are required for those groups
+          cluster_name             = nil
+          groups_to_create         = [ ]
+          authorizations_to_ensure = [ ]
 
-          Ironfan.step(computer.server.cluster_name, "creating security groups", :blue)
-          groups.each do |group|
+          # First, deduce the list of all groups to which at least one instance belongs
+          # We'll use this later to decide whether to create groups, or authorize access,
+          # using a VPC security group or an EC2 security group.
+          groups_that_should_exist = computers.map { |c| expected_ids(c) }.flatten.sort.uniq
+          groups_to_create << groups_that_should_exist
+
+          computers.select { |computer| Ec2.applicable computer }.each do |computer|
+            ensure_groups(computer) # Add facet and cluster security groups for the computer
+            cloud           = computer.server.cloud(:ec2)
+            cluster_name    = computer.server.cluster_name
+
+            # Iterate over all of the security group information, keeping track of
+            # any groups that must exist and any authorizations that must be ensured
+            cloud.security_groups.values.each do |dsl_group|
+
+              groups_to_create << dsl_group.name
+
+              groups_to_create << dsl_group.group_authorized.map do |other_group|
+                most_appropriate_group_name(other_group, cloud.vpc, groups_that_should_exist)
+              end
+
+              groups_to_create << dsl_group.group_authorized_by.map do |other_group|
+                most_appropriate_group_name(other_group, cloud.vpc, groups_that_should_exist)
+              end
+
+              authorizations_to_ensure << dsl_group.group_authorized.map do |other_group|
+                {
+                  :grantor      => most_appropriate_group_name(dsl_group.name, cloud.vpc, groups_that_should_exist),
+                  :grantee      => most_appropriate_group_name(other_group, cloud.vpc, groups_that_should_exist),
+                  :grantee_type => :group,
+                  :range        => WIDE_OPEN,
+                }
+              end
+
+              authorizations_to_ensure << dsl_group.group_authorized_by.map do |other_group|
+                {
+                  :grantor      => most_appropriate_group_name(other_group, cloud.vpc, groups_that_should_exist),
+                  :grantee      => most_appropriate_group_name(dsl_group.name, cloud.vpc, groups_that_should_exist),
+                  :grantee_type => :group,
+                  :range        => WIDE_OPEN,
+                }
+              end
+
+              authorizations_to_ensure << dsl_group.range_authorizations.map do |range_auth|
+                range, cidr, protocol = range_auth
+                {
+                  :grantor      => group_name_with_vpc(dsl_group.name, cloud.vpc),
+                  :grantee      => { :cidr_ip => cidr, :ip_protocol => protocol },
+                  :grantee_type => :cidr,
+                  :range        => range,
+                }
+              end
+            end
+          end
+          groups_to_create         = groups_to_create.flatten.uniq.reject { |group| recall? group.to_s }.sort
+          authorizations_to_ensure = authorizations_to_ensure.flatten.uniq.sort { |a,b| a[:grantor] <=> b[:grantor] }
+
+          Ironfan.step(cluster_name, "creating security groups", :blue) unless groups_to_create.empty?
+          groups_to_create.each do |group|
             Ironfan.step(group, "  creating #{group} security group", :blue)
             begin
               tokens    = group.to_s.split(':')
@@ -85,56 +137,34 @@ module Ironfan
               Ec2.connection.create_security_group(group_id,"Ironfan created group #{group_id}",vpc_id)
             rescue Fog::Compute::AWS::Error => e # InvalidPermission.Duplicate
               Chef::Log.info("ignoring security group error: #{e}")
-              sleep 0.5  # quit racing so hard
             end
           end
-          load! # Get the native groups via reload
-        end
 
-        def self.recall_with_vpc(name,vpc_id=nil)
-          group_name = vpc_id.nil? ? name : "#{vpc_id}:#{name}"
-          recall(group_name)
-        end
+          # Re-load everything so that we have a @@known list of security groups to manipulate
+          load! unless groups_to_create.empty?
 
-        def self.save!(computer)
-          return unless Ec2.applicable computer
-          cloud = computer.server.cloud(:ec2)
-
-          create!(computer)            # Make sure the security groups exist
-          security_groups = cloud.security_groups.values
-          dsl_groups = security_groups.select do |dsl_group|
-            not (recall_with_vpc(dsl_group,cloud.vpc)) and \
-            not (dsl_group.range_authorizations +
-                 dsl_group.group_authorized_by +
-                 dsl_group.group_authorized).empty?
-          end.compact
-          return if dsl_groups.empty?
-
-          Ironfan.step(computer.server.cluster_name, "ensuring security group permissions", :blue)
-          dsl_groups.each do |dsl_group|
-            dsl_group_fog = recall_with_vpc(dsl_group.name,cloud.vpc)
-            dsl_group.group_authorized.each do |other_group|
-              other_group_fog = recall_with_vpc(other_group,cloud.vpc)
-              Ironfan.step(dsl_group.name, "  ensuring access from #{other_group}", :blue)
-              options = {:group => other_group_fog.group_id}
-              safely_authorize(dsl_group_fog, WIDE_OPEN, options)
+          # Now make sure that all required authorizations are present
+          Ironfan.step(cluster_name, "ensuring security group permissions", :blue) unless authorizations_to_ensure.empty?
+          authorizations_to_ensure.each do |auth|
+            grantor_fog = recall(auth[:grantor])
+            if :group == auth[:grantee_type]
+              options = { :group => recall(auth[:grantee]).group_id }
+              message = "  ensuring access from #{auth[:grantee]} to #{auth[:grantor]}"
+            else
+              options = auth[:grantee]
+              message = "  ensuring #{auth[:grantee][:ip_protocol]} access from #{auth[:grantee][:cidr_ip]} to #{auth[:range]}"
             end
-
-            dsl_group.group_authorized_by.each do |other_group|
-              other_group_fog = recall_with_vpc(other_group,cloud.vpc)
-              Ironfan.step(dsl_group.name, "  ensuring access to #{other_group}", :blue)
-              options = {:group => dsl_group_fog.group_id}
-              safely_authorize(other_group_fog, WIDE_OPEN, options)
-            end
-
-            dsl_group.range_authorizations.each do |range_auth|
-              range, cidr, protocol = range_auth
-              step_message = "  ensuring #{protocol} access from #{cidr} to #{range}"
-              Ironfan.step(dsl_group.name, step_message, :blue)
-              options = {:cidr_ip => cidr, :ip_protocol => protocol}
-              safely_authorize(dsl_group_fog, range, options)
-            end
+            Ironfan.step(auth[:grantor], message, :blue)
+            safely_authorize(grantor_fog, auth[:range], options)
           end
+        end
+
+        def self.group_name_with_vpc(name,vpc_id=nil)
+          vpc_id.nil? ? name.to_s : "#{vpc_id}:#{name.to_s}"
+        end
+
+        def self.most_appropriate_group_name(group, vpc_id, all_valid_groups)
+          all_valid_groups.include?(group_name_with_vpc(group, vpc_id)) ? group_name_with_vpc(group, vpc_id) : group
         end
 
         #
