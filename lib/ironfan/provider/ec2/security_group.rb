@@ -129,14 +129,18 @@ module Ironfan
 
           Ironfan.step(cluster_name, "creating security groups", :blue) unless groups_to_create.empty?
           groups_to_create.each do |group|
-            Ironfan.step(group, "  creating #{group} security group", :blue)
-            begin
-              tokens    = group.to_s.split(':')
-              group_id  = tokens.pop
-              vpc_id    = tokens.pop
-              Ec2.connection.create_security_group(group_id,"Ironfan created group #{group_id}",vpc_id)
-            rescue Fog::Compute::AWS::Error => e # InvalidPermission.Duplicate
-              Chef::Log.info("ignoring security group error: #{e}")
+            if group =~ /\//
+              Ironfan.step(group, "  assuming that owner/group pair #{group} already exists", :blue)
+            else
+              Ironfan.step(group, "  creating #{group} security group", :blue)
+              begin
+                tokens    = group.to_s.split(':')
+                group_id  = tokens.pop
+                vpc_id    = tokens.pop
+                Ec2.connection.create_security_group(group_id,"Ironfan created group #{group_id}",vpc_id)
+              rescue Fog::Compute::AWS::Error => e # InvalidPermission.Duplicate
+                Chef::Log.info("ignoring security group error: #{e}")
+              end
             end
           end
 
@@ -148,7 +152,13 @@ module Ironfan
           authorizations_to_ensure.each do |auth|
             grantor_fog = recall(auth[:grantor])
             if :group == auth[:grantee_type]
-              options = { :group => recall(auth[:grantee]).group_id }
+              if fog_grantee = recall(auth[:grantee])
+                options = { :group => fog_grantee.group_id }
+              elsif auth[:grantee] =~ /\//
+                options = { :group_alias => auth[:grantee] }
+              else
+                raise "Don't know what to do with authorization grantee #{auth[:grantee]}"
+              end
               message = "  ensuring access from #{auth[:grantee]} to #{auth[:grantor]}"
             else
               options = auth[:grantee]
@@ -186,20 +196,27 @@ module Ironfan
         # Try an authorization, ignoring duplicates (this is easier than correlating).
         # Do so for both TCP and UDP, unless only one is specified
         def self.safely_authorize(fog_group,range,options)
-          unless options[:ip_protocol]
+          if options[:group_alias]
+            owner, group = options[:group_alias].split(/\//)
+            self.patiently(fog_group.name, Fog::Compute::AWS::Error, :ignore => Proc.new { |e| e.message =~ /InvalidPermission\.Duplicate/ }) do
+              Ec2.connection.authorize_security_group_ingress(
+                'GroupName'                   => fog_group.name,
+                'SourceSecurityGroupName'     => group,
+                'SourceSecurityGroupOwnerId'  => owner
+              )
+            end
+          elsif options[:ip_protocol]
+            self.patiently(fog_group.name, Fog::Compute::AWS::Error, :ignore => Proc.new { |e| e.message =~ /InvalidPermission\.Duplicate/ }) do
+              fog_group.authorize_port_range(range,options)
+            end
+          else
             safely_authorize(fog_group,range,options.merge(:ip_protocol => 'tcp'))
             safely_authorize(fog_group,range,options.merge(:ip_protocol => 'udp'))
             safely_authorize(fog_group,Range.new(-1,-1),options.merge(:ip_protocol => 'icmp')) if(range == WIDE_OPEN)
             return
           end
-
-          self.patiently(fog_group.name, Fog::Compute::AWS::Error, :ignore => Proc.new { |e| e.message =~ /InvalidPermission\.Duplicate/ }) do
-            fog_group.authorize_port_range(range,options)
-          end
-
         end
       end
-
     end
   end
 end

@@ -17,7 +17,10 @@ Ironfan.cluster "simple" do
 
   facet :web do
     instances 1
-    cloud(:ec2).security_group(:web).authorize_group :web_clients
+    cloud(:ec2).security_group(:web) do
+      authorize_group :web_clients
+      authorize_group 'amazon-elb/amazon-elb-sg'
+    end
   end
 
   facet :db do
@@ -83,7 +86,17 @@ launch_cluster 'simple' do |cluster, computers|
         @ordered_ipp['icmp']['fromPort'].to_i.should              == -1
         @ordered_ipp['icmp']['toPort'].to_i.should                == -1
       end
+    end
 
+    describe "the web security group" do
+      before :each do
+        @sg = Ironfan::Provider::Ec2::SecurityGroup.recall('web')
+        @ordered_ipp = Hash[ @sg.ip_permissions.map { |s| [ s['ipProtocol'], s ] } ]
+      end
+
+      it "allows TCP connections to web_clients and to amazon-elb-sg" do
+        @ordered_ipp['tcp']['groups'].map { |g| g['groupName'] }.sort.should == %w[ amazon-elb-sg web_clients ]
+      end
     end
   end
 end
