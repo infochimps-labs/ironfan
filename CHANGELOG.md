@@ -1,3 +1,10 @@
+# v4.7.0:
+(@nickmarden rocks the house again)
+* Added support for "prepare" phase, prior to any machine-specific actions
+* Move security group creation and authorization assurance to prepare phase (fixes #189)
+* Allow user/group-style security group references (fixes #207)
+* Move keypair creation to prepare phase
+
 # v4.6.2:
 * Added a -f/--with-facet option to knife cluster list
 
