@@ -424,6 +424,8 @@ Chef::Config[:ec2_image_info].merge!({
   #
   %w[ us-east-1            32-bit  ebs             precise    ] => { :image_id => 'ami-3b4ff252', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
   %w[ us-east-1            64-bit  ebs             precise    ] => { :image_id => 'ami-3d4ff254', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+  %w[ us-west-2            32-bit  ebs             precise    ] => { :image_id => 'ami-7cab224c', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
+  %w[ us-west-2            64-bit  ebs             precise    ] => { :image_id => 'ami-7eab224e', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
   # # These images will only work once http://askubuntu.com/questions/209844/latest-ec2-ubuntu-instance-seems-broken is fixed
   # %w[ us-east-1            32-bit  ebs             precise    ] => { :image_id => 'ami-9878c0f1', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
   # %w[ us-east-1            64-bit  ebs             precise    ] => { :image_id => 'ami-9c78c0f5', :ssh_user => 'ubuntu', :bootstrap_distro => "ubuntu10.04-gems", },
