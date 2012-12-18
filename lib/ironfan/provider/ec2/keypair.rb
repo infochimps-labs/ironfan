@@ -50,8 +50,9 @@ module Ironfan
         # Manipulation
         #
 
-        def self.create!(computer)
-          name = computer.server.cluster_name
+        def self.prepare!(computers)
+          return if computers.empty?
+          name = computers.values[0].server.cluster_name
           return if recall? name
           Ironfan.step(name, "creating key pair for #{name}", :blue)
           result = Ec2.connection.create_key_pair(name)
