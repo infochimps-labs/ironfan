@@ -1,3 +1,7 @@
+# v4.7.1
+* Cleaning up omnibus usage to link embedded bin, ruby into default $PATHs, rather than use /etc/environment to try tweaking (doesn't hit a large number of programs)
+* Launched machines should announce their state as "started"
+
 # v4.7.0:
 (@nickmarden rocks the house again)
 * Added support for "prepare" phase, prior to any machine-specific actions
