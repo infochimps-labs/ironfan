@@ -75,6 +75,7 @@ module Ironfan
       def launch
         ensure_dependencies
         iaas_provider.machine_class.create! self
+        node.announce_state :started
         save
         self
       end
