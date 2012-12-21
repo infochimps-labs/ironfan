@@ -75,6 +75,7 @@ module Ironfan
       def launch
         ensure_dependencies
         iaas_provider.machine_class.create! self
+        node.announce_state :started
         save
         self
       end
@@ -298,11 +299,19 @@ module Ironfan
         values.map {|c| c.providers.values}.flatten.uniq.each {|p| p.validate computers }
       end
 
-      def aggregate
+      def group_action(verb)
         computers = self
-        provider_keys = values.map {|c| c.chosen_providers({ :providers => :iaas})}.flatten.uniq
+        provider_keys = values.map {|c| c.chosen_providers({ :providers => :iaas })}.flatten.uniq
         providers     = provider_keys.map { |pk| values.map { |c| c.providers[pk] } }.flatten.compact.uniq
-        providers.each { |p| p.aggregate! computers }
+        providers.each { |p| p.send(verb, computers) }
+      end
+
+      def prepare
+        group_action(:prepare!)
+      end
+
+      def aggregate
+        group_action(:aggregate!)
       end
 
       #

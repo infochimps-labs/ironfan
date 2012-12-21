@@ -62,6 +62,10 @@ class Chef
         else Chef::Log.debug("Skipping sync to cloud") ; end
       end
 
+      def prepares_on_noop?
+        true
+      end
+
       def aggregates_on_noop?
         true
       end

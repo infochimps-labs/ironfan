@@ -119,6 +119,10 @@ class Chef
 }\n}
       end
 
+      def prepares?
+        false
+      end
+
       def aggregates?
         false
       end

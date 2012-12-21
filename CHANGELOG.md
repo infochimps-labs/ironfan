@@ -1,3 +1,17 @@
+# v4.7.1
+* Cleaning up omnibus usage to link embedded bin, ruby into default $PATHs, rather than use /etc/environment to try tweaking (doesn't hit a large number of programs)
+* Launched machines should announce their state as "started"
+
+# v4.7.0:
+(@nickmarden rocks the house again)
+* Added support for "prepare" phase, prior to any machine-specific actions
+* Move security group creation and authorization assurance to prepare phase (fixes #189)
+* Allow user/group-style security group references (fixes #207)
+* Move keypair creation to prepare phase
+
+# v4.6.2:
+* Added a -f/--with-facet option to knife cluster list
+
 # v4.6.1:
 * Fixes nested array bug when computing list of AZs for an ELB (thanks @nickmarden)
 * Cleaning up overzealous Elastic IP inclusion (alternative fix to #222, thanks @nickmarden)
