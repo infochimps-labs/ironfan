@@ -58,7 +58,7 @@ module Ironfan
           return unless computer.created?
           # instead of just returning if the elastic_ip is blank we first test if the symbol exists and whether an actual 
           # address exists in the collection; All three require the presence of elastic_ip in the facet definition. We
-          # also, in the absence of an elastic_ip value, can use allocation_id to attach a VPC Elastic IP.
+          # also, in the case of VPC Elastic IPs, can discover and use allocation_id to attach a VPC Elastic IP.
           return unless computer.server.ec2.include?(:elastic_ip)
             if ( computer.server.ec2.elastic_ip.nil? and cloud.vpc.nil? )
               # First,  :elastic_ip is set, no address is currently allocated for this connection's owner 
