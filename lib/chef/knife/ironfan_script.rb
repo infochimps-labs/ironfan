@@ -44,6 +44,11 @@ module Ironfan
 
       target = get_relevant_slice(* @name_args)
 
+      if prepares? and (prepares_on_noop? or not target.empty?)
+        ui.info "Preparing shared resources:"
+        all_computers(*@name_args).prepare
+      end
+
       unless target.empty?
         ui.info(["\n",
                  ui.color("Running #{sub_command}", :cyan),
@@ -74,6 +79,14 @@ module Ironfan
 
     def perform_execution(target)
       target.send(sub_command)
+    end
+
+    def prepares?
+      true
+    end
+
+    def prepares_on_noop?
+      false
     end
 
     def aggregates?

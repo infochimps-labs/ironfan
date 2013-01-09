@@ -44,15 +44,12 @@ if [ ! -f /opt/chef/bin/chef-client ]; then
   curl -L http://www.opscode.com/chef/install.sh | sudo bash
 fi
 
-# Include the omnibus' path in the system-wide path, to allow use of
-#   its executables (gem, ruby, bundler, etc.)
-(
-cat <<'EOP'
-PATH="/opt/chef/embedded/bin/:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games"
-EOP
-) >> /etc/environment
-. /etc/environment
+# Replace /usr/local/sbin with the omnibus' bin, to get it into the PATH
+mv /usr/local/sbin{,~}
+ln -s /opt/chef/embedded/bin /usr/local/sbin
 
+# Link ruby into /usr/bin/ruby, to allow /usr/bin/env 
+ln -s /opt/chef/embedded/bin/ruby /usr/bin
 
 gem install extlib bundler json right_aws pry fog
 
