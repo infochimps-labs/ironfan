@@ -23,6 +23,7 @@ module Ironfan
 
         def self.load!(cluster=nil)
           Ec2.connection.addresses.each do |eip|
+            pp eip
             register eip
             Chef::Log.debug("Loaded #{eip}")
 
@@ -33,7 +34,8 @@ module Ironfan
             if eip.public_ip.nil?
               Chef::Log.debug( "no Elastic IPs currently allocated" )
             else
-              Chef::Log.debug( "available ip match: #{eip.public_ip}" )
+              Chef::Log.debug( "#{eip}" )
+              # Chef::Log.debug( "available ip match: #{eip.public_ip}" )
             end
             Chef::Log.debug( "----------------------" )
           end
