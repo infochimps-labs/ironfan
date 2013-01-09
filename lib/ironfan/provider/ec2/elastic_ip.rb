@@ -85,7 +85,7 @@ module Ironfan
           Ironfan.step(computer.name, "associating Elastic IP #{elastic_ip}", :blue)
           Ironfan.unless_dry_run do
             Ironfan.safely do
-              if !cloud.vpc.nil?
+              if cloud.vpc.nil?
                 Ec2.connection.associate_address( computer.machine.id, public_ip = elastic_ip )
               else 
                 Ec2.connection.associate_address( computer.machine.id, allocation_id = allocation_id )
