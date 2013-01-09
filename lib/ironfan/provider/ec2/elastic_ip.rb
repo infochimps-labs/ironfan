@@ -45,6 +45,12 @@ module Ironfan
             else
               Chef::Log.debug( "No matching Elastic IP for #{s.ec2.elastic_ip}" )
             end
+            next if not s.ec2.include?(:allocation_id)
+            if recall? s.ec2.allocation_id
+              Chef::Log.debug( "Cluster Allocation ID matches #{s.ec2.allocation_id}" )
+            else
+              Chef::Log.debug( "No matching Allocation ID for #{s.ec2.allocation_id}" )
+            end
           end
 
         end
@@ -79,7 +85,7 @@ Ec2.connection.associate_address( computer.machine.id, elastic_ip )
               Chef::Log.debug( "using requested Elastic IP address" )
             elsif ( !computer.server.ec2.include?(:elastic_ip) and computer.server.ec2.include?(:allocation_id) )
               #Fourth, :elastic_ip is unset but :allocation_id is given in facet definition. (this is functionaility for attaching VPC Elastic IPS)
-              elastic_ip = computer.server.ec2.allocation_id
+              allocation_id = computer.server.ec2.allocation_id
               Chef::Log.debug( "using Elastic IP address matched to given Allocation ID" )
             else 
               ui.warn("can only specify one of either Elastic IP or Allocation ID; not both.")
@@ -91,7 +97,11 @@ Ec2.connection.associate_address( computer.machine.id, elastic_ip )
           Ironfan.step(computer.name, "associating Elastic IP #{elastic_ip}", :blue)
           Ironfan.unless_dry_run do
             Ironfan.safely do
-              Ec2.connection.associate_address( computer.machine.id, elastic_ip )
+              if !computer.server.ec2.include?(:allocation_id)
+                Ec2.connection.associate_address( computer.machine.id, public_ip = elastic_ip )
+              else 
+                Ec2.connection.associate_address( computer.machine.id, allocation_id = allocation_id )
+              end
             end
           end
         end
