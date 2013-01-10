@@ -50,12 +50,17 @@ module Ironfan
         #
 
         def self.save!(computer)
-          return unless (computer.created? and not computer.server.ec2.elastic_ip.nil?)
-          elastic_ip = computer.server.ec2.elastic_ip
+          return unless computer.created?
+          return unless elastic_ip = computer.server.ec2.elastic_ip
+          return unless recall? elastic_ip
           Ironfan.step(computer.name, "associating Elastic IP #{elastic_ip}", :blue)
           Ironfan.unless_dry_run do
             Ironfan.safely do
-              Ec2.connection.associate_address( computer.machine.id, elastic_ip )
+              vpc           = computer.server.ec2.vpc
+              allocation_id = recall(elastic_ip).allocation_id
+              raise "#{elastic_ip} is only for non-VPC instances" if vpc and allocation_id.nil?
+              raise "#{elastic_ip} is only for VPC instances"     if vpc.nil? and allocation_id
+              Ec2.connection.associate_address( computer.machine.id, elastic_ip, nil, allocation_id )
             end
           end
         end
