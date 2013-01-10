@@ -26,6 +26,7 @@ module Ironfan
       magic :placement_group,           String
       magic :provider,                  Whatever,       :default => Ironfan::Provider::Ec2
       magic :elastic_ip,                String
+      magic :auto_elastic_ip,           String
       magic :allocation_id,             String
       magic :region,                    String,         :default => ->{ default_region }
       collection :security_groups,      Ironfan::Dsl::Ec2::SecurityGroup, :key_method => :name

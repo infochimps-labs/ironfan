@@ -4,11 +4,11 @@ module Ironfan
 
       class ElasticIp < Ironfan::Provider::Resource
       	delegate :addresses, :associate_address, :allocation_id, 
-            :allocation_id=, :allocate_address, :destroy, :domain, :domain=, 
-            :describe_addresses, :disassociate_address, :domain, :id,
-            :network_interface_id, :network_interface_id=, :public_ip, 
-            :public_ip=, :public_ip_address, :save, :server=, :server, :server_id, 
-            :server_id=,
+            :allocation_id=, :allocate_address, :auto_elastic_ip, :destroy, 
+            :domain, :domain=, :describe_addresses, :disassociate_address, 
+            :domain, :id, :network_interface_id, :network_interface_id=, 
+            :public_ip, :public_ip=, :public_ip_address, :save, :server=, 
+            :server, :server_id, :server_id=,
         :to => :adaptee
  
         def self.shared?()              true;                               end
@@ -58,6 +58,7 @@ module Ironfan
           return unless computer.created?
           # instead of just returning if the elastic_ip is blank we first test if the symbol exists and whether an actual 
           # address exists in the collection; All three require the presence of elastic_ip in the facet definition. We
+<<<<<<< Updated upstream
           # also, in the absence of an elastic_ip value, can use allocation_id to attach a VPC Elastic IP.
           return unless computer.server.ec2.include?(:elastic_ip)
             if ( computer.server.ec2.elastic_ip.nil? and cloud.vpc.nil? )
@@ -81,7 +82,31 @@ module Ironfan
               # Fourth, is exactly like Third but on a VPC domain. (this is functionaility for attaching VPC Elastic IPS)
               allocation_id = computer.server.ec2.allocation_id
               Chef::Log.debug( "using Elastic IP address matched to given Allocation ID" )
+=======
+          # also, in the case of VPC Elastic IPs, can discover and use allocation_id to attach a VPC Elastic IP.
+          if ( computer.server.ec2.auto_elastic_ip == 'first' and cloud.vpc.nil? )
+            if computer.server.addresses.nil?
+              Ec2.connection.allocate_address
+              load! 
+              elastic_ip = computer.server.addresses.first.public_ip
+              Chef::Log.debug( "allocating new Elastic IP address" )
+            else
+              # Second, :elastic_ip is set, has an address available to use, has no set value in facet definition and is not VPC.
+              elastic_ip = computer.server.addresses.first.public_ip
+              Chef::Log.debug( "using first available Elastic IP address" )
+>>>>>>> Stashed changes
             end
+          elsif ( !computer.server.ec2.elastic_ip.nil? or cloud.vpc.nil? )
+            # Third,  :elastic_ip is set, has an address available to use, has a set value in facet definition and is not VPC. 
+            elastic_ip = computer.server.ec2.elastic_ip
+            Chef::Log.debug( "using requested Elastic IP address" )
+          elsif ( computer.server.ec2.elastic_ip.nil? and !cloud.vpc.nil? )
+            # Fourth, is exactly like Third but on a VPC domain. (this is functionaility for attaching VPC Elastic IPS)
+            allocation_id = computer.server.ec2.allocation_id
+            Chef::Log.debug( "using Elastic IP address matched to given Allocation ID" )
+          else 
+            ui.fatal("You have set both :elastic_ip and :auto_elastic_ip in your facet definition; which are mutually exclusive.")
+          end
           Ironfan.step(computer.name, "associating Elastic IP #{elastic_ip}", :blue)
           Ironfan.unless_dry_run do
             Ironfan.safely do
