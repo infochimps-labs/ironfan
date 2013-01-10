@@ -1,3 +1,6 @@
+# v4.7.2
+* elastic_ip: ensuring that elastic IPs work with VPC instances (thanks @schade)
+
 # v4.7.1
 * Cleaning up omnibus usage to link embedded bin, ruby into default $PATHs, rather than use /etc/environment to try tweaking (doesn't hit a large number of programs)
 * Launched machines should announce their state as "started"

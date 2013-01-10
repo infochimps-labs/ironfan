@@ -56,8 +56,8 @@ module Ironfan
 
         def self.save!(computer)
           return unless computer.created?
-          # instead of just returning if the elastic_ip is blank we first test if the symbol exists and whether an actual 
-          # address exists in the collection; All three require the presence of elastic_ip in the facet definition. We
+          return unless elastic_ip = computer.server.ec2.elastic_ip
+          return unless recall? elastic_ip
           # also, in the case of VPC Elastic IPs, can discover and use allocation_id to attach a VPC Elastic IP.
           return unless computer.server.ec2.include?(:elastic_ip)
             if ( computer.server.ec2.elastic_ip.nil? and cloud.vpc.nil? )
@@ -75,7 +75,7 @@ module Ironfan
               end
             elsif ( !computer.server.ec2.elastic_ip.nil? or cloud.vpc.nil? )
               # Third,  :elastic_ip is set, has an address available to use, has a set value in facet definition and is not VPC. 
-              elastic_ip = computer.server.ec2.elastic_ip
+          elastic_ip = computer.server.ec2.elastic_ip
               Chef::Log.debug( "using requested Elastic IP address" )
             elsif ( computer.server.ec2.elastic_ip.nil? and !cloud.vpc.nil? )
               # Fourth, is exactly like Third but on a VPC domain. (this is functionaility for attaching VPC Elastic IPS)
@@ -88,11 +88,11 @@ module Ironfan
           Ironfan.step(computer.name, "associating Elastic IP #{elastic_ip}", :blue)
           Ironfan.unless_dry_run do
             Ironfan.safely do
-              if cloud.vpc.nil?
-                Ec2.connection.associate_address( computer.machine.id, public_ip = elastic_ip )
-              else 
-                Ec2.connection.associate_address( computer.machine.id, allocation_id = allocation_id )
-              end
+              vpc           = computer.server.ec2.vpc
+              allocation_id = recall(elastic_ip).allocation_id
+              raise "#{elastic_ip} is only for non-VPC instances" if vpc and allocation_id.nil?
+              raise "#{elastic_ip} is only for VPC instances"     if vpc.nil? and allocation_id
+              Ec2.connection.associate_address( computer.machine.id, elastic_ip, nil, allocation_id )
             end
           end
         end
