@@ -50,8 +50,12 @@ class Chef
 #        config[:identity_file] ||= target.ssh_identity_file
 
 #         @action_nodes = target.chef_nodes
+        #action_nodes needs to be an Array or chef will fail with nil:NilClass Exception
+        @action_nodes = []
         target = target.select {|t| not t.bogus? }
-        addresses = target.map {|c| c.machine.public_hostname }.compact
+        #For some reason the ssh_identity_file config above was removed from target.
+        config[:identity_file] ||= target.map {|c| c.keypair.key_filename }.compact.first
+        addresses = target.map {|c| c.machine.vpc_id.nil? ? c.machine.public_hostname : c.machine.public_ip_address }.compact
 
         (ui.fatal("No nodes returned from search!"); exit 10) if addresses.nil? || addresses.length == 0
 
