@@ -60,30 +60,29 @@ module Ironfan
           return unless recall? elastic_ip
           # also, in the case of VPC Elastic IPs, can discover and use allocation_id to attach a VPC Elastic IP.
           return unless computer.server.ec2.include?(:elastic_ip)
-            if ( computer.server.ec2.elastic_ip.nil? and cloud.vpc.nil? )
-              # First,  :elastic_ip is set, no address is currently allocated for this connection's owner 
-              # NOTE: We cannot specifiy an address to create, but after a reload we can then load the first available.
-              if computer.server.addresses.nil?
-                Ec2.connection.allocate_address
-                load! 
-                elastic_ip = computer.server.addresses.first.public_ip
-                Chef::Log.debug( "allocating new Elastic IP address" )
-              else
-                # Second, :elastic_ip is set, has an address available to use but has no set value available in facet definition.
-                elastic_ip = computer.server.addresses.first.public_ip
-                Chef::Log.debug( "using first available Elastic IP address" )
-              end
-            elsif ( !computer.server.ec2.elastic_ip.nil? or cloud.vpc.nil? )
-              # Third,  :elastic_ip is set, has an address available to use, has a set value in facet definition and is not VPC. 
-          elastic_ip = computer.server.ec2.elastic_ip
-              Chef::Log.debug( "using requested Elastic IP address" )
-            elsif ( computer.server.ec2.elastic_ip.nil? and !cloud.vpc.nil? )
-              # Fourth, is exactly like Third but on a VPC domain. (this is functionaility for attaching VPC Elastic IPS)
-              allocation_id = computer.server.ec2.allocation_id
-              Chef::Log.debug( "using Elastic IP address matched to given Allocation ID" )
-            else 
-              ui.fatal("You have set both :elastic_ip and :auto_elastic_ip in your facet definition; which are mutually exclusive.")
+          if ( computer.server.ec2.elastic_ip.nil? and cloud.vpc.nil? )
+            # First,  :elastic_ip is set, no address is currently allocated for this connection's owner
+            # NOTE: We cannot specify an address to create, but after a reload we can then load the first available.
+            if computer.server.addresses.nil?
+              Ec2.connection.allocate_address
+              load!
+              elastic_ip = computer.server.addresses.first.public_ip
+              Chef::Log.debug( "allocating new Elastic IP address" )
+            else
+              # Second, :elastic_ip is set, has an address available to use but has no set value available in facet definition.
+              elastic_ip = computer.server.addresses.first.public_ip
+              Chef::Log.debug( "using first available Elastic IP address" )
             end
+          elsif ( !computer.server.ec2.elastic_ip.nil? or cloud.vpc.nil? )
+            # Third,  :elastic_ip is set, has an address available to use, has a set value in facet definition and is not VPC.
+            elastic_ip = computer.server.ec2.elastic_ip
+            Chef::Log.debug( "using requested Elastic IP address" )
+          elsif ( computer.server.ec2.elastic_ip.nil? and !cloud.vpc.nil? )
+            # Fourth, is exactly like Third but on a VPC domain. (this is functionaility for attaching VPC Elastic IPS)
+            allocation_id = computer.server.ec2.allocation_id
+            Chef::Log.debug( "using Elastic IP address matched to given Allocation ID" )
+          else
+            ui.fatal("You have set both :elastic_ip and :auto_elastic_ip in your facet definition; which are mutually exclusive.")
           end
           Ironfan.step(computer.name, "associating Elastic IP #{elastic_ip}", :blue)
           Ironfan.unless_dry_run do
