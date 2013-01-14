@@ -1,3 +1,8 @@
+# v4.7.3
+* cluster ssh was broken for VPC instances, this will fix a few bugs (fixes #236, thanks @gwilton)
+* cluster_ssh & cluster_launch: cleaning up SSH usage to handle VPC
+* Enhanced IP enhanced: adds auto_elastic_ip DSL and detection, mutually exclusive with regular elastic_ip (thanks @schade)
+
 # v4.7.2
 * elastic_ip: ensuring that elastic IPs work with VPC instances (thanks @schade)
 
