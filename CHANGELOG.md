@@ -1,3 +1,6 @@
+# v4.7.4
+* Add configuration for us-west-2 ubuntu precise AMIs (thanks @msaffitz)
+
 # v4.7.3
 * cluster ssh was broken for VPC instances, this will fix a few bugs (fixes #236, thanks @gwilton)
 * cluster_ssh & cluster_launch: cleaning up SSH usage to handle VPC
