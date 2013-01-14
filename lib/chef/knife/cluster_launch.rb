@@ -115,7 +115,8 @@ class Chef
         # Try SSH
         unless config[:dry_run]
           Ironfan.step(computer.name, 'trying ssh', :white)
-          nil until tcp_test_ssh(computer.machine.dns_name){ sleep @initial_sleep_delay ||= 10  }
+          address = computer.machine.vpc_id.nil? ? computer.machine.public_target : computer.machine.public_ip_address
+          nil until tcp_test_ssh(address){ sleep @initial_sleep_delay ||= 10  }
         end
 
         Ironfan.step(computer.name, 'final provisioning', :white)
@@ -128,22 +129,25 @@ class Chef
         end
       end
 
-      def tcp_test_ssh(hostname)
-        tcp_socket = TCPSocket.new(hostname, 22)
+      def tcp_test_ssh(target)
+        tcp_socket = TCPSocket.new(target, 22)
         readable = IO.select([tcp_socket], nil, nil, 5)
         if readable
-          Chef::Log.debug("sshd accepting connections on #{hostname}, banner is #{tcp_socket.gets}")
+          Chef::Log.debug("sshd accepting connections on #{target}, banner is #{tcp_socket.gets}")
           yield
           true
         else
           false
         end
       rescue Errno::ETIMEDOUT
+	Chef::Log.debug("ssh to #{target} timed out")
         false
       rescue Errno::ECONNREFUSED
+	Chef::Log.debug("ssh connection to #{target} refused")
         sleep 2
         false
       rescue Errno::EHOSTUNREACH
+	Chef::Log.debug("ssh host #{target} unreachable")
         sleep 2
         false
       ensure
