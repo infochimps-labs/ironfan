@@ -1,3 +1,8 @@
+>## **Ironfan: A Community Discussion Webinar**
+**<p>Thursday, January 31 @ 10a P, 12p C, 1p E</p>**
+Join Nathaniel Eliot, DevOps Engineer and lead on Ironfan, in this community discussion. Ironfan is a lightweight cluster orchestration toolset, built on top of Chef, which empowers spinning up of Hadoop clusters in under 20 minutes. Nathan has been responsible for Ironfan’s core plugin code, cookbooks, and other components to stabilize both Infochimps’ open source offerings, and internal architectures.
+[Register Now](https://www4.gotomeeting.com/register/188375087) 
+
 # Ironfan Core: Knife Tools and Core Models
 
 Ironfan, the foundation of The Infochimps Platform, is an expressive toolset for constructing scalable, resilient architectures. It works in the cloud, in the data center, and on your laptop, and it makes your system diagram visible and inevitable. Inevitable systems coordinate automatically to interconnect, removing the hassle of manual configuration of connection points (and the associated danger of human error).
