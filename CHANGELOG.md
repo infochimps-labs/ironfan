@@ -1,3 +1,6 @@
+# v4.7.5
+* cluster_launch: correcting public_target to public_hostname
+
 # v4.7.4
 * Add configuration for us-west-2 ubuntu precise AMIs (thanks @msaffitz)
 
