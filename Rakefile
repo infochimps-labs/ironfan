@@ -45,7 +45,7 @@ Jeweler::Tasks.new do |gem|
   gem.name        = 'ironfan'
   gem.homepage    = "http://infochimps.com/labs"
   gem.license     = NEW_COOKBOOK_LICENSE.to_s
-  gem.summary     = %Q{Ironfan allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks.}
+  gem.summary     = %Q{Infochimps' lightweight cloud orchestration toolkit, built on top of Chef.}
   gem.description = %Q{Ironfan allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks.}
   gem.email       = SSL_EMAIL_ADDRESS
   gem.authors     = ["Infochimps"]
