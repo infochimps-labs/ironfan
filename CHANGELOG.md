@@ -1,3 +1,6 @@
+# v4.7.6
+* adding chef-client-nonce invocation to knife cluster kick
+
 # v4.7.5
 * cluster_launch: correcting public_target to public_hostname
 

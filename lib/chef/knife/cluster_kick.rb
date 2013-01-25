@@ -63,35 +63,45 @@ sudo -p 'knife sudo password: ' true
 
 <%= ((config[:verbosity].to_i > 1) ? "set -v" : "") %>
 
-if sudo  -p 'knife sudo password: ' service chef-client status ; then
+# New style server, using chef-client-nonce
+if [ -f /etc/init.d/chef-client-nonce ]; then
+  echo -e "****\n\nstarting chef-client-nonce service\n\n****\n"
+  sudo -p 'knife sudo password: ' service chef-client-nonce start
+# Old style server, using long-running chef-client
+elif [ -f /etc/init.d/chef-client ]; then
+  if sudo  -p 'knife sudo password: ' service chef-client status ; then
 
-  # running
-  pid_file="<%= config[:pid_file] %>"
-  log_file=<%= config[:log_file] %>
+    # running
+    pid_file="<%= config[:pid_file] %>"
+    log_file=<%= config[:log_file] %>
 
-  declare tail_pid
+    declare tail_pid
 
-  on_exit() {
-    rm -f $pipe
-  }
+    on_exit() {
+      rm -f $pipe
+    }
 
-  trap "on_exit" EXIT ERR
+    trap "on_exit" EXIT ERR
 
-  pipe=/tmp/pipe-$$
-  mkfifo $pipe
+    pipe=/tmp/pipe-$$
+    mkfifo $pipe
 
-  tail -Fn0 "$log_file" > $pipe &
+    tail -Fn0 "$log_file" > $pipe &
 
-  tail_pid=$!
+    tail_pid=$!
 
-  pid="$(sudo -p 'knife sudo password: ' cat $pid_file)"
-  sudo -p 'knife sudo password: ' kill -USR1 "$pid"
-  GOOD_RESULT='INFO: Report handlers complete\$'
-  BAD_RESULT='ERROR: Sleeping for [0-9]+ seconds before trying again\$'
-  sed -r -e "/$GOOD_RESULT/{q 0}" -e"/$BAD_RESULT/{q 1}" $pipe
+    pid="$(sudo -p 'knife sudo password: ' cat $pid_file)"
+    sudo -p 'knife sudo password: ' kill -USR1 "$pid"
+    GOOD_RESULT='INFO: Report handlers complete\$'
+    BAD_RESULT='ERROR: Sleeping for [0-9]+ seconds before trying again\$'
+    sed -r -e "/$GOOD_RESULT/{q 0}" -e"/$BAD_RESULT/{q 1}" $pipe
+  else
+    echo -e "****\n\nchef-client daemon not running, invoking chef-client directly\n\n****\n"
+    sudo -p 'knife sudo password: ' chef-client
+  fi
 else
-  echo -e "****\n\nchef-client daemon not running, invoking chef-client directly\n\n****\n"
-  sudo -p 'knife sudo password: ' chef-client
+  echo -e "****\n\nNo chef-client found!\n\n****\n"
+  exit 1
 fi
 EOF
       end
