@@ -118,6 +118,14 @@ module Ironfan
         end
       end
 
+      def security_group_ids
+        security_groups.keys.map do |gg|
+          security_group = Ironfan::Provider::Ec2::SecurityGroup.recall( Ironfan::Provider::Ec2::SecurityGroup.group_name_with_vpc(gg, vpc) )
+          if security_group.blank? then warn "Missing security group #{gg} -- this is a known issue on VPC instances, and deserves your attention." ; next ; end
+          security_group.group_id
+        end.compact
+      end
+
       class SecurityGroup < Ironfan::Dsl
         field :name,                    String
         field :group_authorized,        Array, :default => []

@@ -72,7 +72,7 @@ module Ironfan
           # style == :minimal
           values["State"] =             state.to_sym
           values["MachineID"] =         id
-          values["Public IP"] =         public_ip_address 
+          values["Public IP"] =         public_ip_address
           values["Private IP"] =        private_ip_address
           values["Created On"] =        created_at.to_date
           return values if style == :minimal
@@ -163,7 +163,7 @@ module Ironfan
 
             fog_server.wait_for { ready? }
           end
-          
+
           # tag the computer correctly
           tags = {
             'cluster' =>      computer.server.cluster_name,
@@ -239,9 +239,7 @@ module Ironfan
           }
 
           # VPC security_groups can only be addressed by id (not name)
-          description[:security_group_ids] = cloud.security_groups.keys.map do |g|
-            SecurityGroup.recall( SecurityGroup.group_name_with_vpc(g,cloud.vpc) ).group_id
-          end
+          description[:security_group_ids] = cloud.security_group_ids
 
           description[:iam_server_certificates] = cloud.iam_server_certificates.values.map do |cert|
             IamServerCertificate.recall(IamServerCertificate.full_name(computer, cert))
