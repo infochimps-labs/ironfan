@@ -13,6 +13,10 @@ describe Ironfan::Dsl::Cluster do
 
       facet :web do
         instances 3
+        cloud(:ec2) do
+          flavor 'm1.small'
+          mount_ephemerals({ :disks => { 0 => { :mount_point => '/data' } } })
+        end
       end
 
     end
@@ -29,6 +33,10 @@ describe Ironfan::Dsl::Cluster do
 
     it 'should have one cloud provider, EC2' do
       @facet.servers[0].clouds.keys.should == [ :ec2 ]
+    end
+
+    it 'should have its first ephemeral disk mounted at /data' do
+      @facet.servers[0].implied_volumes[1].mount_point.should == '/data'
     end
   end
 
