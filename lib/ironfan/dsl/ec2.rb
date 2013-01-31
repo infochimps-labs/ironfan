@@ -104,7 +104,13 @@ module Ironfan
             mount_options       'defaults,noatime'
             tags({:bulk => true, :local => true, :fallback => true})
           end
-          ephemeral.receive! mount_ephemerals
+          ephemeral_attrs = mount_ephemerals.clone
+          if ephemeral_attrs.has_key?(:disks)
+            disk_attrs = mount_ephemerals[:disks][idx] || { }
+            ephemeral_attrs.delete(:disks)
+            ephemeral_attrs.merge!(disk_attrs)
+          end
+          ephemeral.receive! ephemeral_attrs
           result << ephemeral
         end
         result
