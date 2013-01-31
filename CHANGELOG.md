@@ -1,3 +1,6 @@
+# v4.7.7
+* Allow per-ephemeral-disk options using :disks attribute
+
 # v4.7.6
 * adding chef-client-nonce invocation to knife cluster kick
 
