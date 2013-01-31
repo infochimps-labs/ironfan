@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "ironfan"
-  s.version = "4.7.6"
+  s.version = "4.7.8"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Infochimps"]
-  s.date = "2013-01-25"
+  s.date = "2013-01-31"
   s.description = "Ironfan allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
   s.email = "coders@infochimps.com"
   s.extra_rdoc_files = [
@@ -90,10 +90,12 @@ Gem::Specification.new do |s|
     "lib/ironfan/provider/virtualbox.rb",
     "lib/ironfan/provider/virtualbox/machine.rb",
     "lib/ironfan/requirements.rb",
+    "notes/Future-development-proposals.md",
     "notes/Home.md",
     "notes/INSTALL-cloud_setup.md",
     "notes/INSTALL.md",
     "notes/Ironfan-Roadmap.md",
+    "notes/Upgrading-to-v4.md",
     "notes/advanced-superpowers.md",
     "notes/aws_servers.jpg",
     "notes/aws_user_key.png",
@@ -117,7 +119,6 @@ Gem::Specification.new do |s|
     "notes/silverware.md",
     "notes/style_guide.md",
     "notes/tips_and_troubleshooting.md",
-    "notes/version-3_2.md",
     "notes/walkthrough-hadoop.md",
     "notes/walkthrough-web.md",
     "spec/chef/cluster_bootstrap_spec.rb",
