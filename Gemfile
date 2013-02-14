@@ -6,8 +6,7 @@ gem 'formatador',    "~> 0.2"
 gem 'gorillib',      "~> 0.4.2"
 
 # Everything in the world is being a stupid dick about JSON versions. Pin it 
-#   to the one that doesn't seem to angrify everyone. Note: pins chef to the 
-#   10.16 branch.
+#   to the one that doesn't seem to angrify everyone.
 gem 'json',          "= 1.5.4"
 
 group :development do
