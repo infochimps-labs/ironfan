@@ -1,9 +1,14 @@
 source "http://rubygems.org"
 
-gem 'chef',          ">= 0.10.4"
+gem 'chef',          "~> 10.16"
 gem 'fog',           "~> 1.2"
 gem 'formatador',    "~> 0.2"
 gem 'gorillib',      "~> 0.4.2"
+
+# Everything in the world is being a stupid dick about JSON versions. Pin it 
+#   to the one that doesn't seem to angrify everyone. Note: pins chef to the 
+#   10.16 branch.
+gem 'json',          "= 1.5.4"
 
 group :development do
   gem 'bundler',     "~> 1.0"
@@ -13,7 +18,6 @@ group :development do
   #
   gem 'redcarpet',   ">= 2.1"
   gem 'oj',          ">= 1.2"
-  gem 'json',                  :platform => :jruby
 end
 
 group :support do
@@ -25,7 +29,7 @@ end
 group :test do
   gem 'simplecov',   ">= 0.5",   :platform => :ruby_19
   #
-  gem 'guard',         "~> 1"
+  gem 'guard',       "~> 1"
   gem 'guard-rspec'
   gem 'guard-yard'
   gem 'ruby_gntp'

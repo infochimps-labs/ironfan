@@ -41,7 +41,6 @@ pkg
 .rvmrc
 .vendor
 .bundle
-Gemfile.lock
 
 .rake_test_cache
 metadata.json

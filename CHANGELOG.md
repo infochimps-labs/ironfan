@@ -1,3 +1,6 @@
+# v4.8.0
+* Cleaning up Gemfile and Gemfile.lock to solidify dependencies
+
 # v4.7.7
 * Allow per-ephemeral-disk options using :disks attribute (thanks @nickmarden)
 
