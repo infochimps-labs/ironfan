@@ -1,3 +1,6 @@
+# v4.8.1
+* ec2::machine: increasing wait interval, to reduce potential for intermittent errors to bomb run
+
 # v4.8.0
 * Cleaning up Gemfile and Gemfile.lock to solidify dependencies
 
