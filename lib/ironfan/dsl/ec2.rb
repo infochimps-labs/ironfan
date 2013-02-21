@@ -15,6 +15,7 @@ module Ironfan
       magic :chef_client_script,        String
       magic :default_availability_zone, String,         :default => ->{ availability_zones.first }
       collection :elastic_load_balancers,  Ironfan::Dsl::Ec2::ElasticLoadBalancer, :key_method => :name
+      magic :ebs_optimized,             :boolean,       :default => false
       magic :flavor,                    String,         :default => 't1.micro'
       collection :iam_server_certificates, Ironfan::Dsl::Ec2::IamServerCertificate, :key_method => :name
       magic :image_id,                  String
@@ -290,12 +291,12 @@ Chef::Config[:ec2_flavor_info].merge!({
     'm1.medium'   => { :price => 0.165, :bits => 64, :ram =>   3840, :cores => 2, :core_size => 1,    :inst_disks => 1, :inst_disk_size =>  410, :ephemeral_volumes => 1 },
     'c1.medium'   => { :price => 0.17,  :bits => 64, :ram =>   1740, :cores => 2, :core_size => 2.5,  :inst_disks => 1, :inst_disk_size =>  350, :ephemeral_volumes => 1 },
     #
-    'm1.large'    => { :price => 0.32,  :bits => 64, :ram =>   7680, :cores => 2, :core_size => 2,    :inst_disks => 2, :inst_disk_size =>  850, :ephemeral_volumes => 2 },
+    'm1.large'    => { :price => 0.32,  :bits => 64, :ram =>   7680, :cores => 2, :core_size => 2,    :inst_disks => 2, :inst_disk_size =>  850, :ephemeral_volumes => 2, :ebs_optimizable =>  500, },
     'm2.xlarge'   => { :price => 0.45,  :bits => 64, :ram =>  18124, :cores => 2, :core_size => 3.25, :inst_disks => 1, :inst_disk_size =>  420, :ephemeral_volumes => 1 },
     'c1.xlarge'   => { :price => 0.64,  :bits => 64, :ram =>   7168, :cores => 8, :core_size => 2.5,  :inst_disks => 4, :inst_disk_size => 1690, :ephemeral_volumes => 4 },
-    'm1.xlarge'   => { :price => 0.66,  :bits => 64, :ram =>  15360, :cores => 4, :core_size => 2,    :inst_disks => 4, :inst_disk_size => 1690, :ephemeral_volumes => 4 },
+    'm1.xlarge'   => { :price => 0.66,  :bits => 64, :ram =>  15360, :cores => 4, :core_size => 2,    :inst_disks => 4, :inst_disk_size => 1690, :ephemeral_volumes => 4, :ebs_optimizable => 1000, },
     'm2.2xlarge'  => { :price => 0.90,  :bits => 64, :ram =>  35020, :cores => 4, :core_size => 3.25, :inst_disks => 2, :inst_disk_size =>  850, :ephemeral_volumes => 2 },
-    'm2.4xlarge'  => { :price => 1.80,  :bits => 64, :ram =>  70041, :cores => 8, :core_size => 3.25, :inst_disks => 4, :inst_disk_size => 1690, :ephemeral_volumes => 4 },
+    'm2.4xlarge'  => { :price => 1.80,  :bits => 64, :ram =>  70041, :cores => 8, :core_size => 3.25, :inst_disks => 4, :inst_disk_size => 1690, :ephemeral_volumes => 4, :ebs_optimizable => 1000, },
     'cc1.4xlarge' => { :price => 1.30,  :bits => 64, :ram =>  23552, :cores => 8, :core_size => 4.19, :inst_disks => 4, :inst_disk_size => 1690, :ephemeral_volumes => 2, :placement_groupable => true, :virtualization => 'hvm' },
     'cc1.8xlarge' => { :price => 2.40,  :bits => 64, :ram =>  61952, :cores =>16, :core_size => 5.50, :inst_disks => 8, :inst_disk_size => 3370, :ephemeral_volumes => 4, :placement_groupable => true, :virtualization => 'hvm' },
     'cg1.4xlarge' => { :price => 2.10,  :bits => 64, :ram =>  22528, :cores => 8, :core_size => 4.19, :inst_disks => 4, :inst_disk_size => 1690, :ephemeral_volumes => 2, :placement_groupable => true, :virtualization => 'hvm' },
