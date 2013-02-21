@@ -8,7 +8,8 @@ module Ironfan
             :availability_zone=, :block_device_mapping, :block_device_mapping=,
             :client_token, :client_token=, :collection, :collection=,
             :connection, :connection=, :console_output, :created_at,
-            :created_at=, :destroy, :dns_name, :dns_name=, :flavor, :flavor=,
+            :created_at=, :destroy, :dns_name, :dns_name=,
+            :ebs_optimized, :flavor, :flavor=,
             :flavor_id, :flavor_id=, :groups, :groups=, :iam_instance_profile,
             :iam_instance_profile=, :iam_instance_profile_arn=,
             :iam_instance_profile_name=, :id, :id=, :identity, :identity=,
@@ -72,7 +73,7 @@ module Ironfan
           # style == :minimal
           values["State"] =             state.to_sym
           values["MachineID"] =         id
-          values["Public IP"] =         public_ip_address 
+          values["Public IP"] =         public_ip_address
           values["Private IP"] =        private_ip_address
           values["Created On"] =        created_at.to_date
           return values if style == :minimal
@@ -162,14 +163,14 @@ module Ironfan
             remember machine, :id => computer.name
 
             # AWS sometimes takes too long to respond for this block's liking.
-            #   Expand its wait interval, so that it doesn't just bomb out 
+            #   Expand its wait interval, so that it doesn't just bomb out
             #   after three quick failures in succession.
             # For more info, see:
             # - http://rubydoc.info/gems/fog/1.9.0/Fog/Model#wait_for-instance_method
             # - https://github.com/fog/fog/blob/master/lib/fog/core/wait_for.rb
             fog_server.wait_for(Fog.timeout, 5) { ready? }
           end
-          
+
           # tag the computer correctly
           tags = {
             'cluster' =>      computer.server.cluster_name,
@@ -230,8 +231,9 @@ module Ironfan
             :client_key =>              computer.private_key
           }
 
-          # Fog does not actually create tags when it creates a server;
-          #  they and permanence are applied during sync
+          # main machine info
+          # note that Fog does not actually create tags when it creates a
+          #  server; they and permanence are applied during sync
           description = {
             :image_id             => cloud.image_id,
             :flavor_id            => cloud.flavor,
@@ -241,7 +243,7 @@ module Ironfan
             :user_data            => JSON.pretty_generate(user_data_hsh),
             :block_device_mapping => block_device_mapping(computer),
             :availability_zone    => cloud.default_availability_zone,
-            :monitoring           => cloud.monitoring
+            :monitoring           => cloud.monitoring,
           }
 
           # VPC security_groups can only be addressed by id (not name)
@@ -260,6 +262,9 @@ module Ironfan
           if cloud.flavor_info[:placement_groupable]
             ui.warn "1.3.1 and earlier versions of Fog don't correctly support placement groups, so your nodes will land willy-nilly. We're working on a fix"
             description[:placement] = { 'groupName' => cloud.placement_group.to_s }
+          end
+          if cloud.flavor_info[:ebs_optimizable]
+            description[:ebs_optimized] = cloud.ebs_optimized
           end
           description
         end
