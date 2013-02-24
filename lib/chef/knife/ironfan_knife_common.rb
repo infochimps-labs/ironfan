@@ -84,19 +84,18 @@ module Ironfan
     #
     def get_relevant_slice( *predicate )
       full_target = get_slice( *predicate )
-      display(full_target) do |m|
-        rel = relevant?(m)
-        { :relevant? => (rel ? "[blue]#{rel}[reset]" : '-' ) }
+      display(full_target) do |mach|
+        rel = relevant?(mach)
+        { :relevant? => (rel ? "[green]#{rel}[reset]" : '-' ) }
       end
-      full_target.select{|m| relevant?(m) }
+      full_target.select{|mach| relevant?(mach) }
     end
 
     # passes target to Broker::Conductor#display, will show headings in server slice
     # tables based on the --verbose flag
     def display(target, display_style=nil, &block)
       display_style ||= (config[:verbosity] == 0 ? :default : :expanded)
-#       target.display(ui, display_style, &block)
-      broker.display(target, display_style)
+      broker.display(target, display_style, &block)
     end
 
     #

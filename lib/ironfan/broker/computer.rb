@@ -17,11 +17,11 @@ module Ironfan
         super
         providers[:chef] ||=    Ironfan::Provider::ChefServer
         return unless server
-        providers[:iaas] =      server.selected_cloud.provider
-        volumes =               server.volumes.values
-        volumes +=              server.implied_volumes
-        volumes.each { |v| self.drive v.name, :volume => v }
-      rescue StandardError => err ; err.polish("#{self.class} on #{args}'") rescue nil ; raise
+        providers[:iaas]   = server.selected_cloud.provider
+        volumes            = server.volumes.values
+        volumes           += server.implied_volumes
+        volumes.each{|vol| self.drive vol.name, :volume => vol }
+      rescue StandardError => err ; err.polish("#{self.class} on '#{args.inspect}'") rescue nil ; raise
       end
 
       def name
@@ -38,11 +38,11 @@ module Ironfan
           res.expected_ids(self).each do |id|
             next unless res.recall? id
 
-            recalled =            res.recall id
-            recalled.users <<     self
+            recalled =  res.recall id
+            recalled.users << self
 
-            target =              res.resource_type.to_s
-            target +=             "__#{id}" if res.multiple?
+            target  = res.resource_type.to_s
+            target += "__#{id}" if res.multiple?
             self[target.to_sym] = recalled
 
             recalled.on_correlate(self)
@@ -130,14 +130,6 @@ module Ironfan
         @chef_client_script_content = Ironfan.safely{ File.read(script_filename) }
       end
 
-#       def ensure_resource(type)
-#         if type.multiple?
-#           existing = resources[type.resource_id]
-#         else
-#
-#         end
-#       end
-
       #
       # Display
       #
@@ -200,7 +192,7 @@ module Ironfan
         self[:machine] = value
       end
       def dns_name         ; machine? ? machine.dns_name : nil ; end
-      def bootstrap_distro ; (server && server.selected_cloud) ? server.selected_cloud.bootstrap_distro   : nil ; end
+      def bootstrap_distro ; (server && server.selected_cloud) ? server.selected_cloud.bootstrap_distro : nil ; end
 
       def keypair
         resources[:keypair]
@@ -225,16 +217,16 @@ module Ironfan
         not client.nil?
       end
       def created?
-        machine? and machine.created?
+        machine? && machine.created?
       end
       def machine?
         not machine.nil?
       end
       def killable?
-        not permanent? and (node? || client? || created?)
+        (not bogus?) && (not permanent?) && (node? || client? || created?)
       end
       def launchable?
-        not bogus? and not created?
+        (not bogus?) && (not created?)
       end
       def node?
         not node.nil?
@@ -245,13 +237,13 @@ module Ironfan
         [true, :true, 'true'].include? server.selected_cloud.permanent
       end
       def running?
-        machine? and machine.running?
+        machine? && machine.running?
       end
       def server?
         not server.nil?
       end
       def stopped?
-        machine? and machine.stopped?
+        machine? && machine.stopped?
       end
 
       # @return [Boolean] true if machine is likely to be reachable by ssh
@@ -295,15 +287,15 @@ module Ironfan
 
       def validate
         computers = self
-        values.each{|c|    c.validate }
+        values.each{|c| c.validate }
         values.map {|c| c.providers.values}.flatten.uniq.each {|p| p.validate computers }
       end
 
       def group_action(verb)
         computers = self
-        provider_keys = values.map {|c| c.chosen_providers({ :providers => :iaas })}.flatten.uniq
-        providers     = provider_keys.map { |pk| values.map { |c| c.providers[pk] } }.flatten.compact.uniq
-        providers.each { |p| p.send(verb, computers) }
+        provider_keys = values.map{|c| c.chosen_providers({ :providers => :iaas })}.flatten.uniq
+        providers     = provider_keys.map{|pk| values.map{|c| c.providers[pk] } }.flatten.compact.uniq
+        providers.each{|p| p.send(verb, computers) }
       end
 
       def prepare
@@ -318,19 +310,19 @@ module Ironfan
       # Manipulation
       #
       def kill(options={})
-        Ironfan.parallel(values) {|c| c.kill(options) }
+        Ironfan.parallel(values){|cc| cc.kill(options) }
       end
       def launch
-        Ironfan.parallel(values) {|c| c.launch }
+        Ironfan.parallel(values){|cc| cc.launch }
       end
       def save(options={})
-        Ironfan.parallel(values) {|c| c.save(options) }
+        Ironfan.parallel(values){|cc| cc.save(options) }
       end
       def start
-        Ironfan.parallel(values) {|c| c.start }
+        Ironfan.parallel(values){|cc| cc.start }
       end
       def stop
-        Ironfan.parallel(values) {|c| c.stop }
+        Ironfan.parallel(values){|cc| cc.stop }
       end
 
       def environments
@@ -351,7 +343,7 @@ module Ironfan
       # Return the selection inside another Computers collection
       def select(&block)
         result = empty_copy
-        values.select(&block).each{|m| result << m}
+        values.select(&block).each{|mach| result << mach}
         result
       end
 
@@ -363,16 +355,14 @@ module Ironfan
 
       # Find all selected computers, as well as any bogus computers from discovery
       def slice(facet_name=nil, slice_indexes=nil)
-        return self if (facet_name.nil? and slice_indexes.nil?)
-        result          = empty_copy
+        return self if (facet_name.nil? && slice_indexes.nil?)
         slice_array     = build_slice_array(slice_indexes)
-        each do |m|
-          result << m if (m.bogus? or (                 # bogus computer or
-            ( m.server.facet_name == facet_name ) and   # facet match and
-              ( slice_array.include? m.server.index or  #   index match or
-                slice_indexes.nil? ) ) )                #   no indexes specified
+        select do |mach|
+          mach.bogus? or (
+            # facet match, and index match (or no indexes specified)
+            (mach.server.facet_name == facet_name) &&
+            (slice_array.include?(mach.server.index) || slice_indexes.nil?))
         end
-        result
       end
 
       def build_slice_array(slice_indexes)

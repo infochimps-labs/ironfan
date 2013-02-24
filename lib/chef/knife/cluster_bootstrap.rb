@@ -62,7 +62,6 @@ class Chef
         ensure_common_environment(target)
         # Execute across all servers in parallel
         Ironfan.parallel(target.values) {|computer| run_bootstrap(computer)}
-#         threads = target.servers.map{ |server| Thread.new(server) { |svr| run_bootstrap(svr, svr.public_hostname) } }
       end
 
       def confirm_execution(target)
