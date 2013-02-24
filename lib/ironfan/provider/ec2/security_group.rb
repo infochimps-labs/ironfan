@@ -19,6 +19,7 @@ module Ironfan
         def self.multiple?()    true;   end
         def self.resource_type()        :security_group;   end
         def self.expected_ids(computer)
+          return unless computer.server
           ec2 = computer.server.cloud(:ec2)
           ec2.security_groups.keys.map { |name| group_name_with_vpc(name,ec2.vpc) }.uniq
         end
@@ -73,7 +74,7 @@ module Ironfan
           # First, deduce the list of all groups to which at least one instance belongs
           # We'll use this later to decide whether to create groups, or authorize access,
           # using a VPC security group or an EC2 security group.
-          groups_that_should_exist = computers.map { |c| expected_ids(c) }.flatten.sort.uniq
+          groups_that_should_exist = computers.map{|comp| expected_ids(comp) }.flatten.compact.sort.uniq
           groups_to_create << groups_that_should_exist
 
           computers.select { |computer| Ec2.applicable computer }.each do |computer|

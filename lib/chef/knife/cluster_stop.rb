@@ -24,7 +24,7 @@ class Chef
       import_banner_and_options(Ironfan::Script)
 
       def relevant?(server)
-        server.running?
+        (not bogus?) && server.running?
       end
 
       def perform_execution(target)

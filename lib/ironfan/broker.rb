@@ -31,11 +31,15 @@ module Ironfan
     end
 
     def display(computers,style)
-      defined_data = computers.map {|m| m.to_display(style) }
+      defined_data = computers.map do |mach|
+        hsh = mach.to_display(style)
+        hsh.merge!(yield(mach)) if block_given?
+        hsh
+      end
       if defined_data.empty?
         ui.info "Nothing to report"
       else
-        headings = defined_data.map{|r| r.keys}.flatten.uniq
+        headings = defined_data.map{|hsh| hsh.keys }.flatten.uniq
         Formatador.display_compact_table(defined_data, headings.to_a)
       end
     end
