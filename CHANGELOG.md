@@ -1,3 +1,9 @@
+# v4.8.3
+* Bogus servers should not be killable (fixes #250)
+* Style guide corrections ('&&', not 'and'; don't use single-letter variable names)
+* Also fixed a thing where security groups enumeration would die if a bogus server existed that's bit me before
+* Reviewed other knife cluster commands and made them not tolerate bogosity either
+
 # v4.8.2
 * Launch EBS-optimized boxen on EC2
 
