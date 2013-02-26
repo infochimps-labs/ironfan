@@ -9,6 +9,9 @@ module Ironfan
 
     class Vsphere < Cloud
       magic :provider,                  Whatever,       :default => Ironfan::Provider::Vsphere
+      magic :vsphere_datacenters,       Array,          :default => ['New Datacenter']
+      magic :default_datacenter,        String,         :default => ->{ vsphere_datacenters.first }
+      magic :template_directory,        String
 
       def implied_volumes
         results = []
@@ -19,10 +22,8 @@ module Ironfan
         return values if style == :minimal
 
 #        values["Flavor"] =            flavor
-#       values["AZ"] =                default_availability_zone
+        values["Datacenter"] =         default_datacenter
         return values if style == :default
-
-#       values["Public IP"] =        elastic_ip if elastic_ip
         values
       end
 
