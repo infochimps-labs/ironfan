@@ -23,8 +23,8 @@ class Chef
     class ClusterStart < Ironfan::Script
       import_banner_and_options(Ironfan::Script)
 
-      def relevant?(server)
-        (not bogus?) && stopped?
+      def relevant?(computer)
+        (not computer.bogus?) && computer.stopped?
       end
 
       def perform_execution(target)
