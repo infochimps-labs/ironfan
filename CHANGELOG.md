@@ -1,3 +1,6 @@
+# v4.8.4
+* Fixing relevant? semantics in cluster_stop and cluster_start
+
 # v4.8.3
 * Bogus servers should not be killable (fixes #250)
 * Style guide corrections ('&&', not 'and'; don't use single-letter variable names)
