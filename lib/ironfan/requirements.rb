@@ -45,6 +45,7 @@ require 'ironfan/provider/virtualbox/machine'
 
 require 'ironfan/provider/vsphere'
 require 'ironfan/provider/vsphere/machine'
+require 'ironfan/provider/vsphere/keypair'
 
 
 # Broker classes to coordinate DSL expectations and provider resources

@@ -5,7 +5,7 @@ module Ironfan
       self.handle = :vsphere
 
       def self.resources()
-        [ Machine ]
+        [ Machine, Keypair]
       end
 
       #
@@ -42,12 +42,17 @@ module Ironfan
           puts "Unknown type #{folder.class}, not enumerating"
           nil
         end
-     end
+      end
 
-     def self.find_network(network, dc)
-       baseEntity = dc.network
-       baseEntity.find { |f| f.name == network }
-     end
+      def self.find_network(network, dc)
+        baseEntity = dc.network
+        baseEntity.find { |f| f.name == network }
+      end
+
+      def self.get_pub_key(cluster)
+        puts Keypair.private_key
+      end
+
 
       private
       def self.vsphere_credentials

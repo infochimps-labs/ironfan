@@ -60,6 +60,7 @@ module Ironfan
     end
     class Vsphere < Ironfan::IaasProvider
       class Machine < Ironfan::IaasProvider::Machine; end
+      class Keypair < Ironfan::Provider::Resource; end
     end
 
   end

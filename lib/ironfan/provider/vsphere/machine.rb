@@ -4,7 +4,7 @@ module Ironfan
 
       class Machine < Ironfan::IaasProvider::Machine
         delegate :config, :connection, :connection=, :Destroy_Task, :guest, :PowerOffVM_Task, 
-          :PowerOnVM_Task, :powerState, :runtime,
+          :PowerOnVM_Task, :powerState, :ReconfigVM_Task, :runtime,
           :to => :adaptee
 
         def self.shared?()      false;  end
@@ -16,13 +16,22 @@ module Ironfan
            return config.name
         end
 
+        def keypair
+          puts "keypairs"
+        end
+
         def vpc_id
           return nil
         end
 
+        def dns_name
+          # TODO: Fix me
+          return adaptee.guest.ipAddress
+        end
+
         def public_ip_address
           # TODO: Fix me.  
-          return "10.10.0.79"
+          return adaptee.guest.ipAddress
         end
  
         def public_hostname
@@ -33,10 +42,11 @@ module Ironfan
         def destroy
           adaptee.PowerOffVM_Task.wait_for_completion unless adaptee.runtime.powerState == "poweredOff"
           adaptee.Destroy_Task.wait_for_completion
+          state = "destroyed"
         end
 
         def created?
-          "yes"
+          ["poweredOn", "poweredOff"].include? adaptee.runtime.powerState
         end
 
         def wait_for
@@ -108,10 +118,9 @@ module Ironfan
           src_folder = Vsphere.find_dc("New Datacenter").vmFolder
 
           Ironfan.safely do
-            src_vm = Vsphere.find_in_folder(src_folder, RbVmomi::VIM::VirtualMachine, "Ubuntu 12.04 Template")
+            src_vm = Vsphere.find_in_folder(src_folder, RbVmomi::VIM::VirtualMachine, "Ubuntu 12.04 Template4")
             clone_spec = generate_clone_spec(src_vm.config, "New Datacenter")
-            dest_folder = src_folder
-            vsphere_server = src_vm.CloneVM_Task(:folder => dest_folder, :name => computer.name, :spec => clone_spec)
+            vsphere_server = src_vm.CloneVM_Task(:folder => src_vm.parent, :name => computer.name, :spec => clone_spec)
             vsphere_server.wait_for_completion
 
             # Will break if the VM isn't finished building.  
@@ -119,6 +128,11 @@ module Ironfan
             machine = Machine.new(:adaptee => new_vm)
             computer.machine = machine
             remember machine, :id => machine.name
+
+            Ironfan.step(computer.name,"pushing keypair", :green)
+            public_key = Vsphere::Keypair.public_key(computer)
+            extraConfig = {:key => 'guestinfo.pubkey', :value => public_key}
+            machine.ReconfigVM_Task(:spec => RbVmomi::VIM::VirtualMachineConfigSpec(:extraConfig => [extraConfig])).wait_for_completion
           end
 
         end
@@ -141,13 +155,20 @@ module Ironfan
           end
         end
 
+        def receive_adaptee(obj)
+
+          obj = Ec2.connection.servers.new(obj) if obj.is_a?(Hash)
+          super
+        end
+
         def self.destroy!(computer)
           return unless computer.machine?
           forget computer.machine.name
+          computer.machine.destroy
         end
 
         def self.launch_description(computer)
-          cloud = computer.server.cloud(:ec2)
+          cloud = computer.server.cloud(:vsphere)
           user_data_hsh =               {
             :chef_server =>             Chef::Config[:chef_server_url],
             :node_name =>               computer.name,
@@ -174,7 +195,6 @@ module Ironfan
 
         def to_display(style,values={})
           # style == :minimal
-          puts "Broke!"
           values["State"] =            runtime.powerState
           values["MachineID"] =        config.uuid
 #          values["Public IP"] =         public_ip_address
@@ -192,6 +212,26 @@ module Ironfan
 #          values["Volumes"] =           volumes.map(&:id).join(', ')
 #          values["SSH Key"] =           key_name
           values
+        end
+
+        def ssh_key
+          puts "ssh_key called"
+          keypair = cloud.keypair || computer.server.cluster_name
+        end
+
+        def self.validate_resources!(computers)
+          recall.each_value do |machine|
+            next unless machine.users.empty? and machine.name
+            if machine.name.match("^#{computers.cluster.name}-")
+              machine.bogus << :unexpected_machine
+            end
+            next unless machine.bogus?
+            fake           = Ironfan::Broker::Computer.new
+            fake[:machine] = machine
+            fake.name      = machine.name
+            machine.users << fake
+            computers     << fake
+          end
         end
 
       end
