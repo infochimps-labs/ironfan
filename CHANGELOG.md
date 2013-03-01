@@ -1,3 +1,6 @@
+# v4.8.5
+* Added the m3 flavors to ec2_flavor_info (thanks @rottmanj)
+
 # v4.8.4
 * Fixing relevant? semantics in cluster_stop and cluster_start
 
