@@ -22,7 +22,6 @@ end
 group :support do
   gem 'jeweler',     ">= 1.6"
   gem 'pry'
-  gem 'grit'
 end
 
 group :test do
