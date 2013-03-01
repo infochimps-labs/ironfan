@@ -1,3 +1,6 @@
+# v4.8.6
+* Gemfile: removing stale grit dependency (breaks Cygwin build due to stale posix-thread incompatibility)
+
 # v4.8.5
 * Added the m3 flavors to ec2_flavor_info (thanks @rottmanj)
 
