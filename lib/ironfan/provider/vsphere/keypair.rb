@@ -23,6 +23,7 @@ module Ironfan
         end
 
         def private_key
+          puts "pkey"
           File.open(key_filename, "rb").read
         end
 

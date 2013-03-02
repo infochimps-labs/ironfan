@@ -21,21 +21,21 @@ module Ironfan
         end
 
         def vpc_id
-          return nil
+          return true
         end
 
         def dns_name
-          # TODO: Fix me
+          # FIXME
           return adaptee.guest.ipAddress
         end
 
         def public_ip_address
-          # TODO: Fix me.  
+          # FIXME
           return adaptee.guest.ipAddress
         end
  
         def public_hostname
-          # TODO: Fix me
+          # FIXME
           return nil
         end
 
@@ -68,10 +68,12 @@ module Ironfan
         end
 
         def stop
+          # TODO: Gracefully shutdown guest using adatee.ShutdownGuest ? 
+          # There is no "wait_for_completion" with this however...
           adaptee.PowerOffVM_Task.wait_for_completion
         end
 
-        def self.generate_clone_spec(src_config, vsphere_dc)
+        def self.generate_clone_spec(src_config, vsphere_dc, cpus, memory)
           dc = Vsphere.find_dc(vsphere_dc)
           rspec = Vsphere.get_rspec(dc)
           clone_spec = RbVmomi::VIM.VirtualMachineCloneSpec(:location => rspec, :template => false, :powerOn => true)
@@ -91,14 +93,8 @@ module Ironfan
 
  	  network_spec = RbVmomi::VIM.VirtualDeviceConfigSpec(:device => card, :operation => "edit")
           clone_spec.config.deviceChange.push network_spec
-
-     #     if get_config(:customization_cpucount)
-     #       clone_spec.config.numCPUs = get_config(:customization_cpucount)
-     #     end
-
-     #     if get_config(:customization_memory)
-     #       clone_spec.config.memoryMB = Integer(get_config(:customization_memory)) * 1024
-     #     end
+          clone_spec.config.numCPUs = Integer(cpus)
+          clone_spec.config.memoryMB = Integer(memory) * 1024
  
           clone_spec
           
@@ -112,14 +108,20 @@ module Ironfan
 #          if errors.present? then raise ArgumentError, "Failed validation: #{errors.inspect}" ; end
           #
 
+          # TODO: Pass launch_desc to a single function and let it do the rest... like fog does
           launch_desc = launch_description(computer)
           Chef::Log.debug(JSON.pretty_generate(launch_desc))
 
-          src_folder = Vsphere.find_dc("New Datacenter").vmFolder
+          datacenter = launch_desc[:datacenter]
+          template   = launch_desc[:template] 
+          cpus       = launch_desc[:cpus]
+          memory     = launch_desc[:memory]
+
+          src_folder = Vsphere.find_dc(datacenter).vmFolder
 
           Ironfan.safely do
-            src_vm = Vsphere.find_in_folder(src_folder, RbVmomi::VIM::VirtualMachine, "Ubuntu 12.04 Template4")
-            clone_spec = generate_clone_spec(src_vm.config, "New Datacenter")
+            src_vm = Vsphere.find_in_folder(src_folder, RbVmomi::VIM::VirtualMachine, template)
+            clone_spec = generate_clone_spec(src_vm.config, datacenter, cpus, memory)
             vsphere_server = src_vm.CloneVM_Task(:folder => src_vm.parent, :name => computer.name, :spec => clone_spec)
             vsphere_server.wait_for_completion
 
@@ -131,8 +133,9 @@ module Ironfan
 
             Ironfan.step(computer.name,"pushing keypair", :green)
             public_key = Vsphere::Keypair.public_key(computer)
-            extraConfig = {:key => 'guestinfo.pubkey', :value => public_key}
-            machine.ReconfigVM_Task(:spec => RbVmomi::VIM::VirtualMachineConfigSpec(:extraConfig => [extraConfig])).wait_for_completion
+            # TODO - Move ReconfigVM_Task into it's own method
+            extraConfig = [{:key => 'guestinfo.pubkey', :value => public_key}] 
+            machine.ReconfigVM_Task(:spec => RbVmomi::VIM::VirtualMachineConfigSpec(:extraConfig => extraConfig)).wait_for_completion          
           end
 
         end
@@ -141,7 +144,9 @@ module Ironfan
         # Discovery
         #
         def self.load!(cluster=nil)
-          vm_folder = Vsphere.find_dc("New Datacenter").vmFolder
+          # TODO:  Fix this one day when we have multiple "datacenters"
+          cloud = cluster.servers.values[0].cloud(:vsphere)
+          vm_folder = Vsphere.find_dc(cloud.datacenter).vmFolder
           Vsphere.find_all_in_folder(vm_folder, RbVmomi::VIM::VirtualMachine).each do |fs|
             machine = new(:adaptee => fs)
             if recall? machine.name
@@ -181,24 +186,22 @@ module Ironfan
           }
 
           description = {
-#            :template_directory    => cloud.template_directory,
-#            :datacenter            => cloud.vsphere_datacenter,
-#            :vpc_id               => cloud.vpc,
-#            :subnet_id            => cloud.subnet,
-#            :key_name             => cloud.ssh_key_name(computer),
-            :user_data            => JSON.pretty_generate(user_data_hsh),
-#            :block_device_mapping => block_device_mapping(computer),
-#            :availability_zone    => cloud.default_availability_zone,
-#            :monitoring           => cloud.monitoring
+            :datacenter            => cloud.datacenter,
+            :template              => cloud.template,
+            :memory                => cloud.memory,
+            :cpus                  => cloud.cpus,
+            :user_data             => JSON.pretty_generate(user_data_hsh),
           }
+
+          description
         end
 
         def to_display(style,values={})
           # style == :minimal
-          values["State"] =            runtime.powerState
-          values["MachineID"] =        config.uuid
+          values["State"] =            runtime.powerState rescue "Terminated"
+          values["MachineID"] =        config.uuid rescue ""
 #          values["Public IP"] =         public_ip_address
-          values["Private IP"] =        guest.ipAddress
+          values["Private IP"] =        guest.ipAddress rescue ""
 #          values["Created On"] =        created_at.to_date
           return values if style == :minimal
 
@@ -215,7 +218,6 @@ module Ironfan
         end
 
         def ssh_key
-          puts "ssh_key called"
           keypair = cloud.keypair || computer.server.cluster_name
         end
 
