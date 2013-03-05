@@ -52,21 +52,29 @@ module Ironfan
         def created?
           not ['terminated', 'shutting-down'].include? state
         end
+        def pending?
+          state == "pending"
+        end
         def running?
           state == "running"
+        end
+        def stopping?
+          state == "stopping"
         end
         def stopped?
           state == "stopped"
         end
 
         def start
+          machine = self
           adaptee.start
-          adaptee.wait_for{ state == 'pending' }
+          adaptee.wait_for{ machine.pending? or machine.running? }
         end
 
         def stop
+          machine = self
           adaptee.stop
-          adaptee.wait_for{ state == 'stopping' }
+          adaptee.wait_for{ machine.stopping? or machine.stopped? }
         end
 
         def to_display(style,values={})
