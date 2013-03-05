@@ -1,3 +1,6 @@
+# v4.8.7
+* ec2/machine: fixing stop and start to wait for all valid end-states
+
 # v4.8.6
 * Gemfile: removing stale grit dependency (breaks Cygwin build due to stale posix-thread incompatibility)
 
