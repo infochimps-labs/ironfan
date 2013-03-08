@@ -1,6 +1,6 @@
 bash <<'EOF' || echo "Chef bootstrap failed!"
 
-# This is the ubuntu precise bootstrap script from infochimps' ironfan. It is
+# This is the ubuntu precise bootstrap script from infochimps ironfan. It is
 # based on the opscode bootstrap script, with the important differences being it:
 #
 # * installs the Opscode-provided Chef client (including a self-contained Ruby 1.9.x) in /opt/chef
@@ -44,7 +44,7 @@ if [ ! -f /opt/chef/bin/chef-client ]; then
   curl -L http://www.opscode.com/chef/install.sh | sudo bash
 fi
 
-# Replace /usr/local/sbin with the omnibus' bin, to get it into the PATH
+# Replace /usr/local/sbin with the omnibus bin, to get it into the PATH
 mv /usr/local/sbin{,~}
 ln -s /opt/chef/embedded/bin /usr/local/sbin
 

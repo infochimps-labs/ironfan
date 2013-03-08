@@ -11,6 +11,8 @@ module Ironfan
       magic :provider,                  Whatever,       :default => Ironfan::Provider::Vsphere
       magic :vsphere_datacenters,       Array,          :default => ['New Datacenter']
       magic :default_datacenter,        String,         :default => ->{ vsphere_datacenters.first }
+      magic :datacenter,                String,         :default => ->{ default_datacenter }
+      magic :datastore,                 String
       magic :template,                  String
       magic :image_name,                String
       magic :bits,                      Integer,        :default => "64"
@@ -19,10 +21,9 @@ module Ironfan
       magic :ssh_identity_dir,          String,         :default => ->{ Chef::Config.vsphere_key_dir }
       magic :bootstrap_distro,          String,         :default => 'ubuntu12.04-gems'
       magic :validation_key,            String,         :default => ->{ IO.read(Chef::Config.validation_key) rescue '' }
-      magic :datacenter,                String,         :default => ->{ default_datacenter }
       magic :cpus,                      String,         :default => "1" 
       magic :memory,                    String,         :default => "4" # Gigabytes
-      
+      magic :chef_client_script,        String
 
       def image_info
         bit_str = "#{self.bits.to_i}-bit" # correct for legacy image info.

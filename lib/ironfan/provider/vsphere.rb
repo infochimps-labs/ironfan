@@ -15,6 +15,13 @@ module Ironfan
         @@connection ||=  RbVmomi::VIM.connect(self.vsphere_credentials)
       end
 
+      def self.find_ds(vsphere_dc, name = nil)
+        ds = vsphere_dc.datastore
+        return ds.grep(RbVmomi::VIM::Datastore).find { |d| d.name == name } if !name.nil?
+        # Lazily sort datastores by free space
+        ds.sort_by { |d| d.info.freeSpace }
+      end 
+
       def self.find_dc(vsphere_dc)
         connection.serviceInstance.find_datacenter(vsphere_dc)
       end

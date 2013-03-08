@@ -13,7 +13,7 @@ module Ironfan
         def self.expected_ids(computer) [computer.server.full_name];   end 
         
         def name
-           return config.name
+           return adaptee.config.name
         end
 
         def keypair
@@ -73,9 +73,11 @@ module Ironfan
           adaptee.PowerOffVM_Task.wait_for_completion
         end
 
-        def self.generate_clone_spec(src_config, vsphere_dc, cpus, memory)
-          dc = Vsphere.find_dc(vsphere_dc)
+        def self.generate_clone_spec(src_config, dc, cpus, memory, datastore)
+          #dc = Vsphere.find_dc(vsphere_dc)
           rspec = Vsphere.get_rspec(dc)
+          rspec.datastore = datastore
+
           clone_spec = RbVmomi::VIM.VirtualMachineCloneSpec(:location => rspec, :template => false, :powerOn => true)
           clone_spec.config = RbVmomi::VIM.VirtualMachineConfigSpec(:deviceChange => Array.new)
 
@@ -93,6 +95,49 @@ module Ironfan
 
  	  network_spec = RbVmomi::VIM.VirtualDeviceConfigSpec(:device => card, :operation => "edit")
           clone_spec.config.deviceChange.push network_spec
+
+          disk = RbVmomi::VIM.VirtualDisk(
+            :key => 2001,
+            :capacityInKB => 40000000,
+            :controllerKey => 1000,
+            :unitNumber => 2,
+            :backing => RbVmomi::VIM.VirtualDiskFlatVer2BackingInfo(
+              :fileName => "[#{datastore.name}]",
+              :diskMode => :persistent,
+              :thinProvisioned => true,
+              :datastore => datastore
+            ),
+            :deviceInfo => RbVmomi::VIM.Description(
+              :label => "Hard disk 2", 
+              :summary => "4GB"
+            ),
+          )  
+
+#          disk = src_config.hardware.device.find { |d| d.class == RbVmomi::VIM::VirtualDisk }
+#          disk.capacityInKB=40000000
+          disk_spec = {:operation => :add, :fileOperation => :create, :device => disk }
+#          disk_spec = {:operation=>:edit, :device=> disk }
+#          disk_spec = RbVmomi::VIM.VirtualMachineConfigSpec(:deviceChange => [RbVmomi::VIM.VirtualDeviceConfigSpec(disk_spec)])
+          clone_spec.config.deviceChange.push disk_spec
+          
+
+#    disk = #{
+#      RbVmomi::VIM.VirtualDisk(
+#        :key => 2001,
+#        :backing => RbVmomi::VIM.VirtualDiskFlatVer2BackingInfo(
+#          :fileName => '[datastore1]',
+#          :diskMode => :persistent,
+#          :thinProvisioned => true
+#        ),
+#        :controllerKey => 1000,
+#        :unitNumber => 0,
+#        :capacityInKB => 4000000
+#      )
+#    }
+
+#          disk_specs = RbVmomi::VIM.VirtualDeviceConfigSpec(:device => disk, :operation => "add", :fileOperation => :create) 
+#          clone_spec.config.deviceChange.push disk_specs
+          
           clone_spec.config.numCPUs = Integer(cpus)
           clone_spec.config.memoryMB = Integer(memory) * 1024
  
@@ -110,20 +155,24 @@ module Ironfan
 
           # TODO: Pass launch_desc to a single function and let it do the rest... like fog does
           launch_desc = launch_description(computer)
-          Chef::Log.debug(JSON.pretty_generate(launch_desc))
-
           datacenter = launch_desc[:datacenter]
+          datastore  = launch_desc[:datastore]
+          user_data  = launch_desc[:user_data]
           template   = launch_desc[:template] 
-          cpus       = launch_desc[:cpus]
           memory     = launch_desc[:memory]
+          cpus       = launch_desc[:cpus]
 
-          src_folder = Vsphere.find_dc(datacenter).vmFolder
+          datacenter = Vsphere.find_dc(datacenter)
+          datastore  = Vsphere.find_ds(datacenter, datastore) # Need to add in round robin choosing or something
+          src_folder = datacenter.vmFolder
 
           Ironfan.safely do
             src_vm = Vsphere.find_in_folder(src_folder, RbVmomi::VIM::VirtualMachine, template)
-            clone_spec = generate_clone_spec(src_vm.config, datacenter, cpus, memory)
+            clone_spec = generate_clone_spec(src_vm.config, datacenter, cpus, memory, datastore)
+
             vsphere_server = src_vm.CloneVM_Task(:folder => src_vm.parent, :name => computer.name, :spec => clone_spec)
             vsphere_server.wait_for_completion
+           
 
             # Will break if the VM isn't finished building.  
             new_vm = Vsphere.find_in_folder(src_folder, RbVmomi::VIM::VirtualMachine, computer.name)
@@ -134,8 +183,9 @@ module Ironfan
             Ironfan.step(computer.name,"pushing keypair", :green)
             public_key = Vsphere::Keypair.public_key(computer)
             # TODO - Move ReconfigVM_Task into it's own method
-            extraConfig = [{:key => 'guestinfo.pubkey', :value => public_key}] 
-            machine.ReconfigVM_Task(:spec => RbVmomi::VIM::VirtualMachineConfigSpec(:extraConfig => extraConfig)).wait_for_completion          
+            extraConfig = [{:key => 'guestinfo.pubkey', :value => public_key}, {:key => "guestinfo.user_data", :value => user_data}] 
+            machine.ReconfigVM_Task(:spec => RbVmomi::VIM::VirtualMachineConfigSpec(:extraConfig => extraConfig)).wait_for_completion
+#            machine.ReconfigVM_Task(:spec => RbVmomi::VIM::VirtualMachineConfigSpec(: => user_data)).wait_for_completion          
           end
 
         end
@@ -187,6 +237,7 @@ module Ironfan
 
           description = {
             :datacenter            => cloud.datacenter,
+            :datastore             => cloud.datastore, 
             :template              => cloud.template,
             :memory                => cloud.memory,
             :cpus                  => cloud.cpus,

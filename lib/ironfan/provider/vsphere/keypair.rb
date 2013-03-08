@@ -53,6 +53,7 @@ module Ironfan
           return if recall? name
           return if File.exists?("%s/%s.pem" %[key_dir, name])
           Ironfan.step(name, "creating key pair for #{name}", :blue)
+          Dir.mkdir(key_dir) if !FileTest::directory?(key_dir)
           create_private_key(OpenSSL::PKey::RSA.new(2048), name)
         end
 

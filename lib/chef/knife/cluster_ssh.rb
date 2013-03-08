@@ -49,9 +49,8 @@ class Chef
         config[:ssh_user]      ||= Chef::Config[:knife][:ssh_user]
 
         target = target.select {|t| not t.bogus? }
-        #addresses = target.map {|c| c.machine.vpc_id.nil? ? c.machine.public_hostname : c.machine.public_ip_address }.compact
-        addresses = target.map {|c| c.machine.public_ip_address }.compact
-        puts "Addresses : #{addresses}"
+        
+        addresses = target.map {|c| c.machine.vpc_id.nil? ? c.machine.public_hostname : c.machine.public_ip_address }.compact
 
         (ui.fatal("No nodes returned from search!"); exit 10) if addresses.nil? || addresses.length == 0
 

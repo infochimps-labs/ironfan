@@ -150,6 +150,9 @@ module Ironfan
       bootstrap.config[:chef_node_name] = server.full_name
       bootstrap.config[:client_key]     = ( computer.client.private_key rescue nil )
       #
+
+      puts bootstrap.config
+
       bootstrap
     end
 
