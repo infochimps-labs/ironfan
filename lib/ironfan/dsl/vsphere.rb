@@ -8,22 +8,23 @@ module Ironfan
     end
 
     class Vsphere < Cloud
-      magic :provider,                  Whatever,       :default => Ironfan::Provider::Vsphere
-      magic :vsphere_datacenters,       Array,          :default => ['New Datacenter']
-      magic :default_datacenter,        String,         :default => ->{ vsphere_datacenters.first }
+      magic :backing,                   String,         :default => ''
+      magic :bits,                      Integer,        :default => "64"
+      magic :bootstrap_distro,          String,         :default => 'ubuntu12.04-gems'
+      magic :chef_client_script,        String
+      magic :cpus,                      String,         :default => "1" 
       magic :datacenter,                String,         :default => ->{ default_datacenter }
       magic :datastore,                 String
-      magic :template,                  String
+      magic :default_datacenter,        String,         :default => ->{ vsphere_datacenters.first }
       magic :image_name,                String
-      magic :bits,                      Integer,        :default => "64"
-      magic :ssh_user,                  String,         :default => "root"
-#      magic :ssh_user,                  String,         :default => ->{ image_info[:ssh_user] }
-      magic :ssh_identity_dir,          String,         :default => ->{ Chef::Config.vsphere_key_dir }
-      magic :bootstrap_distro,          String,         :default => 'ubuntu12.04-gems'
-      magic :validation_key,            String,         :default => ->{ IO.read(Chef::Config.validation_key) rescue '' }
-      magic :cpus,                      String,         :default => "1" 
       magic :memory,                    String,         :default => "4" # Gigabytes
-      magic :chef_client_script,        String
+      magic :provider,                  Whatever,       :default => Ironfan::Provider::Vsphere
+      magic :ssh_identity_dir,          String,         :default => ->{ Chef::Config.vsphere_key_dir }
+      magic :ssh_user,                  String,         :default => "root"
+      magic :template,                  String
+      magic :validation_key,            String,         :default => ->{ IO.read(Chef::Config.validation_key) rescue '' }
+      magic :virtual_disks,             Array,          :default => []
+      magic :vsphere_datacenters,       Array,          :default => ['New Datacenter']
 
       def image_info
         bit_str = "#{self.bits.to_i}-bit" # correct for legacy image info.
@@ -35,8 +36,30 @@ module Ironfan
       end
 
       def implied_volumes
-        results = []
-        return results
+        result = []
+        # FIXME : This is really making assumptions
+        result << Ironfan::Dsl::Volume.new(:name => 'root') do
+            device              '/dev/sda1'
+            fstype              'ext4'
+            keep                false
+            mount_point         '/'
+        end
+        return result unless virtual_disks.length > 0
+
+        virtual_disks.each_with_index do |vd, idx|
+          dev, mnt = ["/dev/sd%s" %[(66 + idx).chr.downcase], idx == 0 ? "/mnt" : "/mnt#{idx}"] # WHAAAaaa 0 o ??? 
+          virtualdisk = Ironfan::Dsl::Volume.new(:name => "virtualdisk#{idx}") do
+            attachable          "VirtualDisk"
+            fstype              vd[:fs]
+            device              dev
+            mount_point         vd[:mount_point] || mnt
+            formattable         true
+            create_at_launch    true
+            mount_options       'defaults,noatime'
+          end
+          result << virtualdisk
+        end
+        result
       end
 
       def ssh_identity_file(computer)
@@ -47,9 +70,9 @@ module Ironfan
       def to_display(style,values={})
         return values if style == :minimal
 
-#        values["Flavor"] =            flavor
         values["Datacenter"] =         datacenter
         return values if style == :default
+
         values
       end
 
@@ -57,9 +80,9 @@ module Ironfan
   end
 end
 
-Chef::Config[:vsphere_vm_info] ||= {}
-Chef::Config[:vsphere_vm_info].merge!({
+#Chef::Config[:vsphere_vm_info] ||= {}
+#Chef::Config[:vsphere_vm_info].merge!({
   #
   # Presice (Ubuntu 12.04)
   #
-  %w["New Datacenter" 64-bit presice] => { :template_name => 'Ubuntu 12.04 Template2', :ssh_user => 'root', :bootstrap_distro => "ubuntu10.04-gems", }})
+#  %w["New Datacenter" 64-bit presice] => { :template_name => 'Ubuntu 12.04 Template2', :ssh_user => 'root', :bootstrap_distro => "ubuntu10.04-gems", }})

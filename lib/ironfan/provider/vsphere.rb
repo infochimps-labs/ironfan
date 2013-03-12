@@ -60,7 +60,6 @@ module Ironfan
         puts Keypair.private_key
       end
 
-
       private
       def self.vsphere_credentials
         return {
@@ -73,4 +72,3 @@ module Ironfan
     end
   end
 end
-
