@@ -11,6 +11,8 @@ module Ironfan
       #
       # Utility functions
       #
+
+      # Some methods cribbed and modified from https://github.com/ezrapagel/knife-vsphere, Ezra Pagel, Jesse Campbell
       def self.connection
         @@connection ||=  RbVmomi::VIM.connect(self.vsphere_credentials)
       end
