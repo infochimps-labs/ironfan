@@ -12,6 +12,7 @@ module Ironfan
       magic :bits,                      Integer,        :default => "64"
       magic :bootstrap_distro,          String,         :default => 'ubuntu12.04-gems'
       magic :chef_client_script,        String
+      magic :cluster,                   String
       magic :cpus,                      String,         :default => "1" 
       magic :datacenter,                String,         :default => ->{ default_datacenter }
       magic :datastore,                 String
@@ -25,6 +26,7 @@ module Ironfan
       magic :validation_key,            String,         :default => ->{ IO.read(Chef::Config.validation_key) rescue '' }
       magic :virtual_disks,             Array,          :default => []
       magic :vsphere_datacenters,       Array,          :default => ['New Datacenter']
+      magic :network, 			String,		:default => "VM Network"
 
       def image_info
         bit_str = "#{self.bits.to_i}-bit" # correct for legacy image info.
@@ -56,6 +58,7 @@ module Ironfan
             formattable         true
             create_at_launch    true
             mount_options       'defaults,noatime'
+            tags                vd[:tags] 
           end
           result << virtualdisk
         end
@@ -79,10 +82,3 @@ module Ironfan
     end
   end
 end
-
-#Chef::Config[:vsphere_vm_info] ||= {}
-#Chef::Config[:vsphere_vm_info].merge!({
-  #
-  # Presice (Ubuntu 12.04)
-  #
-#  %w["New Datacenter" 64-bit presice] => { :template_name => 'Ubuntu 12.04 Template2', :ssh_user => 'root', :bootstrap_distro => "ubuntu10.04-gems", }})

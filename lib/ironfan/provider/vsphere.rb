@@ -20,8 +20,6 @@ module Ironfan
       def self.find_ds(vsphere_dc, name = nil)
         ds = vsphere_dc.datastore
         return ds.grep(RbVmomi::VIM::Datastore).find { |d| d.name == name } if !name.nil?
-        # Lazily sort datastores by free space
-        ds.sort_by { |d| d.info.freeSpace }
       end 
 
       def self.find_dc(vsphere_dc)
@@ -32,9 +30,13 @@ module Ironfan
         folder.childEntity.grep(type).find { |o| o.name == name }
       end
 
-      def self.get_rspec(dc)
-        hosts = find_all_in_folder(dc.hostFolder, RbVmomi::VIM::ComputeResource)
-        resource_pool = hosts.first.resourcePool
+      def self.get_rspec(dc, cluster)
+        if cluster
+          resource_pool = cluster.resourcePool
+        else
+          hosts = find_all_in_folder(dc.hostFolder, RbVmomi::VIM::ComputeResource).find { |o| o.class == RbVmomi::VIM::ComputeResource }
+          resource_pool = hosts.resourcePool || hosts.first.resourcePool
+        end
         RbVmomi::VIM.VirtualMachineRelocateSpec(:pool => resource_pool)
       end
 
@@ -42,7 +44,7 @@ module Ironfan
         if folder.instance_of?(RbVmomi::VIM::ClusterComputeResource)
           folder = folder.resourcePool
         end
-
+   
         if folder.instance_of?(RbVmomi::VIM::ResourcePool)
           folder.resourcePool.grep(type)
         elsif folder.instance_of?(RbVmomi::VIM::Folder)

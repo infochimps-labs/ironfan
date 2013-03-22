@@ -3,8 +3,8 @@ module Ironfan
     class Vsphere
 
       class Machine < Ironfan::IaasProvider::Machine
-        delegate :config, :connection, :connection=, :Destroy_Task, :guest, :PowerOffVM_Task, 
-          :PowerOnVM_Task, :powerState, :ReconfigVM_Task, :runtime,
+        delegate :config, :connection, :connection=, :disks, :Destroy_Task, :guest, :PowerOffVM_Task, 
+          :PowerOnVM_Task, :powerState, :ReconfigVM_Task, :runtime, 
           :to => :adaptee
 
         def self.shared?()      false;  end
@@ -17,7 +17,6 @@ module Ironfan
         end
 
         def keypair
-          puts "keypairs"
         end
 
         def vpc_id
@@ -25,8 +24,10 @@ module Ironfan
         end
 
         def dns_name
-          # FIXME
-          return adaptee.guest.ipAddress
+          host = adaptee.guest.hostName 
+          domain = adaptee.guest.domainName
+          return host unless domain
+          return "%s.%s" %[host, domain]
         end
 
         def public_ip_address
@@ -77,15 +78,15 @@ module Ironfan
           adaptee.PowerOffVM_Task.wait_for_completion
         end
 
-        def self.generate_clone_spec(src_config, dc, cpus, memory, datastore, virtual_disks)
+        def self.generate_clone_spec(src_config, dc, cpus, memory, datastore, virtual_disks, network, cluster)
           # TODO : A lot of this should be moved to utilities in providers/vsphere.rb
-          rspec = Vsphere.get_rspec(dc)
+          rspec = Vsphere.get_rspec(dc, cluster)
           rspec.datastore = datastore
 
           clone_spec = RbVmomi::VIM.VirtualMachineCloneSpec(:location => rspec, :template => false, :powerOn => true)
-          clone_spec.config = RbVmomi::VIM.VirtualMachineConfigSpec(:deviceChange => Array.new)
+          clone_spec.config = RbVmomi::VIM.VirtualMachineConfigSpec(:deviceChange => Array.new, :extraConfig => nil)
 
-          network = Vsphere.find_network("VM Network", dc)
+          network = Vsphere.find_network(network, dc)
           card = src_config.hardware.device.find { |d| d.deviceInfo.label == "Network adapter 1" }
           begin
             switch_port = RbVmomi::VIM.DistributedVirtualSwitchPortConnection(
@@ -104,6 +105,7 @@ module Ironfan
             size = vd[:size].to_i
             label = vd[:label].to_i
             key = 2001 + idx # key 2000 -> SCSI0, 2001 -> SCSI1...
+            filename = vd[:datastore] || datastore.name
 
             disk = RbVmomi::VIM.VirtualDisk(
               :key => key,
@@ -111,7 +113,7 @@ module Ironfan
               :controllerKey => 1000, # SCSI controller
               :unitNumber => idx + 1,
               :backing => RbVmomi::VIM.VirtualDiskFlatVer2BackingInfo(
-                :fileName => "[#{datastore.name}] ",
+                :fileName => "[#{filename}]",
                 :diskMode => :persistent,
                 :thinProvisioned => true,
                 :datastore => datastore
@@ -135,29 +137,31 @@ module Ironfan
         def self.create!(computer)
           return if computer.machine? and computer.machine.created?
           Ironfan.step(computer.name,"creating cloud machine", :green)
-          #
-#          errors = lint(computer)
-#          if errors.present? then raise ArgumentError, "Failed validation: #{errors.inspect}" ; end
-          #
+
+          errors = lint(computer)
+          if errors.present? then raise ArgumentError, "Failed validation: #{errors.inspect}" ; end
 
           # TODO: Pass launch_desc to a single function and let it do the rest... like fog does
           launch_desc = launch_description(computer)
           cpus           = launch_desc[:cpus]
+          cluster        = launch_desc[:cluster]
           datacenter     = launch_desc[:datacenter]
           datastore      = launch_desc[:datastore]
           memory         = launch_desc[:memory]
           template       = launch_desc[:template] 
           user_data      = launch_desc[:user_data]
-          virtual_disks = launch_desc[:virtual_disks]
+          virtual_disks  = launch_desc[:virtual_disks]
+          network        = launch_desc[:network]
 
           datacenter = Vsphere.find_dc(datacenter)
+          cluster    = Vsphere.find_in_folder(datacenter.hostFolder, RbVmomi::VIM::ClusterComputeResource, cluster)
           datastore  = Vsphere.find_ds(datacenter, datastore) # Need to add in round robin choosing or something
           src_folder = datacenter.vmFolder
 
           Ironfan.safely do
             src_vm = Vsphere.find_in_folder(src_folder, RbVmomi::VIM::VirtualMachine, template)
-            clone_spec = generate_clone_spec(src_vm.config, datacenter, cpus, memory, datastore, virtual_disks)
-
+            clone_spec = generate_clone_spec(src_vm.config, datacenter, cpus, memory, datastore, virtual_disks, network, cluster)
+            
             vsphere_server = src_vm.CloneVM_Task(:folder => src_vm.parent, :name => computer.name, :spec => clone_spec)
             vsphere_server.wait_for_completion
 
@@ -170,7 +174,9 @@ module Ironfan
             Ironfan.step(computer.name,"pushing keypair", :green)
             public_key = Vsphere::Keypair.public_key(computer)
             # TODO - Move ReconfigVM_Task into it's own method
-            extraConfig = [{:key => 'guestinfo.pubkey', :value => public_key}, {:key => "guestinfo.user_data", :value => user_data}] 
+            extraConfig = [{:key => 'guestinfo.pubkey', :value => public_key}, 
+                           {:key => "guestinfo.user_data", :value => user_data}, 
+                           {:key => 'guestinfo.hostname', :value => computer.name}] 
             machine.ReconfigVM_Task(:spec => RbVmomi::VIM::VirtualMachineConfigSpec(:extraConfig => extraConfig)).wait_for_completion
           end
         end
@@ -215,14 +221,32 @@ module Ironfan
 
           description = {
             :cpus                  => cloud.cpus,
+            :cluster               => cloud.cluster,
             :datacenter            => cloud.datacenter,
             :datastore             => cloud.datastore, 
             :memory                => cloud.memory,
+            :network               => cloud.network, 
             :template              => cloud.template,
             :user_data             => JSON.pretty_generate(user_data_hsh),
             :virtual_disks         => cloud.virtual_disks
           }
           description
+        end
+
+        # @returns [Hash{String, Array}] of 'what you did wrong' => [relevant, info]
+        def self.lint(computer)
+          cloud = computer.server.cloud(:vsphere)
+          info  = [computer.name, cloud.inspect]
+          errors = {}
+          server_errors = computer.server.lint
+          errors["Unhappy Server"] = server_errors if server_errors.present?
+          errors["Datacenter"] = info if cloud.datacenter.blank?
+          errors["Template"] = info if cloud.template.blank?
+          errors["Datastore"] = info if cloud.datastore.blank?
+          errors['Missing client']      = info            unless computer.client?
+          errors['Missing private_key'] = computer.client unless computer.private_key
+          #
+          errors
         end
 
         def to_display(style,values={})
@@ -241,7 +265,7 @@ module Ironfan
 
           # style == :expanded
 #          values["Image"] =             image_id
-#          values["Volumes"] =           volumes.map(&:id).join(', ')
+          values["Virtual Disks"] =      disks.map { |d| d.backing.fileName }.join(', ')
 #          values["SSH Key"] =           key_name
           values
         end
