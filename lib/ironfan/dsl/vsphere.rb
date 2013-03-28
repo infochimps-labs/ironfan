@@ -16,12 +16,16 @@ module Ironfan
       magic :cpus,                      String,         :default => "1" 
       magic :datacenter,                String,         :default => ->{ default_datacenter }
       magic :datastore,                 String
+      magic :dns_servers,		Array
+      magic :domain,                    String 
       magic :default_datacenter,        String,         :default => ->{ vsphere_datacenters.first }
       magic :image_name,                String
+      magic :ip, 	                String
       magic :memory,                    String,         :default => "4" # Gigabytes
       magic :provider,                  Whatever,       :default => Ironfan::Provider::Vsphere
       magic :ssh_identity_dir,          String,         :default => ->{ Chef::Config.vsphere_key_dir }
       magic :ssh_user,                  String,         :default => "root"
+      magic :subnet,			String
       magic :template,                  String
       magic :validation_key,            String,         :default => ->{ IO.read(Chef::Config.validation_key) rescue '' }
       magic :virtual_disks,             Array,          :default => []

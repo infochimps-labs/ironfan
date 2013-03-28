@@ -78,6 +78,27 @@ module Ironfan
           adaptee.PowerOffVM_Task.wait_for_completion
         end
 
+        def self.ip_settings(settings, hostname)
+          # FIXME: A lot of this is required if using a static IP
+
+          ip_settings = RbVmomi::VIM::CustomizationIPSettings.new(:ip => 
+            RbVmomi::VIM::CustomizationFixedIp(:ipAddress => settings[:ip]), :subnetMask => settings[:subnet]) if settings[:ip]
+          ip_settings ||= RbVmomi::VIM::CustomizationIPSettings.new("ip" => RbVmomi::VIM::CustomizationDhcpIpGenerator.new())
+          ip_settings.dnsDomain = settings[:domain]
+          global_ip_settings = RbVmomi::VIM.CustomizationGlobalIPSettings
+          global_ip_settings.dnsServerList = settings[:dnsServers]
+          global_ip_settings.dnsSuffixList = [settings[:domain]]
+          hostname = RbVmomi::VIM::CustomizationFixedName.new(:name => hostname)
+          linux_prep = RbVmomi::VIM::CustomizationLinuxPrep.new( :domain => settings[:domain], :hostName => hostname )
+          adapter_mapping = [RbVmomi::VIM::CustomizationAdapterMapping.new("adapter" => ip_settings)]
+          spec = RbVmomi::VIM::CustomizationSpec.new( :identity => linux_prep,
+                                                      :globalIPSettings => global_ip_settings,
+                                                      :nicSettingMap => adapter_mapping )
+
+          return spec
+
+        end
+
         def self.generate_clone_spec(src_config, dc, cpus, memory, datastore, virtual_disks, network, cluster)
           # TODO : A lot of this should be moved to utilities in providers/vsphere.rb
           rspec = Vsphere.get_rspec(dc, cluster)
@@ -116,7 +137,7 @@ module Ironfan
                 :fileName => "[#{filename}]",
                 :diskMode => :persistent,
                 :thinProvisioned => true,
-                :datastore => datastore
+#                :datastore => Vsphere.find_ds(dc, vd[:datastore]) || datastore
               ),
               :deviceInfo => RbVmomi::VIM.Description(
                 :label => label, 
@@ -152,6 +173,7 @@ module Ironfan
           user_data      = launch_desc[:user_data]
           virtual_disks  = launch_desc[:virtual_disks]
           network        = launch_desc[:network]
+          ip_settings    = launch_desc[:ip_settings]
 
           datacenter = Vsphere.find_dc(datacenter)
           cluster    = Vsphere.find_in_folder(datacenter.hostFolder, RbVmomi::VIM::ClusterComputeResource, cluster)
@@ -161,9 +183,15 @@ module Ironfan
           Ironfan.safely do
             src_vm = Vsphere.find_in_folder(src_folder, RbVmomi::VIM::VirtualMachine, template)
             clone_spec = generate_clone_spec(src_vm.config, datacenter, cpus, memory, datastore, virtual_disks, network, cluster)
-            
+            clone_spec.customization = ip_settings(launch_desc[:ip_settings], computer.name) if launch_desc[:ip_settings].length > 0  
+
             vsphere_server = src_vm.CloneVM_Task(:folder => src_vm.parent, :name => computer.name, :spec => clone_spec)
-            vsphere_server.wait_for_completion
+
+            state = vsphere_server.info.state # RbVmomi wait_for_completion stops world... 
+            while (state != 'error') and (state != 'success')
+              sleep 2
+              state = vsphere_server.info.state
+            end
 
             # Will break if the VM isn't finished building.  
             new_vm = Vsphere.find_in_folder(src_folder, RbVmomi::VIM::VirtualMachine, computer.name)
@@ -173,10 +201,9 @@ module Ironfan
 
             Ironfan.step(computer.name,"pushing keypair", :green)
             public_key = Vsphere::Keypair.public_key(computer)
-            # TODO - Move ReconfigVM_Task into it's own method
-            extraConfig = [{:key => 'guestinfo.pubkey', :value => public_key}, 
-                           {:key => "guestinfo.user_data", :value => user_data}, 
-                           {:key => 'guestinfo.hostname', :value => computer.name}] 
+            # TODO - This probably belongs somewhere else.  This is how we'll enject the pubkey as well as any user information we may want
+            # This data is not persistent accross reboots... 
+            extraConfig = [{:key => 'guestinfo.pubkey', :value => public_key}, {:key => "guestinfo.user_data", :value => user_data}]
             machine.ReconfigVM_Task(:spec => RbVmomi::VIM::VirtualMachineConfigSpec(:extraConfig => extraConfig)).wait_for_completion
           end
         end
@@ -185,7 +212,7 @@ module Ironfan
         # Discovery
         #
         def self.load!(cluster=nil)
-          # TODO:  Fix this one day when we have multiple "datacenters"
+          # FIXME:  Fix this one day when we have multiple "datacenters".
           cloud = cluster.servers.values[0].cloud(:vsphere)
           vm_folder = Vsphere.find_dc(cloud.datacenter).vmFolder
           Vsphere.find_all_in_folder(vm_folder, RbVmomi::VIM::VirtualMachine).each do |fs|
@@ -210,25 +237,33 @@ module Ironfan
         def self.launch_description(computer)
           cloud = computer.server.cloud(:vsphere)
           user_data_hsh =               {
-            :chef_server =>             Chef::Config[:chef_server_url],
-            :client_key =>              computer.private_key,
-            :cluster_name =>            computer.server.cluster_name,
-            :facet_index =>             computer.server.index,
-            :facet_name =>              computer.server.facet_name,
-            :node_name =>               computer.name,
-            :organization =>            Chef::Config[:organization],
+            :chef_server 	=>      Chef::Config[:chef_server_url],
+            :client_key 	=>      computer.private_key,
+            :cluster_name 	=>      computer.server.cluster_name,
+            :facet_index 	=>      computer.server.index,
+            :facet_name 	=>      computer.server.facet_name,
+            :node_name	 	=>	computer.name,
+            :organization 	=>	Chef::Config[:organization],
+          }
+
+          ip_settings = {
+	    :dnsServers 	=> 	cloud.dns_servers,
+	    :domain 		=>	cloud.domain, 
+            :ip 		=>	cloud.ip,
+            :subnet		=> 	cloud.subnet,
           }
 
           description = {
-            :cpus                  => cloud.cpus,
-            :cluster               => cloud.cluster,
-            :datacenter            => cloud.datacenter,
-            :datastore             => cloud.datastore, 
-            :memory                => cloud.memory,
-            :network               => cloud.network, 
-            :template              => cloud.template,
-            :user_data             => JSON.pretty_generate(user_data_hsh),
-            :virtual_disks         => cloud.virtual_disks
+            :cpus		=> 	cloud.cpus,
+            :cluster		=>	cloud.cluster,
+            :datacenter		=>	cloud.datacenter,
+            :datastore		=>	cloud.datastore, 
+            :memory		=>	cloud.memory,
+            :network		=>	cloud.network, 
+            :template		=>	cloud.template,
+            :user_data		=>	JSON.pretty_generate(user_data_hsh),
+            :virtual_disks	=>	cloud.virtual_disks,
+            :ip_settings	=>	ip_settings
           }
           description
         end
