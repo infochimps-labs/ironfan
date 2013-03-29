@@ -82,7 +82,7 @@ module Ironfan
           # FIXME: A lot of this is required if using a static IP
 
           ip_settings = RbVmomi::VIM::CustomizationIPSettings.new(:ip => 
-            RbVmomi::VIM::CustomizationFixedIp(:ipAddress => settings[:ip]), :subnetMask => settings[:subnet]) if settings[:ip]
+            RbVmomi::VIM::CustomizationFixedIp(:ipAddress => settings[:ip]), :gateway => settings[:gateway], :subnetMask => settings[:subnet]) if settings[:ip]
           ip_settings ||= RbVmomi::VIM::CustomizationIPSettings.new("ip" => RbVmomi::VIM::CustomizationDhcpIpGenerator.new())
           ip_settings.dnsDomain = settings[:domain]
           global_ip_settings = RbVmomi::VIM.CustomizationGlobalIPSettings
@@ -137,7 +137,7 @@ module Ironfan
                 :fileName => "[#{filename}]",
                 :diskMode => :persistent,
                 :thinProvisioned => true,
-#                :datastore => Vsphere.find_ds(dc, vd[:datastore]) || datastore
+                :datastore => Vsphere.find_ds(dc, vd[:datastore]) || datastore
               ),
               :deviceInfo => RbVmomi::VIM.Description(
                 :label => label, 
@@ -183,7 +183,7 @@ module Ironfan
           Ironfan.safely do
             src_vm = Vsphere.find_in_folder(src_folder, RbVmomi::VIM::VirtualMachine, template)
             clone_spec = generate_clone_spec(src_vm.config, datacenter, cpus, memory, datastore, virtual_disks, network, cluster)
-            clone_spec.customization = ip_settings(launch_desc[:ip_settings], computer.name) if launch_desc[:ip_settings].length > 0  
+            clone_spec.customization = ip_settings(launch_desc[:ip_settings], computer.name) if launch_desc[:ip_settings][:ip] 
 
             vsphere_server = src_vm.CloneVM_Task(:folder => src_vm.parent, :name => computer.name, :spec => clone_spec)
 
@@ -205,6 +205,15 @@ module Ironfan
             # This data is not persistent accross reboots... 
             extraConfig = [{:key => 'guestinfo.pubkey', :value => public_key}, {:key => "guestinfo.user_data", :value => user_data}]
             machine.ReconfigVM_Task(:spec => RbVmomi::VIM::VirtualMachineConfigSpec(:extraConfig => extraConfig)).wait_for_completion
+
+            # This is extremelty fragile right now
+            if launch_desc[:ip_settings][:ip]
+              Ironfan.step(computer.name,"waiting for ip customizations to complete", :green)
+              while machine.guest.ipAddress != launch_desc[:ip_settings][:ip]
+                sleep 2
+              end
+            end
+
           end
         end
 
@@ -248,7 +257,8 @@ module Ironfan
 
           ip_settings = {
 	    :dnsServers 	=> 	cloud.dns_servers,
-	    :domain 		=>	cloud.domain, 
+	    :domain 		=>	cloud.domain,
+            :gateway            =>      cloud.gateway,
             :ip 		=>	cloud.ip,
             :subnet		=> 	cloud.subnet,
           }

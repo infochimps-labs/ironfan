@@ -19,6 +19,7 @@ module Ironfan
       magic :dns_servers,		Array
       magic :domain,                    String 
       magic :default_datacenter,        String,         :default => ->{ vsphere_datacenters.first }
+      magic :gateway, 			Array
       magic :image_name,                String
       magic :ip, 	                String
       magic :memory,                    String,         :default => "4" # Gigabytes
