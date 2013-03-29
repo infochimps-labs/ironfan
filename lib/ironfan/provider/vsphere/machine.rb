@@ -80,6 +80,7 @@ module Ironfan
 
         def self.ip_settings(settings, hostname)
           # FIXME: A lot of this is required if using a static IP
+          # Heavily referenced Serengeti's FOG here 
 
           ip_settings = RbVmomi::VIM::CustomizationIPSettings.new(:ip => 
             RbVmomi::VIM::CustomizationFixedIp(:ipAddress => settings[:ip]), :gateway => settings[:gateway], :subnetMask => settings[:subnet]) if settings[:ip]
