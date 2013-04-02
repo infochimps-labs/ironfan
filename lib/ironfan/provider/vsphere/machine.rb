@@ -183,6 +183,7 @@ module Ironfan
 
           Ironfan.safely do
             src_vm = Vsphere.find_in_folder(src_folder, RbVmomi::VIM::VirtualMachine, template)
+            raise "Couldn't find VM #{template} in #{src_folder}" if src_vm.nil?
             clone_spec = generate_clone_spec(src_vm.config, datacenter, cpus, memory, datastore, virtual_disks, network, cluster)
             clone_spec.customization = ip_settings(launch_desc[:ip_settings], computer.name) if launch_desc[:ip_settings][:ip] 
 
