@@ -165,27 +165,28 @@ module Ironfan
 
           # TODO: Pass launch_desc to a single function and let it do the rest... like fog does
           launch_desc = launch_description(computer)
-          cpus           = launch_desc[:cpus]
-          cluster        = launch_desc[:cluster]
-          datacenter     = launch_desc[:datacenter]
-          datastore      = launch_desc[:datastore]
-          memory         = launch_desc[:memory]
-          template       = launch_desc[:template] 
-          user_data      = launch_desc[:user_data]
-          virtual_disks  = launch_desc[:virtual_disks]
-          network        = launch_desc[:network]
-          ip_settings    = launch_desc[:ip_settings]
+          cpus          = launch_desc[:cpus]
+          datacenter    = launch_desc[:datacenter]
+          memory        = launch_desc[:memory]
+          template      = launch_desc[:template]
+          user_data     = launch_desc[:user_data]
+          virtual_disks = launch_desc[:virtual_disks]
+          network       = launch_desc[:network]
+          ip_settings   = launch_desc[:ip_settings]
 
-          datacenter = Vsphere.find_dc(datacenter)
-          cluster    = Vsphere.find_in_folder(datacenter.hostFolder, RbVmomi::VIM::ClusterComputeResource, cluster)
-          datastore  = Vsphere.find_ds(datacenter, datastore) # Need to add in round robin choosing or something
-          src_folder = datacenter.vmFolder
+          datacenter    = Vsphere.find_dc(launch_desc[:datacenter])
+          raise "Couldn't find #{launch_desc[:datacenter]} datacenter" unless datacenter
+          cluster = Vsphere.find_in_folder(datacenter.hostFolder, RbVmomi::VIM::ClusterComputeResource, launch_desc[:cluster])
+          raise "Couldn't find #{launch_desc[:cluster]} cluster in #{datacenter}" unless cluster
+          datastore     = Vsphere.find_ds(datacenter, launch_desc[:datastore]) # FIXME: add in round robin choosing?
+          raise "Couldn't find #{launch_desc[:datastore]} datastore in #{datacenter}" unless datastore
+          src_folder    = datacenter.vmFolder
+          src_vm        = Vsphere.find_in_folder(src_folder, RbVmomi::VIM::VirtualMachine, template)
+          raise "Couldn't find template #{template} in #{datacenter}:#{cluster}" unless src_vm
 
           Ironfan.safely do
-            src_vm = Vsphere.find_in_folder(src_folder, RbVmomi::VIM::VirtualMachine, template)
-            raise "Couldn't find VM #{template} in #{src_folder}" if src_vm.nil?
             clone_spec = generate_clone_spec(src_vm.config, datacenter, cpus, memory, datastore, virtual_disks, network, cluster)
-            clone_spec.customization = ip_settings(launch_desc[:ip_settings], computer.name) if launch_desc[:ip_settings][:ip] 
+            clone_spec.customization = ip_settings(ip_settings, computer.name) if ip_settings[:ip]
 
             vsphere_server = src_vm.CloneVM_Task(:folder => src_vm.parent, :name => computer.name, :spec => clone_spec)
 
@@ -204,14 +205,14 @@ module Ironfan
             Ironfan.step(computer.name,"pushing keypair", :green)
             public_key = Vsphere::Keypair.public_key(computer)
             # TODO - This probably belongs somewhere else.  This is how we'll enject the pubkey as well as any user information we may want
-            # This data is not persistent accross reboots... 
+            # This data is not persistent across reboots...
             extraConfig = [{:key => 'guestinfo.pubkey', :value => public_key}, {:key => "guestinfo.user_data", :value => user_data}]
             machine.ReconfigVM_Task(:spec => RbVmomi::VIM::VirtualMachineConfigSpec(:extraConfig => extraConfig)).wait_for_completion
 
-            # This is extremelty fragile right now
-            if launch_desc[:ip_settings][:ip]
+            # FIXME: This is extremelty fragile right now
+            if ip_settings[:ip]
               Ironfan.step(computer.name,"waiting for ip customizations to complete", :green)
-              while machine.guest.ipAddress != launch_desc[:ip_settings][:ip]
+              while machine.guest.ipAddress != ip_settings[:ip]
                 sleep 2
               end
             end
