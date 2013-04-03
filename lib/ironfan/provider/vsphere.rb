@@ -68,6 +68,7 @@ module Ironfan
       def self.vsphere_credentials
         return {
           :user                  => Chef::Config[:knife][:vsphere_username],
+          :port                  => Chef::Config[:knife][:vsphere_port] || 443,
           :password              => Chef::Config[:knife][:vsphere_password],
           :host                  => Chef::Config[:knife][:vsphere_server],
           :insecure              => Chef::Config[:knife][:vsphere_insecure] || true
