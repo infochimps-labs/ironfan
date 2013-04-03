@@ -9,6 +9,7 @@ module Ironfan
       require 'chef/node'
       require 'chef/api_client'
       require 'fog'
+      require 'rbvmomi'
     end
 
     def load_ironfan

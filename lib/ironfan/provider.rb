@@ -13,6 +13,7 @@ module Ironfan
           case obj[:name]
           when :chef        then Chef
           when :ec2         then Ec2
+          when :vsphere     then Vsphere
           when :virtualbox  then VirtualBox
           else raise "Unsupported provider #{obj[:name]}"
           end
