@@ -1,3 +1,6 @@
+# v4.9.1
+* adding missed rbvmomi dependency
+
 # v4.9.0
 * initial vSphere support (thanks @brandonbell) - see lib/ironfan/dsl/vsphere and lib/ironfan/provider/vsphere for more info
 
