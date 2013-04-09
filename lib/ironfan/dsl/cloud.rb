@@ -12,6 +12,7 @@ module Ironfan
             case obj[:name]
             when :ec2        then Ec2
             when :virtualbox then VirtualBox
+            when :vsphere    then Vsphere
             else raise "Unsupported cloud #{obj[:name]}"
             end
         end

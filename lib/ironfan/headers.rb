@@ -30,6 +30,7 @@ module Ironfan
       class IamServerCertificate < Ironfan::Dsl; end
     end
     class VirtualBox < Cloud; end
+    class Vsphere < Cloud; end
   end
 
   class Provider < Builder
@@ -57,6 +58,11 @@ module Ironfan
     class VirtualBox < Ironfan::IaasProvider
       class Machine < Ironfan::IaasProvider::Machine; end
     end
+    class Vsphere < Ironfan::IaasProvider
+      class Machine < Ironfan::IaasProvider::Machine; end
+      class Keypair < Ironfan::Provider::Resource; end
+    end
+
   end
 
 end
