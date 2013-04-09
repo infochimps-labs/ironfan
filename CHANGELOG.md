@@ -1,3 +1,6 @@
+# v4.9.0
+* initial vSphere support (thanks @brandonbell) - see lib/ironfan/dsl/vsphere and lib/ironfan/provider/vsphere for more info
+
 # v4.8.7
 * ec2/machine: fixing stop and start to wait for all valid end-states
 
