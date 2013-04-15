@@ -170,13 +170,19 @@ module Ironfan
             computer.machine = machine
             remember machine, :id => computer.name
 
-            # AWS sometimes takes too long to respond for this block's liking.
-            #   Expand its wait interval, so that it doesn't just bomb out
-            #   after three quick failures in succession.
-            # For more info, see:
-            # - http://rubydoc.info/gems/fog/1.9.0/Fog/Model#wait_for-instance_method
-            # - https://github.com/fog/fog/blob/master/lib/fog/core/wait_for.rb
-            fog_server.wait_for(Fog.timeout, 5) { ready? }
+            # Trying a more brute force "I tell you 3 times", to get around
+            #   https://github.com/infochimps-labs/ironfan/issues/271
+            begin
+              fog_server.wait_for { ready? }
+            rescue Fog::Errors::Error => e
+              try ||= 0
+              raise if try > 3
+              try += 1
+              pause_for = 3 * try
+              ui.info "Rescue ##{try} for #{e}, sleeping #{pause_for} seconds"
+              sleep pause_for
+              retry
+            end
           end
 
           # tag the computer correctly

@@ -1,3 +1,6 @@
+# v4.9.2
+* Ec2::Machine: trying a more brute-force solution to 'server went away' bug
+
 # v4.9.1
 * adding missed rbvmomi dependency
 
