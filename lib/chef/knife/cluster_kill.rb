@@ -75,10 +75,8 @@ class Chef
         confirm_or_exit("Are you absolutely certain that you want to delete #{delete_message}? (Type 'Yes' to confirm) ", 'Yes')
       end
 
-      def prepares?
-        false
-      end
-
+      def prepares?()   false   end
+      def aggregates?() false   end
     end
   end
 end
