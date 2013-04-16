@@ -180,7 +180,7 @@ module Ironfan
               raise if try > 3
               try += 1
               pause_for = 3 * try
-              Ironfan.step(fog_server.id,"rescue ##{try}, sleeping #{pause_for} seconds")
+              Ironfan.step(fog_server.id,"server unavailable, sleeping #{pause_for} seconds", :gray)
               Chef::Log.debug "Error was #{e.inspect}"
               sleep pause_for
               retry
