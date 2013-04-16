@@ -1,3 +1,6 @@
+# v4.9.4
+* ec2/machine: fixing debug output (duh)
+
 # v4.9.3
 * cluster_launch: cleaning up duplication and misinformation
 * ec2/machine: cleaning up output on launch
