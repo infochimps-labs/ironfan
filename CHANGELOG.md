@@ -1,3 +1,7 @@
+# v4.9.5
+* generalizing tell_you_thrice from ec2/machine
+* cleaner message in rescue of tell_you_thrice
+
 # v4.9.4
 * ec2/machine: fixing debug output (duh)
 
