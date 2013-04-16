@@ -181,7 +181,7 @@ module Ironfan
               try += 1
               pause_for = 3 * try
               Ironfan.step(fog_server.id,"rescue ##{try}, sleeping #{pause_for} seconds")
-              Ironfan.ui.debug "Error was #{e.inspect}"
+              Chef::Log.debug "Error was #{e.inspect}"
               sleep pause_for
               retry
             end
