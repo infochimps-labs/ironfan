@@ -222,8 +222,8 @@ module Ironfan
           info  = [computer.name, cloud.inspect]
           errors = {}
           server_errors = computer.server.lint
-          errors["Unhappy Server"] = server_errors if server_errors.present?
-          errors["No AMI found"] = info if cloud.image_id.blank?
+          errors["Unhappy Server"]      = server_errors   if server_errors.present?
+          errors["No AMI found"]        = info            if cloud.image_id.blank?
           errors['Missing client']      = info            unless computer.client?
           errors['Missing private_key'] = computer.client unless computer.private_key
           #
@@ -237,8 +237,6 @@ module Ironfan
           cloud = computer.server.cloud(:ec2)
           user_data_hsh =               {
             :chef_server =>             Chef::Config[:chef_server_url],
-            # :validation_client_name => Chef::Config[:validation_client_name],
-            #
             :node_name =>               computer.name,
             :organization =>            Chef::Config[:organization],
             :cluster_name =>            computer.server.cluster_name,

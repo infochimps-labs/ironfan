@@ -95,12 +95,12 @@ class Chef
         # As each server finishes, configure it
         Ironfan.parallel(launched) do |computer|
           if (computer.is_a?(Exception)) then ui.warn "Error launching #{computer.inspect}; skipping after-launch tasks."; next; end
-          Ironfan.step(computer.name, 'launching', :white)
           perform_after_launch_tasks(computer)
         end
 
         if healthy?
-          ui.info "Applying aggregations:"
+          section('All computers launched correctly', :white)
+          section('Applying aggregations:')
           all_computers(*@name_args).aggregate
         end
 
@@ -108,23 +108,17 @@ class Chef
       end
 
       def perform_after_launch_tasks(computer)
-        Ironfan.step(computer.name, 'waiting for ready', :white)
-        # Wait for machine creation on amazon side
-        computer.machine.wait_for{ ready? }
-        
         # Try SSH
         unless config[:dry_run]
           Ironfan.step(computer.name, 'trying ssh', :white)
+          # FIXME: This is EC2-specific, abstract it
           address = computer.machine.vpc_id.nil? ? computer.machine.public_hostname : computer.machine.public_ip_address
           nil until tcp_test_ssh(address){ sleep @initial_sleep_delay ||= 10  }
         end
-
-        Ironfan.step(computer.name, 'final provisioning', :white)
-        computer.save
         
         # Run Bootstrap
         if config[:bootstrap]
-          Chef::Log.warn "UNTESTED --bootstrap"
+          Ironfan.step(computer.name, 'bootstrapping', :green)
           run_bootstrap(computer)
         end
       end
