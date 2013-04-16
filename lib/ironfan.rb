@@ -142,6 +142,33 @@ module Ironfan
   end
 
   #
+  # Utility to retry a flaky operation three times, with ascending wait times
+  #
+  def self.tell_you_thrice(options={})
+    options = { name:           "problem",
+                problem:        nil,
+                error_class:    StandardError,
+                retries:        3,
+                multiplier:     3 }.merge!(options)
+    try     = 0
+    message = ''
+
+    begin
+      yield
+    rescue error_class => err
+      raise if try > retries
+      try += 1
+      pause_for = multiplier * try
+      message += "#{problem}, " unless problem.nil?
+      message += "sleeping #{pause_for} seconds"
+      Ironfan.step(name, message, :gray)
+      Chef::Log.debug "Error was #{err.inspect}"
+      sleep pause_for
+      retry
+    end
+  end
+
+  #
   # Utility to show a step of the overall process
   #
   def self.step(name, desc, *style)

@@ -170,20 +170,11 @@ module Ironfan
             computer.machine = machine
             remember machine, :id => computer.name
 
-            # Trying a more brute force "I tell you 3 times", to get around
-            #   https://github.com/infochimps-labs/ironfan/issues/271
             Ironfan.step(fog_server.id,"waiting for machine to be ready", :gray)
-            begin
+            Ironfan.tell_you_thrice     :name           => fog_server.id,
+                                        :problem        => "server unavailable",
+                                        :error_class    => Fog::Errors::Error do
               fog_server.wait_for { ready? }
-            rescue Fog::Errors::Error => e
-              try ||= 0
-              raise if try > 3
-              try += 1
-              pause_for = 3 * try
-              Ironfan.step(fog_server.id,"server unavailable, sleeping #{pause_for} seconds", :gray)
-              Chef::Log.debug "Error was #{e.inspect}"
-              sleep pause_for
-              retry
             end
           end
 
