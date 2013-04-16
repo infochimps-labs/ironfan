@@ -1,3 +1,7 @@
+# v4.9.3
+* cluster_launch: cleaning up duplication and misinformation
+* ec2/machine: cleaning up output on launch
+
 # v4.9.2
 * Ec2::Machine: trying a more brute-force solution to 'server went away' bug
 
