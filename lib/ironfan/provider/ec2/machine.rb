@@ -172,6 +172,7 @@ module Ironfan
 
             # Trying a more brute force "I tell you 3 times", to get around
             #   https://github.com/infochimps-labs/ironfan/issues/271
+            Ironfan.step(fog_server.id,"waiting for machine to be ready", :gray)
             begin
               fog_server.wait_for { ready? }
             rescue Fog::Errors::Error => e
@@ -179,7 +180,8 @@ module Ironfan
               raise if try > 3
               try += 1
               pause_for = 3 * try
-              ui.info "Rescue ##{try} for #{e}, sleeping #{pause_for} seconds"
+              Ironfan.step(fog_server.id,"rescue ##{try}, sleeping #{pause_for} seconds"
+              Ironfan.ui.debug "Error was #{e.inspect}"
               sleep pause_for
               retry
             end
