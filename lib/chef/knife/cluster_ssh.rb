@@ -42,16 +42,22 @@ class Chef
 
       def configure_session
         target = get_slice(@name_args[0]).select(&:running?)
-
+        
         display(target) if config[:verbose] || config[:display_target]
-
+        
         config[:attribute]     ||= Chef::Config[:knife][:ssh_address_attribute] || "fqdn"
         config[:ssh_user]      ||= Chef::Config[:knife][:ssh_user]
+
+        if !config.has_key?(:identity_file)
+          config[:identity_file] = "#{Chef::Config.ec2_key_dir.to_s}/#{@name_args[0]}.pem"
+        end
 
         target = target.select {|t| not t.bogus? }
         addresses = target.map {|c| c.machine.vpc_id.nil? ? c.machine.public_hostname : c.machine.public_ip_address }.compact
 
         (ui.fatal("No nodes returned from search!"); exit 10) if addresses.nil? || addresses.length == 0
+
+        @action_nodes = addresses
 
         session_from_list(addresses)
       end
