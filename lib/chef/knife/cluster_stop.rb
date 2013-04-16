@@ -40,6 +40,9 @@ class Chef
         end
         confirm_or_exit("Are you absolutely certain that you want to perform this action? (Type 'Yes' to confirm) ", 'Yes')
       end
+
+      def prepares?()   false   end
+      def aggregates?() false   end
     end
   end
 end
