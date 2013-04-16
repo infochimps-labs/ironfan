@@ -1,3 +1,6 @@
+# v4.9.7
+* cluster_stop: turning off aggregates? and prepares?
+
 # v4.9.6
 * cluster_kill: turning off aggregates?
 
