@@ -15,6 +15,8 @@ module Ironfan
   end
 
   class Dsl < Builder
+    class Loader < Ironfan::Dsl; end
+
     class Compute < Ironfan::Dsl; end
     class Cluster < Ironfan::Dsl::Compute; end
     class Facet < Ironfan::Dsl::Compute; end

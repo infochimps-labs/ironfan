@@ -66,9 +66,8 @@ module Ironfan
     if @@clusters[name] and attrs.empty? and not block_given?
       return @@clusters[name]
     else # Otherwise we're being asked to (re)initialize and cache a cluster definition
-      cl = Ironfan::Dsl::Cluster.new(:name => name)
-      cl.receive!(attrs, &block)
-      @@clusters[name] = cl.resolve
+      loader = Ironfan::Dsl::Loader.new(:method => :cluster, :args => [ name ], &block)
+      @@clusters[name] = loader.reify.resolve
     end
   end
 
