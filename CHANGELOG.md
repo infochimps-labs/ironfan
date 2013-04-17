@@ -1,3 +1,6 @@
+# v4.9.8
+* fixing rescue block in tell_you_thrice
+
 # v4.9.7
 * cluster_stop: turning off aggregates? and prepares?
 
