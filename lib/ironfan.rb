@@ -67,7 +67,7 @@ module Ironfan
       return @@clusters[name]
     else # Otherwise we're being asked to (re)initialize and cache a cluster definition
       loader = Ironfan::Dsl::Loader.new(:method => :cluster, :args => [ name ], &block)
-      @@clusters[name] = loader.reify.resolve
+      @@clusters[name] = loader.cluster.resolve
     end
   end
 
