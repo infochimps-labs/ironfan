@@ -154,7 +154,7 @@ module Ironfan
 
     begin
       yield
-    rescue error_class => err
+    rescue options[:error_class] => err
       raise if try > retries
       try += 1
       pause_for = multiplier * try
