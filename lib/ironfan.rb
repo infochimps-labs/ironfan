@@ -144,9 +144,12 @@ module Ironfan
   #
   # Utility to retry a flaky operation three times, with ascending wait times
   #
+  # FIXME: Add specs to test the rescue here. It's a PITA to debug naturally or 
+  # 
+  # Manual test:
+  # bundle exec ruby -e "require 'chef'; require 'ironfan'; Ironfan.tell_you_thrice { p 'hah'; raise 'hell' }"
   def self.tell_you_thrice(options={})
     options = { name:           "problem",
-                problem:        nil,
                 error_class:    StandardError,
                 retries:        3,
                 multiplier:     3 }.merge!(options)
@@ -154,15 +157,12 @@ module Ironfan
     message = ''
 
     begin
+      try += 1
       yield
     rescue options[:error_class] => err
-      raise if try > retries
-      try += 1
-      pause_for = multiplier * try
-      message += "#{problem}, " unless problem.nil?
-      message += "sleeping #{pause_for} seconds"
-      Ironfan.step(name, message, :gray)
-      Chef::Log.debug "Error was #{err.inspect}"
+      raise unless try < options[:retries]
+      pause_for = options[:multiplier] * try
+      Chef::Log.debug "Caught error (was #{err.inspect}). Sleeping #{pause_for} seconds."
       sleep pause_for
       retry
     end
