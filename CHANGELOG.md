@@ -1,3 +1,6 @@
+# v4.9.10
+* fixing up file permissions (was causing glitch for bundles installed as root)
+
 # v4.9.9
 * further fixes to tell_you_thrice, noted need for specs
 
