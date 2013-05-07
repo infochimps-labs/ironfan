@@ -1,3 +1,7 @@
+# v4.10.0
+* Updating automatic roles to "#{name}-cluster" and "#{name}-facet", to avoid name collision with conventional roles (thanks, @jessehu)
+* Added newly-ebs optimizeable instances to approved list (thanks @mrflip)
+
 # v4.9.10
 * fixing up file permissions (was causing glitch for bundles installed as root)
 
