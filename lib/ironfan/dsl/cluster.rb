@@ -6,7 +6,7 @@ module Ironfan
 
       def initialize(attrs={},&block)
         super
-        self.cluster_role       Ironfan::Dsl::Role.new(:name => "#{attrs[:name]}_cluster")
+        self.cluster_role       Ironfan::Dsl::Role.new(:name => "#{attrs[:name]}-cluster")
       end
 
       # Utility method to reference all servers from constituent facets
