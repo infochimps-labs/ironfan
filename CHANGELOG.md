@@ -1,3 +1,6 @@
+# v4.10.1
+* Fixing bug in server role assignment (doesn't use cluster_role for some reason)
+
 # v4.10.0
 * Updating automatic roles to "#{name}-cluster" and "#{name}-facet", to avoid name collision with conventional roles (thanks, @jessehu)
 * Added newly-ebs optimizeable instances to approved list (thanks @mrflip)
@@ -184,7 +187,7 @@
 
 # v4.1.1: fixing 'rake spec'
 * Remove all defunct tests and start fresh (fixes #137)
-* Failing spec for #158 
+* Failing spec for #158
 
 # v4.1.0: several bug-fixes and code cleanup
 * Splat the args to DSL::Volume.snapshot_id so we can call it properly (fixes #161)
@@ -265,9 +268,9 @@ You should reload your chef server:
   - customize its `knife-org.rb` for your chef server
   - `knife cluster vagrant up sandbox-simple`
 
-* Deprecated 'knife cluster foo nikko web 0' (many args) in favor of 'knife cluster foo nikko-web-0' (single arg). 
+* Deprecated 'knife cluster foo nikko web 0' (many args) in favor of 'knife cluster foo nikko-web-0' (single arg).
   - the latter still works, it just yells a lot.
-  
+
 * Am changing `--no-cloud` and `--no-chef` to `--cloud=false` and `--chef=false`, opening up room for a later `--cloud=rackspace` etc.
 
 * many doc fixes, thanks @sya!
@@ -276,7 +279,7 @@ You should reload your chef server:
 __________________________________________________________________________
 __________________________________________________________________________
 
-## v3.0.14: 
+## v3.0.14:
 
 Big important change:
 
@@ -294,8 +297,8 @@ Other improvements/fixes:
 * FIX #76 -- `knife cluster kick` runs chef-client if the service is stopped. Fixes #76 . Also knife ssh will at its end show a bright red list of machines whose commands exited with a non-zero exit code -- useful when 1 out of 30 machines fails a knife cluster kick.
 * A limited number of commands (ssh, show, kill) now run with no requirement of cloud anything (Relates to #28). Also worked around an annoying incompatibility with chef 0.10.8 (clients have a 'name') vs 0.10.40-and-prev (clients have a 'clientname'.
 * examples all live in `ironfan-homebase` now.
-* When you `knife cluster stop` a node, it sets `node[:state]` to 
-* the cookbook linter now has its own project: [ironfan-scrubby](https://github.com/infochimps-labs/ironfan-scrubby). Along the way, 
+* When you `knife cluster stop` a node, it sets `node[:state]` to
+* the cookbook linter now has its own project: [ironfan-scrubby](https://github.com/infochimps-labs/ironfan-scrubby). Along the way,
   - some ability to cycle comments from the attributes file into node attribute docs in the `metadata.rb`.
   - added helpful links to the `README.md` template
 * minor fix to the new `authorized_by` calls
@@ -348,12 +351,12 @@ Ironfan underwent a major upgrade with the last several commits.
 
 The following behaviors have been removed:
 
-* `use` -- **BREAKING** Was supposed to let me import another cluster definition into the one calling use. However, it didn't work as advertised, was clutter-y and was actively unpopular (issue #6). 
+* `use` -- **BREAKING** Was supposed to let me import another cluster definition into the one calling use. However, it didn't work as advertised, was clutter-y and was actively unpopular (issue #6).
   - Until the usage of derived clusters becomes clear, say `merge!` on a hash instead.
   - We do default settings for you.
   - We *don't* put in any default roles (as the old `use :defaults` did).
 
-* `cloud` -- **BREAKING** a bare `cloud` statement is meaningless: the *attributes* may be abstract, but the *values* are different for every provider. 
+* `cloud` -- **BREAKING** a bare `cloud` statement is meaningless: the *attributes* may be abstract, but the *values* are different for every provider.
   - Anywhere you used to say `cloud`, say `ec2`: eg `ec2.flavor('t1.micro')` instead of `cloud.flavor('t1.micro')`.
 
 * `chef_attributes` -- **BREAKING** replaced by `facet_role.override_attributes`, `facet_role.default_attributes` (or those methods on `cluster_role`.)
@@ -382,7 +385,7 @@ Several knife scripts saw name changes to their params. If you have external scr
   - bring up the cluster ; by default the service state for all the daemons is [:disable, :stop].
   - run the `/etc/hadoop/conf/bootstrap_hadoop_namenode.sh` to format your HDFS
   - move the service state to '[:enable, :start]' and re-run chef client
-  
+
 
 #### Deprecated cookbooks
 
