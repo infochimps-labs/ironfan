@@ -185,6 +185,7 @@ module Ironfan
             'index' =>        computer.server.index,
             'name' =>         computer.name,
             'Name' =>         computer.name,
+            'creator' =>      Chef::Config.username
           }
           Ec2.ensure_tags(tags, computer.machine)
 
