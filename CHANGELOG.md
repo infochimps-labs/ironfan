@@ -1,3 +1,6 @@
+# v4.10.3
+* Tightening version constraints on excon, to avoid bad interaction between it & fog
+
 # v4.10.2
 * Adding creator tag to Machines (thanks @brandonbell)
 * Bumping gorillib dependency to 0.5.0

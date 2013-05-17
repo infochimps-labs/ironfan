@@ -163,6 +163,7 @@ PLATFORMS
 DEPENDENCIES
   bundler (~> 1.0)
   chef (~> 10.16)
+  excon (~> 0.21.0)
   fog (~> 1.2)
   formatador (~> 0.2)
   gorillib (~> 0.5.0)
