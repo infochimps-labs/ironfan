@@ -3,10 +3,10 @@ source "http://rubygems.org"
 gem 'chef',          "~> 10.16"
 gem 'fog',           "~> 1.2"
 gem 'formatador',    "~> 0.2"
-gem 'gorillib',      "~> 0.4.2"
+gem 'gorillib',      "~> 0.5.0"
 gem 'rbvmomi'
 
-# Everything in the world is being a stupid dick about JSON versions. Pin it 
+# Everything in the world is being a stupid dick about JSON versions. Pin it
 #   to the one that doesn't seem to angrify everyone.
 gem 'json',          "= 1.5.4"
 

@@ -1,3 +1,8 @@
+# v4.10.2
+* Adding creator tag to Machines (thanks @brandonbell)
+* Bumping gorillib dependency to 0.5.0
+* Removed old webinar notice from README
+
 # v4.10.1
 * Fixing bug in server role assignment (doesn't use cluster_role for some reason)
 
