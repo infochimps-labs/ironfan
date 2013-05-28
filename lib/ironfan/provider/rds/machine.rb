@@ -54,8 +54,7 @@ module Ironfan
         def to_display(style,values={})
           # style == :minimal
           values["State"] =             state.to_sym
-          values["MachineID"] =         id
-          values["Endpoint"]  =         endpoint[:Address]
+          values["Endpoint"]  =         adaptee.endpoint["Address"]
           values["Created On"] =        created_at.to_date
           return values if style == :minimal
 
@@ -65,6 +64,7 @@ module Ironfan
           return values if style == :default
 
           # style == :expanded
+          values["Port"]  =         adaptee.endpoint["Port"]
           values["Engine"]  =           engine
           values["EngineVersion"] =     engine_version
           values
