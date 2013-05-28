@@ -79,7 +79,7 @@ module Ironfan
         end
 
         def perform_after_launch_tasks?
-          false
+          true
         end
 
         def self.ip_settings(settings, hostname)
