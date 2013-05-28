@@ -78,6 +78,10 @@ module Ironfan
           adaptee.PowerOffVM_Task.wait_for_completion
         end
 
+        def perform_after_launch_tasks?
+          true
+        end
+
         def self.ip_settings(settings, hostname)
           # FIXME: A lot of this is required if using a static IP
           # Heavily referenced Serengeti's FOG here 

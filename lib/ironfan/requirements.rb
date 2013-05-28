@@ -20,6 +20,7 @@ require 'ironfan/dsl/volume'
 require 'ironfan/dsl/cloud'
 require 'ironfan/dsl/ec2'
 require 'ironfan/dsl/vsphere'
+require 'ironfan/dsl/rds'
 
 
 # Providers for specific resources
@@ -47,6 +48,9 @@ require 'ironfan/provider/vsphere'
 require 'ironfan/provider/vsphere/machine'
 require 'ironfan/provider/vsphere/keypair'
 
+require 'ironfan/provider/rds'
+require 'ironfan/provider/rds/machine'
+require 'ironfan/provider/rds/security_group'
 
 # Broker classes to coordinate DSL expectations and provider resources
 require 'ironfan/broker'

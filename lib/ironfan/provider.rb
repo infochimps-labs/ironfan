@@ -15,6 +15,7 @@ module Ironfan
           when :ec2         then Ec2
           when :vsphere     then Vsphere
           when :virtualbox  then VirtualBox
+          when :rds         then Rds
           else raise "Unsupported provider #{obj[:name]}"
           end
       end

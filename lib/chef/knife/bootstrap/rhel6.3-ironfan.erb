@@ -1,0 +1,179 @@
+bash <<'EOF' || echo "Chef bootstrap failed!"
+
+# This is the RHEL 6 bootstrap script from infochimps' ironfan. It is
+# based on opscode's bootstrap script, with the following important differences: 
+#
+# * installs ruby 1.9.2 (not 1.8.7) from source
+# * upgrades rubygems rather than installing from source
+# * pushes the computer identity into the first-boot.json
+# * installs the chef-client service and kicks off the first run of chef
+
+set -e
+
+<%= (@config[:verbosity].to_i > 1 ? 'set -v' : '') %>
+
+RUBY_VERSION=1.9.2-p290
+CHEF_VERSION=<%= bootstrap_version_string.gsub(/.*[\s=]/,"") %>
+
+mkdir -p /tmp/knife-bootstrap
+chmod 700 /tmp/knife-bootstrap 
+cd /tmp/knife-bootstrap
+
+<%= "export http_proxy=\"#{knife_config[:bootstrap_proxy]}\"" if knife_config[:bootstrap_proxy] -%>
+cat /etc/redhat-release
+
+date > /etc/box_build_time
+
+echo -e "`date` \n\n**** \n**** yum upgrade:\n****\n"
+yum upgrade --assumeyes
+
+echo -e "`date` \n\n**** \n**** Installing base packages:\n****\n"
+yum install --assumeyes make wget 
+yum install --assumeyes git rpm-build rpmdevtools gcc glibc-static zlib-devel libxml2-devel libxslt-devel openssl-devel telnet nc uuid-devel
+if [ ! -d runit-rpm ]; then git clone https://github.com/imeyer/runit-rpm.git; fi
+cd runit-rpm
+./build.sh
+yum install --assumeyes /root/rpmbuild/RPMS/x86_64/runit-*.rpm || true # TODO: Remove this shim
+cd -
+yum remove --assumeyes prelink
+yum clean all
+
+if [ ! -f /usr/bin/chef-client ]; then
+  echo -e "`date` \n\n**** \n**** Installing ruby version ${RUBY_VERSION}:\n****\n"
+
+  wget ftp://ftp.ruby-lang.org/pub/ruby/1.9/ruby-${RUBY_VERSION}.tar.gz
+  tar xzf ruby-${RUBY_VERSION}.tar.gz
+  cd ruby-${RUBY_VERSION}
+  ./configure --with-ruby-version=${RUBY_VERSION} --prefix=/usr --program-suffix=${RUBY_VERSION}
+  make -j2
+  make install
+
+  alternatives \
+    --install /usr/bin/ruby ruby /usr/bin/ruby${RUBY_VERSION} 400 \
+    --slave   /usr/bin/ri   ri   /usr/bin/ri${RUBY_VERSION}       \
+    --slave   /usr/bin/irb  irb  /usr/bin/irb${RUBY_VERSION}      \
+    --slave   /usr/bin/erb  erb  /usr/bin/erb${RUBY_VERSION}      \
+    --slave   /usr/bin/gem  gem  /usr/bin/gem${RUBY_VERSION}      \
+    --slave   /usr/share/man/man1/ruby.1.gz ruby.1.gz             \
+    /usr/share/man/man1/ruby${RUBY_VERSION}.1
+
+  echo -e "`date` \n\n**** \n**** Updating rubygems:\n****\n"
+  gem install rubygems-update -v 1.8.5
+
+  echo -e "`date` \n\n**** \n**** Installing chef:\n****\n"
+  gem install net-ssh --no-rdoc --no-ri --version 2.2.2
+  gem install net-ssh-gateway --no-rdoc --no-ri --version 1.1.0
+  gem install net-ssh-multi --no-rdoc --no-ri --version 1.1
+  gem install ohai --no-rdoc --no-ri --version 6.14.0
+  gem install chef --no-rdoc --no-ri --version 10.16.4
+  # gems needed for the client.rb or so generically useful you want them at hand
+  gem install      --no-rdoc --no-ri extlib bundler json right_aws pry fog
+
+else # no chef-client
+  echo -e "`date` \n\n**** \n**** Chef is present -- skipping apt/ruby/chef installation\n****\n"
+fi # end ruby+chef install
+
+echo -e "`date` \n\n**** \n**** Knifing in the chef client config files:\n****\n"
+mkdir -p /etc/chef
+
+<%- if @config[:client_key] %>
+(
+cat <<'EOP'
+<%= @config[:client_key] %>
+EOP
+) > /tmp/knife-bootstrap/client.pem
+awk NF /tmp/knife-bootstrap/client.pem > /etc/chef/client.pem
+<%- else %>
+(
+cat <<'EOP'
+<%= validation_key %>
+EOP
+) > /tmp/knife-bootstrap/validation.pem
+awk NF /tmp/knife-bootstrap/validation.pem > /etc/chef/validation.pem
+<%- end %>
+
+<% if @chef_config[:encrypted_data_bag_secret] -%>
+(
+cat <<'EOP'
+<%= encrypted_data_bag_secret %>
+EOP
+) > /tmp/encrypted_data_bag_secret
+awk NF /tmp/encrypted_data_bag_secret > /etc/chef/encrypted_data_bag_secret
+rm /tmp/encrypted_data_bag_secret
+<% end -%>
+
+echo -e "`date` \n\n**** \n**** Nuking our temp files:\n****\n"
+
+cd /tmp
+rm -rf /tmp/knife-bootstrap
+
+echo -e "`date` \n\n**** \n**** Creating chef client script:\n****\n"
+
+(
+cat <<'EOP'
+<%= config_content %>
+<%= @config[:computer].chef_client_script_content %>
+EOP
+) > /etc/chef/client.rb
+
+(
+cat <<'EOP'
+<%= { "run_list" => @run_list, "cluster_name" => @config[:server].cluster_name, "facet_name" => @config[:server].facet_name, "facet_index" => @config[:server].index }.to_json %>
+EOP
+) > /etc/chef/first-boot.json
+
+# Ensure that EC2 images are recognized even inside VPC
+mkdir -p /etc/chef/ohai/hints/
+touch /etc/chef/ohai/hints/ec2.json
+
+
+echo -e "`date` \n\n**** \n**** Adding chef client nonce script:\n****\n"
+
+cat > /etc/init.d/chef-client-nonce <<'EOP'
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:           chef-client-nonce
+# Required-Start:     $remote_fs $network
+# Required-Stop:
+# Default-Start:      2 3 4 5
+# Default-Stop:       0 1 6
+# Short-Description:  Start a single chef-client run.
+### END INIT INFO
+#
+# Copyright (c) 2009-2010 Opscode, Inc, <legal@opscode.com>
+#
+# chef-client         Startup script for chef-client.
+# chkconfig: - 99 02
+# description: starts up chef-client once, at boot
+
+case "$1" in
+  start)
+    /usr/bin/chef-client -L /var/log/chef/client.log
+    exit $?
+    ;;
+  *)
+    echo "Usage: /etc/init.d/chef-client-nonce start" >&2
+    exit 1
+    ;;
+esac
+EOP
+
+mkdir -p /var/log/chef
+mkdir -p /etc/sv
+chmod +x /etc/init.d/chef-client-nonce 
+chkconfig --add chef-client-nonce
+chkconfig --del iptables
+chkconfig --del rh-cloud-firstboot
+chkconfig --add rh-cloud-firstboot
+
+rm /etc/sysconfig/rh-cloud-firstboot
+
+<%- if (@config[:bootstrap_runs_chef_client].to_s == 'true') || (@chef_config.knife[:bootstrap_runs_chef_client].to_s == 'true') %>
+sudo /etc/init.d/chef-client-nonce start
+<%- end %>
+
+
+
+echo -e "`date` \n\n**** \n**** Cleanup:\n****\n"
+cd /
+rm -r /tmp/knife-bootstrap

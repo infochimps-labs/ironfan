@@ -13,6 +13,7 @@ module Ironfan
             when :ec2        then Ec2
             when :virtualbox then VirtualBox
             when :vsphere    then Vsphere
+            when :rds        then Rds
             else raise "Unsupported cloud #{obj[:name]}"
             end
         end

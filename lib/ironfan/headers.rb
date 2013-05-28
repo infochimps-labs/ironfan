@@ -31,6 +31,9 @@ module Ironfan
     end
     class VirtualBox < Cloud; end
     class Vsphere < Cloud; end
+    class Rds < Cloud
+      class SecurityGroup < Ironfan::Dsl; end
+    end
   end
 
   class Provider < Builder
@@ -62,7 +65,10 @@ module Ironfan
       class Machine < Ironfan::IaasProvider::Machine; end
       class Keypair < Ironfan::Provider::Resource; end
     end
-
+    class Rds < Ironfan::IaasProvider
+      class Machine < Ironfan::IaasProvider::Machine; end
+      class SecurityGroup < Ironfan::Provider::Resource; end
+    end
   end
 
 end
