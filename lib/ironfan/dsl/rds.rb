@@ -12,16 +12,16 @@ module Ironfan
       magic :availability_zones,        Array,          :default => ['us-east-1d']
       magic :backup_retention,          Integer,        :default => 1
       magic :charset,                   String,         :default => nil
-      magic :dbname,                    String,         :default => ->{ dbname }
+      magic :dbname,                    String,         :default => nil
       magic :default_availability_zone, String,         :default => ->{ availability_zones.first }
       magic :engine,                    String,         :default => ->{ engines.first }
       magic :engines,                   Array,          :default => ["MySQL", "oracle-se1", "oracle-se", "oracle-ee", "sqlserver-ee", "sqlserver-se", "sqlserver-ex", "sqlserver-web"]
       magic :flavor,                    String,         :default => "db.t1.micro"
       magic :iops,                      Integer,        :default => 1000
       magic :license_model,             String,         :default => nil
-      magic :multi_availability_zone,   :boolean,       :default => false
+      magic :multi_az,                  :boolean,       :default => false
       magic :password,                  String,         :default => nil
-      magic :port,                      Integer,        :default => ->{ port }     
+      magic :port,                      Integer,        :default => -> { default_port }      
       magic :preferred_backup_window,    String,        :default => nil  # Format hh24:mi-hh24:mi.  Needs to be at least 30 minutes, UTC,
       magic :preferred_maintenance_window, String,      :default => nil  # Format ddd:hh24:mi-ddd:hh24:mi.  Minimum 30 minutes, UTC
       magic :provider,                  Whatever,       :default => Ironfan::Provider::Rds
@@ -43,13 +43,7 @@ module Ironfan
         []
       end
 
-      def dbname
-        return "ORCL" if ["oracle-se1", "oracle-se", "oracle-ee"].include?(engine)
-        return nil 
-      end
-
-      def port(port=nil)
-        return port unless port.nil?
+      def default_port
         return 3306 if engine == "MySQL"
         return 1521 if ["oracle-se1", "oracle-se", "oracle-ee"].include?(engine)
         return 1433 if ["sqlserver-ee", "sqlserver-se", "sqlserver-ex", "sqlserver-web"].include?(engine)

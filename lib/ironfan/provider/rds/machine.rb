@@ -159,18 +159,12 @@ module Ironfan
 
         # @returns [Hash{String, Array}] of 'what you did wrong' => [relevant, info]
         def self.lint(computer)
-          cloud = computer.server.cloud(:ec2)
+          cloud = computer.server.cloud(:rds)
           info  = [computer.name, cloud.inspect]
           errors = {}
-#          server_errors = computer.server.lint
-#          errors["Unhappy Server"]      = server_errors   if server_errors.present?
-#          errors["No AMI found"]        = info            if cloud.image_id.blank?
-#          errors['Missing client']      = info            unless computer.client?
-#          errors['Missing private_key'] = computer.client unless computer.private_key
-#          #
-#          all_asserted_regions = [Ec2.connection.region, cloud.region, Chef::Config[:knife][:region], Ironfan.chef_config[:region]].compact.uniq
-#          errors["mismatched region"] = all_asserted_regions unless all_asserted_regions.count == 1
-#          #
+          errors["No Password"] = info if cloud.password.empty?
+          errors["No Username"] = info if cloud.username.empty?
+          errors["Size"]        = info if cloud.size < 5
           errors
         end
 
@@ -192,51 +186,28 @@ module Ironfan
           description = {
             :allocated_storage            => cloud.size,
             :auto_minor_version_upgrade   => cloud.autoupgrade,
-            :availability_zone            => cloud.default_availability_zone,
+            :availability_zone            => cloud.multi_az ? nil : cloud.default_availability_zone,
             :backup_retention_period      => cloud.backup_retention,
-            :db_security_groups           => cloud.security_groups.keys,
+            :db_name                      => cloud.dbname,
             :engine                       => cloud.engine,
             :engine_version               => cloud.version,
             :flavor_id                    => cloud.flavor,
             :license_model                => cloud.license_model,
             :master_username              => cloud.username,
+            :multi_az                     => cloud.multi_az, 
             :password                     => cloud.password,
             :port                         => cloud.port,
             :preferred_backup_window      => cloud.preferred_backup_window,
             :preferred_maintenance_window => cloud.preferred_maintenance_window,
+            :security_group_names         => cloud.security_groups.keys,
             :user_data                    => JSON.pretty_generate(user_data_hsh),
-#            :db_name                      => cloud.dbname,  # Breaks for some reason
 #            :charset                    => cloud.charset, # Not supported in FOG?
 #            :iops                       => cloud.iops, # Not supported in FOG?
-#            :multi_az                    => cloud.multi_availability_zone,
           }
 
           description
         end
 
-#          # VPC security_groups can only be addressed by id (not name)
-#          description[:security_group_ids] = cloud.security_groups.keys.map do |g|
-#            SecurityGroup.recall( SecurityGroup.group_name_with_vpc(g,cloud.vpc) ).group_id
-#          end
-#
-#          description[:iam_server_certificates] = cloud.iam_server_certificates.values.map do |cert|
-#            IamServerCertificate.recall(IamServerCertificate.full_name(computer, cert))
-#          end.compact.map(&:name)
-#
-#          description[:elastic_load_balancers] = cloud.elastic_load_balancers.values.map do |elb|
-#            ElasticLoadBalancer.recall(ElasticLoadBalancer.full_name(computer, elb))
-#          end.compact.map(&:name)
-#
-#          if cloud.flavor_info[:placement_groupable]
-#            ui.warn "1.3.1 and earlier versions of Fog don't correctly support placement groups, so your nodes will land willy-nilly. We're working on a fix"
-#            description[:placement] = { 'groupName' => cloud.placement_group.to_s }
-#          end
-#          if cloud.flavor_info[:ebs_optimizable]
-#            description[:ebs_optimized] = cloud.ebs_optimized
-#          end
-#          description
-#        end
-#
         def self.destroy!(computer)
           return unless computer.machine?
           forget computer.machine.name
@@ -246,17 +217,6 @@ module Ironfan
 
         def self.save!(computer)
           return unless computer.machine?
-          # the EC2 API does not surface disable_api_termination as a value, so we
-          # have to set it every time.
-#          permanent = computer.server.cloud(:ec2).permanent
-          return unless computer.created?
-#          Ironfan.step(computer.name, "setting termination flag #{permanent}", :blue)
-#          Ironfan.unless_dry_run do
-#            Ironfan.safely do
-#              Ec2.connection.modify_instance_attribute( computer.machine.id,
-#                {'DisableApiTermination.Value' => computer.permanent?, })
-            #end
-          #end
         end
       end
 
