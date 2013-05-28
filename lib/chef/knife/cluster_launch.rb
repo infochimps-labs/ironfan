@@ -95,7 +95,7 @@ class Chef
         # As each server finishes, configure it
         Ironfan.parallel(launched) do |computer|
           if (computer.is_a?(Exception)) then ui.warn "Error launching #{computer.inspect}; skipping after-launch tasks."; next; end
-          perform_after_launch_tasks(computer)
+          perform_after_launch_tasks(computer) if computer.machine.perform_after_launch_tasks?
         end
 
         if healthy?

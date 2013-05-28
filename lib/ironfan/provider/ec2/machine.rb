@@ -77,6 +77,10 @@ module Ironfan
           adaptee.wait_for{ machine.stopping? or machine.stopped? }
         end
 
+        def perform_after_launch_tasks?
+          true
+        end
+
         def to_display(style,values={})
           # style == :minimal
           values["State"] =             state.to_sym
