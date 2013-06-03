@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "ironfan"
-  s.version = "4.10.3"
+  s.version = "4.10.4"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Infochimps"]
-  s.date = "2013-05-17"
+  s.date = "2013-06-03"
   s.description = "Ironfan allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
   s.email = "coders@infochimps.com"
   s.extra_rdoc_files = [
@@ -40,6 +40,7 @@ Gem::Specification.new do |s|
     "ironfan.gemspec",
     "lib/chef/knife/bootstrap/centos6.2-ironfan.erb",
     "lib/chef/knife/bootstrap/chef-full-ironfan.erb",
+    "lib/chef/knife/bootstrap/rhel6.3-ironfan.erb",
     "lib/chef/knife/bootstrap/ubuntu10.04-ironfan.erb",
     "lib/chef/knife/bootstrap/ubuntu12.04-ironfan.erb",
     "lib/chef/knife/cluster_bootstrap.rb",
@@ -69,6 +70,7 @@ Gem::Specification.new do |s|
     "lib/ironfan/dsl/compute.rb",
     "lib/ironfan/dsl/ec2.rb",
     "lib/ironfan/dsl/facet.rb",
+    "lib/ironfan/dsl/rds.rb",
     "lib/ironfan/dsl/role.rb",
     "lib/ironfan/dsl/server.rb",
     "lib/ironfan/dsl/virtualbox.rb",
@@ -89,6 +91,9 @@ Gem::Specification.new do |s|
     "lib/ironfan/provider/ec2/machine.rb",
     "lib/ironfan/provider/ec2/placement_group.rb",
     "lib/ironfan/provider/ec2/security_group.rb",
+    "lib/ironfan/provider/rds.rb",
+    "lib/ironfan/provider/rds/machine.rb",
+    "lib/ironfan/provider/rds/security_group.rb",
     "lib/ironfan/provider/virtualbox.rb",
     "lib/ironfan/provider/virtualbox/machine.rb",
     "lib/ironfan/provider/vsphere.rb",
@@ -132,6 +137,7 @@ Gem::Specification.new do |s|
     "spec/fixtures/ec2/elb/snakeoil.key",
     "spec/fixtures/gunbai.rb",
     "spec/fixtures/gunbai_slice.json",
+    "spec/fixtures/knife/knife.rb",
     "spec/integration/minimal-chef-repo/chefignore",
     "spec/integration/minimal-chef-repo/environments/_default.json",
     "spec/integration/minimal-chef-repo/knife/credentials/knife-org.rb",
@@ -155,7 +161,7 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   s.rubygems_version = "1.8.23"
   s.summary = "Infochimps' lightweight cloud orchestration toolkit, built on top of Chef."
-  s.test_files = ["spec/spec_helper/dummy_chef.rb", "spec/integration/spec_helper/launch_cluster.rb", "spec/integration/minimal-chef-repo/roles/systemwide.rb", "spec/integration/minimal-chef-repo/chefignore", "spec/integration/minimal-chef-repo/knife/credentials/knife-org.rb", "spec/integration/minimal-chef-repo/knife/knife.rb", "spec/integration/minimal-chef-repo/environments/_default.json", "spec/integration/spec/simple_cluster_spec.rb", "spec/integration/spec/elb_build_spec.rb", "spec/integration/spec_helper.rb", "spec/test_config.rb", "spec/chef/cluster_bootstrap_spec.rb", "spec/chef/cluster_launch_spec.rb", "spec/fixtures/gunbai_slice.json", "spec/fixtures/ec2/elb/snakeoil.crt", "spec/fixtures/ec2/elb/snakeoil.key", "spec/fixtures/gunbai.rb", "spec/spec_helper.rb", "spec/ironfan/cluster_spec.rb", "spec/ironfan/ec2/cloud_provider_spec.rb", "spec/ironfan/ec2/elb_spec.rb", "spec/ironfan/ec2/security_group_spec.rb"]
+  s.test_files = ["spec/spec_helper/dummy_chef.rb", "spec/integration/spec_helper/launch_cluster.rb", "spec/integration/minimal-chef-repo/roles/systemwide.rb", "spec/integration/minimal-chef-repo/chefignore", "spec/integration/minimal-chef-repo/knife/credentials/knife-org.rb", "spec/integration/minimal-chef-repo/knife/knife.rb", "spec/integration/minimal-chef-repo/environments/_default.json", "spec/integration/spec/simple_cluster_spec.rb", "spec/integration/spec/elb_build_spec.rb", "spec/integration/spec_helper.rb", "spec/test_config.rb", "spec/chef/cluster_bootstrap_spec.rb", "spec/chef/cluster_launch_spec.rb", "spec/fixtures/gunbai_slice.json", "spec/fixtures/knife/knife.rb", "spec/fixtures/ec2/elb/snakeoil.crt", "spec/fixtures/ec2/elb/snakeoil.key", "spec/fixtures/gunbai.rb", "spec/spec_helper.rb", "spec/ironfan/cluster_spec.rb", "spec/ironfan/ec2/cloud_provider_spec.rb", "spec/ironfan/ec2/elb_spec.rb", "spec/ironfan/ec2/security_group_spec.rb"]
 
   if s.respond_to? :specification_version then
     s.specification_version = 3
