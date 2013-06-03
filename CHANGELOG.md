@@ -1,3 +1,7 @@
+# v4.10.4
+* Cleaning up specs to use local credentials, chef-zero (requires libssl): fixes #242
+* Added RDS support, see https://github.com/infochimps-labs/ironfan/pull/290 for details
+
 # v4.10.3
 * Tightening version constraints on excon, to avoid bad interaction between it & fog
 
