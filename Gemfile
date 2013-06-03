@@ -34,4 +34,6 @@ group :test do
   gem 'guard-yard'
   gem 'ruby_gntp'
   gem 'ruby-debug19'
+  #
+  gem 'chef-zero'
 end

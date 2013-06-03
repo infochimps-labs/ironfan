@@ -12,9 +12,11 @@ Pathname.register_paths(
   fixtures:    [:code, 'spec', 'fixtures'],
   )
 
-RSpec.configure do |config|
+RSpec.configure do |cfg|
   def ironfan_go!
-    Chef::Knife.new.configure_chef
+    k = Chef::Knife.new
+    k.config[:config_file] = Pathname.path_to(:fixtures, 'knife/knife.rb')
+    k.configure_chef
     Chef::Config.instance_eval do
       knife.merge!({
           :aws_access_key_id => 'access_key',
@@ -26,7 +28,11 @@ RSpec.configure do |config|
     require 'ironfan'
 
     Ironfan.ui          = Chef::Knife::UI.new(STDOUT, STDERR, STDIN, {})
-    Ironfan.chef_config = { :verbosity => 0 }
+    Ironfan.chef_config = k.config
     Ironfan.cluster_path
   end
 end
+
+require 'chef_zero/server'
+server = ChefZero::Server.new(port: 4000)
+server.start_background
