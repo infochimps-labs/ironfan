@@ -155,6 +155,20 @@ module Ironfan
             'Name' =>         computer.name,
           }
           Rds.ensure_tags(tags, computer.machine)
+          
+          # Because chef will never run on these, we fake announcements after launch.  
+          Ironfan.step(computer.name, "Adding enpoint and port announcements", :green)
+          announcements = { :rds => {
+                              :endpoint  => computer.machine.endpoint["Address"],
+                              :port      => computer.machine.endpoint["Port"],
+                              :root_user => launch_desc[:master_username],
+                              :root_pass => launch_desc[:password],
+                            }
+                          }
+
+          computer.node[:announces] = announcements
+          computer.node.save
+          
         end
 
         # @returns [Hash{String, Array}] of 'what you did wrong' => [relevant, info]
