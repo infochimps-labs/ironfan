@@ -1,3 +1,7 @@
+# v4.11.0
+* Changed chef client semantics, to drop problematic deprecated "name" attribute
+* Adding `announcements` to RDS instances
+
 # v4.10.4
 * Cleaning up specs to use local credentials, chef-zero (requires libssl): fixes #242
 * Added RDS support, see https://github.com/infochimps-labs/ironfan/pull/290 for details
