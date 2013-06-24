@@ -19,7 +19,6 @@ module Ironfan
           result = Ec2.connection.describe_placement_groups
           result.body["placementGroupSet"].each do |group|
             register group unless group.blank?
-            Chef::Log.debug("Loaded #{group.inspect}")
           end
         end
       end

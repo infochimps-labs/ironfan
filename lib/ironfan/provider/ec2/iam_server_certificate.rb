@@ -31,7 +31,6 @@ module Ironfan
             iss = new(:adaptee => cert)
             remember(iss, { :id => cert['ServerCertificateName'] })
             remember(iss, { :id => "#{ARN_PREFIX}:#{cert['Arn']}" })
-            Chef::Log.debug("Loaded #{cert.inspect}")
           end
         end
 

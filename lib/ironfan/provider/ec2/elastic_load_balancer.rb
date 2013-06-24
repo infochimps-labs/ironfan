@@ -33,10 +33,7 @@ module Ironfan
         #
         def self.load!(cluster=nil)
           Ec2.elb.load_balancers.each do |raw|
-            next if raw.blank?
-            elb = ElasticLoadBalancer.new(:adaptee => raw)
-            remember(elb)
-            Chef::Log.debug("Loaded #{elb}: #{elb.inspect}")
+            register raw unless raw.blank?
           end
         end
 

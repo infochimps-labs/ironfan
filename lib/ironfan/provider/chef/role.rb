@@ -49,9 +49,7 @@ module Ironfan
         def self.load!(cluster=nil)
           query = cluster && "name:#{cluster.name}-*"
           ChefServer.search(:role,query) do |raw|
-            next unless raw.present?
-            role = register(raw)
-            Chef::Log.debug("Loaded #{role}")
+            register raw if raw.present?
           end
         end
 

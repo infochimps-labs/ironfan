@@ -61,7 +61,6 @@ module Ironfan
             else
               remember ebs
             end
-            Chef::Log.debug("Loaded #{ebs}")
           end
         end
 

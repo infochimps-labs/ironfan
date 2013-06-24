@@ -127,7 +127,6 @@ module Ironfan
             else # never seen it
               remember machine
             end
-            Chef::Log.debug("Loaded #{machine}")
           end
         end
 

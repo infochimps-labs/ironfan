@@ -91,7 +91,6 @@ module Ironfan
           ChefServer.search(:node, query) do |raw|
             next unless raw.present?
             node = register(raw)
-            Chef::Log.debug("Loaded #{node}")
           end
         end
 

@@ -110,6 +110,7 @@ module Ironfan
       def self.remember(resource,options={})
         index = options[:id] || resource.name
         index += options[:append_id] if options[:append_id]
+        Chef::Log.debug("Loaded #{resource}")
         self.known[index] = resource
       end
 
@@ -117,7 +118,6 @@ module Ironfan
       def self.register(native)
         result = new(:adaptee => native) or return
         remember result
-        result
       end
 
       def self.recall?(id)

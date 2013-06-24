@@ -3,14 +3,14 @@ module Ironfan
     class Ec2
 
       class ElasticIp < Ironfan::Provider::Resource
-      	delegate :addresses, :associate_address, :allocation_id, 
-            :allocation_id=, :allocate_address, :auto_elastic_ip, :destroy, 
-            :domain, :domain=, :describe_addresses, :disassociate_address, 
-            :domain, :id, :network_interface_id, :network_interface_id=, 
-            :public_ip, :public_ip=, :public_ip_address, :save, :server=, 
+      	delegate :addresses, :associate_address, :allocation_id,
+            :allocation_id=, :allocate_address, :auto_elastic_ip, :destroy,
+            :domain, :domain=, :describe_addresses, :disassociate_address,
+            :domain, :id, :network_interface_id, :network_interface_id=,
+            :public_ip, :public_ip=, :public_ip_address, :save, :server=,
             :server, :server_id, :server_id=,
         :to => :adaptee
- 
+
         def self.shared?()              true;                               end
         def self.multiple?()            false;                              end
         def self.resource_type()        :elastic_ip;                        end
@@ -24,7 +24,6 @@ module Ironfan
         def self.load!(cluster=nil)
           Ec2.connection.addresses.each do |eip|
             register eip
-            Chef::Log.debug("Loaded #{eip}")
 
             # The rest of this definition shows relevant information when -VV
             #   is passed to knife and aids in troubleshooting any refusal to

@@ -33,9 +33,7 @@ module Ironfan
         #
         def self.load!(cluster=nil)
           Ec2.connection.security_groups.reject { |raw| raw.blank? }.each do |raw|
-            sg = SecurityGroup.new(:adaptee => raw)
-            remember(sg)
-            Chef::Log.debug("Loaded #{sg}: #{sg.inspect}")
+            remember SecurityGroup.new(:adaptee => raw)
           end
         end
 
