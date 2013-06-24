@@ -45,11 +45,12 @@ module Ironfan
         # Discovery
         #
         def self.load!(cluster=nil)
-          query = "clientname:#{cluster ? '*' : cluster.name}-*"
-          ChefServer.search(:client, query) do |raw|
-            next unless raw.present?
-            client = register(raw)
-            Chef::Log.debug("Loaded #{client}")
+          cluster.servers.each do |s|
+            raw = ChefServer.get_node(s.full_name)
+            if not raw.nil?
+              client = register(raw)
+              Chef::Log.debug("Loaded #{client}")
+            end
           end
         end
 

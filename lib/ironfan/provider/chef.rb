@@ -20,6 +20,14 @@ module Ironfan
         Chef::REST.new(*params).post_rest(type,content)
       end
 
+      def self.get_node(client)
+        begin
+          Chef::ApiClient.load(client)
+        rescue Net::HTTPServerException
+          # No client exists.  
+        end
+      end
+
       def self.search(*params,&block)
         Chef::Search::Query.new.search(*params,&block)
       end
