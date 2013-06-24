@@ -45,11 +45,14 @@ module Ironfan
         # Discovery
         #
         def self.load!(cluster=nil)
-          query = "clientname:#{cluster ? '*' : cluster.name}-*"
-          ChefServer.search(:client, query) do |raw|
-            next unless raw.present?
-            client = register(raw)
-            Chef::Log.debug("Loaded #{client}")
+          Chef::ApiClient.list(true).each { |name, raw| client = register(raw) }
+          return unless cluster
+
+          # Fallback, for when Solr isn't indexing clients fast enough
+          cluster.servers.each do |s|
+            next if recall? s.full_name             # Already loaded
+            begin; register Chef::ApiClient.load(s.full_name)
+            rescue Net::HTTPServerException; end    # Doesn't exist
           end
         end
 
@@ -58,16 +61,15 @@ module Ironfan
         #
         def self.create!(computer)
           return if computer.client?
-          client = Client.new
-          client.name         computer.server.full_name
-          client.admin        false
+          client                = Client.new
+          client.name           computer.server.full_name
+          client.admin          false
 
-          params = {:name => client.name, :admin => client.admin, :private_key => true }
-          result = ChefServer.post_rest("clients", params)
-          client.private_key(result["private_key"])
+          result                = client.save
+          client.private_key    result["private_key"]
 
-          computer[:client] =  client
-          remember             client
+          computer[:client]     = client
+          remember              client
         end
 
         def self.destroy!(computer)
