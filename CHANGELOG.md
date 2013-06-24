@@ -1,3 +1,7 @@
+# v4.11.1
+* Added fall-back Chef::Client loading, if Solr index has fallen behind (thanks @brandonbell)
+* Moved logging of resource loading into Resource.register, instead of individual resources
+
 # v4.11.0
 * Changed chef client semantics, to drop problematic deprecated "name" attribute
 * Adding `announcements` to RDS instances
