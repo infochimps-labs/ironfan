@@ -45,7 +45,7 @@ module Ironfan
         # Discovery
         #
         def self.load!(cluster=nil)
-          query = cluster && "name:#{cluster.name}-* OR clientname:#{cluster.name}-*"
+          query = "clientname:#{cluster ? '*' : cluster.name}-*"
           ChefServer.search(:client, query) do |raw|
             next unless raw.present?
             client = register(raw)
