@@ -1,7 +1,7 @@
 # Providers present a lightweight wrapper for various third-party services,
 #   such as Chef's node and client APIs, and Amazon's EC2 APIs. This allows
 #   Ironfan ask specialized questions (such as whether a given resource
-#   matches
+#   matches the one of the Computers that we're handling).
 module Ironfan
   class Provider < Builder
     class_attribute :handle
