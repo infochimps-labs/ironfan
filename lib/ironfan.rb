@@ -144,8 +144,8 @@ module Ironfan
   #
   # Utility to retry a flaky operation three times, with ascending wait times
   #
-  # FIXME: Add specs to test the rescue here. It's a PITA to debug naturally or 
-  # 
+  # FIXME: Add specs to test the rescue here. It's a PITA to debug naturally or
+  #
   # Manual test:
   # bundle exec ruby -e "require 'chef'; require 'ironfan'; Ironfan.tell_you_thrice { p 'hah'; raise 'hell' }"
   def self.tell_you_thrice(options={})

@@ -42,7 +42,7 @@ module Ironfan
         def self.expected_ids(computer) [computer.server.full_name];   end
 
         def name
-          return id if tags.empty?
+          return id if (tags.nil? || tags.empty?)
           tags["Name"] || tags["name"] || id
         end
 
