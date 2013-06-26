@@ -108,7 +108,7 @@ module Ironfan
 
         def to_s
           "<%-15s %-12s %-25s %-25s %-15s %-15s %-12s %-12s %s:%s>" % [
-            self.class.handle, id, created_at, tags['name'], private_ip_address, public_ip_address, flavor_id, availability_zone, key_name, groups.join(',') ]
+            self.class.handle, id, created_at, name, private_ip_address, public_ip_address, flavor_id, availability_zone, key_name, groups.join(',') ]
         end
 
         #
