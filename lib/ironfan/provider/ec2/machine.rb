@@ -10,7 +10,7 @@ module Ironfan
             :connection, :connection=, :console_output, :created_at,
             :created_at=, :destroy, :dns_name, :dns_name=,
             :ebs_optimized, :flavor, :flavor=,
-            :flavor_id, :flavor_id=, :groups, :groups=, :iam_instance_profile,
+            :flavor_id, :flavor_id=, :groups=, :iam_instance_profile,
             :iam_instance_profile=, :iam_instance_profile_arn=,
             :iam_instance_profile_name=, :id, :id=, :identity, :identity=,
             :image_id, :image_id=, :instance_initiated_shutdown_behavior,
@@ -45,7 +45,7 @@ module Ironfan
           return id if (tags.nil? || tags.empty?)
           tags["Name"] || tags["name"] || id
         end
-
+        def groups           ; Array(adaptee.groups)   ;   end
         def public_hostname  ; dns_name ; end
         def keypair          ; key_pair ; end
 
