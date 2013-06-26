@@ -5,9 +5,9 @@
 
 Gem::Specification.new do |s|
   s.name = "ironfan"
-  s.version = ""
+  s.version = "4.11.2.pre"
 
-  s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
+  s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Infochimps"]
   s.date = "2013-06-26"
   s.description = "Ironfan allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
