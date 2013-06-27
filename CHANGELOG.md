@@ -1,3 +1,10 @@
+# v4.11.2
+* Several changes to ec2/machine, from earlier call of to_s during register call (thanks @brandonbell, @rottmanj)
+  * testing for possible nil result from tags
+  * removing more bare access of tags['name'] (bad monkey, no banana)
+  * wrapping groups call so that it's always an Array
+* Add cc2.8xlarge EC2 instance type for people who swing big wallets (thanks @nickmarden)
+
 # v4.11.1
 * Added fall-back Chef::Client loading, if Solr index has fallen behind (thanks @brandonbell)
 * Moved logging of resource loading into Resource.register, instead of individual resources
