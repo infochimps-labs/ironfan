@@ -87,17 +87,17 @@ module Ironfan
               groups_to_create << dsl_group.name
 
               groups_to_create << dsl_group.group_authorized.map do |other_group|
-                most_appropriate_group_name(other_group, cloud.vpc, groups_that_should_exist)
+                most_appropriate_group_name(other_group, cloud.vpc)
               end
 
               groups_to_create << dsl_group.group_authorized_by.map do |other_group|
-                most_appropriate_group_name(other_group, cloud.vpc, groups_that_should_exist)
+                most_appropriate_group_name(other_group, cloud.vpc)
               end
 
               authorizations_to_ensure << dsl_group.group_authorized.map do |other_group|
                 {
-                  :grantor      => most_appropriate_group_name(dsl_group.name, cloud.vpc, groups_that_should_exist),
-                  :grantee      => most_appropriate_group_name(other_group, cloud.vpc, groups_that_should_exist),
+                  :grantor      => most_appropriate_group_name(dsl_group.name, cloud.vpc),
+                  :grantee      => most_appropriate_group_name(other_group, cloud.vpc),
                   :grantee_type => :group,
                   :range        => WIDE_OPEN,
                 }
@@ -105,8 +105,8 @@ module Ironfan
 
               authorizations_to_ensure << dsl_group.group_authorized_by.map do |other_group|
                 {
-                  :grantor      => most_appropriate_group_name(other_group, cloud.vpc, groups_that_should_exist),
-                  :grantee      => most_appropriate_group_name(dsl_group.name, cloud.vpc, groups_that_should_exist),
+                  :grantor      => most_appropriate_group_name(other_group, cloud.vpc),
+                  :grantee      => most_appropriate_group_name(dsl_group.name, cloud.vpc),
                   :grantee_type => :group,
                   :range        => WIDE_OPEN,
                 }
@@ -172,8 +172,8 @@ module Ironfan
           vpc_id.nil? ? name.to_s : "#{vpc_id}:#{name.to_s}"
         end
 
-        def self.most_appropriate_group_name(group, vpc_id, all_valid_groups)
-          all_valid_groups.include?(group_name_with_vpc(group, vpc_id)) ? group_name_with_vpc(group, vpc_id) : group
+        def self.most_appropriate_group_name(group, vpc_id)
+          vpc_id.present? ? group_name_with_vpc(group, vpc_id) : group
         end
 
         #
