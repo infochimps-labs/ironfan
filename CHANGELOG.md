@@ -1,3 +1,6 @@
+# v4.11.3
+* Removing unnecessary check for groups (caused failures when in VPC)
+
 # v4.11.2
 * Several changes to ec2/machine, from earlier call of to_s during register call (thanks @brandonbell, @rottmanj)
   * testing for possible nil result from tags
