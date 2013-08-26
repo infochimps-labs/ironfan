@@ -58,7 +58,7 @@ module Ironfan
           return unless elastic_ip = computer.server.ec2.elastic_ip
           return unless recall? elastic_ip
           # also, in the case of VPC Elastic IPs, can discover and use allocation_id to attach a VPC Elastic IP.
-          return unless computer.server.ec2.include?(:elastic_ip)
+          return unless computer.server.ec2.methods.include?(:elastic_ip)
           if ( computer.server.ec2.elastic_ip.nil? and cloud.vpc.nil? )
             # First,  :elastic_ip is set, no address is currently allocated for this connection's owner
             # NOTE: We cannot specify an address to create, but after a reload we can then load the first available.
