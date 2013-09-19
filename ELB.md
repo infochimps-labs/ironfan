@@ -26,7 +26,14 @@
             map_port('HTTPS', 443, 'HTTP', 81, 'snake-oil')
 
             # Applies to all HTTPS/SSL listeners
-            disallowed_ciphers(%w[ RC4-SHA ])
+            allowed_ciphers(%w[ Protocol-SSLv3 Protocol-TLSv1 RC4-MD5 RC4-SHA ])
+
+            # If AWS tries to add other ciphers automatically because "they know
+            # best", and you really don't want that cipher (e.g. the cipher is
+            # flagged as problematic by SSLLabs, nessus, etc.) you can explicitly
+            # disallow the cipher from your HTTPS/SSL listeners thusly.
+            disallowed_ciphers(%w[ AES128-SHA ])
+            # PROTIP: The disallowed_ciphers call is usually unnecessary
 
             # Health check that is made against ALL running instances
             health_check do
@@ -78,15 +85,18 @@ These `knife cluster` commands are not associated with updates of the Chef or IA
 
 ## SSL policy
 
-The SSL policy control in Ironfan is very rudimentary. You may control which ciphers are explicitly disallowed as follows
+The SSL policy control in Ironfan is very rudimentary. You may control which ciphers are explicitly allowed or disallowed as follows
 
     elastic_load_balancer "sparky-elb" do
       ...
-      disallowed_ciphers(%w[ RC4-SHA ])
+      allowed_ciphers(%w[ Protocol-SSLv3 Protocol-TLSv1 RC4-MD5 RC4-SHA ])
+      disallowed_ciphers(%w[ AES128-SHA ])
       ...
     end
 
-Note that the default behavior is to disallow ciphers that are hypothetically vulnerable to the [BEAST attack](http://vnhacker.blogspot.com/2011/09/beast.html). You probably don't want or need to change it.
+Note that the default behavior is to allow a standard "safe" list of ciphers supported by most modern browsers, and to disallow ciphers that are hypothetically vulnerable to the [BEAST attack](http://vnhacker.blogspot.com/2011/09/beast.html) and RC4 attacks (http://en.wikipedia.org/wiki/Transport_Layer_Security#RC4_attacks). You probably don't want or need to change it.
+
+NOTE: If you do call allowed_ciphers or disallowed_ciphers, you will be overriding the built-in defaults and will need to specify the complete list of allowed or disallowed ciphers instead of just the ones you want to add or remove from the list.
 
 ## How do port mappings work?
 
