@@ -1,5 +1,8 @@
+# v4.11.5
+* Update ELB creation code to reflect new SSLNegotiationPolicyType behaviors (thanks @nickmarden)
+
 # v4.11.4
-* fix "undefined method" error when assigning elastic IPs (thanks, @andrewgoktepe)
+* fix "undefined method" error when assigning elastic IPs (thanks @andrewgoktepe)
 
 # v4.11.3
 * Removing unnecessary check for groups (caused failures when in VPC)
