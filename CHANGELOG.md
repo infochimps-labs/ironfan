@@ -1,3 +1,6 @@
+# v4.12.0
+* Added realms (supra-cluster scoping): see https://github.com/infochimps-labs/ironfan/pull/308 for details
+
 # v4.11.5
 * Update ELB creation code to reflect new SSLNegotiationPolicyType behaviors (thanks @nickmarden)
 
