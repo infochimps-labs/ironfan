@@ -86,9 +86,7 @@ module Ironfan
     else
       rlm = Ironfan::Dsl::Realm.new(:name => name)
       rlm.receive!(attrs, &block)
-      rlm.wire_clusters
-      realm_clusters = Hash[rlm.clusters.keys.map{|k| [k.to_sym, rlm.clusters[k].resolve]}]
-      @@clusters.merge!(realm_clusters)
+      rlm.clusters.keys.each{|k| @@clusters[k.to_sym] = rlm.clusters[k].resolve}
       @@realms[name] = rlm
     end
   end

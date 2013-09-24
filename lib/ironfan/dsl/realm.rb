@@ -16,10 +16,6 @@ module Ironfan
       end
 
       def realm_name()        name;   end
-      
-      def wire_clusters()
-        STDERR.puts "wiring!!!"
-      end
     end
 
   end
