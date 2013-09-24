@@ -2,6 +2,7 @@ require 'ironfan/requirements'
 
 module Ironfan
   @@clusters ||= Hash.new
+  @@realms ||= Hash.new
 
   # path to search for cluster definition files
   def self.cluster_path
@@ -16,6 +17,12 @@ module Ironfan
   # Delegates
   def self.clusters
     @@clusters
+  end
+
+  #
+  # Delegates
+  def self.realms
+    @@realms
   end
 
   def self.ui=(ui) @ui = ui ; end
@@ -72,6 +79,20 @@ module Ironfan
     end
   end
 
+  def self.realm(name, attrs={}, &block)
+    name = name.to_sym
+    if @@realms[name] and attrs.empty? and not block_given?
+      return @@realms[name]
+    else
+      rlm = Ironfan::Dsl::Realm.new(:name => name)
+      rlm.receive!(attrs, &block)
+      rlm.wire_clusters
+      realm_clusters = Hash[rlm.clusters.keys.map{|k| [k.to_sym, rlm.clusters[k].resolve]}]
+      @@clusters.merge!(realm_clusters)
+      @@realms[name] = rlm
+    end
+  end
+
   #
   # Return cluster if it's defined. Otherwise, search Ironfan.cluster_path
   # for an eponymous file, load it, and return the cluster it defines.
@@ -85,12 +106,14 @@ module Ironfan
     raise ArgumentError, "Please supply a cluster name" if name.to_s.empty?
     return @@clusters[name] if @@clusters[name]
 
-    cluster_file = cluster_filenames[name] or raise("Couldn't find a definition for #{name} in cluster_path: #{cluster_path.inspect}")
+    cluster_path.each do |cp_dir|
+      Dir[ File.join(cp_dir, '*.rb') ].each do |filename|
+        Chef::Log.info("Loading cluster file #{filename}")
+        require filename
+      end
+    end
 
-    Chef::Log.info("Loading cluster #{cluster_file}")
-
-    require cluster_file
-    unless @@clusters[name] then  die("#{cluster_file} was supposed to have the definition for the #{name} cluster, but didn't") end
+    unless @@clusters[name] then  die("Couldn't find a cluster definition for #{name} in #{cluster_path}") end
 
     @@clusters[name]
   end
