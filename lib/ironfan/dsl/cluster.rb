@@ -4,6 +4,8 @@ module Ironfan
     class Cluster < Ironfan::Dsl::Compute
       collection :facets,       Ironfan::Dsl::Facet,   :resolver => :deep_resolve
 
+      magic :clusters,          Whatever
+
       def initialize(attrs={},&block)
         super
         self.cluster_role       Ironfan::Dsl::Role.new(:name => "#{attrs[:name]}-cluster")
