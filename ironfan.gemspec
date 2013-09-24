@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = "ironfan"
-  s.version = "4.11.5"
+  s.version = "4.12.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Infochimps"]
@@ -71,6 +71,7 @@ Gem::Specification.new do |s|
     "lib/ironfan/dsl/ec2.rb",
     "lib/ironfan/dsl/facet.rb",
     "lib/ironfan/dsl/rds.rb",
+    "lib/ironfan/dsl/realm.rb",
     "lib/ironfan/dsl/role.rb",
     "lib/ironfan/dsl/server.rb",
     "lib/ironfan/dsl/virtualbox.rb",
