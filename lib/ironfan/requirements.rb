@@ -13,6 +13,7 @@ require 'ironfan/dsl/compute'
 require 'ironfan/dsl/server'
 require 'ironfan/dsl/facet'
 require 'ironfan/dsl/cluster'
+require 'ironfan/dsl/realm'
 
 require 'ironfan/dsl/role'
 require 'ironfan/dsl/volume'
