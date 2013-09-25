@@ -4,11 +4,13 @@ module Ironfan
     class Cluster < Ironfan::Dsl::Compute
       collection :facets,       Ironfan::Dsl::Facet,   :resolver => :deep_resolve
 
-      magic :clusters,          Whatever
-
       def initialize(attrs={},&block)
         super
         self.cluster_role       Ironfan::Dsl::Role.new(:name => "#{attrs[:name]}-cluster")
+      end
+
+      def facet(name,attrs={},&block)
+        super(name,attrs.merge(cluster_names: cluster_names),&block)
       end
 
       # Utility method to reference all servers from constituent facets

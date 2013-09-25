@@ -10,9 +10,11 @@ module Ironfan
 
       def cluster(label, attrs={},&blk)
         new_name = [realm_name, label].join('_').to_sym
-        cluster = Ironfan::Dsl::Cluster.new(name: new_name, clusters: OpenStruct.new)
-        (clusters.keys.map{|k| clusters[k]}.to_a + [cluster]).
-          each{|cl| cl.clusters.new_ostruct_member label; cl.clusters.send "#{label}=", new_name}
+        cluster = Ironfan::Dsl::Cluster.new(name: new_name, cluster_names: OpenStruct.new)
+        (clusters.keys.map{|k| clusters[k]} << cluster).each do |cl|
+          cl.cluster_names.new_ostruct_member label
+          cl.cluster_names.send "#{label}=", new_name
+        end
         cluster.receive!(attrs, &blk)
         super(new_name, cluster)
       end
