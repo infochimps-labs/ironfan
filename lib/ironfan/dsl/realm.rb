@@ -7,18 +7,16 @@ module Ironfan
       magic :cluster_suffixes,    Whatever
 
       def initialize(attrs={},&block)
-        cluster_names OpenStruct.new
-        cluster_suffixes OpenStruct.new
+        cluster_names({})
+        cluster_suffixes({})
         super
       end
 
       def cluster(label, attrs={},&blk)
         new_name = [realm_name, label].join('_').to_sym
-        cluster = Ironfan::Dsl::Cluster.new(name: new_name, cluster_names: OpenStruct.new)
-        cluster_names.new_ostruct_member label
-        cluster_names.send "#{label}=", new_name
-        cluster_suffixes.new_ostruct_member label
-        cluster_suffixes.send "#{label}=", label
+        cluster = Ironfan::Dsl::Cluster.new(name: new_name, cluster_names: {})
+        cluster_names[label] = new_name
+        cluster_suffixes[label] = label
         (clusters.keys.map{|k| clusters[k]} << cluster).each do |cl|
           cl.cluster_names cluster_names
         end
