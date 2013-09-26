@@ -27,6 +27,8 @@ module Ironfan
       member     :cluster_role, Ironfan::Dsl::Role
       member     :facet_role,   Ironfan::Dsl::Role
 
+      magic      :cluster_names, Whatever
+
       def initialize(attrs={},&block)
         self.underlay   = attrs[:owner] if attrs[:owner]
         super

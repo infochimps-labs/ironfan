@@ -9,6 +9,10 @@ module Ironfan
         self.cluster_role       Ironfan::Dsl::Role.new(:name => "#{attrs[:name]}-cluster")
       end
 
+      def facet(name,attrs={},&block)
+        super(name,attrs.merge(cluster_names: cluster_names),&block)
+      end
+
       # Utility method to reference all servers from constituent facets
       def servers
         result = Gorillib::ModelCollection.new(:item_type => Ironfan::Dsl::Server, :key_method => :full_name)
