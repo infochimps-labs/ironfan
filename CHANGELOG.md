@@ -1,3 +1,6 @@
+# v4.12.1
+* REALM discovery aids: see https://github.com/infochimps-labs/ironfan/pull/309 for details
+
 # v4.12.0
 * Added realms (supra-cluster scoping): see https://github.com/infochimps-labs/ironfan/pull/308 for details
 
