@@ -7,7 +7,9 @@ module Ironfan
       field      :cluster_name, String
 
       def initialize(attrs={},&block)
-        self.cluster_name       = attrs[:owner].name unless attrs[:owner].nil?
+        self.cluster_names      attrs[:owner].cluster_names unless attrs[:owner].nil?
+        self.realm_name         attrs[:owner].realm_name unless attrs[:owner].nil?
+        self.cluster_name       = attrs[:owner].cluster_name unless attrs[:owner].nil?
         self.name               = attrs[:name] unless attrs[:name].nil?
         self.facet_role         Ironfan::Dsl::Role.new(:name => "#{full_name}-facet")
         super
@@ -15,8 +17,6 @@ module Ironfan
       end
 
       def full_name()           "#{cluster_name}-#{name}";      end
-
     end
-
   end
 end
