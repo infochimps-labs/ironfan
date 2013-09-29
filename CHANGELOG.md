@@ -1,3 +1,6 @@
+# v4.12.2
+* REALM discovery aids cleanup: see https://github.com/infochimps-labs/ironfan/pull/310 for details
+
 # v4.12.1
 * REALM discovery aids: see https://github.com/infochimps-labs/ironfan/pull/309 for details
 
