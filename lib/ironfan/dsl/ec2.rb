@@ -182,8 +182,15 @@ module Ironfan
 
         end
 
-        # SSL ciphers susceptible to the BEAST attack
-        BEAST_VULNERABLE_CIPHERS = %w[
+        # AWS has wonky logic about which ciphers are included in a policy.
+        # Some ciphers need to be explicitly excluded or else they will be
+        # included, and vice versa. For completeness we protect ourselves
+        # from this behavior the best we can by having both an explicit
+        # include (allow) and exclude (disallow) list.
+
+        # Remove ciphers which are vulnerable to the BEAST attack.
+        # http://en.wikipedia.org/wiki/Transport_Layer_Security#BEAST_attack
+        DISALLOWED_SSL_CIPHERS = %w[
           Protocol-SSLv2
           ADH-AES128-SHA
           ADH-AES256-SHA
@@ -193,12 +200,9 @@ module Ironfan
           ADH-DES-CBC3-SHA
           ADH-RC4-MD5
           ADH-SEED-SHA
-          AES128-SHA
-          AES256-SHA
           DES-CBC-MD5
           DES-CBC-SHA
           DES-CBC3-MD5
-          DES-CBC3-SHA
           DHE-DSS-AES128-SHA
           DHE-DSS-AES256-SHA
           DHE-RSA-AES128-SHA
@@ -226,11 +230,45 @@ module Ironfan
           PSK-AES128-CBC-SHA
           PSK-AES256-CBC-SHA
           RC2-CBC-MD5
+        ] +
+        # Remove all RC4 ciphers
+        # http://en.wikipedia.org/wiki/Transport_Layer_Security#RC4_attacks
+        %w[
+          ADH-RC4-MD5
+          EXP-ADH-RC4-MD5
+          EXP-KRB5-RC4-MD5
+          EXP-KRB5-RC4-SHA
+          EXP-RC4-MD5
+          KRB5-RC4-MD5
+          KRB5-RC4-SHA
+          PSK-RC4-SHA
+          RC4-MD5
+          RC4-SHA
+        ]
+
+        # TODO: Move over to Elliptic Curve Cipher Suites (ECDHE ciphers) as
+        # soon as ELB supports them.
+        ALLOWED_SSL_CIPHERS = %w[
+          Protocol-SSLv3
+          Protocol-TLSv1
+          AES128-SHA
+          AES256-SHA
+          CAMELLIA128-SHA
+          CAMELLIA256-SHA
+          DES-CBC3-SHA
+          DHE-DSS-CAMELLIA128-SHA
+          DHE-DSS-CAMELLIA256-SHA
+          DHE-DSS-SEED-SHA
+          DHE-RSA-CAMELLIA128-SHA
+          DHE-RSA-CAMELLIA256-SHA
+          DHE-RSA-SEED-SHA
+          SEED-SHA
         ]
 
         field  :name,               String
         field  :port_mappings,      Array, :default => []
-        magic  :disallowed_ciphers, Array, :default => BEAST_VULNERABLE_CIPHERS
+        magic  :allowed_ciphers,    Array, :default => ALLOWED_SSL_CIPHERS
+        magic  :disallowed_ciphers, Array, :default => DISALLOWED_SSL_CIPHERS
         member :health_check,       HealthCheck
 
         def map_port(load_balancer_protocol = 'HTTP', load_balancer_port = 80, internal_protocol = 'HTTP', internal_port = 80, iam_server_certificate = nil)
@@ -240,11 +278,11 @@ module Ironfan
         end
 
         def ssl_policy_to_fog
-          result = Hash[ *disallowed_ciphers.collect { |c| [ c, false ] }.flatten ]
-          return {
-            :name       => Digest::MD5.hexdigest("#{disallowed_ciphers.sort.join('')}"),
-            :attributes => result,
-          }
+          result = { }
+          allowed_ciphers.each { |a| result[a] = true }
+          disallowed_ciphers.each { |d| result[d] = false }
+          uuid = Digest::MD5.hexdigest("ALLOWED:#{allowed_ciphers.sort.join('')};DISALLOWED:#{disallowed_ciphers.sort.join('')}")
+          return { :name => uuid, :attributes => result }
         end
 
         def listeners_to_fog(cert_lookup)

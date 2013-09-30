@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "ironfan"
-  s.version = "4.11.4"
+  s.version = "4.12.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Infochimps"]
-  s.date = "2013-08-28"
+  s.date = "2013-09-29"
   s.description = "Ironfan allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
   s.email = "coders@infochimps.com"
   s.extra_rdoc_files = [
@@ -71,6 +71,7 @@ Gem::Specification.new do |s|
     "lib/ironfan/dsl/ec2.rb",
     "lib/ironfan/dsl/facet.rb",
     "lib/ironfan/dsl/rds.rb",
+    "lib/ironfan/dsl/realm.rb",
     "lib/ironfan/dsl/role.rb",
     "lib/ironfan/dsl/server.rb",
     "lib/ironfan/dsl/virtualbox.rb",

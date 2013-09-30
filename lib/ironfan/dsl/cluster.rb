@@ -7,6 +7,8 @@ module Ironfan
       def initialize(attrs={},&block)
         super
         self.cluster_role       Ironfan::Dsl::Role.new(:name => "#{attrs[:name]}-cluster")
+        self.realm_name         attrs[:owner].name unless attrs[:owner].nil?
+        self.cluster_names      attrs[:owner].cluster_names unless attrs[:owner].nil?
       end
 
       # Utility method to reference all servers from constituent facets
@@ -16,8 +18,9 @@ module Ironfan
         result
       end
 
-      def cluster_name()        name;   end
+      def cluster_name
+        name
+      end
     end
-
   end
 end

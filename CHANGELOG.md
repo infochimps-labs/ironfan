@@ -1,5 +1,17 @@
+# v4.12.2
+* REALM discovery aids cleanup: see https://github.com/infochimps-labs/ironfan/pull/310 for details
+
+# v4.12.1
+* REALM discovery aids: see https://github.com/infochimps-labs/ironfan/pull/309 for details
+
+# v4.12.0
+* Added realms (supra-cluster scoping): see https://github.com/infochimps-labs/ironfan/pull/308 for details
+
+# v4.11.5
+* Update ELB creation code to reflect new SSLNegotiationPolicyType behaviors (thanks @nickmarden)
+
 # v4.11.4
-* fix "undefined method" error when assigning elastic IPs (thanks, @andrewgoktepe)
+* fix "undefined method" error when assigning elastic IPs (thanks @andrewgoktepe)
 
 # v4.11.3
 * Removing unnecessary check for groups (caused failures when in VPC)
