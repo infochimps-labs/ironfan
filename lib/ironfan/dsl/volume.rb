@@ -26,8 +26,9 @@ module Ironfan
 
       VOLUME_IDS ||= {}
       VOLUME_IDS.merge!({
-        :blank_xfs       => 'snap-d9c1edb1',
-      })
+                            :blank_xfs             => 'snap-d9c1edb1',
+                            :blank_xfs_tokyo       => 'snap-049d1921',
+                        })
 
       def snapshot_id(*)
         Ironfan.todo("CODE SMELL: EBS specific information in Dsl::Volume::VOLUME_IDS")
