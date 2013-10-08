@@ -1,7 +1,7 @@
 source "http://rubygems.org"
 
-gem 'chef',          "~> 10.16"
-gem 'fog',           "~> 1.2"
+gem 'chef',          "~> 11.4"
+gem 'fog'
 gem 'excon',         "~> 0.21.0"        # v0.22 breaks EC2 calls
 gem 'formatador',    "~> 0.2"
 gem 'gorillib',      "~> 0.5.0"
@@ -9,10 +9,11 @@ gem 'rbvmomi'
 
 # Everything in the world is being a stupid dick about JSON versions. Pin it
 #   to the one that doesn't seem to angrify everyone.
-gem 'json',          "= 1.5.4"
+gem 'json'
 
 group :development do
   gem 'bundler',     "~> 1.0"
+  gem 'bundler-unload'
   gem 'rake'
   gem 'rspec',       "~> 2.8"
   gem 'yard',        ">= 0.7"
