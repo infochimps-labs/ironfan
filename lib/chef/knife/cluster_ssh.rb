@@ -53,6 +53,13 @@ class Chef
 
         (ui.fatal("No nodes returned from search!"); exit 10) if addresses.nil? || addresses.length == 0
 
+        @hostname_to_ironfan_hostname = Hash[
+          target.map do |c|
+            [c.machine.public_hostname, c.machine.tags['Name']]
+          end
+        ]
+        @longest_ironfan_hostname = @hostname_to_ironfan_hostname.values.group_by(&:size).max.last[0].size
+
         session_from_list(addresses)
       end
 
@@ -61,11 +68,12 @@ class Chef
       # if non-null)
       #
       def print_data(host, data, err=nil)
+        display_hostname = @hostname_to_ironfan_hostname[host]
         if data =~ /\n/
           data.split(/\n/).each { |d| print_data(host, d, err) }
         else
-          padding = @longest - host.length
-          str = ui.color(host, :cyan) + (" " * (padding + 1)) + (err ? ui.color(data, :red) : data)
+          padding = @longest_ironfan_hostname - display_hostname.length
+          str = ui.color(display_hostname, :cyan) + (" " * (padding + 1)) + (err ? ui.color(data, :red) : data)
           ui.msg(str)
         end
       end
