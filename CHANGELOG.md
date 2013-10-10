@@ -1,3 +1,7 @@
+# v4.12.3
+* Use the Ironfan hostname for cluster_ssh display (thanks @meekmichael)
+* Add blank_xfs snapshot for Tokyo
+
 # v4.12.2
 * REALM discovery aids cleanup: see https://github.com/infochimps-labs/ironfan/pull/310 for details
 
