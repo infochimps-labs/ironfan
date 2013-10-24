@@ -1,6 +1,20 @@
 module Ironfan
   class Dsl
 
+    # class MachineManifest
+    #   include Gorillib::Model
+
+    #   field :components, Array, of: Ironfan::Dsl::Component
+    #   field :environment, String
+    #   field :run_list, Array, of: String
+    #   field :cluster_default_attributes, Hash
+    #   field :cluster_override_attributes, Hash
+    #   field :facet_default_attributes, Hash
+    #   field :facet_override_attributes, Hash
+    #   field :volumes, Array, of: Volume
+    #   field :cloud, Ironfan::Dsl::Cloud
+    # end
+
     class Server < Ironfan::Dsl::Compute
       field      :cluster_name, String
       field      :facet_name,   String
@@ -37,6 +51,42 @@ module Ironfan
         errors = []
         errors['missing cluster/facet/server'] = [cluster_name, facet_name, name] unless (cluster_name && facet_name && name)
         errors
+      end
+
+
+      def canonical_machine_manifest_hash
+        canonicalize(
+                     run_list: run_list,
+                     components: components,
+                     cluster_default_attributes: cluster_role.default_attributes,
+                     cluster_override_attributes: cluster_role.override_attributes,
+                     facet_default_attributes: facet_role.default_attributes,
+                     facet_override_attributes: facet_role.override_attributes,
+                     volumes: volumes,
+                     cloud: clouds.each.to_a.first,
+                     )
+        # MachineManifest.new({
+        #                       run_list: run_list,
+        #                       flavor:   cloud.flavor,
+        #                       ...
+        #                     })
+      end
+
+      private
+
+      def canonicalize(item, indent = 0)
+        case item
+        when Array, Gorillib::ModelCollection
+          item.each.map{|i| canonicalize(i, indent+1)}
+        when Ironfan::Dsl::Component
+          canonicalize(item.to_manifest)
+        when Gorillib::Builder
+          canonicalize(item.to_wire.tap{|x| x.delete(:_type)}, indent+1)
+        when Hash then
+          Hash[item.sort.map{|k,v| [k, canonicalize(v, indent+1)]}]
+        else
+          item
+        end
       end
     end
 
