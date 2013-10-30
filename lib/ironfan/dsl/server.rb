@@ -74,16 +74,16 @@ module Ironfan
 
       private
 
-      def canonicalize(item, indent = 0)
+      def canonicalize(item)
         case item
         when Array, Gorillib::ModelCollection
-          item.each.map{|i| canonicalize(i, indent+1)}
+          item.each.map{|i| canonicalize(i)}
         when Ironfan::Dsl::Component
           canonicalize(item.to_manifest)
         when Gorillib::Builder
-          canonicalize(item.to_wire.tap{|x| x.delete(:_type)}, indent+1)
+          canonicalize(item.to_wire.tap{|x| x.delete(:_type)})
         when Hash then
-          Hash[item.sort.map{|k,v| [k, canonicalize(v, indent+1)]}]
+          Hash[item.sort.map{|k,v| [k, canonicalize(v)]}]
         else
           item
         end

@@ -17,6 +17,7 @@
 #
 
 require File.expand_path('ironfan_knife_common', File.dirname(File.realdirpath(__FILE__)))
+require 'yaml'
 
 class Chef
   class Knife
@@ -60,7 +61,7 @@ class Chef
         header = "Computer #{computer.name} (#{computer.class})"
         with_verbosity 1 do
           Chef::Log.info(header)
-          Chef::Log.info(MultiJson.encode(computer.server.canonical_machine_manifest_hash, pretty: true))
+          Chef::Log.info(computer.server.canonical_machine_manifest_hash.to_yaml)
         end
         with_verbosity 2 do
           dump(header, computer.to_wire)
