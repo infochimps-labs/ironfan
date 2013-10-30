@@ -20,7 +20,7 @@ module Gorillib
     #-------------------------------------------------------------------------------------------------
 
     def display_key_header key
-      indent; @stream.puts(header("#{header(key)}:"))
+      indent; @stream.puts("#{key}:")
     end
 
     #-------------------------------------------------------------------------------------------------
@@ -129,7 +129,7 @@ module Gorillib
       @context_atoms = options[:context_atoms] || 0
       @left = options[:left] || 'left'
       @right = options[:right] || 'right'
-      @display_last_suffix = options[:display_last_suffix] || offsets_p
+      @display_last_suffix = options[:display_last_suffix] || display_last_suffix_p
       @display_this_prefix = options[:display_this_prefix] || nop_p
     end
 
@@ -209,10 +209,12 @@ module Gorillib
       end
     end
 
-    def display_last_suffix_p(diff_subset)
+    def display_last_suffix_p(diff_subset = [])
       ->() do
         to_display = diff_subset[[0, (diff_subset.size - @context_atoms)].max..-1]
-        if to_display.empty?
+        if diff_subset.empty?
+          display_indices(0,0)
+        elsif to_display.empty?
           display_indices(diff_subset.first.old_position + diff_subset.map(&:old_element).compact.size,
                           diff_subset.first.new_position + diff_subset.map(&:new_element).compact.size)
         else
@@ -221,18 +223,6 @@ module Gorillib
 
         display_eql_items(to_display)
       end
-    end
-
-    def offsets_p(diff_subset = nil)
-      offsets =
-        if diff_subset.nil?
-          [0,0]
-        else
-          [diff_subset.first.old_position + diff_subset.map(&:old_element).compact.size,
-           diff_subset.first.new_position + diff_subset.map(&:new_element).compact.size]
-        end
-      
-      ->() { display_indices(*offsets) }
     end
 
     def nop_p() ->(*_) {} end

@@ -52,14 +52,14 @@ class Chef
     protected
 
       def display_diff(computer)
-        require 'ironfan/plugin/component/zabbix_agent'
-        require 'yaml'
-
         server = computer.server
+        node_name = "#{server.cluster_name}-#{server.facet_name}-#{server.name}"
+
+        $stdout.puts("\nDisplaying component diffs for #{node_name}\n")
 
         node = 
           begin
-            Chef::Node.load("#{server.cluster_name}-#{server.facet_name}-#{server.name}").to_hash
+            Chef::Node.load(node_name).to_hash
           rescue Net::HTTPServerException => ex
             {}
           end
@@ -73,16 +73,9 @@ class Chef
 
         components = server.components
 
-        Gorillib::DiffFormatter.new(left: :local, right: :remote).
+        Gorillib::DiffFormatter.new(left: :local, right: :remote, stream: $stdout).
           display_diff(Hash[ocomponents.map{|k,v| [k, v.to_node]}],
                        Hash[components.each.map{|cp| [cp.name, cp.to_node]}])
-
-        # (ocomponents.keys & components.keys).each do |key|
-        #   STDERR.puts("#{key} on opscode: #{ocomponents[key].to_node.to_yaml}")
-        #   STDERR.puts("#{key}    locally: #{components[key].to_node.to_yaml}")
-        # end
-        # STDERR.puts("components only on opscode: #{ocomponents.keys - components.keys}")
-        # STDERR.puts("components only local: #{components.keys - ocomponents.keys}")
       end
     end
   end
