@@ -52,8 +52,8 @@ class Chef
     protected
 
       def display_diff(computer)
-        server = computer.server
-        node_name = "#{server.cluster_name}-#{server.facet_name}-#{server.name}"
+        manifest = computer.server.to_machine_manifest
+        node_name = "#{manifest.cluster_name}-#{manifest.facet_name}-#{manifest.name}"
 
         $stdout.puts("\nDisplaying component diffs for #{node_name}\n")
 
@@ -65,17 +65,41 @@ class Chef
           end
 
         announcements = node['announces'] || {}
-        ocomponents = Hash[announcements.map do |_, announce|
-                             name = announce['name'].to_sym
-                             plugin = Ironfan::Dsl::Compute.plugin_for(name)
-                             [name, plugin.from_node(node)] if plugin
-                           end.compact]
+        remote_components = Hash[announcements.map do |_, announce|
+                                   name = announce['name'].to_sym
+                                   plugin = Ironfan::Dsl::Compute.plugin_for(name)
+                                   [name, plugin.from_node(node)] if plugin
+                                 end.compact]
 
-        components = server.components
+        local_components = manifest.components
 
-        Gorillib::DiffFormatter.new(left: :local, right: :remote, stream: $stdout).
-          display_diff(Hash[ocomponents.map{|k,v| [k, v.to_node]}],
-                       Hash[components.each.map{|cp| [cp.name, cp.to_node]}])
+        differ = Gorillib::DiffFormatter.new(left: :local, right: :remote, stream: $stdout)
+        differ.
+          display_diff(Hash[remote_components.map{|k,v| [k, v.to_node]}],
+                       Hash[local_components.each.map{|cp| [cp.name, cp.to_node]}])
+
+        $stdout.puts("\nDisplaying run list diffs for #{node_name}\n")
+
+        local_run_list = manifest.run_list.map do |item|
+          item = item.to_s
+          item.start_with?('role') ? item : "recipe[#{item}]"
+        end
+
+        differ.display_diff(local_run_list, node['run_list'].to_a.map(&:to_s))
+
+        $stdout.puts("\nDisplaying cluster attribute diffs for #{node_name}\n")
+
+        cluster_role = Chef::Role.load("#{manifest.cluster_name}-cluster")
+
+        differ.display_diff(manifest.cluster_default_attributes,
+                            cluster_role.default_attributes)
+
+        $stdout.puts("\nDisplaying facet attribute diffs for #{node_name}\n")
+
+        facet_role = Chef::Role.load("#{manifest.cluster_name}-#{manifest.facet_name}-facet")
+
+        differ.display_diff(manifest.facet_default_attributes,
+                            facet_role.default_attributes)
       end
     end
   end

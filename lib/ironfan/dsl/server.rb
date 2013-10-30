@@ -1,19 +1,21 @@
 module Ironfan
   class Dsl
 
-    # class MachineManifest
-    #   include Gorillib::Model
+    class MachineManifest
+      include Gorillib::Model
 
-    #   field :components, Array, of: Ironfan::Dsl::Component
-    #   field :environment, String
-    #   field :run_list, Array, of: String
-    #   field :cluster_default_attributes, Hash
-    #   field :cluster_override_attributes, Hash
-    #   field :facet_default_attributes, Hash
-    #   field :facet_override_attributes, Hash
-    #   field :volumes, Array, of: Volume
-    #   field :cloud, Ironfan::Dsl::Cloud
-    # end
+      field :name, String
+      field :cluster_name, String
+      field :facet_name, String
+      field :components, Array, of: Ironfan::Dsl::Component
+      field :run_list, Array, of: String
+      field :cluster_default_attributes, Hash
+      field :cluster_override_attributes, Hash
+      field :facet_default_attributes, Hash
+      field :facet_override_attributes, Hash
+      field :volumes, Array, of: Volume
+      field :cloud, Ironfan::Dsl::Cloud
+    end
 
     class Server < Ironfan::Dsl::Compute
       field      :cluster_name, String
@@ -53,23 +55,24 @@ module Ironfan
         errors
       end
 
+      def to_machine_manifest
+        MachineManifest.receive(
+                                name: name,
+                                cluster_name: cluster_name,
+                                facet_name: facet_name,
+                                run_list: run_list,
+                                components: components,
+                                cluster_default_attributes: cluster_role.default_attributes,
+                                cluster_override_attributes: cluster_role.override_attributes,
+                                facet_default_attributes: facet_role.default_attributes,
+                                facet_override_attributes: facet_role.override_attributes,
+                                volumes: volumes,
+                                cloud: clouds.each.to_a.first,
+                                )
+      end
 
       def canonical_machine_manifest_hash
-        canonicalize(
-                     run_list: run_list,
-                     components: components,
-                     cluster_default_attributes: cluster_role.default_attributes,
-                     cluster_override_attributes: cluster_role.override_attributes,
-                     facet_default_attributes: facet_role.default_attributes,
-                     facet_override_attributes: facet_role.override_attributes,
-                     volumes: volumes,
-                     cloud: clouds.each.to_a.first,
-                     )
-        # MachineManifest.new({
-        #                       run_list: run_list,
-        #                       flavor:   cloud.flavor,
-        #                       ...
-        #                     })
+        canonicalize(to_machine_manifest)
       end
 
       private
