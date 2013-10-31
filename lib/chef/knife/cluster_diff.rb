@@ -58,10 +58,14 @@ class Chef
 
         diff_objs(manifest, "component",                  local_components(manifest),           remote_components(node))
         diff_objs(manifest, "run list",                   local_run_list(manifest),             remote_run_list(node))
-        diff_objs(manifest, "cluster default attribute",  manifest.cluster_default_attributes,  cluster_role.default_attributes)
-        diff_objs(manifest, "cluster override attribute", manifest.cluster_override_attributes, cluster_role.override_attributes)
-        diff_objs(manifest, "facet default attribute",    manifest.facet_default_attributes,    facet_role.default_attributes)
-        diff_objs(manifest, "facet override attribute",   manifest.facet_override_attributes,   facet_role.override_attributes)
+        diff_objs(manifest, "cluster default attribute",
+                  deep_stringify(manifest.cluster_default_attributes),  cluster_role.default_attributes)
+        diff_objs(manifest, "cluster override attribute",
+                  deep_stringify(manifest.cluster_override_attributes), cluster_role.override_attributes)
+        diff_objs(manifest, "facet default attribute",
+                  deep_stringify(manifest.facet_default_attributes),    facet_role.default_attributes)
+        diff_objs(manifest, "facet override attribute",
+                  deep_stringify(manifest.facet_override_attributes),   facet_role.override_attributes)
       end
 
       #---------------------------------------------------------------------------------------------
@@ -116,6 +120,16 @@ class Chef
 
       def remote_run_list(node)
         node['run_list'].to_a.map(&:to_s)
+      end
+
+      #---------------------------------------------------------------------------------------------
+
+      def deep_stringify obj
+        case obj
+        when Hash then Hash[obj.map{|k,v| [k.to_s, deep_stringify(v)]}]
+        when Symbol then obj.to_s
+        else obj
+        end
       end
     end
 
