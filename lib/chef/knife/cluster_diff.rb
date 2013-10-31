@@ -53,42 +53,20 @@ class Chef
     private
 
       def display_diff(manifest, node)
-        header("Displaying component diffs for #{node_name(manifest)}")
-
-        differ.display_diff(local_components(manifest), remote_components(node))
-
-        header("Displaying run list diffs for #{node_name(manifest)}")
-
-        differ.display_diff(local_run_list(manifest), remote_run_list(node))
-
         cluster_role = Chef::Role.load("#{manifest.cluster_name}-cluster")
-
-        header("Displaying cluster default attribute diffs for #{node_name(manifest)}")
-
-        differ.display_diff(manifest.cluster_default_attributes,
-                            cluster_role.default_attributes)
-
-        header("Displaying cluster override attribute diffs for #{node_name(manifest)}")
-
-        differ.display_diff(manifest.cluster_override_attributes,
-                            cluster_role.override_attributes)
-
         facet_role = Chef::Role.load("#{manifest.cluster_name}-#{manifest.facet_name}-facet")
 
-        header("Displaying facet default attribute diffs for #{node_name(manifest)}")
-
-        differ.display_diff(manifest.facet_default_attributes,
-                            facet_role.default_attributes)
-
-        header("Displaying facet override attribute diffs for #{node_name(manifest)}")
-
-        differ.display_diff(manifest.facet_override_attributes,
-                            facet_role.override_attributes)
+        diff_objs(manifest, "component",                  local_components(manifest),           remote_components(node))
+        diff_objs(manifest, "run list",                   local_run_list(manifest),             remote_run_list(node))
+        diff_objs(manifest, "cluster default attribute",  manifest.cluster_default_attributes,  cluster_role.default_attributes)
+        diff_objs(manifest, "cluster override attribute", manifest.cluster_override_attributes, cluster_role.override_attributes)
+        diff_objs(manifest, "facet default attribute",    manifest.facet_default_attributes,    facet_role.default_attributes)
+        diff_objs(manifest, "facet override attribute",   manifest.facet_override_attributes,   facet_role.override_attributes)
       end
 
       #---------------------------------------------------------------------------------------------
 
-      def diff_objs(type, local, remote)
+      def diff_objs(manifest, type, local, remote)
         header("Displaying #{type} diffs for #{node_name(manifest)}")
         differ.display_diff(local, remote)
       end
