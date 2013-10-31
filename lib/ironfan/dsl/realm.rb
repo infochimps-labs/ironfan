@@ -14,11 +14,18 @@ module Ironfan
 
       def cluster(label, attrs={},&blk)
         new_name = [realm_name, label].join('_').to_sym
-        return clusters[new_name] if clusters.keys.include? new_name
-        cluster = Ironfan::Dsl::Cluster.new(name: new_name, owner: self, cluster_names: cluster_names)
-        cluster_names[label] = new_name
-        cluster.receive!(attrs, &blk)
-        super(new_name, cluster)
+
+        if clusters.keys.include? new_name
+          clusters[new_name].tap do |cl|
+            cl.receive!(attrs)
+            cl.instance_eval(&blk) if block_given?
+          end
+        else
+          cluster = Ironfan::Dsl::Cluster.new(name: new_name, owner: self, cluster_names: cluster_names)
+          cluster_names[label] = new_name
+          cluster.receive!(attrs, &blk)
+          super(new_name, cluster)
+        end
       end
 
       def cluster_name suffix
