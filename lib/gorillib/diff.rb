@@ -7,18 +7,7 @@ module Gorillib
     end
   end
 
-  module DiffDrawers
-    include AnsiColors
-
-    def for_subhash(key)
-      display_key_header(key)
-      increase_indentation
-      yield
-      decrease_indentation
-    end
-
-    #-------------------------------------------------------------------------------------------------
-
+  module DiffDisplayTools
     def display_key_header key
       indent; @stream.puts("#{key}:")
     end
@@ -26,11 +15,11 @@ module Gorillib
     #-------------------------------------------------------------------------------------------------
 
     def only_left_key key
-      indent; @stream.puts(header("only on #{@left}"))
+      indent; @stream.puts(header("only on [#{@left}]"))
     end
 
     def only_right_key key
-      indent; @stream.puts(header("only on #{@right}"))
+      indent; @stream.puts(header("only on [#{@right}]"))
     end
 
     #-------------------------------------------------------------------------------------------------
@@ -42,8 +31,56 @@ module Gorillib
     #-------------------------------------------------------------------------------------------------
 
     def display_noteql_atoms this, other
-      indent; @stream.puts("#{header(@left)}: #{this.inspect}")
-      indent; @stream.puts("#{header(@right)}: #{other.inspect}")
+      indent; @stream.puts("[#{header(@left)}]: #{this.inspect}")
+      indent; @stream.puts("[#{header(@right)}]: #{other.inspect}")
+    end
+
+    #-------------------------------------------------------------------------------------------------
+
+    def display_eql(it)
+      indent; @stream.puts("#{header('=')} #{it}")
+    end
+
+    def display_add(itl, itr)
+      indent
+      if itl.nil?
+        @stream.puts("[#{header(@left)}]: #{itr}")
+      else
+        @stream.puts("[#{header(@right)}]: #{itl}")
+      end
+    end
+
+    #-------------------------------------------------------------------------------------------------
+
+    def indent
+      @stream.write(" " * @indentation)
+    end
+
+    def display_indices(ixl, ixr)
+      indent; @stream.puts(header("[#{@left}] ix: #{ixl}, [#{@right}] ix: #{ixr}"))
+    end
+
+    #------------------------------------------------------------------------------------------------
+    
+    def decrease_indentation
+      @indentation -= @tab_width
+    end
+
+    def header str
+      cyan(str)
+    end
+
+    def increase_indentation
+      @indentation += @tab_width
+    end
+  end
+
+  module DiffDrawerMethods
+    def for_subhash(key)
+      display_key_header(key)
+      increase_indentation
+      yield
+      decrease_indentation
     end
 
     #-------------------------------------------------------------------------------------------------
@@ -65,7 +102,7 @@ module Gorillib
     def display_noteql_items diff_subset
       return if diff_subset.nil?
       diff_subset.each do |cchange|
-        display_noteql(cchange.old_element, cchange.new_element)
+        display_noteql_atoms(cchange.old_element, cchange.new_element)
       end
     end
 
@@ -75,60 +112,32 @@ module Gorillib
         display_add(cchange.old_element, cchange.new_element)
       end
     end
+  end
 
-    #-------------------------------------------------------------------------------------------------
+  class DiffDrawer
+    include AnsiColors
+    include DiffDisplayTools
+    include DiffDrawerMethods
 
-    def display_eql(it)
-      indent; @stream.puts("#{header('=')} #{it}")
-    end
-
-    def display_noteql(itl, itr)
-      indent; @stream.puts("#{header(@left)}: #{itl}")
-      indent; @stream.puts("#{header(@right)}: #{itr}")
-    end
-
-    def display_add(itl, itr)
-      indent
-      if itl.nil?
-        @stream.puts("#{header(@left)}: #{itr}")
-      else
-        @stream.puts("#{header(@right)}: #{itl}")
-      end
-    end
-
-    #-------------------------------------------------------------------------------------------------
-
-    def decrease_indentation
-      @indentation -= @tab_width
-    end
-
-    def header str
-      cyan(str)
-    end
-
-    def increase_indentation
-      @indentation += @tab_width
-    end
-
-    def indent
-      @stream.write(" " * @indentation)
-    end
-
-    def display_indices(ixl, ixr)
-      indent; @stream.puts("#{@left} ix: #{ixl}, #{@right} ix: #{ixr}")
+    def initialize options = {}
+      @stream = options[:stream] || $stdout
+      @left = options[:left] || 'left'
+      @right = options[:right] || 'right'
+      @indentation = options[:indentation] || 0
+      @tab_width = options[:tab_width] || 4
     end
   end
 
   class DiffFormatter
-    include DiffDrawers
-
     def initialize(options = {})
-      @indentation = options[:indentation] || 0
-      @tab_width = options[:tab_width] || 4
-      @stream = options[:stream] || $stdout
+      @drawer = (options[:drawer] ||
+                 DiffDrawer.new(stream: options.delete(:stream),
+                                left: options.delete(:left),
+                                right: options.delete(:right),
+                                indentation: options.delete(:indentation),
+                                tab_width: options.delete(:tab_width)))
+
       @context_atoms = options[:context_atoms] || 0
-      @left = options[:left] || 'left'
-      @right = options[:right] || 'right'
       @display_last_suffix = options[:display_last_suffix] || display_last_suffix_p
       @display_this_prefix = options[:display_this_prefix] || nop_p
     end
@@ -153,24 +162,24 @@ module Gorillib
     def display_diff_hash(this, other)
       (this.keys & other.keys).each do |key|
         if this[key] != other[key]
-          for_subhash(key){ display_diff(this[key], other[key]) }
+          @drawer.for_subhash(key){ display_diff(this[key], other[key]) }
         end
       end
       (this.keys - other.keys).each do |key|
-        for_subhash(key){ only_left_key(key) }
+        @drawer.for_subhash(key){ @drawer.only_left_key(key) }
       end
       (other.keys - this.keys).each do |key|
-        for_subhash(key){ only_right_key(key) }
+        @drawer.for_subhash(key){ @drawer.only_right_key(key) }
       end
     end
 
     def display_diff_hetero(this, other)
-      display_hetero(this, other)
+      @drawer.display_hetero(this, other)
     end
 
     def display_diff_atom(this, other)
       if this != other
-        display_noteql_atoms(this, other)
+        @drawer.display_noteql_atoms(this, other)
       end
     end
 
@@ -178,8 +187,8 @@ module Gorillib
       Diff::LCS.sdiff(this, other).chunk{|x| type_of(x)}.each do |type, diff_atoms|
         case type
         when '=' then next_step(diff_atoms, type)
-        when '+' then next_step(diff_atoms, type){ display_add_items(diff_atoms) }
-        when '!' then next_step(diff_atoms, type){ display_noteql_items(diff_atoms) }
+        when '+' then next_step(diff_atoms, type){ @drawer.display_add_items(diff_atoms) }
+        when '!' then next_step(diff_atoms, type){ @drawer.display_noteql_items(diff_atoms) }
         end
       end
     end
@@ -205,7 +214,7 @@ module Gorillib
     def display_this_prefix_p()
       ->(diff_subset) do
         diff_subset = diff_subset[0...@context_atoms]
-        display_eql_items(diff_subset)
+        @drawer.display_eql_items(diff_subset)
       end
     end
 
@@ -213,15 +222,16 @@ module Gorillib
       ->() do
         to_display = diff_subset[[0, (diff_subset.size - @context_atoms)].max..-1]
         if diff_subset.empty?
-          display_indices(0,0)
+          @drawer.display_indices(0,0)
         elsif to_display.empty?
-          display_indices(diff_subset.first.old_position + diff_subset.map(&:old_element).compact.size,
-                          diff_subset.first.new_position + diff_subset.map(&:new_element).compact.size)
+          @drawer.
+            display_indices(diff_subset.first.old_position + diff_subset.map(&:old_element).compact.size,
+                            diff_subset.first.new_position + diff_subset.map(&:new_element).compact.size)
         else
-          display_indices(to_display.first.old_position, to_display.first.new_position)
+          @drawer.display_indices(to_display.first.old_position, to_display.first.new_position)
         end
 
-        display_eql_items(to_display)
+        @drawer.display_eql_items(to_display)
       end
     end
 
