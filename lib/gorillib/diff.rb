@@ -15,38 +15,38 @@ module Gorillib
     #-------------------------------------------------------------------------------------------------
 
     def only_left_key key
-      indent; @stream.puts(header("only on [#{@left}]"))
+      indent; @stream.puts("only on #{b_left}")
     end
 
     def only_right_key key
-      indent; @stream.puts(header("only on [#{@right}]"))
+      indent; @stream.puts("only on #{b_right}")
     end
 
     #-------------------------------------------------------------------------------------------------
 
     def display_hetero this, other
-      indent; @stream.puts(header("class #{this.class} is not #{other.class}"))
+      indent; @stream.puts("class #{this.class} is not #{other.class}")
     end
 
     #-------------------------------------------------------------------------------------------------
 
     def display_noteql_atoms this, other
-      indent; @stream.puts("[#{header(@left)}]: #{this.inspect}")
-      indent; @stream.puts("[#{header(@right)}]: #{other.inspect}")
+      indent; @stream.puts("#{b_left}: #{this.inspect}")
+      indent; @stream.puts("#{b_right}: #{other.inspect}")
     end
 
     #-------------------------------------------------------------------------------------------------
 
     def display_eql(it)
-      indent; @stream.puts("#{header('=')} #{it}")
+      indent; @stream.puts("#{'='} #{it}")
     end
 
     def display_add(itl, itr)
       indent
       if itl.nil?
-        @stream.puts("[#{header(@left)}]: #{itr}")
+        @stream.puts("#{b_left}: #{itr}")
       else
-        @stream.puts("[#{header(@right)}]: #{itl}")
+        @stream.puts("#{b_right}: #{itl}")
       end
     end
 
@@ -57,11 +57,19 @@ module Gorillib
     end
 
     def display_indices(ixl, ixr)
-      indent; @stream.puts(header("[#{@left}] ix: #{ixl}, [#{@right}] ix: #{ixr}"))
+      indent; @stream.puts("#{b_left} ix: #{ixl}, #{b_right} ix: #{ixr}")
     end
 
     #------------------------------------------------------------------------------------------------
-    
+
+    def b_left
+      "[#{header(@left)}]"
+    end
+
+    def b_right
+      "[#{header(@right)}]"
+    end
+
     def decrease_indentation
       @indentation -= @tab_width
     end
