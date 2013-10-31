@@ -45,62 +45,106 @@ class Chef
         target = get_slice(* @name_args)
 
         target.each do |computer|
-          display_diff(computer)
+          manifest = computer.server.to_machine_manifest
+          display_diff(manifest, node(manifest))
         end
       end
 
-    protected
+    private
 
-      def display_diff(computer)
-        manifest = computer.server.to_machine_manifest
-        node_name = "#{manifest.cluster_name}-#{manifest.facet_name}-#{manifest.name}"
+      def display_diff(manifest, node)
+        header("Displaying component diffs for #{node_name(manifest)}")
 
-        $stdout.puts("\nDisplaying component diffs for #{node_name}\n")
+        differ.display_diff(local_components(manifest), remote_components(node))
 
-        node = 
-          begin
-            Chef::Node.load(node_name).to_hash
-          rescue Net::HTTPServerException => ex
-            {}
-          end
+        header("Displaying run list diffs for #{node_name(manifest)}")
 
-        announcements = node['announces'] || {}
-        remote_components = Hash[announcements.map do |_, announce|
-                                   name = announce['name'].to_sym
-                                   plugin = Ironfan::Dsl::Compute.plugin_for(name)
-                                   [name, plugin.from_node(node)] if plugin
-                                 end.compact]
-
-        local_components = manifest.components
-
-        differ = Gorillib::DiffFormatter.new(left: :local, right: :remote, stream: $stdout)
-        differ.
-          display_diff(Hash[remote_components.map{|k,v| [k, v.to_node]}],
-                       Hash[local_components.each.map{|cp| [cp.name, cp.to_node]}])
-
-        $stdout.puts("\nDisplaying run list diffs for #{node_name}\n")
-
-        local_run_list = manifest.run_list.map do |item|
-          item = item.to_s
-          item.start_with?('role') ? item : "recipe[#{item}]"
-        end
-
-        differ.display_diff(local_run_list, node['run_list'].to_a.map(&:to_s))
-
-        $stdout.puts("\nDisplaying cluster attribute diffs for #{node_name}\n")
+        differ.display_diff(local_run_list(manifest), remote_run_list(node))
 
         cluster_role = Chef::Role.load("#{manifest.cluster_name}-cluster")
+
+        header("Displaying cluster default attribute diffs for #{node_name(manifest)}")
 
         differ.display_diff(manifest.cluster_default_attributes,
                             cluster_role.default_attributes)
 
-        $stdout.puts("\nDisplaying facet attribute diffs for #{node_name}\n")
+        header("Displaying cluster override attribute diffs for #{node_name(manifest)}")
+
+        differ.display_diff(manifest.cluster_override_attributes,
+                            cluster_role.override_attributes)
 
         facet_role = Chef::Role.load("#{manifest.cluster_name}-#{manifest.facet_name}-facet")
 
+        header("Displaying facet default attribute diffs for #{node_name(manifest)}")
+
         differ.display_diff(manifest.facet_default_attributes,
                             facet_role.default_attributes)
+
+        header("Displaying facet override attribute diffs for #{node_name(manifest)}")
+
+        differ.display_diff(manifest.facet_override_attributes,
+                            facet_role.override_attributes)
       end
+
+      #---------------------------------------------------------------------------------------------
+
+      def diff_objs(type, local, remote)
+        header("Displaying #{type} diffs for #{node_name(manifest)}")
+        differ.display_diff(local, remote)
+      end
+
+      #---------------------------------------------------------------------------------------------
+
+      def differ
+        Gorillib::DiffFormatter.new(left: :local,
+                                    right: :remote,
+                                    stream: $stdout,
+                                    indentation: 4)
+      end
+
+      def node(manifest)
+        Chef::Node.load(node_name(manifest)).to_hash
+      rescue Net::HTTPServerException => ex
+        {}
+      end
+
+      def node_name(manifest)
+        "#{manifest.cluster_name}-#{manifest.facet_name}-#{manifest.name}"
+      end
+
+      #---------------------------------------------------------------------------------------------
+
+      def local_components(manifest)
+        Hash[manifest.components.map{|comp| [comp.name, comp.to_node]}]
+      end
+
+      def remote_components(node)
+        announcements = node['announces'] || {}
+        Hash[node['announces'].to_a.map do |_, announce|
+               name = announce['name'].to_sym
+               plugin = Ironfan::Dsl::Compute.plugin_for(name)
+               [name, plugin.from_node(node).to_node] if plugin
+             end.compact]
+      end
+
+      #---------------------------------------------------------------------------------------------
+
+      def local_run_list(manifest)
+        manifest.run_list.map do |item|
+          item = item.to_s
+          item.start_with?('role') ? item : "recipe[#{item}]"
+        end        
+      end
+
+      def remote_run_list(node)
+        node['run_list'].to_a.map(&:to_s)
+      end
+    end
+
+    def header str
+      $stdout.puts("  #{'-' * 80}")
+      $stdout.puts("  #{str}")
+      $stdout.puts("  #{'-' * 80}")
     end
   end
 end

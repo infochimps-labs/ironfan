@@ -25,7 +25,7 @@ module Gorillib
     #-------------------------------------------------------------------------------------------------
 
     def display_hetero this, other
-      indent; @stream.puts("class #{this.class} is not #{other.class}")
+      indent; @stream.puts("#{b_left} class is #{this.class} but #{b_right} class is #{other.class}")
     end
 
     #-------------------------------------------------------------------------------------------------
