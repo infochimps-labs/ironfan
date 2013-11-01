@@ -31,41 +31,47 @@ class Chef
 
       banner "knife cluster diff        CLUSTER[-FACET[-INDEXES]] (options) - differences between a cluster and its realization"
 
-      option :node_file,
-        :long        => "--nodefile",
-        :description => "file to load nodes from, for testing purposes",
-        :boolean => false
+      option :cache_file,
+        :long        => "--cache_file FILE",
+        :description => "file to load chef information from, for testing purposes"
 
       def run
         load_ironfan
         die(banner) if @name_args.empty?
         configure_dry_run
 
+        @test_chef_data = 
+          if config.has_key? :cache_file
+            Hash[open(config.fetch(:cache_file)).readlines.map{|line| datum = MultiJson.load(line); [datum['name'], datum]}]
+          else
+            {}
+          end
+        
         # Load the cluster/facet/slice/whatever
         target = get_slice(* @name_args)
 
         target.each do |computer|
           manifest = computer.server.to_machine_manifest
-          display_diff(manifest, node(manifest))
+          display_diff(manifest, node(node_name(manifest)))
         end
       end
 
     private
 
       def display_diff(manifest, node)
-        cluster_role = Chef::Role.load("#{manifest.cluster_name}-cluster")
-        facet_role = Chef::Role.load("#{manifest.cluster_name}-#{manifest.facet_name}-facet")
+        cluster_role = get_role("#{manifest.cluster_name}-cluster")
+        facet_role = get_role("#{manifest.cluster_name}-#{manifest.facet_name}-facet")
 
         diff_objs(manifest, "component",                  local_components(manifest),           remote_components(node))
         diff_objs(manifest, "run list",                   local_run_list(manifest),             remote_run_list(node))
         diff_objs(manifest, "cluster default attribute",
-                  deep_stringify(manifest.cluster_default_attributes),  cluster_role.default_attributes)
+                  deep_stringify(manifest.cluster_default_attributes),  cluster_role.fetch('default_attributes'))
         diff_objs(manifest, "cluster override attribute",
-                  deep_stringify(manifest.cluster_override_attributes), cluster_role.override_attributes)
+                  deep_stringify(manifest.cluster_override_attributes), cluster_role.fetch('override_attributes'))
         diff_objs(manifest, "facet default attribute",
-                  deep_stringify(manifest.facet_default_attributes),    facet_role.default_attributes)
+                  deep_stringify(manifest.facet_default_attributes),    facet_role.fetch('default_attributes'))
         diff_objs(manifest, "facet override attribute",
-                  deep_stringify(manifest.facet_override_attributes),   facet_role.override_attributes)
+                  deep_stringify(manifest.facet_override_attributes),   facet_role.fetch('override_attributes'))
       end
 
       #---------------------------------------------------------------------------------------------
@@ -77,6 +83,12 @@ class Chef
 
       #---------------------------------------------------------------------------------------------
 
+      def get_role(role_name)
+        @test_chef_data[role_name] || Chef::Role.load(role_name).to_hash
+      end
+
+      #---------------------------------------------------------------------------------------------
+
       def differ
         Gorillib::DiffFormatter.new(left: :local,
                                     right: :remote,
@@ -84,8 +96,8 @@ class Chef
                                     indentation: 4)
       end
 
-      def node(manifest)
-        Chef::Node.load(node_name(manifest)).to_hash
+      def node(node_name)
+        @test_chef_data[node_name] || Chef::Node.load(node_name).to_hash
       rescue Net::HTTPServerException => ex
         {}
       end
