@@ -1,3 +1,4 @@
+require 'gorillib/model/serialization'
 require_relative '../../gorillib/diff'
 
 #
@@ -59,26 +60,30 @@ class Chef
     private
 
       def display_diff(manifest, node)
-        cluster_role = get_role("#{manifest.cluster_name}-cluster")
-        facet_role = get_role("#{manifest.cluster_name}-#{manifest.facet_name}-facet")
-
-        diff_objs(manifest, "component",                  local_components(manifest),           remote_components(node))
-        diff_objs(manifest, "run list",                   local_run_list(manifest),             remote_run_list(node))
-        diff_objs(manifest, "cluster default attribute",
-                  deep_stringify(manifest.cluster_default_attributes),  cluster_role.fetch('default_attributes'))
-        diff_objs(manifest, "cluster override attribute",
-                  deep_stringify(manifest.cluster_override_attributes), cluster_role.fetch('override_attributes'))
-        diff_objs(manifest, "facet default attribute",
-                  deep_stringify(manifest.facet_default_attributes),    facet_role.fetch('default_attributes'))
-        diff_objs(manifest, "facet override attribute",
-                  deep_stringify(manifest.facet_override_attributes),   facet_role.fetch('override_attributes'))
+        header("Displaying manifest diffs for #{node_name(manifest)}")
+        differ.display_diff(deep_stringify(manifest.to_hash),
+                            deep_stringify(remote_manifest(manifest).to_hash))
       end
 
       #---------------------------------------------------------------------------------------------
 
-      def diff_objs(manifest, type, local, remote)
-        header("Displaying #{type} diffs for #{node_name(manifest)}")
-        differ.display_diff(local, remote)
+      def remote_manifest(local_manifest)
+        node = node(node_name(local_manifest))
+        cluster_role = get_role("#{local_manifest.cluster_name}-cluster")
+        facet_role = get_role("#{local_manifest.cluster_name}-#{local_manifest.facet_name}-facet")
+
+        _, cluster_name, facet_name, instance = /^(.*)-(.*)-(.*)$/.match(node.fetch('name')).to_a
+
+        result = Ironfan::Dsl::MachineManifest.
+          receive(name: instance,
+                  cluster_name: cluster_name,
+                  facet_name: facet_name,
+                  components: remote_components(node),
+                  run_list: remote_run_list(node),
+                  cluster_default_attributes: cluster_role.fetch('default_attributes'),
+                  cluster_override_attributes: cluster_role.fetch('override_attributes'),
+                  facet_default_attributes: facet_role.fetch('default_attributes'),
+                  facet_override_attributes: facet_role.fetch('override_attributes'))
       end
 
       #---------------------------------------------------------------------------------------------
@@ -114,11 +119,11 @@ class Chef
 
       def remote_components(node)
         announcements = node['announces'] || {}
-        Hash[node['announces'].to_a.map do |_, announce|
-               name = announce['name'].to_sym
-               plugin = Ironfan::Dsl::Compute.plugin_for(name)
-               [name, plugin.from_node(node).to_node] if plugin
-             end.compact]
+        node['announces'].to_a.map do |_, announce|
+          name = announce['name'].to_sym
+          plugin = Ironfan::Dsl::Compute.plugin_for(name)
+          plugin.from_node(node).tap{|x| x.name = name} if plugin
+        end.compact
       end
 
       #---------------------------------------------------------------------------------------------

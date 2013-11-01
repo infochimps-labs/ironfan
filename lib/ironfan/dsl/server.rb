@@ -15,6 +15,19 @@ module Ironfan
       field :facet_override_attributes, Hash
       field :volumes, Array, of: Volume
       field :cloud, Ironfan::Dsl::Cloud
+
+      def to_hash
+        to_wire.tap do |hsh|
+          hsh.delete(:_type)
+          hsh[:components] = Hash[hsh.fetch(:components).map do |component|
+                                    Ironfan::Plugin::Component.skip_fields.each{|k| component.delete(k)}
+                                    [component.fetch(:name), component]
+                                  end]
+          hsh[:run_list] = hsh.fetch(:run_list).map do |x|
+            x.end_with?(']') ? x : "recipe[#{x}]"
+          end
+        end
+      end
     end
 
     class Server < Ironfan::Dsl::Compute
