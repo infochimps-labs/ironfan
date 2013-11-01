@@ -96,7 +96,7 @@ module Ironfan
           item.each.map{|i| canonicalize(i)}
         when Ironfan::Dsl::Component
           canonicalize(item.to_manifest)
-        when Gorillib::Builder
+        when Gorillib::Builder, Gorillib::Model
           canonicalize(item.to_wire.tap{|x| x.delete(:_type)})
         when Hash then
           Hash[item.sort.map{|k,v| [k, canonicalize(v)]}]
