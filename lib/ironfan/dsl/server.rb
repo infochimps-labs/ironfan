@@ -14,7 +14,37 @@ module Ironfan
       field :facet_default_attributes, Hash
       field :facet_override_attributes, Hash
       field :volumes, Array, of: Volume
-      field :cloud, Ironfan::Dsl::Cloud
+
+      # cloud fields 
+
+      field :availability_zones,        Array
+      field :backing,                   String
+      field :bits,                      Integer
+      field :bootstrap_distro,          String
+      field :chef_client_script,        String
+      field :default_availability_zone, String
+      field :elastic_load_balancers,    Array, of: Ironfan::Dsl::Ec2::ElasticLoadBalancer
+      field :ebs_optimized,             :boolean
+      field :flavor,                    String
+      field :iam_server_certificates,   Array, of: Ironfan::Dsl::Ec2::IamServerCertificate
+      field :image_id,                  String
+      field :image_name,                String
+      field :keypair,                   String
+      field :monitoring,                String
+      field :mount_ephemerals,          Hash
+      field :permanent,                 :boolean
+      field :placement_group,           String
+      field :provider,                  Whatever
+      field :elastic_ip,                String
+      field :auto_elastic_ip,           String
+      field :allocation_id,             String
+      field :region,                    String
+      field :security_groups,           Array, of: Ironfan::Dsl::Ec2::SecurityGroup
+      field :ssh_user,                  String
+      field :ssh_identity_dir,          String
+      field :subnet,                    String
+      field :validation_key,            String
+      field :vpc,                       String
 
       def to_hash
         to_wire.tap do |hsh|
@@ -69,6 +99,7 @@ module Ironfan
       end
 
       def to_machine_manifest
+        cloud = clouds.each.to_a.first
         MachineManifest.receive(
                                 name: name,
                                 cluster_name: cluster_name,
@@ -80,7 +111,38 @@ module Ironfan
                                 facet_default_attributes: facet_role.default_attributes,
                                 facet_override_attributes: facet_role.override_attributes,
                                 volumes: volumes,
-                                cloud: clouds.each.to_a.first,
+
+                                # cloud fields
+
+                                availability_zones: cloud.availability_zones,
+                                backing: cloud.backing,
+                                bits: cloud.bits,
+                                bootstrap_distro: cloud.bootstrap_distro,
+                                chef_client_script: cloud.chef_client_script,
+                                default_availability_zone: cloud.default_availability_zone,
+                                elastic_load_balancers: cloud.elastic_load_balancers,
+                                ebs_optimized: cloud.ebs_optimized,
+                                flavor: cloud.flavor,
+                                iam_server_certificates: cloud.iam_server_certificates,
+                                image_id: cloud.image_id,
+                                image_name: cloud.image_name,
+                                keypair: cloud.keypair,
+                                monitoring: cloud.monitoring,
+                                mount_ephemerals: cloud.mount_ephemerals,
+                                permanent: cloud.permanent,
+                                placement_group: cloud.placement_group,
+                                provider: cloud.provider,
+                                elastic_ip: cloud.elastic_ip,
+                                auto_elastic_ip: cloud.auto_elastic_ip,
+                                allocation_id: cloud.allocation_id,
+                                region: cloud.region,
+                                security_groups: cloud.security_groups,
+                                ssh_user: cloud.ssh_user,
+                                ssh_identity_dir: cloud.ssh_identity_dir,
+                                subnet: cloud.subnet,
+                                validation_key: cloud.validation_key,
+                                vpc: cloud.vpc
+
                                 )
       end
 
