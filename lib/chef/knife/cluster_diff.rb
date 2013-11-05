@@ -103,11 +103,11 @@ class Chef
                   elastic_load_balancers: launch_description.fetch(:elastic_load_balancers),
                   iam_server_certificates: launch_description.fetch(:iam_server_certificates),
                   image_id: machine.image_id,
-                  keypair: machine.key_pair.name,
+                  keypair: machine.nilcheck_depth(1).key_pair.name,
                   monitoring: machine.monitoring,
                   placement_group: machine.placement_group,
                   region: machine.availability_zone.to_s[/.*-.*-\d+/],
-                  security_groups: machine.groups.map{|x| {name: x}},
+                  security_groups: machine.nilcheck_depth(1).groups.map{|x| {name: x}},
                   subnet: machine.subnet_id,
                   vpc: machine.vpc_id
 
