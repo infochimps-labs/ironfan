@@ -13,7 +13,7 @@ module Ironfan
       field :cluster_override_attributes, Hash
       field :facet_default_attributes, Hash
       field :facet_override_attributes, Hash
-      field :volumes, Array, of: Volume
+#      field :volumes, Array, of: Volume
 
       # cloud fields 
 
@@ -21,37 +21,37 @@ module Ironfan
 
       field :availability_zones,        Array
       field :backing,                   String
-      field :bits,                      Integer
-      field :bootstrap_distro,          String
-      field :chef_client_script,        String
-      field :default_availability_zone, String
+#      field :bits,                      Integer
+#      field :bootstrap_distro,          String
+#      field :chef_client_script,        String
+#      field :default_availability_zone, String
       field :elastic_load_balancers,    Array, of: Ironfan::Dsl::Ec2::ElasticLoadBalancer
       field :ebs_optimized,             :boolean
       field :flavor,                    String
       field :iam_server_certificates,   Array, of: Ironfan::Dsl::Ec2::IamServerCertificate
       field :image_id,                  String
-      field :image_name,                String
-      field :keypair,                   String
-      field :monitoring,                String
-      field :mount_ephemerals,          Hash
-      field :permanent,                 :boolean
+#      field :image_name,                String
+#      field :keypair,                   String
+#      field :monitoring,                String
+#      field :mount_ephemerals,          Hash
+#      field :permanent,                 :boolean
       field :placement_group,           String
-      field :provider,                  Whatever
+#      field :provider,                  Whatever
       field :elastic_ip,                String
       field :auto_elastic_ip,           String
       field :allocation_id,             String
       field :region,                    String
-      field :security_groups,           Array, of: Ironfan::Dsl::Ec2::SecurityGroup
-      field :ssh_user,                  String
-      field :ssh_identity_dir,          String
+#      field :security_groups,           Array, of: Ironfan::Dsl::Ec2::SecurityGroup
+#      field :ssh_user,                  String
+#      field :ssh_identity_dir,          String
       field :subnet,                    String
-      field :validation_key,            String
+#      field :validation_key,            String
       field :vpc,                       String
 
       def to_hash
         to_wire.tap do |hsh|
           hsh.delete(:_type)
-          hsh[:security_groups] = Hash[hsh[:security_groups].map{|x| [x.fetch(:name), x]}]
+          #hsh[:security_groups] = Hash[hsh[:security_groups].map{|x| [x.fetch(:name), x]}]
           hsh[:components] = Hash[hsh.fetch(:components).map do |component|
                                     Ironfan::Plugin::Component.skip_fields.each{|k| component.delete(k)}
                                     [component.fetch(:name), component]

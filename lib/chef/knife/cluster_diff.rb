@@ -63,7 +63,7 @@ class Chef
     private
 
       def display_diff(local_manifest, remote_manifest)
-        header("diffing local #{node_name(local_manifest)} <-> remote #{node_name(remote_manifest)}")
+        header("diffing manifests: local #{node_name(local_manifest)} <-> remote #{node_name(remote_manifest)}")
         differ.display_diff(deep_stringify(local_manifest.to_hash),
                             deep_stringify(remote_manifest.to_hash))
       end
