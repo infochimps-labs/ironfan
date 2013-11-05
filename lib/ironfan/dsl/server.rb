@@ -51,6 +51,7 @@ module Ironfan
       def to_hash
         to_wire.tap do |hsh|
           hsh.delete(:_type)
+          hsh[:security_groups] = Hash[hsh[:security_groups].map{|x| [x.fetch(:name), x]}]
           hsh[:components] = Hash[hsh.fetch(:components).map do |component|
                                     Ironfan::Plugin::Component.skip_fields.each{|k| component.delete(k)}
                                     [component.fetch(:name), component]
@@ -151,12 +152,12 @@ module Ironfan
       end
 
       def canonical_machine_manifest_hash
-        canonicalize(to_machine_manifest)
+        self.class.canonicalize(to_machine_manifest)
       end
 
       private
 
-      def canonicalize(item)
+      def self.canonicalize(item)
         case item
         when Array, Gorillib::ModelCollection
           item.each.map{|i| canonicalize(i)}

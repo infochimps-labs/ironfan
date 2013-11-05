@@ -95,10 +95,11 @@ class Chef
 
                   # cloud fields
 
+                  backing: machine.root_device_type,
                   cloud_name: local_manifest.cloud_name,
                   availability_zones: [*machine.availability_zone],
                   ebs_optimized: machine.ebs_optimized,
-                  flavor: machine.flavor.name,
+                  flavor: machine.flavor_id,
                   elastic_load_balancers: launch_description.fetch(:elastic_load_balancers),
                   iam_server_certificates: launch_description.fetch(:iam_server_certificates),
                   image_id: machine.image_id,
@@ -106,12 +107,12 @@ class Chef
                   monitoring: machine.monitoring,
                   placement_group: machine.placement_group,
                   region: machine.availability_zone.to_s[/.*-.*-\d+/],
+                  security_groups: machine.groups.map{|x| {name: x}},
                   subnet: machine.subnet_id,
                   vpc: machine.vpc_id
 
                   # not sure where to get these from the machine
                   
-                  # backing: local_manifest.backing,
                   # bits: local_manifest.bits,
                   # bootstrap_distro: local_manifest.bootstrap_distro,
                   # chef_client_script: local_manifest.chef_client_script,                  
@@ -123,7 +124,6 @@ class Chef
                   # elastic_ip: local_manifest.elastic_ip,
                   # auto_elastic_ip: local_manifest.auto_elastic_ip,
                   # allocation_id: local_manifest.allocation_id,
-                  # security_groups: local_manifest.security_groups,
                   # ssh_user: local_manifest.ssh_user,
                   # ssh_identity_dir: local_manifest.ssh_identity_dir,
                   # validation_key: local_manifest.validation_key,
