@@ -44,9 +44,9 @@ module Gorillib
     def display_add(itl, itr)
       indent
       if itl.nil?
-        @stream.puts("#{b_left}: #{itr}")
+        @stream.puts("#{b_right}: #{itr}")
       else
-        @stream.puts("#{b_right}: #{itl}")
+        @stream.puts("#{b_left}: #{itl}")
       end
     end
 
@@ -146,11 +146,10 @@ module Gorillib
                                 tab_width: options.delete(:tab_width)))
 
       @context_atoms = options[:context_atoms] || 0
-      @display_last_suffix = options[:display_last_suffix] || display_last_suffix_p
-      @display_this_prefix = options[:display_this_prefix] || nop_p
     end
 
     def display_diff(this, other)
+      setup
       if this.is_a?(Hash) && other.is_a?(Hash)
         display_diff_hash(this, other)
       elsif this.is_a?(Array) && other.is_a?(Array)
@@ -164,6 +163,13 @@ module Gorillib
     end
 
     private
+
+    #-------------------------------------------------------------------------------------------------
+
+    def setup
+      @display_last_suffix = display_last_suffix_p
+      @display_this_prefix = nop_p
+    end
 
     #-------------------------------------------------------------------------------------------------
 

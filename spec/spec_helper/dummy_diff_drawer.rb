@@ -1,4 +1,5 @@
 require 'gorillib/diff'
+require 'stringio'
 
 module TransformLeftToRight
   attr_reader :left
@@ -71,15 +72,18 @@ class TestDrawer
   include Gorillib::DiffDrawerMethods
   include TransformLeftToRight
 
-  def initialize this, other
+  def initialize this = nil, other = nil
     @left_lineage = [@left = this]
     @right_lineage = [@right = other]
     @ix = 0
   end
   
   def self.diffing_objs this, other
-    yield drawer = new(this, other)
-    Gorillib::DiffFormatter.new(drawer: drawer).display_diff(this, other)
+    diff_formatter.display_diff(this, other)
+  end
+
+  def self.diff_formatter(drawer = nil)
+    Gorillib::DiffFormatter.new(stream: StringIO.new, drawer: drawer)
   end
 
   def self.transform_ltor this, other

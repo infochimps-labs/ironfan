@@ -13,9 +13,19 @@ describe Gorillib::DiffFormatter do
       drawer.should_receive(:display_add).with(nil, 2)
     end
   end
+  it 'labels objects correctly on the right' do
+    TestDrawer.diffing_objs([1], [1,2]) do |drawer|
+      # meaning it displayed the name of the right object
+      drawer.should_receive(:b_right)
+    end
+  end
   it 'adds objects correctly on the left' do
     TestDrawer.diffing_objs([1,2], [1]) do |drawer|
       drawer.should_receive(:display_add).with(2, nil)
+    end
+    TestDrawer.diffing_objs([1,2], [1]) do |drawer|
+      # meaning it displayed the name of the left object
+      drawer.should_receive(:b_left)
     end
   end
   it 'lists keys only on the left correctly' do
@@ -37,6 +47,14 @@ describe Gorillib::DiffFormatter do
     TestDrawer.diffing_objs([], {}) do |drawer|
       drawer.should_receive(:display_hetero).with([],{})
     end
+  end
+  it 'initializes itself every time it diffs a new pair of objects object' do
+    diff_formatter = TestDrawer.diff_formatter
+
+    diff_formatter.should_receive :setup
+    diff_formatter.display_diff(nil, nil)
+    diff_formatter.should_receive :setup
+    diff_formatter.display_diff(nil, nil)
   end
 
   it 'correctly diffs complex objects' do
