@@ -1,4 +1,6 @@
 require 'gorillib/model/serialization'
+require 'gorillib/nil_check_delegate'
+require 'yaml'
 require_relative '../../gorillib/diff'
 
 #
@@ -52,27 +54,33 @@ class Chef
         target = get_slice(* @name_args)
 
         target.each do |computer|
-          manifest = computer.server.to_machine_manifest
-          display_diff(manifest, node(node_name(manifest)))
+          local_manifest = computer.server.to_machine_manifest
+          display_diff(local_manifest,
+                       mk_remote_manifest(local_manifest, computer))
         end
       end
 
     private
 
-      def display_diff(manifest, node)
-        header("Displaying manifest diffs for #{node_name(manifest)}")
-        differ.display_diff(deep_stringify(manifest.to_hash),
-                            deep_stringify(remote_manifest(manifest).to_hash))
+      def display_diff(local_manifest, remote_manifest)
+        header("diffing local #{node_name(local_manifest)} <-> remote #{node_name(remote_manifest)}")
+        differ.display_diff(deep_stringify(local_manifest.to_hash),
+                            deep_stringify(remote_manifest.to_hash))
       end
 
       #---------------------------------------------------------------------------------------------
 
-      def remote_manifest(local_manifest)
-        node = node(node_name(local_manifest))
+      def mk_remote_manifest(local_manifest, computer)
+        node_name = node_name(local_manifest)
+        node = node(node_name)
         cluster_role = get_role("#{local_manifest.cluster_name}-cluster")
         facet_role = get_role("#{local_manifest.cluster_name}-#{local_manifest.facet_name}-facet")
 
         _, cluster_name, facet_name, instance = /^(.*)-(.*)-(.*)$/.match(node.fetch('name')).to_a
+
+        machine = NilCheckDelegate.new(computer.machine)
+
+        launch_description = Ironfan::Provider::Ec2::Machine.launch_description(computer)
 
         result = Ironfan::Dsl::MachineManifest.
           receive(name: instance,
@@ -83,7 +91,43 @@ class Chef
                   cluster_default_attributes: cluster_role.fetch('default_attributes'),
                   cluster_override_attributes: cluster_role.fetch('override_attributes'),
                   facet_default_attributes: facet_role.fetch('default_attributes'),
-                  facet_override_attributes: facet_role.fetch('override_attributes'))
+                  facet_override_attributes: facet_role.fetch('override_attributes'),
+
+                  # cloud fields
+
+                  cloud_name: local_manifest.cloud_name,
+                  availability_zones: [*machine.availability_zone],
+                  ebs_optimized: machine.ebs_optimized,
+                  flavor: machine.flavor.name,
+                  elastic_load_balancers: launch_description.fetch(:elastic_load_balancers),
+                  iam_server_certificates: launch_description.fetch(:iam_server_certificates),
+                  image_id: machine.image_id,
+                  keypair: machine.key_pair.name,
+                  monitoring: machine.monitoring,
+                  placement_group: machine.placement_group,
+                  region: machine.availability_zone.to_s[/.*-.*-\d+/],
+                  subnet: machine.subnet_id,
+                  vpc: machine.vpc_id
+
+                  # not sure where to get these from the machine
+                  
+                  # backing: local_manifest.backing,
+                  # bits: local_manifest.bits,
+                  # bootstrap_distro: local_manifest.bootstrap_distro,
+                  # chef_client_script: local_manifest.chef_client_script,                  
+                  # default_availability_zone: local_manifest.default_availability_zone,
+                  # image_name: local_manifest.image_name,
+                  # mount_ephemerals: local_manifest.mount_ephemerals,
+                  # permanent: local_manifest.permanent,
+                  # provider: local_manifest.provider,
+                  # elastic_ip: local_manifest.elastic_ip,
+                  # auto_elastic_ip: local_manifest.auto_elastic_ip,
+                  # allocation_id: local_manifest.allocation_id,
+                  # security_groups: local_manifest.security_groups,
+                  # ssh_user: local_manifest.ssh_user,
+                  # ssh_identity_dir: local_manifest.ssh_identity_dir,
+                  # validation_key: local_manifest.validation_key,
+                  )
       end
 
       #---------------------------------------------------------------------------------------------

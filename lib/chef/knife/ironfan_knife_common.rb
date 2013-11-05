@@ -249,5 +249,8 @@ module Ironfan
       Chef::Config[:environment] = environments.first
     end
 
+    def with_verbosity(num)
+      yield if config[:verbosity] >= num
+    end
   end
 end

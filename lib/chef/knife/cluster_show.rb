@@ -87,10 +87,6 @@ class Chef
         Chef::Log.info( MultiJson.dump(hsh, pretty: true ) )
       end
 
-      def with_verbosity(num)
-        yield if config[:verbosity] >= num
-      end
-
     end
   end
 end

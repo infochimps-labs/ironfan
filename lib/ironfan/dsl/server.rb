@@ -17,6 +17,8 @@ module Ironfan
 
       # cloud fields 
 
+      field :cloud_name,                String
+
       field :availability_zones,        Array
       field :backing,                   String
       field :bits,                      Integer
@@ -113,6 +115,8 @@ module Ironfan
                                 volumes: volumes,
 
                                 # cloud fields
+
+                                cloud_name: cloud.name,
 
                                 availability_zones: cloud.availability_zones,
                                 backing: cloud.backing,
