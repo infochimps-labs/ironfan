@@ -42,15 +42,17 @@ module Ironfan
       field :allocation_id,             String
       field :region,                    String
 #      field :security_groups,           Array, of: Ironfan::Dsl::Ec2::SecurityGroup
-#      field :ssh_user,                  String
+      field :ssh_user,                  String
 #      field :ssh_identity_dir,          String
       field :subnet,                    String
 #      field :validation_key,            String
       field :vpc,                       String
 
+      # This is for the purpose of comparing a local manifest to a remote one.
       def to_hash
         to_wire.tap do |hsh|
           hsh.delete(:_type)
+          hsh.delete(:ssh_user)
           #hsh[:security_groups] = Hash[hsh[:security_groups].map{|x| [x.fetch(:name), x]}]
           hsh[:components] = Hash[hsh.fetch(:components).map do |component|
                                     Ironfan::Plugin::Component.skip_fields.each{|k| component.delete(k)}
