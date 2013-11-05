@@ -198,6 +198,11 @@ module Gorillib
     end
 
     def display_diff_arr(this, other)
+
+      # FIXME: waiting for https://github.com/halostatue/diff-lcs/pull/23 to be pulled in.
+      this.map!{|x| x.is_a?(Array) ? x.inspect : x}
+      other.map!{|x| x.is_a?(Array) ? x.inspect : x}
+
       Diff::LCS.sdiff(this, other).chunk{|x| type_of(x)}.each do |type, diff_atoms|
         case type
         when '=' then next_step(diff_atoms, type)
