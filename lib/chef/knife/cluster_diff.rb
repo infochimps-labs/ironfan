@@ -76,7 +76,7 @@ class Chef
         cluster_role = get_role("#{local_manifest.cluster_name}-cluster")
         facet_role = get_role("#{local_manifest.cluster_name}-#{local_manifest.facet_name}-facet")
 
-        _, cluster_name, facet_name, instance = /^(.*)-(.*)-(.*)$/.match(node.fetch('name')).to_a
+        _, cluster_name, facet_name, instance = /^(.*)-(.*)-(.*)$/.match(node['name'].to_s).to_a
 
         machine = NilCheckDelegate.new(computer.machine)
 
