@@ -83,7 +83,8 @@ class Chef
         launch_description = Ironfan::Provider::Ec2::Machine.launch_description(computer)
 
         result = Ironfan::Dsl::MachineManifest.
-          receive(name: instance,
+          receive(environment: node['chef_environment'],
+                  name: instance,
                   cluster_name: cluster_name,
                   facet_name: facet_name,
                   components: remote_components(node),

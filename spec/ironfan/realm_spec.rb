@@ -28,6 +28,10 @@ describe Ironfan::Dsl::Realm do
     end
   end
 
+  def manifest
+    Ironfan.cluster(:foo_bar).facets[:baz].server(0).to_machine_manifest
+  end
+
   it 'should create clusters that can be referenced later' do
     x = self
     Ironfan.realm :xx do
@@ -54,14 +58,12 @@ describe Ironfan::Dsl::Realm do
   end
 
   it 'should create clusters with attributes correctly applied' do
-    manifest = Ironfan.cluster(:foo_bar).facets[:baz].server(0).to_machine_manifest
     manifest.cluster_override_attributes.should == {a: 1}
     manifest.facet_override_attributes.should == {b: 1}
     manifest.run_list.should == %w[role[blah] role[foo_bar-cluster] role[foo_bar-baz-facet]]
   end
 
   it 'should create clusters with the correct ssh user' do
-    manifest = Ironfan.cluster(:foo_bar).facets[:baz].servers.to_a.first.to_machine_manifest
     manifest.flavor.should == 'm1.xlarge'
     manifest.ssh_user.should == 'bam'
   end
@@ -71,12 +73,15 @@ describe Ironfan::Dsl::Realm do
     Ironfan.realm(:foo).clusters[:foo_bar].resolve.facets[:baz].servers.to_a.first.to_machine_manifest.flavor.should == 'm1.xlarge'
 
     # Ironfan.cluster will do the resolution for us.
-    Ironfan.cluster(:foo_bar).facets[:baz].servers.to_a.first.to_machine_manifest.flavor.should == 'm1.xlarge'
+    manifest.flavor.should == 'm1.xlarge'
   end
 
   it 'should save an environment to be shared among all clusters within the realm' do
-    # We need to resolve before the cloud settings come through
+    # We need to resolve before the cloud settings come through.
     Ironfan.realm(:foo).clusters[:foo_bar].resolve.facets[:baz].environment.should == :bif
+
+    # The server manifest should contain the environment.
+    manifest.environment.should == :bif
 
     # Ironfan.cluster will do the resolution for us.
     Ironfan.cluster(:foo_bar).facets[:baz].environment.should == :bif

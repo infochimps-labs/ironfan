@@ -4,6 +4,7 @@ module Ironfan
     class MachineManifest
       include Gorillib::Model
 
+      field :environment, Symbol
       field :name, String
       field :cluster_name, String
       field :facet_name, String
@@ -106,6 +107,7 @@ module Ironfan
       def to_machine_manifest
         cloud = clouds.each.to_a.first
         MachineManifest.receive(
+                                environment: environment,
                                 name: name,
                                 cluster_name: cluster_name,
                                 facet_name: facet_name,
