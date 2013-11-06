@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Infochimps"]
-  s.date = "2013-10-10"
+  s.date = "2013-11-06"
   s.description = "Ironfan allows you to orchestrate not just systems but clusters of machines. It includes a powerful layer on top of knife and a collection of cloud cookbooks."
   s.email = "coders@infochimps.com"
   s.extra_rdoc_files = [
@@ -44,6 +44,7 @@ Gem::Specification.new do |s|
     "lib/chef/knife/bootstrap/ubuntu10.04-ironfan.erb",
     "lib/chef/knife/bootstrap/ubuntu12.04-ironfan.erb",
     "lib/chef/knife/cluster_bootstrap.rb",
+    "lib/chef/knife/cluster_diff.rb",
     "lib/chef/knife/cluster_kick.rb",
     "lib/chef/knife/cluster_kill.rb",
     "lib/chef/knife/cluster_launch.rb",
@@ -57,6 +58,8 @@ Gem::Specification.new do |s|
     "lib/chef/knife/cluster_sync.rb",
     "lib/chef/knife/ironfan_knife_common.rb",
     "lib/chef/knife/ironfan_script.rb",
+    "lib/gorillib/diff.rb",
+    "lib/gorillib/nil_check_delegate.rb",
     "lib/gorillib/resolution.rb",
     "lib/ironfan.rb",
     "lib/ironfan/broker.rb",
@@ -67,6 +70,7 @@ Gem::Specification.new do |s|
     "lib/ironfan/dsl.rb",
     "lib/ironfan/dsl/cloud.rb",
     "lib/ironfan/dsl/cluster.rb",
+    "lib/ironfan/dsl/component.rb",
     "lib/ironfan/dsl/compute.rb",
     "lib/ironfan/dsl/ec2.rb",
     "lib/ironfan/dsl/facet.rb",
@@ -101,37 +105,6 @@ Gem::Specification.new do |s|
     "lib/ironfan/provider/vsphere/keypair.rb",
     "lib/ironfan/provider/vsphere/machine.rb",
     "lib/ironfan/requirements.rb",
-    "notes/Future-development-proposals.md",
-    "notes/Home.md",
-    "notes/INSTALL-cloud_setup.md",
-    "notes/INSTALL.md",
-    "notes/Ironfan-Roadmap.md",
-    "notes/Upgrading-to-v4.md",
-    "notes/advanced-superpowers.md",
-    "notes/aws_servers.jpg",
-    "notes/aws_user_key.png",
-    "notes/cookbook-versioning.md",
-    "notes/core_concepts.md",
-    "notes/declaring_volumes.md",
-    "notes/design_notes-aspect_oriented_devops.md",
-    "notes/design_notes-ci_testing.md",
-    "notes/design_notes-cookbook_event_ordering.md",
-    "notes/design_notes-meta_discovery.md",
-    "notes/ec2-pricing_and_capacity.md",
-    "notes/ec2-pricing_and_capacity.numbers",
-    "notes/homebase-layout.txt",
-    "notes/knife-cluster-commands.md",
-    "notes/named-cloud-objects.md",
-    "notes/opscode_org_key.png",
-    "notes/opscode_user_key.png",
-    "notes/philosophy.md",
-    "notes/rake_tasks.md",
-    "notes/renamed-recipes.txt",
-    "notes/silverware.md",
-    "notes/style_guide.md",
-    "notes/tips_and_troubleshooting.md",
-    "notes/walkthrough-hadoop.md",
-    "notes/walkthrough-web.md",
     "spec/chef/cluster_bootstrap_spec.rb",
     "spec/chef/cluster_launch_spec.rb",
     "spec/fixtures/ec2/elb/snakeoil.crt",
@@ -149,20 +122,25 @@ Gem::Specification.new do |s|
     "spec/integration/spec_helper.rb",
     "spec/integration/spec_helper/launch_cluster.rb",
     "spec/ironfan/cluster_spec.rb",
+    "spec/ironfan/diff_spec.rb",
     "spec/ironfan/ec2/cloud_provider_spec.rb",
     "spec/ironfan/ec2/elb_spec.rb",
     "spec/ironfan/ec2/security_group_spec.rb",
+    "spec/ironfan/realm_spec.rb",
     "spec/spec_helper.rb",
     "spec/spec_helper/dummy_chef.rb",
+    "spec/spec_helper/dummy_diff_drawer.rb",
     "spec/test_config.rb",
-    "tasks/chef_config.rake"
+    "tafu.txt",
+    "tasks/chef_config.rake",
+    "test.rb"
   ]
   s.homepage = "http://infochimps.com/labs"
   s.licenses = ["apachev2"]
   s.require_paths = ["lib"]
-  s.rubygems_version = "1.8.23"
+  s.rubygems_version = "1.8.25"
   s.summary = "Infochimps' lightweight cloud orchestration toolkit, built on top of Chef."
-  s.test_files = ["spec/fixtures/gunbai.rb", "spec/fixtures/ec2/elb/snakeoil.key", "spec/fixtures/ec2/elb/snakeoil.crt", "spec/fixtures/gunbai_slice.json", "spec/fixtures/knife/knife.rb", "spec/test_config.rb", "spec/ironfan/ec2/cloud_provider_spec.rb", "spec/ironfan/ec2/elb_spec.rb", "spec/ironfan/ec2/security_group_spec.rb", "spec/ironfan/cluster_spec.rb", "spec/spec_helper.rb", "spec/spec_helper/dummy_chef.rb", "spec/chef/cluster_bootstrap_spec.rb", "spec/chef/cluster_launch_spec.rb", "spec/integration/spec/elb_build_spec.rb", "spec/integration/spec/simple_cluster_spec.rb", "spec/integration/spec_helper.rb", "spec/integration/minimal-chef-repo/chefignore", "spec/integration/minimal-chef-repo/roles/systemwide.rb", "spec/integration/minimal-chef-repo/environments/_default.json", "spec/integration/minimal-chef-repo/knife/credentials/knife-org.rb", "spec/integration/minimal-chef-repo/knife/knife.rb", "spec/integration/spec_helper/launch_cluster.rb"]
+  s.test_files = ["spec/chef/cluster_bootstrap_spec.rb", "spec/chef/cluster_launch_spec.rb", "spec/fixtures/ec2/elb/snakeoil.crt", "spec/fixtures/ec2/elb/snakeoil.key", "spec/fixtures/gunbai.rb", "spec/fixtures/gunbai_slice.json", "spec/fixtures/knife/knife.rb", "spec/integration/minimal-chef-repo/chefignore", "spec/integration/minimal-chef-repo/environments/_default.json", "spec/integration/minimal-chef-repo/knife/credentials/knife-org.rb", "spec/integration/minimal-chef-repo/knife/knife.rb", "spec/integration/minimal-chef-repo/roles/systemwide.rb", "spec/integration/spec/elb_build_spec.rb", "spec/integration/spec/simple_cluster_spec.rb", "spec/integration/spec_helper/launch_cluster.rb", "spec/integration/spec_helper.rb", "spec/ironfan/cluster_spec.rb", "spec/ironfan/diff_spec.rb", "spec/ironfan/ec2/cloud_provider_spec.rb", "spec/ironfan/ec2/elb_spec.rb", "spec/ironfan/ec2/security_group_spec.rb", "spec/ironfan/realm_spec.rb", "spec/spec_helper/dummy_chef.rb", "spec/spec_helper/dummy_diff_drawer.rb", "spec/spec_helper.rb", "spec/test_config.rb"]
 
   if s.respond_to? :specification_version then
     s.specification_version = 3
