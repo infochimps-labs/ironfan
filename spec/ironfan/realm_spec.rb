@@ -77,7 +77,7 @@ describe Ironfan::Dsl::Realm do
   end
 
   it 'should save an environment to be shared among all clusters within the realm' do
-    # We need to resolve before the cloud settings come through.
+    # We need to resolve before the cloud settings come through
     Ironfan.realm(:foo).clusters[:foo_bar].resolve.facets[:baz].environment.should == :bif
 
     # The server manifest should contain the environment.

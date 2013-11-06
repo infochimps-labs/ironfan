@@ -53,11 +53,16 @@ class Chef
         # Load the cluster/facet/slice/whatever
         target = get_slice(* @name_args)
 
-        target.each do |computer|
+        mismatches = target.any? do |computer|
           local_manifest = computer.server.to_machine_manifest
-          display_diff(local_manifest,
-                       mk_remote_manifest(local_manifest, computer))
+          remote_manifest = mk_remote_manifest(local_manifest, computer)
+
+          display_diff(local_manifest, remote_manifest)
+
+          local_manifest != remote_manifest
         end
+
+        exit(1) if mismatches
       end
 
     private
