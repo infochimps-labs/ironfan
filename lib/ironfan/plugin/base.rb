@@ -50,7 +50,7 @@ module Ironfan
           (@dest_class = cls).class_eval{ extend Ironfan::Pluggable }
         end
 
-        def create plugin_name_parts, base_class=self, &blk
+        def template plugin_name_parts, base_class=self, &blk
           plugin_name_parts = [*plugin_name_parts]
           plugin_class = Class.new(base_class, &blk)
           plugin_name = plugin_name_parts.first.to_sym

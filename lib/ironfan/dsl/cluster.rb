@@ -1,8 +1,12 @@
+require 'ironfan/dsl/realm'
+require 'ironfan/dsl/cluster'
+
 module Ironfan
   class Dsl
 
     class Cluster < Ironfan::Dsl::Compute
       collection :facets,       Ironfan::Dsl::Facet,   :resolver => :deep_resolve
+      include Ironfan::Plugin::Base; register_with Ironfan::Dsl::Realm
 
       def initialize(attrs={},&block)
         super
@@ -20,6 +24,11 @@ module Ironfan
 
       def cluster_name
         name
+      end
+
+      def self.plugin_hook owner, attrs, plugin_name, full_name, &blk
+        owner.cluster(plugin_name, new(attrs.merge(name: full_name, owner: owner)))
+        _project cluster, &blk
       end
     end
   end

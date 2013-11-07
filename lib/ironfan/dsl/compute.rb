@@ -1,3 +1,8 @@
+require 'gorillib/metaprogramming/concern'
+require 'ironfan/dsl/component'
+require 'ironfan/dsl/facet'
+require 'ironfan/plugin/base'
+
 module Ironfan
   class Dsl
 
@@ -30,6 +35,12 @@ module Ironfan
 
       magic      :cluster_names, Whatever
       magic      :realm_name,    Symbol
+
+      extend Gorillib::Concern
+
+      def self._project compute, &blk
+        compute.around &blk
+      end
 
       def initialize(attrs={},&block)
         self.underlay   = attrs[:owner] if attrs[:owner]
@@ -93,6 +104,15 @@ module Ironfan
         # Rank is a global order that tells what order this was encountered in. 
         run_list_items[item] = { :name => item, :rank => @@run_list_rank, :placement => placement }
       end
+
+      def around &blk
+        before
+        instance_eval(&blk)
+        after
+      end
+
+      def after() end
+      def before() end
     end
 
   end

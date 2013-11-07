@@ -56,7 +56,7 @@ module Ironfan
           hsh.delete(:ssh_user)
           #hsh[:security_groups] = Hash[hsh[:security_groups].map{|x| [x.fetch(:name), x]}]
           hsh[:components] = Hash[hsh.fetch(:components).map do |component|
-                                    Ironfan::Plugin::Component.skip_fields.each{|k| component.delete(k)}
+                                    Ironfan::Dsl::Component.skip_fields.each{|k| component.delete(k)}
                                     [component.fetch(:name), component]
                                   end]
           hsh[:run_list] = hsh.fetch(:run_list).map do |x|
