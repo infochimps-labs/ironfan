@@ -1,7 +1,4 @@
 require 'gorillib/metaprogramming/concern'
-require 'ironfan/dsl/component'
-require 'ironfan/dsl/facet'
-require 'ironfan/plugin/base'
 
 module Ironfan
   class Dsl

@@ -1,6 +1,3 @@
-require 'ironfan/dsl/realm'
-require 'ironfan/dsl/cluster'
-
 module Ironfan
   class Dsl
 

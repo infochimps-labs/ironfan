@@ -1,8 +1,3 @@
-require 'chef'
-require 'ironfan'
-require 'ironfan/plugin/base'
-require 'ironfan/dsl/component'
-
 module Ironfan
   class Dsl
     class Component < Ironfan::Dsl
