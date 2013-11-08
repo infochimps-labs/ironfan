@@ -27,20 +27,6 @@ module Ironfan
           super(new_name, cluster)
         end
       end
-
-      def cluster_name suffix
-        clusters.fetch([realm_name, suffix.to_s].join('_').to_sym).name.to_sym
-      end
-      
-      def cluster_suffix suffix
-        clusters.
-          fetch([realm_name, suffix.to_s].join('_').to_sym).name.to_s.
-          gsub(/^#{realm_name}_/, '').to_sym
-      end
-
-      def revise_cluster suffix
-        cluster(cluster_suffix(suffix))
-      end
     end
   end
 end

@@ -5,16 +5,14 @@ module Ironfan
       include Gorillib::Concern
       include Ironfan::Plugin::Base; register_with Ironfan::Dsl::Compute
 
-      field :cl_names, Whatever
-      field :cl_name, Whatever
-      field :rlm_name, Whatever
+      field :cluster_name, Symbol
+      field :realm_name, Symbol
       field :announce_name, Symbol
       field :name, Symbol
 
       def initialize(attrs, &blk)
-        attrs.merge!(cl_names: (attrs[:owner].cluster_names unless attrs[:owner].nil?),
-                     rlm_name: (attrs[:owner].realm_name unless attrs[:owner].nil?),
-                     cl_name: (attrs[:owner].cluster_name unless attrs[:owner].nil?))
+        attrs.merge!(cluster_name: (attrs[:owner].cluster_name unless attrs[:owner].nil?),
+                     realm_name: (attrs[:owner].realm_name unless attrs[:owner].nil?))
         super attrs, &blk
       end
 
@@ -28,26 +26,12 @@ module Ironfan
         project(compute)
       end
 
-      def cluster_name suffix = nil
-        suffix.nil? ? cl_name : cl_names.fetch(suffix) 
-      end
-
-      def cluster_suffix suffix = nil
-        cluster_name(suffix).to_s.gsub(/^#{realm_name}_/, '').to_sym
-      end
-
-      def realm_name() rlm_name; end
-
       def realm_announcements
         (@@realm_announcements ||= {})
       end
       
       def realm_subscriptions component_name
         (@@realm_subscriptions ||= {})[component_name] ||= []
-      end
-
-      def self.skip_fields
-        [:cl_names, :cl_name, :rlm_name, :announce_name]
       end
 
       def announce(component_name)
@@ -64,6 +48,7 @@ module Ironfan
         if already_announced = realm_announcements[[realm_name, component_name]]
           yield already_announced
         else
+          Chef::Log.debug("#{cluster_name}: no one announced #{announce_name}. subscribing")
           discover_by_subscription component_name, &blk
         end
       end
@@ -80,9 +65,8 @@ module Ironfan
 
       def set_discovery compute, keys
         if server_cluster
-          _set_discovery(compute, server_cluster, keys)
+          _set_discovery(compute, full_server_cluster, keys)
         else
-          Chef::Log.debug("#{cluster_name}: no one announced #{announce_name}. subscribing")
           discover(announce_name){|cluster| _set_discovery(compute, cluster, keys)}
         end
       end
@@ -91,6 +75,12 @@ module Ironfan
         discovery = {discovers: keys.reverse.inject(cluster){|hsh,key| {key => hsh}}}
         (compute.facet_role || compute.cluster_role).override_attributes(discovery)
         Chef::Log.debug("discovered #{announce_name} for #{cluster_name}: #{discovery}")
+      end
+
+      protected
+
+      def full_server_cluster
+        "#{realm_name}_#{server_cluster}"
       end
     end
 
