@@ -57,12 +57,12 @@ class Chef
       end
 
       def self.mismatches?(target)
-        target.any? do |computer|
+        target.map do |computer|
           local_manifest = computer.server.to_machine_manifest
           remote_manifest = Ironfan::Dsl::MachineManifest.from_computer(computer)
           display_diff(local_manifest, remote_manifest)
           local_manifest != remote_manifest
-        end
+        end.to_a.any?
       end
       
     private
