@@ -49,20 +49,115 @@ module Ironfan
 #      field :validation_key,            String
       field :vpc,                       String
 
-      # This is for the purpose of comparing a local manifest to a remote one.
-      def to_hash
-        to_wire.tap do |hsh|
-          hsh.delete(:_type)
-          hsh.delete(:ssh_user)
-          #hsh[:security_groups] = Hash[hsh[:security_groups].map{|x| [x.fetch(:name), x]}]
-          hsh[:components] = Hash[hsh.fetch(:components).map do |component|
-                                    Ironfan::Dsl::Component.skip_fields.each{|k| component.delete(k)}
-                                    [component.fetch(:name), component]
-                                  end]
-          hsh[:run_list] = hsh.fetch(:run_list).map do |x|
-            x.end_with?(']') ? x : "recipe[#{x}]"
-          end
+      # Reconstruct machine manifest from a computer, pulling
+      # information from remote sources as necessary.
+      def self.from_computer(computer)
+        node_name = computer.name
+        cluster_name, facet_name, instance = /^(.*)-(.*)-(.*)$/.match(node_name).captures
+
+        cluster_role = get_role("#{cluster_name}-cluster")
+        facet_role = get_role("#{cluster_name}-#{facet_name}-facet")
+        node = get_node(node_name)
+
+        machine = NilCheckDelegate.new(computer.machine)
+        launch_description = Ironfan::Provider::Ec2::Machine.launch_description(computer)
+        cloud = computer.server.clouds.to_a.first
+
+        result = Ironfan::Dsl::MachineManifest.
+          receive(environment: node['chef_environment'],
+                  name: instance,
+                  cluster_name: cluster_name,
+                  facet_name: facet_name,
+                  components: remote_components(node),
+                  run_list: remote_run_list(node),
+                  cluster_default_attributes: cluster_role.fetch('default_attributes'),
+                  cluster_override_attributes: cluster_role.fetch('override_attributes'),
+                  facet_default_attributes: facet_role.fetch('default_attributes'),
+                  facet_override_attributes: facet_role.fetch('override_attributes'),
+
+                  # cloud fields
+
+                  backing: machine.root_device_type,
+                  cloud_name: machine.nilcheck_depth(1).server.cloud_name,
+                  availability_zones: [*machine.availability_zone],
+                  ebs_optimized: machine.ebs_optimized,
+                  flavor: machine.flavor_id,
+                  elastic_load_balancers: launch_description.fetch(:elastic_load_balancers),
+                  iam_server_certificates: launch_description.fetch(:iam_server_certificates),
+                  image_id: machine.image_id,
+                  keypair: machine.nilcheck_depth(1).key_pair.name,
+                  monitoring: machine.monitoring,
+                  placement_group: machine.placement_group,
+                  region: machine.availability_zone.to_s[/.*-.*-\d+/],
+                  security_groups: machine.nilcheck_depth(1).groups.map{|x| {name: x}},
+                  subnet: machine.subnet_id,
+                  vpc: machine.vpc_id
+
+                  # not sure where to get these from the machine
+                  
+                  # bits: local_manifest.bits,
+                  # bootstrap_distro: local_manifest.bootstrap_distro,
+                  # chef_client_script: local_manifest.chef_client_script,                  
+                  # default_availability_zone: local_manifest.default_availability_zone,
+                  # image_name: local_manifest.image_name,
+                  # mount_ephemerals: local_manifest.mount_ephemerals,
+                  # permanent: local_manifest.permanent,
+                  # provider: local_manifest.provider,
+                  # elastic_ip: local_manifest.elastic_ip,
+                  # auto_elastic_ip: local_manifest.auto_elastic_ip,
+                  # allocation_id: local_manifest.allocation_id,
+                  # ssh_user: local_manifest.ssh_user,
+                  # ssh_identity_dir: local_manifest.ssh_identity_dir,
+                  # validation_key: local_manifest.validation_key,
+                  )
+      end
+
+      def to_comparable
+        deep_stringify(to_wire.tap do |hsh|
+                         hsh.delete(:_type)
+                         hsh.delete(:ssh_user)
+                         #hsh[:security_groups] = Hash[hsh[:security_groups].map{|x| [x.fetch(:name), x]}]
+                         hsh[:components] = Hash[hsh.fetch(:components).map do |component|
+                                                   Ironfan::Dsl::Component.skip_fields.each{|k| component.delete(k)}
+                                                   [component.fetch(:name), component]
+                                                 end]
+                         hsh[:run_list] = hsh.fetch(:run_list).map do |x|
+                           x.end_with?(']') ? x : "recipe[#{x}]"
+                         end
+                       end)
+      end
+
+      private
+
+      def deep_stringify obj
+        case obj
+        when Hash then Hash[obj.map{|k,v| [k.to_s, deep_stringify(v)]}]
+        when Symbol then obj.to_s
+        else obj
         end
+      end
+
+      def self.get_node(node_name)
+        Chef::Node.load(node_name).to_hash
+      rescue Net::HTTPServerException => ex
+        {}
+      end
+
+      def self.get_role(role_name)
+        Chef::Role.load(role_name).to_hash
+      end
+
+      def self.remote_components(node)
+        announcements = node['announces'] || {}
+        node['announces'].to_a.map do |_, announce|
+          name = announce['name'].to_sym
+          plugin = Ironfan::Dsl::Compute.plugin_for(name)
+          plugin.from_node(node).tap{|x| x.name = name} if plugin
+        end.compact
+      end
+
+      def self.remote_run_list(node)
+        node['run_list'].to_a.map(&:to_s)
       end
     end
 
