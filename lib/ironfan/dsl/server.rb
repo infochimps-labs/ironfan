@@ -70,10 +70,10 @@ module Ironfan
                   facet_name: facet_name,
                   components: remote_components(node),
                   run_list: remote_run_list(node),
-                  cluster_default_attributes: cluster_role.fetch('default_attributes'),
-                  cluster_override_attributes: cluster_role.fetch('override_attributes'),
-                  facet_default_attributes: facet_role.fetch('default_attributes'),
-                  facet_override_attributes: facet_role.fetch('override_attributes'),
+                  cluster_default_attributes: (cluster_role['default_attributes'] || {}),
+                  cluster_override_attributes: (cluster_role['override_attributes'] || {}),
+                  facet_default_attributes: (facet_role['default_attributes'] || {}),
+                  facet_override_attributes: (facet_role['override_attributes'] || {}),
 
                   # cloud fields
 
@@ -144,6 +144,8 @@ module Ironfan
 
       def self.get_role(role_name)
         Chef::Role.load(role_name).to_hash
+      rescue Net::HTTPServerException => ex
+        {}
       end
 
       def self.remote_components(node)

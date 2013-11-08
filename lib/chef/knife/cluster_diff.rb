@@ -53,10 +53,10 @@ class Chef
         # Load the cluster/facet/slice/whatever
         target = get_slice(* @name_args)
 
-        exit(1) if mismatches?(target)
+        exit(1) if self.class.mismatches?(target)
       end
 
-      def mismatches?(target)
+      def self.mismatches?(target)
         target.any? do |computer|
           local_manifest = computer.server.to_machine_manifest
           remote_manifest = Ironfan::Dsl::MachineManifest.from_computer(computer)
@@ -67,29 +67,29 @@ class Chef
       
     private
 
-      def node_name(manifest)
+      def self.node_name(manifest)
         "#{manifest.cluster_name}-#{manifest.facet_name}-#{manifest.name}"
       end
 
-      def display_diff(local_manifest, remote_manifest)
+      def self.display_diff(local_manifest, remote_manifest)
         header("diffing manifests: local #{node_name(local_manifest)} <-> remote #{node_name(remote_manifest)}")
         differ.display_diff(local_manifest.to_comparable, remote_manifest.to_comparable)
       end
 
       #---------------------------------------------------------------------------------------------
 
-      def differ
+      def self.differ
         Gorillib::DiffFormatter.new(left: :local,
                                     right: :remote,
                                     stream: $stdout,
                                     indentation: 4)
       end
-    end
 
-    def header str
-      $stdout.puts("  #{'-' * 80}")
-      $stdout.puts("  #{str}")
-      $stdout.puts("  #{'-' * 80}")
+      def self.header str
+        $stdout.puts("  #{'-' * 80}")
+        $stdout.puts("  #{str}")
+        $stdout.puts("  #{'-' * 80}")
+      end
     end
   end
 end
