@@ -5,7 +5,6 @@ require 'chef/knife/cluster_diff'
 describe Chef::Knife::ClusterDiff do
   before(:each) do
     ironfan_go!
-    Ironfan.ui = Chef::Knife::UI.new(STDOUT, STDERR, STDIN, {})
     (Chef::Config[:ec2_image_info] ||= {}).merge!({
       %w[us-east-1  64-bit  ebs     ironfan-precise  ] =>
       { :image_id => 'ami-29fe7640', :ssh_user => 'bam', :bootstrap_distro => "ubuntu12.04-ironfan", },
