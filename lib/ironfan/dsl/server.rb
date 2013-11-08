@@ -131,6 +131,7 @@ module Ironfan
       def deep_stringify obj
         case obj
         when Hash then Hash[obj.map{|k,v| [k.to_s, deep_stringify(v)]}]
+        when Array then obj.map{|x| deep_stringify(x)}
         when Symbol then obj.to_s
         else obj
         end
