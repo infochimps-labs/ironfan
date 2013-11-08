@@ -8,8 +8,8 @@ module Ironfan
       field :name, String
       field :cluster_name, String
       field :facet_name, String
-      field :components, Array, of: Ironfan::Dsl::Component
-      field :run_list, Array, of: String
+      field :components, Array, of: Ironfan::Dsl::Component, default: []
+      field :run_list, Array, of: String, default: []
       field :cluster_default_attributes, Hash
       field :cluster_override_attributes, Hash
       field :facet_default_attributes, Hash
@@ -20,16 +20,16 @@ module Ironfan
 
       field :cloud_name,                String
 
-      field :availability_zones,        Array
+      field :availability_zones,        Array, default: []
       field :backing,                   String
 #      field :bits,                      Integer
 #      field :bootstrap_distro,          String
 #      field :chef_client_script,        String
 #      field :default_availability_zone, String
-      field :elastic_load_balancers,    Array, of: Ironfan::Dsl::Ec2::ElasticLoadBalancer
+      field :elastic_load_balancers,    Array, of: Ironfan::Dsl::Ec2::ElasticLoadBalancer, default: []
       field :ebs_optimized,             :boolean
       field :flavor,                    String
-      field :iam_server_certificates,   Array, of: Ironfan::Dsl::Ec2::IamServerCertificate
+      field :iam_server_certificates,   Array, of: Ironfan::Dsl::Ec2::IamServerCertificate, default: []
       field :image_id,                  String
 #      field :image_name,                String
 #      field :keypair,                   String
@@ -78,7 +78,7 @@ module Ironfan
                   # cloud fields
 
                   backing: machine.root_device_type,
-                  cloud_name: machine.nilcheck_depth(1).server.cloud_name,
+                  cloud_name: cloud.name,
                   availability_zones: [*machine.availability_zone],
                   ebs_optimized: machine.ebs_optimized,
                   flavor: machine.flavor_id,
