@@ -69,7 +69,7 @@ module Ironfan
           groups_to_create         = [ ]
           authorizations_to_ensure = [ ]
 
-          computers.each{|comp| ensure_groups(comp) } # Add facet and cluster security groups for the computer
+          computers.each{|comp| ensure_groups(comp) if Ec2.applicable(comp) } # Add facet and cluster security groups for the computer
 
           # First, deduce the list of all groups to which at least one instance belongs
           # We'll use this later to decide whether to create groups, or authorize access,
