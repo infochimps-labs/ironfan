@@ -66,18 +66,23 @@ describe Ironfan::Dsl::Component do
   end
 
   it 'should merge its node attribute to create a node' do
+    node = Chef::Node.new
+    node.set['a'] = {'b' => {'c' => :baz}}
     Ironfan.cluster(:foo) do
-      baz_bif{ bam(:baz) }.to_node.should == {'a' => {'b' => {'c' => :baz}}}
+      baz_bif{ bam(:baz) }.to_node.to_hash.should == node.to_hash
     end
   end
   it 'should be instantiable from a node object' do
-    Ironfan::Dsl::Compute.registry[:baz_bif].from_node('a' => {'b' => {'c' => :baz}}).bam.should == :baz
+    node = Chef::Node.new
+    node.set['a'] = {'b' => {'c' => :baz}}
+    Ironfan::Dsl::Compute.registry[:baz_bif].from_node(node).bam.should == :baz
   end
 
   it 'should remember all of its node attributes' do
     Ironfan.cluster(:foo) do
       component = baz_bif{ bam(:baz) }
-      component.to_node.should == Ironfan::Dsl::Compute.registry[:baz_bif].from_node(component.to_node).to_node
+      component.to_node.to_hash.should ==
+        Ironfan::Dsl::Compute.registry[:baz_bif].from_node(component.to_node).to_node.to_hash
     end
   end
 
@@ -109,8 +114,8 @@ describe Ironfan::Dsl::Component do
         cluster(:foo){ bam_client; pow_server }
         cluster(:bar){ bam_server; pow_client }
 
-        cluster(:foo).cluster_role.override_attributes[:discovers].should == {bam: 'wap_bar'}
-        cluster(:bar).cluster_role.override_attributes[:discovers].should == {pow: 'wap_foo'}
+        cluster(:foo).cluster_role.override_attributes[:discovers].should == {bam: :wap_bar}
+        cluster(:bar).cluster_role.override_attributes[:discovers].should == {pow: :wap_foo}
       end
     end
   end

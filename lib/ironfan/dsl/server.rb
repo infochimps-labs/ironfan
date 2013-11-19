@@ -55,8 +55,8 @@ module Ironfan
         node_name = computer.name
         cluster_name, facet_name, instance = /^(.*)-(.*)-(.*)$/.match(node_name).captures
 
-        cluster_role = get_role("#{cluster_name}-cluster")
-        facet_role = get_role("#{cluster_name}-#{facet_name}-facet")
+        cluster_role = NilCheckDelegate.new(get_role("#{cluster_name}-cluster"))
+        facet_role = NilCheckDelegate.new(get_role("#{cluster_name}-#{facet_name}-facet"))
         node = get_node(node_name)
 
         machine = NilCheckDelegate.new(computer.machine)
@@ -70,10 +70,10 @@ module Ironfan
                   facet_name: facet_name,
                   components: remote_components(node),
                   run_list: remote_run_list(node),
-                  cluster_default_attributes: (cluster_role['default_attributes'] || {}),
-                  cluster_override_attributes: (cluster_role['override_attributes'] || {}),
-                  facet_default_attributes: (facet_role['default_attributes'] || {}),
-                  facet_override_attributes: (facet_role['override_attributes'] || {}),
+                  cluster_default_attributes: (cluster_role.default_attributes || {}),
+                  cluster_override_attributes: (cluster_role.override_attributes || {}),
+                  facet_default_attributes: (facet_role.default_attributes || {}),
+                  facet_override_attributes: (facet_role.override_attributes || {}),
 
                   # cloud fields
 
@@ -138,13 +138,13 @@ module Ironfan
       end
 
       def self.get_node(node_name)
-        Chef::Node.load(node_name).to_hash
+        Chef::Node.load(node_name)
       rescue Net::HTTPServerException => ex
         {}
       end
 
       def self.get_role(role_name)
-        Chef::Role.load(role_name).to_hash
+        Chef::Role.load(role_name)
       rescue Net::HTTPServerException => ex
         {}
       end
@@ -159,7 +159,7 @@ module Ironfan
       end
 
       def self.remote_run_list(node)
-        node['run_list'].to_a.map(&:to_s)
+        node.run_list.to_a.map(&:to_s)
       end
     end
 

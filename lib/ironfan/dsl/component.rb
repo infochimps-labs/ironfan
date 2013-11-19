@@ -7,7 +7,6 @@ module Ironfan
 
       field :cluster_name, Symbol
       field :realm_name, Symbol
-      field :announce_name, Symbol
       field :name, Symbol
 
       def initialize(attrs, &blk)
@@ -17,8 +16,25 @@ module Ironfan
       end
 
       def self.plugin_hook owner, attrs, plugin_name, full_name, &blk
-        (this = new(attrs.merge(owner: owner, announce_name: plugin_name, name: full_name), &blk))._project(owner)
+        (this = new(attrs.merge(owner: owner, name: full_name), &blk))._project(owner)
         this
+      end
+
+      def self.to_node
+        super.tap do |node|
+          node.set['cluster_name'] = cluster_name
+        end
+      end
+
+      def self.from_node(node = NilCheckDelegate.new(nil))
+        cluster_name = node['cluster_name'].to_s
+        super(node).tap{|x| x.receive!(cluster_name: cluster_name,
+                                       realm_name: cluster_name.split('_').first)}
+      end
+
+      def announce_name
+        result = self.class.plugin_name
+        result
       end
 
       def _project(compute)
