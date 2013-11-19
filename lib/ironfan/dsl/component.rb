@@ -20,6 +20,10 @@ module Ironfan
         this
       end
 
+      def announce_to node
+        node.set['components']["#{cluster_name}-#{name}"]['name'] = name
+      end
+
       def self.to_node
         super.tap do |node|
           node.set['cluster_name'] = cluster_name
@@ -32,9 +36,12 @@ module Ironfan
                                        realm_name: cluster_name.split('_').first)}
       end
 
+      def self.announce_name
+        plugin_name
+      end
+
       def announce_name
-        result = self.class.plugin_name
-        result
+        self.class.announce_name
       end
 
       def _project(compute)

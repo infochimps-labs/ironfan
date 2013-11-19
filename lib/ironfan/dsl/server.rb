@@ -172,8 +172,8 @@ module Ironfan
       end
 
       def self.remote_components(node)
-        announcements = node['announces'] || {}
-        node['announces'].to_a.map do |_, announce|
+        announcements = node['components'] || {}
+        node['components'].to_a.map do |_, announce|
           name = announce['name'].to_sym
           plugin = Ironfan::Dsl::Compute.plugin_for(name)
           plugin.from_node(node).tap{|x| x.name = name} if plugin

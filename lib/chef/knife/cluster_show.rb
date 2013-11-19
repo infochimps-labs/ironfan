@@ -47,6 +47,7 @@ class Chef
         dump_command_config
         dump_chef_config
         #
+
         target.each do |computer|
           dump_computer(computer)
         end
@@ -61,7 +62,11 @@ class Chef
         header = "Computer #{computer.name} (#{computer.class})"
         with_verbosity 1 do
           Chef::Log.info(header)
-          Chef::Log.info(computer.server.canonical_machine_manifest_hash.to_yaml)
+
+          # Terminated instances don't have servers.
+          unless computer.server.nil?
+            Chef::Log.info(computer.server.canonical_machine_manifest_hash.to_yaml)
+          end
         end
         with_verbosity 2 do
           dump(header, computer.to_wire)
