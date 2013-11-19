@@ -52,19 +52,41 @@ module Ironfan
       # Reconstruct machine manifest from a computer, pulling
       # information from remote sources as necessary.
       def self.from_computer(computer)
-        node_name = computer.name
-        cluster_name, facet_name, instance = /^(.*)-(.*)-(.*)$/.match(node_name).captures
+        node = get_node(computer.name)
+        cluster_name = node['cluster_name']
+        facet_name = node['facet_name']
+        instance = node['facet_index']
 
-        cluster_role = NilCheckDelegate.new(get_role("#{cluster_name}-cluster"))
-        facet_role = NilCheckDelegate.new(get_role("#{cluster_name}-#{facet_name}-facet"))
-        node = get_node(node_name)
+        from_remote(
+                    cluster_name,
+                    facet_name,
+                    instance,
+                    node,
+                    computer.machine,
+                    computer.server.clouds.to_a.first,
+                    Ironfan::Provider::Ec2::Machine.launch_description(computer),
+                    get_role("#{cluster_name}-cluster"),
+                    get_role("#{cluster_name}-#{facet_name}-facet")
+                  )
+      end
 
-        machine = NilCheckDelegate.new(computer.machine)
-        launch_description = Ironfan::Provider::Ec2::Machine.launch_description(computer)
-        cloud = computer.server.clouds.to_a.first
+      def self.from_remote(cluster_name,
+                           facet_name,
+                           instance,
+                           node,
+                           machine,
+                           cloud,
+                           launch_description,
+                           cluster_role,
+                           facet_role)
+        machine = NilCheckDelegate.new(machine)
+        cloud = NilCheckDelegate.new(cloud)
+        cluster_role = NilCheckDelegate.new(cluster_role)
+        facet_role = NilCheckDelegate.new(facet_role)
+        launch_description = NilCheckDelegate.new(launch_description)
 
         result = Ironfan::Dsl::MachineManifest.
-          receive(environment: node['chef_environment'],
+          receive(environment: node.chef_environment,
                   name: instance,
                   cluster_name: cluster_name,
                   facet_name: facet_name,

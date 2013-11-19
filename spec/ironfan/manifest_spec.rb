@@ -21,5 +21,9 @@ describe Ironfan::Dsl::MachineManifest do
     it 'when those values are contained in hash within its serialization' do
       comparable_manifest(pow: {a: 'a'}).should == comparable_manifest(pow: {'a' => :a})
     end
+    it 'correctly stores the chef environment' do
+      node = Chef::Node.json_create('chef_environment' => 'buzi', 'recipes' => [])
+      Ironfan::Dsl::MachineManifest.from_remote(nil, nil, nil, node, nil, nil, nil, nil, nil).environment.to_s.should == 'buzi'
+    end
   end
 end
