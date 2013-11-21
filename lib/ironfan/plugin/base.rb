@@ -54,21 +54,18 @@ module Ironfan
 
         def template plugin_name_parts, base_class=self, &blk
           plugin_name_parts = [*plugin_name_parts]
-          plugin_class = Class.new(base_class, &blk)
-          plugin_name = plugin_name_parts.first.to_sym
-          plugin_class.class_eval{ @plugin_name = plugin_name }
           full_name = plugin_name_parts.map(&:to_s).join('_').to_sym
+          plugin_name = plugin_name_parts.first.to_sym
+
+          plugin_class = Class.new(base_class, &blk)
+          plugin_class.class_eval{ @plugin_name = plugin_name }
+
           self.const_set(full_name.to_s.camelize.to_sym, plugin_class)
+
           @dest_class.class_eval do
             add_plugin(full_name, plugin_class)
             define_method(full_name) do |*args, &blk|
-              plugin_name, attrs =
-                case args.first
-                when Hash then [plugin_name, (args.first || {})]
-                when nil then [plugin_name, {}]
-                else raise TypeError.new("not a valid argument: #{args.first.inspect} of class #{args.first.class}")
-                end
-              plugin_class.plugin_hook self, attrs, plugin_name, full_name, &blk
+              plugin_class.plugin_hook self, (args.first || {}), plugin_name, full_name, &blk
             end
           end
           plugin_class
