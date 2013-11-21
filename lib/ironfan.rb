@@ -91,6 +91,18 @@ module Ironfan
     end
   end
 
+  def self.load_realm(name)
+    name = name.to_sym
+    raise ArgumentError, "Please supply a realm name" if name.to_s.empty?
+    return @@realms[name] if @@realms[name]
+
+    load_cluster_files
+
+    unless @@realms[name] then die("Couldn't find a realm definition for #{name} in #{cluster_path}") end
+
+    @@realms[name]
+  end
+
   #
   # Return cluster if it's defined. Otherwise, search Ironfan.cluster_path
   # for an eponymous file, load it, and return the cluster it defines.
@@ -104,16 +116,20 @@ module Ironfan
     raise ArgumentError, "Please supply a cluster name" if name.to_s.empty?
     return @@clusters[name] if @@clusters[name]
 
+    load_cluster_files
+
+    unless @@clusters[name] then die("Couldn't find a cluster definition for #{name} in #{cluster_path}") end
+
+    @@clusters[name]
+  end
+
+  def self.load_cluster_files
     cluster_path.each do |cp_dir|
       Dir[ File.join(cp_dir, '*.rb') ].each do |filename|
         Chef::Log.info("Loading cluster file #{filename}")
         require filename
       end
     end
-
-    unless @@clusters[name] then  die("Couldn't find a cluster definition for #{name} in #{cluster_path}") end
-
-    @@clusters[name]
   end
 
   #

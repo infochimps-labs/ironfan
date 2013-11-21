@@ -5,6 +5,10 @@ module Ironfan
       collection :facets,       Ironfan::Dsl::Facet,   :resolver => :deep_resolve
       include Ironfan::Plugin::Base; register_with Ironfan::Dsl::Realm
 
+      def children
+        facets.to_a + components.to_a
+      end
+
       def initialize(attrs={},&block)
         super
         self.cluster_role       Ironfan::Dsl::Role.new(:name => "#{attrs[:name]}-cluster")

@@ -32,6 +32,50 @@ describe Ironfan::Dsl::Realm do
     Ironfan.cluster(:foo_bar).facets[:baz].server(0).to_machine_manifest
   end
 
+  it 'should choose the widest possible cookbook contraints to satisfy all plugins' do
+    Ironfan::Dsl::Component.template(%w[bam pow]) do
+      cookbook_req 'bif', '>= 1.0.0'
+      def project(_) end
+    end
+
+    Ironfan::Dsl::Component.template(%w[jam wam]) do
+      cookbook_req 'bif', '>= 2.0.0'
+      def project(_) end
+    end
+
+    Ironfan.realm(:qux) do
+      cluster(:cuz) do
+        facet(:lix) do
+          bam_pow
+          jam_wam
+        end
+      end
+    end.cookbook_reqs['bif'].should == '>= 2.0.0'
+  end
+
+  it 'should complain when no cookbook constraints can satisfy all plugins' do
+    Ironfan::Dsl::Component.template(%w[bam pow]) do
+      cookbook_req 'bif', '~> 1.0.0'
+      def project(_) end
+    end
+
+    Ironfan::Dsl::Component.template(%w[jam wam]) do
+      cookbook_req 'bif', '>= 2.0.0'
+      def project(_) end
+    end
+
+    Ironfan.realm(:qux) do
+      cluster(:cuz) do
+        facet(:lix) do
+          bam_pow
+          jam_wam
+        end
+      end
+    end
+
+    expect{ Ironfan.realm(:qux).cookbook_reqs }.to raise_error
+  end
+
   it 'should create clusters that can be referenced later' do
     x = self
     Ironfan.realm :xx do

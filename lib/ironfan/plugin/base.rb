@@ -1,4 +1,5 @@
 require 'gorillib/model'
+require 'gorillib/builder'
 require 'gorillib/string/inflections'
 require 'gorillib/metaprogramming/concern'
 
@@ -19,6 +20,17 @@ module Ironfan
   end
 
   module Plugin
+    class CookbookRequirement
+      include Gorillib::Builder
+
+      magic :name, String
+      magic :constraint, String
+
+      def <=>(other)
+        self.name <=> other.name
+      end
+    end
+
     module Base
       extend Gorillib::Concern
 
@@ -34,7 +46,12 @@ module Ironfan
       end
 
       module ClassMethods
+        attr_reader :cookbook_reqs
         attr_reader :plugin_name
+
+        def cookbook_req name, constraint
+          (@cookbook_reqs ||= []) << CookbookRequirement.new(name: name, constraint: constraint)
+        end
 
         def from_node(node = NilCheckDelegate.new(nil))
           new(Hash[

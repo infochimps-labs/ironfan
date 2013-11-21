@@ -4,6 +4,10 @@ module Ironfan
     class Realm < Ironfan::Dsl::Compute
       collection :clusters,       Ironfan::Dsl::Cluster,   :resolver => :deep_resolve
 
+      def children
+        clusters.to_a
+      end
+
       magic :cluster_suffixes,    Whatever
 
       def initialize(attrs={},&block)

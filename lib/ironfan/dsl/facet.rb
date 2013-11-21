@@ -18,6 +18,10 @@ module Ironfan
         for i in 0 .. instances-1; server(i); end
       end
 
+      def children
+        servers.to_a + components.to_a
+      end
+
       def full_name()           "#{cluster_name}-#{name}";      end
 
       def self.plugin_hook owner, attrs, plugin_name, full_name, &blk
