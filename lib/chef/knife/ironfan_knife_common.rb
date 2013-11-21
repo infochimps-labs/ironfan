@@ -22,6 +22,17 @@ module Ironfan
       self.broker         = Ironfan.broker
     end
 
+    def run()
+      if ENV.has_key?('ICS_PLATFORM_ENV')
+        _run
+      else
+        env = {'ICS_PLATFORM_ENV' => @name_args.first.split(/[_-]/).first}
+        cmd = "bundle exec knife #{ARGV.join(' ')}"
+        ui.info("re-running `#{cmd}` with environment #{env.inspect}")
+        return Bundler.clean_exec(env, cmd)
+      end
+    end
+
     #
     # A slice of a cluster:
     #

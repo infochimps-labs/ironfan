@@ -114,7 +114,7 @@ class Chef
         exec "cssh "+session.servers_for.map{|server| server.user ? "#{server.user}@#{server.host}" : server.host}.join(" ")
       end
 
-      def run
+      def _run
         load_ironfan
         die(banner) if @name_args.empty?
         extend Chef::Mixin::Command

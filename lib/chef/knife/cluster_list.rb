@@ -36,7 +36,7 @@ class Chef
         :default     => false,
         :boolean     => true
       
-      def run
+      def _run
         load_ironfan
         configure_dry_run
 

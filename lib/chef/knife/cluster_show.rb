@@ -35,7 +35,7 @@ class Chef
         :default     => true,
         :boolean     => true
 
-      def run
+      def _run
         with_verbosity(1){ config[:include_terminated] = true }
         load_ironfan
         die(banner) if @name_args.empty?
