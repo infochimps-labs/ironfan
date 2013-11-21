@@ -1,5 +1,7 @@
 $:.unshift File.expand_path('../../lib', __FILE__)
 
+ENV['ICS_PLATFORM_ENV'] = 'unit_testing'
+
 require 'chef'
 require 'chef/knife'
 require 'ironfan'
