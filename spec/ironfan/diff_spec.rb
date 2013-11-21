@@ -73,5 +73,6 @@ describe Gorillib::DiffFormatter do
     TestDrawer.transform_ltor({a: [1]}, {a: [1,2]})
     TestDrawer.transform_ltor({a: [1]}, {a: [1,2]})
     TestDrawer.transform_ltor({a: [1], b: 3, c: {a: 1}, d: []}, {a: [1,2], c: [7,8], d: {a: 2}})
+    TestDrawer.transform_ltor([], [[1,2]])
   end
 end
