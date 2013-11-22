@@ -13,7 +13,8 @@ module Ironfan
       def initialize(attrs={},&block)
         cluster_names({})
         realm_name attrs[:name] if attrs[:name]
-        super
+        attrs[:environment] = realm_name unless attrs.has_key?(:environment)
+        super(attrs, &block)
       end
 
       def cluster(label, attrs={},&blk)

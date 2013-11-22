@@ -32,6 +32,10 @@ describe Ironfan::Dsl::Realm do
     Ironfan.cluster(:foo_bar).facets[:baz].server(0).to_machine_manifest
   end
 
+  it 'should choose its own name as its default environment' do
+    Ironfan.realm(:bar).environment.to_s.should == 'bar'
+  end
+
   it 'should choose the widest possible cookbook contraints to satisfy all plugins' do
     Ironfan::Dsl::Component.template(%w[bam pow]) do
       cookbook_req 'bif', '>= 1.0.0'
