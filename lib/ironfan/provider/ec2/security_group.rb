@@ -189,7 +189,8 @@ module Ironfan
           c_group = cloud.security_group(computer.server.cluster_name)
           c_group.authorized_by_group(c_group.name)
           facet_name = "#{computer.server.cluster_name}-#{computer.server.facet_name}"
-          cloud.security_group(facet_name)
+          f_group = cloud.security_group(facet_name)
+          f_group.authorized_by_group(f_group.name)
         end
 
         # Try an authorization, ignoring duplicates (this is easier than correlating).
