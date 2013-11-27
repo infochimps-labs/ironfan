@@ -29,6 +29,12 @@ class Chef
 
       banner "knife environment from realm        realm (options) - syncs a realm's environment"
 
+      option :dry_run,
+        :long        => "--dry-run",
+        :description => "Don't really run, just use mock calls",
+        :boolean     => true,
+        :default     => false
+
       def _run
         load_ironfan
         die(banner) unless @name_args.size == 1
@@ -37,7 +43,7 @@ class Chef
         # Load the cluster/facet/slice/whatever
         target = Ironfan.load_realm(* @name_args)
 
-        Chef::Environment.new.tap do |env|
+        env = Chef::Environment.new.tap do |env|
           env.name target.name
           env.description "Ironfan-created environment for #{target.name} realm"
           Chef::Log.info "pinning cookbooks in #{target.name} realm"
@@ -45,7 +51,9 @@ class Chef
             Chef::Log.info "  pinning cookbook #{cookbook} #{version}"
             env.cookbook cookbook, version
           end
-        end.save
+        end
+
+        env.save unless config[:dry_run]
       end
     end
   end
