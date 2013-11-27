@@ -128,6 +128,7 @@ module Ironfan
       Dir[ File.join(cp_dir, '*.rb') ].each do |filename|
         Chef::Log.info("Loading cluster file #{filename}")
         require filename
+        clusters.values.each{|cluster| cluster.source_file ||= filename}
       end
     end
   end

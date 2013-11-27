@@ -33,6 +33,8 @@ module Ironfan
       magic      :cluster_names, Whatever
       magic      :realm_name,    Symbol
 
+      field      :source_file,   String
+
       extend Gorillib::Concern
 
       def self._project compute, &blk
