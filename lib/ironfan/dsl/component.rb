@@ -6,11 +6,13 @@ module Ironfan
       include Ironfan::Plugin::Base; register_with Ironfan::Dsl::Compute
 
       field :cluster_name, Symbol
+      field :facet_name, Symbol
       field :realm_name, Symbol
       field :name, Symbol
 
       def initialize(attrs, &blk)
-        attrs.merge!(cluster_name: (attrs[:owner].cluster_name unless attrs[:owner].nil?),
+        attrs.merge!(facet_name: (attrs[:owner].name unless attrs[:owner].nil? or not attrs[:owner].is_a?(Facet)),
+                     cluster_name: (attrs[:owner].cluster_name unless attrs[:owner].nil?),
                      realm_name: (attrs[:owner].realm_name unless attrs[:owner].nil?))
         super attrs, &blk
       end
@@ -59,51 +61,82 @@ module Ironfan
 
       def announce(component_name)
         Chef::Log.debug("announced #{announce_name} for #{cluster_name}")
-        realm_announcements[[realm_name, component_name]] = cluster_name
-        announce_to_subscribers(component_name, cluster_name)
-      end
-
-      def announce_to_subscribers(component_name, cluster)
-        realm_subscriptions(component_name).each{|blk| blk.call cluster}
+        realm_announcements[[realm_name, component_name]] = [cluster_name, facet_name]
+        realm_subscriptions(component_name).each{|blk| blk.call(cluster_name, facet_name)}
       end
 
       def discover(component_name, &blk)
         if already_announced = realm_announcements[[realm_name, component_name]]
-          yield already_announced
+          yield *already_announced
         else
           Chef::Log.debug("#{cluster_name}: no one announced #{announce_name}. subscribing")
-          discover_by_subscription component_name, &blk
+          realm_subscriptions(component_name) << blk
         end
-      end
-
-      def discover_by_subscription(component_name, &blk)
-        realm_subscriptions(component_name) << blk
       end
     end
 
     module Discovery
       include Gorillib::Builder
+      extend Gorillib::Concern
 
       magic :server_cluster, Symbol
+      magic :bidirectional, :boolean, default: false
 
-      def set_discovery compute, keys
-        if server_cluster
-          _set_discovery(compute, full_server_cluster, keys)
-        else
-          discover(announce_name){|cluster| _set_discovery(compute, cluster, keys)}
+      (@_dependencies ||= []) << Gorillib::Builder
+
+      module ClassMethods
+        def default_to_bidirectional default=true
+          fields[:bidirectional].default = default
         end
       end
 
-      def _set_discovery compute, cluster, keys
-        discovery = {discovers: keys.reverse.inject(cluster){|hsh,key| {key => hsh}}}
+      def set_discovery compute, keys
+        if server_cluster
+          wire_to(compute, full_server_cluster, facet_name, keys)
+        else
+          discover(announce_name) do |cluster_name, facet_name|
+            wire_to(compute, cluster_name, facet_name, keys)
+          end
+        end
+      end
+
+      def wire_to compute, cluster_name, facet_name, keys
+        discovery = {discovers: keys.reverse.inject(cluster_name){|hsh,key| {key => hsh}}}
         (compute.facet_role || compute.cluster_role).override_attributes(discovery)
+
+        # FIXME: This is Ec2-specific and probably doesn't belong here.
+        compute.clouds.values.select{|x| x.is_a? Ec2}.each do |cloud|
+          client_group_v = client_group(compute)
+          server_group_v = server_group(cluster_name, facet_name)
+
+          group_edge(cloud, client_group_v, server_group_v)
+          group_edge(cloud, server_group_v, client_group_v) if bidirectional
+        end
+
         Chef::Log.debug("discovered #{announce_name} for #{cluster_name}: #{discovery}")
       end
 
       protected
 
+      def client_group(compute)
+        security_group(compute.cluster_name, (compute.name if compute.is_a?(Facet)))
+      end
+      
       def full_server_cluster
         "#{realm_name}_#{server_cluster}"
+      end
+
+      def group_edge(cloud, group_1, group_2)
+        cloud.security_group(group_1).authorize_group(group_2)
+        Chef::Log.debug("allowing access from security group #{group_1} to #{group_2}")
+      end
+
+      def security_group(cluster_name, facet_name)
+        facet_name ? [cluster_name, facet_name].join('-') : cluster_name
+      end
+
+      def server_group(cluster_name, facet_name)
+        security_group(cluster_name, facet_name)
       end
     end
 
