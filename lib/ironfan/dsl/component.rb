@@ -100,18 +100,16 @@ module Ironfan
         end
       end
 
-      def wire_to compute, cluster_name, facet_name, keys
+      def wire_to(compute, cluster_name, facet_name, keys)
         discovery = {discovers: keys.reverse.inject(cluster_name){|hsh,key| {key => hsh}}}
         (compute.facet_role || compute.cluster_role).override_attributes(discovery)
 
         # FIXME: This is Ec2-specific and probably doesn't belong here.
-        compute.clouds.values.select{|x| x.is_a? Ec2}.each do |cloud|
-          client_group_v = client_group(compute)
-          server_group_v = server_group(cluster_name, facet_name)
-
-          group_edge(cloud, client_group_v, server_group_v)
-          group_edge(cloud, server_group_v, client_group_v) if bidirectional
-        end
+        client_group_v = client_group(compute)
+        server_group_v = server_group(cluster_name, facet_name)
+        
+        group_edge(compute.cloud(:ec2), client_group_v, server_group_v)
+        group_edge(compute.cloud(:ec2), server_group_v, client_group_v) if bidirectional
 
         Chef::Log.debug("discovered #{announce_name} for #{cluster_name}: #{discovery}")
       end
@@ -128,7 +126,7 @@ module Ironfan
 
       def group_edge(cloud, group_1, group_2)
         cloud.security_group(group_1).authorize_group(group_2)
-        Chef::Log.debug("allowing access from security group #{group_1} to #{group_2}")
+        Chef::Log.debug("component.rb: allowing access from security group #{group_1} to #{group_2}")
       end
 
       def security_group(cluster_name, facet_name)
