@@ -23,14 +23,22 @@ module Ironfan
     end
 
     def run()
-      if ENV.has_key?('ICS_PLATFORM_ENV')
+      gemfile_v = gemfile(@name_args.first.split(/[_-]/).first)
+
+      if ENV['BUNDLE_GEMFILE'] == gemfile_v
+        _run
+      elsif not File.exist?(gemfile_v)
+        ui.info("no realm-specific Gemfile found. using default Gemfile.")
         _run
       else
-        env = {'ICS_PLATFORM_ENV' => @name_args.first.split(/[_-]/).first}
         cmd = "bundle exec knife #{ARGV.join(' ')}"
-        ui.info("re-running `#{cmd}` with environment #{env.inspect}")
-        return Bundler.clean_exec(env, cmd)
+        ui.info("re-running `#{cmd}` with BUNDLE_GEMFILE=#{gemfile_v}")
+        return Bundler.clean_exec({'BUNDLE_GEMFILE' => gemfile_v}, cmd)
       end
+    end
+
+    def gemfile(realm_or_cluster_name)
+      "Gemfile.#{realm_or_cluster_name}"
     end
 
     #
