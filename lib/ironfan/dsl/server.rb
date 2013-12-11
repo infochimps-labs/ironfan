@@ -4,6 +4,7 @@ module Ironfan
     class MachineManifest
       include Gorillib::Model
 
+      # base server fields
       field :environment, Symbol
       field :name, String
       field :cluster_name, String
@@ -14,40 +15,50 @@ module Ironfan
       field :cluster_override_attributes, Hash
       field :facet_default_attributes, Hash
       field :facet_override_attributes, Hash
-#      field :volumes, Array, of: Volume
 
-      # cloud fields 
-
+      # cloud fields
       field :cloud_name,                String
-
       field :availability_zones,        Array, default: []
       field :backing,                   String
-#      field :bits,                      Integer
-#      field :bootstrap_distro,          String
-#      field :chef_client_script,        String
-#      field :default_availability_zone, String
       field :elastic_load_balancers,    Array, of: Ironfan::Dsl::Ec2::ElasticLoadBalancer, default: []
       field :ebs_optimized,             :boolean
       field :flavor,                    String
       field :iam_server_certificates,   Array, of: Ironfan::Dsl::Ec2::IamServerCertificate, default: []
       field :image_id,                  String
-#      field :image_name,                String
-#      field :keypair,                   String
-#      field :monitoring,                String
-#      field :mount_ephemerals,          Hash
-#      field :permanent,                 :boolean
       field :placement_group,           String
-#      field :provider,                  Whatever
       field :elastic_ip,                String
       field :auto_elastic_ip,           String
       field :allocation_id,             String
       field :region,                    String
-#      field :security_groups,           Array, of: Ironfan::Dsl::Ec2::SecurityGroup
       field :ssh_user,                  String
-#      field :ssh_identity_dir,          String
       field :subnet,                    String
-#      field :validation_key,            String
       field :vpc,                       String
+
+      #-----------------------------------------------------------------------------------
+      # # FIXME: I haven't determined how to pull some of these fields
+      # #        in from the remote machines. Until I do so, I'm going
+      # #        to leave these commented out for now.
+      #
+      # # base server fields
+      #
+      # field :volumes, Array, of: Volume
+      #
+      # # cloud fields 
+      #
+      # field :bits,                      Integer
+      # field :bootstrap_distro,          String
+      # field :chef_client_script,        String
+      # field :default_availability_zone, String
+      # field :image_name,                String
+      # field :keypair,                   String
+      # field :monitoring,                String
+      # field :mount_ephemerals,          Hash
+      # field :permanent,                 :boolean
+      # field :provider,                  Whatever
+      # field :security_groups,           Array, of: Ironfan::Dsl::Ec2::SecurityGroup
+      # field :ssh_identity_dir,          String
+      # field :validation_key,            String
+      #-----------------------------------------------------------------------------------
 
       # Reconstruct machine manifest from a computer, pulling
       # information from remote sources as necessary.
