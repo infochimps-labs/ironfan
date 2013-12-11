@@ -94,9 +94,11 @@ module Ironfan
         if server_cluster
           wire_to(compute, full_server_cluster, facet_name, keys)
         else
-          discover(announce_name) do |cluster_name, facet_name|
-            wire_to(compute, cluster_name, facet_name, keys)
-          end
+          # I'm defanging automatic discovery for now.
+          raise StandardError.new("must explicitly specify a server_cluster for discovery")
+          # discover(announce_name) do |cluster_name, facet_name|
+          #   wire_to(compute, cluster_name, facet_name, keys)
+          # end
         end
       end
 
