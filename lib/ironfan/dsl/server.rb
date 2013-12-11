@@ -36,8 +36,11 @@ module Ironfan
 
       #-----------------------------------------------------------------------------------
       # # FIXME: I haven't determined how to pull some of these fields
-      # #        in from the remote machines. Until I do so, I'm going
-      # #        to leave these commented out for now.
+      # #        in from the remote machines. In fact, some of these
+      # #        will have to be omitted when comparing. Since
+      # #        they'll only be necessary when we refactor the
+      # #        backend to accept manifests for launch, I'm going
+      # #        to leave these commented out for now. --josh
       #
       # # base server fields
       #
@@ -97,7 +100,11 @@ module Ironfan
         launch_description = NilCheckDelegate.new(launch_description)
 
         result = Ironfan::Dsl::MachineManifest.
-          receive(environment: node.chef_environment,
+          receive(
+
+                  # base server fields
+
+                  environment: node.chef_environment,
                   name: instance,
                   cluster_name: cluster_name,
                   facet_name: facet_name,
@@ -126,8 +133,20 @@ module Ironfan
                   subnet: machine.subnet_id,
                   vpc: machine.vpc_id
 
-                  # not sure where to get these from the machine
-                  
+                  #-----------------------------------------------------------------------------------
+                  # # FIXME: I haven't determined how to pull some of these fields
+                  # #        in from the remote machines. In fact, some of these
+                  # #        will have to be omitted when comparing. Since
+                  # #        they'll only be necessary when we refactor the
+                  # #        backend to accept manifests for launch, I'm going
+                  # #        to leave these commented out for now. --josh
+                  #
+                  # # base server fields
+                  #
+                  # volume: local_manifest.volume
+                  #
+                  # # cloud fields 
+                  #
                   # bits: local_manifest.bits,
                   # bootstrap_distro: local_manifest.bootstrap_distro,
                   # chef_client_script: local_manifest.chef_client_script,                  
@@ -237,6 +256,9 @@ module Ironfan
       def to_machine_manifest
         cloud = clouds.each.to_a.first
         MachineManifest.receive(
+
+                                # base server fields
+
                                 environment: environment,
                                 name: name,
                                 cluster_name: cluster_name,
