@@ -69,6 +69,8 @@ module Ironfan
           groups_to_create         = [ ]
           authorizations_to_ensure = [ ]
 
+          computers.each{|comp| ensure_groups(comp) if Ec2.applicable(comp) } # Add facet and cluster security groups for the computer
+
           # First, deduce the list of all groups to which at least one instance belongs
           # We'll use this later to decide whether to create groups, or authorize access,
           # using a VPC security group or an EC2 security group.
@@ -76,7 +78,6 @@ module Ironfan
           groups_to_create << groups_that_should_exist
 
           computers.select { |computer| Ec2.applicable computer }.each do |computer|
-            ensure_groups(computer) # Add facet and cluster security groups for the computer
             cloud           = computer.server.cloud(:ec2)
             cluster_name    = computer.server.cluster_name
 
