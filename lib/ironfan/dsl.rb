@@ -8,8 +8,8 @@ module Ironfan
     end
 
     def self.cookbook_req name, constraint
-      default_cookbook_reqs <<
-        Ironfan::Plugin::CookbookRequirement.new(name: name, constraint: constraint)
+      default_cookbook_reqs << new_req(name, constraint)
+        
     end
 
     def join_req req1, req2
@@ -36,8 +36,7 @@ module Ironfan
     end
 
     def cookbook_req name, constraint
-      (@cookbook_reqs ||= []) <<
-        Ironfan::Plugin::CookbookRequirement.new(name: name, constraint: constraint)
+      (@cookbook_reqs ||= []) << self.class.new_req(name, constraint)
     end
 
     def children() [] end
@@ -119,12 +118,18 @@ module Ironfan
 
     #-----------------------------------------------------------------------------------------------
 
-    def bad_reqs req1, req2
+    def bad_reqs(req1, req2)
       raise ArgumentError.new("#{req1.name}: cannot reconcile #{req1.constraint} with #{req2.constraint}")
     end
 
     def child_cookbook_reqs
       children.map(&:_cookbook_reqs).flatten(1)
+    end
+
+    def self.new_req(name, constraint)
+      raise StandardError.new("Please don't use >= constraints. They're too vague!") if
+        constraint.start_with?('>=') and not @testing
+      Ironfan::Plugin::CookbookRequirement.new(name: name, constraint: constraint)
     end
 
     def shallow_cookbook_reqs
