@@ -128,7 +128,7 @@ module Ironfan
 
     def self.new_req(name, constraint)
       raise StandardError.new("Please don't use >= constraints. They're too vague!") if
-        constraint.start_with?('>=') and not @@testing
+        constraint.start_with?('>=') and not (@@testing ||= false)
       Ironfan::Plugin::CookbookRequirement.new(name: name, constraint: constraint)
     end
 
