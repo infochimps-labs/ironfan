@@ -17,6 +17,7 @@
 #
 
 require File.expand_path('ironfan_knife_common', File.dirname(File.realdirpath(__FILE__)))
+require 'yaml'
 
 class Chef
   class Knife
@@ -34,7 +35,7 @@ class Chef
         :default     => true,
         :boolean     => true
 
-      def run
+      def _run
         with_verbosity(1){ config[:include_terminated] = true }
         load_ironfan
         die(banner) if @name_args.empty?
@@ -46,6 +47,7 @@ class Chef
         dump_command_config
         dump_chef_config
         #
+
         target.each do |computer|
           dump_computer(computer)
         end
@@ -60,6 +62,11 @@ class Chef
         header = "Computer #{computer.name} (#{computer.class})"
         with_verbosity 1 do
           Chef::Log.info(header)
+
+          # Terminated instances don't have servers.
+          unless computer.server.nil?
+            Chef::Log.info(computer.server.canonical_machine_manifest_hash.to_yaml)
+          end
         end
         with_verbosity 2 do
           dump(header, computer.to_wire)
@@ -83,10 +90,6 @@ class Chef
       def dump(title, hsh)
         Chef::Log.info( ["", "*"*50, "", "#{title}: ", ""].join("\n") )
         Chef::Log.info( MultiJson.dump(hsh, pretty: true ) )
-      end
-
-      def with_verbosity(num)
-        yield if config[:verbosity] >= num
       end
 
     end

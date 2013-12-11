@@ -6,6 +6,7 @@ gem 'excon',         "~> 0.21.0"        # v0.22 breaks EC2 calls
 gem 'formatador',    "~> 0.2"
 gem 'gorillib',      "~> 0.5.0"
 gem 'rbvmomi'
+gem 'diff-lcs',      "~> 1.2.5"
 
 # Everything in the world is being a stupid dick about JSON versions. Pin it
 #   to the one that doesn't seem to angrify everyone.

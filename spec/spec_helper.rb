@@ -1,6 +1,7 @@
 $:.unshift File.expand_path('../../lib', __FILE__)
 require 'chef'
 require 'chef/knife'
+require 'ironfan'
 require 'fog'
 Fog.mock!
 Fog::Mock.delay = 0
@@ -36,3 +37,17 @@ end
 require 'chef_zero/server'
 server = ChefZero::Server.new(port: 4000)
 server.start_background
+
+def uncreate_plugin(plugin_class, target_class)
+  target_class.registry.clear
+  plugin_class.instance_eval{ remove_const :BazBif }
+end
+
+class Foo
+end
+
+class MyPlugin
+  include Ironfan::Plugin::Base; register_with Foo
+
+  def self.plugin_hook(*_) end
+end

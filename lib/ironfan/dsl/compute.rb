@@ -1,3 +1,5 @@
+require 'gorillib/metaprogramming/concern'
+
 module Ironfan
   class Dsl
 
@@ -16,6 +18,7 @@ module Ironfan
       field      :name,         String
 
       # Resolve each of the following as a merge of their container's attributes and theirs
+      collection :components,   Ironfan::Dsl::Component,   :resolver => :merge_resolve, :key_method => :name
       collection :run_list_items, RunListItem,             :resolver => :merge_resolve, :key_method => :name
       collection :clouds,       Ironfan::Dsl::Cloud,       :resolver => :merge_resolve, :key_method => :name
       collection :volumes,      Ironfan::Dsl::Volume,      :resolver => :merge_resolve, :key_method => :name
@@ -29,6 +32,14 @@ module Ironfan
 
       magic      :cluster_names, Whatever
       magic      :realm_name,    Symbol
+
+      field      :source_file,   String
+
+      extend Gorillib::Concern
+
+      def self._project compute, &blk
+        compute.around &blk
+      end
 
       def initialize(attrs={},&block)
         self.underlay   = attrs[:owner] if attrs[:owner]
@@ -89,8 +100,18 @@ module Ironfan
         raise "run_list placement must be one of :first, :normal, :last or nil (also means :normal)" unless [:first, :last, :own, nil].include?(placement)
         placement = :normal if placement.nil?
         @@run_list_rank += 1
+        # Rank is a global order that tells what order this was encountered in. 
         run_list_items[item] = { :name => item, :rank => @@run_list_rank, :placement => placement }
       end
+
+      def around &blk
+        before
+        instance_eval(&blk)
+        after
+      end
+
+      def after() end
+      def before() end
     end
 
   end

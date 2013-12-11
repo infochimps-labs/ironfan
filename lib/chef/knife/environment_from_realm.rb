@@ -17,43 +17,43 @@
 #
 
 require File.expand_path('ironfan_knife_common', File.dirname(File.realdirpath(__FILE__)))
+require 'yaml'
 
 class Chef
   class Knife
-    class ClusterList < Knife
+    class EnvironmentFromRealm < Knife
       include Ironfan::KnifeCommon
-
       deps do
-        require 'formatador'
+        Ironfan::KnifeCommon.load_deps
       end
 
-      banner 'knife cluster list (options)'
+      banner "knife environment from realm        realm (options) - syncs a realm's environment"
 
-      option :facets,
-        :long        => '--with-facets',
-        :short       => '-f',
-        :description => 'List cluster facets along with names and paths',
-        :default     => false,
-        :boolean     => true
-      
+      option :dry_run,
+        :long        => "--dry-run",
+        :description => "Don't really run, just use mock calls",
+        :boolean     => true,
+        :default     => false
+
       def _run
         load_ironfan
+        die(banner) unless @name_args.size == 1
         configure_dry_run
-        Ironfan.load_cluster_files
 
-        data = Ironfan.clusters.values.map do |cluster|
-          name, path = [cluster.name, cluster.source_file]
-          as_table = { :cluster => name, :path => path }
-          if config[:facets]
-            facets = Ironfan.load_cluster(name).facets.to_a.map(&:name).join(', ')
-            as_table.merge!(:facets => facets)
+        # Load the cluster/facet/slice/whatever
+        target = Ironfan.load_realm(* @name_args)
+
+        env = Chef::Environment.new.tap do |env|
+          env.name target.environment
+          env.description "Ironfan-created environment for #{target.name} realm"
+          Chef::Log.info "pinning cookbooks in #{target.name} realm"
+          target.cookbook_reqs.each do |cookbook, version|
+            Chef::Log.info "  pinning cookbook #{cookbook} #{version}"
+            env.cookbook cookbook, version
           end
-          as_table
         end
 
-        ui.info "Cluster Path: #{ Ironfan.cluster_path.join ", " }"
-        headers = config[:facets] ? [:cluster, :facets, :path] : [:cluster, :path] 
-        Formatador.display_compact_table(data, headers)
+        env.save unless config[:dry_run]
       end
     end
   end

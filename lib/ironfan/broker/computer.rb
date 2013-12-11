@@ -76,6 +76,9 @@ module Ironfan
         ensure_dependencies
         iaas_provider.machine_class.create! self
         node.announce_state :started
+        server.to_machine_manifest.components.each do |component|
+          component.announce_to(node)
+        end
         save
         self
       end
