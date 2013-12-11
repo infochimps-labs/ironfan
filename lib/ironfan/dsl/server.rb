@@ -161,6 +161,7 @@ module Ironfan
                   # ssh_user: local_manifest.ssh_user,
                   # ssh_identity_dir: local_manifest.ssh_identity_dir,
                   # validation_key: local_manifest.validation_key,
+                  #-----------------------------------------------------------------------------------
                   )
       end
 
