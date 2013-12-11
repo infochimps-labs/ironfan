@@ -2,6 +2,8 @@
 require 'gorillib/builder'
 require 'gorillib/resolution'
 
+require 'gorillib/nil_check_delegate'
+
 # Pre-declaration of class hierarchy
 require 'ironfan/headers'
 

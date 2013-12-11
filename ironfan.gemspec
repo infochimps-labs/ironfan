@@ -44,6 +44,7 @@ Gem::Specification.new do |s|
     "lib/chef/knife/bootstrap/ubuntu10.04-ironfan.erb",
     "lib/chef/knife/bootstrap/ubuntu12.04-ironfan.erb",
     "lib/chef/knife/cluster_bootstrap.rb",
+    "lib/chef/knife/cluster_diff.rb",
     "lib/chef/knife/cluster_kick.rb",
     "lib/chef/knife/cluster_kill.rb",
     "lib/chef/knife/cluster_launch.rb",
@@ -57,6 +58,8 @@ Gem::Specification.new do |s|
     "lib/chef/knife/cluster_sync.rb",
     "lib/chef/knife/ironfan_knife_common.rb",
     "lib/chef/knife/ironfan_script.rb",
+    "lib/gorillib/diff.rb",
+    "lib/gorillib/nil_check_delegate.rb",
     "lib/gorillib/resolution.rb",
     "lib/ironfan.rb",
     "lib/ironfan/broker.rb",
@@ -151,18 +154,20 @@ Gem::Specification.new do |s|
     "spec/integration/spec_helper.rb",
     "spec/integration/spec_helper/launch_cluster.rb",
     "spec/ironfan/cluster_spec.rb",
+    "spec/ironfan/diff_spec.rb",
     "spec/ironfan/ec2/cloud_provider_spec.rb",
     "spec/ironfan/ec2/elb_spec.rb",
     "spec/ironfan/ec2/security_group_spec.rb",
     "spec/spec_helper.rb",
     "spec/spec_helper/dummy_chef.rb",
+    "spec/spec_helper/dummy_diff_drawer.rb",
     "spec/test_config.rb",
     "tasks/chef_config.rake"
   ]
   s.homepage = "http://infochimps.com/labs"
   s.licenses = ["apachev2"]
   s.require_paths = ["lib"]
-  s.rubygems_version = "1.8.23"
+  s.rubygems_version = "1.8.25"
   s.summary = "Infochimps' lightweight cloud orchestration toolkit, built on top of Chef."
   s.test_files = ["spec/fixtures/gunbai.rb", "spec/fixtures/ec2/elb/snakeoil.key", "spec/fixtures/ec2/elb/snakeoil.crt", "spec/fixtures/gunbai_slice.json", "spec/fixtures/knife/knife.rb", "spec/test_config.rb", "spec/ironfan/ec2/cloud_provider_spec.rb", "spec/ironfan/ec2/elb_spec.rb", "spec/ironfan/ec2/security_group_spec.rb", "spec/ironfan/cluster_spec.rb", "spec/spec_helper.rb", "spec/spec_helper/dummy_chef.rb", "spec/chef/cluster_bootstrap_spec.rb", "spec/chef/cluster_launch_spec.rb", "spec/integration/spec/elb_build_spec.rb", "spec/integration/spec/simple_cluster_spec.rb", "spec/integration/spec_helper.rb", "spec/integration/minimal-chef-repo/chefignore", "spec/integration/minimal-chef-repo/roles/systemwide.rb", "spec/integration/minimal-chef-repo/environments/_default.json", "spec/integration/minimal-chef-repo/knife/credentials/knife-org.rb", "spec/integration/minimal-chef-repo/knife/knife.rb", "spec/integration/spec_helper/launch_cluster.rb"]
 
@@ -176,6 +181,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<formatador>, ["~> 0.2"])
       s.add_runtime_dependency(%q<gorillib>, ["~> 0.5.0"])
       s.add_runtime_dependency(%q<rbvmomi>, [">= 0"])
+      s.add_runtime_dependency(%q<diff-lcs>, ["~> 1.2.5"])
       s.add_runtime_dependency(%q<json>, ["= 1.5.4"])
       s.add_development_dependency(%q<bundler>, ["~> 1.0"])
       s.add_development_dependency(%q<rake>, [">= 0"])
@@ -190,6 +196,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<formatador>, ["~> 0.2"])
       s.add_dependency(%q<gorillib>, ["~> 0.5.0"])
       s.add_dependency(%q<rbvmomi>, [">= 0"])
+      s.add_dependency(%q<diff-lcs>, ["~> 1.2.5"])
       s.add_dependency(%q<json>, ["= 1.5.4"])
       s.add_dependency(%q<bundler>, ["~> 1.0"])
       s.add_dependency(%q<rake>, [">= 0"])
@@ -205,6 +212,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<formatador>, ["~> 0.2"])
     s.add_dependency(%q<gorillib>, ["~> 0.5.0"])
     s.add_dependency(%q<rbvmomi>, [">= 0"])
+    s.add_dependency(%q<diff-lcs>, ["~> 1.2.5"])
     s.add_dependency(%q<json>, ["= 1.5.4"])
     s.add_dependency(%q<bundler>, ["~> 1.0"])
     s.add_dependency(%q<rake>, [">= 0"])
