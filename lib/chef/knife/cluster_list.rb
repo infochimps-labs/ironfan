@@ -36,11 +36,13 @@ class Chef
         :default     => false,
         :boolean     => true
       
-      def run
+      def _run
         load_ironfan
         configure_dry_run
+        Ironfan.load_cluster_files
 
-        data = Ironfan.cluster_filenames.map do |name, path|
+        data = Ironfan.clusters.values.map do |cluster|
+          name, path = [cluster.name, cluster.source_file]
           as_table = { :cluster => name, :path => path }
           if config[:facets]
             facets = Ironfan.load_cluster(name).facets.to_a.map(&:name).join(', ')

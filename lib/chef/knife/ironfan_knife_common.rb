@@ -22,6 +22,25 @@ module Ironfan
       self.broker         = Ironfan.broker
     end
 
+    def run()
+      gemfile_v = gemfile(@name_args.first.split(/[_-]/).first)
+
+      if ENV['BUNDLE_GEMFILE'] == gemfile_v
+        _run
+      elsif not File.exist?(gemfile_v)
+        ui.info("no realm-specific Gemfile found. using default Gemfile.")
+        _run
+      else
+        cmd = "bundle exec knife #{ARGV.join(' ')}"
+        ui.info("re-running `#{cmd}` with BUNDLE_GEMFILE=#{gemfile_v}")
+        return Bundler.clean_exec({'BUNDLE_GEMFILE' => gemfile_v}, cmd)
+      end
+    end
+
+    def gemfile(realm_or_cluster_name)
+      "Gemfile.#{realm_or_cluster_name}"
+    end
+
     #
     # A slice of a cluster:
     #
@@ -249,5 +268,8 @@ module Ironfan
       Chef::Config[:environment] = environments.first
     end
 
+    def with_verbosity(num)
+      yield if config[:verbosity] >= num
+    end
   end
 end

@@ -35,7 +35,7 @@ class Chef
         :default     => true,
         :boolean     => true
 
-      def run
+      def _run
         load_ironfan
         die(banner) if @name_args.empty?
         configure_dry_run

@@ -36,7 +36,7 @@ module Ironfan
       :description => "Skip confirmation prompts on risky actions.",
       :boolean     => true
 
-    def run
+    def _run
       load_ironfan
 
       die(banner) if @name_args.empty?

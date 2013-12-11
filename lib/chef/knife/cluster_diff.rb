@@ -38,7 +38,7 @@ class Chef
         :long        => "--cache_file FILE",
         :description => "file to load chef information from, for testing purposes"
 
-      def run
+      def _run
         load_ironfan
         die(banner) if @name_args.empty?
         configure_dry_run
