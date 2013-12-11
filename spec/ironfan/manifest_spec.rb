@@ -23,7 +23,7 @@ describe Ironfan::Dsl::MachineManifest do
     end
     it 'correctly stores the chef environment' do
       node = Chef::Node.json_create('chef_environment' => 'buzi', 'recipes' => [])
-      Ironfan::Dsl::MachineManifest.from_remote(nil, nil, nil, node, nil, nil, nil, nil, nil).environment.to_s.should == 'buzi'
+      Ironfan::Dsl::MachineManifest.from_remote(nil, nil, nil, node, nil, nil, nil, nil).environment.to_s.should == 'buzi'
     end
   end
 end
