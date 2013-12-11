@@ -5,10 +5,14 @@ require 'gorillib/resolution'
 # Pre-declaration of class hierarchy
 require 'ironfan/headers'
 
+# Ironfan plugin mixin
+require 'ironfan/plugin/base'
+
 # DSL for cluster descriptions
 require 'ironfan/dsl'
 require 'ironfan/builder'
 
+require 'ironfan/dsl/component'
 require 'ironfan/dsl/compute'
 require 'ironfan/dsl/server'
 require 'ironfan/dsl/facet'
