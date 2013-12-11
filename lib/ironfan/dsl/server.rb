@@ -20,10 +20,8 @@ module Ironfan
       field :cloud_name,                String
       field :availability_zones,        Array, default: []
       field :backing,                   String
-      field :elastic_load_balancers,    Array, of: Ironfan::Dsl::Ec2::ElasticLoadBalancer, default: []
       field :ebs_optimized,             :boolean
       field :flavor,                    String
-      field :iam_server_certificates,   Array, of: Ironfan::Dsl::Ec2::IamServerCertificate, default: []
       field :image_id,                  String
       field :placement_group,           String
       field :elastic_ip,                String
@@ -52,6 +50,8 @@ module Ironfan
       # field :bootstrap_distro,          String
       # field :chef_client_script,        String
       # field :default_availability_zone, String
+      # field :elastic_load_balancers,    Array, of: Ironfan::Dsl::Ec2::ElasticLoadBalancer, default: []
+      # field :iam_server_certificates,   Array, of: Ironfan::Dsl::Ec2::IamServerCertificate, default: []
       # field :image_name,                String
       # field :keypair,                   String
       # field :monitoring,                String
@@ -78,7 +78,6 @@ module Ironfan
                     node,
                     computer.machine,
                     computer.server.clouds.to_a.first,
-                    Ironfan::Provider::Ec2::Machine.launch_description(computer),
                     get_role("#{cluster_name}-cluster"),
                     get_role("#{cluster_name}-#{facet_name}-facet")
                   )
@@ -90,14 +89,12 @@ module Ironfan
                            node,
                            machine,
                            cloud,
-                           launch_description,
                            cluster_role,
                            facet_role)
         machine = NilCheckDelegate.new(machine)
         cloud = NilCheckDelegate.new(cloud)
         cluster_role = NilCheckDelegate.new(cluster_role)
         facet_role = NilCheckDelegate.new(facet_role)
-        launch_description = NilCheckDelegate.new(launch_description)
 
         result = Ironfan::Dsl::MachineManifest.
           receive(
@@ -122,8 +119,6 @@ module Ironfan
                   availability_zones: [*machine.availability_zone],
                   ebs_optimized: machine.ebs_optimized,
                   flavor: machine.flavor_id,
-                  elastic_load_balancers: launch_description.fetch(:elastic_load_balancers),
-                  iam_server_certificates: launch_description.fetch(:iam_server_certificates),
                   image_id: machine.image_id,
                   keypair: machine.nilcheck_depth(1).key_pair.name,
                   monitoring: machine.monitoring,
@@ -151,7 +146,9 @@ module Ironfan
                   # bootstrap_distro: local_manifest.bootstrap_distro,
                   # chef_client_script: local_manifest.chef_client_script,                  
                   # default_availability_zone: local_manifest.default_availability_zone,
+                  # iam_server_certificates: launch_description.fetch(:iam_server_certificates),
                   # image_name: local_manifest.image_name,
+                  # elastic_load_balancers: launch_description.fetch(:elastic_load_balancers),
                   # mount_ephemerals: local_manifest.mount_ephemerals,
                   # permanent: local_manifest.permanent,
                   # provider: local_manifest.provider,
@@ -193,13 +190,13 @@ module Ironfan
       def self.get_node(node_name)
         Chef::Node.load(node_name)
       rescue Net::HTTPServerException => ex
-        {}
+        Chef::Node.new
       end
 
       def self.get_role(role_name)
         Chef::Role.load(role_name)
       rescue Net::HTTPServerException => ex
-        {}
+        Chef::Role.new
       end
 
       def self.remote_components(node)
