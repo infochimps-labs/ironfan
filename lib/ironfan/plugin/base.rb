@@ -74,18 +74,18 @@ module Ironfan
           full_name = plugin_name_parts.map(&:to_s).join('_').to_sym
           plugin_name = plugin_name_parts.first.to_sym
 
-          plugin_class = Class.new(base_class, &blk)
-          plugin_class.class_eval{ @plugin_name = plugin_name }
+          Class.new(base_class, &blk).tap do |plugin_class|
+            plugin_class.class_eval{ @plugin_name = plugin_name }
 
-          self.const_set(full_name.to_s.camelize.to_sym, plugin_class)
+            self.const_set(full_name.to_s.camelize.to_sym, plugin_class)
 
-          @dest_class.class_eval do
-            add_plugin(full_name, plugin_class)
-            define_method(full_name) do |*args, &blk|
-              plugin_class.plugin_hook self, (args.first || {}), plugin_name, full_name, &blk
+            @dest_class.class_eval do
+              add_plugin(full_name, plugin_class)
+              define_method(full_name) do |*args, &blk|
+                plugin_class.plugin_hook self, (args.first || {}), plugin_name, full_name, &blk
+              end
             end
           end
-          plugin_class
         end
       end
     end

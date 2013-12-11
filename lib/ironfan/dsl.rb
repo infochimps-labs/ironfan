@@ -45,9 +45,18 @@ module Ironfan
     end
 
     def _cookbook_reqs
-      ((self.class.cookbook_reqs                               if self.class.respond_to?(:cookbook_reqs)).to_a +
-       (self.children.map(&:_cookbook_reqs).flatten(1).compact if self.respond_to?(:children)).to_a).
-        group_by(&:name).map(&:last).map{|x| x.inject{|acc,nxt| join_req(acc,nxt)}}
+      cookbook_reqs = []
+
+      if self.class.respond_to?(:cookbook_reqs)
+        cookbook_reqs += self.class.cookbook_reqs.to_a
+      end
+      if self.respond_to?(:children)
+        cookbook_reqs += self.children.map(&:_cookbook_reqs).flatten(1).compact
+      end
+
+      cookbook_reqs.group_by(&:name).values.map do |group|
+        group.inject{|result, req| join_req(result, req)}
+      end
     end
 
     private

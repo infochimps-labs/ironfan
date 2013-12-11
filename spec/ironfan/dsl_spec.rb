@@ -66,6 +66,10 @@ describe Ironfan::Dsl do
         cookbook_req 'a', '>= 1.2.5'
         def project(*_) end
       end
+      Ironfan::Dsl::Component.template(%w[baz]) do
+        cookbook_req 'a', '>= 1.2.7'
+        def project(*_) end
+      end
       Ironfan.realm(:test) do
         cluster(:just_foo) do
           foo
@@ -73,12 +77,37 @@ describe Ironfan::Dsl do
         cluster(:foo_bar) do
           foo; bar
         end
+        cluster(:nest_foo_bar) do
+          foo
+          facet(:bar) do
+            bar
+          end
+        end
+        cluster(:baz) do
+          baz          
+        end
       end
     end
 
-    it 'correctly merges component versions' do
-      Ironfan.realm(:test).cluster(:just_foo).cookbook_reqs['a'].should == '>= 1.2.3'
-      Ironfan.realm(:test).cluster(:foo_bar).cookbook_reqs['a'].should == '>= 1.2.5'
+    after(:each) do
+      [:Foo, :Bar, :Baz].each{|x| Ironfan::Dsl::Component.send(:remove_const, x)}
+    end
+
+    it 'correctly merges version requirements in simple cases' do
+      Ironfan.realm(:test).tap do |realm|
+        realm.cluster(:just_foo).cookbook_reqs['a'].should == '>= 1.2.3'
+        realm.cluster( :foo_bar).cookbook_reqs['a'].should == '>= 1.2.5'
+      end
+    end
+
+    it 'correctly handles nested versions requirements' do
+      Ironfan.realm(:test).tap do |realm|
+        realm.cluster(:nest_foo_bar).tap do |cluster|
+          cluster            .cookbook_reqs['a'].should == '>= 1.2.5'
+          cluster.facet(:bar).cookbook_reqs['a'].should == '>= 1.2.5'
+        end
+        realm.cookbook_reqs['a'].should == '>= 1.2.7'
+      end
     end
   end
 end
