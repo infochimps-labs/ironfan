@@ -56,6 +56,7 @@ Gem::Specification.new do |s|
     "lib/chef/knife/cluster_start.rb",
     "lib/chef/knife/cluster_stop.rb",
     "lib/chef/knife/cluster_sync.rb",
+    "lib/chef/knife/environment_from_realm.rb",
     "lib/chef/knife/ironfan_knife_common.rb",
     "lib/chef/knife/ironfan_script.rb",
     "lib/gorillib/diff.rb",
@@ -155,9 +156,13 @@ Gem::Specification.new do |s|
     "spec/integration/spec_helper/launch_cluster.rb",
     "spec/ironfan/cluster_spec.rb",
     "spec/ironfan/diff_spec.rb",
+    "spec/ironfan/dsl_spec.rb",
     "spec/ironfan/ec2/cloud_provider_spec.rb",
     "spec/ironfan/ec2/elb_spec.rb",
     "spec/ironfan/ec2/security_group_spec.rb",
+    "spec/ironfan/manifest_spec.rb",
+    "spec/ironfan/plugin_spec.rb",
+    "spec/ironfan/realm_spec.rb",
     "spec/spec_helper.rb",
     "spec/spec_helper/dummy_chef.rb",
     "spec/spec_helper/dummy_diff_drawer.rb",
@@ -169,7 +174,7 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   s.rubygems_version = "1.8.25"
   s.summary = "Infochimps' lightweight cloud orchestration toolkit, built on top of Chef."
-  s.test_files = ["spec/fixtures/gunbai.rb", "spec/fixtures/ec2/elb/snakeoil.key", "spec/fixtures/ec2/elb/snakeoil.crt", "spec/fixtures/gunbai_slice.json", "spec/fixtures/knife/knife.rb", "spec/test_config.rb", "spec/ironfan/ec2/cloud_provider_spec.rb", "spec/ironfan/ec2/elb_spec.rb", "spec/ironfan/ec2/security_group_spec.rb", "spec/ironfan/cluster_spec.rb", "spec/spec_helper.rb", "spec/spec_helper/dummy_chef.rb", "spec/chef/cluster_bootstrap_spec.rb", "spec/chef/cluster_launch_spec.rb", "spec/integration/spec/elb_build_spec.rb", "spec/integration/spec/simple_cluster_spec.rb", "spec/integration/spec_helper.rb", "spec/integration/minimal-chef-repo/chefignore", "spec/integration/minimal-chef-repo/roles/systemwide.rb", "spec/integration/minimal-chef-repo/environments/_default.json", "spec/integration/minimal-chef-repo/knife/credentials/knife-org.rb", "spec/integration/minimal-chef-repo/knife/knife.rb", "spec/integration/spec_helper/launch_cluster.rb"]
+  s.test_files = ["spec/chef/cluster_bootstrap_spec.rb", "spec/chef/cluster_launch_spec.rb", "spec/fixtures/ec2/elb/snakeoil.crt", "spec/fixtures/ec2/elb/snakeoil.key", "spec/fixtures/gunbai.rb", "spec/fixtures/gunbai_slice.json", "spec/fixtures/knife/knife.rb", "spec/integration/minimal-chef-repo/chefignore", "spec/integration/minimal-chef-repo/environments/_default.json", "spec/integration/minimal-chef-repo/knife/credentials/knife-org.rb", "spec/integration/minimal-chef-repo/knife/knife.rb", "spec/integration/minimal-chef-repo/roles/systemwide.rb", "spec/integration/spec/elb_build_spec.rb", "spec/integration/spec/simple_cluster_spec.rb", "spec/integration/spec_helper/launch_cluster.rb", "spec/integration/spec_helper.rb", "spec/ironfan/cluster_spec.rb", "spec/ironfan/diff_spec.rb", "spec/ironfan/dsl_spec.rb", "spec/ironfan/ec2/cloud_provider_spec.rb", "spec/ironfan/ec2/elb_spec.rb", "spec/ironfan/ec2/security_group_spec.rb", "spec/ironfan/manifest_spec.rb", "spec/ironfan/plugin_spec.rb", "spec/ironfan/realm_spec.rb", "spec/spec_helper/dummy_chef.rb", "spec/spec_helper/dummy_diff_drawer.rb", "spec/spec_helper.rb", "spec/test_config.rb"]
 
   if s.respond_to? :specification_version then
     s.specification_version = 3
