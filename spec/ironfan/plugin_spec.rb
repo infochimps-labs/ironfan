@@ -58,9 +58,8 @@ describe Ironfan::Dsl::Component do
   end
 
   it 'should have its project method called by the plugin_hook' do
-    rspec_nest = self
     Ironfan.cluster(:foo) do
-      should(rspec_nest.receive(:role).with(:called_from_project, self))
+      should_receive(:role).with(:called_from_project, self)
       baz_bif
     end
   end

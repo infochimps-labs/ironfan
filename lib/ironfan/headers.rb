@@ -40,6 +40,7 @@ module Ironfan
 
   module Plugin
     class CookbookRequirement; end
+    module Base; end
   end
 
   class Provider < Builder
