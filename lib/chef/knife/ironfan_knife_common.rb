@@ -23,7 +23,7 @@ module Ironfan
     end
 
     def run()
-      gemfile_v = gemfile(@name_args.first.split(/[_-]/).first)
+      gemfile_v = gemfile(@name_args.first.to_s.split(/[_-]/).first)
 
       if ENV['BUNDLE_GEMFILE'] == gemfile_v
         _run
