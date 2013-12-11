@@ -15,7 +15,6 @@ module Ironfan
 
       # Get fully resolved servers, and build Computers using them
       computers = Computers.new(:cluster => cluster)
-
       #
       providers = computers.map{|c| c.providers.values }.flatten.uniq
       Ironfan.parallel(providers) do |provider|
