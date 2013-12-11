@@ -107,32 +107,5 @@ describe Ironfan::Dsl::Component do
 
       make_plugin_pair(:bam); make_plugin_pair(:pow)
     end
-
-    it 'automatically discovers announcements within realms' do
-      Ironfan.realm(:wap) do
-        cluster(:foo){ bam_client; pow_server }
-        cluster(:bar){ bam_server; pow_client }
-
-        cluster(:foo).cluster_role.override_attributes[:discovers].should == {bam: :wap_bar}
-        cluster(:bar).cluster_role.override_attributes[:discovers].should == {pow: :wap_foo}
-      end
-    end
-
-    it 'automatically configures security groups during discovery' do
-      Ironfan.realm(:wap) do
-        cloud(:ec2)
-
-        cluster(:foo){ bam_client; pow_server }
-        cluster(:bar){ bam_server; pow_client }
-      end.resolve!
-
-      rspec = self
-
-      foo_group = Ironfan.realm(:wap).cluster(:foo).cloud(:ec2).security_group('wap_foo')
-      bar_group = Ironfan.realm(:wap).cluster(:bar).cloud(:ec2).security_group('wap_bar')
-
-      foo_group.group_authorized.should include('wap_bar')
-      bar_group.group_authorized.should include('wap_foo')
-    end
   end
 end
