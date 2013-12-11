@@ -49,10 +49,6 @@ module Ironfan
         attr_reader :cookbook_reqs
         attr_reader :plugin_name
 
-        def cookbook_req name, constraint
-          (@cookbook_reqs ||= []) << CookbookRequirement.new(name: name, constraint: constraint)
-        end
-
         def from_node(node = NilCheckDelegate.new(nil))
           new(Hash[
                    fields.select{|_,x| x.node_attr}.map do |_,x|
