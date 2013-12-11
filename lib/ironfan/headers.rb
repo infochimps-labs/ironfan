@@ -15,9 +15,11 @@ module Ironfan
   end
 
   class Dsl < Builder
+    class Component < Ironfan::Dsl; end
     class Compute < Ironfan::Dsl; end
     class Cluster < Ironfan::Dsl::Compute; end
     class Facet < Ironfan::Dsl::Compute; end
+    class Realm < Ironfan::Dsl::Compute; end
     class Server < Ironfan::Dsl::Compute; end
 
     class Role < Ironfan::Dsl; end
@@ -34,6 +36,11 @@ module Ironfan
     class Rds < Cloud
       class SecurityGroup < Ironfan::Dsl; end
     end
+  end
+
+  module Plugin
+    class CookbookRequirement; end
+    module Base; end
   end
 
   class Provider < Builder
