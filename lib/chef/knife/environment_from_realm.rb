@@ -44,7 +44,7 @@ class Chef
         target = Ironfan.load_realm(* @name_args)
 
         env = Chef::Environment.new.tap do |env|
-          env.name target.environment
+          env.name target.environment.to_s
           env.description "Ironfan-created environment for #{target.name} realm"
           Chef::Log.info "pinning cookbooks in #{target.name} realm"
           target.cookbook_reqs.each do |cookbook, version|
