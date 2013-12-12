@@ -87,10 +87,15 @@ describe Ironfan::Dsl::Component do
 
   context 'when announcing' do
     before (:each) do
-      def make_plugin(name, server_b)
+      def make_plugin(name, server_b, bidirectional)
         Ironfan::Dsl::Component.template([name, server_b ? 'server' : 'client']) do
           include Ironfan::Dsl::Component::Announcement if server_b
           include Ironfan::Dsl::Component::Discovery    if not server_b
+
+          if bidirectional and not server_b
+            STDERR.puts("defaulting #{name} to bidirectional")
+            default_to_bidirectional
+          end
 
           if server_b
             def project(compute)
@@ -103,9 +108,63 @@ describe Ironfan::Dsl::Component do
         end
       end
 
-      def make_plugin_pair(name) make_plugin(name, true); make_plugin(name, false); end
+      def make_plugin_pair(name, bidirectional = false)
+        make_plugin(name, true,  bidirectional);
+        make_plugin(name, false, bidirectional);
+      end
 
-      make_plugin_pair(:bam); make_plugin_pair(:pow)
+      make_plugin_pair(:bam)
+      make_plugin_pair(:pow)
+      make_plugin_pair(:zap, true)
+
+      Ironfan.realm(:wap) do
+        cloud(:ec2)
+
+        cluster(:foo) do
+          bam_client{ server_cluster :bar }
+          pow_server
+        end
+
+        cluster(:bar) do
+          bam_server
+          pow_client{ server_cluster :foo }
+        end
+
+        cluster(:baz) do
+          zap_client{ server_cluster :bif }
+        end
+
+        cluster(:bif) do
+          zap_server
+        end
+      end.resolve!
+    end
+
+    after(:each) do
+      [:BamServer, :BamClient, :PowServer,
+       :PowClient, :ZapClient, :ZapServer].each do |class_name|
+        Ironfan::Dsl::Component.send(:remove_const, class_name)
+      end
+    end
+
+    it 'configures the correct security groups during discovery' do
+      foo_group = Ironfan.realm(:wap).cluster(:foo).cloud(:ec2).security_group('wap_foo')
+      bar_group = Ironfan.realm(:wap).cluster(:bar).cloud(:ec2).security_group('wap_bar')
+
+      foo_group.group_authorized_by.should include('wap_bar')
+      bar_group.group_authorized_by.should include('wap_foo')
+    end
+
+    it 'configures the correct security groups during bidirectional discovery' do
+      baz_group = Ironfan.realm(:wap).cluster(:baz).cloud(:ec2).security_group('wap_baz')
+      bif_group = Ironfan.realm(:wap).cluster(:bif).cloud(:ec2).security_group('wap_bif')
+
+      baz_group.group_authorized_by.should include('wap_bif')
+      baz_group.group_authorized.should    include('wap_bif')
+    end
+
+    it 'does not configure extra security groups during bidirectional discovery' do
+      Ironfan.realm(:wap).cluster(:baz).cloud(:ec2).security_groups.keys.should_not include('wap_bif')
     end
   end
 end
