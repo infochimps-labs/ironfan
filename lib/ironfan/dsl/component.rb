@@ -86,7 +86,7 @@ module Ironfan
 
       module ClassMethods
         def default_to_bidirectional default=true
-          fields[:bidirectional].default = default
+          magic :bidirectional, :boolean, default: default
         end
       end
 
@@ -109,9 +109,9 @@ module Ironfan
         # FIXME: This is Ec2-specific and probably doesn't belong here.
         client_group_v = client_group(compute)
         server_group_v = server_group(cluster_name, facet_name)
-        
-        group_edge(compute.cloud(:ec2), client_group_v, server_group_v)
-        group_edge(compute.cloud(:ec2), server_group_v, client_group_v) if bidirectional
+
+        group_edge(compute.cloud(:ec2), client_group_v, :authorized_by_group, server_group_v)
+        group_edge(compute.cloud(:ec2), client_group_v, :authorize_group,     server_group_v) if bidirectional
 
         Chef::Log.debug("discovered #{announce_name} for #{cluster_name}: #{discovery}")
       end
@@ -126,8 +126,8 @@ module Ironfan
         "#{realm_name}_#{server_cluster}"
       end
 
-      def group_edge(cloud, group_1, group_2)
-        cloud.security_group(group_1).authorize_group(group_2)
+      def group_edge(cloud, group_1, method, group_2)
+        cloud.security_group(group_1).send(method, group_2)
         Chef::Log.debug("component.rb: allowing access from security group #{group_1} to #{group_2}")
       end
 
