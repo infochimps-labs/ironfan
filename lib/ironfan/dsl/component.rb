@@ -92,23 +92,23 @@ module Ironfan
 
       def set_discovery compute, keys
         if server_cluster
-          wire_to(compute, full_server_cluster, facet_name, keys)
+          wire_to(compute, full_server_cluster, keys)
         else
           # I'm defanging automatic discovery for now.
           raise StandardError.new("must explicitly specify a server_cluster for discovery")
           # discover(announce_name) do |cluster_name, facet_name|
-          #   wire_to(compute, cluster_name, facet_name, keys)
+          #   wire_to(compute, [cluster_name, facet_name].join('-'), keys)
           # end
         end
       end
 
-      def wire_to(compute, cluster_name, facet_name, keys)
-        discovery = {discovers: keys.reverse.inject(cluster_name){|hsh,key| {key => hsh}}}
+      def wire_to(compute, full_server_cluster_v, keys)
+        discovery = {discovers: keys.reverse.inject(full_server_cluster_v){|hsh,key| {key => hsh}}}
         (compute.facet_role || compute.cluster_role).override_attributes(discovery)
 
         # FIXME: This is Ec2-specific and probably doesn't belong here.
         client_group_v = client_group(compute)
-        server_group_v = server_group(cluster_name, facet_name)
+        server_group_v = security_group(full_server_cluster_v)
 
         group_edge(compute.cloud(:ec2), client_group_v, :authorized_by_group, server_group_v)
         group_edge(compute.cloud(:ec2), client_group_v, :authorize_group,     server_group_v) if bidirectional
@@ -131,12 +131,8 @@ module Ironfan
         Chef::Log.debug("component.rb: allowing access from security group #{group_1} to #{group_2}")
       end
 
-      def security_group(cluster_name, facet_name)
-        facet_name ? [cluster_name, facet_name].join('-') : cluster_name
-      end
-
-      def server_group(cluster_name, facet_name)
-        security_group(cluster_name, facet_name)
+      def security_group(*target_components)
+        target_components.compact.join('-')
       end
     end
 

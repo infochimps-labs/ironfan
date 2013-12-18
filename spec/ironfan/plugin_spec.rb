@@ -115,6 +115,7 @@ describe Ironfan::Dsl::Component do
       make_plugin_pair(:bam)
       make_plugin_pair(:pow)
       make_plugin_pair(:zap, true)
+      make_plugin_pair(:bop)
 
       Ironfan.realm(:wap) do
         cloud(:ec2)
@@ -136,12 +137,26 @@ describe Ironfan::Dsl::Component do
         cluster(:bif) do
           zap_server
         end
+
+        cluster(:bam) do
+          facet(:wak) do
+            bop_client{ server_cluster :bop }
+          end
+        end
+
+        cluster(:bop) do
+          facet(:pow) do
+            bop_server
+          end
+        end
+
       end.resolve!
     end
 
     after(:each) do
-      [:BamServer, :BamClient, :PowServer,
-       :PowClient, :ZapClient, :ZapServer].each do |class_name|
+      [:BamServer, :BamClient, :PowServer, :PowClient,
+       :ZapClient, :ZapServer, :BopServer, :BopClient,
+       ].each do |class_name|
         Ironfan::Dsl::Component.send(:remove_const, class_name)
       end
     end
@@ -165,5 +180,11 @@ describe Ironfan::Dsl::Component do
     it 'does not configure extra security groups during bidirectional discovery' do
       Ironfan.realm(:wap).cluster(:baz).cloud(:ec2).security_groups.keys.should_not include('wap_bif')
     end
+
+    it 'correctly sets the server cluster even when the client and server facets differ' do
+      bam_wak_group = Ironfan.realm(:wap).cluster(:bam).facet(:wak).cloud(:ec2).security_group('wap_bam-wak')
+      bam_wak_group.group_authorized_by.should include('wap_bop')
+    end
+
   end
 end
