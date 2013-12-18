@@ -92,6 +92,10 @@ describe Ironfan::Dsl::Component do
           include Ironfan::Dsl::Component::Announcement if server_b
           include Ironfan::Dsl::Component::Discovery    if not server_b
 
+          if bidirectional and not server_b
+            default_to_bidirectional
+          end
+
           if server_b
             def project(compute)
             end
