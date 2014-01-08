@@ -55,6 +55,12 @@ class Chef
         :boolean     => true,
         :default     => false
 
+      option :wait_ssh,
+        :long        => "--[no-]wait-ssh",
+        :description => "Wait for the target machine to open an ssh port",
+        :boolean     => true,
+        :default     => false
+
       def _run
         load_ironfan
         die(banner) if @name_args.empty?
@@ -110,10 +116,13 @@ class Chef
       def perform_after_launch_tasks(computer)
         # Try SSH
         unless config[:dry_run]
-          Ironfan.step(computer.name, 'trying ssh', :white)
-          # FIXME: This is EC2-specific, abstract it
-          address = computer.machine.vpc_id.nil? ? computer.machine.public_hostname : computer.machine.public_ip_address
-          nil until tcp_test_ssh(address){ sleep @initial_sleep_delay ||= 10  }
+          if config[:wait_ssh]
+            Ironfan.step(computer.name, 'trying ssh', :white)
+            # FIXME: This is EC2-specific, abstract it
+            address = computer.machine.vpc_id.nil? ? computer.machine.public_hostname : computer.machine.public_ip_address
+            Ironfan.step('address: ', address, :red)
+            nil until tcp_test_ssh(address){ sleep @initial_sleep_delay ||= 10  }
+          end
         end
         
         # Run Bootstrap

@@ -26,6 +26,7 @@ require 'ironfan/dsl/volume'
 
 require 'ironfan/dsl/cloud'
 require 'ironfan/dsl/ec2'
+require 'ironfan/dsl/openstack'
 require 'ironfan/dsl/vsphere'
 require 'ironfan/dsl/rds'
 
@@ -47,6 +48,11 @@ require 'ironfan/provider/ec2/security_group'
 require 'ironfan/provider/ec2/elastic_ip'
 require 'ironfan/provider/ec2/elastic_load_balancer'
 require 'ironfan/provider/ec2/iam_server_certificate'
+
+require 'ironfan/provider/openstack'
+require 'ironfan/provider/openstack/machine'
+require 'ironfan/provider/openstack/keypair'
+require 'ironfan/provider/openstack/security_group'
 
 require 'ironfan/provider/virtualbox'
 require 'ironfan/provider/virtualbox/machine'
