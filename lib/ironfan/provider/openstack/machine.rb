@@ -134,11 +134,11 @@ module Ironfan
         end
 
         def private_ip_address
-          addresses["vmnet"][0]["addr"] rescue nil
+          adaptee.private_ip_address rescue "unknown"
         end
 
         def public_ip_address
-          nil
+          adaptee.public_ip_address rescue "unknown"
         end
 
         def to_s
