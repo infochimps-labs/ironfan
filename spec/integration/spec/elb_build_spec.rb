@@ -26,7 +26,8 @@ Ironfan.cluster "elb" do
       elastic_load_balancer "simple-elb" do
         map_port('HTTP',   80, 'HTTP', 81)
         map_port('HTTPS', 443, 'HTTP', 81, 'snake-oil')
-        disallowed_ciphers %w[ RC4-SHA ]
+        disallowed_ciphers        %w[ RC4-SHA ]
+        cross_zone_load_balancing true
 
         health_check do
           ping_protocol       'HTTP'
@@ -84,6 +85,11 @@ launch_cluster 'elb' do |cluster, computers|
         iss = Ironfan::Provider::Ec2::IamServerCertificate.recall('ironfan-elb-snake-oil')
         @elb.listeners.map(&:ssl_id).include?(iss['Arn']).should be_true
       end
+
+      it "should have cross-zone load balancing enabled" do
+        @elb.cross_zone_load_balancing?.should be_true
+      end
+
     end
 
   end

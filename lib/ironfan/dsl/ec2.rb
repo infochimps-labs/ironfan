@@ -265,10 +265,12 @@ module Ironfan
           SEED-SHA
         ]
 
-        field  :name,               String
-        field  :port_mappings,      Array, :default => []
-        magic  :allowed_ciphers,    Array, :default => ALLOWED_SSL_CIPHERS
-        magic  :disallowed_ciphers, Array, :default => DISALLOWED_SSL_CIPHERS
+        field  :name,                      String
+        field  :port_mappings,             Array, :default => []
+        magic  :allowed_ciphers,           Array, :default => ALLOWED_SSL_CIPHERS
+        magic  :disallowed_ciphers,        Array, :default => DISALLOWED_SSL_CIPHERS
+        magic  :cross_zone_load_balancing, :boolean, :default => false
+
         member :health_check,       HealthCheck
 
         def map_port(load_balancer_protocol = 'HTTP', load_balancer_port = 80, internal_protocol = 'HTTP', internal_port = 80, iam_server_certificate = nil)

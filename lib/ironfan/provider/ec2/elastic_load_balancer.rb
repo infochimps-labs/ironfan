@@ -14,6 +14,7 @@ module Ironfan
           :policies,
           :register_instances,
           :source_group,
+          :cross_zone_load_balancing?,
           :to => :adaptee
 
         def self.shared?()       true;   end
@@ -82,7 +83,7 @@ module Ironfan
           # We'll need to know which computers are using this ELB. There must be some, or
           # we wouldn't be in this method.
           availability_zones = computers.map { |c| c.machine.availability_zone }.uniq.sort
-          health_check, listeners, ssl_policy = self.fog_elb_parameters(elb_name, computers.first)
+          health_check, listeners, ssl_policy, cross_zone = self.fog_elb_parameters(elb_name, computers.first)
 
           if start_elb
             Ironfan.step(elb_name, "creating elastic load balancer", :blue)
@@ -113,6 +114,10 @@ module Ironfan
           # Make sure SSL policy exists and is set on all SSL-enabled load balancer ports
           Ironfan.step(elb.name, "  syncing generated policy #{ssl_policy[:name]}", :blue)
           Ec2.elb.create_load_balancer_policy(elb.name, ssl_policy[:name], 'SSLNegotiationPolicyType', ssl_policy[:attributes])
+
+          # Set the cross-zone load-balancing policy
+          Ironfan.step(elb.name, "  setting cross-zone load-balancing policy to #{cross_zone}", :blue)
+          Ec2.elb.modify_load_balancer_attributes(elb.name, { 'CrossZoneLoadBalancing' => { 'Enabled' => cross_zone } } )
 
           # Did the listener configuration change?
           all_lb_ports = listeners.map { |l| l['LoadBalancerPort'] }.sort.uniq
@@ -226,8 +231,11 @@ module Ironfan
           # The SSL policy, if any, for this ELB
           ssl_policy = elb.ssl_policy_to_fog
 
+          # cross-zone load-balancing policy
+          cross_zone = elb.cross_zone_load_balancing
+
           # A list of parameters that can be used in Fog calls
-          [ health_check, listeners, ssl_policy ]
+          [ health_check, listeners, ssl_policy, cross_zone ]
         end
 
       end

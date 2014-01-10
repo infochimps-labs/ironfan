@@ -35,6 +35,11 @@
             disallowed_ciphers(%w[ AES128-SHA ])
             # PROTIP: The disallowed_ciphers call is usually unnecessary
 
+            # Enable the cross-zone load balancing feature so traffic is
+            # evenly distributed across servers regardless of their availability
+            # zone
+            cross_zone_load_balancing true
+
             # Health check that is made against ALL running instances
             health_check do
               ping_protocol       'HTTP'
@@ -97,6 +102,10 @@ The SSL policy control in Ironfan is very rudimentary. You may control which cip
 Note that the default behavior is to allow a standard "safe" list of ciphers supported by most modern browsers, and to disallow ciphers that are hypothetically vulnerable to the [BEAST attack](http://vnhacker.blogspot.com/2011/09/beast.html) and RC4 attacks (http://en.wikipedia.org/wiki/Transport_Layer_Security#RC4_attacks). You probably don't want or need to change it.
 
 NOTE: If you do call allowed_ciphers or disallowed_ciphers, you will be overriding the built-in defaults and will need to specify the complete list of allowed or disallowed ciphers instead of just the ones you want to add or remove from the list.
+
+## Cross-zone load balancing
+
+This defaults to false, which is AWS's default.  Setting it to true will tell the ELB to distribute load evenly across all instances, instead of balancing across availability zones.  [Cross-Zone Load Balancing](http://aws.amazon.com/about-aws/whats-new/2013/11/06/elastic-load-balancing-adds-cross-zone-load-balancing/)
 
 ## How do port mappings work?
 
