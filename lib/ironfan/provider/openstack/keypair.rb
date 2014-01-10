@@ -55,7 +55,7 @@ module Ironfan
           return if recall? name
           Ironfan.step(name, "creating key pair for #{name}", :blue)
           result = OpenStack.connection.create_key_pair(name)
-          private_key = result.body["keyMaterial"]
+          private_key = result.body["keypair"]["private_key"]
           load!  # Reload to get the native object
           recall(name).private_key = private_key
         end
