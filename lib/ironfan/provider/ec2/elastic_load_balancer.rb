@@ -195,7 +195,7 @@ module Ironfan
           end
 
           all_facet_sgs.map do |facet_sg|
-            self.patiently(facet_sg.name, Fog::Compute::AWS::Error, :ignore => Proc.new { |e| e.message =~ /InvalidPermission\.Duplicate/ }) do
+            self.patiently(facet_sg.name, Fog::Compute::AWS::Error, :ignore => Proc.new { |e| e.message =~ /\bDuplicate/ }) do
               facet_sg.authorize_port_range(1..65535, :group => { elb_sg['OwnerAlias'] => elb_sg['GroupName'] })
             end
           end
