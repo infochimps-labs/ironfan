@@ -59,7 +59,7 @@ class Chef
         :long        => "--[no-]wait-ssh",
         :description => "Wait for the target machine to open an ssh port",
         :boolean     => true,
-        :default     => false
+        :default     => true
 
       def _run
         load_ironfan

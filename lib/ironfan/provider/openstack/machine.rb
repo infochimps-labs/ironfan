@@ -80,7 +80,7 @@ module Ironfan
           not ['terminated', 'shutting-down'].include? state
         end
         def pending?
-          state == "pending"
+          state == "BUILD"
         end
         def running?
           state == "ACTIVE"
@@ -89,7 +89,7 @@ module Ironfan
           state == "stopping"
         end
         def stopped?
-          state == "stopped"
+          state == "SHUTOFF"
         end
 
         def start
