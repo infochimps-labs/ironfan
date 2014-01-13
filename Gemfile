@@ -1,8 +1,8 @@
 source "http://rubygems.org"
 
 gem 'chef',          "~> 10.16"
-gem 'fog',           "~> 1.2"
-gem 'excon',         "~> 0.21.0"        # v0.22 breaks EC2 calls
+gem 'fog',           "~> 1.19"
+gem 'excon',         "~> 0.31.0"
 gem 'formatador',    "~> 0.2"
 gem 'gorillib',      "~> 0.5.0"
 gem 'rbvmomi'
