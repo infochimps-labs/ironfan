@@ -296,10 +296,7 @@ module Ironfan
             :name                 => computer.name,
           }
 
-          # VPC security_groups can only be addressed by id (not name)
-          description[:security_group_ids] = cloud.security_groups.keys.map do |g|
-            g
-          end
+          description[:security_groups] = cloud.security_groups.keys
 
           #description[:iam_server_certificates] = cloud.iam_server_certificates.values.map do |cert|
           #  IamServerCertificate.recall(IamServerCertificate.full_name(computer, cert))
