@@ -36,6 +36,7 @@ module Ironfan
       magic :subnet,                    String
       magic :validation_key,            String,         :default => ->{ IO.read(Chef::Config.validation_key) rescue '' }
       magic :vpc,                       String
+      magic :dns_search_domain,         String,         :default => 'novalocal'
 
       def domain;                       vpc.nil? ? 'standard' : 'vpc';       end
 

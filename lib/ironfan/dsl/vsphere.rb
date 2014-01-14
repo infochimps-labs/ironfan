@@ -32,6 +32,7 @@ module Ironfan
       magic :virtual_disks,             Array,          :default => []
       magic :vsphere_datacenters,       Array,          :default => ['New Datacenter']
       magic :network, 			String,		:default => "VM Network"
+      magic :dns_search_domain,         String,         :default => 'internal'
 
       def image_info
         bit_str = "#{self.bits.to_i}-bit" # correct for legacy image info.
