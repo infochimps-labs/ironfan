@@ -176,14 +176,41 @@ module Ironfan
                        end)
       end
 
+      def canonical_hash
+        self.class.canonicalize(self.class.deep_stringify(self))
+      end
+
       private
 
-      def deep_stringify obj
+      def self.deep_stringify(obj)
         case obj
-        when Hash then Hash[obj.map{|k,v| [k.to_s, deep_stringify(v)]}]
-        when Array then obj.map{|x| deep_stringify(x)}
-        when Symbol then obj.to_s
-        else obj
+        when Array, Gorillib::ModelCollection
+          obj.map{|x| deep_stringify(x)}
+        when Ironfan::Dsl::Component
+          canonicalize(item.to_manifest)
+        when Gorillib::Builder, Gorillib::Model
+          deep_stringify(obj.to_wire.tap{|x| x.delete(:_type)})
+        when Hash
+          Hash[obj.map{|k,v| [k.to_s, deep_stringify(v)]}]
+        when Symbol
+          obj.to_s
+        else
+          obj
+        end
+      end
+
+      def self.canonicalize(item)
+        case item
+        when Array, Gorillib::ModelCollection
+          item.each.map{|i| canonicalize(i)}
+        when Ironfan::Dsl::Component
+          canonicalize(item.to_manifest)
+        when Gorillib::Builder, Gorillib::Model
+          canonicalize(item.to_wire.tap{|x| x.delete(:_type)})
+        when Hash then
+          Hash[item.sort.map{|k,v| [k, canonicalize(v)]}]
+        else
+          item
         end
       end
 
@@ -306,24 +333,7 @@ module Ironfan
       end
 
       def canonical_machine_manifest_hash
-        self.class.canonicalize(to_machine_manifest)
-      end
-
-      private
-
-      def self.canonicalize(item)
-        case item
-        when Array, Gorillib::ModelCollection
-          item.each.map{|i| canonicalize(i)}
-        when Ironfan::Dsl::Component
-          canonicalize(item.to_manifest)
-        when Gorillib::Builder, Gorillib::Model
-          canonicalize(item.to_wire.tap{|x| x.delete(:_type)})
-        when Hash then
-          Hash[item.sort.map{|k,v| [k, canonicalize(v)]}]
-        else
-          item
-        end
+        to_machine_manifest.canonical_hash
       end
     end
 
