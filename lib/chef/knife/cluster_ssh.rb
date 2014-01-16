@@ -62,6 +62,8 @@ class Chef
 
         @longest_ironfan_hostname = @hostname_to_ironfan_hostname.values.group_by(&:size).max.last[0].size
 
+        @action_nodes = Chef::Search::Query.new.search(:node, "node_name:#{@name_args[0]}*")[0]
+
         session_from_list(addresses)
       end
 
