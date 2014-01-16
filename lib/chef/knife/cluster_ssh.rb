@@ -53,11 +53,13 @@ class Chef
 
         (ui.fatal("No nodes returned from search!"); exit 10) if addresses.nil? || addresses.length == 0
 
-        @hostname_to_ironfan_hostname = Hash[
-          target.map do |c|
-            [c.machine.public_hostname, c.machine.tags['Name']]
-          end
-        ]
+        # Need to include both public host and public ip; sometimes these are different
+        @hostname_to_ironfan_hostname = target.to_a.inject({}) do |remap, c|
+          remap[c.machine.public_hostname]   = c.machine.tags['Name']
+          remap[c.machine.public_ip_address] = c.machine.tags['Name']
+          remap
+        end
+
         @longest_ironfan_hostname = @hostname_to_ironfan_hostname.values.group_by(&:size).max.last[0].size
 
         @action_nodes = Chef::Search::Query.new.search(:node, "node_name:#{@name_args[0]}*")[0]
