@@ -24,7 +24,14 @@ module Ironfan
         def self.expected_ids(computer)
           return unless computer.server
           openstack = computer.server.cloud(:openstack)
-          openstack.security_groups.to_a.map {|g| g.name }
+          server_groups = computer.server.security_groups
+          cloud_groups = openstack.security_groups
+
+          result = []
+          [server_groups, cloud_groups].each do |container|
+            container.each { |g| result.push(g.name) }
+          end
+          return result.uniq
         end
 
         def ip_permissions
@@ -87,40 +94,43 @@ module Ironfan
 
             # Iterate over all of the security group information, keeping track of
             # any groups that must exist and any authorizations that must be ensured
-            cloud.security_groups.values.each do |dsl_group|
+            [computer.server.security_groups, cloud.security_groups].each do |container|
+              
+              container.values.each do |dsl_group|
 
-              groups_to_create << dsl_group.name
+                groups_to_create << dsl_group.name
+                
+                groups_to_create << dsl_group.group_authorized
 
-              groups_to_create << dsl_group.group_authorized
+                groups_to_create << dsl_group.group_authorized_by
 
-              groups_to_create << dsl_group.group_authorized_by
+                authorizations_to_ensure << dsl_group.group_authorized.map do |other_group|
+                  {
+                    :grantor      => dsl_group.name,
+                    :grantee      => other_group,
+                    :grantee_type => :group,
+                    :range        => WIDE_OPEN,
+                  }
+                end
 
-              authorizations_to_ensure << dsl_group.group_authorized.map do |other_group|
-                {
-                  :grantor      => dsl_group.name,
-                  :grantee      => other_group,
-                  :grantee_type => :group,
-                  :range        => WIDE_OPEN,
-                }
-              end
+                authorizations_to_ensure << dsl_group.group_authorized_by.map do |other_group|
+                  {
+                    :grantor      => other_group,
+                    :grantee      => dsl_group.name,
+                    :grantee_type => :group,
+                    :range        => WIDE_OPEN,
+                  }
+                end
 
-              authorizations_to_ensure << dsl_group.group_authorized_by.map do |other_group|
-                {
-                  :grantor      => other_group,
-                  :grantee      => dsl_group.name,
-                  :grantee_type => :group,
-                  :range        => WIDE_OPEN,
-                }
-              end
-
-              authorizations_to_ensure << dsl_group.range_authorizations.map do |range_auth|
-                range, cidr, protocol = range_auth
-                {
-                  :grantor      => dsl_group.name,
-                  :grantee      => { :cidr_ip => cidr, :ip_protocol => protocol },
-                  :grantee_type => :cidr,
-                  :range        => range,
-                }
+                authorizations_to_ensure << dsl_group.range_authorizations.map do |range_auth|
+                  range, cidr, protocol = range_auth
+                  {
+                    :grantor      => dsl_group.name,
+                    :grantee      => { :cidr_ip => cidr, :ip_protocol => protocol },
+                    :grantee_type => :cidr,
+                    :range        => range,
+                  }
+                end
               end
             end
           end

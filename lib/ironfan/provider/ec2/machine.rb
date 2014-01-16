@@ -256,9 +256,13 @@ module Ironfan
           }
 
           # VPC security_groups can only be addressed by id (not name)
-          description[:security_group_ids] = cloud.security_groups.keys.map do |g|
-            SecurityGroup.recall( SecurityGroup.group_name_with_vpc(g,cloud.vpc) ).group_id
+          sec_group_ids = []
+          [computer.server.security_groups, cloud.security_groups].each do |container|
+            sec_group_ids += container.security_groups.keys.map do |g|
+              SecurityGroup.recall( SecurityGroup.group_name_with_vpc(g,cloud.vpc) ).group_id
+            end
           end
+          description[:security_group_ids] = sec_group_ids.uniq
 
           description[:iam_server_certificates] = cloud.iam_server_certificates.values.map do |cert|
             IamServerCertificate.recall(IamServerCertificate.full_name(computer, cert))

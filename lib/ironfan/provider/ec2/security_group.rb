@@ -22,6 +22,15 @@ module Ironfan
           return unless computer.server
           ec2 = computer.server.cloud(:ec2)
           ec2.security_groups.keys.map { |name| group_name_with_vpc(name,ec2.vpc) }.uniq
+          server_groups = computer.server.security_groups
+          cloud_groups = ec2.security_groups
+
+          result = []
+          [server_groups, cloud_groups].each do |container|
+            container.keys.each { |name| result.push( group_name_with_vpc(name,ec2.vpc) )}
+          end
+          return result.uniq
+
         end
 
         def name()
@@ -83,44 +92,46 @@ module Ironfan
 
             # Iterate over all of the security group information, keeping track of
             # any groups that must exist and any authorizations that must be ensured
-            cloud.security_groups.values.each do |dsl_group|
+            [computer.server.security_groups, cloud.security_groups].each do |container|
+              container.values.each do |dsl_group|
+                
+                groups_to_create << dsl_group.name
 
-              groups_to_create << dsl_group.name
-
-              groups_to_create << dsl_group.group_authorized.map do |other_group|
-                most_appropriate_group_name(other_group, cloud.vpc)
-              end
-
-              groups_to_create << dsl_group.group_authorized_by.map do |other_group|
-                most_appropriate_group_name(other_group, cloud.vpc)
-              end
-
-              authorizations_to_ensure << dsl_group.group_authorized.map do |other_group|
-                {
-                  :grantor      => most_appropriate_group_name(dsl_group.name, cloud.vpc),
-                  :grantee      => most_appropriate_group_name(other_group, cloud.vpc),
-                  :grantee_type => :group,
-                  :range        => WIDE_OPEN,
-                }
-              end
-
-              authorizations_to_ensure << dsl_group.group_authorized_by.map do |other_group|
-                {
-                  :grantor      => most_appropriate_group_name(other_group, cloud.vpc),
-                  :grantee      => most_appropriate_group_name(dsl_group.name, cloud.vpc),
-                  :grantee_type => :group,
-                  :range        => WIDE_OPEN,
-                }
-              end
-
-              authorizations_to_ensure << dsl_group.range_authorizations.map do |range_auth|
-                range, cidr, protocol = range_auth
-                {
-                  :grantor      => group_name_with_vpc(dsl_group.name, cloud.vpc),
-                  :grantee      => { :cidr_ip => cidr, :ip_protocol => protocol },
-                  :grantee_type => :cidr,
-                  :range        => range,
-                }
+                groups_to_create << dsl_group.group_authorized.map do |other_group|
+                  most_appropriate_group_name(other_group, cloud.vpc)
+                end
+                
+                groups_to_create << dsl_group.group_authorized_by.map do |other_group|
+                  most_appropriate_group_name(other_group, cloud.vpc)
+                end
+                
+                authorizations_to_ensure << dsl_group.group_authorized.map do |other_group|
+                  {
+                    :grantor      => most_appropriate_group_name(dsl_group.name, cloud.vpc),
+                    :grantee      => most_appropriate_group_name(other_group, cloud.vpc),
+                    :grantee_type => :group,
+                    :range        => WIDE_OPEN,
+                  }
+                end
+                
+                authorizations_to_ensure << dsl_group.group_authorized_by.map do |other_group|
+                  {
+                    :grantor      => most_appropriate_group_name(other_group, cloud.vpc),
+                    :grantee      => most_appropriate_group_name(dsl_group.name, cloud.vpc),
+                    :grantee_type => :group,
+                    :range        => WIDE_OPEN,
+                  }
+                end
+                
+                authorizations_to_ensure << dsl_group.range_authorizations.map do |range_auth|
+                  range, cidr, protocol = range_auth
+                  {
+                    :grantor      => group_name_with_vpc(dsl_group.name, cloud.vpc),
+                    :grantee      => { :cidr_ip => cidr, :ip_protocol => protocol },
+                    :grantee_type => :cidr,
+                    :range        => range,
+                  }
+                end
               end
             end
           end

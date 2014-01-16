@@ -30,7 +30,7 @@ module Ironfan
       magic :auto_elastic_ip,           String
       magic :allocation_id,             String
       magic :region,                    String,         :default => ->{ default_region }
-      collection :security_groups,      Ironfan::Dsl::OpenStack::SecurityGroup, :key_method => :name
+      collection :security_groups,      Ironfan::Dsl::SecurityGroup, :key_method => :name
       magic :ssh_user,                  String,         :default => ->{ image_info[:ssh_user] }
       magic :ssh_identity_dir,          String,         :default => ->{ Chef::Config.openstack_key_dir }
       magic :subnet,                    String
@@ -123,32 +123,6 @@ module Ironfan
           write_attribute :provider, Gorillib::Inflector.constantize(Gorillib::Inflector.camelize(obj.gsub(/\./, '/')))
         else
           super(obj)
-        end
-      end
-
-      class SecurityGroup < Ironfan::Dsl
-        field :name,                    String
-        field :group_authorized,        Array, :default => []
-        field :group_authorized_by,     Array, :default => []
-        field :range_authorizations,    Array, :default => []
-
-        def authorize_port_range(range, cidr_ip = '0.0.0.0/0', ip_protocol = 'tcp')
-          range = (range .. range) if range.is_a?(Integer)
-          range_authorizations << [range, cidr_ip, ip_protocol]
-          range_authorizations.compact!
-          range_authorizations.uniq!
-        end
-
-        def authorized_by_group(other_name)
-          group_authorized_by << other_name.to_s
-          group_authorized_by.compact!
-          group_authorized_by.uniq!
-        end
-
-        def authorize_group(other_name)
-          group_authorized << other_name.to_s
-          group_authorized.compact!
-          group_authorized.uniq!
         end
       end
     end

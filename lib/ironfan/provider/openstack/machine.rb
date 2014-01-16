@@ -296,7 +296,7 @@ module Ironfan
             :name                 => computer.name,
           }
 
-          description[:security_groups] = cloud.security_groups.keys
+          description[:security_groups] = (computer.server.security_groups.keys + cloud.security_groups.keys).uniq
 
           #description[:iam_server_certificates] = cloud.iam_server_certificates.values.map do |cert|
           #  IamServerCertificate.recall(IamServerCertificate.full_name(computer, cert))

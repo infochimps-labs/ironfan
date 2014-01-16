@@ -22,6 +22,7 @@ module Ironfan
       collection :run_list_items, RunListItem,             :resolver => :merge_resolve, :key_method => :name
       collection :clouds,       Ironfan::Dsl::Cloud,       :resolver => :merge_resolve, :key_method => :name
       collection :volumes,      Ironfan::Dsl::Volume,      :resolver => :merge_resolve, :key_method => :name
+      collection :security_groups, Ironfan::Dsl::SecurityGroup, :resolver => :merge_resolve, :key_method => :name
 
       # Resolve these normally (overriding on each layer)
       magic      :environment,  Symbol,                    :default => :_default
