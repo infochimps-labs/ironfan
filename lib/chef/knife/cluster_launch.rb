@@ -108,7 +108,7 @@ class Chef
           section('All computers launched correctly', :white)
           section('Applying aggregations:')
           all_computers(*@name_args).aggregate
-        e
+        end
 
         display(target)
       end
