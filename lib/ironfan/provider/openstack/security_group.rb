@@ -187,11 +187,11 @@ module Ironfan
           # FIXME: This violates the DSL's immutability; it should be
           #   something calculated from within the DSL construction
           Ironfan.todo("CODE SMELL: violation of DSL immutability: #{caller}")
-          cloud = computer.server.cloud(:openstack)
-          c_group = cloud.security_group(computer.server.cluster_name)
+          server = computer.server
+          c_group = server.security_group(computer.server.cluster_name)
           c_group.authorized_by_group(c_group.name)
           facet_name = "#{computer.server.cluster_name}-#{computer.server.facet_name}"
-          cloud.security_group(facet_name)
+          server.security_group(facet_name)
         end
 
 

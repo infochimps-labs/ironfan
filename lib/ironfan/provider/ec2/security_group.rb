@@ -21,7 +21,7 @@ module Ironfan
         def self.expected_ids(computer)
           return unless computer.server
           ec2 = computer.server.cloud(:ec2)
-          ec2.security_groups.keys.map { |name| group_name_with_vpc(name,ec2.vpc) }.uniq
+
           server_groups = computer.server.security_groups
           cloud_groups = ec2.security_groups
 
@@ -197,11 +197,11 @@ module Ironfan
           # FIXME: This violates the DSL's immutability; it should be
           #   something calculated from within the DSL construction
           Ironfan.todo("CODE SMELL: violation of DSL immutability: #{caller}")
-          cloud = computer.server.cloud(:ec2)
-          c_group = cloud.security_group(computer.server.cluster_name)
+          server = computer.server
+          c_group = server.security_group(computer.server.cluster_name)
           c_group.authorized_by_group(c_group.name)
           facet_name = "#{computer.server.cluster_name}-#{computer.server.facet_name}"
-          cloud.security_group(facet_name)
+          server.security_group(facet_name)
         end
 
         # Try an authorization, ignoring duplicates (this is easier than correlating).
