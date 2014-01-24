@@ -187,7 +187,7 @@ module Ironfan
         when Array, Gorillib::ModelCollection
           obj.map{|x| deep_stringify(x)}
         when Ironfan::Dsl::Component
-          canonicalize(item.to_manifest)
+          deep_stringify(item.to_manifest)
         when Gorillib::Builder, Gorillib::Model
           deep_stringify(obj.to_wire.tap{|x| x.delete(:_type)})
         when Hash
