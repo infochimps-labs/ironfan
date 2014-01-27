@@ -88,14 +88,19 @@ module Ironfan
         def stopping?
           state == "stopping"
         end
+
         def stopped?
           state == "SHUTOFF"
+        end
+        
+        def error?
+          state == "ERROR"
         end
 
         def start
           machine = self
           adaptee.start
-          adaptee.wait_for{ machine.pending? or machine.running? }
+          adaptee.wait_for{ machine.pending? or machine.running? or machine.error? }
         end
 
         def stop
