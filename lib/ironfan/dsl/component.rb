@@ -110,8 +110,8 @@ module Ironfan
         client_group_v = client_group(compute)
         server_group_v = security_group(full_server_cluster_v)
 
-        group_edge(compute.cloud(:ec2), client_group_v, :authorized_by_group, server_group_v)
-        group_edge(compute.cloud(:ec2), client_group_v, :authorize_group,     server_group_v) if bidirectional
+        group_edge(compute, client_group_v, :authorized_by_group, server_group_v)
+        group_edge(compute, client_group_v, :authorize_group,     server_group_v) if bidirectional
 
         Chef::Log.debug("discovered #{announce_name} for #{cluster_name}: #{discovery}")
       end
