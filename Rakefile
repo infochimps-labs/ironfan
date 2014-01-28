@@ -68,10 +68,10 @@ RSpec::Core::RakeTask.new(:spec) do |spec|
   spec.pattern = 'spec/{ironfan,chef,ironfan/*}/*_spec.rb'
 end
 
-RSpec::Core::RakeTask.new(:rcov) do |spec|
-  spec.pattern = 'spec/**/*_spec.rb'
-  spec.rcov = true
-  spec.rcov_opts = %w[ --exclude .rvm --no-comments --text-summary ]
+desc 'Run :spec task with coverage using Simplecov'
+task :coverage do
+  ENV['IRONFAN_COV'] = 'true'
+  Rake::Task[:spec].invoke
 end
 
 RSpec::Core::RakeTask.new(:integration) do |spec|

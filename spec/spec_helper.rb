@@ -1,4 +1,8 @@
 $:.unshift File.expand_path('../../lib', __FILE__)
+if ENV['IRONFAN_COV']
+  require 'simplecov'
+  SimpleCov.start
+end
 require 'chef'
 require 'chef/knife'
 require 'ironfan'
