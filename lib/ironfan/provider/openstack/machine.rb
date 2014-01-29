@@ -71,13 +71,13 @@ module Ironfan
         def groups           ; Array(@adaptee.security_groups)   ;   end
 
         def public_hostname    ; private_ip_address ; end
-        def public_ip_address  ; private_ip_address ; end
-        def dns_name           ; private_ip_address ; end
+        def public_ip_address  ; adaptee.public_ip_address || private_ip_address ; end
+        def dns_name            ; public_ip_address ; end
 
         def keypair          ; key_pair ; end
 
         def created?
-          not ['terminated', 'shutting-down'].include? state
+          not ['HARD_DELETED', 'SOFT_DELETED', ].include? state
         end
         def pending?
           state == "BUILD"
@@ -86,11 +86,11 @@ module Ironfan
           state == "ACTIVE"
         end
         def stopping?
-          state == "stopping"
+          state == "STOPPING"
         end
 
         def stopped?
-          state == "SHUTOFF"
+          state == "STOPPED"
         end
         
         def error?
@@ -118,7 +118,7 @@ module Ironfan
           values["State"] =             (state || "unknown").to_sym
           values["MachineID"] =         id
           values["Public IP"] =         private_ip_address
-          values["Private IP"] =        private_ip_address
+          values["Private IP"] =        public_ip_address
           values["Created On"] =        created_at.to_date
           return values if style == :minimal
 

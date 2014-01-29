@@ -5,7 +5,7 @@ module Ironfan
       self.handle = :openstack
 
       def self.resources
-        [ Machine, Keypair, SecurityGroup ]
+        [ Machine, Keypair, SecurityGroup, ElasticIp ]
       end
 
       #

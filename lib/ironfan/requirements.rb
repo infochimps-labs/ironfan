@@ -54,6 +54,7 @@ require 'ironfan/provider/openstack'
 require 'ironfan/provider/openstack/machine'
 require 'ironfan/provider/openstack/keypair'
 require 'ironfan/provider/openstack/security_group'
+require 'ironfan/provider/openstack/elastic_ip'
 
 require 'ironfan/provider/virtualbox'
 require 'ironfan/provider/virtualbox/machine'
