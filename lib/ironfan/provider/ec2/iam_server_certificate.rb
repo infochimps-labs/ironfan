@@ -27,10 +27,19 @@ module Ironfan
         # Discovery
         #
         def self.load!(cluster=nil)
-          Ec2.iam.list_server_certificates.body['Certificates'].each do |cert|
-            iss = new(:adaptee => cert)
-            remember(iss, { :id => cert['ServerCertificateName'] })
-            remember(iss, { :id => "#{ARN_PREFIX}:#{cert['Arn']}" })
+          opts = {}
+          while true do
+            res = Ec2.iam.list_server_certificates(opts)
+            res.body['Certificates'].each do |cert|
+              iss = new(:adaptee => cert)
+              remember(iss, { :id => cert['ServerCertificateName'] })
+              remember(iss, { :id => "#{ARN_PREFIX}:#{cert['Arn']}" })
+            end
+            if res.body['Marker']
+              opts['Marker'] = res.body['Marker']
+            else
+              break
+            end
           end
         end
 
