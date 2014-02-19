@@ -10,7 +10,7 @@ module Ironfan
 
         def name()  adaptee.full_name; end
         def tags
-          t = metadata.to_hash.update({"Name" => @adaptee.name})
+          t = {"Name" => @adaptee.name}
           return t.keys.inject({}) {|h,k| h[k]=t[k]; h[k.to_sym]=t[k]; h}
         end
 
@@ -43,7 +43,7 @@ module Ironfan
         def keypair          ; adaptee.cloud(:static).keypair ; end
 
         def created?
-          true
+          false
         end
         def pending?
           false
@@ -106,12 +106,11 @@ module Ironfan
           adaptee.cloud(:static).private_ip
         end
 
-        def public_ip_address
-          adaptee.cloud(:static).public_ip
-        end
-      
         def availability_zone
           'none'
+        end
+
+        def destroy
         end
 
         def to_s
