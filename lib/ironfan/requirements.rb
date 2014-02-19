@@ -28,6 +28,7 @@ require 'ironfan/dsl/volume'
 require 'ironfan/dsl/cloud'
 require 'ironfan/dsl/ec2'
 require 'ironfan/dsl/openstack'
+require 'ironfan/dsl/static'
 require 'ironfan/dsl/vsphere'
 require 'ironfan/dsl/rds'
 
@@ -55,6 +56,9 @@ require 'ironfan/provider/openstack/machine'
 require 'ironfan/provider/openstack/keypair'
 require 'ironfan/provider/openstack/security_group'
 require 'ironfan/provider/openstack/elastic_ip'
+
+require 'ironfan/provider/static'
+require 'ironfan/provider/static/machine'
 
 require 'ironfan/provider/virtualbox'
 require 'ironfan/provider/virtualbox/machine'

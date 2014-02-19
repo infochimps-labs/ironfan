@@ -14,6 +14,13 @@ set -e
 
 <%= (@config[:verbosity].to_i > 1 ? 'set -v' : '') %>
 
+echo "deb http://apt.opscode.com/ `lsb_release -cs`-0.10 main" | sudo tee /etc/apt/sources.list.d/opscode.list
+
+# Make sure that opscode chef is on the apt repo list.
+sudo mkdir -p /etc/apt/trusted.gpg.d
+gpg --keyserver keys.gnupg.net --recv-keys 83EF826A
+gpg --export packages@opscode.com | sudo tee /etc/apt/trusted.gpg.d/opscode-keyring.gpg > /dev/null
+
 date > /etc/box_build_time
 
 echo -e "`date` \n\n**** \n**** apt update:\n****\n"

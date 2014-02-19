@@ -14,6 +14,7 @@ module Ironfan
           when :chef        then Chef
           when :ec2         then Ec2
           when :openstack   then OpenStack
+          when :static      then Static
           when :vsphere     then Vsphere
           when :virtualbox  then VirtualBox
           when :rds         then Rds
