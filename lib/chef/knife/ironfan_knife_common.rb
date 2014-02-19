@@ -185,6 +185,41 @@ module Ironfan
       end
     end
 
+    def wait_for_ssh(computer)
+      ssh = Chef::Knife::Ssh.new
+      ssh.ui = ui
+      ssh.name_args = [ computer.name, "ls" ]
+      ssh.config[:ssh_user] = Chef::Config[:knife][:ssh_user] || config[:ssh_user]
+      ssh.config[:ssh_password] = config[:ssh_password]
+      ssh.config[:ssh_port] = Chef::Config[:knife][:ssh_port] || config[:ssh_port]
+      ssh.config[:ssh_gateway] = Chef::Config[:knife][:ssh_gateway] || config[:ssh_gateway]
+      ssh.config[:forward_agent] = Chef::Config[:knife][:forward_agent] || config[:forward_agent]
+      ssh.config[:identity_file] = Chef::Config[:knife][:identity_file] || config[:identity_file]
+      ssh.config[:manual] = true
+      ssh.config[:host_key_verify] = Chef::Config[:knife][:host_key_verify] || config[:host_key_verify]
+      ssh.config[:on_error] = :raise
+      session = ssh.session
+      return true
+    rescue Errno::ETIMEDOUT
+      Chef::Log.debug("ssh to #{computer.name} timed out")
+      return false
+    rescue Errno::ECONNREFUSED
+      Chef::Log.debug("ssh connection to #{computer.name} refused")
+      yield
+      return false
+    rescue Errno::EHOSTUNREACH
+      Chef::Log.debug("ssh host #{computer.name} unreachable")
+      yield
+      return false
+    rescue 
+      Chef::Log.debug("something else went wrong while wating for ssh host #{computer.name}")
+      raise
+      return false
+    else
+      session && session.close
+      session = nil
+    end
+      
     #
     # Utilities
     #

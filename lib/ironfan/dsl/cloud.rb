@@ -14,6 +14,8 @@ module Ironfan
             when :virtualbox then VirtualBox
             when :vsphere    then Vsphere
             when :rds        then Rds
+            when :openstack  then OpenStack
+            when :static     then Static
             else raise "Unsupported cloud #{obj[:name]}"
             end
         end

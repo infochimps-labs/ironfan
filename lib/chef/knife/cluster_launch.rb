@@ -55,6 +55,12 @@ class Chef
         :boolean     => true,
         :default     => false
 
+      option :wait_ssh,
+        :long        => "--[no-]wait-ssh",
+        :description => "Wait for the target machine to open an ssh port",
+        :boolean     => true,
+        :default     => true
+
       def _run
         load_ironfan
         die(banner) if @name_args.empty?
@@ -110,10 +116,10 @@ class Chef
       def perform_after_launch_tasks(computer)
         # Try SSH
         unless config[:dry_run]
-          Ironfan.step(computer.name, 'trying ssh', :white)
-          # FIXME: This is EC2-specific, abstract it
-          address = computer.machine.vpc_id.nil? ? computer.machine.public_hostname : computer.machine.public_ip_address
-          nil until tcp_test_ssh(address){ sleep @initial_sleep_delay ||= 10  }
+          if config[:wait_ssh]
+            Ironfan.step(computer.name, 'trying ssh', :white)
+            nil until wait_for_ssh(computer){ sleep @initial_sleep_delay ||= 10  }
+          end
         end
         
         # Run Bootstrap
@@ -121,31 +127,6 @@ class Chef
           Ironfan.step(computer.name, 'bootstrapping', :green)
           run_bootstrap(computer)
         end
-      end
-
-      def tcp_test_ssh(target)
-        tcp_socket = TCPSocket.new(target, 22)
-        readable = IO.select([tcp_socket], nil, nil, 5)
-        if readable
-          Chef::Log.debug("sshd accepting connections on #{target}, banner is #{tcp_socket.gets}")
-          yield
-          true
-        else
-          false
-        end
-      rescue Errno::ETIMEDOUT
-	Chef::Log.debug("ssh to #{target} timed out")
-        false
-      rescue Errno::ECONNREFUSED
-	Chef::Log.debug("ssh connection to #{target} refused")
-        sleep 2
-        false
-      rescue Errno::EHOSTUNREACH
-	Chef::Log.debug("ssh host #{target} unreachable")
-        sleep 2
-        false
-      ensure
-        tcp_socket && tcp_socket.close
       end
 
       def warn_or_die_on_bogus_servers(target)
