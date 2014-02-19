@@ -41,6 +41,10 @@ pkg
 .rvmrc
 .vendor
 .bundle
+.rspec
+.yardopts
+Gemfile.lock
+chefignore
 
 .rake_test_cache
 metadata.json
