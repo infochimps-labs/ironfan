@@ -1,21 +1,21 @@
-$:.unshift File.expand_path('../../lib', __FILE__)
 if ENV['IRONFAN_COV']
   require 'simplecov'
   SimpleCov.start
 end
-require 'chef'
-require 'chef/knife'
+
 require 'ironfan'
+require 'chef/cluster_knife'
 require 'fog'
 Fog.mock!
 Fog::Mock.delay = 0
 
 require 'gorillib/pathname'
 
-Pathname.register_paths(
-  code:        File.expand_path('../..', __FILE__),
-  fixtures:    [:code, 'spec', 'fixtures'],
-  )
+Pathname.register_paths(code:     File.expand_path('../..', __FILE__),
+                        fixtures: [:code, 'spec', 'fixtures'],
+                        support:  [:code, 'spec', 'support'])
+
+Dir[Pathname.path_to(:support).join('**/*.rb')].each{ |f| require f }
 
 RSpec.configure do |cfg|
   def ironfan_go!
@@ -23,14 +23,10 @@ RSpec.configure do |cfg|
     k.config[:config_file] = Pathname.path_to(:fixtures, 'knife/knife.rb')
     k.configure_chef
     Chef::Config.instance_eval do
-      knife.merge!({
-          :aws_access_key_id => 'access_key',
-          :aws_secret_access_key => 'secret',
-        })
+      knife.merge!(aws_access_key_id:     'access_key',
+                   aws_secret_access_key: 'secret')
       cluster_path Pathname.path_to(:fixtures).to_s
     end
-
-    require 'ironfan'
 
     Ironfan.ui          = Chef::Knife::UI.new(STDOUT, STDERR, STDIN, {})
     Ironfan.chef_config = k.config
@@ -41,17 +37,3 @@ end
 require 'chef_zero/server'
 server = ChefZero::Server.new(port: 4000)
 server.start_background
-
-def uncreate_plugin(plugin_class, target_class)
-  target_class.registry.clear
-  plugin_class.instance_eval{ remove_const :BazBif }
-end
-
-class Foo
-end
-
-class MyPlugin
-  include Ironfan::Plugin::Base; register_with Foo
-
-  def self.plugin_hook(*_) end
-end

@@ -1,46 +1,60 @@
-require_relative '../spec_helper.rb'
+require 'spec_helper.rb'
 
-describe MyPlugin do
-  subject { MyPlugin }
+describe Ironfan::Plugin::Base do
+  
+  let(:target_class){ Class.new }
+  let(:plugin_class) do   
+    plugin_base = described_class
+    other_class = target_class
+    Class.new do
+      include plugin_base
+      register_with other_class
 
-  it 'should respond to template' do
-    subject.should(respond_to(:template))
+      def self.plugin_hook(*_) end
+    end
   end
 
-  context 'when templatizing plugins' do
-    after(:each) do
-      uncreate_plugin(subject, Foo)
+  subject(:example_plugin){ plugin_class }
+  
+  context '.template' do
+    before(:each){ example_plugin.template %w[baz bif] }
+
+    it 'defines templates as classes within itself' do
+      example_plugin.const_defined?(:BazBif).should be_true
     end
-    before(:each) do
-      subject.template(%w[baz bif])
+    
+    it 'defines templates as subclasses of itself' do
+      example_plugin.const_get(:BazBif).should be < subject
+    end
+    
+    it 'allows for customizing class definitions' do
+      example_plugin.template(%w[gig bag]){ def bam() ; end }
+      example_plugin.const_get(:GigBag).new.should respond_to(:bam)
     end
 
-    it 'should create them as classes within itself' do
-      subject.constants.should(include(:BazBif))
+    it 'registers methods on the template class' do
+      target_class.new.should respond_to(:baz_bif)
     end
-    it 'should create them as subclasses of itself' do
-      subject.const_get(:BazBif).should(be < subject)
+
+    it 'wires those methods to the plugin_hook method of itself' do
+      target = target_class.new
+      example_plugin.should_receive(:plugin_hook).with(target, {}, :baz, :baz_bif)
+      target.baz_bif
     end
-    it 'should allow customizing the classes' do
-      uncreate_plugin(subject, Foo)
-      subject.template(%w[baz bif]){ def bam() end }
-      subject.const_get(:BazBif).new.should(respond_to(:bam))
-    end
-    it 'should register methods on the specified class' do
-      Foo.new.should(respond_to(:baz_bif))
-    end
-    it 'should wire those methods to the plugin_hook method of itself' do
-      foo = Foo.new
-      subject.should_receive(:plugin_hook).with(foo, {}, :baz, :baz_bif)
-      foo.baz_bif
-    end
-    it 'should allow the user to create a custom class that will also be registered' do
-      Foo.registry[:baz_bif].should(be(subject.const_get(:BazBif)))
+
+    it 'registers the newly created class' do
+      target_class.registry[:baz_bif].should be(example_plugin.const_get(:BazBif))
     end
   end
 end
 
 describe Ironfan::Dsl::Component do
+
+  def uncreate_plugin(plugin_class, target_class)
+    target_class.registry.clear
+    plugin_class.instance_eval{ remove_const :BazBif }
+  end
+
   before(:each) do
     Ironfan::Dsl::Component.template(%w[baz bif]) do
       include Ironfan::Dsl::Component::Announcement

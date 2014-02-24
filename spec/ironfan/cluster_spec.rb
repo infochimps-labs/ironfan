@@ -1,7 +1,5 @@
 require 'spec_helper'
 
-require 'ironfan'
-
 describe Ironfan::Dsl::Cluster do
   subject do
     Ironfan.cluster 'foo' do

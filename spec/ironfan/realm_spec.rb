@@ -1,7 +1,5 @@
 require 'spec_helper'
 
-require 'ironfan'
-
 describe Ironfan::Dsl::Realm do
   before(:each) do
     (Chef::Config[:ec2_image_info] ||= {}).merge!({

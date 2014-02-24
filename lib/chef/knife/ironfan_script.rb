@@ -15,9 +15,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-require File.expand_path('ironfan_knife_common', File.dirname(File.realdirpath(__FILE__)))
-
 module Ironfan
   class Script < Chef::Knife
     include Ironfan::KnifeCommon

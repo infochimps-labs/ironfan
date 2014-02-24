@@ -1,6 +1,4 @@
 require 'spec_helper'
-require 'gorillib/diff'
-require_relative '../spec_helper/dummy_diff_drawer.rb'
 
 describe Gorillib::DiffFormatter do
   it 'writes the indices of displayed elements for both sides' do

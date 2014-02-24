@@ -15,10 +15,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-require File.expand_path('ironfan_knife_common', File.dirname(File.realdirpath(__FILE__)))
-require File.expand_path('cluster_bootstrap',    File.dirname(File.realdirpath(__FILE__)))
-
 class Chef
   class Knife
     class ClusterLaunch < Knife

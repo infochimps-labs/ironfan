@@ -1,9 +1,7 @@
 require 'spec_helper'
 
-require 'ironfan'
-
-cert  = IO.read(File.realpath(File.join(File.dirname(__FILE__), '../../fixtures/ec2/elb/snakeoil.crt')))
-key   = IO.read(File.realpath(File.join(File.dirname(__FILE__), '../../fixtures/ec2/elb/snakeoil.key')))
+cert = File.read Pathname.path_to(:fixtures).join('ec2/elb/snakeoil.crt').to_s
+key = File.read Pathname.path_to(:fixtures).join('ec2/elb/snakeoil.key').to_s
 
 describe Ironfan::Dsl::Cluster do
   let (:cluster) do

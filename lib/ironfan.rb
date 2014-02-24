@@ -1,11 +1,13 @@
 require 'ironfan/requirements'
 
 module Ironfan
+  module_function
+
   @@clusters ||= Hash.new
-  @@realms ||= Hash.new
+  @@realms   ||= Hash.new
 
   # path to search for cluster definition files
-  def self.cluster_path
+  def cluster_path
     return Array(Chef::Config[:cluster_path]) if Chef::Config[:cluster_path]
     raise "Holy smokes, you have no cookbook_path or cluster_path set up. Follow chef's directions for creating a knife.rb." if Chef::Config[:cookbook_path].blank?
     cl_path = Chef::Config[:cookbook_path].map{|dir| File.expand_path('../clusters', dir) }.uniq
@@ -15,24 +17,24 @@ module Ironfan
 
   #
   # Delegates
-  def self.clusters
+  def clusters
     @@clusters
   end
 
   #
   # Delegates
-  def self.realms
+  def realms
     @@realms
   end
 
-  def self.ui=(ui) @ui = ui ; end
-  def self.ui()    @ui      ; end
+  def ui=(ui) @ui = ui ; end
+  def ui()    @ui      ; end
 
-  def self.chef_config=(cc) @chef_config = cc ; end
-  def self.chef_config()    @chef_config      ; end
+  def chef_config=(cc) @chef_config = cc ; end
+  def chef_config()    @chef_config      ; end
 
   # execute against multiple targets in parallel
-  def self.parallel(targets)
+  def parallel(targets)
     raise 'missing block' unless block_given?
     results = []
     [targets].flatten.each_with_index.map do |target, idx|
@@ -66,7 +68,7 @@ module Ironfan
   #   end
   #
   #
-  def self.cluster(name, attrs={}, &block)
+  def cluster(name, attrs={}, &block)
     name = name.to_sym
     # If this is being called as Ironfan.cluster('foo') with no additional arguments,
     # return the cached cluster object if it exists
@@ -79,7 +81,7 @@ module Ironfan
     end
   end
 
-  def self.realm(name, attrs={}, &block)
+  def realm(name, attrs={}, &block)
     name = name.to_sym
     if @@realms[name] and attrs.empty? and not block_given?
       return @@realms[name]
@@ -91,7 +93,7 @@ module Ironfan
     end
   end
 
-  def self.load_realm(name)
+  def load_realm(name)
     name = name.to_sym
     raise ArgumentError, "Please supply a realm name" if name.to_s.empty?
     return @@realms[name] if @@realms[name]
@@ -111,7 +113,7 @@ module Ironfan
   # doesn't define the requested cluster.
   #
   # @return [Ironfan::Cluster] the requested cluster
-  def self.load_cluster(name)
+  def load_cluster(name)
     name = name.to_sym
     raise ArgumentError, "Please supply a cluster name" if name.to_s.empty?
     return @@clusters[name] if @@clusters[name]
@@ -123,7 +125,7 @@ module Ironfan
     @@clusters[name]
   end
 
-  def self.load_cluster_files
+  def load_cluster_files
     cluster_path.each do |cp_dir|
       Dir[ File.join(cp_dir, '*.rb') ].each do |filename|
         Chef::Log.info("Loading cluster file #{filename}")
@@ -137,7 +139,7 @@ module Ironfan
   # Map from cluster name to file name
   #
   # @return [Hash] map from cluster name to file name
-  def self.cluster_filenames
+  def cluster_filenames
     return @cluster_filenames if @cluster_filenames
     @cluster_filenames = {}
     cluster_path.each do |cp_dir|
@@ -153,7 +155,7 @@ module Ironfan
   # Utility to die with an error message.
   # If the last arg is an integer, use it as the exit code.
   #
-  def self.die *strings
+  def die *strings
     exit_code = strings.last.is_a?(Integer) ? strings.pop : -1
     strings.each{|str| ui.warn str }
     exit exit_code
@@ -167,7 +169,7 @@ module Ironfan
   #     Ironfan.fog_connection.associate_address(self.fog_server.id, address)
   #   end
   #
-  def self.safely(info="")
+  def safely(info="")
     begin
       yield
     rescue StandardError => err
@@ -186,7 +188,7 @@ module Ironfan
   #
   # Manual test:
   # bundle exec ruby -e "require 'chef'; require 'ironfan'; Ironfan.tell_you_thrice { p 'hah'; raise 'hell' }"
-  def self.tell_you_thrice(options={})
+  def tell_you_thrice(options={})
     options = { name:           "problem",
                 error_class:    StandardError,
                 retries:        3,
@@ -209,27 +211,27 @@ module Ironfan
   #
   # Utility to show a step of the overall process
   #
-  def self.step(name, desc, *style)
+  def step(name, desc, *style)
     ui.info("  #{"%-15s" % (name.to_s+":")}\t#{ui.color(desc.to_s, *style)}")
   end
 
-  def self.substep(name, desc, color = :gray)
+  def substep(name, desc, color = :gray)
     step(name, "  - #{desc}", color) if (verbosity >= 1 or color != :gray)
   end
 
-  def self.verbosity
+  def verbosity
     chef_config[:verbosity].to_i
   end
 
   # Output a TODO to the logs if you've switched on pestering
-  def self.todo(*args)
+  def todo(*args)
     Chef::Log.debug(*args) if Chef::Config[:show_todo]
   end
 
   #
   # Utility to do mock out a step during a dry-run
   #
-  def self.unless_dry_run
+  def unless_dry_run
     if dry_run?
       ui.info("      ... but not really")
       return nil
@@ -237,12 +239,12 @@ module Ironfan
       yield
     end
   end
-  def self.dry_run?
+  def dry_run?
     chef_config[:dry_run]
   end
 
   # Intentionally skipping an implied step
-  def self.noop(source,method,*params)
+  def noop(source,method,*params)
     # Chef::Log.debug("#{method} is a no-op for #{source} -- skipping (#{params.join(',')})")
   end
 end

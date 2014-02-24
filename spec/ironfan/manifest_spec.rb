@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'ironfan'
 
 describe Ironfan::Dsl::MachineManifest do
   context 'it disregards whether values are strings or symbols' do

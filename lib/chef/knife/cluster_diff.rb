@@ -1,8 +1,3 @@
-require 'gorillib/model/serialization'
-require 'gorillib/nil_check_delegate'
-require 'yaml'
-require_relative '../../gorillib/diff'
-
 #
 # Author:: Philip (flip) Kromer (<flip@infochimps.com>)
 # Copyright:: Copyright (c) 2011 Infochimps, Inc
@@ -20,14 +15,11 @@ require_relative '../../gorillib/diff'
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-require File.expand_path('ironfan_knife_common', File.dirname(File.realdirpath(__FILE__)))
-require 'yaml'
-
 class Chef
   class Knife
     class ClusterDiff < Knife
       include Ironfan::KnifeCommon
+
       deps do
         Ironfan::KnifeCommon.load_deps
       end
