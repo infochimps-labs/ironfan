@@ -1,7 +1,10 @@
+# Built on top of chef
+require 'chef'
+
 # Gorillib core classes
 require 'gorillib/builder'
+require 'gorillib/diff'
 require 'gorillib/resolution'
-
 require 'gorillib/nil_check_delegate'
 
 # Pre-declaration of class hierarchy

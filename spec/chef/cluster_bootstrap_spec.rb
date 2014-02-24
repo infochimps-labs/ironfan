@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 ironfan_go!
-require 'chef/knife/cluster_bootstrap'
 
 describe Chef::Knife::ClusterBootstrap do
   let(:cluster) do

@@ -15,10 +15,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-require File.expand_path('ironfan_script', File.dirname(File.realdirpath(__FILE__)))
-require 'chef/knife/bootstrap'
-
 class Chef
   class Knife
     class ClusterBootstrap < Ironfan::Script

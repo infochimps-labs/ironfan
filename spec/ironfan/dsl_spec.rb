@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'ironfan'
 
 describe Ironfan::Dsl do
   context 'when joining requirement pairs' do

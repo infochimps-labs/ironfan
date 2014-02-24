@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 ironfan_go!
-require 'chef/knife/cluster_launch'
 
 describe Chef::Knife::ClusterLaunch do
   let(:cluster) do

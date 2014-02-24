@@ -1,7 +1,5 @@
 require 'spec_helper'
 
-require 'ironfan'
-
 describe Ironfan::Dsl::Cluster do
   let (:cluster) do
     Ironfan.cluster "sparky" do

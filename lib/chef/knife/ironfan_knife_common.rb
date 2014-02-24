@@ -1,5 +1,3 @@
-require 'chef/knife'
-
 module Ironfan
   module KnifeCommon
     attr_accessor :broker
