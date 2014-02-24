@@ -69,7 +69,7 @@ class Chef
 
         warn_or_die_on_bogus_servers(full_target) unless full_target.select(&:bogus?).empty?
 
-        die("", "#{ui.color("All computers are running -- not launching any.",:blue)}", "", 1) if target.empty?
+        die("", "#{ui.color("All computers are running -- not launching any.",:blue)}", "", 0) if target.empty?
 
         # If a bootstrap was requested, ensure that we will be able to perform the
         # bootstrap *before* trying to launch all of the servers in target. This
