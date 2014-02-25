@@ -71,7 +71,6 @@ module Ironfan
         def groups           ; Array(@adaptee.security_groups)   ;   end
 
         def public_hostname    ; private_ip_address ; end
-        def public_ip_address  ; adaptee.public_ip_address || private_ip_address ; end
         def dns_name            ; public_ip_address ; end
 
         def keypair          ; key_pair ; end
@@ -117,8 +116,8 @@ module Ironfan
           # style == :minimal
           values["State"] =             (state || "unknown").to_sym
           values["MachineID"] =         id
-          values["Public IP"] =         private_ip_address
-          values["Private IP"] =        public_ip_address
+          values["Public IP"] =         public_ip_address
+          values["Private IP"] =        private_ip_address
           values["Created On"] =        created_at.to_date
           return values if style == :minimal
 
@@ -143,7 +142,7 @@ module Ironfan
         end
 
         def public_ip_address
-          adaptee.public_ip_address rescue nil
+          adaptee.floating_ip_address rescue nil
         end
 
         def to_s
