@@ -55,8 +55,8 @@ class Chef
 
         # Need to include both public host and public ip; sometimes these are different
         @hostname_to_ironfan_hostname = target.to_a.inject({}) do |remap, c|
-          remap[c.machine.public_hostname]   = c.machine.tags['Name']
-          remap[c.machine.public_ip_address] = c.machine.tags['Name']
+          remap[c.machine.public_hostname]   = c.machine.tags['Name'] || c.name
+          remap[c.machine.public_ip_address] = c.machine.tags['Name'] || c.name
           remap
         end
 
