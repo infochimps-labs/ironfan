@@ -22,6 +22,8 @@ module Ironfan
             :identity, :identity=, :new_record?, :requires, :requires_one,
           :to => :adaptee
 
+        include Ironfan::Dsl::Autoscale::DisplayHelper
+
         def self.shared?()      false;  end
         def self.multiple?()    false;  end
         def self.resource_type()        :machine;   end
@@ -108,7 +110,7 @@ module Ironfan
           values["Created On"] =        created_at.to_date
           return values if style == :minimal
 
-          values["AZ"] =                availability_zones.join(" ")
+          values["AZ"] =                displayable_availability_zones
           values["Min Size"] =          min_size
           values["Max Size"] =          max_size
           values["Desired"] =           desired_capacity

@@ -31,6 +31,16 @@ module Ironfan
       magic :max_size,                  Integer,        :default => 0
       magic :desired_capacity,          Integer,        :default => -> { min_size }
 
+      module DisplayHelper
+        # Format ['us-east-1c', 'us-east-1b'] as 'us-east-1c/b'
+        def displayable_availability_zones
+          zones = availability_zones.map{ |s| s[-1] } # last character of each zone
+          region = availability_zones.first[0..-2]    # all but the last character of the first zone
+          region + zones.join('/')
+        end
+      end
+      include DisplayHelper
+
       def image_info
         bit_str = "#{self.bits.to_i}-bit" # correct for legacy image info.
         keys = [region, bit_str, backing, image_name]
@@ -56,7 +66,7 @@ module Ironfan
         return values if style == :minimal
 
         values["Flavor"] =            flavor
-        values["AZ"] =                default_availability_zone
+        values["AZ"] =                displayable_availability_zones
         return values if style == :default
 
         values
