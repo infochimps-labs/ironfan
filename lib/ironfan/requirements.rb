@@ -28,6 +28,7 @@ require 'ironfan/dsl/cloud'
 require 'ironfan/dsl/ec2'
 require 'ironfan/dsl/vsphere'
 require 'ironfan/dsl/rds'
+require 'ironfan/dsl/autoscale'
 
 
 # Providers for specific resources
@@ -47,6 +48,9 @@ require 'ironfan/provider/ec2/security_group'
 require 'ironfan/provider/ec2/elastic_ip'
 require 'ironfan/provider/ec2/elastic_load_balancer'
 require 'ironfan/provider/ec2/iam_server_certificate'
+
+require 'ironfan/provider/autoscale'
+require 'ironfan/provider/autoscale/machine'
 
 require 'ironfan/provider/virtualbox'
 require 'ironfan/provider/virtualbox/machine'

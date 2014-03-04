@@ -115,7 +115,7 @@ class Chef
           address = computer.machine.vpc_id.nil? ? computer.machine.public_hostname : computer.machine.public_ip_address
           nil until tcp_test_ssh(address){ sleep @initial_sleep_delay ||= 10  }
         end
-        
+
         # Run Bootstrap
         if config[:bootstrap]
           Ironfan.step(computer.name, 'bootstrapping', :green)
