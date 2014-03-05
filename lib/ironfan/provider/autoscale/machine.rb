@@ -204,6 +204,11 @@ module Ironfan
               g.max_size = cloud.max_size
               g.min_size = cloud.min_size
               g.desired_capacity = cloud.desired_capacity
+              g.tags = {
+                'cluster' => computer.server.cluster_name,
+                'facet'   => computer.server.facet_name
+              }.map { |k,v| { 'Key' => k, 'Value' => v, 'PropagateAtLaunch' => true } }
+
               Chef::Log.debug(g.inspect)
             end
           end
@@ -242,13 +247,6 @@ module Ironfan
             computer.machine = machine
             remember machine, :id => computer.name
           end
-
-          # TODO: Tag the autoscale group with cluster/facet and ensure that the tags are inherited by instances
-          # tags = {
-          #   'name' =>         computer.name,
-          #   'Name' =>         computer.name,
-          # }
-          # Autoscale.ensure_tags(tags, computer.machine)
         end
 
         def self.lint(computer)
