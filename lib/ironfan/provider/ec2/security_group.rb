@@ -180,17 +180,19 @@ module Ironfan
         #
         # Utility
         #
-        def self.ensure_groups(computer)
+        def self.ensure_groups computer
           return unless Ec2.applicable computer
           # Ensure the security_groups include those for cluster & facet
           # FIXME: This violates the DSL's immutability; it should be
           #   something calculated from within the DSL construction
           Ironfan.todo("CODE SMELL: violation of DSL immutability: #{caller}")
           cloud = computer.server.cloud(:ec2)
-          c_group = cloud.security_group(computer.server.cluster_name)
-          c_group.authorized_by_group(c_group.name)
-          facet_name = "#{computer.server.cluster_name}-#{computer.server.facet_name}"
-          cloud.security_group(facet_name)
+          cluster_name = "#{computer.server.realm_name}-#{computer.server.cluster_name}"
+          cloud.security_group computer.server.realm_name
+          realm_group = cloud.security_group cluster_name
+          realm_group.authorized_by_group realm_group.name
+          facet_name = "#{computer.server.realm_name}-#{computer.server.cluster_name}-#{computer.server.facet_name}"
+          cloud.security_group facet_name
         end
 
         # Try an authorization, ignoring duplicates (this is easier than correlating).
