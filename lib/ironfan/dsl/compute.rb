@@ -15,25 +15,25 @@ module Ironfan
 
     class Compute < Ironfan::Dsl
       @@run_list_rank = 0
-      field      :name,         String
+      field      :name,           String
 
       # Resolve each of the following as a merge of their container's attributes and theirs
-      collection :components,   Ironfan::Dsl::Component,   :resolver => :merge_resolve, :key_method => :name
+      collection :components,     Ironfan::Dsl::Component, :resolver => :merge_resolve, :key_method => :name
       collection :run_list_items, RunListItem,             :resolver => :merge_resolve, :key_method => :name
-      collection :clouds,       Ironfan::Dsl::Cloud,       :resolver => :merge_resolve, :key_method => :name
-      collection :volumes,      Ironfan::Dsl::Volume,      :resolver => :merge_resolve, :key_method => :name
+      collection :clouds,         Ironfan::Dsl::Cloud,     :resolver => :merge_resolve, :key_method => :name
+      collection :volumes,        Ironfan::Dsl::Volume,    :resolver => :merge_resolve, :key_method => :name
 
       # Resolve these normally (overriding on each layer)
-      magic      :environment,  Symbol,                    :default => :_default
-      magic      :use_cloud,    Symbol
+      magic      :environment,    Symbol,                  default: :_default
+      magic      :realm_name,     Symbol,                  default: :_default
+      magic      :use_cloud,      Symbol
 
-      member     :cluster_role, Ironfan::Dsl::Role
-      member     :facet_role,   Ironfan::Dsl::Role
+      member     :cluster_role,   Ironfan::Dsl::Role
+      member     :facet_role,     Ironfan::Dsl::Role
 
-      magic      :cluster_names, Whatever
-      magic      :realm_name,    Symbol
+      magic      :cluster_names,  Whatever
 
-      field      :source_file,   String
+      field      :source_file,    String
 
       extend Gorillib::Concern
 
