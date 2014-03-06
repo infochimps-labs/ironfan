@@ -67,6 +67,7 @@ module Ironfan
           server =                      computer.server
           chef_environment(server.environment.to_s)
           run_list.instance_eval        { @run_list_items = server.run_list }
+          normal[:realm_name] =         server.realm_name
           normal[:cluster_name] =       server.cluster_name
           normal[:facet_name] =         server.facet_name
           normal[:permanent] =          computer.permanent?
@@ -86,8 +87,8 @@ module Ironfan
         #
         # Discovery
         #
-        def self.load!(cluster=nil)
-          query = cluster && "name:#{cluster.name}-*"
+        def self.load!(cluster = nil)
+          query = cluster && "name:#{cluster.realm_name}-*"
           ChefServer.search(:node, query) do |raw|
             next unless raw.present?
             node = register(raw)
