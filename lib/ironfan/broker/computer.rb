@@ -34,6 +34,7 @@ module Ironfan
       # Discovery
       #
       def correlate
+        Chef::Log.info chosen_resources
         chosen_resources.each do |res|
           res.expected_ids(self).each do |id|
             next unless res.recall? id
@@ -272,12 +273,12 @@ module Ironfan
       self.item_type  = Computer
       self.key_method = :object_id
       delegate        :first, :map, :any?, :to => :values
-      attr_accessor   :cluster
+      attr_accessor   :clusters
 
       def initialize(*args)
         super
         options = args.pop or return
-        self.cluster = options[:cluster]
+        self.clusters = options[:clusters]
         create_expected!
       end
 
@@ -338,9 +339,10 @@ module Ironfan
 
       # set up new computers for each server in the cluster definition
       def create_expected!
-        self.cluster.servers.each do |server|
+        servers = self.clusters.map{ |c| c.servers.to_a }.flatten
+        servers.each do |server|
           self << Computer.new(:server => server)
-        end unless self.cluster.nil?
+        end unless self.clusters.nil?
       end
 
       # Return the selection inside another Computers collection
@@ -352,23 +354,24 @@ module Ironfan
 
       def empty_copy
         result          = self.class.new
-        result.cluster  = self.cluster unless self.cluster.nil?
+        result.clusters = self.clusters unless self.clusters.nil?
         result
       end
 
       # Find all selected computers, as well as any bogus computers from discovery
-      def slice(facet_name=nil, slice_indexes=nil)
-        return self if (facet_name.nil? && slice_indexes.nil?)
-        slice_array     = build_slice_array(slice_indexes)
+      def slice(cluster_name = nil, facet_name = nil, slice_indexes = nil)
+        return self if cluster_name.nil? && facet_name.nil? && slice_indexes.nil?
+        slice_array = build_slice_array(slice_indexes)
         select do |mach|
-          mach.bogus? or (
+          mach.bogus? || (
             # facet match, and index match (or no indexes specified)
-            (mach.server.facet_name == facet_name) &&
+            (mach.server.cluster_name == cluster_name) &&                          
+            (mach.server.facet_name == facet_name || facet_name.nil?) &&
             (slice_array.include?(mach.server.index) || slice_indexes.nil?))
         end
       end
 
-      def build_slice_array(slice_indexes)
+      def build_slice_array slice_indexes
         return [] if slice_indexes.nil?
         raise "Bad slice_indexes: #{slice_indexes}" if slice_indexes =~ /[^0-9\.,]/
         eval("[#{slice_indexes}]").map {|idx| idx.class == Range ? idx.to_a : idx}.flatten
