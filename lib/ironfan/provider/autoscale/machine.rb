@@ -6,13 +6,13 @@ module Ironfan
         delegate :id, :id=, :arn, :arn=, :availability_zones,
             :availability_zones=, :created_at, :created_at=, :default_cooldown,
             :default_cooldown=, :desired_capacity, :desired_capacity=,
-            :enabled_metrics, :enabled_metrics=, :health_check_grace_period,
-            :health_check_grace_period=, :health_check_type, :health_check_type=,
+            :health_check_grace_period, :health_check_grace_period=, :health_check_type, :health_check_type=,
             :instances, :instances=, :launch_configuration_name,
             :launch_configuration_name=, :load_balancer_names,
             :load_balancer_names=, :max_size, :max_size=, :min_size, :min_size=,
-            :placement_group, :placement_group=, :suspended_processes,
-            :suspended_processes=, :tags, :tags=, :termination_policies,
+            :placement_group, :placement_group=,
+            :suspended_processes, :suspended_processes=,
+            :tags, :tags=, :termination_policies,
             :termination_policies=, :vpc_zone_identifier, :vpc_zone_identifier=,
             :activities, :configuration, :disable_metrics_collection,
             :enable_metrics_collection, :instances_in_service,
@@ -21,6 +21,9 @@ module Ironfan
             :connection, :connection=, :reload, :symbolize_keys, :wait_for, :_dump,
             :identity, :identity=, :new_record?, :requires, :requires_one,
           :to => :adaptee
+
+        delegate :image_id, :kernel_id, :kernel_id=, :key_name, :key_name=, :ramdisk_id, :ramdisk_id=,
+          :to => :launch_configuration
 
         include Ironfan::Dsl::Autoscale::DisplayHelper
 
@@ -31,10 +34,6 @@ module Ironfan
 
         def name
           id
-        end
-
-        def image_id
-          launch_configuration.image_id
         end
 
         def flavor
@@ -187,10 +186,13 @@ module Ironfan
           def launch_configuration(computer)
             cloud = computer.server.cloud(:autoscale)
             Autoscale.connection.configurations.new.tap do |c|
-              c.id = computer.name
-              c.image_id = cloud.image_id
-              c.instance_type = cloud.flavor
-              c.user_data  = user_data(computer)
+              c.id                     = computer.name
+              c.image_id               = cloud.image_id
+              c.instance_type          = cloud.flavor
+              c.kernel_id              = cloud.kernel_id
+              c.ramdisk_id             = cloud.ramdisk_id
+              c.user_data              = user_data(computer)
+
               Chef::Log.debug(c.inspect)
             end
           end
@@ -198,12 +200,21 @@ module Ironfan
           def autoscale_group(computer)
             cloud = computer.server.cloud(:autoscale)
             Autoscale.connection.groups.new.tap do |g|
-              g.id = computer.name
-              g.launch_configuration_name = computer.name
-              g.availability_zones = cloud.availability_zones
-              g.max_size = cloud.max_size
-              g.min_size = cloud.min_size
-              g.desired_capacity = cloud.desired_capacity
+              g.id                            = computer.name
+              g.launch_configuration_name     = computer.name
+
+              g.availability_zones            = cloud.availability_zones
+              g.default_cooldown              = cloud.default_cooldown
+              g.desired_capacity              = cloud.desired_capacity
+              g.health_check_grace_period     = cloud.health_check_grace_period
+              g.health_check_type             = cloud.health_check_type
+              g.max_size                      = cloud.max_size
+              g.min_size                      = cloud.min_size
+              g.placement_group               = cloud.placement_group
+              g.placement_group               = cloud.placement_group
+              g.termination_policies          = cloud.termination_policies
+              g.vpc_zone_identifier           = cloud.subnet
+
               g.tags = {
                 'cluster' => computer.server.cluster_name,
                 'facet'   => computer.server.facet_name

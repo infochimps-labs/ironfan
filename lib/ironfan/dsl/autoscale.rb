@@ -12,24 +12,27 @@ module Ironfan
       magic :bootstrap_distro,          String,         :default => ->{ image_info[:bootstrap_distro] }
       magic :chef_client_script,        String
       magic :default_availability_zone, String,         :default => ->{ availability_zones.first }
+      magic :default_cooldown,          Integer
+      magic :desired_capacity,          Integer,        :default => -> { min_size }
       magic :flavor,                    String,         :default => 't1.micro'
+      magic :health_check_grace_period, Integer
+      magic :health_check_type,         String
       magic :image_id,                  String,         :default => -> { image_info[:image_id] }
       magic :image_name,                String
+      magic :kernel_id,                 String
       magic :keypair,                   String
-      magic :monitoring,                String
+      magic :min_size,                  Integer,        :default => 0
+      magic :max_size,                  Integer,        :default => 0
+      # magic :monitoring,                :boolean    # TODO: fix support for monitoring
       magic :mount_ephemerals,          Hash,           :default => {}
       magic :placement_group,           String
       magic :provider,                  Whatever,       :default => Ironfan::Provider::Autoscale
-      magic :allocation_id,             String
+      magic :ramdisk_id,                String
       magic :region,                    String,         :default => ->{ default_region }
       collection :security_groups,      Ironfan::Dsl::Ec2::SecurityGroup, :key_method => :name
-      magic :ssh_user,                  String,         :default => ->{ image_info[:ssh_user] }
-      magic :ssh_identity_dir,          String,         :default => ->{ Chef::Config.ec2_key_dir }
       magic :subnet,                    String
-      magic :vpc,                       String
-      magic :min_size,                  Integer,        :default => 0
-      magic :max_size,                  Integer,        :default => 0
-      magic :desired_capacity,          Integer,        :default => -> { min_size }
+      magic :spot_price,                String  # TODO: option is unsupported by fog
+      magic :termination_policies,      Array
 
       module DisplayHelper
         # Format ['us-east-1c', 'us-east-1b'] as 'us-east-1c/b'
