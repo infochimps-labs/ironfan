@@ -15,6 +15,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+require_relative '../cluster_knife'
+
 class Chef
   class Knife
     class ClusterList < Knife
@@ -36,7 +38,7 @@ class Chef
       def _run
         load_ironfan
         configure_dry_run
-        Ironfan.load_cluster_files
+        Ironfan.dsl_files(Ironfan.clusters_dir).each{ |f| Ironfan.load_dsl_file f }
 
         data = Ironfan.clusters.values.map do |cluster|
           name, path = [cluster.name, cluster.source_file]
@@ -48,7 +50,7 @@ class Chef
           as_table
         end
 
-        ui.info "Cluster Path: #{ Ironfan.cluster_path.join ", " }"
+        ui.info "Cluster Path: #{ Ironfan.clusters_dir.join ", " }"
         headers = config[:facets] ? [:cluster, :facets, :path] : [:cluster, :path] 
         Formatador.display_compact_table(data, headers)
       end
