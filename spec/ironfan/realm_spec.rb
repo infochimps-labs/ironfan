@@ -27,12 +27,17 @@ describe Ironfan::Dsl::Realm do
     end
   end
 
-  def manifest
-    Ironfan.cluster(:bar).facets[:baz].server(0).to_machine_manifest
+  after(:each) do
+    Ironfan.clusters.clear
+    Ironfan.realms.clear
+  end
+
+  def manifest    
+    Ironfan.cluster(:bar).resolve.facets[:baz].server(0).to_machine_manifest
   end
 
   it 'chooses its own name as its default environment' do
-    Ironfan.realm(:bar).environment.to_s.should == 'bar'
+    Ironfan.realm(:bar){ }.environment.to_s.should == 'bar'
   end
 
   it 'chooses the widest possible cookbook contraints to satisfy all plugins' do
@@ -112,7 +117,7 @@ describe Ironfan::Dsl::Realm do
     Ironfan.cluster(:bar).facets[:baz].server(0).should_not(be_nil)
   end
 
-  it 'should create clusters with attributes correctly applied' do
+  it 'should create clusters with attributes correctly applied' do    
     manifest.cluster_override_attributes.should == {a: 1}
     manifest.facet_override_attributes.should == {b: 1}
     manifest.run_list.should == %w[role[blah] role[bar-cluster] role[bar-baz-facet]]
@@ -133,12 +138,12 @@ describe Ironfan::Dsl::Realm do
 
   it 'should save an environment to be shared among all clusters within the realm' do
     # We need to resolve before the cloud settings come through
-    Ironfan.realm(:foo).clusters[:bar].resolve.facets[:baz].environment.should == :bif
+    Ironfan.realm(:foo).resolve.clusters[:bar].facets[:baz].environment.should == :bif
 
     # The server manifest should contain the environment.
     manifest.environment.should == :bif
 
     # Ironfan.cluster will do the resolution for us.
-    Ironfan.cluster(:bar).facets[:baz].environment.should == :bif
+    Ironfan.cluster(:bar).resolve.facets[:baz].environment.should == :bif
   end
 end
