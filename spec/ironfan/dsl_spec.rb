@@ -57,17 +57,21 @@ describe Ironfan::Dsl do
 
   context 'when aggregating requirements' do
     before(:each) do
-      Ironfan::Dsl.class_eval{ @@testing = true }
-
       Ironfan::Dsl::Component.template(%w[foo]) do
+        require_strict_versioning false
+
         cookbook_req 'a', '>= 1.2.3'
         def project(*_) end
       end
       Ironfan::Dsl::Component.template(%w[bar]) do
+        require_strict_versioning false
+
         cookbook_req 'a', '>= 1.2.5'
         def project(*_) end
       end
       Ironfan::Dsl::Component.template(%w[baz]) do
+        require_strict_versioning false
+
         cookbook_req 'a', '>= 1.2.7'
         def project(*_) end
       end
