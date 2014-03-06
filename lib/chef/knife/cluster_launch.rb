@@ -44,12 +44,16 @@ class Chef
         :description => "Perform launch operations even if it may not be safe to do so. Default false",
         :boolean     => true,
         :default     => false
-
       option :bootstrap,
         :long        => "--[no-]bootstrap",
         :description => "Also bootstrap the launched machine (default is NOT to bootstrap)",
         :boolean     => true,
         :default     => false
+      option :cloud,
+        long:        "--[no-]cloud",
+        description: "Look up computers on AWS cloud (default is yes, look up computers; use --no-cloud to skip)",
+        default:     true,
+        boolean:     true
 
       def _run
         load_ironfan
