@@ -10,6 +10,7 @@ module Ironfan
           obj = obj.symbolize_keys
           obj[:_type] ||=
             case obj[:name]
+            when :autoscale  then Autoscale
             when :ec2        then Ec2
             when :virtualbox then VirtualBox
             when :vsphere    then Vsphere

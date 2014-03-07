@@ -31,6 +31,7 @@ module Ironfan
       class ElasticLoadBalancer < Ironfan::Dsl; end
       class IamServerCertificate < Ironfan::Dsl; end
     end
+    class Autoscale < Cloud; end
     class VirtualBox < Cloud; end
     class Vsphere < Cloud; end
     class Rds < Cloud
@@ -64,6 +65,9 @@ module Ironfan
       class SecurityGroup < Ironfan::Provider::Resource; end
       class ElasticLoadBalancer < Ironfan::Provider::Resource; end
       class IamServerCertificate < Ironfan::Provider::Resource; end
+    end
+    class Autoscale < Ironfan::IaasProvider
+      class Machine < Ironfan::IaasProvider::Machine; end
     end
     class VirtualBox < Ironfan::IaasProvider
       class Machine < Ironfan::IaasProvider::Machine; end
