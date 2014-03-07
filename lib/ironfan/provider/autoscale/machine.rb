@@ -40,6 +40,13 @@ module Ironfan
           launch_configuration.instance_type
         end
 
+        def vpc_id
+          vpc_zone_identifier
+        end
+
+        def public_hostname; nil; end
+        def public_ip_address; nil; end
+
         # Autoscale groups cannot be contacted directly
         def sshable?
           false
