@@ -29,4 +29,5 @@ Gem::Specification.new do |gem|
   gem.add_dependency('json',       '1.5.4')
 
   gem.add_development_dependency('bundler', '~> 1.0')
+
 end
