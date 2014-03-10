@@ -14,12 +14,9 @@ require 'gorillib/pathname'
 Pathname.register_paths(code:     File.expand_path('../..', __FILE__),
                         spec:     [:code, 'spec'],
                         fixtures: [:spec, 'fixtures'],
-                        support:  [:spec, 'support'],
-                        features: [:spec, 'acceptance'],
-                        steps:    [:features, 'steps'])
+                        support:  [:spec, 'support'])
 
 Dir[Pathname.path_to(:support).join('**/*.rb')].each{ |f| require f }
-Dir[Pathname.path_to(:steps).join('**/*.rb')].each{ |f| require f }
 
 RSpec.configure do |cfg|
   def ironfan_go!
@@ -29,7 +26,7 @@ RSpec.configure do |cfg|
     Chef::Config.instance_eval do
       knife.merge!(aws_access_key_id:     'access_key',
                    aws_secret_access_key: 'secret')
-      cluster_path Pathname.path_to(:fixtures).to_s
+      cluster_path Pathname.path_to(:fixtures).join('clusters').to_s
     end
 
     Ironfan.ui          = Chef::Knife::UI.new(STDOUT, STDERR, STDIN, {})
