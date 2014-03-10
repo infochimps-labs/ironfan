@@ -1,15 +1,15 @@
 require 'spec_helper'
 
 cert = File.read Pathname.path_to(:fixtures).join('ec2/elb/snakeoil.crt').to_s
-key = File.read Pathname.path_to(:fixtures).join('ec2/elb/snakeoil.key').to_s
+key  = File.read Pathname.path_to(:fixtures).join('ec2/elb/snakeoil.key').to_s
 
 describe Ironfan::Dsl::Cluster do
-  let (:cluster) do
+  let(:cluster) do
 
-    Ironfan.cluster "sparky" do
+    Ironfan.cluster 'sparky' do
 
       cloud(:ec2) do
-        iam_server_certificate "snake-oil" do
+        iam_server_certificate 'snake-oil' do
           certificate cert
           private_key key
         end
@@ -19,7 +19,7 @@ describe Ironfan::Dsl::Cluster do
         instances 2
         cloud(:ec2) do
 
-          elastic_load_balancer "sparky-elb" do
+          elastic_load_balancer 'sparky-elb' do
             map_port('HTTP',   80, 'HTTP', 81)
             map_port('HTTPS', 443, 'HTTP', 81, 'snake-oil')
             disallowed_ciphers %w[ RC4-SHA ]
@@ -38,52 +38,57 @@ describe Ironfan::Dsl::Cluster do
         end
       end
     end
+
+    Ironfan.cluster('sparky').resolve
   end
 
-  describe 'cluster definition' do
-    subject { cluster }
+  context 'cluster definition' do
+    subject{ cluster }
 
-    its(:name) { should eql "sparky" }
-    its(:environment) { should eql :_default }
-    its(:run_list) { should eql [] }
+    its(:name)       { should eq('sparky')  }
+    its(:environment){ should eq(:_default) }
+    its(:run_list)   { should eq([])        }
 
-    it "should have one IAM server certificate" do
-      cluster.clouds.values.first.iam_server_certificates.values.length.should == 1
+    it 'has one IAM server certificate' do
+      cluster.clouds.values.first.iam_server_certificates.values.length.should eq(1)
     end
 
-    describe 'facets' do
-      before { @facets = cluster.facets }
-      subject { @facets.values }
-      its(:length) { should eql 1 }
+    context 'facets' do
+      let(:facets){ cluster.facets }
 
-      describe 'web facet' do
-        before { @facet = @facets.values.first }
-        subject { @facet }
-        its(:name) { should eql "web" }
-        describe "elastic load balancers" do
+      subject{ facets.values }
 
-          before { @elb = @facet.clouds.values.first.elastic_load_balancers.values.first }
-          subject { @elb }
-          its(:name) { should eql "sparky-elb" }
+      its(:length){ should eq(1) }
 
-          it "should have two port mappings" do
-            @elb.port_mappings.length.should == 2
+      context 'web facet' do
+        subject(:facet){ facets.values.first }
+
+        its(:name){ should eq('web') }
+
+        context 'elastic load balancer' do
+
+          subject(:elb){ facet.clouds.values.first.elastic_load_balancers.values.first }
+
+          its(:name){ should eq('sparky-elb') }
+
+          it 'has two port mappings' do
+            elb.port_mappings.length.should eq(2)
           end
 
-          it "should have just one disallowed SSL cipher" do
-            @elb.disallowed_ciphers.length.should == 1
+          it 'has just one disallowed SSL cipher' do
+            elb.disallowed_ciphers.length.should eq(1)
           end
 
-          describe "health check" do
-            before { @hc = @elb.health_check }
-            subject { @hc }
-            its(:ping_protocol) { should eql 'HTTP' }
-            its(:ping_port) { should eql 82 }
-            its(:ping_path) { should eql '/healthcheck' }
-            its(:timeout) { should eql 4 }
-            its(:interval) { should eql 10 }
-            its(:unhealthy_threshold) { should eql 3 }
-            its(:healthy_threshold) { should eql 2 }
+          context 'health check' do
+            subject(:health_check){ elb.health_check }
+
+            its(:ping_protocol)      { should eq('HTTP')         }
+            its(:ping_port)          { should eq(82)             }
+            its(:ping_path)          { should eq('/healthcheck') }
+            its(:timeout)            { should eq(4)              }
+            its(:interval)           { should eq(10)             }
+            its(:unhealthy_threshold){ should eq(3)              }
+            its(:healthy_threshold)  { should eq(2)              }
           end
 
         end
