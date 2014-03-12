@@ -19,14 +19,14 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep(/^spec/)
   gem.require_paths = %w[ lib ]
     
-  gem.add_dependency('chef',       '~> 10.16')
-  gem.add_dependency('fog',        '~> 1.2')
-  gem.add_dependency('excon',      '~> 0.21.0')
-  gem.add_dependency('formatador', '~> 0.2')
-  gem.add_dependency('gorillib',   '~> 0.5.0')
-  gem.add_dependency('rbvmomi',    '>= 0')
-  gem.add_dependency('diff-lcs',   '~> 1.2.5')
-  gem.add_dependency('json',       '= 1.5.4')
+  gem.add_dependency('chef',       '10.30.4')
+  gem.add_dependency('fog',        '1.10.1')
+  gem.add_dependency('excon',      '0.21.0')
+  gem.add_dependency('formatador', '0.2.4')
+  gem.add_dependency('gorillib',   '0.5.0')
+  gem.add_dependency('rbvmomi',    '1.8.1')
+  gem.add_dependency('diff-lcs',   '1.2.5')
+  gem.add_dependency('json',       '1.5.4')
 
   gem.add_development_dependency('bundler', '~> 1.0')
 end
