@@ -321,26 +321,51 @@ module Ironfan
   end
 end
 
+#
+# aws ec2 flavor info: details on ec2 linux instances in us-east
+#
+# instance details from http://aws.amazon.com/ec2/instance-types/
+# pricing from http://aws.amazon.com/ec2/pricing/
+# 
+# some notes on attributes:
+#   price: cost per hour in US dollars as of 12 March 2014
+#   ram:   instance RAM in MiB
+#   cores: number of vCPUs
+#   core_size: ECU / vCPU
+
+
 Chef::Config[:ec2_flavor_info] ||= {}
 Chef::Config[:ec2_flavor_info].merge!({
     # 32-or-64: m1.small, m1.medium, t1.micro, c1.medium
-    't1.micro'    => { :price => 0.02,  :bits => 64, :ram =>    686, :cores => 1, :core_size => 0.25, :inst_disks => 0, :inst_disk_size =>    0, :ephemeral_volumes => 0 },
-    'm1.small'    => { :price => 0.08,  :bits => 64, :ram =>   1740, :cores => 1, :core_size => 1,    :inst_disks => 1, :inst_disk_size =>  160, :ephemeral_volumes => 1 },
-    'm1.medium'   => { :price => 0.165, :bits => 64, :ram =>   3840, :cores => 2, :core_size => 1,    :inst_disks => 1, :inst_disk_size =>  410, :ephemeral_volumes => 1 },
-    'c1.medium'   => { :price => 0.17,  :bits => 64, :ram =>   1740, :cores => 2, :core_size => 2.5,  :inst_disks => 1, :inst_disk_size =>  350, :ephemeral_volumes => 1 },
-    #
-    'm1.large'    => { :price => 0.32,  :bits => 64, :ram =>   7680, :cores => 2, :core_size => 2,    :inst_disks => 2, :inst_disk_size =>  850, :ephemeral_volumes => 2, :ebs_optimizable =>  500, },
-    'm2.xlarge'   => { :price => 0.45,  :bits => 64, :ram =>  18124, :cores => 2, :core_size => 3.25, :inst_disks => 1, :inst_disk_size =>  420, :ephemeral_volumes => 1, },
-    'm3.xlarge'   => { :price => 0.50,  :bits => 64, :ram =>  15360, :cores => 4, :core_size => 3.25, :inst_disks => 0, :inst_disk_size =>  0,   :ephemeral_volumes => 0, :ebs_optimizable =>  500, },
-    'c1.xlarge'   => { :price => 0.64,  :bits => 64, :ram =>   7168, :cores => 8, :core_size => 2.5,  :inst_disks => 4, :inst_disk_size => 1690, :ephemeral_volumes => 4, :ebs_optimizable => 1000, },
-    'm1.xlarge'   => { :price => 0.66,  :bits => 64, :ram =>  15360, :cores => 4, :core_size => 2,    :inst_disks => 4, :inst_disk_size => 1690, :ephemeral_volumes => 4, :ebs_optimizable => 1000, },
-    'm3.2xlarge'  => { :price => 1.00,  :bits => 64, :ram =>  30720, :cores => 8, :core_size => 3.25, :inst_disks => 0, :inst_disk_size =>  0,   :ephemeral_volumes => 0, :ebs_optimizable => 1000, },
-    'm2.2xlarge'  => { :price => 0.90,  :bits => 64, :ram =>  35020, :cores => 4, :core_size => 3.25, :inst_disks => 2, :inst_disk_size =>  850, :ephemeral_volumes => 2, :ebs_optimizable =>  500, },
-    'm2.4xlarge'  => { :price => 1.80,  :bits => 64, :ram =>  70041, :cores => 8, :core_size => 3.25, :inst_disks => 4, :inst_disk_size => 1690, :ephemeral_volumes => 4, :ebs_optimizable => 1000, },
-    'cc1.4xlarge' => { :price => 1.30,  :bits => 64, :ram =>  23552, :cores => 8, :core_size => 4.19, :inst_disks => 4, :inst_disk_size => 1690, :ephemeral_volumes => 2, :placement_groupable => true, :virtualization => 'hvm' },
-    'cc1.8xlarge' => { :price => 2.40,  :bits => 64, :ram =>  61952, :cores =>16, :core_size => 5.50, :inst_disks => 8, :inst_disk_size => 3370, :ephemeral_volumes => 4, :placement_groupable => true, :virtualization => 'hvm' },
-    'cc2.8xlarge' => { :price => 2.40,  :bits => 64, :ram =>  61952, :cores =>16, :core_size => 5.50, :inst_disks => 8, :inst_disk_size => 3370, :ephemeral_volumes => 4, :placement_groupable => true, :virtualization => 'hvm' },
-    'cg1.4xlarge' => { :price => 2.10,  :bits => 64, :ram =>  22528, :cores => 8, :core_size => 4.19, :inst_disks => 4, :inst_disk_size => 1690, :ephemeral_volumes => 2, :placement_groupable => true, :virtualization => 'hvm' },
+    't1.micro'    => { :price => 0.02,  :bits => 64, :ram => 630, :cores => 1, :core_size => 0.25, :inst_disks => 0, :inst_disk_size =>    0, :ephemeral_volumes => 0 },
+    'm1.small'    => { :price => 0.06,  :bits => 64, :ram => 1741, :cores => 1, :core_size => 1.0,  :inst_disks => 1, :inst_disk_size =>  160, :ephemeral_volumes => 1 },
+    'm1.medium'   => { :price => 0.120, :bits => 64, :ram => 3840, :cores => 1, :core_size => 2.0,  :inst_disks => 1, :inst_disk_size =>  410, :ephemeral_volumes => 1 },
+    'c1.medium'   => { :price => 0.145, :bits => 64, :ram => 1741, :cores => 2, :core_size => 2.5,  :inst_disks => 1, :inst_disk_size =>  350, :ephemeral_volumes => 1 },
+    'm3.medium'   => { :price => 0.113, :bits => 64, :ram => 3840, :cores => 1, :core_size => 3.0,  :inst_disks => 1, :inst_disk_size =>    4, :ephemeral_volumes => 1, :ebs_optimizable =>  500, },
+    'm1.large'    => { :price => 0.240, :bits => 64, :ram => 7680, :cores => 2, :core_size => 2.0,  :inst_disks => 2, :inst_disk_size =>  420, :ephemeral_volumes => 2, :ebs_optimizable =>  500, },
+    'm3.large'    => { :price => 0.225, :bits => 64, :ram => 7680, :cores => 2, :core_size => 3.25, :inst_disks => 1, :inst_disk_size =>   32, :ephemeral_volumes => 0, :ebs_optimizable =>  500, },
+    'm2.xlarge'   => { :price => 0.410, :bits => 64, :ram => 17510, :cores => 2, :core_size => 3.25, :inst_disks => 1, :inst_disk_size =>  420, :ephemeral_volumes => 1 },
+    'm3.xlarge'   => { :price => 0.450, :bits => 64, :ram => 15360, :cores => 4, :core_size => 3.25, :inst_disks => 2, :inst_disk_size =>  40, :ephemeral_volumes => 2, :ebs_optimizable =>  500, },
+    'c1.xlarge'   => { :price => 0.580, :bits => 64, :ram => 7168, :cores => 8, :core_size => 2.5,  :inst_disks => 4, :inst_disk_size =>  420, :ephemeral_volumes => 4, :ebs_optimizable => 1000, },
+    'm1.xlarge'   => { :price => 0.480, :bits => 64, :ram => 15360, :cores => 4, :core_size => 2.0, :inst_disks => 4, :inst_disk_size =>  420, :ephemeral_volumes => 4, :ebs_optimizable => 1000, },
+    'm3.2xlarge'  => { :price => 0.900, :bits => 64, :ram => 30720, :cores => 8, :core_size => 3.25, :inst_disks => 2, :inst_disk_size =>  80, :ephemeral_volumes => 2, :ebs_optimizable => 1000, },
+    'm2.2xlarge'  => { :price => 0.820, :bits => 64, :ram => 35021, :cores => 4, :core_size => 3.25, :inst_disks => 1, :inst_disk_size =>  850, :ephemeral_volumes => 2, :ebs_optimizable =>  500, },
+    'm2.4xlarge'  => { :price => 1.640, :bits => 64, :ram => 70042, :cores => 8, :core_size => 3.25, :inst_disks => 2, :inst_disk_size =>  840, :ephemeral_volumes => 2, :ebs_optimizable => 1000, },
+    'cc2.8xlarge' => { :price => 2.400, :bits => 64, :ram =>  61952, :cores =>32, :core_size => 2.75, :inst_disks => 4, :inst_disk_size =>  840, :ephemeral_volumes => 4, :placement_groupable => true, :virtualization => 'hvm' },
+    'cg1.4xlarge' => { :price => 2.100, :bits => 64, :ram =>  23040, :cores =>16, :core_size => 2.09375, :inst_disks => 2, :inst_disk_size =>  840, :ephemeral_volumes => 2, :placement_groupable => true, :virtualization => 'hvm' },
+    'c3.large'    => { :price => 0.150, :bits => 64, :ram =>   3840, :cores => 2, :core_size => 3.5,  :inst_disks => 2, :inst_disk_size =>  16, :ephemeral_volumes => 2, :placement_groupable => true, :virtualization => 'hvm', :ebs_opizable => 1000 },
+    'c3.xlarge'   => { :price => 0.300, :bits => 64, :ram =>   7680, :cores => 4, :core_size => 3.5,  :inst_disks => 2, :inst_disk_size =>   40, :ephemeral_volumes => 2, :placement_groupable => true, :virtualization => 'hvm', :ebs_opizable => 1000 },
+    'c3.2xlarge'  => { :price => 0.600, :bits => 64, :ram =>  15360, :cores => 8, :core_size => 3.5, :inst_disks => 2, :inst_disk_size =>  80, :ephemeral_volumes => 2, :placement_groupable => true, :virtualization => 'hvm', :ebs_opizable => 1000 },
+    'c3.4xlarge'  => { :price => 1.200, :bits => 64, :ram =>  30720, :cores => 16, :core_size => 3.4375, :inst_disks => 2, :inst_disk_size =>  160, :ephemeral_volumes => 2, :placement_groupable => true, :virtualization => 'hvm', :ebs_opizable => 1000 },
+    'c3.8xlarge'  => { :price => 2.400, :bits => 64, :ram =>  61440, :cores => 32, :core_size => 3.375, :inst_disks => 2, :inst_disk_size =>  320, :ephemeral_volumes => 2, :placement_groupable => true, :virtualization => 'hvm' },
+    'hs1.8xlarge' => { :price => 4.600, :bits => 64, :ram => 119808, :cores => 16, :core_size => 2.1875, :inst_disks => 24, :inst_disk_size =>  2048, :ephemeral_volumes => 24, :placement_groupable => true, :virtualization => 'hvm' },
+    'cr1.8xlarge' =>  { :price => 3.500, :bits => 64, :ram => 249856, :cores => 32, :core_size => 2.75, :inst_disks => 2, :inst_disk_size =>  120, :ephemeral_volumes => 2, :placement_groupable => true, :virtualization => 'hvm' },
+    'i2.xlarge'   =>  { :price => 0.853, :bits => 64, :ram => 31232, :cores => 4, :core_size => 3.5, :inst_disks => 1, :inst_disk_size =>  800, :ephemeral_volumes => 1, :placement_groupable => true, :virtualization => 'hvm', :ebs_optimized =>  500 },
+    'i2.2xlarge'  =>  { :price => 1.705, :bits => 64, :ram => 62464, :cores => 8, :core_size => 3.375, :inst_disks => 2, :inst_disk_size =>  800, :ephemeral_volumes => 2, :placement_groupable => true, :virtualization => 'hvm', :ebs_optimized => 1000 },
+    'i2.4xlarge'  =>  { :price => 3.410, :bits => 64, :ram => 124928, :cores => 16, :core_size => 3.3125, :inst_disks => 4, :inst_disk_size =>  800, :ephemeral_volumes => 4, :placement_groupable => true, :virtualization => 'hvm', :ebs_optimized => 1000 },
+    'i2.8xlarge'  =>  { :price => 6.820, :bits => 64, :ram => 249856, :cores => 32, :core_size => 3.25, :inst_disks => 8, :inst_disk_size =>  800, :ephemeral_volumes => 8, :placement_groupable => true, :virtualization => 'hvm' },
+    'g2.2xlarge'  =>  { :price => 0.650, :bits => 64, :ram => 15360, :cores => 8, :core_size => 3.25, :inst_disks => 1, :inst_disk_size =>   60, :ephemeral_volumes => 1, :placement_groupable => true, :virtualization => 'hvm', :ebs_optimized => 1000 },
+    'hi1.4xlarge' =>  { :price => 3.100, :bits => 64, :ram => 61952, :cores => 16, :core_size => 2.1875, :inst_disks => 2, :inst_disk_size =>  1024, :ephemeral_volumes => 2, :placement_groupable => true, :virtualization => 'hvm', :ebs_optimized => 1000 },
   })
 
 Chef::Config[:ec2_image_info] ||= {}
