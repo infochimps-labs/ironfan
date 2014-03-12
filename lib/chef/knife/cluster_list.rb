@@ -45,7 +45,9 @@ class Chef
           name, path = [cluster.name, cluster.source_file]
           as_table = { :cluster => name, :path => path }
           if config[:facets]
-            facets = Ironfan.load_cluster(name).facets.to_a.map(&:name).join(', ')
+            facets = Ironfan.load_cluster(name).facets.to_a.map do |facet|
+              "#{facet.name}(#{facet.instances})"
+            end.join(', ')
             as_table.merge!(:facets => facets)
           end
           as_table
