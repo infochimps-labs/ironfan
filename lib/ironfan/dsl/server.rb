@@ -63,6 +63,7 @@ module Ironfan
       # field :validation_key,            String
       #-----------------------------------------------------------------------------------
 
+     
       # Reconstruct machine manifest from a computer, pulling
       # information from remote sources as necessary.
       def self.from_computer(computer)
@@ -229,8 +230,10 @@ module Ironfan
       end
 
       def full_name()           "#{cluster_name}-#{facet_name}-#{name}";        end
+      def host_name()           full_name.gsub('_','-'); end;
+      def fqdn()                [self.host_name, self.dns_domain].compact.join(".");     end
       def index()               name.to_i;                                      end
-      def implied_volumes()     selected_cloud.implied_volumes;                 end
+      def implied_volumes()    selected_cloud.implied_volumes;                 end
 
       def to_display(style,values={})
         selected_cloud.to_display(style,values)
