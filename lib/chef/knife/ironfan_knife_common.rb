@@ -14,10 +14,11 @@ module Ironfan
       $LOAD_PATH << File.join(Chef::Config[:ironfan_path], '/lib') if Chef::Config[:ironfan_path]
       require 'ironfan'
       $stdout.sync = true
-      Ironfan.ui          = self.ui
-      self.config[:cloud] = Chef::Config[:cloud] if Chef::Config.has_key?(:cloud)
-      Ironfan.chef_config = self.config
-      self.broker         = Ironfan.broker
+      Ironfan.ui           = self.ui
+      self.config[:cloud]  = Chef::Config[:cloud] if Chef::Config.has_key?(:cloud)
+      Ironfan.knife_config = self.config
+      Ironfan.chef_config  = Chef::Config
+      self.broker          = Ironfan.broker
     end
 
     def run()
@@ -49,21 +50,27 @@ module Ironfan
     #
     # @return [Ironfan::ServerSlice] the requested slice
     def get_slice(slice_string, *args)
-      cluster_name, facet_name, slice_indexes = pick_apart(slice_string, *args)
-      desc = predicate_str(cluster_name, facet_name, slice_indexes)
+      realm_name, cluster_name, facet_name, slice_indexes = pick_apart(slice_string, *args)
+      desc = predicate_str(realm_name, cluster_name, facet_name, slice_indexes)
       #
       ui.info("Inventorying servers in #{desc}")
-      cluster   = Ironfan.load_cluster(cluster_name)
-      Chef::Config[:knife][:region] = cluster.servers.to_a.first.cloud(:ec2).region
-      computers =  broker.discover! cluster
+      realm = Ironfan.load_realm(realm_name)
+      realm.clusters.each{ |cluster| Ironfan.load_cluster cluster.name }
+      realm.resolve!
+      Chef::Config[:knife][:region] = realm.clusters.to_a.first.servers.to_a.first.cloud(:ec2).region
+      computers = broker.discover!(realm.clusters.to_a, config[:cloud])
       Chef::Log.info("Inventoried #{computers.size} computers")
       #
-      computers.slice(facet_name, slice_indexes)
+      computers.slice(cluster_name, facet_name, slice_indexes)
     end
 
     def all_computers(slice_string, *args)
-      cluster_name, facet_name, slice_indexes = pick_apart(slice_string, *args)
-      computers = broker.discover! Ironfan.load_cluster(cluster_name)
+      realm_name, cluster_name, facet_name, slice_indexes = pick_apart(slice_string, *args)
+      realm = Ironfan.load_realm(realm_name)
+      realm.clusters.each{ |cluster| Ironfan.load_cluster cluster.name }
+      realm.resolve!
+      clusters = cluster_name ? Array(realm.clusters[cluster_name.to_sym]) : realm.clusters.to_a
+      computers = broker.discover!(clusters, config[:cloud])
       ui.info("Loaded information for #{computers.size} computer(s) in cluster #{cluster_name}")
       computers
     end
@@ -74,11 +81,12 @@ module Ironfan
         ui.info("")
         ui.warn("Please specify server slices joined by dashes and not separate args:\n\n  knife cluster #{sub_command} #{slice_string}\n\n")
       end
-      slice_string.split(/[\s\-]/, 3)
+      slice_string.split(/[\s\-]/, 4)
     end
 
-    def predicate_str(cluster_name, facet_name, slice_indexes)
-      [ "#{ui.color(cluster_name, :bold)} cluster",
+    def predicate_str(realm_name, cluster_name, facet_name, slice_indexes)
+      [ "#{ui.color(realm_name, :bold)} realm",
+        (cluster_name  ? "#{ui.color(cluster_name, :bold)} cluster"  : "#{ui.color("all", :bold)} clusters"),
         (facet_name    ? "#{ui.color(facet_name, :bold)} facet"      : "#{ui.color("all", :bold)} facets"),
         (slice_indexes ? "servers #{ui.color(slice_indexes, :bold)}" : "#{ui.color("all", :bold)} servers")
       ].join(', ')
@@ -221,7 +229,6 @@ module Ironfan
     #
     # Utilities
     #
-
     def sub_command
       self.class.sub_command
     end

@@ -15,10 +15,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+require_relative '../cluster_knife'
+
 class Chef
   class Knife
     class ClusterShow < Knife
       include Ironfan::KnifeCommon
+
       deps do
         Ironfan::KnifeCommon.load_deps
       end
@@ -26,10 +29,10 @@ class Chef
       banner "knife cluster show        CLUSTER[-FACET[-INDEXES]] (options) - a helpful display of cluster's cloud and chef state"
 
       option :cloud,
-        :long        => "--[no-]cloud",
-        :description => "Look up computers on AWS cloud (default is yes, look up computers; use --no-cloud to skip)",
-        :default     => true,
-        :boolean     => true
+        long:        "--[no-]cloud",
+        description: "Look up computers on AWS cloud (default is yes, look up computers; use --no-cloud to skip)",
+        default:     true,
+        boolean:     true
 
       def _run
         with_verbosity(1){ config[:include_terminated] = true }

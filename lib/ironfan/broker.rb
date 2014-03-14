@@ -11,21 +11,26 @@ module Ironfan
     # Take in a Dsl::Cluster; return Computers populated with all discovered
     #   resources that correlate; computers corresponding to partial or
     #   unrecognizable resources are labeled as bogus.
-    def discover!(cluster)
+    def discover!(clusters, with_cloud = true)
 
       # Get fully resolved servers, and build Computers using them
-      computers = Computers.new(:cluster => cluster)
-      #
-      providers = computers.map{|c| c.providers.values }.flatten.uniq
-      Ironfan.parallel(providers) do |provider|
-        Ironfan.step cluster.name, "Loading #{provider.handle}", :cyan
-        provider.load cluster
+      computers = Computers.new(clusters: Array(clusters))
+      #      
+      if with_cloud
+        providers = computers.map{|c| c.providers.values }.flatten.uniq
+        Ironfan.parallel(providers) do |provider|
+          clusters.each do |cluster|
+            Ironfan.step cluster.name, "Loading #{provider.handle}", :cyan
+            provider.load cluster
+          end
+        end
+        #
+        clusters.each do |cluster|
+          Ironfan.step cluster.name, "Reconciling DSL and provider information", :cyan
+        end
+        computers.correlate
+        computers.validate
       end
-      #
-      Ironfan.step cluster.name, "Reconciling DSL and provider information", :cyan
-
-      computers.correlate
-      computers.validate
       #
       computers
     end

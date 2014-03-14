@@ -6,14 +6,14 @@ module Ironfan
       include Ironfan::Plugin::Base; register_with Ironfan::Dsl::Compute
 
       field :cluster_name, Symbol
-      field :facet_name, Symbol
-      field :realm_name, Symbol
-      field :name, Symbol
+      field :facet_name,   Symbol
+      field :realm_name,   Symbol
+      field :name,         Symbol
 
       def initialize(attrs, &blk)
-        attrs.merge!(facet_name: (attrs[:owner].name unless attrs[:owner].nil? or not attrs[:owner].is_a?(Facet)),
+        attrs.merge!(facet_name:   (attrs[:owner].name unless attrs[:owner].nil? or not attrs[:owner].is_a?(Facet)),
                      cluster_name: (attrs[:owner].cluster_name unless attrs[:owner].nil?),
-                     realm_name: (attrs[:owner].realm_name unless attrs[:owner].nil?))
+                     realm_name:   (attrs[:owner].realm_name unless attrs[:owner].nil?))
         super attrs, &blk
       end
 
@@ -34,8 +34,8 @@ module Ironfan
 
       def self.from_node(node = NilCheckDelegate.new(nil))
         cluster_name = node['cluster_name'].to_s
-        super(node).tap{|x| x.receive!(cluster_name: cluster_name,
-                                       realm_name: cluster_name.split('_').first)}
+        realm_name = node['realm_name'].to_s
+        super(node).tap{ |x| x.receive!(cluster_name: cluster_name, realm_name: realm_name) }                                        
       end
 
       def self.announce_name
@@ -94,7 +94,7 @@ module Ironfan
         end
       end
 
-      def set_discovery compute, keys
+      def set_discovery(compute, keys)
         if server_cluster
           wire_to(compute, full_server_cluster, keys)
         else
@@ -126,7 +126,7 @@ module Ironfan
       end
       
       def full_server_cluster
-        "#{realm_name}_#{server_cluster}"
+        server_cluster
       end
 
       def group_edge(cloud, group_1, method, group_2)

@@ -1,36 +1,43 @@
 module Ironfan
   class Dsl
-
     class Realm < Ironfan::Dsl::Compute
       collection :clusters,       Ironfan::Dsl::Cluster,   :resolver => :deep_resolve
 
-      def children
-        clusters.to_a
-      end
-
       magic :cluster_suffixes,    Whatever
 
-      def initialize(attrs={},&block)
-        cluster_names({})
-        realm_name attrs[:name] if attrs[:name]
-        attrs[:environment] = realm_name unless attrs.has_key?(:environment)
-        super(attrs, &block)
+      def self.definitions
+        @realms ||= {}
       end
 
-      def cluster(label, attrs={},&blk)
-        new_name = [realm_name, label].join('_').to_sym
+      def self.define(attrs = {}, &blk)
+        rlm = new(attrs)
+        rlm.receive!({}, &blk)
+        definitions[attrs[:name].to_sym] = rlm
+      end
 
-        if clusters.keys.include? new_name
-          clusters[new_name].tap do |cl|
-            cl.receive!(attrs)
+      def initialize(attrs = {}, &blk)
+        cluster_names Hash.new
+        realm_name attrs[:name] if attrs[:name]
+        attrs[:environment] = realm_name unless attrs.has_key?(:environment)
+        super(attrs, &blk)
+      end
+
+      def cluster(label, attrs = {}, &blk)
+        if clusters.keys.include? label
+          clusters[label].tap do |cl|
+            cl.receive! attrs
             cl.instance_eval(&blk) if block_given?
           end
         else
-          cluster = Ironfan::Dsl::Cluster.new(name: new_name, owner: self, cluster_names: cluster_names)
-          cluster_names[label] = new_name
+          cluster = Ironfan::Dsl::Cluster.define(name: label, owner: self, cluster_names: cluster_names)
+          cluster_names[label] = label
           cluster.receive!(attrs, &blk)
-          super(new_name, cluster)
+          super(label, cluster)
         end
+      end
+
+      def children
+        clusters.to_a
       end
     end
   end

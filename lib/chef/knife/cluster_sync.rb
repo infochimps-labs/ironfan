@@ -15,6 +15,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+require_relative '../cluster_knife'
+
 class Chef
   class Knife
     class ClusterSync < Ironfan::Script
@@ -43,7 +45,7 @@ class Chef
         computer.created? or computer.node?
       end
 
-      def perform_execution(target)
+      def perform_execution target
         if config[:chef]
           if config[:dry_run]
             ui.info "(can't do a dry-run when syncing to chef -- skipping)"

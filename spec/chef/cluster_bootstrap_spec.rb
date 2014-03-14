@@ -28,13 +28,13 @@ describe Chef::Knife::ClusterBootstrap do
       subject.config[:yes] = true
     end
     context 'full slice' do
-      let(:slice){ ['gunbai'] }
+      let(:slice){ ['samurai-gunbai'] }
       it 'fails if there are multiple environments' do
         expect{ subject.run }.to raise_error("Cannot bootstrap multiple chef environments")
       end
     end
     context 'partial slice' do
-      let(:slice){ ['gunbai-hub'] }
+      let(:slice){ ['samurai-gunbai-hub'] }
       it 'runs' do
         subject.should_receive(:run_bootstrap).once
         subject.run
@@ -43,8 +43,4 @@ describe Chef::Knife::ClusterBootstrap do
 
   end
 
-  # it 'loads computers from json' do
-  #   computers.length.should == 2
-  #   computers.first.server.full_name.should == 'gunbai-hub-0'
-  # end
 end

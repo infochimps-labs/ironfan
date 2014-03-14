@@ -28,7 +28,7 @@ describe Chef::Knife::ClusterLaunch do
       subject.config[:bootstrap] = true
     end
     context 'full slice' do
-      let(:slice){ ['gunbai'] }
+      let(:slice){ ['samurai-gunbai'] }
       it 'fails if there are multiple environments' do
         expect{ subject.run }.to raise_error("Cannot bootstrap multiple chef environments")
       end

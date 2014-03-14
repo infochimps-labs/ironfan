@@ -8,6 +8,7 @@ module Ironfan
       field :environment, Symbol
       field :name, String
       field :cluster_name, String
+      field :realm_name, String
       field :facet_name, String
       field :components, Array, of: Ironfan::Dsl::Component, default: []
       field :run_list, Array, of: String, default: []
@@ -69,6 +70,7 @@ module Ironfan
       def self.from_computer(computer)
         node = get_node(computer.name)
         cluster_name = node['cluster_name']
+        Chef::Log.info "name is whoa: #{cluster_name}"
         facet_name = node['facet_name']
         instance = node['facet_index']
 
@@ -229,9 +231,12 @@ module Ironfan
         super
       end
 
-      def full_name()           "#{cluster_name}-#{facet_name}-#{name}";        end
+      def full_name
+        "#{realm_name}-#{cluster_name}-#{facet_name}-#{name}"
+      end
       def host_name()           full_name.gsub('_','-'); end;
       def fqdn()                [self.host_name, self.dns_domain].compact.join(".");     end
+
       def index()               name.to_i;                                      end
       def implied_volumes()    selected_cloud.implied_volumes;                 end
 
@@ -240,7 +245,8 @@ module Ironfan
 
         return values if style == :minimal
 
-        values["Env"] =         environment
+        values["Env"]   = environment
+        values["Realm"] = realm_name
         values
       end
 

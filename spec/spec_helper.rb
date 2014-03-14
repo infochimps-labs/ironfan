@@ -12,25 +12,25 @@ Fog::Mock.delay = 0
 require 'gorillib/pathname'
 
 Pathname.register_paths(code:     File.expand_path('../..', __FILE__),
-                        fixtures: [:code, 'spec', 'fixtures'],
-                        support:  [:code, 'spec', 'support'])
+                        spec:     [:code, 'spec'],
+                        fixtures: [:spec, 'fixtures'],
+                        support:  [:spec, 'support'])
 
 Dir[Pathname.path_to(:support).join('**/*.rb')].each{ |f| require f }
 
 RSpec.configure do |cfg|
   def ironfan_go!
     k = Chef::Knife.new
-    k.config[:config_file] = Pathname.path_to(:fixtures, 'knife/knife.rb')
+    k.config[:config_file] = Pathname.path_to(:fixtures, 'knife/knife.rb').to_s
     k.configure_chef
     Chef::Config.instance_eval do
       knife.merge!(aws_access_key_id:     'access_key',
                    aws_secret_access_key: 'secret')
-      cluster_path Pathname.path_to(:fixtures).to_s
+      cluster_path Pathname.path_to(:fixtures).join('clusters').to_s
     end
 
     Ironfan.ui          = Chef::Knife::UI.new(STDOUT, STDERR, STDIN, {})
-    Ironfan.chef_config = k.config
-    Ironfan.cluster_path
+    Ironfan.knife_config = k.config
   end
 end
 

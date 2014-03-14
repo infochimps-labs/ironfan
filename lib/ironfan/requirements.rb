@@ -14,6 +14,7 @@ require 'ironfan/headers'
 require 'ironfan/plugin/base'
 
 # DSL for cluster descriptions
+require 'ironfan/cookbook_requirements'
 require 'ironfan/dsl'
 require 'ironfan/builder'
 

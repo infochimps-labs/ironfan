@@ -48,7 +48,7 @@ module Ironfan
         def groups           ; Array(adaptee.groups)   ;   end
         def public_hostname  ; dns_name ; end
         def keypair          ; key_pair ; end
-
+        
         def created?
           not ['terminated', 'shutting-down'].include? state
         end
@@ -141,7 +141,7 @@ module Ironfan
         def self.validate_resources!(computers)
           recall.each_value do |machine|
             next unless machine.users.empty? and machine.name
-            if machine.name.match("^#{computers.cluster.name}-")
+            if computers.clusters.any?{ |comp| machine.name.match("^#{comp.name}-") }
               machine.bogus << :unexpected_machine
             end
             next unless machine.bogus?

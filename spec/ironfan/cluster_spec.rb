@@ -10,6 +10,7 @@ describe Ironfan::Dsl::Cluster do
       role :is_last, :last
       role :is_first, :first
     end
+    Ironfan.cluster('foo').resolve
   end
 
   its(:environment) { should eql :dev }
