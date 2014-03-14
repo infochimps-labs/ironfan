@@ -34,6 +34,7 @@ module Ironfan
       magic      :cluster_names, Whatever
       magic      :realm_name,    Symbol
 
+      magic      :dns_domain,    String
       field      :source_file,   String
 
       extend Gorillib::Concern

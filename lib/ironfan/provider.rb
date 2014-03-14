@@ -206,7 +206,62 @@ module Ironfan
     class Machine < Resource
       # A Machine lives and dies with its Computer
       def self.shared?()        false;                   end
+
+      def self.cloud_init_user_data(computer) 
+        return <<EOF
+#cloud-config
+# The line above is critical - without it cloud-init will not interpret the machine
+# user data as a cloud-init script.
+
+# The following logs everything cloud init does to /var/log
+output: {all: '| tee -a /var/log/cloud-init-output.log'}
+
+# Set our hostname
+manage_etc_hosts: True
+
+cloud_init_modules:
+ - bootcmd
+ - resizefs
+ - set_hostname
+ - update_hostname
+ - update_etc_hosts
+ - write-files
+ - ca-certs
+ - rsyslog
+ - ssh
+
+fqdn: #{computer.server.fqdn}
+
+bootcmd:
+  # note that writefiles is not supported on precise...
+  - |
+      mkdir -p /etc/chef
+      touch /etc/chef/client.pem
+      chmod 600 /etc/chef/client.pem
+      chown root:root /etc/chef/client.pem
+      cat > /etc/chef/client.pem << EOF
+#{computer.private_key.split("\n").map {|l| "      "+l}.join("\n")}
+      EOF
+      domainname #{computer.server.fqdn}
+ 
+chef:
+ install_type: "packages"
+ force_install: false
+ server_url: #{Chef::Config[:chef_server_url]}
+ node_name: #{computer.name}
+ initial_attributes:
+    chef_server: #{Chef::Config[:chef_server_url]}
+    node_name: #{computer.name}
+    organization: #{Chef::Config[:organization]}
+    realm_name: #{computer.server.realm_name}
+    cluster_name: #{computer.server.cluster_name}
+    facet_name: #{computer.server.facet_name}
+    facet_index: #{computer.server.index}
+ validation_name: "no-validator"
+ validation_key: |
+    We don't need no stinking validators.
+EOF
+      end
     end
   end
-
 end
