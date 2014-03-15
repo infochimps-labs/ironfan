@@ -250,7 +250,7 @@ module Ironfan
           # VPC security_groups can only be addressed by id (not name)
           sec_group_ids = []
           [computer.server.security_groups, cloud.security_groups].each do |container|
-            sec_group_ids += container.security_groups.keys.map do |g|
+            sec_group_ids += container.keys.map do |g|
               SecurityGroup.recall( SecurityGroup.group_name_with_vpc(g,cloud.vpc) ).group_id
             end
           end
