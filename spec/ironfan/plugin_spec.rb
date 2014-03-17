@@ -162,27 +162,27 @@ describe Ironfan::Dsl::Component do
     end
 
     it 'configures the correct security groups during discovery' do
-      foo_group = Ironfan.realm(:wap).cluster(:foo).cloud(:ec2).security_group('wap_foo')
-      bar_group = Ironfan.realm(:wap).cluster(:bar).cloud(:ec2).security_group('wap_bar')
+      foo_group = Ironfan.realm(:wap).cluster(:foo).security_group('wap_foo')
+      bar_group = Ironfan.realm(:wap).cluster(:bar).security_group('wap_bar')
 
       foo_group.group_authorized_by.should include('wap_bar')
       bar_group.group_authorized_by.should include('wap_foo')
     end
 
     it 'configures the correct security groups during bidirectional discovery' do
-      baz_group = Ironfan.realm(:wap).cluster(:baz).cloud(:ec2).security_group('wap_baz')
-      bif_group = Ironfan.realm(:wap).cluster(:bif).cloud(:ec2).security_group('wap_bif')
+      baz_group = Ironfan.realm(:wap).cluster(:baz).security_group('wap_baz')
+      bif_group = Ironfan.realm(:wap).cluster(:bif).security_group('wap_bif')
 
       baz_group.group_authorized_by.should include('wap_bif')
       baz_group.group_authorized.should    include('wap_bif')
     end
 
     it 'does not configure extra security groups during bidirectional discovery' do
-      Ironfan.realm(:wap).cluster(:baz).cloud(:ec2).security_groups.keys.should_not include('wap_bif')
+      Ironfan.realm(:wap).cluster(:baz).security_groups.keys.should_not include('wap_bif')
     end
 
     it 'correctly sets the server cluster even when the client and server facets differ' do
-      bam_wak_group = Ironfan.realm(:wap).cluster(:bam).facet(:wak).cloud(:ec2).security_group('wap_bam-wak')
+      bam_wak_group = Ironfan.realm(:wap).cluster(:bam).facet(:wak).security_group('wap_bam-wak')
       bam_wak_group.group_authorized_by.should include('wap_bop')
     end
 
