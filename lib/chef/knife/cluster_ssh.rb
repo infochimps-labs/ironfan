@@ -37,6 +37,12 @@ class Chef
         :short => "-a ATTR",
         :long => "--attribute ATTR",
         :description => "The attribute to use for opening the connection - default is fqdn (ec2 users may prefer cloud.public_hostname)"
+      option :cloud,
+        long:        "--[no-]cloud",
+        description: "Look up computers on AWS cloud (default is yes, look up computers; use --no-cloud to skip)",
+        default:     true,
+        boolean:     true
+
 
       def configure_session
         target = get_slice(@name_args[0]).select(&:running?)

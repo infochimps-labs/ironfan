@@ -222,6 +222,7 @@ module Ironfan
 
       def initialize(attrs={},&block)
         unless attrs[:owner].nil?
+          self.realm_name       attrs[:owner].realm_name
           self.cluster_name =   attrs[:owner].cluster_name
           self.facet_name =     attrs[:owner].name
 

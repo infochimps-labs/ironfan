@@ -23,6 +23,11 @@ module Ironfan
       Ironfan::KnifeCommon.load_deps
     end
 
+    option :cloud,
+      long:        "--[no-]cloud",
+      description: "Look up computers on AWS cloud (default is yes, look up computers; use --no-cloud to skip)",
+      default:     true,
+      boolean:     true
     option :dry_run,
       :long        => "--dry-run",
       :description => "Don't really run, just use mock calls",
