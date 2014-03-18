@@ -18,7 +18,7 @@ module Ironfan
         self.realm_name     attrs[:owner].realm_name    unless attrs[:owner].nil?
         self.cluster_name = attrs[:owner].cluster_name  unless attrs[:owner].nil?
         self.name         = attrs[:name]                unless attrs[:name].nil?
-        self.facet_role     Ironfan::Dsl::Role.new(name: "#{full_name}-facet")
+        self.facet_role     Ironfan::Dsl::Role.new(name: Compute.facet_role_name(realm_name, cluster_name, name))
         super
         (0..instances - 1).each{ |idx| server idx }
       end
@@ -28,7 +28,7 @@ module Ironfan
       end
 
       def full_name
-        "#{cluster_name}-#{name}"
+        "#{realm_name}-#{cluster_name}-#{name}"
       end
     end
   end

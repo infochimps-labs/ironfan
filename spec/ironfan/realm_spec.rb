@@ -120,7 +120,7 @@ describe Ironfan::Dsl::Realm do
   it 'should create clusters with attributes correctly applied' do    
     manifest.cluster_override_attributes.should == {a: 1}
     manifest.facet_override_attributes.should == {b: 1}
-    manifest.run_list.should == %w[role[blah] role[bar-cluster] role[bar-baz-facet]]
+    manifest.run_list.should == %w[role[blah] role[foo-bar-cluster] role[foo-bar-baz-facet]]
   end
 
   it 'should create clusters with the correct ssh user' do

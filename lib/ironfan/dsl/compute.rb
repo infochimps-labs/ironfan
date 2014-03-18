@@ -96,6 +96,14 @@ module Ironfan
         clouds.values.first
       end
 
+      def self.cluster_role_name realm_name, cluster_name
+        "#{realm_name}-#{cluster_name}-cluster"
+      end
+
+      def self.facet_role_name realm_name, cluster_name, facet_name
+        "#{realm_name}-#{cluster_name}-#{facet_name}-facet"
+      end
+
     protected
 
       def add_to_run_list(item, placement=nil)
