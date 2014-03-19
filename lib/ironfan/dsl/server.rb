@@ -232,8 +232,12 @@ module Ironfan
         super
       end
 
+      def full_cluster_name
+          "#{realm_name}-#{cluster_name}"
+      end
+
       def full_name
-        "#{realm_name}-#{cluster_name}-#{facet_name}-#{name}"
+        "#{full_cluster_name}-#{facet_name}-#{name}"
       end
       def host_name()           full_name.gsub('_','-'); end;
       def fqdn()                [self.host_name, self.dns_domain].compact.join(".");     end
