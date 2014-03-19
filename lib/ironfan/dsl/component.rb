@@ -96,7 +96,7 @@ module Ironfan
 
       def set_discovery(compute, keys)
         if server_cluster
-          wire_to(compute, full_server_cluster, keys)
+          wire_to(compute, keys)
         else
           # I'm defanging automatic discovery for now.
           raise StandardError.new("must explicitly specify a server_cluster for discovery")
@@ -106,36 +106,28 @@ module Ironfan
         end
       end
 
-      def wire_to(compute, full_server_cluster_v, keys)
-        discovery = {discovers: keys.reverse.inject(full_server_cluster_v){|hsh,key| {key => hsh}}}
+      def wire_to(compute, keys)
+        discovery = {discovers: keys.reverse.inject(compute.realm_name){|hsh,key| {key => hsh}}}
         (compute.facet_role || compute.cluster_role).override_attributes(discovery)
 
-        client_group_v = client_group(compute)
-        server_group_v = security_group(full_server_cluster_v)
+        client_group_v = compute.full_name
+        server_group_v = "#{realm_name}-#{server_cluster}"
 
         group_edge(compute, client_group_v, :authorized_by_group, server_group_v)
-        group_edge(compute, client_group_v, :authorize_group,     server_group_v) if bidirectional
+        Chef::Log.debug("#{client_group_v} authorized by #{server_group_v}")
+        if bidirectional
+          group_edge(compute, client_group_v, :authorize_group,     server_group_v) 
+          Chef::Log.debug("#{client_group_v} authorizes #{server_group_v}")
+        end
 
         Chef::Log.debug("discovered #{announce_name} for #{cluster_name}: #{discovery}")
       end
 
       protected
 
-      def client_group(compute)
-        security_group(compute.cluster_name, (compute.name if compute.is_a?(Facet)))
-      end
-      
-      def full_server_cluster
-        server_cluster
-      end
-
       def group_edge(cloud, group_1, method, group_2)
         cloud.security_group(group_1).send(method, group_2)
         Chef::Log.debug("component.rb: allowing access from security group #{group_1} to #{group_2}")
-      end
-
-      def security_group(*target_components)
-        target_components.compact.join('-')
       end
     end
 

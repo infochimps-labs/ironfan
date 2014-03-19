@@ -177,28 +177,28 @@ describe Ironfan::Dsl::Component do
     end
 
     it 'configures the correct security groups during discovery' do
-      foo_group = Ironfan.realm(:wap).cluster(:foo).security_group('foo')
-      bar_group = Ironfan.realm(:wap).cluster(:bar).security_group('bar')
+      foo_group = Ironfan.realm(:wap).cluster(:foo).security_group('wap-foo')
+      bar_group = Ironfan.realm(:wap).cluster(:bar).security_group('wap-bar')
 
-      foo_group.group_authorized_by.should include('bar')
-      bar_group.group_authorized_by.should include('foo')
+      foo_group.group_authorized_by.should include('wap-bar')
+      bar_group.group_authorized_by.should include('wap-foo')
     end
 
     it 'configures the correct security groups during bidirectional discovery' do
-      baz_group = Ironfan.realm(:wap).cluster(:baz).security_group('baz')
-      bif_group = Ironfan.realm(:wap).cluster(:bif).security_group('bif')
+      baz_group = Ironfan.realm(:wap).cluster(:baz).security_group('wap-baz')
+      bif_group = Ironfan.realm(:wap).cluster(:bif).security_group('wap-bif')
 
-      baz_group.group_authorized_by.should include('bif')
-      baz_group.group_authorized.should    include('bif')
+      baz_group.group_authorized_by.should include('wap-bif')
+      baz_group.group_authorized.should    include('wap-bif')
     end
 
     it 'does not configure extra security groups during bidirectional discovery' do
-      Ironfan.realm(:wap).cluster(:baz).security_groups.keys.should_not include('wap_bif')
+      Ironfan.realm(:wap).cluster(:baz).security_groups.keys.should_not include('wap-bif')
     end
 
     it 'correctly sets the server cluster even when the client and server facets differ' do
-      bam_wak_group = Ironfan.realm(:wap).cluster(:bam).facet(:wak).security_group('bam-wak')
-      bam_wak_group.group_authorized_by.should include('bop')
+      bam_wak_group = Ironfan.realm(:wap).cluster(:bam).facet(:wak).security_group('wap-bam-wak')
+      bam_wak_group.group_authorized_by.should include('wap-bop')
     end
 
   end

@@ -4,7 +4,7 @@ module Ironfan
 
       class SecurityGroup < Ironfan::Provider::Resource
 
-        WIDE_OPEN = Range.new(1,65535)
+        WIDE_OPEN = (-1..-1)
 
         delegate :_dump, :authorize_group_and_owner, :authorize_port_range,
             :collection, :collection=, :connection, :connection=, :description,
@@ -209,24 +209,23 @@ module Ironfan
         # Try an authorization, ignoring duplicates (this is easier than correlating).
         # Do so for both TCP and UDP, unless only one is specified
         def self.safely_authorize(fog_group,range,options)
+
           if options[:group_alias]
-            owner, group = options[:group_alias].split(/\//)
-            self.patiently(fog_group.name, Fog::Compute::AWS::Error, :ignore => Proc.new { |e| e.message =~ /InvalidPermission\.Duplicate/ }) do
-              Ec2.connection.authorize_security_group_ingress(
-                'GroupName'                   => fog_group.name,
-                'SourceSecurityGroupName'     => group,
-                'SourceSecurityGroupOwnerId'  => owner
-              )
-            end
+            owner, group = options.delete(:group_alias).split(/\//)
+            Chef::Log.debug("authorizing group alias #{options[:group_alias].inspect} to group #{fog_group.name}")
+            group_id = Ec2.connection.security_groups.get(group).group_id
+            safely_authorize(fog_group, range, options.merge(group: group_id))
           elsif options[:ip_protocol]
+            Chef::Log.debug("authorizing to #{fog_group.name} with options #{options.inspect}")
             self.patiently(fog_group.name, Fog::Compute::AWS::Error, :ignore => Proc.new { |e| e.message =~ /InvalidPermission\.Duplicate/ }) do
               fog_group.authorize_port_range(range,options)
             end
           else
-            safely_authorize(fog_group,range,options.merge(:ip_protocol => 'tcp'))
-            safely_authorize(fog_group,range,options.merge(:ip_protocol => 'udp'))
-            safely_authorize(fog_group,Range.new(-1,-1),options.merge(:ip_protocol => 'icmp')) if(range == WIDE_OPEN)
-            return
+            Chef::Log.debug([
+                "didn't receive ip_protocol for authorization to #{fog_group.name} ",
+                "with options #{options.inspect}. assuming all protocols"
+              ].join)
+            safely_authorize(fog_group,range,options.merge(:ip_protocol => -1))
           end
         end
       end
