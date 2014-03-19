@@ -53,7 +53,7 @@ module Ironfan
       end
 
       def ssh_key_name(computer)
-        keypair ? keypair.to_s : computer.server.cluster_name
+        keypair ? keypair.to_s : computer.server.full_cluster_name
       end
 
       def default_region
