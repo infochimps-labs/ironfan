@@ -134,7 +134,7 @@ module Ironfan
         end
 
         def ssh_key
-          keypair = cloud.keypair || computer.server.cluster_name
+          keypair = cloud.keypair || computer.server.keypair_name
         end
 
         def private_ip_address
