@@ -232,6 +232,10 @@ module Ironfan
         super
       end
 
+      def keypair_name
+        full_cluster_name
+      end
+
       def full_cluster_name
           "#{realm_name}-#{cluster_name}"
       end

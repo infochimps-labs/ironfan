@@ -51,7 +51,7 @@ module Ironfan
 
         def self.prepare!(computers)
           return if computers.empty?
-          name = computers.values[0].server.cluster_name
+          name = computers.values[0].server.keypair_name
           return if recall? name
           Ironfan.step(name, "creating key pair for #{name}", :blue)
           result = OpenStack.connection.create_key_pair(name)
