@@ -198,7 +198,7 @@ module Ironfan
         def self.safely_authorize(fog_group,range,options)
           if options[:group_alias]
             owner, group = options[:group_alias].split(/\//)
-            self.patiently(fog_group.name, Fog::Compute::AWS::Error, :ignore => Proc.new { |e| e.message =~ /InvalidPermission\.Duplicate/ }) do
+            self.patiently(fog_group.name, Fog::Compute::AWS::Error, :ignore => Proc.new { |e| e.message =~ /\bDuplicate =>/ }) do
               Ec2.connection.authorize_security_group_ingress(
                 'GroupName'                   => fog_group.name,
                 'SourceSecurityGroupName'     => group,
@@ -206,7 +206,7 @@ module Ironfan
               )
             end
           elsif options[:ip_protocol]
-            self.patiently(fog_group.name, Fog::Compute::AWS::Error, :ignore => Proc.new { |e| e.message =~ /InvalidPermission\.Duplicate/ }) do
+            self.patiently(fog_group.name, Fog::Compute::AWS::Error, :ignore => Proc.new { |e| e.message =~ /\bDuplicate =>/ }) do
               fog_group.authorize_port_range(range,options)
             end
           else
