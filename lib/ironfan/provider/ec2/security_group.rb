@@ -213,21 +213,43 @@ module Ironfan
         def self.safely_authorize(fog_group,range,options)
 
           if options[:group_alias]
+            # In this case, we must first extract the group name
+            # before recursively calling this function with it.
+
             owner, group = options.delete(:group_alias).split(/\//)
             Chef::Log.debug("authorizing group alias #{options[:group_alias].inspect} to group #{fog_group.name}")
             group_id = Ec2.connection.security_groups.get(group).group_id
             safely_authorize(fog_group, range, options.merge(group: group_id))
           elsif options[:ip_protocol]
+            # In this case, we've received the ip_protocol. With or
+            # without a group name, we have enough information to open
+            # the security group.
+
             Chef::Log.debug("authorizing to #{fog_group.name} with options #{options.inspect}")
             self.patiently(fog_group.name, Fog::Compute::AWS::Error, :ignore => Proc.new { |e| e.message =~ /Duplicate/ }) do
               fog_group.authorize_port_range(range,options)
             end
           else
+            # Without an IP protocol, we'll open all of the relevant
+            # ones. On non-VPC, that means tcp, udp, and icmp. On VPC,
+            # that means -1 for all protocols.
+
             Chef::Log.debug([
                 "didn't receive ip_protocol for authorization to #{fog_group.name} ",
                 "with options #{options.inspect}. assuming all protocols"
               ].join)
-            safely_authorize(fog_group,range,options.merge(:ip_protocol => -1))
+            if fog_group.vpc_id.nil?
+              # Non-VPC does not support -1 for all protocols, so
+              # we'll need to do each protocol indendently. If we
+              # haven't received an ip_protocol, we'll assume the user
+              # meant to open everything.
+              safely_authorize(fog_group, 1..65535, options.merge(:ip_protocol => 'tcp'))
+              safely_authorize(fog_group, 1..65535, options.merge(:ip_protocol => 'udp'))
+              safely_authorize(fog_group, -1..-1,   options.merge(:ip_protocol => 'icmp'))
+            else
+              # In VPC, we should use only one rule to conserve rules.
+              safely_authorize(fog_group,range,options.merge(:ip_protocol => -1))
+            end
           end
         end
       end
