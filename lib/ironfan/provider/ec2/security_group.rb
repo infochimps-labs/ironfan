@@ -42,7 +42,9 @@ module Ironfan
         #
         def self.load!(cluster=nil)
           Ec2.connection.security_groups.reject { |raw| raw.blank? }.each do |raw|
-            remember SecurityGroup.new(:adaptee => raw)
+            sg =  SecurityGroup.new(:adaptee => raw)
+            remember sg
+            remember(sg, :id => sg.name.gsub( /^vpc-[^:]+:/, '') )
           end
         end
 
@@ -217,7 +219,7 @@ module Ironfan
             safely_authorize(fog_group, range, options.merge(group: group_id))
           elsif options[:ip_protocol]
             Chef::Log.debug("authorizing to #{fog_group.name} with options #{options.inspect}")
-            self.patiently(fog_group.name, Fog::Compute::AWS::Error, :ignore => Proc.new { |e| e.message =~ /InvalidPermission\.Duplicate/ }) do
+            self.patiently(fog_group.name, Fog::Compute::AWS::Error, :ignore => Proc.new { |e| e.message =~ /Duplicate/ }) do
               fog_group.authorize_port_range(range,options)
             end
           else
