@@ -21,6 +21,7 @@ Gem::Specification.new do |gem|
     
   gem.add_dependency('chef',       '10.30.4')
   gem.add_dependency('fog',        '1.21.0')
+  gem.add_dependency('unf',        '0.1.3')
   gem.add_dependency('excon',      '0.32.1')
   gem.add_dependency('formatador', '0.2.4')
   gem.add_dependency('gorillib',   '0.5.0')
