@@ -23,6 +23,8 @@ module Ironfan
       end
 
       def cluster(label, attrs = {}, &blk)
+        label = label.to_sym
+
         if clusters.keys.include? label
           clusters[label].tap do |cl|
             cl.receive! attrs
