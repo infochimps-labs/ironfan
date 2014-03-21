@@ -225,7 +225,6 @@ cloud_init_modules:
  - set_hostname
  - update_hostname
  - update_etc_hosts
- - write-files
  - ca-certs
  - rsyslog
  - ssh

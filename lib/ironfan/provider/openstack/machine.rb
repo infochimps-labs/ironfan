@@ -274,15 +274,7 @@ module Ironfan
 
         def self.launch_description(computer)
           cloud = computer.server.cloud(:openstack)
-          user_data_hsh =               {
-            :chef_server =>             Chef::Config[:chef_server_url],
-            :node_name =>               computer.name,
-            :organization =>            Chef::Config[:organization],
-            :cluster_name =>            computer.server.cluster_name,
-            :facet_name =>              computer.server.facet_name,
-            :facet_index =>             computer.server.index,
-            :client_key =>              computer.private_key
-          }
+          user_data = self.cloud_init_user_data(computer)
 
           # main machine info
           # note that Fog does not actually create tags when it creates a
@@ -293,7 +285,7 @@ module Ironfan
             #:vpc_id               => cloud.vpc,
             #:subnet_id            => cloud.subnet,
             :key_name             => cloud.ssh_key_name(computer),
-            :user_data            => JSON.pretty_generate(user_data_hsh),
+            :user_data            => user_data,
             #:block_device_mapping => block_device_mapping(computer),
             :availability_zone    => cloud.default_availability_zone,
             #:monitoring           => cloud.monitoring,
