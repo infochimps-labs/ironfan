@@ -242,6 +242,7 @@ bootcmd:
 #{computer.private_key.split("\n").map {|l| "      "+l}.join("\n")}
       EOF
       domainname #{computer.server.fqdn}
+      IP=`curl 169.254.169.254/latest/meta-data/local-ipv4`;sed -i -e "s/127\.0\.1\.1/$IP/" /etc/cloud/templates/hosts.tmpl
  
 chef:
  install_type: "packages"
