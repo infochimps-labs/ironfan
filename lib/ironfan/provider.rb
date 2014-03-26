@@ -35,10 +35,16 @@ module Ironfan
     def self.load(cluster)
       Ironfan.parallel (resources) do |r|
         type = r.resource_type.to_s
-        r.forget!
         Ironfan.substep(cluster.name, "loading #{type}s")
         r.load! cluster
         Ironfan.substep(cluster.name, "loaded #{type}s")
+      end
+    end
+
+
+    def self.forget!()
+      resources.each do |r|
+        r.forget!
       end
     end
 
