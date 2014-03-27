@@ -40,37 +40,37 @@ module Ironfan
       "Gemfile.#{realm_or_cluster_name}"
     end
 
+
+    #
+    # Common code for calling broker.discover with an appropriately
+    # trimmed list of clusters to discover.
+    #
+    def discover_computers(realm_name, cluster_name, facet_name, slice_indexes)
+      realm = Ironfan.load_realm(realm_name)
+      realm.clusters.each{ |cluster| Ironfan.load_cluster cluster.name }
+      realm.resolve!
+      clusters = cluster_name ? Array(realm.clusters[cluster_name.to_sym]) : realm.clusters.to_a
+      return broker.discover!(clusters, config[:cloud])
+    end
+
     #
     # A slice of a cluster:
     #
-    # @param [String] cluster_name  -- cluster to slice
-    # @param [String] facet_name    -- facet to slice (or nil for all in cluster)
-    # @param [Array, String] slice_indexes -- servers in that facet (or nil for all in facet).
-    #   You must specify a facet if you use slice_indexes.
     #
     # @return [Ironfan::ServerSlice] the requested slice
     def get_slice(slice_string, *args)
       realm_name, cluster_name, facet_name, slice_indexes = pick_apart(slice_string, *args)
       desc = predicate_str(realm_name, cluster_name, facet_name, slice_indexes)
-      #
       ui.info("Inventorying servers in #{desc}")
-      realm = Ironfan.load_realm(realm_name)
-      realm.clusters.each{ |cluster| Ironfan.load_cluster cluster.name }
-      realm.resolve!
-      Chef::Config[:knife][:region] = realm.clusters.to_a.first.servers.to_a.first.cloud(:ec2).region
-      computers = broker.discover!(realm.clusters.to_a, config[:cloud])
-      Chef::Log.info("Inventoried #{computers.size} computers")
-      #
-      computers.slice(cluster_name, facet_name, slice_indexes)
+      computers = discover_computers(realm_name, cluster_name, facet_name, slice_indexes)
+      
+      Chef::Log.info("Inventoried #{computers.size} computers")      
+      return computers.slice(cluster_name, facet_name, slice_indexes)
     end
 
     def all_computers(slice_string, *args)
       realm_name, cluster_name, facet_name, slice_indexes = pick_apart(slice_string, *args)
-      realm = Ironfan.load_realm(realm_name)
-      realm.clusters.each{ |cluster| Ironfan.load_cluster cluster.name }
-      realm.resolve!
-      clusters = cluster_name ? Array(realm.clusters[cluster_name.to_sym]) : realm.clusters.to_a
-      computers = broker.discover!(clusters, config[:cloud])
+      computers = discover_computers(realm_name, cluster_name, facet_name, slice_indexes)
       ui.info("Loaded information for #{computers.size} computer(s) in cluster #{cluster_name}")
       computers
     end

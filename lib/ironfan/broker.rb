@@ -13,11 +13,17 @@ module Ironfan
     #   unrecognizable resources are labeled as bogus.
     def discover!(clusters, with_cloud = true)
 
+      
       # Get fully resolved servers, and build Computers using them
       computers = Computers.new(clusters: Array(clusters))
       #      
       if with_cloud
         providers = computers.map{|c| c.providers.values }.flatten.uniq
+
+        providers.each do |p|
+          p.forget!
+        end
+
         Ironfan.parallel(providers) do |provider|
           clusters.each do |cluster|
             Ironfan.step cluster.name, "Loading #{provider.handle}", :cyan
