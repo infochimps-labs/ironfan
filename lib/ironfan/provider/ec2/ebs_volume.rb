@@ -48,7 +48,12 @@ module Ironfan
         #
         # Discovery
         #
-        def self.load!(cluster=nil)
+        def self.load!(cluster = nil)
+          load_once!
+        end
+
+        def self.load_once!
+          return if @loaded
           Ec2.connection.volumes.each do |vol|
             next if vol.blank?
             next if %w[deleting deleted error].include?(vol.state.to_s)
@@ -62,6 +67,7 @@ module Ironfan
               remember ebs
             end
           end
+          @loaded = true
         end
 
         def receive_adaptee(obj)

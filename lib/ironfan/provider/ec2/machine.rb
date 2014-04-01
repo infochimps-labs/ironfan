@@ -114,7 +114,12 @@ module Ironfan
         #
         # Discovery
         #
-        def self.load!(cluster=nil)
+        def self.load!(cluster = nil)
+          load_once!
+        end
+
+        def self.load_once!
+          return if @loaded
           Ec2.connection.servers.each do |fs|
             machine = new(:adaptee => fs)
             if (not machine.created?)
@@ -128,6 +133,7 @@ module Ironfan
               remember machine
             end
           end
+          @loaded = true
         end
 
         def receive_adaptee(obj)
