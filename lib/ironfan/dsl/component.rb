@@ -125,7 +125,7 @@ module Ironfan
       protected
 
       def client_group(compute)
-        security_group(compute.cluster_name, (compute.name if compute.is_a?(Facet)))
+        security_group(compute.cluster_name)
       end
       
       def full_server_cluster
