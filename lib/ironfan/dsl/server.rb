@@ -170,10 +170,10 @@ module Ironfan
                          hsh.delete(:_type)
                          hsh.delete(:ssh_user)
                          #hsh[:security_groups] = Hash[hsh[:security_groups].map{|x| [x.fetch(:name), x]}]
-                         hsh[:components] = Hash[hsh.fetch(:components).map do |component|
-                                                   [component.fetch(:name), component]
+                         hsh[:components] = Hash[hsh[:components].to_a.map do |component|
+                                                   [component[:name].to_s, component]
                                                  end]
-                         hsh[:run_list] = hsh.fetch(:run_list).map do |x|
+                         hsh[:run_list] = hsh[:run_list].to_a.map do |x|
                            x.end_with?(']') ? x : "recipe[#{x}]"
                          end
                        end)
