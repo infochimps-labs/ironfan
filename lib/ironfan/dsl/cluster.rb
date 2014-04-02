@@ -42,6 +42,10 @@ module Ironfan
         name
       end
 
+      def full_cluster_name
+        full_name
+      end
+
       def full_name
         "#{realm_name}-#{name}"
       end

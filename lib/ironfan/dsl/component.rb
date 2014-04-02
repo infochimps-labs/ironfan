@@ -110,7 +110,7 @@ module Ironfan
         discovery = {discovers: keys.reverse.inject(compute.realm_name){|hsh,key| {key => hsh}}}
         (compute.facet_role || compute.cluster_role).override_attributes(discovery)
 
-        client_group_v = compute.full_name
+        client_group_v = compute.full_cluster_name
         server_group_v = "#{realm_name}-#{server_cluster}"
 
         group_edge(compute, client_group_v, :authorized_by_group, server_group_v)

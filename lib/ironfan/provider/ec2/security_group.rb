@@ -204,8 +204,6 @@ module Ironfan
           server.security_group computer.server.realm_name
           realm_group = server.security_group cluster_name
           realm_group.authorized_by_group realm_group.name
-          facet_name = "#{computer.server.realm_name}-#{computer.server.cluster_name}-#{computer.server.facet_name}"
-          server.security_group facet_name
         end
 
         # Try an authorization, ignoring duplicates (this is easier than correlating).
