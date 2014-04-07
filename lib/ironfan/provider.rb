@@ -213,6 +213,11 @@ module Ironfan
       # A Machine lives and dies with its Computer
       def self.shared?()        false;                   end
 
+      # FIXME: users_groups only in 7.4, not 6.3 ... including
+      #   this module breaks on our Ubuntu image (with cloud-init 6.3)
+      # note that in the sed statement in the bootcmd below,
+      #   sed expects some characters to be escaped \(\) etc.
+      #   then yaml needs \ inside double-quotes escaped as \x5c
       def self.cloud_init_user_data(computer) 
         return <<EOF
 #cloud-config
@@ -225,17 +230,18 @@ output: {all: '| tee -a /var/log/cloud-init-output.log'}
 # Set our hostname
 manage_etc_hosts: True
 
-cloud_init_modules:
- - bootcmd
- - resizefs
- - set_hostname
- - update_hostname
- - update_etc_hosts
- - ca-certs
- - rsyslog
- - ssh
-
 fqdn: #{computer.server.fqdn}
+
+cloud_init_modules:
+  - bootcmd
+  - resizefs
+  - set_hostname
+  - update_hostname
+  - update_etc_hosts
+  - ca-certs
+  - rsyslog
+  - users-groups
+  - ssh
 
 bootcmd:
   # note that writefiles is not supported on precise...
@@ -248,8 +254,13 @@ bootcmd:
 #{computer.private_key.split("\n").map {|l| "      "+l}.join("\n")}
       EOF
       domainname #{computer.server.fqdn}
-      IP=`curl 169.254.169.254/latest/meta-data/local-ipv4`;sed -i -e "s/127\.0\.1\.1/$IP/" /etc/cloud/templates/hosts.tmpl
- 
+      IP=`curl 169.254.169.254/latest/meta-data/local-ipv4`
+      [ -f /etc/cloud/templates/hosts.tmpl ] && sed -i -e "s/127\x5c.0\x5c.1\x5c.1/$IP/" /etc/cloud/templates/hosts.tmpl
+      [ -f /etc/cloud/templates/hosts.debian.tmpl ] && sed -i -e "s/127\x5c.0\x5c.1\x5c.1/$IP/" /etc/cloud/templates/hosts.debian.tmpl
+      [ -f /etc/cloud/templates/hosts.redhat.tmpl ] && sed -i -e "s/^127\x5c.0\x5c.0\x5c.1\x5c( \x5c${fqdn}.*\x5c)/$IP\x5c1/" /etc/cloud/templates/hosts.redhat.tmpl
+
+# This is understood to fail gracefully during image creation (before 
+# knife cluster bootstrap burninator...) due to Chef not installed yet.
 chef:
  install_type: "packages"
  force_install: false
@@ -268,6 +279,7 @@ chef:
     We don't need no stinking validators.
 EOF
       end
+
     end
   end
 end

@@ -12,7 +12,7 @@ set -e
 
 <%= (@config[:verbosity].to_i > 1 ? 'set -v' : '') %>
 
-RUBY_VERSION=1.9.2-p290
+RUBY_VERSION=1.9.3-p484
 CHEF_VERSION=<%= bootstrap_version_string.gsub(/.*[\s=]/,"") %>
 
 mkdir -p /tmp/knife-bootstrap
