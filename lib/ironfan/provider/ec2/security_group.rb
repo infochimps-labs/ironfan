@@ -152,7 +152,12 @@ module Ironfan
                 vpc_id    = tokens.pop
                 Ec2.connection.create_security_group(group_id,"Ironfan created group #{group_id}",vpc_id)
               rescue Fog::Compute::AWS::Error => e # InvalidPermission.Duplicate
-                Chef::Log.info("ignoring security group error: #{e}")
+                case e.message
+                when /SecurityGroupLimitExceeded/
+                  raise e
+                else
+                  Chef::Log.info("ignoring security group error: #{e}")
+                end
               end
             end
           end
