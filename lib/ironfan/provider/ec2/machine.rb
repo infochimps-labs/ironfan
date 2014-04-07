@@ -173,18 +173,16 @@ module Ironfan
           launch_desc = launch_description(computer)
           Chef::Log.debug(JSON.pretty_generate(launch_desc))
 
-          Ironfan.safely do
-            fog_server = Ec2.connection.servers.create(launch_desc)
-            machine = Machine.new(:adaptee => fog_server)
-            computer.machine = machine
-            remember machine, :id => computer.name
+          fog_server = Ec2.connection.servers.create(launch_desc)
+          machine = Machine.new(:adaptee => fog_server)
+          computer.machine = machine
+          remember machine, :id => computer.name
 
-            Ironfan.step(fog_server.id,"waiting for machine to be ready", :gray)
-            Ironfan.tell_you_thrice     :name           => fog_server.id,
-                                        :problem        => "server unavailable",
-                                        :error_class    => Fog::Errors::Error do
-              fog_server.wait_for { ready? }
-            end
+          Ironfan.step(fog_server.id,"waiting for machine to be ready", :gray)
+          Ironfan.tell_you_thrice     :name           => fog_server.id,
+                                      :problem        => "server unavailable",
+                                      :error_class    => Fog::Errors::Error do
+            fog_server.wait_for { ready? }
           end
 
           # tag the computer correctly
