@@ -102,11 +102,14 @@ describe Ironfan::Dsl::Realm do
   it 'should create clusters that can be edited later' do
     Ironfan.realm :xy do
       cluster(:baz)
-      cluster(:baz){ facet :bif }
     end
 
-    Ironfan.cluster(:baz).facets.to_a.should_not(be_empty)
-    Ironfan.cluster(:baz).servers.to_a.first.should_not(be_nil)
+    Ironfan.cluster(:baz) do
+      facet :bif
+    end
+
+    Ironfan.realm(:xy).cluster(:baz).facets.to_a.should_not(be_empty)
+    Ironfan.realm(:xy).cluster(:baz).servers.to_a.first.should_not(be_nil)
   end
 
   it 'should create clusters with names prefixed by its own' do

@@ -48,7 +48,6 @@ module Ironfan
     def discover_computers(realm_name, cluster_name, facet_name, slice_indexes)
       realm = Ironfan.load_realm(realm_name)
       realm.clusters.each{ |cluster| Ironfan.load_cluster cluster.name }
-      realm.resolve!
       clusters = cluster_name ? Array(realm.clusters[cluster_name.to_sym]) : realm.clusters.to_a
       return broker.discover!(clusters, config[:cloud])
     end

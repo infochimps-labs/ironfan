@@ -31,10 +31,10 @@ module Ironfan
     return existing if attrs.empty? && !block_given?
     if existing
       existing.receive!(attrs, &blk)
-      # existing.resolve!
+      existing.resolve!
     else
       cl = Ironfan::Dsl::Cluster.define(attrs.merge(name: name.to_sym), &blk)
-      # cl.resolve!
+      cl.resolve!
     end
   end
 
@@ -43,10 +43,10 @@ module Ironfan
     return existing if attrs.empty? && !block_given?
     if existing
       existing.receive!(attrs, &blk)
-      # existing.resolve!
+      existing.resolve!
     else
       rlm = Ironfan::Dsl::Realm.define(attrs.merge(name: name.to_sym), &blk)
-      # rlm.resolve!
+      rlm.resolve!
     end
   end
 
