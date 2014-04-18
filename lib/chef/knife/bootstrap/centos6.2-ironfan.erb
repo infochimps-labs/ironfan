@@ -119,6 +119,10 @@ cat <<'EOP'
 EOP
 ) > /etc/chef/first-boot.json
 
+# Ensure that EC2 images are recognized even inside VPC
+mkdir -p /etc/chef/ohai/hints/
+touch /etc/chef/ohai/hints/ec2.json
+
 echo -e "`date` \n\n**** \n**** Adding chef client runit scripts:\n****\n"
 ( service chef-client stop >/dev/null 2>&1 ; sleep 1 ; killall chef-client 2>/dev/null ) || true
 mkdir -p /var/log/chef /var/chef /etc/service /etc/sv/chef-client/{log/main,supervise} 
