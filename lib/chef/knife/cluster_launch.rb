@@ -100,16 +100,27 @@ class Chef
         section("Launching computers", :green)
         display(target)
         launched = target.launch
-        # As each server finishes, configure it
+
+        # As each server finishes, configure it. If we received an
+        # exception launching any of the machines, remember it.
+
+        launch_succeeded = true
         Ironfan.parallel(launched) do |computer|
-          if (computer.is_a?(Exception)) then ui.warn "Error launching #{computer.inspect}; skipping after-launch tasks."; next; end
-          perform_after_launch_tasks(computer) if computer.machine.perform_after_launch_tasks?
+          if (computer.is_a?(Exception)) then
+            ui.error "Error launching #{computer.inspect}; skipping after-launch tasks.";
+            launch_succeeded = false
+          else
+            perform_after_launch_tasks(computer) if computer.machine.perform_after_launch_tasks?
+          end
         end
 
-        if healthy?
+        if healthy? and launch_succeeded
           section('All computers launched correctly', :white)
           section('Applying aggregations:')
           all_computers(*@name_args).aggregate
+        else
+          section('Some computers could not be launched')
+          exit 1
         end
 
         display(target)

@@ -27,6 +27,10 @@ module Ironfan
         self.cluster_role  Ironfan::Dsl::Role.new(name: Compute.cluster_role_name(realm_name, cluster_name))
       end
 
+      def resolve
+        self.class.definitions[name.to_sym] = super
+      end
+
       # Utility method to reference all servers from constituent facets
       def servers
         result = Gorillib::ModelCollection.new(item_type: Ironfan::Dsl::Server, key_method: :full_name)
