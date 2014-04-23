@@ -56,6 +56,11 @@ module Ironfan
         keypair ? keypair.to_s : computer.server.keypair_name
       end
 
+      def ssh_identity_file(computer)
+        key_pair = "#{computer.server.realm_name}-#{computer.server.cluster_name}"
+        "%s/%s.pem" %[ssh_identity_dir, key_pair]
+      end
+
       def default_region
         default_availability_zone ? default_availability_zone.gsub(/^(\w+-\w+-\d)[a-z]/, '\1') : nil
       end
@@ -302,7 +307,7 @@ end
 #
 # instance details from http://aws.amazon.com/ec2/instance-types/
 # pricing from http://aws.amazon.com/ec2/pricing/
-# 
+#
 # some notes on attributes:
 #   price: cost per hour in US dollars as of 12 March 2014
 #   ram:   instance RAM in MiB

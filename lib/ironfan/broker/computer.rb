@@ -365,7 +365,7 @@ module Ironfan
         select do |mach|
           mach.bogus? || (
             # facet match, and index match (or no indexes specified)
-            (mach.server.cluster_name == cluster_name) &&                          
+            (mach.server.cluster_name == cluster_name) &&
             (mach.server.facet_name == facet_name || facet_name.nil?) &&
             (slice_array.include?(mach.server.index) || slice_indexes.nil?))
         end
