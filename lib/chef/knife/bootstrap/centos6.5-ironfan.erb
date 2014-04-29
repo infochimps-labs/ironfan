@@ -12,7 +12,7 @@ set -e
 
 <%= (@config[:verbosity].to_i > 1 ? 'set -v' : '') %>
 
-RUBY_VERSION=1.9.3-p484
+RUBY_VERSION=1.9.3-p545
 CHEF_VERSION=<%= bootstrap_version_string.gsub(/.*[\s=]/,"") %>
 
 mkdir -p /tmp/knife-bootstrap
@@ -45,7 +45,7 @@ if [ ! -f /usr/bin/chef-client ]; then
   tar xzf ruby-${RUBY_VERSION}.tar.gz
   cd ruby-${RUBY_VERSION}
   ./configure --with-ruby-version=${RUBY_VERSION} --prefix=/usr --program-suffix=${RUBY_VERSION}
-  make -j2
+  make
   make install
 
   alternatives \
@@ -125,23 +125,7 @@ touch /etc/chef/ohai/hints/ec2.json
 
 echo -e "`date` \n\n**** \n**** Adding chef client runit scripts:\n****\n"
 ( service chef-client stop >/dev/null 2>&1 ; sleep 1 ; killall chef-client 2>/dev/null ) || true
-mkdir -p /var/log/chef /var/chef /etc/service /etc/sv/chef-client/{log/main,supervise} 
-
-cat > /etc/sv/chef-client/log/run <<'EOP'
-#!/bin/bash
-exec svlogd -tt ./main
-EOP
-
-cat > /etc/sv/chef-client/run <<'EOP'
-#!/bin/bash
-exec 2>&1
-exec /usr/bin/env chef-client -i 43200 -s 20 -L /var/log/chef/client.log
-EOP
-
-chmod +x  /etc/sv/chef-client/log/run /etc/sv/chef-client/run
-ln -nfs /sbin/sv /etc/init.d/chef-client
-
-service chef-client stop >/dev/null 2>&1 || true
+mkdir -p /var/log/chef /var/chef /etc/service /etc/sv
 
 <%- if (@config[:bootstrap_runs_chef_client].to_s == 'true') || (@chef_config.knife[:bootstrap_runs_chef_client].to_s == 'true') %>
 echo -e "`date` \n\n**** \n**** First run of chef:\n****\n"
@@ -154,9 +138,55 @@ echo -e "`date` \n\n**** \n**** Cleanup:\n****\n"
 # make locate work good
 updatedb
 
-echo -e "`date` \n\n**** \n**** Enabling chef client service:\n****\n"
-ln -nfs /etc/sv/chef-client /etc/service/chef-client
-service chef-client start
+echo -e "`date` \n\n**** \n**** Adding chef client nonce script:\n****\n"
+
+cat > /etc/init.d/chef-client-nonce <<'EOP'
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:           chef-client-nonce
+# Required-Start:     $remote_fs $network
+# Required-Stop:
+# Default-Start:      2 3 4 5
+# Default-Stop:       0 1 6
+# Short-Description:  Start a single chef-client run.
+### END INIT INFO
+#
+# Copyright (c) 2009-2010 Opscode, Inc, <legal@opscode.com>
+#
+# chef-client         Startup script for chef-client.
+# chkconfig: - 99 02
+# description: starts up chef-client once, at boot
+
+case "$1" in
+  start)
+    /usr/bin/chef-client -L /var/log/chef/client.log
+    exit $?
+    ;;
+  *)
+    echo "Usage: /etc/init.d/chef-client-nonce start" >&2
+    exit 1
+    ;;
+esac
+EOP
+
+mkdir -p /var/log/chef
+chmod +x /etc/init.d/chef-client-nonce 
+chkconfig --level 2345 chef-client-nonce on
+
+echo -e "`date` \n\n**** \n**** Ensure 'user' user has sudo:\n****\n"
+sed -i -e 's/name: root/name: user/' \
+  -e '/name: user/a \
+    groups: [wheel]' /etc/cloud/cloud.cfg
+sed -i -e 's/# \(%wheel.*NOPASSWD.*\)/\1/' /etc/sudoers
+
+echo -e "`date` \n\n**** \n**** Disable iptables:\n****\n"
+for svc in iptables ip6tables; do
+    service $svc stop
+    chkconfig --level 2345 $svc off
+done
+
+echo -e "`date` \n\n**** \n**** Disable SELinux:\n****\n"
+sed -i -e 's/SELINUX=enforcing/SELINUX=disabled/' /etc/selinux/config
 
 echo -e "`date` \n\n**** \n**** Cluster Chef client bootstrap complete\n****\n"
 EOF
