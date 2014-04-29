@@ -259,10 +259,6 @@ bootcmd:
       [ -f /etc/cloud/templates/hosts.debian.tmpl ] && sed -i -e "s/127\x5c.0\x5c.1\x5c.1/$IP/" /etc/cloud/templates/hosts.debian.tmpl
       [ -f /etc/cloud/templates/hosts.redhat.tmpl ] && sed -i -e "s/^127\x5c.0\x5c.0\x5c.1\x5c( \x5c${fqdn}.*\x5c)/$IP\x5c1/" /etc/cloud/templates/hosts.redhat.tmpl
 
-runcmd:
-  - |
-      chef-client
-
 # This is understood to fail gracefully during image creation (before 
 # knife cluster bootstrap burninator...) due to Chef not installed yet.
 chef:
