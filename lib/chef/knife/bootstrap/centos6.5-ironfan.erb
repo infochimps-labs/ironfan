@@ -179,8 +179,8 @@ sed -i -e 's/name: root/name: user/' \
     groups: [wheel]' /etc/cloud/cloud.cfg
 sed -i -e 's/# \(%wheel.*NOPASSWD.*\)/\1/' /etc/sudoers
 
-echo -e "`date` \n\n**** \n**** Disable iptables:\n****\n"
-for svc in iptables ip6tables; do
+echo -e "`date` \n\n**** \n**** Disable iptables postfix:\n****\n"
+for svc in iptables ip6tables postfix; do
     service $svc stop
     chkconfig --level 2345 $svc off
 done
