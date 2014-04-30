@@ -39,6 +39,11 @@ cd -
 yum clean all
 
 if [ ! -f /usr/bin/chef-client ]; then
+
+  # Grr, prevent 'prelink' from mangling our binaries
+  # http://www.tsheffler.com/blog/?p=491
+  grep ruby /etc/prelink.conf || echo '-b /usr/bin/ruby*' >>/etc/prelink.conf
+
   echo -e "`date` \n\n**** \n**** Installing ruby version ${RUBY_VERSION}:\n****\n"
 
   wget ftp://ftp.ruby-lang.org/pub/ruby/1.9/ruby-${RUBY_VERSION}.tar.gz
