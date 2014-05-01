@@ -13,7 +13,7 @@ set -e
 <%= (@config[:verbosity].to_i > 1 ? 'set -v' : '') %>
 
 RUBY_VERSION=1.9.3-p545
-CHEF_VERSION=<%= bootstrap_version_string.gsub(/.*[\s=]/,"") %>
+CHEF_VERSION=11.8.0
 
 mkdir -p /tmp/knife-bootstrap
 chmod 700 /tmp/knife-bootstrap 
@@ -67,7 +67,7 @@ if [ ! -f /usr/bin/chef-client ]; then
 
   echo -e "`date` \n\n**** \n**** Installing chef:\n****\n"
   gem install ohai --no-rdoc --no-ri
-  gem install chef --no-rdoc --no-ri <%= bootstrap_version_string %>
+  gem install chef --no-rdoc --no-ri $CHEF_VERSION
   # gems needed for the client.rb or so generically useful you want them at hand
   gem install      --no-rdoc --no-ri extlib bundler json right_aws pry fog
 
