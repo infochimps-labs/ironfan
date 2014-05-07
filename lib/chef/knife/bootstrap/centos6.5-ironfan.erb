@@ -13,7 +13,7 @@ set -e
 <%= (@config[:verbosity].to_i > 1 ? 'set -v' : '') %>
 
 RUBY_VERSION=1.9.3-p545
-CHEF_VERSION=11.8.0
+CHEF_VERSION=11.12.4
 
 mkdir -p /tmp/knife-bootstrap
 chmod 700 /tmp/knife-bootstrap 
@@ -28,8 +28,32 @@ echo -e "`date` \n\n**** \n**** yum upgrade:\n****\n"
 yum upgrade --assumeyes
 
 echo -e "`date` \n\n**** \n**** Installing base packages:\n****\n"
-yum install --assumeyes make wget 
-yum install --assumeyes git rpm-build rpmdevtools gcc glibc-static zlib-devel libxml2-devel libxslt-devel openssl-devel 
+yum install --assumeyes \
+    autoconf \
+    automake \
+    bison \
+    bzip2 \
+    gcc \
+    gcc-c++ \
+    git \
+    glibc \
+    glibc-static \
+    libffi-devel \
+    libtool \
+    libxml2-devel \
+    libxslt-devel \
+    libyaml-devel \
+    make \
+    openssl-devel \
+    patch \
+    readline \
+    readline-devel \
+    rpm-build \
+    rpmdevtools \
+    wget \
+    zlib \
+    zlib-devel
+
 if [ ! -d runit-rpm ]; then git clone https://github.com/imeyer/runit-rpm.git; fi
 cd runit-rpm
 ./build.sh
@@ -47,27 +71,18 @@ if [ ! -f /usr/bin/chef-client ]; then
   echo -e "`date` \n\n**** \n**** Installing ruby version ${RUBY_VERSION}:\n****\n"
 
   wget ftp://ftp.ruby-lang.org/pub/ruby/1.9/ruby-${RUBY_VERSION}.tar.gz
-  tar xzf ruby-${RUBY_VERSION}.tar.gz
+  tar xf ruby-${RUBY_VERSION}.tar.gz
   cd ruby-${RUBY_VERSION}
-  ./configure --with-ruby-version=${RUBY_VERSION} --prefix=/usr --program-suffix=${RUBY_VERSION}
+  ./configure --prefix=/usr --enable-shared --disable-install-doc --with-opt-dir=/usr/lib64 --with-openssl-dir=/usr/include/openssl
   make
   make install
-
-  alternatives \
-    --install /usr/bin/ruby ruby /usr/bin/ruby${RUBY_VERSION} 400 \
-    --slave   /usr/bin/ri   ri   /usr/bin/ri${RUBY_VERSION}       \
-    --slave   /usr/bin/irb  irb  /usr/bin/irb${RUBY_VERSION}      \
-    --slave   /usr/bin/erb  erb  /usr/bin/erb${RUBY_VERSION}      \
-    --slave   /usr/bin/gem  gem  /usr/bin/gem${RUBY_VERSION}      \
-    --slave   /usr/share/man/man1/ruby.1.gz ruby.1.gz             \
-    /usr/share/man/man1/ruby${RUBY_VERSION}.1
 
   echo -e "`date` \n\n**** \n**** Updating rubygems:\n****\n"
   gem update --system
 
   echo -e "`date` \n\n**** \n**** Installing chef:\n****\n"
   gem install ohai --no-rdoc --no-ri
-  gem install chef --no-rdoc --no-ri $CHEF_VERSION
+  gem install chef --no-rdoc --no-ri --version "$CHEF_VERSION"
   # gems needed for the client.rb or so generically useful you want them at hand
   gem install      --no-rdoc --no-ri extlib bundler json right_aws pry fog
 
