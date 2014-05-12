@@ -24,10 +24,24 @@ cat /etc/centos-release
 
 date > /etc/box_build_time
 
-echo -e "`date` \n\n**** \n**** yum upgrade:\n****\n"
+function print_header() {
+	 local message
+	 message="$1"
+	 echo -e "`date` \n\n**** \n**** ${message}\n****\n"
+}
+
+print_header "Creating infochimps yum repository"
+cat >/etc/yum.repos.d/srp-rhel.repo <<EOP
+[dev]
+name=Infochimps Platform - dev
+baseurl=https://s3.amazonaws.com/srp-rhel.chimpy.us/dev/
+gpgcheck=0
+EOP
+
+print_header "yum upgrade"
 yum upgrade --assumeyes
 
-echo -e "`date` \n\n**** \n**** Installing base packages:\n****\n"
+print_header "Installing base packages"
 yum install --assumeyes \
     autoconf \
     automake \
@@ -46,6 +60,7 @@ yum install --assumeyes \
     make \
     openssl-devel \
     patch \
+    qt-all \
     readline \
     readline-devel \
     rpm-build \
@@ -54,43 +69,31 @@ yum install --assumeyes \
     zlib \
     zlib-devel
 
-if [ ! -d runit-rpm ]; then git clone https://github.com/imeyer/runit-rpm.git; fi
-cd runit-rpm
-./build.sh
-yum install --assumeyes /root/rpmbuild/RPMS/x86_64/runit-*.rpm || true # TODO: Remove this shim
-cd -
+# Grr, prevent 'prelink' from mangling our binaries
+# http://www.tsheffler.com/blog/?p=491
+grep ruby /etc/prelink.conf || echo '-b /usr/bin/ruby*' >>/etc/prelink.conf
+
+print_header "Installing ruby version ${RUBY_VERSION}"
+yum install --assumeyes ruby-1.9.3.p545
 
 yum clean all
 
 if [ ! -f /usr/bin/chef-client ]; then
 
-  # Grr, prevent 'prelink' from mangling our binaries
-  # http://www.tsheffler.com/blog/?p=491
-  grep ruby /etc/prelink.conf || echo '-b /usr/bin/ruby*' >>/etc/prelink.conf
-
-  echo -e "`date` \n\n**** \n**** Installing ruby version ${RUBY_VERSION}:\n****\n"
-
-  wget ftp://ftp.ruby-lang.org/pub/ruby/1.9/ruby-${RUBY_VERSION}.tar.gz
-  tar xf ruby-${RUBY_VERSION}.tar.gz
-  cd ruby-${RUBY_VERSION}
-  ./configure --prefix=/usr --enable-shared --disable-install-doc --with-opt-dir=/usr/lib64 --with-openssl-dir=/usr/include/openssl
-  make
-  make install
-
-  echo -e "`date` \n\n**** \n**** Updating rubygems:\n****\n"
+  print_header "Updating gems"
   gem update --system
 
-  echo -e "`date` \n\n**** \n**** Installing chef:\n****\n"
+  print_header "Installing chef"
   gem install ohai --no-rdoc --no-ri
   gem install chef --no-rdoc --no-ri --version "$CHEF_VERSION"
   # gems needed for the client.rb or so generically useful you want them at hand
   gem install      --no-rdoc --no-ri extlib bundler json right_aws pry fog
 
 else # no chef-client
-  echo -e "`date` \n\n**** \n**** Chef is present -- skipping apt/ruby/chef installation\n****\n"
+  print_header "Chef is present -- skipping apt/ruby/chef installation"
 fi # end ruby+chef install
 
-echo -e "`date` \n\n**** \n**** Knifing in the chef client config files:\n****\n"
+print_header "Writing chef client config files"
 mkdir -p /etc/chef
 
 <%- if @config[:client_key] %>
@@ -119,12 +122,11 @@ awk NF /tmp/encrypted_data_bag_secret > /etc/chef/encrypted_data_bag_secret
 rm /tmp/encrypted_data_bag_secret
 <% end -%>
 
-echo -e "`date` \n\n**** \n**** Nuking our temp files:\n****\n"
-
+print_header "Deleting temp files"
 cd /tmp
 rm -rf /tmp/knife-bootstrap
 
-echo -e "`date` \n\n**** \n**** Creating chef client script:\n****\n"
+print_header "Creating chef client script"
 
 (
 cat <<'EOP'
@@ -143,22 +145,22 @@ EOP
 mkdir -p /etc/chef/ohai/hints/
 touch /etc/chef/ohai/hints/ec2.json
 
-echo -e "`date` \n\n**** \n**** Adding chef client runit scripts:\n****\n"
+print_header "Misc chef-client preparation"
 ( service chef-client stop >/dev/null 2>&1 ; sleep 1 ; killall chef-client 2>/dev/null ) || true
 mkdir -p /var/log/chef /var/chef /etc/service /etc/sv
 
 <%- if (@config[:bootstrap_runs_chef_client].to_s == 'true') || (@chef_config.knife[:bootstrap_runs_chef_client].to_s == 'true') %>
-echo -e "`date` \n\n**** \n**** First run of chef:\n****\n"
+print_header "First run of chef"
 set -e
 <%= start_chef %>
 set +e
 <%- end %>
 
-echo -e "`date` \n\n**** \n**** Cleanup:\n****\n"
+print_header "Clean up"
 # make locate work good
 updatedb
 
-echo -e "`date` \n\n**** \n**** Adding chef client nonce script:\n****\n"
+print_header "Adding chef-client-nonce script"
 
 cat > /etc/init.d/chef-client-nonce <<'EOP'
 #! /bin/sh
@@ -193,20 +195,20 @@ mkdir -p /var/log/chef
 chmod +x /etc/init.d/chef-client-nonce 
 chkconfig --level 2345 chef-client-nonce on
 
-echo -e "`date` \n\n**** \n**** Ensure 'user' user has sudo:\n****\n"
+print_header "Ensure 'user' user has sudo"
 sed -i -e 's/name: root/name: user/' \
   -e '/name: user/a \
     groups: [wheel]' /etc/cloud/cloud.cfg
 sed -i -e 's/# \(%wheel.*NOPASSWD.*\)/\1/' /etc/sudoers
 
-echo -e "`date` \n\n**** \n**** Disable iptables postfix:\n****\n"
+print_header "Disable iptables and postfix"
 for svc in iptables ip6tables postfix; do
     service $svc stop
     chkconfig --level 2345 $svc off
 done
 
-echo -e "`date` \n\n**** \n**** Disable SELinux:\n****\n"
+print_header "Disable SELinux"
 sed -i -e 's/SELINUX=enforcing/SELINUX=disabled/' /etc/selinux/config
 
-echo -e "`date` \n\n**** \n**** Cluster Chef client bootstrap complete\n****\n"
+print_header "Cluster Chef client bootstrap complete"
 EOF
