@@ -27,8 +27,12 @@ module Ironfan
         servers.to_a + components.to_a
       end
 
+      def full_cluster_name
+        "#{realm_name}-#{cluster_name}"
+      end
+
       def full_name
-        "#{realm_name}-#{cluster_name}-#{name}"
+        "#{full_cluster_name}-#{name}"
       end
     end
   end

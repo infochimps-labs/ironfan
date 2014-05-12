@@ -2,7 +2,7 @@ require 'bundler/gem_tasks'
 
 require 'rspec/core/rake_task'
 RSpec::Core::RakeTask.new(:spec) do |spec|
-  spec.pattern = 'spec/{ironfan,chef,ironfan/*}/*_spec.rb'
+  spec.pattern = 'spec/{gorillib,ironfan,chef,ironfan/*}/*_spec.rb'
 end
 
 desc 'Run RSpec code examples with SimpleCov'

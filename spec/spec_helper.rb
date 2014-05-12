@@ -37,3 +37,5 @@ end
 require 'chef_zero/server'
 server = ChefZero::Server.new(port: 4000)
 server.start_background
+
+require_relative 'support/resolution'

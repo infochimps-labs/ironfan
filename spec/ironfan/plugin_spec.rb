@@ -197,7 +197,7 @@ describe Ironfan::Dsl::Component do
     end
 
     it 'correctly sets the server cluster even when the client and server facets differ' do
-      bam_wak_group = Ironfan.realm(:wap).cluster(:bam).facet(:wak).security_group('wap-bam-wak')
+      bam_wak_group = Ironfan.realm(:wap).cluster(:bam).facet(:wak).security_group('wap-bam')
       bam_wak_group.group_authorized_by.should include('wap-bop')
     end
 

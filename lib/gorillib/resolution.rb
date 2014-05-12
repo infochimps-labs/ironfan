@@ -80,6 +80,12 @@ module Gorillib
       self
     end
 
+    # @param field_name [String or Symbol]
+    #
+    # This is one of two methods used to resolve Gorillib
+    # collections. (The other is merge_resolve.) It simply resolves
+    # the field and returns the result. In case the field is a
+    # gorillib collection, it resolves each item in the collection.
     def deep_resolve(field_name)
       temp = read_set_or_underlay_attribute(field_name)
       return if temp.nil?
@@ -87,7 +93,7 @@ module Gorillib
         result = temp.class.new
         temp.each_pair {|k,v| result[k] = resolve_value(v) }
       else
-        result = resolve_value(v)
+        result = resolve_value(result)
       end
       result
     end
@@ -98,6 +104,12 @@ module Gorillib
       deep_copy(value)
     end
 
+    # @param field_name [String or Symbol]
+    #
+    # This is one of two methods used to resolve Gorillib
+    # collections. (The other is deep_resolve.) It returns the result
+    # of merging the value of a field with the value of that field on
+    # the parent (underlay) of this object.
     def merge_resolve(field_name)
       field = self.class.fields[field_name] or return
       result = field.type.new
@@ -106,6 +118,20 @@ module Gorillib
       result
     end
 
+    # @param target [Gorillib::Model]
+    # @param value [Gorillib::Model]
+    #
+    # This method makes the assumption that target and value are both
+    # instances of either Gorillib::Model or
+    # Gorillib::Collection. They should be the same type.
+    #
+    # This method is called for its side-effects on the 'target'
+    # parameter.
+    #
+    # In case they are both models, target.receive!(value) is called.
+    #
+    # In case they are both collections, target[k].receive!(v) is
+    # called, for each k,v in value.
     def merge_values(target, value=nil)
       value ||= {}
       if target.is_a? Gorillib::Collection
