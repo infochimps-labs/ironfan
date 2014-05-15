@@ -198,8 +198,10 @@ chkconfig --level 2345 chef-client-nonce on
 print_header "Ensure 'user' user has sudo"
 sed -i -e 's/name: root/name: user/' \
   -e '/name: user/a \
-    groups: [wheel]' /etc/cloud/cloud.cfg
+    groups: [wheel] \
+    homedir: /local/home/user' /etc/cloud/cloud.cfg
 sed -i -e 's/# \(%wheel.*NOPASSWD.*\)/\1/' /etc/sudoers
+mkdir -p /local/home
 
 print_header "Disable iptables and postfix"
 for svc in iptables ip6tables postfix; do
