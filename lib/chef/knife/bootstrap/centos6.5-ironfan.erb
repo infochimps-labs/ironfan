@@ -1,0 +1,216 @@
+bash <<'EOF' || echo "Chef bootstrap failed!"
+
+# This is the ubuntu natty bootstrap script from infochimps' ironfan. It is
+# based on opscode's bootstrap script, with the following important differences: 
+#
+# * installs ruby 1.9.2 (not 1.8.7) from source
+# * upgrades rubygems rather than installing from source
+# * pushes the computer identity into the first-boot.json
+# * installs the chef-client service and kicks off the first run of chef
+
+set -e
+
+<%= (@config[:verbosity].to_i > 1 ? 'set -v' : '') %>
+
+RUBY_VERSION=1.9.3-p545
+CHEF_VERSION=11.12.4
+
+mkdir -p /tmp/knife-bootstrap
+chmod 700 /tmp/knife-bootstrap 
+cd /tmp/knife-bootstrap
+
+<%= "export http_proxy=\"#{knife_config[:bootstrap_proxy]}\"" if knife_config[:bootstrap_proxy] -%>
+cat /etc/centos-release
+
+date > /etc/box_build_time
+
+function print_header() {
+	 local message
+	 message="$1"
+	 echo -e "`date` \n\n**** \n**** ${message}\n****\n"
+}
+
+print_header "Creating infochimps yum repository"
+cat >/etc/yum.repos.d/srp-rhel.repo <<EOP
+[dev]
+name=Infochimps Platform - dev
+baseurl=https://s3.amazonaws.com/srp-rhel.chimpy.us/dev/
+gpgcheck=0
+EOP
+
+print_header "yum upgrade"
+yum upgrade --assumeyes
+
+print_header "Installing base packages"
+yum install --assumeyes \
+    autoconf \
+    automake \
+    bison \
+    bzip2 \
+    gcc \
+    gcc-c++ \
+    git \
+    glibc \
+    glibc-static \
+    libffi-devel \
+    libtool \
+    libxml2-devel \
+    libxslt-devel \
+    libyaml-devel \
+    make \
+    openssl-devel \
+    patch \
+    qt-all \
+    readline \
+    readline-devel \
+    rpm-build \
+    rpmdevtools \
+    wget \
+    zlib \
+    zlib-devel
+
+# Grr, prevent 'prelink' from mangling our binaries
+# http://www.tsheffler.com/blog/?p=491
+grep ruby /etc/prelink.conf || echo '-b /usr/bin/ruby*' >>/etc/prelink.conf
+
+print_header "Installing ruby version ${RUBY_VERSION}"
+yum install --assumeyes ruby-1.9.3.p545
+
+yum clean all
+
+if [ ! -f /usr/bin/chef-client ]; then
+
+  print_header "Updating gems"
+  gem update --system
+
+  print_header "Installing chef"
+  gem install ohai --no-rdoc --no-ri
+  gem install chef --no-rdoc --no-ri --version "$CHEF_VERSION"
+  # gems needed for the client.rb or so generically useful you want them at hand
+  gem install      --no-rdoc --no-ri extlib bundler json right_aws pry fog
+
+else # no chef-client
+  print_header "Chef is present -- skipping apt/ruby/chef installation"
+fi # end ruby+chef install
+
+print_header "Writing chef client config files"
+mkdir -p /etc/chef
+
+<%- if @config[:client_key] %>
+(
+cat <<'EOP'
+<%= @config[:client_key] %>
+EOP
+) > /tmp/knife-bootstrap/client.pem
+awk NF /tmp/knife-bootstrap/client.pem > /etc/chef/client.pem
+<%- else %>
+(
+cat <<'EOP'
+<%= validation_key %>
+EOP
+) > /tmp/knife-bootstrap/validation.pem
+awk NF /tmp/knife-bootstrap/validation.pem > /etc/chef/validation.pem
+<%- end %>
+
+<% if @chef_config[:encrypted_data_bag_secret] -%>
+(
+cat <<'EOP'
+<%= encrypted_data_bag_secret %>
+EOP
+) > /tmp/encrypted_data_bag_secret
+awk NF /tmp/encrypted_data_bag_secret > /etc/chef/encrypted_data_bag_secret
+rm /tmp/encrypted_data_bag_secret
+<% end -%>
+
+print_header "Deleting temp files"
+cd /tmp
+rm -rf /tmp/knife-bootstrap
+
+print_header "Creating chef client script"
+
+(
+cat <<'EOP'
+<%= config_content %>
+<%= @config[:computer].chef_client_script_content %>
+EOP
+) > /etc/chef/client.rb
+
+(
+cat <<'EOP'
+<%= { "run_list" => @run_list, "cluster_name" => @config[:server].cluster_name, "facet_name" => @config[:server].facet_name, "facet_index" => @config[:server].index }.to_json %>
+EOP
+) > /etc/chef/first-boot.json
+
+# Ensure that EC2 images are recognized even inside VPC
+mkdir -p /etc/chef/ohai/hints/
+touch /etc/chef/ohai/hints/ec2.json
+
+print_header "Misc chef-client preparation"
+( service chef-client stop >/dev/null 2>&1 ; sleep 1 ; killall chef-client 2>/dev/null ) || true
+mkdir -p /var/log/chef /var/chef /etc/service /etc/sv
+
+<%- if (@config[:bootstrap_runs_chef_client].to_s == 'true') || (@chef_config.knife[:bootstrap_runs_chef_client].to_s == 'true') %>
+print_header "First run of chef"
+set -e
+<%= start_chef %>
+set +e
+<%- end %>
+
+print_header "Clean up"
+# make locate work good
+updatedb
+
+print_header "Adding chef-client-nonce script"
+
+cat > /etc/init.d/chef-client-nonce <<'EOP'
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:           chef-client-nonce
+# Required-Start:     $remote_fs $network
+# Required-Stop:
+# Default-Start:      2 3 4 5
+# Default-Stop:       0 1 6
+# Short-Description:  Start a single chef-client run.
+### END INIT INFO
+#
+# Copyright (c) 2009-2010 Opscode, Inc, <legal@opscode.com>
+#
+# chef-client         Startup script for chef-client.
+# chkconfig: - 99 02
+# description: starts up chef-client once, at boot
+
+case "$1" in
+  start)
+    /usr/bin/chef-client -L /var/log/chef/client.log
+    exit $?
+    ;;
+  *)
+    echo "Usage: /etc/init.d/chef-client-nonce start" >&2
+    exit 1
+    ;;
+esac
+EOP
+
+mkdir -p /var/log/chef
+chmod +x /etc/init.d/chef-client-nonce 
+chkconfig --level 2345 chef-client-nonce on
+
+print_header "Ensure 'user' user has sudo"
+sed -i -e 's/name: root/name: user/' \
+  -e '/name: user/a \
+    groups: [wheel] \
+    homedir: /local/home/user' /etc/cloud/cloud.cfg
+sed -i -e 's/# \(%wheel.*NOPASSWD.*\)/\1/' /etc/sudoers
+mkdir -p /local/home
+
+print_header "Disable iptables and postfix"
+for svc in iptables ip6tables postfix; do
+    service $svc stop
+    chkconfig --level 2345 $svc off
+done
+
+print_header "Disable SELinux"
+sed -i -e 's/SELINUX=enforcing/SELINUX=disabled/' /etc/selinux/config
+
+print_header "Cluster Chef client bootstrap complete"
+EOF
