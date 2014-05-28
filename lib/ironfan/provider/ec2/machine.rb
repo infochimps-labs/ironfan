@@ -226,8 +226,13 @@ module Ironfan
           errors['Missing client']      = info            unless computer.client?
           errors['Missing private_key'] = computer.client unless computer.private_key
           #
-          all_asserted_regions = [Ec2.connection.region, cloud.region, Chef::Config[:knife][:region], Ironfan.chef_config[:region]].compact.uniq
-          errors["mismatched region"] = all_asserted_regions unless all_asserted_regions.count == 1
+          asserted_regions = {
+            :ec2_connection => Ec2.connection.region,
+            :cloud => cloud.region,
+            :knife => Chef::Config[:knife][:region],
+            :chef_config => Ironfan.chef_config[:region]
+          }
+          errors["mismatched region"] = asserted_regions unless asserted_regions.values.compact.uniq.count == 1
           #
           errors
         end

@@ -13,14 +13,29 @@ module Ironfan
       field :name,              String
       field :bogus,             Array,  :default => []
 
+      def lookup_snapshot_id(region, snapshot_name) 
+        keys = [region.to_s, snapshot_name.to_s]
+        return Chef::Config[:ec2_snapshot_info][ keys ][:snapshot_id] rescue nil
+      end
+
       def initialize(*args)
         super
         providers[:chef] ||=    Ironfan::Provider::ChefServer
         return unless server
         providers[:iaas]   = server.selected_cloud.provider
         volumes            = server.volumes.values
+        puts server.selected_cloud
+        region = server.selected_cloud.region
+
+
+        # Turn snapshot names into snapshot ids corresponding to the server region
+        volumes.each do |vol|
+          vol.snapshot_id || vol.snapshot_id(lookup_snapshot_id(region, vol.snapshot_name))
+        end
+
         volumes           += server.implied_volumes
         volumes.each{|vol| self.drive vol.name, :volume => vol }
+
       rescue StandardError => err ; err.polish("#{self.class} on '#{args.inspect}'") rescue nil ; raise
       end
 
@@ -365,7 +380,7 @@ module Ironfan
         select do |mach|
           mach.bogus? || (
             # facet match, and index match (or no indexes specified)
-            (mach.server.cluster_name == cluster_name) &&                          
+            (mach.server.cluster_name == cluster_name) &&
             (mach.server.facet_name == facet_name || facet_name.nil?) &&
             (slice_array.include?(mach.server.index) || slice_indexes.nil?))
         end

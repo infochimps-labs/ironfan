@@ -24,17 +24,6 @@ module Ironfan
       magic     :snapshot_name,         String
       magic     :tags,                  Hash,     :default => {}
 
-      VOLUME_IDS ||= {}
-      VOLUME_IDS.merge!({
-                            :blank_xfs             => 'snap-d9c1edb1',
-                            :blank_xfs_tokyo       => 'snap-049d1921',
-                            :blank_xfs_california  => 'snap-514b5c5a', # us-west-1
-                        })
-
-      def snapshot_id(*)
-        Ironfan.todo("CODE SMELL: EBS specific information in Dsl::Volume::VOLUME_IDS")
-        super || VOLUME_IDS[snapshot_name]
-      end
     end
 
     class RaidGroup < Volume
