@@ -39,7 +39,9 @@ gpgcheck=0
 EOP
 
 print_header "yum upgrade"
-yum upgrade --assumeyes
+# Exclude the kernel, otherwise the initramfs will be replaced,
+# which has a custom, partition-growing feature
+yum upgrade --assumeyes --exclude kernel
 
 print_header "Installing base packages"
 yum install --assumeyes \
