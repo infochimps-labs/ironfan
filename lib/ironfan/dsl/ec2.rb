@@ -93,7 +93,7 @@ module Ironfan
         return result unless (mount_ephemerals and (flavor_info[:ephemeral_volumes] > 0))
 
         # I have a suspicion that renaming this will break things, so leaving /mnt as it is.
-        layout = {  0 => ['/dev/sdb','/mnt'], }
+          layout = {  0 => ['/dev/sdb','/mnt'], }
 
         (1..(flavor_info[:ephemeral_volumes] - 1)).each do |idx|
           layout[idx] = ["/dev/sd#{(98 + idx).chr}" , "/mnt#{idx}"]
