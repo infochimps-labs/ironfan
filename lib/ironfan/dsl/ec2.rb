@@ -92,10 +92,12 @@ module Ironfan
         end
         return result unless (mount_ephemerals and (flavor_info[:ephemeral_volumes] > 0))
 
-        layout = {  0 => ['/dev/sdb','/mnt'],
-                    1 => ['/dev/sdc','/mnt2'],
-                    2 => ['/dev/sdd','/mnt3'],
-                    3 => ['/dev/sde','/mnt4']   }
+        layout = {  0 => ['/dev/sdb','/mnt'], }
+
+        (1..(flavor_info[:ephemeral_volumes] - 1)).each do |idx|
+          layout[idx] = ["/dev/sd#{(98 + idx).chr}" , "/mnt#{idx}"]
+        end
+
         ( 0 .. (flavor_info[:ephemeral_volumes]-1) ).each do |idx|
           dev, mnt = layout[idx]
           ephemeral = Ironfan::Dsl::Volume.new(:name => "ephemeral#{idx}") do
