@@ -28,6 +28,27 @@ function print_header() {
 	 echo -e "`date` \n\n**** \n**** ${message}\n****\n"
 }
 
+print_header "Subscribing instance to Red Hat subscription"
+if [ -z "<%= Chef::Config[:rhel_subs_useremail] %>" ] \
+   || [ -z "<%= Chef::Config[:rhel_subs_password] %>" ] \
+   || [ -z "<%= Chef::Config[:rhel_subs_pool] %>" ]; then
+
+  echo "You must configure subscription values in knife-org.rb"
+  exit 1
+fi
+
+subscription-manager register \
+  --user=<%= Chef::Config[:rhel_subs_useremail] %> \
+  --pass=<%= Chef::Config[:rhel_subs_password] %> \
+  --auto-attach
+
+subscription-manager attach --pool=<%= Chef::Config[:rhel_subs_pool] %>
+
+subscription-manager repos --disable=*
+subscription-manager repos --enable=rhel-6-server-rpms
+subscription-manager repos --enable=rhel-6-server-optional-rpms
+subscription-manager repos --enable=rhel-6-server-supplementary-rpms
+
 print_header "Creating infochimps yum repository"
 cat >/etc/yum.repos.d/srp-rhel.repo <<EOP
 [dev]
@@ -211,6 +232,9 @@ done
 
 print_header "Disable SELinux"
 sed -i -e 's/SELINUX=enforcing/SELINUX=disabled/' /etc/selinux/config
+
+print_header "Unregistering instance from Red Hat subscription"
+subscription-manager unregister
 
 print_header "Cluster Chef client bootstrap complete"
 EOF
