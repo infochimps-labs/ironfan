@@ -257,7 +257,7 @@ bootcmd:
       IP=`curl 169.254.169.254/latest/meta-data/local-ipv4`
       [ -f /etc/cloud/templates/hosts.tmpl ] && sed -i -e "s/127\x5c.0\x5c.1\x5c.1/$IP/" /etc/cloud/templates/hosts.tmpl
       [ -f /etc/cloud/templates/hosts.debian.tmpl ] && sed -i -e "s/127\x5c.0\x5c.1\x5c.1/$IP/" /etc/cloud/templates/hosts.debian.tmpl
-      [ -f /etc/cloud/templates/hosts.redhat.tmpl ] && sed -i -e "s/^[0-9]*\x5c.[0-9]*\x5c.[0-9]*\x5c.[0-9]*\x5c( .*fqdn.*\x5c)/$IP\x5c1/" /etc/cloud/templates/hosts.redhat.tmpl
+      [ -f /etc/cloud/templates/hosts.redhat.tmpl ] && sed -i -e "/::1/d" -e "s/^[0-9]*\x5c.[0-9]*\x5c.[0-9]*\x5c.[0-9]*\x5c( .*fqdn.*\x5c)/$IP\x5c1/" /etc/cloud/templates/hosts.redhat.tmpl
 
 # This is understood to fail gracefully during image creation (before 
 # knife cluster bootstrap burninator...) due to Chef not installed yet.
