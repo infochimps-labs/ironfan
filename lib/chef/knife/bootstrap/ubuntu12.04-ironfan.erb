@@ -46,7 +46,7 @@ export DEBIAN_FRONTEND=noninteractive
 
 # Install a self-contained Chef client because Ubuntu ships with Ruby 1.8.x,
 # which is not compatible with Ironfan
-echo 'gem: --no-ri --no-rdoc' > /home/ubuntu/.gemrc
+echo 'gem: --no-ri --no-rdoc' > /home/<%= @config[:ssh_user] %>/.gemrc
 echo 'gem: --no-ri --no-rdoc' > /root/.gemrc
 if [ ! -f /opt/chef/bin/chef-client ]; then
   curl -L http://www.opscode.com/chef/install.sh | sudo bash
