@@ -274,8 +274,9 @@ module Ironfan
           end.compact.map(&:name)
 
           if cloud.flavor_info[:placement_groupable]
-            ui.warn "1.3.1 and earlier versions of Fog don't correctly support placement groups, so your nodes will land willy-nilly. We're working on a fix"
-            description[:placement] = { 'groupName' => cloud.placement_group.to_s }
+            description[:placement_group] = cloud.placement_group.to_s
+          elsif cloud.placement_group
+            Chef::Application.fatal!("A placement group was set but #{cloud.flavor} does not support placement!")
           end
           if cloud.flavor_info[:ebs_optimizable]
             description[:ebs_optimized] = cloud.ebs_optimized
