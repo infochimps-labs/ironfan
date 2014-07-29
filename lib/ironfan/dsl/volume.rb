@@ -11,6 +11,13 @@ module Ironfan
       magic     :formattable,           :boolean, :default => false
       magic     :fstype,                String,   :default => 'xfs'
       magic     :in_raid,               String
+
+      # The number of I/O operations per second (IOPS) that the volume supports.
+      # valid range: 500-4000
+      # Only Provisioned IOPS (SSD, type io1) drives support
+      # this. These volumes should be with EBS-optimized machines.
+      magic     :iops,                  Integer
+
       magic     :keep,                  :boolean, :default => true
       magic     :mount_dump,            String
       magic     :mount_pass,            String
@@ -23,6 +30,12 @@ module Ironfan
       magic     :snapshot_id,           String
       magic     :snapshot_name,         String
       magic     :tags,                  Hash,     :default => {}
+
+      # valid types:
+      #   gp2 = General Purpose 2
+      #   io1 = Provisioned IOPS
+      #   standard = Magnetic volumes
+      magic     :type,                  String
 
       VOLUME_IDS ||= {}
       VOLUME_IDS.merge!({
