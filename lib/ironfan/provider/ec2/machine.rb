@@ -271,6 +271,8 @@ module Ironfan
           end
           if cloud.flavor_info[:ebs_optimizable]
             description[:ebs_optimized] = cloud.ebs_optimized
+          elsif cloud.ebs_optimized
+            Chef::Application.fatal!("ebs_optimized set but #{cloud.flavor} does not support ebs optimization!")
           end
           description
         end
@@ -291,6 +293,8 @@ module Ironfan
               end
               hsh['Ebs.SnapshotId'] = volume.snapshot_id if volume.snapshot_id.present?
               hsh['Ebs.VolumeSize'] = volume.size.to_s   if volume.size.present?
+              hsh['Ebs.VolumeType'] = volume.type        if volume.type.present?
+              hsh['Ebs.Iops']       = volume.iops        if volume.type == 'io1'
               hsh['Ebs.DeleteOnTermination'] = (not volume.keep).to_s
             else next
             end
