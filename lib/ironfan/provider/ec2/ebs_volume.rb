@@ -8,11 +8,11 @@ module Ironfan
             :connection, :connection=, :created_at, :created_at=,
             :delete_on_termination, :delete_on_termination=, :destroy, :device,
             :device=, :dup_attributes!, :force_detach, :id, :id=, :identity,
-            :identity=, :merge_attributes, :missing_attributes, :new_record?,
+            :identity=, :iops, :merge_attributes, :missing_attributes, :new_record?,
             :ready?, :reload, :requires, :requires_one, :save, :server,
             :server=, :server_id, :server_id=, :size, :size=, :snapshot,
             :snapshot_id, :snapshot_id=, :snapshots, :state, :state=,
-            :symbolize_keys, :tags, :tags=, :wait_for,
+            :symbolize_keys, :tags, :tags=, :type, :wait_for,
           :to => :adaptee
         field :dsl_volume,        Ironfan::Dsl::Volume
 
