@@ -3,6 +3,8 @@ module Ironfan
 
     class Cloud < Ironfan::Dsl
       magic :default_cloud,           :boolean,       :default => false
+      magic :chef_http_proxy,         String
+      magic :chef_https_proxy,        String
 
       # Factory out to subclasses
       def self.receive(obj, &block)

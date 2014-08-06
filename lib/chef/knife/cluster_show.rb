@@ -59,6 +59,14 @@ class Chef
 
       def dump_computer(computer)
         header = "Computer #{computer.name} (#{computer.class})"
+
+        #puts "--------------------------------------------------------------------------------"
+        #puts "client script"
+        #puts "--------------------------------------------------------------------------------"
+        #puts computer.chef_client_script_content
+        #puts "--------------------------------------------------------------------------------"
+        #puts ""
+
         with_verbosity 1 do
           Chef::Log.info(header)
 

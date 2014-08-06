@@ -146,7 +146,11 @@ module Ironfan
         return @chef_client_script_content if @chef_client_script_content
         return unless cloud.chef_client_script
         script_filename = File.expand_path("../../../config/#{cloud.chef_client_script}", File.dirname(File.realdirpath(__FILE__)))
-        @chef_client_script_content = Ironfan.safely{ File.read(script_filename) }
+        @chef_config = Chef::Config
+        @client_key = File.read(Chef::Config[:client_key]).gsub("\n", "\\n")
+        @chef_client_script_content = Ironfan.safely do
+          Erubis::Eruby.new(File.read(script_filename)).evaluate(self)
+        end
       end
 
       #

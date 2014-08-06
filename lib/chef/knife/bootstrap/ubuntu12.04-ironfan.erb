@@ -17,9 +17,11 @@ set -e
 echo "deb http://apt.opscode.com/ `lsb_release -cs`-0.10 main" | sudo tee /etc/apt/sources.list.d/opscode.list
 
 # Make sure that opscode chef is on the apt repo list.
-sudo mkdir -p /etc/apt/trusted.gpg.d
-gpg --keyserver keys.gnupg.net --recv-keys 83EF826A
-gpg --export packages@opscode.com | sudo tee /etc/apt/trusted.gpg.d/opscode-keyring.gpg > /dev/null
+
+sudo touch /etc/apt/trusted.gpg.d/opscode-keyring.gpg &&
+  sudo gpg --fetch-key http://apt.opscode.com/packages@opscode.com.gpg.key &&
+  sudo gpg --export 83EF826A | sudo apt-key --keyring /etc/apt/trusted.gpg.d/opscode-keyring.gpg add - &&
+  sudo gpg --yes --delete-key 83EF826A
 
 date > /etc/box_build_time
 
@@ -101,11 +103,6 @@ cat <<'EOP'
 <%= { "cluster_name" => @config[:server].cluster_name, "facet_name" => @config[:server].facet_name, "facet_index" => @config[:server].index, "environment" => @config[:server].environment }.to_json%>
 EOP
 ) > /etc/chef/first-boot.json
-
-# Ensure that EC2 images are recognized even inside VPC
-mkdir -p /etc/chef/ohai/hints/
-touch /etc/chef/ohai/hints/ec2.json
-
 
 echo -e "`date` \n\n**** \n**** Adding chef client nonce script:\n****\n"
 
