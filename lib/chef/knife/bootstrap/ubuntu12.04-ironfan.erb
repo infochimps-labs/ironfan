@@ -18,13 +18,14 @@ echo "deb http://apt.opscode.com/ `lsb_release -cs`-0.10 main" | sudo tee /etc/a
 
 # Make sure that opscode chef is on the apt repo list.
 sudo mkdir -p /etc/apt/trusted.gpg.d
-gpg --keyserver keys.gnupg.net --recv-keys 83EF826A
+gpg --fetch-key http://apt.opscode.com/packages@opscode.com.gpg.key
 gpg --export packages@opscode.com | sudo tee /etc/apt/trusted.gpg.d/opscode-keyring.gpg > /dev/null
 
 date > /etc/box_build_time
 
 echo -e "`date` \n\n**** \n**** apt update:\n****\n"
 apt-get --force-yes -y update
+apt-get -y -o Dpkg::Options::="--force-confnew" install opscode-keyring
 apt-get --force-yes -y dist-upgrade
 
 echo -e "`date` \n\n**** \n**** Installing base packages:\n****\n"
@@ -45,18 +46,21 @@ export DEBIAN_FRONTEND=noninteractive
 
 # Install a self-contained Chef client because Ubuntu ships with Ruby 1.8.x,
 # which is not compatible with Ironfan
-echo 'gem: --no-ri --no-rdoc' > /home/ubuntu/.gemrc
+echo 'gem: --no-ri --no-rdoc' > /home/<%= @config[:ssh_user] %>/.gemrc
 echo 'gem: --no-ri --no-rdoc' > /root/.gemrc
 if [ ! -f /opt/chef/bin/chef-client ]; then
   curl -L http://www.opscode.com/chef/install.sh | sudo bash
 fi
 
-# Replace /usr/local/sbin with the omnibus' bin, to get it into the PATH
-mv /usr/local/sbin{,~}
-ln -s /opt/chef/embedded/bin /usr/local/sbin
+# Link the binaries under /opt/chef/embedded/bin to /usr/local/sbin, overwriting existing links
+mkdir -p /usr/local/sbin
+for f in /opt/chef/embedded/bin/*
+do
+  ln -f -s $f /usr/local/sbin
+done
 
-# Link ruby into /usr/bin/ruby, to allow /usr/bin/env 
-ln -s /opt/chef/embedded/bin/ruby /usr/bin
+# Link ruby into /usr/bin/ruby, to allow /usr/bin/env, overwriting destination
+ln -f -s /opt/chef/embedded/bin/ruby /usr/bin
 
 gem install extlib bundler json right_aws pry fog
 
