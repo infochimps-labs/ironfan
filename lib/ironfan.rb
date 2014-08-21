@@ -1,5 +1,5 @@
 require 'ironfan/requirements'
-
+require 'pry'
 module Ironfan
   module_function
 
@@ -87,7 +87,7 @@ module Ironfan
   end
 
   def dsl_files location
-    Dir.glob File.join(location, '**/*.rb')    
+    Dir.glob File.join(location, '**/*.rb')
   end
 
   def load_dsl_file filename
@@ -133,7 +133,7 @@ module Ironfan
   def tell_you_thrice(options = {}, &action)
     error_class = options[:error_class] || StandardError
     retries     = options[:retries]     || 3
-    multiplier  = options[:multiplier]  || 3  
+    multiplier  = options[:multiplier]  || 3
 
     attempt = 0
     begin

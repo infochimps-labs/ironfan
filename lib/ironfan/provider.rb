@@ -213,7 +213,7 @@ module Ironfan
       # A Machine lives and dies with its Computer
       def self.shared?()        false;                   end
 
-      def self.cloud_init_user_data(computer) 
+      def self.cloud_init_user_data(computer)
         return <<EOF
 #cloud-config
 # The line above is critical - without it cloud-init will not interpret the machine
@@ -249,23 +249,6 @@ bootcmd:
       EOF
       domainname #{computer.server.fqdn}
       IP=`curl 169.254.169.254/latest/meta-data/local-ipv4`;sed -i -e "s/127\.0\.1\.1/$IP/" /etc/cloud/templates/hosts.tmpl
- 
-chef:
- install_type: "packages"
- force_install: false
- server_url: #{Chef::Config[:chef_server_url]}
- node_name: #{computer.name}
- initial_attributes:
-    chef_server: #{Chef::Config[:chef_server_url]}
-    node_name: #{computer.name}
-    organization: #{Chef::Config[:organization]}
-    realm_name: #{computer.server.realm_name}
-    cluster_name: #{computer.server.cluster_name}
-    facet_name: #{computer.server.facet_name}
-    facet_index: #{computer.server.index}
- validation_name: "no-validator"
- validation_key: |
-    We don't need no stinking validators.
 EOF
       end
     end
