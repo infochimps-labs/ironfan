@@ -36,12 +36,12 @@ class Chef
       banner 'knife cluster kick        CLUSTER[-FACET[-INDEXES]] (options) - start a run of chef-client on each server, tailing the logs and exiting when the run completes.'
 
       option :pid_file,
-        :long        => "--pid_file",
+        :long        => "--pid_file PID_FILE",
         :description => "Where to find the pid file. Typically /var/run/chef/client.pid (init.d) or /etc/sv/chef-client/supervise/pid (runit)",
         :default     => "/etc/sv/chef-client/supervise/pid"
 
       option :log_file,
-        :long        => "--log_file",
+        :long        => "--log_file LOG_FILE",
         :description => "Where to find the log file. Typically /var/log/chef/client.log",
         :default     => "/var/log/chef/client.log"
 
