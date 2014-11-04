@@ -63,7 +63,7 @@ module Ironfan
 
         def self.key_dir
           return Chef::Config.vsphere_key_dir if Chef::Config.vsphere_key_dir
-          dir = "#{ENV['HOME']}/.chef/credentials/vshere_keys"
+          dir = "#{ENV['HOME']}/.chef/credentials/vsphere_keys"
           warn "Please set 'vsphere_key_dir' in your knife.rb. Will use #{dir} as a default"
           dir
         end
