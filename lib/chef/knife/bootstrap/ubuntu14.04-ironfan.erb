@@ -1,0 +1,123 @@
+bash <<'EOF' || echo "Chef bootstrap failed!"
+
+# This is the ubuntu precise bootstrap script from infochimps' ironfan. It is
+# based on the opscode bootstrap script, with the important differences being it:
+
+<%= "export http_proxy=\"#{knife_config[:bootstrap_proxy]}\"" if knife_config[:bootstrap_proxy] -%>
+
+set -e
+
+<%= (@config[:verbosity].to_i > 1 ? 'set -v' : '') %>
+
+date > /etc/box_build_time
+
+echo -e "`date` \n\n**** \n**** apt update:\n****\n"
+apt-get -y update
+apt-get -y dist-upgrade
+
+echo -e "`date` \n\n**** \n**** Installing ruby from apt-get and required packages:\n****\n"
+apt-get -y install make gcc ruby 1.9.3
+
+echo -e "`date` \n\n**** \n**** base gems\n****\n"
+gem install --no-rdoc --no-ri extlib bundler json right_aws pry fog
+
+echo -e "`date` \n\n**** \n**** Chefin' up 10.32.2\n****\n"
+gem install --no-rdoc --no-ri chef -v 10.32.2
+
+mkdir -p /tmp/knife-bootstrap
+chmod 700 /tmp/knife-bootstrap
+cd /tmp/knife-bootstrap
+
+echo -e "`date` \n\n**** \n**** Knifing in the chef client config files:\n****\n"
+mkdir -p /etc/chef
+
+<%- if @config[:client_key] %>
+(
+cat <<'EOP'
+<%= @config[:client_key] %>
+EOP
+) > /tmp/knife-bootstrap/client.pem
+awk NF /tmp/knife-bootstrap/client.pem > /etc/chef/client.pem
+<%- else %>
+(
+cat <<'EOP'
+<%= validation_key %>
+EOP
+) > /tmp/knife-bootstrap/validation.pem
+awk NF /tmp/knife-bootstrap/validation.pem > /etc/chef/validation.pem
+<%- end %>
+
+<% if @chef_config[:encrypted_data_bag_secret] -%>
+(
+cat <<'EOP'
+<%= encrypted_data_bag_secret %>
+EOP
+) > /tmp/encrypted_data_bag_secret
+awk NF /tmp/encrypted_data_bag_secret > /etc/chef/encrypted_data_bag_secret
+rm /tmp/encrypted_data_bag_secret
+<% end -%>
+
+(
+cat <<'EOP'
+<%= config_content %>
+<%= @config[:computer].chef_client_script_content %>
+EOP
+) > /etc/chef/client.rb
+
+(
+cat <<'EOP'
+<%= { "cluster_name" => @config[:server].cluster_name, "facet_name" => @config[:server].facet_name, "facet_index" => @config[:server].index, "environment" => @config[:server].environment }.to_json%>
+EOP
+) > /etc/chef/first-boot.json
+
+# Ensure that EC2 images are recognized even inside VPC
+mkdir -p /etc/chef/ohai/hints/
+touch /etc/chef/ohai/hints/ec2.json
+
+echo -e "`date` \n\n**** \n**** Adding chef client nonce script:\n****\n"
+
+cat > /etc/init.d/chef-client-nonce <<'EOP'
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:           chef-client-nonce
+# Required-Start:     $remote_fs $network
+# Required-Stop:
+# Default-Start:      2 3 4 5
+# Default-Stop:       0 1 6
+# Short-Description:  Start a single chef-client run.
+### END INIT INFO
+#
+# Copyright (c) 2009-2014 Opscode, Inc, <legal@opscode.com>
+#
+# chef-client         Startup script for chef-client.
+# chkconfig: - 99 02
+# description: starts up chef-client once, at boot
+
+case "$1" in
+  start)
+    /usr/local/bin/chef-client -L /var/log/chef/client.log
+    exit $?
+    ;;
+  *)
+    echo "Usage: /etc/init.d/chef-client-nonce start" >&2
+    exit 1
+    ;;
+esac
+EOP
+
+mkdir -p /var/log/chef
+chmod +x /etc/init.d/chef-client-nonce 
+update-rc.d chef-client-nonce defaults
+
+<%- if (@config[:bootstrap_runs_chef_client].to_s == 'true') || (@chef_config.knife[:bootstrap_runs_chef_client].to_s == 'true') %>
+sudo service chef-client-nonce start
+<%- end %>
+
+echo -e "`date` \n\n**** \n**** Cleanup:\n****\n"
+cd /
+rm -r /tmp/knife-bootstrap
+# make locate work good
+updatedb
+
+echo -e "`date` \n\n**** \n**** Cluster Chef client bootstrap complete\n****\n"
+EOF
